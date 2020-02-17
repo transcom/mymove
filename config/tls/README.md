@@ -1,5 +1,22 @@
 # TLS certificates
 
+## Certificates in this Directory
+
+A description of the certificates in this directory will helpful:
+
+| Name | Function |
+| --- | --- |
+| `Certificates_PKCS7_v5.6_DoD.der.p7b` | |
+| `devlocal-ca.key` | Devlocal CA Key |
+| `devlocal-ca.pem` | Devlocal CA PEM |
+| `devlocal-ca.srl` | Devlocal CA Serial |
+| `devlocal-client_auth_secret.key` | Client auth secret JWT key. |
+| `devlocal-faux-(air-force|all|army-hrc|coast-guard|marine-corps|navy)-orders.(cer|key)` | Certs signed by Devlocal CA for Orders API testing |
+| `devlocal-https.(key|pem)` | a self-signed TLS cert/key pair |
+| `devlocal-mtls.(cer|key)` | Certs signed by Devlocal CA for mTLS testing |
+| `devlocal-not-dps.(cer|key)` | Certs signed by Devlocal CA for DPS Auth testing |
+| `dod-sw-ca-54.pem` | DoD SW CA-54 package |
+
 ## DoD certificate authority package
 
 DISA publishes a package of the public certificates of all DoD certificate
@@ -76,6 +93,21 @@ Getting CA Private Key
 SHA256 digest: 21d45ee839ef3416b361d25acc3aa6437cde87e04bfd98619cdc3ec8d47faee7
 ```
 
+An example for generating the faux orders certs is this:
+
+```sh
+scripts/generate-devlocal-cert -o "Not Coast Guard" -u "Not Coast Guard Orders" -n localhost -f devlocal-faux-coast-guard-orders
+Generating a RSA private key
+..+++++
+.....+++++
+writing new private key to '/Users/cgilmer/Projects/transcom/mymove/devlocal-faux-coast-guard-orders.key'
+-----
+Signature ok
+subject=/C=US/ST=DC/L=Washington/O=Not Coast Guard/OU=Not Coast Guard Orders/CN=localhost
+Getting CA Private Key
+SHA256 digest: (stdin)= c5f3d9127e756209c6090b6ade8044e138cac82d2606cf85a7e9e381c4b7b2ac
+```
+
 ## Adding certificates to the database
 
 Client Certificates are known to the system by their `SHA-256` digest hashes.
@@ -83,13 +115,15 @@ Client Certificates are known to the system by their `SHA-256` digest hashes.
 in its output, but if you need to do it to an existing certificate, run:
 
 ```text
-$ openssl x509 -outform der -in example.cer | openssl dgst -sha256
+$ mutual-tls-extract-fingerprint config/tls/devlocal-faux-coast-guard-orders.cer
+10ac6d7bdb7003093ad82880a2c7ea496e8dc3d50217da6170de83c0be826507
 ```
 
 For human readability, the table also stores the certificate's subject. To get that, run:
 
 ```text
-$ openssl x509 -noout -subject -in example.cer
+$ mutual-tls-extract-subject config/tls/devlocal-faux-coast-guard-orders.cer
+CN=localhost,OU=Not Coast Guard Orders,O=Not Coast Guard,L=Washington,ST=DC,C=US
 ```
 
-The certificates live in the `client_certs` table.
+The certificates live in the `client_certs` table for both the MilMove and Orders applications.

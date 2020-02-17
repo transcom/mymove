@@ -29,6 +29,8 @@ type MoveQueueItem struct {
 	DeliveredDate              *time.Time         `json:"delivered_date" db:"delivered_date"`
 	InvoiceApprovedDate        *time.Time         `json:"invoice_approved_date" db:"invoice_approved_date"`
 	BranchOfService            string             `json:"branch_of_service" db:"branch_of_service"`
+	ActualMoveDate             *time.Time         `json:"actual_move_date" db:"actual_move_date"`
+	OriginalMoveDate           *time.Time         `json:"original_move_date" db:"original_move_date"`
 }
 
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState
@@ -56,7 +58,9 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
-				origin_duty_station.name as origin_duty_station_name
+				origin_duty_station.name as origin_duty_station_name,
+                ppm.actual_move_date,
+                ppm.original_move_date
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -66,7 +70,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			OR (ppm.status = 'SUBMITTED'
 				AND (NOT moves.status in ('CANCELED', 'DRAFT'))))
 			AND moves.show is true
-			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, ppm.submit_date, ppm_status, origin_duty_station.name, sm.affiliation
+			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, ppm.submit_date, ppm_status, origin_duty_station.name, sm.affiliation, ppm.actual_move_date, ppm.original_move_date
 		`
 	} else if lifecycleState == "ppm_payment_requested" {
 		query = `
@@ -83,7 +87,9 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.status as status,
 				ppm.status as ppm_status,
 				origin_duty_station.name as origin_duty_station_name,
-				destination_duty_station.name as destination_duty_station_name
+				destination_duty_station.name as destination_duty_station_name,
+                ppm.actual_move_date,
+                ppm.original_move_date
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -108,7 +114,9 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.status as status,
 				ppm.status as ppm_status,
 				origin_duty_station.name as origin_duty_station_name,
-				destination_duty_station.name as destination_duty_station_name
+				destination_duty_station.name as destination_duty_station_name,
+                ppm.actual_move_date,
+                ppm.original_move_date
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -133,7 +141,9 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.status as status,
 				ppm.status as ppm_status,
 				origin_duty_station.name as origin_duty_station_name,
-				destination_duty_station.name as destination_duty_station_name
+				destination_duty_station.name as destination_duty_station_name,
+                ppm.actual_move_date,
+                ppm.original_move_date
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -161,7 +171,9 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.status as status,
 				ppm.status as ppm_status,
 				origin_duty_station.name as origin_duty_station_name,
-				destination_duty_station.name as destination_duty_station_name
+				destination_duty_station.name as destination_duty_station_name,
+                ppm.actual_move_date,
+                ppm.original_move_date
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id

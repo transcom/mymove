@@ -62,6 +62,10 @@ func (suite *GHCRateEngineImportSuite) Test_importREInternationalPrices() {
 			{"bad kind", "NSRA2", "NNNN", true},
 		}
 
+		var contract models.ReContract
+		err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+		suite.NoError(err)
+
 		for _, testCase := range testCases {
 			suite.T().Run(testCase.name, func(t *testing.T) {
 				id, err := gre.getRateAreaIDForKind(testCase.rateArea, testCase.kind)
@@ -72,7 +76,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREInternationalPrices() {
 					suite.NoError(err)
 
 					// Fetch the UUID from the database and see if it matches
-					origin, err := models.FetchReRateAreaItem(suite.DB(), testCase.rateArea)
+					origin, err := models.FetchReRateAreaItem(suite.DB(), contract.ID, testCase.rateArea)
 					suite.NoError(err)
 					suite.Equal(origin.ID, id)
 				}
@@ -82,7 +86,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREInternationalPrices() {
 }
 
 func (suite *GHCRateEngineImportSuite) helperVerifyInternationalPrices() {
-	count, err := suite.DB().Count(&models.ReIntlPrices{})
+	count, err := suite.DB().Count(&models.ReIntlPrice{})
 	suite.NoError(err)
 	suite.Equal(260, count)
 }
@@ -149,11 +153,11 @@ func (suite *GHCRateEngineImportSuite) helperCheckInternationalPriceValues() {
 		suite.NoError(err)
 
 		// Get origin rate area UUID.
-		origin, err := models.FetchReRateAreaItem(suite.DB(), testCase.originRateArea)
+		origin, err := models.FetchReRateAreaItem(suite.DB(), contract.ID, testCase.originRateArea)
 		suite.NoError(err)
 
 		// Get destination rate area UUID.
-		destination, err := models.FetchReRateAreaItem(suite.DB(), testCase.destinationRateArea)
+		destination, err := models.FetchReRateAreaItem(suite.DB(), contract.ID, testCase.destinationRateArea)
 		suite.NoError(err)
 
 		var intlPrice models.ReIntlPrice

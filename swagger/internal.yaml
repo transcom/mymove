@@ -2292,6 +2292,16 @@ definitions:
         $ref: '#/definitions/WeightAllotment'
       branch_of_service:
         type: string
+      actual_move_date:
+        type: string
+        format: date
+        example: 2018-04-25
+        x-nullable: true
+      original_move_date:
+        type: string
+        format: date
+        example: 2018-04-25
+        x-nullable: true
     required:
       - id
       - status

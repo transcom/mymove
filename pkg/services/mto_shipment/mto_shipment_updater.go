@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -151,20 +151,32 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 			destination_address_id = ?,
 			updated_at = NOW()`
 
-	if updatedShipment.FirstAvailableDeliveryDate.String() != "" {
-		basicQuery = basicQuery + fmt.Sprintf(", \nfirst_available_delivery_date = '%s'", updatedShipment.FirstAvailableDeliveryDate)
-	}
-
-	if updatedShipment.PrimeActualWeight != 0 {
-		basicQuery = basicQuery + fmt.Sprintf(", \nprime_actual_weight = '%d'", updatedShipment.PrimeActualWeight)
-	}
+	var basicParams []interface{}
+	basicParams = append(basicParams, updatedShipment.ScheduledPickupDate,
+		updatedShipment.RequestedPickupDate,
+		updatedShipment.ShipmentType,
+		updatedShipment.PickupAddress.ID,
+		updatedShipment.DestinationAddress.ID,
+	)
 
 	if updatedShipment.SecondaryPickupAddress != nil {
-		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_pickup_address_id = '%s'", updatedShipment.SecondaryPickupAddress.ID)
+		basicQuery = basicQuery + ", \nsecondary_pickup_address_id = ?"
+		basicParams = append(basicParams, updatedShipment.SecondaryPickupAddress.ID)
 	}
 
 	if updatedShipment.SecondaryDeliveryAddress != nil {
-		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_delivery_address_id = '%s'", updatedShipment.SecondaryDeliveryAddress.ID)
+		basicQuery = basicQuery + ", \nsecondary_delivery_address_id = ?"
+		basicParams = append(basicParams, updatedShipment.SecondaryDeliveryAddress.ID)
+	}
+
+	if updatedShipment.FirstAvailableDeliveryDate.String() != "" {
+		basicQuery = basicQuery + ", \nfirst_available_delivery_date = ?"
+		basicParams = append(basicParams, updatedShipment.FirstAvailableDeliveryDate)
+	}
+
+	if updatedShipment.PrimeActualWeight != 0 {
+		basicQuery = basicQuery + ", \nprime_actual_weight = ?"
+		basicParams = append(basicParams, updatedShipment.PrimeActualWeight)
 	}
 
 	finishedQuery := basicQuery + `
@@ -174,15 +186,13 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 			updated_at = ?
 		;`
 
-	// do the updating in a raw query
-	affectedRows, err := db.RawQuery(finishedQuery,
-		updatedShipment.ScheduledPickupDate,
-		updatedShipment.RequestedPickupDate,
-		updatedShipment.ShipmentType,
-		updatedShipment.PickupAddress.ID,
-		updatedShipment.DestinationAddress.ID,
+	params := append(basicParams,
 		updatedShipment.ID,
-		unmodifiedSince).ExecWithCount()
+		unmodifiedSince,
+	)
+
+	// do the updating in a raw query
+	affectedRows, err := db.RawQuery(finishedQuery, params...).ExecWithCount()
 
 	if err != nil {
 		return err

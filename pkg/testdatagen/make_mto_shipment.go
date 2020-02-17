@@ -31,6 +31,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 
 	// mock remarks
 	remarks := "please treat gently"
+	rejectionReason := "shipment not good enough"
 
 	// mock weights
 	estimatedWeight := unit.Pound(1000)
@@ -58,6 +59,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		SecondaryDeliveryAddress:         &destinationAddress,
 		ShipmentType:                     shipmentType,
 		Status:                           "SUBMITTED",
+		RejectionReason:                  &rejectionReason,
 	}
 	// Overwrite values with those from assertions
 	mergeModels(&MTOShipment, assertions.MTOShipment)
