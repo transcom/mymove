@@ -19,6 +19,10 @@ import (
 // swagger:model MTOShipment
 type MTOShipment struct {
 
+	// approved date
+	// Format: date
+	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
+
 	// created at
 	// Format: datetime
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
@@ -29,6 +33,10 @@ type MTOShipment struct {
 	// destination address
 	// Required: true
 	DestinationAddress *Address `json:"destinationAddress"`
+
+	// first available delivery date
+	// Format: date
+	FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
 
 	// id
 	// Format: uuid
@@ -44,6 +52,13 @@ type MTOShipment struct {
 
 	// prime actual weight
 	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
+
+	// prime estimated weight
+	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+
+	// prime estimated weight recorded date
+	// Format: date
+	PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
 
 	// requested pickup date
 	// Required: true
@@ -78,11 +93,19 @@ type MTOShipment struct {
 func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateApprovedDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateFirstAvailableDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -95,6 +118,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrimeEstimatedWeightRecordedDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -132,6 +159,19 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validateApprovedDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ApprovedDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("approvedDate", "body", "date", m.ApprovedDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.CreatedAt) { // not required
@@ -158,6 +198,19 @@ func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error 
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateFirstAvailableDeliveryDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.FirstAvailableDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("firstAvailableDeliveryDate", "body", "date", m.FirstAvailableDeliveryDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -202,6 +255,19 @@ func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validatePrimeEstimatedWeightRecordedDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PrimeEstimatedWeightRecordedDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("primeEstimatedWeightRecordedDate", "body", "date", m.PrimeEstimatedWeightRecordedDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
