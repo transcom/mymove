@@ -103,16 +103,20 @@ func NewMTOShipmentUpdater(db *pop.Connection) services.MTOShipmentUpdater {
 
 // validateUpdatedMTOShipment validates the updated shipment
 func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipment, updatedShipment *primemessages.MTOShipment) error {
-	// if requestedPickupDate isn't valid then return ErrInvalidInput
-	requestedPickupDate := time.Time(updatedShipment.RequestedPickupDate)
-	if !requestedPickupDate.Equal(*oldShipment.RequestedPickupDate) {
-		return NewErrInvalidInput(oldShipment.ID, nil, nil, "Requested pickup date must match what customer has requested.")
+	if updatedShipment.RequestedPickupDate.String() != "" {
+		requestedPickupDate := time.Time(updatedShipment.RequestedPickupDate)
+		// if requestedPickupDate isn't valid then return ErrInvalidInput
+		if !requestedPickupDate.Equal(*oldShipment.RequestedPickupDate) {
+			return NewErrInvalidInput(oldShipment.ID, nil, nil, "Requested pickup date must match what customer has requested.")
+		}
+		oldShipment.RequestedPickupDate = &requestedPickupDate
 	}
-	oldShipment.RequestedPickupDate = &requestedPickupDate
+
 	if updatedShipment.PrimeActualWeight != 0 {
 		primeActualWeight := unit.Pound(updatedShipment.PrimeActualWeight)
 		oldShipment.PrimeActualWeight = &primeActualWeight
 	}
+
 	if updatedShipment.FirstAvailableDeliveryDate.String() != "" {
 		firstAvailableDeliveryDate := time.Time(updatedShipment.FirstAvailableDeliveryDate)
 		oldShipment.FirstAvailableDeliveryDate = &firstAvailableDeliveryDate
@@ -124,11 +128,15 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 		oldShipment.ScheduledPickupDate = &scheduledPickupTime
 	}
 
-	pickupAddress := addressModelFromPayload(updatedShipment.PickupAddress)
-	destinationAddress := addressModelFromPayload(updatedShipment.DestinationAddress)
-	oldShipment.PickupAddress = *pickupAddress
-	oldShipment.DestinationAddress = *destinationAddress
-	oldShipment.ShipmentType = models.MTOShipmentType(updatedShipment.ShipmentType)
+	if updatedShipment.PickupAddress != nil {
+		pickupAddress := addressModelFromPayload(updatedShipment.PickupAddress)
+		oldShipment.PickupAddress = *pickupAddress
+	}
+
+	if updatedShipment.DestinationAddress != nil {
+		destinationAddress := addressModelFromPayload(updatedShipment.DestinationAddress)
+		oldShipment.DestinationAddress = *destinationAddress
+	}
 
 	if updatedShipment.SecondaryPickupAddress != nil {
 		secondaryPickupAddress := addressModelFromPayload(updatedShipment.SecondaryPickupAddress)
@@ -138,6 +146,10 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 	if updatedShipment.SecondaryDeliveryAddress != nil {
 		secondaryDeliveryAddress := addressModelFromPayload(updatedShipment.SecondaryDeliveryAddress)
 		oldShipment.SecondaryPickupAddress = secondaryDeliveryAddress
+	}
+
+	if updatedShipment.ShipmentType != "" {
+		oldShipment.ShipmentType = models.MTOShipmentType(updatedShipment.ShipmentType)
 	}
 
 	if updatedShipment.PrimeEstimatedWeight != 0 {
@@ -187,25 +199,25 @@ func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.T
 // updateMTOShipment updates the mto shipment with a raw query
 func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSince time.Time, updatedShipment *primemessages.MTOShipment) error {
 	baseQuery := `UPDATE mto_shipments
-		SET requested_pickup_date = ?,
-			shipment_type = ?,
-			pickup_address_id = ?,
-			destination_address_id = ?,
-			updated_at = NOW()`
+		SET updated_at = NOW()`
 
 	var params []interface{}
-	params = append(params,
-		updatedShipment.RequestedPickupDate,
-		updatedShipment.ShipmentType,
-		updatedShipment.PickupAddress.ID,
-		updatedShipment.DestinationAddress.ID,
-	)
 
 	if updatedShipment.PrimeEstimatedWeight != 0 {
 		estimatedWeightQuery := `,
 			prime_estimated_weight = %d,
 			prime_estimated_weight_recorded_date = NOW()`
 		baseQuery = baseQuery + fmt.Sprintf(estimatedWeightQuery, updatedShipment.PrimeEstimatedWeight)
+	}
+
+	if updatedShipment.PickupAddress != nil {
+		baseQuery = baseQuery + ", \npickup_address_id = ?"
+		params = append(params, updatedShipment.PickupAddress.ID)
+	}
+
+	if updatedShipment.DestinationAddress != nil {
+		baseQuery = baseQuery + ", \ndestination_address_id = ?"
+		params = append(params, updatedShipment.DestinationAddress.ID)
 	}
 
 	if updatedShipment.SecondaryPickupAddress != nil {
@@ -223,9 +235,19 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		params = append(params, updatedShipment.ScheduledPickupDate)
 	}
 
+	if updatedShipment.RequestedPickupDate.String() != "" {
+		baseQuery = baseQuery + ", \nrequested_pickup_date = ?"
+		params = append(params, updatedShipment.RequestedPickupDate)
+	}
+
 	if updatedShipment.FirstAvailableDeliveryDate.String() != "" {
 		baseQuery = baseQuery + ", \nfirst_available_delivery_date = ?"
 		params = append(params, updatedShipment.FirstAvailableDeliveryDate)
+	}
+
+	if updatedShipment.ShipmentType != "" {
+		baseQuery = baseQuery + ", \nshipment_type = ?"
+		params = append(params, updatedShipment.ShipmentType)
 	}
 
 	if updatedShipment.PrimeActualWeight != 0 {
