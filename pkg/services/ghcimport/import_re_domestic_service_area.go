@@ -205,10 +205,6 @@ func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, 
 			DomesticServiceAreaID: serviceAreaID,
 		}
 
-		// TODO (has_multiple_rate_areas = true and rate_area_id is null) or (has_multiple_rate_areas = false and rate_area_id is not null)
-		//  	need to find out if zip3 has multiple rate areas !!!!
-		//		Saving this record is currently failing
-
 		// See if there is an existing zip3 record.  If so, we need to update it.
 		var existingZip3s models.ReZip3s
 		err := dbTx.
