@@ -145,11 +145,11 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 			updated_at = NOW()`
 
 	if updatedShipment.SecondaryPickupAddress != nil {
-		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_pickup_address_id = '%s'", updatedShipment.SecondaryPickupAddress.ID)
+		basicQuery = basicQuery + ", \nsecondary_pickup_address_id = ?"
 	}
 
 	if updatedShipment.SecondaryDeliveryAddress != nil {
-		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_delivery_address_id = '%s'", updatedShipment.SecondaryDeliveryAddress.ID)
+		basicQuery = basicQuery + ", \nsecondary_delivery_address_id = ?"
 	}
 
 	finishedQuery := basicQuery + `
@@ -166,6 +166,8 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		updatedShipment.ShipmentType,
 		updatedShipment.PickupAddress.ID,
 		updatedShipment.DestinationAddress.ID,
+		updatedShipment.SecondaryPickupAddress.ID,
+		updatedShipment.SecondaryDeliveryAddress.ID,
 		updatedShipment.PrimeActualWeight,
 		updatedShipment.ID,
 		unmodifiedSince).ExecWithCount()
