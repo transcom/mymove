@@ -11,7 +11,6 @@ create table re_zip5_rate_areas
 );
 
 CREATE INDEX ON re_zip5_rate_areas (rate_area_id);
-CREATE INDEX ON re_zip5_rate_areas (zip5);
 
 alter table re_zip3s
     add rate_area_id uuid null
@@ -19,4 +18,3 @@ alter table re_zip3s
     add has_multiple_rate_areas boolean not null default false;
 
 CREATE INDEX ON re_zip3s (rate_area_id);
-CREATE INDEX ON re_zip3s (zip3);
