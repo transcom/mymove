@@ -46,6 +46,7 @@ import DPSAuthCookie from 'scenes/DPSAuthCookie';
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
+import { withContext } from 'shared/AppContext';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -173,4 +174,4 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ goBack, push, loadInternalSchema, getCurrentUserInfo }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(AppWrapper));
