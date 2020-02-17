@@ -185,13 +185,14 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 			prime_actual_weight = ?,
 			updated_at = NOW()`
 
-	if updatedShipment.SecondaryPickupAddress != nil {
-		baseQuery = baseQuery + fmt.Sprintf(", \nsecondary_pickup_address_id = '%s'", updatedShipment.SecondaryPickupAddress.ID)
-	}
-
-	if updatedShipment.SecondaryDeliveryAddress != nil {
-		baseQuery = baseQuery + fmt.Sprintf(", \nsecondary_delivery_address_id = '%s'", updatedShipment.SecondaryDeliveryAddress.ID)
-	}
+	var basicParams []interface{}
+	basicParams = append(basicParams, updatedShipment.ScheduledPickupDate,
+		updatedShipment.RequestedPickupDate,
+		updatedShipment.ShipmentType,
+		updatedShipment.PickupAddress.ID,
+		updatedShipment.DestinationAddress.ID,
+		updatedShipment.PrimeActualWeight,
+	)
 
 	if updatedShipment.PrimeEstimatedWeight != 0 {
 		estimatedWeightQuery := `,
@@ -200,23 +201,30 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		baseQuery = baseQuery + fmt.Sprintf(estimatedWeightQuery, updatedShipment.PrimeEstimatedWeight)
 	}
 
+	if updatedShipment.SecondaryPickupAddress != nil {
+		baseQuery = baseQuery + ", \nsecondary_pickup_address_id = ?"
+		basicParams = append(basicParams, updatedShipment.SecondaryPickupAddress.ID)
+	}
+
+	if updatedShipment.SecondaryDeliveryAddress != nil {
+		baseQuery = baseQuery + ", \nsecondary_delivery_address_id = ?"
+		basicParams = append(basicParams, updatedShipment.SecondaryDeliveryAddress.ID)
+	}
+
 	finishedQuery := baseQuery + `
 		WHERE
 			id = ?
 		AND
 			updated_at = ?
 		;`
+	params := append(basicParams,
+		updatedShipment.ID,
+		unmodifiedSince,
+	)
 
 	// do the updating in a raw query
 	affectedRows, err := db.RawQuery(finishedQuery,
-		updatedShipment.ScheduledPickupDate,
-		updatedShipment.RequestedPickupDate,
-		updatedShipment.ShipmentType,
-		updatedShipment.PickupAddress.ID,
-		updatedShipment.DestinationAddress.ID,
-		updatedShipment.PrimeActualWeight,
-		updatedShipment.ID,
-		unmodifiedSince).ExecWithCount()
+		params...).ExecWithCount()
 
 	if err != nil {
 		return err
