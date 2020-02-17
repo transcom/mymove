@@ -34,6 +34,10 @@ type MTOShipment struct {
 	// Required: true
 	DestinationAddress *Address `json:"destinationAddress"`
 
+	// first available delivery date
+	// Format: date
+	FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
+
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -98,6 +102,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateFirstAvailableDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -190,6 +198,19 @@ func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error 
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateFirstAvailableDeliveryDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.FirstAvailableDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("firstAvailableDeliveryDate", "body", "date", m.FirstAvailableDeliveryDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

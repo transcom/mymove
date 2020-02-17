@@ -5,8 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -15,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func addressModelFromPayload(rawAddress *primemessages.Address) *models.Address {
@@ -110,7 +109,14 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 		return NewErrInvalidInput(oldShipment.ID, nil, nil, "Requested pickup date must match what customer has requested.")
 	}
 	oldShipment.RequestedPickupDate = &requestedPickupDate
-
+	if updatedShipment.PrimeActualWeight != 0 {
+		primeActualWeight := unit.Pound(updatedShipment.PrimeActualWeight)
+		oldShipment.PrimeActualWeight = &primeActualWeight
+	}
+	if updatedShipment.FirstAvailableDeliveryDate.String() != "" {
+		firstAvailableDeliveryDate := time.Time(updatedShipment.FirstAvailableDeliveryDate)
+		oldShipment.FirstAvailableDeliveryDate = &firstAvailableDeliveryDate
+	}
 	scheduledPickupTime := time.Time(*updatedShipment.ScheduledPickupDate)
 	pickupAddress := addressModelFromPayload(updatedShipment.PickupAddress)
 	destinationAddress := addressModelFromPayload(updatedShipment.DestinationAddress)
@@ -182,7 +188,6 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 			shipment_type = ?,
 			pickup_address_id = ?,
 			destination_address_id = ?,
-			prime_actual_weight = ?,
 			updated_at = NOW()`
 
 	var basicParams []interface{}
@@ -191,7 +196,6 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		updatedShipment.ShipmentType,
 		updatedShipment.PickupAddress.ID,
 		updatedShipment.DestinationAddress.ID,
-		updatedShipment.PrimeActualWeight,
 	)
 
 	if updatedShipment.PrimeEstimatedWeight != 0 {
@@ -211,20 +215,30 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		basicParams = append(basicParams, updatedShipment.SecondaryDeliveryAddress.ID)
 	}
 
+	if updatedShipment.FirstAvailableDeliveryDate.String() != "" {
+		baseQuery = baseQuery + ", \nfirst_available_delivery_date = ?"
+		basicParams = append(basicParams, updatedShipment.FirstAvailableDeliveryDate)
+	}
+
+	if updatedShipment.PrimeActualWeight != 0 {
+		baseQuery = baseQuery + ", \nprime_actual_weight = ?"
+		basicParams = append(basicParams, updatedShipment.PrimeActualWeight)
+	}
+
 	finishedQuery := baseQuery + `
 		WHERE
 			id = ?
 		AND
 			updated_at = ?
 		;`
+
 	params := append(basicParams,
 		updatedShipment.ID,
 		unmodifiedSince,
 	)
 
 	// do the updating in a raw query
-	affectedRows, err := db.RawQuery(finishedQuery,
-		params...).ExecWithCount()
+	affectedRows, err := db.RawQuery(finishedQuery, params...).ExecWithCount()
 
 	if err != nil {
 		return err

@@ -16,9 +16,9 @@ import (
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	oldMTOShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
 	mtoShipmentUpdater := NewMTOShipmentUpdater(suite.DB())
-
 	requestedPickupDate := strfmt.Date(*oldMTOShipment.RequestedPickupDate)
 	scheduledPickupDate := strfmt.Date(time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC))
+	firstAvailableDeliveryDate := strfmt.Date(time.Date(2019, time.March, 10, 0, 0, 0, 0, time.UTC))
 	pickupAddress := primemessages.Address{
 		City:           &oldMTOShipment.PickupAddress.City,
 		Country:        oldMTOShipment.PickupAddress.Country,
@@ -68,15 +68,16 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	}
 
 	payload := primemessages.MTOShipment{
-		ID:                       strfmt.UUID(oldMTOShipment.ID.String()),
-		DestinationAddress:       &destinationAddress,
-		PickupAddress:            &pickupAddress,
-		RequestedPickupDate:      &requestedPickupDate,
-		ScheduledPickupDate:      &scheduledPickupDate,
-		ShipmentType:             "INTERNATIONAL_UB",
-		SecondaryPickupAddress:   &secondaryPickupAddress,
-		SecondaryDeliveryAddress: &secondaryDeliveryAddress,
-		PrimeActualWeight:        123,
+		ID:                         strfmt.UUID(oldMTOShipment.ID.String()),
+		DestinationAddress:         &destinationAddress,
+		PickupAddress:              &pickupAddress,
+		RequestedPickupDate:        &requestedPickupDate,
+		ScheduledPickupDate:        &scheduledPickupDate,
+		ShipmentType:               "INTERNATIONAL_UB",
+		SecondaryPickupAddress:     &secondaryPickupAddress,
+		SecondaryDeliveryAddress:   &secondaryDeliveryAddress,
+		PrimeActualWeight:          123,
+		FirstAvailableDeliveryDate: firstAvailableDeliveryDate,
 	}
 
 	suite.T().Run("If-Unmodified-Since is not equal to the updated_at date", func(t *testing.T) {
@@ -117,6 +118,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.NotZero(updatedMTOShipment.SecondaryDeliveryAddress.ID, secondaryDeliveryAddress.ID)
 		suite.Equal(updatedMTOShipment.SecondaryDeliveryAddress.StreetAddress1, *secondaryDeliveryAddress.StreetAddress1)
 		suite.Equal(updatedMTOShipment.PrimeActualWeight, *&actualWeight)
+		suite.True(time.Date(2019, time.March, 10, 0, 0, 0, 0, time.UTC).Equal(*updatedMTOShipment.FirstAvailableDeliveryDate))
 	})
 
 	payload2 := primemessages.MTOShipment{
