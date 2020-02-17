@@ -19,3 +19,4 @@ alter table re_zip3s
     add has_multiple_rate_areas boolean not null default false;
 
 CREATE INDEX ON re_zip3s (rate_area_id);
+CREATE INDEX ON re_zip3s (zip3);
