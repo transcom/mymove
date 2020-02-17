@@ -117,11 +117,15 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 		firstAvailableDeliveryDate := time.Time(updatedShipment.FirstAvailableDeliveryDate)
 		oldShipment.FirstAvailableDeliveryDate = &firstAvailableDeliveryDate
 	}
-	scheduledPickupTime := time.Time(updatedShipment.ScheduledPickupDate)
+
+	scheduledPickupTime := *oldShipment.ScheduledPickupDate
+	if updatedShipment.ScheduledPickupDate.String() != "" {
+		scheduledPickupTime = time.Time(updatedShipment.ScheduledPickupDate)
+		oldShipment.ScheduledPickupDate = &scheduledPickupTime
+	}
+
 	pickupAddress := addressModelFromPayload(updatedShipment.PickupAddress)
 	destinationAddress := addressModelFromPayload(updatedShipment.DestinationAddress)
-
-	oldShipment.ScheduledPickupDate = &scheduledPickupTime
 	oldShipment.PickupAddress = *pickupAddress
 	oldShipment.DestinationAddress = *destinationAddress
 	oldShipment.ShipmentType = models.MTOShipmentType(updatedShipment.ShipmentType)
@@ -183,15 +187,14 @@ func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.T
 // updateMTOShipment updates the mto shipment with a raw query
 func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSince time.Time, updatedShipment *primemessages.MTOShipment) error {
 	baseQuery := `UPDATE mto_shipments
-		SET scheduled_pickup_date = ?,
-			requested_pickup_date = ?,
+		SET requested_pickup_date = ?,
 			shipment_type = ?,
 			pickup_address_id = ?,
 			destination_address_id = ?,
 			updated_at = NOW()`
 
-	var basicParams []interface{}
-	basicParams = append(basicParams, updatedShipment.ScheduledPickupDate,
+	var params []interface{}
+	params = append(params,
 		updatedShipment.RequestedPickupDate,
 		updatedShipment.ShipmentType,
 		updatedShipment.PickupAddress.ID,
@@ -207,22 +210,27 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 
 	if updatedShipment.SecondaryPickupAddress != nil {
 		baseQuery = baseQuery + ", \nsecondary_pickup_address_id = ?"
-		basicParams = append(basicParams, updatedShipment.SecondaryPickupAddress.ID)
+		params = append(params, updatedShipment.SecondaryPickupAddress.ID)
 	}
 
 	if updatedShipment.SecondaryDeliveryAddress != nil {
 		baseQuery = baseQuery + ", \nsecondary_delivery_address_id = ?"
-		basicParams = append(basicParams, updatedShipment.SecondaryDeliveryAddress.ID)
+		params = append(params, updatedShipment.SecondaryDeliveryAddress.ID)
+	}
+
+	if updatedShipment.ScheduledPickupDate.String() != "" {
+		baseQuery = baseQuery + ", \nscheduled_pickup_date = ?"
+		params = append(params, updatedShipment.ScheduledPickupDate)
 	}
 
 	if updatedShipment.FirstAvailableDeliveryDate.String() != "" {
 		baseQuery = baseQuery + ", \nfirst_available_delivery_date = ?"
-		basicParams = append(basicParams, updatedShipment.FirstAvailableDeliveryDate)
+		params = append(params, updatedShipment.FirstAvailableDeliveryDate)
 	}
 
 	if updatedShipment.PrimeActualWeight != 0 {
 		baseQuery = baseQuery + ", \nprime_actual_weight = ?"
-		basicParams = append(basicParams, updatedShipment.PrimeActualWeight)
+		params = append(params, updatedShipment.PrimeActualWeight)
 	}
 
 	finishedQuery := baseQuery + `
@@ -232,7 +240,7 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 			updated_at = ?
 		;`
 
-	params := append(basicParams,
+	params = append(params,
 		updatedShipment.ID,
 		unmodifiedSince,
 	)
