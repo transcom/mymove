@@ -381,18 +381,29 @@ jobs:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run: echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
       - run: make bin/swagger
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
-          name: Run pre-commit tests
-          command: pre-commit run --all-files
+          name: Run pre-commit tests without golangci-lint
+          command: SKIP=golangci-lint pre-commit run --all-files
+      # The output of golangci-lint is an artifact towards STIG compliance
+      - run:
+          name: Run pre-commit tests with golangci-lint only
+          command: |
+            echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
+            echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
+            source $BASH_ENV
+            mkdir -p tmp/test-results/pretest
+            pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
       # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
+      - store_artifacts:
+          path: ~/transcom/mymove/tmp/test-results
+          destination: test-results
       - announce_failure
 
   # `acceptance_tests_local` runs acceptance tests for the webserver against a local environment.
