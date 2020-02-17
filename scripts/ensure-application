@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+#
+# Ensure APPLICATION is set to `app` or `orders` and matches input value
+#
+# Example:
+#    ensure-application app
+#
+
+set -eu -o pipefail
+
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+readonly check_app=$1
+
+if [ "${APPLICATION}" != "app" ] && [ "${APPLICATION}" != "orders" ] ; then
+  echo "Must provider the environment variable APPLICATION and set to 'app' or 'orders'"
+  exit 1
+fi
+
+if [ "${APPLICATION}" != "${check_app}" ]; then
+    echo -e "${RED}ERROR: You are running the '${APPLICATION}' application. Please modify .envrc.local to use:${NC}"
+    echo -e "${RED}export APPLICATION=${check_app}${NC}"
+    exit 1
+fi
