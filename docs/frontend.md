@@ -95,7 +95,7 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
   * `/src/stories` Storybook stories for components live here.
   * ***NOTE: The code style recommendations above are strictly enforced in the above directories***
   * `/src/shared/styles` Global or shared styles
-* Previous layout of components PPM and HHG work was done in the following structure and will remain concurrently until it can be migrated to the new recommendations above.
+* Previous layout of components PPM and HHG work was done in the following structure and will remain concurrently until it can be migrated to the new recommendations above. ***No new files should go in the following directories.*** New files should be put into the above structure. If there are significant changes to components in the below directories please migrate them to the new structure.
   * `/src/scenes` Group components by scene name
   * `/src/shared` Group shared components, like headers
 * File naming
