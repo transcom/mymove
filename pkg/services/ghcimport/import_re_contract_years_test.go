@@ -36,7 +36,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREContractYears() {
 }
 
 func (suite *GHCRateEngineImportSuite) helperVerifyContractYears() {
-	count, err := suite.DB().Count(&models.ReContractYears{})
+	count, err := suite.DB().Count(&models.ReContractYear{})
 	suite.NoError(err)
 	suite.Equal(8, count)
 }
