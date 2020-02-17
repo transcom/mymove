@@ -208,7 +208,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		//remove this when remove required fields
 		scheduledPickupDate = strfmt.Date(tenDaysFromNow)
-		payload2.ScheduledPickupDate = scheduledPickupDate
+		payload3.ScheduledPickupDate = scheduledPickupDate
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			Body:              &payload3,
