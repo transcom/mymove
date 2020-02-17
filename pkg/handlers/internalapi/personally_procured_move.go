@@ -2,8 +2,6 @@ package internalapi
 
 import (
 	"fmt"
-	"reflect"
-	"strings"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -137,10 +135,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	zapFields := []zap.Field{
-		zap.String("moveLocator", move.Locator),
-	}
-	logDetails(logger, *newPPM, "Create PPM", zapFields)
+	logDetails(logger, *move, *newPPM, "Create PPM")
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *newPPM)
 	if err != nil {
@@ -296,10 +291,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdateP
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	zapFields := []zap.Field{
-		zap.String("moveLocator", move.Locator),
-	}
-	logDetails(logger, *ppm, "Update PPM", zapFields)
+	logDetails(logger, *move, *ppm, "Update PPM")
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
 	if err != nil {
@@ -344,10 +336,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	zapFields := []zap.Field{
-		zap.String("moveLocator", move.Locator),
-	}
-	logDetails(logger, *ppm, "Patch PPM", zapFields)
+	logDetails(logger, *move, *ppm, "Patch PPM")
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
 	if err != nil {
@@ -582,24 +571,44 @@ func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSu
 	return ppmop.NewRequestPPMExpenseSummaryOK().WithPayload(&expenseSummaryPayload)
 }
 
-func logDetails(logger Logger, model interface{}, msg string, zapFields []zap.Field) {
-	fields := reflect.TypeOf(model)
-	values := reflect.ValueOf(model)
-	num := fields.NumField()
+func logDetails(logger Logger, move models.Move, ppm models.PersonallyProcuredMove, msg string) {
+	logger.Info(msg,
+		zap.String("moveLocator", move.Locator),
+		zap.Any("ppmID", ppm.ID),
+		zap.Any("size", &ppm.Size),
+		zap.Any("weightEstimate", &ppm.WeightEstimate),
 
-	for i := 0; i < num; i++ {
-		field := fields.Field(i)
-		value := values.Field(i)
-		tag := fmt.Sprintf("%v", field.Tag)
+		zap.Any("originalMoveDate", &ppm.OriginalMoveDate),
+		zap.Any("actualMoveDate", &ppm.ActualMoveDate),
+		zap.Any("submitDate", &ppm.SubmitDate),
+		zap.Any("approveDate", &ppm.ApproveDate),
+		zap.Any("reviewDate", &ppm.ReviewedDate),
+		zap.Any("netWeight", &ppm.NetWeight),
 
-		if !strings.HasPrefix(tag, "belongs_to:") {
-			if field.Type.Kind() == reflect.Ptr {
-				if !value.IsNil() {
-					value = value.Elem()
-				}
-			}
-			zapFields = append(zapFields, zap.Any(field.Name, fmt.Sprintf("%v", value)))
-		}
-	}
-	logger.Info(msg, zapFields...)
+		zap.Any("pickupPostalCode", &ppm.PickupPostalCode),
+		zap.Any("hasAdditionalPostalCode", &ppm.HasAdditionalPostalCode),
+		zap.Any("additionalPostalCode", &ppm.AdditionalPickupPostalCode),
+		zap.Any("destinationPostalCode", &ppm.DestinationPostalCode),
+
+		zap.Any("hasSit", &ppm.HasSit),
+		zap.Any("daysInStorage", &ppm.DaysInStorage),
+		zap.Any("estimatedStorageReimbursement", &ppm.EstimatedStorageReimbursement),
+		zap.Any("mileage", &ppm.Mileage),
+
+		zap.Any("plannedSITMax", &ppm.PlannedSITMax),
+		zap.Any("SITMax", &ppm.SITMax),
+		zap.Any("incentiveEstMin", &ppm.IncentiveEstimateMin),
+		zap.Any("incentiveEstMax", &ppm.IncentiveEstimateMax),
+		zap.Any("status", ppm.Status),
+
+		zap.Any("hasRequestAdvance", ppm.HasRequestedAdvance),
+		zap.Any("advanceID", &ppm.AdvanceID),
+		zap.Any("advance", &ppm.Advance),
+		zap.Any("advanceWorksheetID", &ppm.AdvanceWorksheetID),
+		zap.Any("totalSitCost", &ppm.TotalSITCost),
+
+		zap.Any("hasProGear", &ppm.HasProGear),
+		zap.Any("hasProGearOverThousand", &ppm.HasProGearOverThousand),
+		zap.Any("actualMoveDate", &ppm.ActualMoveDate),
+	)
 }
