@@ -18,6 +18,13 @@ const (
 	MTOShipmentTypeHHG              MTOShipmentType = "HHG"
 	MTOShipmentTypeInternationalHHG MTOShipmentType = "INTERNATIONAL_HHG"
 	MTOShipmentTypeInternationalUB  MTOShipmentType = "INTERNATIONAL_UB"
+	MTOShipmentTypeHHGLongHaulDom   MTOShipmentType = "HHG_LONGHAUL_DOMESTIC"
+	MTOShipmentTypeHHGShortHaulDom  MTOShipmentType = "HHG_SHORTHAUL_DOMESTIC"
+	MTOShipmentTypeHHGIntoNTSDom    MTOShipmentType = "HHG_INTO_NTS_DOMESTIC"
+	MTOShipmentTypeHHGOutOfNTSDom   MTOShipmentType = "HHG_OUTOF_NTS_DOMESTIC"
+	MTOShipmentTypeMotorhome        MTOShipmentType = "MOTORHOME"
+	MTOShipmentTypeBoatHaulAway     MTOShipmentType = "BOAT_HAUL_AWAY"
+	MTOShipmentTypeBoatTowAway      MTOShipmentType = "BOAT_TOW_AWAY"
 )
 
 // MTOShipmentStatus represents the possible statuses for a mto shipment
@@ -50,6 +57,7 @@ type MTOShipment struct {
 	PrimeActualWeight                *unit.Pound       `db:"prime_actual_weight"`
 	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
 	Status                           MTOShipmentStatus `db:"status"`
+	RejectionReason                  *string           `db:"rejection_reason"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
 }
@@ -73,6 +81,13 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	}
 	if m.PrimeActualWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeActualWeight.Int(), Compared: -1, Name: "PrimeActualWeight"})
+	}
+	if m.Status == MTOShipmentStatusRejected {
+		var rejectionReason string
+		if m.RejectionReason != nil {
+			rejectionReason = *m.RejectionReason
+		}
+		vs = append(vs, &validators.StringIsPresent{Field: rejectionReason, Name: "RejectionReason"})
 	}
 	return validate.Validate(vs...), nil
 }

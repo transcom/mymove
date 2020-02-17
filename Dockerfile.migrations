@@ -1,10 +1,10 @@
-FROM alpine:3.10.3
+FROM alpine:3.11.3
 
 COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY bin/milmove /bin/milmove
 
-COPY migrations /migrate/migrations
-COPY migrations_manifest.txt /migrate/migrations_manifest.txt
+COPY migrations/app/schema /migrate/schema
+COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
 
 # Install tools needed in container
 RUN apk update && apk add ca-certificates --no-cache

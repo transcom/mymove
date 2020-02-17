@@ -22,6 +22,8 @@ environment.
 | `check-gopath` | checks the go path is correct for the project |
 | `check-hosts-file` | Script helps ensure that /etc/hosts has all the correct entries in it |
 | `check-node-version` | checks the node version required for the project |
+| `check-opensc-version` | checks the opensc version required for the project |
+| `kill-process-on-port` | asks to kill a process running on the specified port |
 | `prereqs` | validate if all prerequisite programs have been installed |
 
 ## AWS Scripts
@@ -142,6 +144,7 @@ These scripts are primarily used for working with the database
 | `db-restore` |  Restore the contents of the development database from an earlier backup. |
 | `psql-dev` | Convenience script to drop into development postgres DB |
 | `psql-deployed-migrations` | Convenience script to drop into deployed migrations postgres DB |
+| `psql-schema` | Convenience script to dump the schema from the postgres DB |
 | `psql-test` | Convenience script to drop into testing postgres DB |
 | `psql-wrapper` | A wrapper around `psql` that sets correct values |
 | `update-migrations-manifest` | Update manifest for migrations |
@@ -155,7 +158,7 @@ These scripts are primarily used for working with a CAC and the Orders API
 | Script Name | Description |
 | --- | --- |
 | `cac-extract-cert` | Get a certificate from CAC |
-| `cac-extract-fingerprint` | Get SHA 256 fingerprint from CAC |
+| `cac-extract-fingerprint` | Get SHA 256 fingerprint of the public certificate from CAC |
 | `cac-extract-pubkey` | Get a public key from CAC |
 | `cac-extract-subject` | Get Subject from CAC |
 | `cac-extract-token-label` | Get the Token Label from CAC |
@@ -168,8 +171,8 @@ These scripts are primarily for working with Mutual TLS certificates
 
 | Script Name | Description |
 | --- | --- |
-| `mutual-tls-extract-fingerprint` | Get a sha256 hash of the certificate from CAC |
-| `mutual-tls-extract-subject` | Get a sha256 hash of the certificate from CAC |
+| `mutual-tls-extract-fingerprint` | Get SHA 256 fingerprint of the public certificate from a cert file |
+| `mutual-tls-extract-subject` | Get a sha256 hash of the certificate from a cert file|
 
 ### Amazon Console Scripts
 

@@ -1,4 +1,3 @@
-NAME = ppp
 DB_NAME_DEV = dev_db
 DB_NAME_DEPLOYED_MIGRATIONS = deployed_migrations
 DB_NAME_TEST = test_db
@@ -227,6 +226,9 @@ bin/big-cat:
 bin/compare-secure-migrations:
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
+bin/model-vet:
+	go build -ldflags "$(LDFLAGS)" -o bin/model-vet ./cmd/model-vet
+
 bin/ecs-deploy:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
@@ -248,9 +250,6 @@ bin/generate-test-data:
 bin/ghc-pricing-parser:
 	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/ghc-pricing-parser
 
-bin_linux/generate-test-data:
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data
-
 bin/health-checker:
 	go build -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
 
@@ -260,14 +259,11 @@ bin/iws:
 bin/milmove:
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin_linux/milmove:
-	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove ./cmd/milmove
-
 bin/milmove-tasks:
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin_linux/milmove-tasks:
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
+bin/prime-api-client:
+	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
 bin/query-cloudwatch-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
@@ -331,7 +327,9 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		2>&1 | tee -a log/dev.log
 
 .PHONY: server_run_debug
-server_run_debug: check_log_dir ## Debug the server
+server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## Debug the server
+	scripts/kill-process-on-port 8080
+	scripts/kill-process-on-port 9443
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
@@ -350,6 +348,8 @@ build_tools: bin/gin \
 	bin/health-checker \
 	bin/iws \
 	bin/milmove-tasks \
+	bin/model-vet \
+	bin/prime-api-client \
 	bin/query-cloudwatch-logs \
 	bin/query-lb-logs \
 	bin/read-alb-logs \
@@ -406,7 +406,7 @@ server_test_standalone: ## Run server unit tests with no deps
 	# Pass `-short` to exclude long running tests
 	# Disable test caching with `-count 1` - caching was masking local test failures
 ifndef CIRCLECI
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -parallel 8 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 else
 	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
 	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
@@ -439,7 +439,11 @@ server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generat
 
 .PHONY: server_test_docker
 server_test_docker:
-	docker-compose -f docker-compose.circle.yml --compatibility up server_test
+	docker-compose -f docker-compose.circle.yml --compatibility up --remove-orphans --abort-on-container-exit
+
+.PHONY: server_test_docker_down
+server_test_docker_down:
+	docker-compose -f docker-compose.circle.yml down
 
 #
 # ----- END SERVER TARGETS -----
@@ -486,7 +490,7 @@ db_dev_reset: db_dev_destroy db_dev_run ## Reset Dev DB (destroy and run)
 .PHONY: db_dev_migrate_standalone ## Migrate Dev DB directly
 db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
-	DB_DEBUG=0 bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
+	DB_DEBUG=0 bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt"
 
 .PHONY: db_dev_migrate
 db_dev_migrate: db_dev_migrate_standalone ## Migrate Dev DB
@@ -539,9 +543,9 @@ db_deployed_migrations_run: db_deployed_migrations_start db_deployed_migrations_
 db_deployed_migrations_reset: db_deployed_migrations_destroy db_deployed_migrations_run ## Reset Deployed Migrations DB (destroy and run)
 
 .PHONY: db_deployed_migrations_migrate_standalone
-db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migrations DB with local migrations
+db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migrations DB with local secure migrations
 	@echo "Migrating the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
-	DB_DEBUG=0 DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
+	DB_DEBUG=0 DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt"
 
 .PHONY: db_deployed_migrations_migrate
 db_deployed_migrations_migrate: db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
@@ -606,10 +610,10 @@ db_test_reset: db_test_destroy db_test_run ## Reset Test DB (destroy and run)
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
+	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt"
 else
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
+	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) bin/milmove migrate -p "file://migrations/${APPLICATION}/secure;file://migrations/${APPLICATION}/schema" -m "migrations/${APPLICATION}/migrations_manifest.txt"
 endif
 
 .PHONY: db_test_migrate
@@ -617,7 +621,7 @@ db_test_migrate: db_test_migrate_standalone ## Migrate Test DB
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp ## Build Test DB Migrations Docker Image
-.db_test_migrations_build.stamp: bin_linux/milmove bin_linux/generate-test-data
+.db_test_migrations_build.stamp:
 	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 
@@ -659,7 +663,6 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	rm -rf cypress/results
 	rm -rf cypress/screenshots
 	rm -rf cypress/videos
-	rm -rf bin_linux/
 	docker rm -f cypress || true
 
 .PHONY: db_e2e_up
@@ -704,7 +707,6 @@ db_test_e2e_cleanup: ## Clean up Test DB backup `e2e_test`
 .PHONY: tasks_clean
 tasks_clean: ## Clean Scheduled Task files and docker images
 	rm -f .db_test_migrations_build.stamp
-	rm -rf bin_linux/
 	docker rm -f tasks || true
 
 .PHONY: tasks_build
@@ -716,7 +718,7 @@ tasks_build_docker: server_generate bin/milmove-tasks ## Build Scheduled Task de
 	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
 
 .PHONY: tasks_build_linux_docker
-tasks_build_linux_docker: bin_linux/milmove-tasks ## Build Scheduled Task binaries (linux) and Docker image (local)
+tasks_build_linux_docker:  ## Build Scheduled Task binaries (linux) and Docker image (local)
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 
@@ -865,7 +867,6 @@ clean: ## Clean all generated files
 	rm -f .*.stamp
 	rm -f coverage.out
 	rm -rf ./bin
-	rm -rf ./bin_linux
 	rm -rf ./build
 	rm -rf ./node_modules
 	rm -rf ./public/swagger-ui/*.{css,js,png}

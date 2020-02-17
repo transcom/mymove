@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"regexp"
@@ -94,19 +96,25 @@ func CheckCertsMigration(v *viper.Viper) error {
 		return err
 	}
 
-	fingerprint := v.GetString(FingerprintFlag)
-	if len(fingerprint) == 0 {
-		return fmt.Errorf("%s is missing", FingerprintFlag)
-	}
-	sha256Pattern := "^[a-f0-9]{64}$"
-	_, err := regexp.MatchString(sha256Pattern, fingerprint)
-	if err != nil {
-		return errors.Errorf("Fingerprint must be a valid SHA 256 hash")
+	if err := cli.CheckCAC(v); err != nil {
+		return err
 	}
 
-	subject := v.GetString(SubjectFlag)
-	if len(subject) == 0 {
-		return errors.Errorf("%s is missing", SubjectFlag)
+	if !v.GetBool(cli.CACFlag) {
+		fingerprint := v.GetString(FingerprintFlag)
+		if len(fingerprint) == 0 {
+			return fmt.Errorf("%s is missing", FingerprintFlag)
+		}
+		sha256Pattern := "^[a-f0-9]{64}$"
+		_, err := regexp.MatchString(sha256Pattern, fingerprint)
+		if err != nil {
+			return errors.Errorf("Fingerprint must be a valid SHA 256 hash")
+		}
+
+		subject := v.GetString(SubjectFlag)
+		if len(subject) == 0 {
+			return errors.Errorf("%s is missing", SubjectFlag)
+		}
 	}
 
 	return nil
@@ -118,6 +126,9 @@ func initGenCertsMigrationFlags(flag *pflag.FlagSet) {
 
 	// Migration File Config
 	cli.InitMigrationFileFlags(flag)
+
+	// CAC Config
+	cli.InitCACFlags(flag)
 
 	// Init Certs Migration Flags
 	InitCertsMigrationFlags(flag)
@@ -154,10 +165,34 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 	migrationName := v.GetString(cli.MigrationNameFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)
 
+	var fingerprint, subject string
+	if v.GetBool(cli.CACFlag) {
+
+		store, errStore := cli.GetCACStore(v)
+		defer store.Close()
+		if errStore != nil {
+			return errStore
+		}
+		cert, errTLSCert := store.TLSCertificate()
+		if errTLSCert != nil {
+			return errTLSCert
+		}
+
+		// Get the fingerprint
+		hash := sha256.Sum256(cert.Certificate[0])
+		fingerprint = hex.EncodeToString(hash[:])
+
+		// Get the subject in RFC2253 format
+		subject = cert.Leaf.Subject.String()
+	} else {
+		fingerprint = v.GetString(FingerprintFlag)
+		subject = v.GetString(SubjectFlag)
+	}
+
 	certsTemplate := CertsTemplate{
 		ID:          uuid.Must(uuid.NewV4()).String(),
-		Fingerprint: v.GetString(FingerprintFlag),
-		Subject:     v.GetString(SubjectFlag),
+		Fingerprint: fingerprint,
+		Subject:     subject,
 	}
 
 	secureMigrationName := fmt.Sprintf("%s_%s.up.sql", migrationVersion, migrationName)
@@ -167,8 +202,8 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	t2 := template.Must(template.New("local_migrations").Parse(localMigrationTemplate))
-	err = createMigration("./local_migrations", secureMigrationName, t2, nil)
+	t2 := template.Must(template.New("migrations/app/secure").Parse(localMigrationTemplate))
+	err = createMigration("./migrations/app/secure", secureMigrationName, t2, nil)
 	if err != nil {
 		return err
 	}

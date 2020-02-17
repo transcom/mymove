@@ -13,6 +13,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	}
 	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
+	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
@@ -22,6 +23,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		PaymentRequests:    paymentRequests,
 		MtoServiceItems:    mtoServiceItems,
+		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
 	return payload
@@ -52,10 +54,12 @@ func MoveOrder(moveOrders *models.MoveOrder) *primemessages.MoveOrder {
 	if moveOrders == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(&moveOrders.DestinationDutyStation)
-	originDutyStation := DutyStation(&moveOrders.OriginDutyStation)
-	moveOrders.Entitlement.SetWeightAllotment(moveOrders.Grade)
-	entitlements := Entitlement(&moveOrders.Entitlement)
+	destinationDutyStation := DutyStation(moveOrders.DestinationDutyStation)
+	originDutyStation := DutyStation(moveOrders.OriginDutyStation)
+	if moveOrders.Grade != nil {
+		moveOrders.Entitlement.SetWeightAllotment(*moveOrders.Grade)
+	}
+	entitlements := Entitlement(moveOrders.Entitlement)
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrders.CustomerID.String()),
 		DestinationDutyStation: destinationDutyStation,
@@ -152,6 +156,35 @@ func PaymentRequests(paymentRequests *[]models.PaymentRequest) []*primemessages.
 	return payload
 }
 
+func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
+	requestedPickupDate := strfmt.Date(*mtoShipment.RequestedPickupDate)
+	scheduledPickupDate := strfmt.Date(*mtoShipment.ScheduledPickupDate)
+
+	return &primemessages.MTOShipment{
+		ID:                       strfmt.UUID(mtoShipment.ID.String()),
+		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:             primemessages.MTOShipmentType(mtoShipment.ShipmentType),
+		CustomerRemarks:          *mtoShipment.CustomerRemarks,
+		RequestedPickupDate:      &requestedPickupDate,
+		ScheduledPickupDate:      &scheduledPickupDate,
+		PickupAddress:            Address(&mtoShipment.PickupAddress),
+		Status:                   string(mtoShipment.Status),
+		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
+		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
+		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
+		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
+	}
+}
+
+func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments {
+	payload := make(primemessages.MTOShipments, len(*mtoShipments))
+
+	for i, m := range *mtoShipments {
+		payload[i] = MTOShipment(&m)
+	}
+	return &payload
+}
 func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *primemessages.MTOServiceItem {
 	return &primemessages.MTOServiceItem{
 		ID:              strfmt.UUID(mtoServiceItem.ID.String()),

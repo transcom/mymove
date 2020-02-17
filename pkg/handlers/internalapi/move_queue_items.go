@@ -39,6 +39,8 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 		InvoiceApprovedDate:        handlers.FmtDateTimePtr(MoveQueueItem.InvoiceApprovedDate),
 		WeightAllotment:            payloadForWeightAllotmentModel(models.GetWeightAllotment(*MoveQueueItem.Rank)),
 		BranchOfService:            handlers.FmtString(MoveQueueItem.BranchOfService),
+		ActualMoveDate:             handlers.FmtDatePtr(MoveQueueItem.ActualMoveDate),
+		OriginalMoveDate:           handlers.FmtDatePtr(MoveQueueItem.OriginalMoveDate),
 	}
 	return &MoveQueueItemPayload
 }

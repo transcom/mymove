@@ -50,6 +50,7 @@ var servicesToEntryPoints = map[string][]string{
 	"app-tasks": {
 		fmt.Sprintf("%s save-fuel-price-data", binMilMoveTasks),
 		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
+		fmt.Sprintf("%s send-payment-reminder", binMilMoveTasks),
 	},
 }
 
@@ -119,8 +120,11 @@ type ECRImage struct {
 	RepositoryName string
 }
 
-func NewECRImage(imageURI string) *ECRImage {
+func NewECRImage(imageURI string) (*ECRImage, error) {
 	imageParts := strings.Split(imageURI, ":")
+	if len(imageParts) != 2 {
+		return nil, fmt.Errorf("Image URI requires ':'")
+	}
 	repositoryURI, imageTag := imageParts[0], imageParts[1]
 	repositoryURIParts := strings.Split(repositoryURI, "/")
 	repositoryName := repositoryURIParts[1]
@@ -134,7 +138,7 @@ func NewECRImage(imageURI string) *ECRImage {
 		RegistryID:     registryID,
 		RepositoryURI:  repositoryURI,
 		RepositoryName: repositoryName,
-	}
+	}, nil
 }
 
 func initTaskDefFlags(flag *pflag.FlagSet) {
@@ -423,7 +427,10 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	serviceNameShort := serviceNameParts[0]
 
 	// Confirm the image exists
-	ecrImage := NewECRImage(imageURI)
+	ecrImage, errECRImage := NewECRImage(imageURI)
+	if errECRImage != nil {
+		quit(logger, nil, fmt.Errorf("unable to recognize image URI %q: %w", imageURI, errECRImage))
+	}
 	imageIdentifier := ecr.ImageIdentifier{}
 	imageIdentifier.SetImageTag(ecrImage.ImageTag)
 	errImageIdentifierValidate := imageIdentifier.Validate()
@@ -453,6 +460,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// Register the new task definition
 	executionRoleArn := fmt.Sprintf("ecs-task-execution-role-%s-%s", serviceName, environmentName)
 	taskRoleArn := fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
+	family := fmt.Sprintf("%s-%s", serviceName, environmentName)
 
 	// handle entrypoint specific logic
 	var awsLogsStreamPrefix string
@@ -460,6 +468,10 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	var portMappings []*ecs.PortMapping
 	var containerDefName string
 	if commandName == binMilMoveTasks {
+		executionRoleArn = fmt.Sprintf("ecs-task-exec-role-%s-%s-%s", serviceNameShort, environmentName, subCommandName)
+		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-%s-%s", serviceNameShort, environmentName, subCommandName)
+		family = fmt.Sprintf("%s-%s-%s", serviceNameShort, environmentName, subCommandName)
+
 		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
 		containerDefName = fmt.Sprintf("%s-%s-%s", serviceName, subCommandName, environmentName)
@@ -536,7 +548,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		},
 		Cpu:                     aws.String(cpu),
 		ExecutionRoleArn:        aws.String(executionRoleArn),
-		Family:                  aws.String(fmt.Sprintf("%s-%s", serviceName, environmentName)),
+		Family:                  aws.String(family),
 		Memory:                  aws.String(mem),
 		NetworkMode:             aws.String("awsvpc"),
 		RequiresCompatibilities: []*string{aws.String("FARGATE")},

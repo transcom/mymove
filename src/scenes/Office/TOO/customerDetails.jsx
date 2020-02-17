@@ -11,7 +11,8 @@ import {
   selectMoveTaskOrders,
 } from 'shared/Entities/modules/moveTaskOrders';
 import { getMTOServiceItems, selectMTOServiceItems } from 'shared/Entities/modules/mtoServiceItems';
-import { getMTOShipments, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
+import { getMTOShipments, patchMTOShipmentStatus, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
+import { ApproveRejectModal } from 'shared/ApproveRejectModal';
 
 class CustomerDetails extends Component {
   componentDidMount() {
@@ -77,6 +78,14 @@ class CustomerDetails extends Component {
             <dd>{get(moveOrder, 'originDutyStation.name', '')}</dd>
             <dt>Origin Duty Station Address</dt>
             <dd>{JSON.stringify(get(moveOrder, 'originDutyStation.address', {}))} </dd>
+
+            <dt>Department Indicator</dt>
+            <dd></dd>
+            <dt>TAC / MDC</dt>
+            <dd></dd>
+            <dt>SAC / SDN</dt>
+            <dd></dd>
+
             {entitlements && (
               <>
                 <h2>Customer Entitlements</h2>
@@ -124,7 +133,15 @@ class CustomerDetails extends Component {
                   <th>ID</th>
                   <th>Shipment Type</th>
                   <th>Requested Pick-up Date</th>
+                  <th>Scheduled Pick-up Date</th>
+                  <th>Pick up Address</th>
+                  <th>Secondary Pickup Address</th>
+                  <th>Delivery Address</th>
+                  <th>Secondary Delivery Address</th>
                   <th>Customer Remarks</th>
+                  <th>Status</th>
+                  <th>Rejection Reason</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -134,7 +151,58 @@ class CustomerDetails extends Component {
                       <td>{items.id}</td>
                       <td>{items.shipmentType}</td>
                       <td>{items.requestedPickupDate}</td>
+                      <td>{items.scheduledPickupDate}</td>
+                      <td>
+                        {get(items.pickupAddress, 'street_address_1')} {get(items.pickupAddress, 'street_address_2')}{' '}
+                        {get(items.pickupAddress, 'street_address_3')} {} {get(items.pickupAddress, 'state')}{' '}
+                        {get(items.pickupAddress, 'postal_code')}
+                      </td>
+                      <td>
+                        {get(items.secondaryPickupAddress, 'street_address_1')}{' '}
+                        {get(items.secondaryPickupAddress, 'street_address_2')}{' '}
+                        {get(items.secondaryPickupAddress, 'street_address_3')} {}{' '}
+                        {get(items.secondaryPickupAddress, 'state')} {get(items.secondaryPickupAddress, 'postal_code')}
+                      </td>
+                      <td>
+                        {get(items.destinationAddress, 'street_address_1')}{' '}
+                        {get(items.destinationAddress, 'street_address_2')}{' '}
+                        {get(items.destinationAddress, 'street_address_3')} {} {get(items.destinationAddress, 'state')}{' '}
+                        {get(items.destinationAddress, 'postal_code')}
+                      </td>
+                      <td>
+                        {get(items.secondaryDeliveryAddress, 'street_address_1')}{' '}
+                        {get(items.secondaryDeliveryAddress, 'street_address_2')}{' '}
+                        {get(items.secondaryDeliveryAddress, 'street_address_3')} {}{' '}
+                        {get(items.secondaryDeliveryAddress, 'state')}{' '}
+                        {get(items.secondaryDeliveryAddress, 'postal_code')}
+                      </td>
                       <td>{items.customerRemarks}</td>
+                      <td>{items.status}</td>
+                      <td>{items.rejectionReason}</td>
+                      <td>
+                        {
+                          <ApproveRejectModal
+                            showModal={items.status === 'SUBMITTED'}
+                            approveBtnOnClick={() =>
+                              this.props.patchMTOShipmentStatus(
+                                get(moveTaskOrder, 'id'),
+                                items.id,
+                                'APPROVED',
+                                items.updatedAt,
+                              )
+                            }
+                            rejectBtnOnClick={rejectionReason =>
+                              this.props.patchMTOShipmentStatus(
+                                get(moveTaskOrder, 'id'),
+                                items.id,
+                                'REJECTED',
+                                items.updatedAt,
+                                rejectionReason,
+                              )
+                            }
+                          />
+                        }
+                      </td>
                     </tr>
                   </Fragment>
                 ))}
@@ -198,6 +266,7 @@ const mapDispatchToProps = {
   getCustomer,
   getMTOServiceItems,
   getMTOShipments,
+  patchMTOShipmentStatus,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CustomerDetails);

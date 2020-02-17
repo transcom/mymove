@@ -28,13 +28,13 @@ services:
       - DB_SSL_MODE=disable
       - DB_USER=postgres
       - ENVIRONMENT=test
-      - MIGRATION_PATH=file:///migrate/local_migrations;file:///migrate/migrations
+      - MIGRATION_PATH=file:///migrate/schema;file:///migrate/secure
       - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
     entrypoint:
       - '/bin/milmove'
       - 'migrate'
     volumes:
-      - ./local_migrations:/migrate/local_migrations
+      - ./migrations/app/secure:/migrate/secure
 
   milmove:
     depends_on:
@@ -59,13 +59,12 @@ services:
       - DB_USER=postgres
       - DEVLOCAL_AUTH=true
       - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
-      - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+      - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
       - DPS_AUTH_COOKIE_SECRET_KEY
       - DPS_COOKIE_EXPIRES_IN_MINUTES
       - EIA_KEY=db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
       - ENVIRONMENT=test
       - FEATURE_FLAG_ACCESS_CODE=false
-      - GOPROXY=https://gocenter.io
       - HERE_MAPS_APP_CODE
       - HERE_MAPS_APP_ID
       - HERE_MAPS_GEOCODE_ENDPOINT

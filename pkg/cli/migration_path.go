@@ -29,7 +29,7 @@ func (e *errInvalidMigrationPath) Error() string {
 
 // InitMigrationFlags initializes the Migration command line flags
 func InitMigrationPathFlags(flag *pflag.FlagSet) {
-	flag.StringP(MigrationPathFlag, "p", "file:///migrations", "Path to the migrations folder")
+	flag.StringP(MigrationPathFlag, "p", "file:///migrations/app/schema", "Path to the migrations folder")
 }
 
 // CheckMigration validates migration command line flags

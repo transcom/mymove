@@ -1,0 +1,11 @@
+# This is the migrations manifest.
+# If a migration is not recorded here, then it will error.
+20200211000001_create_client_cert_table.up.sql
+20200211000002_create_electronic_orders.up.sql
+20200211000003_create_electronic_orders_revisions.up.sql
+20200212000001_devlocal_faux_air_force.up.sql
+20200212000002_devlocal_faux_army_hrc.up.sql
+20200212000003_devlocal_faux_coast_guard.up.sql
+20200212000004_devlocal_faux_marine_corps.up.sql
+20200212000005_devlocal_faux_navy.up.sql
+20200212000006_devlocal_faux_all.up.sql

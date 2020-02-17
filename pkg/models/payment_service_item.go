@@ -36,7 +36,7 @@ var validPaymentServiceItemStatus = []string{
 type PaymentServiceItem struct {
 	ID               uuid.UUID                `json:"id" db:"id"`
 	PaymentRequestID uuid.UUID                `json:"payment_request_id" db:"payment_request_id"`
-	ServiceItemID    uuid.UUID                `json:"service_item_id" db:"service_item_id"`
+	MTOServiceItemID uuid.UUID                `json:"mto_service_item_id" db:"mto_service_item_id"`
 	Status           PaymentServiceItemStatus `json:"status" db:"status"`
 	PriceCents       unit.Cents               `json:"price_cents" db:"price_cents"`
 	RejectionReason  *string                  `json:"rejection_reason" db:"rejection_reason"`
@@ -50,7 +50,7 @@ type PaymentServiceItem struct {
 
 	//Associations
 	PaymentRequest           PaymentRequest           `belongs_to:"payment_request"`
-	ServiceItem              MTOServiceItem           `belongs_to:"mto_service_item"`
+	MTOServiceItem           MTOServiceItem           `belongs_to:"mto_service_item"`
 	PaymentServiceItemParams PaymentServiceItemParams `has_many:"payment_service_item_params"`
 }
 
@@ -61,7 +61,7 @@ type PaymentServiceItems []PaymentServiceItem
 func (p *PaymentServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.PaymentRequestID, Name: "PaymentRequestID"},
-		&validators.UUIDIsPresent{Field: p.ServiceItemID, Name: "ServiceItemID"},
+		&validators.UUIDIsPresent{Field: p.MTOServiceItemID, Name: "MTOServiceItemID"},
 		&validators.StringInclusion{Field: p.Status.String(), Name: "Status", List: validPaymentServiceItemStatus},
 		&validators.TimeIsPresent{Field: p.RequestedAt, Name: "RequestedAt"},
 		// TODO: Removing this until we have pricing to populate

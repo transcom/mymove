@@ -1,0 +1,36 @@
+-- This migration allows a faux devlocal certicate to have access to the Orders API locally.
+-- Coast Guard devlocal certificate config/tls/devlocal-faux-coast-guard-orders.cer
+INSERT INTO public.client_certs (
+	id,
+	sha256_digest,
+	subject,
+	allow_orders_api,
+	allow_air_force_orders_read,
+	allow_air_force_orders_write,
+	allow_army_orders_read,
+	allow_army_orders_write,
+	allow_coast_guard_orders_read,
+	allow_coast_guard_orders_write,
+	allow_marine_corps_orders_read,
+	allow_marine_corps_orders_write,
+	allow_navy_orders_read,
+	allow_navy_orders_write,
+	created_at,
+	updated_at)
+VALUES (
+	'f0f24189-84bf-4f3f-add6-2fc498eb7d46',
+	'10ac6d7bdb7003093ad82880a2c7ea496e8dc3d50217da6170de83c0be826507',
+	'CN=localhost,OU=Not Coast Guard Orders,O=Not Coast Guard,L=Washington,ST=DC,C=US',
+	true,
+	false,
+	false,
+	false,
+	false,
+	true,
+	true,
+	false,
+	false,
+	false,
+	false,
+	now(),
+	now());

@@ -532,6 +532,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error
+          schema:
+            $ref: '#/responses/Conflict'
         '412':
           description: Precondition failed
           schema:
@@ -1524,9 +1528,22 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+      pickupAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
       customerRemarks:
         type: string
         example: handle with care
+        x-nullable: true
       shipmentType:
         enum:
           - HHG
@@ -1538,6 +1555,10 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+      rejectionReason:
+        type: string
+        example: MTO Shipment not good enough
+        x-nullable: true
   MTOShipmentWithEtag:
     allOf:
       - $ref: '#/definitions/MTOShipment'
@@ -1715,5 +1736,9 @@ responses:
       $ref: '#/definitions/Error'
   PreconditionFailed:
     description: Precondition failed
+    schema:
+      $ref: '#/definitions/Error'
+  Conflict:
+    description: Conflict error
     schema:
       $ref: '#/definitions/Error'

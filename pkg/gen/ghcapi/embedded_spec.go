@@ -1180,6 +1180,12 @@ func init() {
               "$ref": "#/responses/NotFound"
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/responses/Conflict"
+            }
+          },
           "412": {
             "description": "Precondition failed",
             "schema": {
@@ -1985,7 +1991,12 @@ func init() {
         },
         "customerRemarks": {
           "type": "string",
+          "x-nullable": true,
           "example": "handle with care"
+        },
+        "destinationAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
         },
         "id": {
           "type": "string",
@@ -1997,6 +2008,15 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment not good enough"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
@@ -2004,6 +2024,14 @@ func init() {
         "scheduledPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "enum": [
@@ -2373,6 +2401,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "Conflict error",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid",
       "schema": {
@@ -3796,6 +3830,15 @@ func init() {
               }
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "description": "Conflict error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
           "412": {
             "description": "Precondition failed",
             "schema": {
@@ -4652,7 +4695,12 @@ func init() {
         },
         "customerRemarks": {
           "type": "string",
+          "x-nullable": true,
           "example": "handle with care"
+        },
+        "destinationAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
         },
         "id": {
           "type": "string",
@@ -4664,6 +4712,15 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment not good enough"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
@@ -4671,6 +4728,14 @@ func init() {
         "scheduledPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "enum": [
@@ -5040,6 +5105,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "Conflict error",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid",
       "schema": {

@@ -22,20 +22,53 @@ readonly name=$1
 readonly image=$2
 readonly environment=$3
 
-echo "Deploying ${name}"
+readonly RESERVATION_CPU=256
+readonly RESERVATION_MEM=512
 
-task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def\
+echo "Checking for existence of variables file"
+
+variables_file="${DIR}/../config/env/${environment}.${name}.env"
+if [ ! -f "${variables_file}" ]; then
+  echo "Variables file '${variables_file}' does not exist!"
+  exit 1
+fi
+
+echo
+echo "Preparing ECS task definition for ${name}"
+
+"${DIR}/../bin/ecs-deploy" task-def \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
   --aws-region "${AWS_DEFAULT_REGION}" \
   --service app-tasks \
   --environment "${environment}" \
   --image "${image}" \
-  --variables-file "${DIR}/../config/env/${environment}.${name}.env" \
+  --cpu "${RESERVATION_CPU}" \
+  --memory "${RESERVATION_MEM}" \
+  --variables-file "${variables_file}" \
+  --entrypoint "/bin/milmove-tasks ${name}" \
+  --dry-run | jq .
+
+echo
+echo "Registering ECS task definition for ${name}"
+
+task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
+  --aws-account-id "${AWS_ACCOUNT_ID}" \
+  --aws-region "${AWS_DEFAULT_REGION}" \
+  --service app-tasks \
+  --environment "${environment}" \
+  --image "${image}" \
+  --cpu "${RESERVATION_CPU}" \
+  --memory "${RESERVATION_MEM}" \
+  --variables-file "${variables_file}" \
   --entrypoint "/bin/milmove-tasks ${name}" \
   --register)
 
 readonly task_def_arn
-echo "Registered ${task_def_arn}"
+echo
+echo "Registered ECS task definition ${task_def_arn}"
+
+echo
+echo "Put new CloudWatch Event target for ${name}"
 
 "${DIR}/../bin/ecs-deploy" put-target \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
@@ -44,3 +77,6 @@ echo "Registered ${task_def_arn}"
   --name "${name}" \
   --task-def-arn "${task_def_arn}" \
   --put-target
+
+echo
+echo "Successfully put new CloudWatch Event target for ${name} with ECS task definition ${task_def_arn}"

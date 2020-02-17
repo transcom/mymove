@@ -47,3 +47,4 @@ If you would like to run an individual hook, for example if you want to only run
 
 1. If you encounter `cannot find module providing package github.com/transcom/mymove/pkg/gen/*` try running `make server_generate` which should generate files for `gen` folder automatically
 2. If you encounter `cannot find module providing package github.com/transcom/mymove/pkg/.../mocks` try running `make mocks_generate` which should auto generate mocks
+3. If you encounter `Can't run linter goanalysis_metalinter: assign: failed prerequisites: inspect@github.com/transcom/mymove/cmd/milmove` without an indication of an error, it may be that your build is failing.  Try `make server_build` to check.
