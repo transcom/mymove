@@ -60,14 +60,3 @@ update_configs:
     default_labels:
       - dependencies
       - automerge
-
-  - package_manager: "docker"
-    directory: "/tools"
-    update_schedule: "daily"
-    automerged_updates:
-      - match:
-          dependency_type: "all"
-          update_type: "semver:minor"
-    default_labels:
-      - dependencies
-      - automerge
