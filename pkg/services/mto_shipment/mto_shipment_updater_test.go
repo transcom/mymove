@@ -132,7 +132,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	}
 
 	suite.T().Run("Updater can handle optional queries set as nil", func(t *testing.T) {
-		suite.DB().Find(oldMTOShipment, oldMTOShipment.ID)
+		suite.DB().Find(&oldMTOShipment, oldMTOShipment.ID)
 		weight := unit.Pound(123)
 		actualWeight := &weight
 		unmodifiedSince := oldMTOShipment.UpdatedAt
