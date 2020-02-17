@@ -67,7 +67,7 @@
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.10.0",
     "swagger-ui-dist": "^3.25.0",
-    "uswds": "2.4.0"
+    "uswds": "2.5.0"
   },
   "name": "client",
   "private": true,
@@ -93,6 +93,9 @@
     "@storybook/addon-links": "^5.3.13",
     "@storybook/addons": "^5.3.11",
     "@storybook/react": "^5.3.13",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
     "mime-types": "^2.1.26",
     "mockdate": "^2.0.2",
     "prettier": "=1.19.1"

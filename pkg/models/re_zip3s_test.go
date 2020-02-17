@@ -11,6 +11,7 @@ import (
 func (suite *ModelSuite) TestReZip3Validations() {
 	suite.T().Run("test valid ReZip3", func(t *testing.T) {
 		validReZip3 := models.ReZip3{
+			ContractID:            uuid.Must(uuid.NewV4()),
 			DomesticServiceAreaID: uuid.Must(uuid.NewV4()),
 			Zip3:                  "606",
 		}
@@ -21,6 +22,7 @@ func (suite *ModelSuite) TestReZip3Validations() {
 	suite.T().Run("test invalid ReZip3", func(t *testing.T) {
 		emptyReZip3 := models.ReZip3{}
 		expErrors := map[string][]string{
+			"contract_id":              {"ContractID can not be blank."},
 			"domestic_service_area_id": {"DomesticServiceAreaID can not be blank."},
 			"zip3":                     {"Zip3 not in range(3, 3)"},
 		}
@@ -29,6 +31,7 @@ func (suite *ModelSuite) TestReZip3Validations() {
 
 	suite.T().Run("test when zip3 is not a length of 3", func(t *testing.T) {
 		invalidReZip3 := models.ReZip3{
+			ContractID:            uuid.Must(uuid.NewV4()),
 			DomesticServiceAreaID: uuid.Must(uuid.NewV4()),
 			Zip3:                  "60",
 		}

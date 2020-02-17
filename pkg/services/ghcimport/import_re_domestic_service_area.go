@@ -97,6 +97,7 @@ func (gre *GHCRateEngineImporter) buildServiceAreasData(dbTx *pop.Connection) (s
 
 			serviceAreasData[serviceAreaNumber] = domesticServiceAreaData{
 				serviceArea: &models.ReDomesticServiceArea{
+					ContractID:    gre.contractID,
 					BasePointCity: stageArea.BasePointCity,
 					State:         stageArea.State,
 					ServiceArea:   serviceAreaNumber,
@@ -160,7 +161,10 @@ func (gre *GHCRateEngineImporter) saveServiceAreasAndZip3s(dbTx *pop.Connection,
 
 		// See if there is an existing service area record.  If so, we may need to update it.
 		var existingServiceAreas models.ReDomesticServiceAreas
-		err := dbTx.Where("service_area = ?", reServiceArea.ServiceArea).All(&existingServiceAreas)
+		err := dbTx.
+			Where("contract_id = ?", gre.contractID).
+			Where("service_area = ?", reServiceArea.ServiceArea).
+			All(&existingServiceAreas)
 		if err != nil {
 			return nil, fmt.Errorf("could not lookup existing service area [%s]: %w", reServiceArea.ServiceArea, err)
 		}
@@ -196,6 +200,7 @@ func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, 
 	// Save the associated zips.
 	for zip3 := range zip3s {
 		reZip3 := models.ReZip3{
+			ContractID:            gre.contractID,
 			Zip3:                  zip3,
 			DomesticServiceAreaID: serviceAreaID,
 		}
@@ -206,7 +211,10 @@ func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, 
 
 		// See if there is an existing zip3 record.  If so, we need to update it.
 		var existingZip3s models.ReZip3s
-		err := dbTx.Where("zip3 = ?", reZip3.Zip3).All(&existingZip3s)
+		err := dbTx.
+			Where("contract_id = ?", gre.contractID).
+			Where("zip3 = ?", reZip3.Zip3).
+			All(&existingZip3s)
 		if err != nil {
 			return fmt.Errorf("could not lookup existing zip3 [%s]: %w", reZip3.Zip3, err)
 		}
