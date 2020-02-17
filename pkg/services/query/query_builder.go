@@ -8,9 +8,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gobuffalo/flect"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
+
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -337,7 +340,6 @@ func (e StaleIdentifierError) Error() string {
 }
 
 func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
-	fmt.Println("===========")
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return nil, errors.New(FetchOneReflectionMessage)
@@ -347,7 +349,6 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 	var err error
 
 	if eTag != nil {
-		fmt.Println("===========")
 		err = p.db.Transaction(func(tx *pop.Connection) error {
 			t = t.Elem()
 			v := reflect.ValueOf(model).Elem()
@@ -358,17 +359,8 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 				}
 			}
 
-			// tableNameable := v.Interface().(pop.TableNameAble)
-			// tableName := tableNameable.TableName()
-			//
-			// sqlString := fmt.Sprintf("SELECT updated_at from %s WHERE id = $1", tableName)
-			sqlString := "SELECT updated_at from office_users WHERE id = $1 FOR UPDATE"
-			// sqlString := "SELECT updated_at from office_users WHERE id = $1"
-
-			fmt.Println("===========")
-			fmt.Println("===========")
-			fmt.Println("===========")
-			fmt.Println("===========")
+			tableName := flect.Underscore(flect.Pluralize(t.Name()))
+			sqlString := fmt.Sprintf("SELECT updated_at from %s WHERE id = $1 FOR UPDATE", pq.QuoteIdentifier(tableName))
 			row := tx.TX.QueryRow(sqlString, id.String())
 			var updatedAt time.Time
 			err = row.Scan(&updatedAt)
@@ -383,9 +375,7 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 				return StaleIdentifierError{StaleIdentifier: *eTag}
 			}
 
-			verrs, err = p.db.ValidateAndUpdate(model)
-			fmt.Println("-----------------------")
-			fmt.Println("-----------------------")
+			verrs, err = tx.ValidateAndUpdate(model)
 
 			return nil
 		})

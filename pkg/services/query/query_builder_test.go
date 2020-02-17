@@ -434,7 +434,7 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 		queryFilters := append(filters, NewQueryFilter("id", "=", updatedOfficeUserInfo.ID.String()))
 		var record models.OfficeUser
 		builder.FetchOne(&record, queryFilters)
-		suite.Equal("leo@spaceman.orggg", record.Email)
+		suite.Equal("leo@spaceman.org", record.Email)
 	})
 
 	suite.T().Run("Successfully updates a record with an eTag for optimistic locking", func(t *testing.T) {
@@ -460,7 +460,7 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 		queryFilters := append(filters, NewQueryFilter("id", "=", updatedOfficeUserInfo.ID.String()))
 		var record models.OfficeUser
 		builder.FetchOne(&record, queryFilters)
-		suite.Equal("leo@spaceman.orgg", record.Email)
+		suite.Equal("leo@spaceman.org", record.Email)
 	})
 
 	suite.T().Run("Reject the update when a stale eTag is used", func(t *testing.T) {
