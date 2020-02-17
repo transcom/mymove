@@ -48,7 +48,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 		} else {
 			// does the rate area already exist in the rate engine
 			var rateArea *models.ReRateArea
-			rateArea, err = models.FetchReRateAreaItem(db, ra.OriginDomesticPriceAreaCode)
+			rateArea, err = models.FetchReRateAreaItem(db, gre.contractID, ra.OriginDomesticPriceAreaCode)
 			if err != nil {
 				if err.Error() != "sql: no rows in result set" {
 					return nil, fmt.Errorf("failed importing re_rate_area from StageConusToOconusPrice with code: <%s> error: %w", ra.OriginDomesticPriceAreaCode, err)
@@ -91,9 +91,10 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 			} else if rateArea == nil {
 				// insert into re_rate_area
 				newRateArea := models.ReRateArea{
-					IsOconus: false,
-					Code:     ra.OriginDomesticPriceAreaCode,
-					Name:     ra.OriginDomesticPriceArea,
+					ContractID: gre.contractID,
+					IsOconus:   false,
+					Code:       ra.OriginDomesticPriceAreaCode,
+					Name:       ra.OriginDomesticPriceArea,
 				}
 				var verrs *validate.Errors
 				verrs, err = db.ValidateAndCreate(&newRateArea)
@@ -126,7 +127,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 				zap.String("existing name", ra.DestinationDomesticPriceArea))
 		} else {
 			// does the rate area already exist in the rate engine
-			rateArea, err := models.FetchReRateAreaItem(db, ra.DestinationDomesticPriceAreaCode)
+			rateArea, err := models.FetchReRateAreaItem(db, gre.contractID, ra.DestinationDomesticPriceAreaCode)
 			if err != nil {
 				if err.Error() != "sql: no rows in result set" {
 					return nil, fmt.Errorf("Failed importing re_rate_area from StageOconusToConusPrice with code <%s> error: %w", ra.DestinationDomesticPriceAreaCode, err)
@@ -169,9 +170,10 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 			} else if rateArea == nil {
 				// insert into re_rate_area
 				newRateArea := models.ReRateArea{
-					IsOconus: false,
-					Code:     ra.DestinationDomesticPriceAreaCode,
-					Name:     ra.DestinationDomesticPriceArea,
+					ContractID: gre.contractID,
+					IsOconus:   false,
+					Code:       ra.DestinationDomesticPriceAreaCode,
+					Name:       ra.DestinationDomesticPriceArea,
 				}
 				verrs, err := db.ValidateAndCreate(&newRateArea)
 				if err != nil || verrs.HasAny() {
@@ -209,7 +211,7 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 				zap.String("existing name", sa.RateArea))
 		} else {
 			// query for ReRateArea
-			rateArea, err := models.FetchReRateAreaItem(db, sa.RateAreaID)
+			rateArea, err := models.FetchReRateAreaItem(db, gre.contractID, sa.RateAreaID)
 			if err != nil {
 				if err.Error() != "sql: no rows in result set" {
 					return nil, fmt.Errorf("failed importing re_rate_area from StageInternationalServiceArea with code <%s> error: %w", sa.RateAreaID, err)
@@ -247,9 +249,10 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 			} else if rateArea == nil {
 				// insert into re_rate_area
 				newRateArea := models.ReRateArea{
-					IsOconus: true,
-					Code:     sa.RateAreaID,
-					Name:     sa.RateArea,
+					ContractID: gre.contractID,
+					IsOconus:   true,
+					Code:       sa.RateAreaID,
+					Name:       sa.RateArea,
 				}
 				verrs, err := db.ValidateAndCreate(&newRateArea)
 				if err != nil || verrs.HasAny() {

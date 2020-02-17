@@ -107,6 +107,7 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticShorthaulData() {
 	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
 		testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				Contract:    contractYear.Contract,
 				ServiceArea: dshTestServiceArea,
 			},
 		})

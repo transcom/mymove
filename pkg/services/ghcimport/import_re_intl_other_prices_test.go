@@ -60,7 +60,7 @@ func (suite *GHCRateEngineImportSuite) helperCheckInternationalOtherPriceRecords
 
 	// Get rate area UUID.
 	var rateArea *models.ReRateArea
-	rateArea, err = models.FetchReRateAreaItem(suite.DB(), "US68")
+	rateArea, err = models.FetchReRateAreaItem(suite.DB(), contract.ID, "US68")
 	suite.NoError(err)
 
 	// Get service UUID.
