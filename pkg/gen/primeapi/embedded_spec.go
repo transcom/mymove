@@ -823,13 +823,6 @@ func init() {
       }
     },
     "MTOShipment": {
-      "required": [
-        "pickupAddress",
-        "destinationAddress",
-        "scheduledPickupDate",
-        "requestedPickupDate",
-        "shipmentType"
-      ],
       "properties": {
         "approvedDate": {
           "type": "string",
@@ -2073,13 +2066,6 @@ func init() {
       }
     },
     "MTOShipment": {
-      "required": [
-        "pickupAddress",
-        "destinationAddress",
-        "scheduledPickupDate",
-        "requestedPickupDate",
-        "shipmentType"
-      ],
       "properties": {
         "approvedDate": {
           "type": "string",

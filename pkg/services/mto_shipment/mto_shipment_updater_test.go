@@ -71,8 +71,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		ID:                         strfmt.UUID(oldMTOShipment.ID.String()),
 		DestinationAddress:         &destinationAddress,
 		PickupAddress:              &pickupAddress,
-		RequestedPickupDate:        &requestedPickupDate,
-		ScheduledPickupDate:        &scheduledPickupDate,
+		RequestedPickupDate:        requestedPickupDate,
+		ScheduledPickupDate:        scheduledPickupDate,
 		ShipmentType:               "INTERNATIONAL_UB",
 		SecondaryPickupAddress:     &secondaryPickupAddress,
 		SecondaryDeliveryAddress:   &secondaryDeliveryAddress,
@@ -125,8 +125,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		ID:                       strfmt.UUID(oldMTOShipment.ID.String()),
 		DestinationAddress:       &destinationAddress,
 		PickupAddress:            &pickupAddress,
-		RequestedPickupDate:      &requestedPickupDate,
-		ScheduledPickupDate:      &scheduledPickupDate,
+		RequestedPickupDate:      requestedPickupDate,
+		ScheduledPickupDate:      scheduledPickupDate,
 		ShipmentType:             "INTERNATIONAL_UB",
 		SecondaryPickupAddress:   nil,
 		SecondaryDeliveryAddress: nil,
@@ -181,7 +181,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		//remove this when remove required fields
 		scheduledPickupDate = strfmt.Date(eightDaysFromNow)
-		payload3.ScheduledPickupDate = &scheduledPickupDate
+		payload3.ScheduledPickupDate = scheduledPickupDate
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			Body:              &payload3,
@@ -208,7 +208,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		//remove this when remove required fields
 		scheduledPickupDate = strfmt.Date(tenDaysFromNow)
-		payload2.ScheduledPickupDate = &scheduledPickupDate
+		payload2.ScheduledPickupDate = scheduledPickupDate
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			Body:              &payload3,
@@ -239,7 +239,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		//remove this when remove required fields
 		scheduledPickupDate = strfmt.Date(twoDaysFromNow)
-		payload4.ScheduledPickupDate = &scheduledPickupDate
+		payload4.ScheduledPickupDate = scheduledPickupDate
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			Body:              &payload4,
@@ -266,7 +266,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		//remove this when remove required fields
 		scheduledPickupDate = strfmt.Date(sixDaysFromNow)
-		payload4.ScheduledPickupDate = &scheduledPickupDate
+		payload4.ScheduledPickupDate = scheduledPickupDate
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			Body:              &payload4,
@@ -296,7 +296,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		//remove this when remove required fields
 		scheduledPickupDate = strfmt.Date(oneDayFromNow)
-		payload5.ScheduledPickupDate = &scheduledPickupDate
+		payload5.ScheduledPickupDate = scheduledPickupDate
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			Body:              &payload5,
@@ -322,7 +322,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		//remove this when remove required fields
 		scheduledPickupDate = strfmt.Date(twoDaysFromNow)
-		payload5.ScheduledPickupDate = &scheduledPickupDate
+		payload5.ScheduledPickupDate = scheduledPickupDate
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			Body:              &payload5,

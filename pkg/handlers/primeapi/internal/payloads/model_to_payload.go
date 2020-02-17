@@ -157,16 +157,13 @@ func PaymentRequests(paymentRequests *[]models.PaymentRequest) []*primemessages.
 }
 
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
-	requestedPickupDate := strfmt.Date(*mtoShipment.RequestedPickupDate)
-	scheduledPickupDate := strfmt.Date(*mtoShipment.ScheduledPickupDate)
-
 	payload := &primemessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             primemessages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:          *mtoShipment.CustomerRemarks,
-		RequestedPickupDate:      &requestedPickupDate,
-		ScheduledPickupDate:      &scheduledPickupDate,
+		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
+		ScheduledPickupDate:      strfmt.Date(*mtoShipment.ScheduledPickupDate),
 		PickupAddress:            Address(&mtoShipment.PickupAddress),
 		Status:                   string(mtoShipment.Status),
 		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
@@ -174,10 +171,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
-	}
-
-	if mtoShipment.ApprovedDate != nil {
-		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
+		ApprovedDate:             strfmt.Date(*mtoShipment.ApprovedDate),
 	}
 
 	if mtoShipment.PrimeEstimatedWeight != nil {

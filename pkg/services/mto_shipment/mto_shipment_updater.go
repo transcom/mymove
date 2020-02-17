@@ -104,7 +104,7 @@ func NewMTOShipmentUpdater(db *pop.Connection) services.MTOShipmentUpdater {
 // validateUpdatedMTOShipment validates the updated shipment
 func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipment, updatedShipment *primemessages.MTOShipment) error {
 	// if requestedPickupDate isn't valid then return ErrInvalidInput
-	requestedPickupDate := time.Time(*updatedShipment.RequestedPickupDate)
+	requestedPickupDate := time.Time(updatedShipment.RequestedPickupDate)
 	if !requestedPickupDate.Equal(*oldShipment.RequestedPickupDate) {
 		return NewErrInvalidInput(oldShipment.ID, nil, nil, "Requested pickup date must match what customer has requested.")
 	}
@@ -117,7 +117,7 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 		firstAvailableDeliveryDate := time.Time(updatedShipment.FirstAvailableDeliveryDate)
 		oldShipment.FirstAvailableDeliveryDate = &firstAvailableDeliveryDate
 	}
-	scheduledPickupTime := time.Time(*updatedShipment.ScheduledPickupDate)
+	scheduledPickupTime := time.Time(updatedShipment.ScheduledPickupDate)
 	pickupAddress := addressModelFromPayload(updatedShipment.PickupAddress)
 	destinationAddress := addressModelFromPayload(updatedShipment.DestinationAddress)
 

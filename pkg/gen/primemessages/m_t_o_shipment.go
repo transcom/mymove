@@ -31,8 +31,7 @@ type MTOShipment struct {
 	CustomerRemarks string `json:"customerRemarks,omitempty"`
 
 	// destination address
-	// Required: true
-	DestinationAddress *Address `json:"destinationAddress"`
+	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
 	// first available delivery date
 	// Format: date
@@ -47,8 +46,7 @@ type MTOShipment struct {
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 	// pickup address
-	// Required: true
-	PickupAddress *Address `json:"pickupAddress"`
+	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
 	// prime actual weight
 	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
@@ -61,14 +59,12 @@ type MTOShipment struct {
 	PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
 
 	// requested pickup date
-	// Required: true
 	// Format: date
-	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
+	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// scheduled pickup date
-	// Required: true
 	// Format: date
-	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
+	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
 	// secondary delivery address
 	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
@@ -77,8 +73,7 @@ type MTOShipment struct {
 	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
 
 	// shipment type
-	// Required: true
-	ShipmentType MTOShipmentType `json:"shipmentType"`
+	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
 	// status
 	// Enum: [APPROVED SUBMITTED REJECTED]
@@ -187,8 +182,8 @@ func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
 
 func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
 
-	if err := validate.Required("destinationAddress", "body", m.DestinationAddress); err != nil {
-		return err
+	if swag.IsZero(m.DestinationAddress) { // not required
+		return nil
 	}
 
 	if m.DestinationAddress != nil {
@@ -244,8 +239,8 @@ func (m *MTOShipment) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
 func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 
-	if err := validate.Required("pickupAddress", "body", m.PickupAddress); err != nil {
-		return err
+	if swag.IsZero(m.PickupAddress) { // not required
+		return nil
 	}
 
 	if m.PickupAddress != nil {
@@ -275,8 +270,8 @@ func (m *MTOShipment) validatePrimeEstimatedWeightRecordedDate(formats strfmt.Re
 
 func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error {
 
-	if err := validate.Required("requestedPickupDate", "body", m.RequestedPickupDate); err != nil {
-		return err
+	if swag.IsZero(m.RequestedPickupDate) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
@@ -288,8 +283,8 @@ func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error
 
 func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error {
 
-	if err := validate.Required("scheduledPickupDate", "body", m.ScheduledPickupDate); err != nil {
-		return err
+	if swag.IsZero(m.ScheduledPickupDate) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("scheduledPickupDate", "body", "date", m.ScheduledPickupDate.String(), formats); err != nil {
@@ -336,6 +331,10 @@ func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) er
 }
 
 func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ShipmentType) { // not required
+		return nil
+	}
 
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
