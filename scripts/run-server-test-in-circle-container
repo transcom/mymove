@@ -6,18 +6,30 @@
 
 set -eu -o pipefail
 
+if [ "${APPLICATION}" != "app" ] && [ "${APPLICATION}" != "ordres" ]; then
+  echo "Must provider the environment variable APPLICATION and set to 'app' or 'orders'"
+  exit 1
+fi
+
 make clean
 
 go get ./...
 
-# These targets are built with GOARCH=amd64 GOOS=linux and overwrite the local binaries
-make bin/go-junit-report
-make bin/milmove
+# Test that go tests will build first
+make server_test_build
 
+# Migrate the DB
+make bin/milmove
 make db_test_migrate
 
-mkdir -p tmp/test-results/gotest
+function cleanup()
+{
+  # These targets are built with GOARCH=amd64 GOOS=linux and overwrite the local binaries
+  # because docker-compose mounts the local directory and the bin directory is used
+  rm -f bin/milmove
+  rm -f bin/go-junit-report
+}
 
 ## setup a trap incase the tests fail, we still want to generate the report
-trap "bin/go-junit-report < tmp/test-results/gotest/go-test.out >  tmp/test-results/gotest/go-test-report.xml" EXIT
-make server_test_standalone | tee tmp/test-results/gotest/go-test.out
+trap cleanup EXIT
+JUNIT=1 make server_test_standalone

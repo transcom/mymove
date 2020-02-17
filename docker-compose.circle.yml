@@ -29,6 +29,7 @@ services:
       - ./:/home/circleci/transcom/mymove
     working_dir: /home/circleci/transcom/mymove
     environment:
+      - APPLICATION
       - CLIENT_AUTH_SECRET_KEY
       - CSRF_AUTH_KEY
       - CIRCLECI=1
