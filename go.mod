@@ -42,6 +42,7 @@ require (
 	github.com/imdario/mergo v0.3.8
 	github.com/jackc/pgconn v1.1.0 // indirect
 	github.com/jessevdk/go-flags v1.4.0
+	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jstemmer/go-junit-report v0.9.1
 	github.com/jung-kurt/gofpdf v1.16.2

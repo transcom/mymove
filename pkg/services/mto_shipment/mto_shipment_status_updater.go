@@ -15,6 +15,7 @@ import (
 
 type UpdateMTOShipmentStatusQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
+	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type mtoShipmentStatusUpdater struct {
@@ -38,10 +39,9 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 	}
 
 	shipment.Status = models.MTOShipmentStatus(status)
+	verrs, err := o.builder.UpdateOne(&shipment, &eTag)
 
-	verrs, err := shipment.Validate(o.db)
-
-	if verrs.Count() > 0 {
+	if verrs != nil && verrs.Count() > 0 {
 		return nil, ValidationError{
 			id:    shipment.ID,
 			Verrs: verrs,
@@ -49,17 +49,15 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 	}
 
 	if err != nil {
-		return nil, err
-	}
-
-	affectedRows, err := o.db.RawQuery("UPDATE mto_shipments SET status = ?, updated_at = NOW() WHERE id = ? AND encode(to_char(updated_at, 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"')::bytea, 'base64')  = ?", status, shipment.ID.String(), eTag).ExecWithCount()
-
-	if err != nil {
-		return nil, err
-	}
-
-	if affectedRows != 1 {
-		return nil, PreconditionFailedError{id: shipment.ID}
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return nil, PreconditionFailedError{
+				id:  shipment.ID,
+				Err: err,
+			}
+		default:
+			return nil, err
+		}
 	}
 
 	return &shipment, nil
@@ -87,7 +85,8 @@ func (e ValidationError) Error() string {
 }
 
 type PreconditionFailedError struct {
-	id uuid.UUID
+	id  uuid.UUID
+	Err error
 }
 
 func (e PreconditionFailedError) Error() string {

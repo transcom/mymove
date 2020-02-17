@@ -11,7 +11,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -329,7 +328,16 @@ func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 	return nil, nil
 }
 
+type StaleIdentifierError struct {
+	StaleIdentifier string
+}
+
+func (e StaleIdentifierError) Error() string {
+	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
+}
+
 func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
+	fmt.Println("===========")
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return nil, errors.New(FetchOneReflectionMessage)
@@ -339,7 +347,8 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 	var err error
 
 	if eTag != nil {
-		p.db.Transaction(func(tx *pop.Connection) error {
+		fmt.Println("===========")
+		err = p.db.Transaction(func(tx *pop.Connection) error {
 			t = t.Elem()
 			v := reflect.ValueOf(model).Elem()
 			var id uuid.UUID
@@ -349,45 +358,37 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 				}
 			}
 
-			existingRecord := reflect.New(t).Elem().Interface()
-			fmt.Println("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
-			fmt.Println("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
-			fmt.Printf("%#v", existingRecord)
-			fmt.Println("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
-			fmt.Println("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
+			// tableNameable := v.Interface().(pop.TableNameAble)
+			// tableName := tableNameable.TableName()
+			//
+			// sqlString := fmt.Sprintf("SELECT updated_at from %s WHERE id = $1", tableName)
+			sqlString := "SELECT updated_at from office_users WHERE id = $1 FOR UPDATE"
+			// sqlString := "SELECT updated_at from office_users WHERE id = $1"
 
-			query := tx.Where("id = ?", id.String())
-			err := query.First(&existingRecord)
+			fmt.Println("===========")
+			fmt.Println("===========")
+			fmt.Println("===========")
+			fmt.Println("===========")
+			row := tx.TX.QueryRow(sqlString, id.String())
+			var updatedAt time.Time
+			err = row.Scan(&updatedAt)
 
 			if err != nil {
-				fmt.Println("/////////////////////")
-				fmt.Println("/////////////////////")
-				fmt.Println("/////////////////////")
-				fmt.Printf("%#v\n", err)
-				fmt.Printf("%s\n", id.String())
-				fmt.Println("/////////////////////")
-				fmt.Println("/////////////////////")
-				fmt.Println("/////////////////////")
+				return err
 			}
 
-			var updatedAt time.Time
-			v = reflect.ValueOf(existingRecord).Elem()
-			for i := 0; i < t.NumField(); i++ {
-				if t.Field(i).Name == "UpdatedAt" {
-					updatedAt = v.Field(i).Interface().(time.Time)
-				}
-			}
 			encodedUpdatedAt := base64.StdEncoding.EncodeToString([]byte(updatedAt.String()))
 
 			if encodedUpdatedAt != *eTag {
-				return errors.New("hello")
+				return StaleIdentifierError{StaleIdentifier: *eTag}
 			}
 
 			verrs, err = p.db.ValidateAndUpdate(model)
+			fmt.Println("-----------------------")
+			fmt.Println("-----------------------")
 
 			return nil
 		})
-
 	} else {
 		verrs, err = p.db.ValidateAndUpdate(model)
 	}
@@ -396,7 +397,7 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 		return nil, err
 	}
 
-	if verrs != nil {
+	if verrs != nil && verrs.HasAny() {
 		return verrs, nil
 	}
 
