@@ -667,6 +667,8 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 
 .PHONY: db_e2e_up
 db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-end) data
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_TEST} database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
@@ -677,6 +679,8 @@ db_e2e_init: db_test_reset db_test_migrate db_e2e_up ## Initialize e2e (end-to-e
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: db_dev_reset db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="development"
 
