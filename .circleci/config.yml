@@ -17,28 +17,28 @@ executors:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
       - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -48,7 +48,7 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
       - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -201,6 +201,69 @@ commands:
       - run:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
+
+  server_tests_step:
+    parameters:
+      application:
+        type: string
+    steps:
+      - run:
+          name: make server_test_build for <<parameters.application>>
+          command: make server_test_build
+          environment:
+            APPLICATION: "<< parameters.application >>"
+            GOFLAGS: "-p=4"
+      - run:
+          name: make db_test_reset for <<parameters.application>>
+          command: make db_test_reset
+          environment:
+            APPLICATION: "<< parameters.application >>"
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
+      - run:
+          name: make db_test_migrate for <<parameters.application>>
+          command: make db_test_migrate
+          environment:
+            APPLICATION: "<< parameters.application >>"
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
+      - run:
+          name: make server_test_standalone for <<parameters.application>>
+          command: |
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            source $BASH_ENV
+            make server_test_standalone
+          environment:
+            APPLICATION: "<< parameters.application >>"
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+            ENV: test
+            ENVIRONMENT: test
+            GOFLAGS: "-p=4"
+            JUNIT: 1
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
+            SERVE_API_INTERNAL: true
   e2e_tests:
     steps:
       - run:
@@ -219,6 +282,7 @@ commands:
             make e2e_test_docker
           environment:
             # Env vars needed for the webserver to run inside docker
+            APPLICATION: app
             LOGIN_GOV_CALLBACK_PROTOCOL: http
             LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
             LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
@@ -317,18 +381,29 @@ jobs:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run: echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
       - run: make bin/swagger
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
-          name: Run pre-commit tests
-          command: pre-commit run --all-files
+          name: Run pre-commit tests without golangci-lint
+          command: SKIP=golangci-lint pre-commit run --all-files
+      # The output of golangci-lint is an artifact towards STIG compliance
+      - run:
+          name: Run pre-commit tests with golangci-lint only
+          command: |
+            echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
+            echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
+            source $BASH_ENV
+            mkdir -p tmp/test-results/pretest
+            pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
       # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
+      - store_artifacts:
+          path: ~/transcom/mymove/tmp/test-results
+          destination: test-results
       - announce_failure
 
   # `acceptance_tests_local` runs acceptance tests for the webserver against a local environment.
@@ -407,46 +482,13 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: sudo apt-get update && sudo apt-get install -yy postgresql-client
       - run: make bin/go-junit-report
       - run: make bin/milmove
-      - run:
-          name: make db_test_migrate
-          command: make db_test_migrate
-          environment:
-            APPLICATION: app
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT_TEST: 5433
-            DB_PORT: 5432
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
-      - run:
-          name: make server_test_standalone
-          command: |
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            source $BASH_ENV
-            mkdir -p tmp/test-results/gotest
-            # setup a trap incase the tests fail, we still want to generate the report
-            trap "bin/go-junit-report < tmp/test-results/gotest/go-test.out >  tmp/test-results/gotest/go-test-report.xml" EXIT
-            make server_test_standalone | tee tmp/test-results/gotest/go-test.out
-          environment:
-            APPLICATION: app
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT_TEST: 5433
-            DB_PORT: 5432
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
-            ENV: test
-            ENVIRONMENT: test
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
-            SERVE_API_INTERNAL: true
+      - server_tests_step:
+          application: app
+      - server_tests_step:
+          application: orders
       - store_artifacts:
           path: ~/transcom/mymove/tmp/test-results
           destination: test-results

@@ -11,18 +11,21 @@ import (
 
 // ReZip3 model struct
 type ReZip3 struct {
-	ID                    uuid.UUID `json:"id" db:"id"`
-	ContractID            uuid.UUID `json:"contract_id" db:"contract_id"`
-	Zip3                  string    `json:"zip3" db:"zip3"`
-	BasePointCity         string    `json:"base_point_city" db:"base_point_city"`
-	State                 string    `json:"state" db:"state"`
-	DomesticServiceAreaID uuid.UUID `json:"domestic_service_area_id" db:"domestic_service_area_id"`
-	CreatedAt             time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt             time.Time `json:"updated_at" db:"updated_at"`
+	ID                    uuid.UUID  `json:"id" db:"id"`
+	ContractID            uuid.UUID  `json:"contract_id" db:"contract_id"`
+	Zip3                  string     `json:"zip3" db:"zip3"`
+	BasePointCity         string     `json:"base_point_city" db:"base_point_city"`
+	State                 string     `json:"state" db:"state"`
+	DomesticServiceAreaID uuid.UUID  `json:"domestic_service_area_id" db:"domestic_service_area_id"`
+	RateAreaID            *uuid.UUID `json:"rate_area_id" db:"rate_area_id"`
+	HasMultipleRateAreas  bool       `json:"has_multiple_rate_areas" db:"has_multiple_rate_areas"`
+	CreatedAt             time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt             time.Time  `json:"updated_at" db:"updated_at"`
 
 	// Associations
 	Contract            ReContract            `belongs_to:"re_contract"`
-	DomesticServiceArea ReDomesticServiceArea `belongs_to:"re_domestic_service_area"`
+	DomesticServiceArea ReDomesticServiceArea `belongs_to:"re_domestic_service_areas"`
+	RateArea            *ReRateArea           `belongs_to:"re_rate_areas"`
 }
 
 // ReZip3s is not required by pop and may be deleted
