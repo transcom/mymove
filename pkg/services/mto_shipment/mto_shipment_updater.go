@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func addressModelFromPayload(rawAddress *primemessages.Address) *models.Address {
@@ -103,7 +104,14 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 		return ErrInvalidInput{}
 	}
 	oldShipment.RequestedPickupDate = &requestedPickupDate
-
+	if updatedShipment.PrimeActualWeight != 0 {
+		primeActualWeight := unit.Pound(updatedShipment.PrimeActualWeight)
+		oldShipment.PrimeActualWeight = &primeActualWeight
+	}
+	if updatedShipment.FirstAvailableDeliveryDate.String() != "" {
+		firstAvailableDeliveryDate := time.Time(updatedShipment.FirstAvailableDeliveryDate)
+		oldShipment.FirstAvailableDeliveryDate = &firstAvailableDeliveryDate
+	}
 	scheduledPickupTime := time.Time(*updatedShipment.ScheduledPickupDate)
 	pickupAddress := addressModelFromPayload(updatedShipment.PickupAddress)
 	destinationAddress := addressModelFromPayload(updatedShipment.DestinationAddress)
@@ -141,7 +149,6 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 			shipment_type = ?,
 			pickup_address_id = ?,
 			destination_address_id = ?,
-			prime_actual_weight = ?,
 			updated_at = NOW()`
 
 	var basicParams []interface{}
@@ -150,7 +157,6 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		updatedShipment.ShipmentType,
 		updatedShipment.PickupAddress.ID,
 		updatedShipment.DestinationAddress.ID,
-		updatedShipment.PrimeActualWeight,
 	)
 
 	if updatedShipment.SecondaryPickupAddress != nil {
@@ -161,6 +167,16 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 	if updatedShipment.SecondaryDeliveryAddress != nil {
 		basicQuery = basicQuery + ", \nsecondary_delivery_address_id = ?"
 		basicParams = append(basicParams, updatedShipment.SecondaryDeliveryAddress.ID)
+	}
+
+	if updatedShipment.FirstAvailableDeliveryDate.String() != "" {
+		basicQuery = basicQuery + ", \nfirst_available_delivery_date = ?"
+		basicParams = append(basicParams, updatedShipment.FirstAvailableDeliveryDate)
+	}
+
+	if updatedShipment.PrimeActualWeight != 0 {
+		basicQuery = basicQuery + ", \nprime_actual_weight = ?"
+		basicParams = append(basicParams, updatedShipment.PrimeActualWeight)
 	}
 
 	finishedQuery := basicQuery + `
@@ -175,8 +191,7 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 	)
 
 	// do the updating in a raw query
-	affectedRows, err := db.RawQuery(finishedQuery,
-		params...).ExecWithCount()
+	affectedRows, err := db.RawQuery(finishedQuery, params...).ExecWithCount()
 
 	if err != nil {
 		return err
