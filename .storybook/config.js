@@ -1,4 +1,5 @@
 import { configure } from '@storybook/react';
+import 'loki/configure-react';
 
 import 'uswds';
 import 'uswds/dist/css/uswds.css';
