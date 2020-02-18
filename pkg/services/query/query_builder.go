@@ -369,13 +369,8 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 			}
 
 			sqlString := fmt.Sprintf("SELECT updated_at from %s WHERE id = $1 FOR UPDATE", pq.QuoteIdentifier(tableName))
-			row := tx.TX.QueryRow(sqlString, id.String())
 			var updatedAt time.Time
-			err = row.Scan(&updatedAt)
-
-			if err != nil {
-				return err
-			}
+			tx.RawQuery(sqlString, id.String()).First(&updatedAt)
 
 			encodedUpdatedAt := base64.StdEncoding.EncodeToString([]byte(updatedAt.Format(time.RFC3339Nano)))
 
