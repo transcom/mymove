@@ -83,9 +83,19 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
 
 ### File Layout & Naming
 
-* All front-end client code is kept within a subdirectory called `src`. This is an artifact of using `create-react-app`.
+* All front-end client code is kept within a subdirectory called `src`. This is an artifact of using `create-react-app` and common React best practice.
 * Inside that directory:
-  * `/src`
+  * `/src/components` Low-level React Components that are more about rendering UI than handling application logic, and should typically not be connected to providers directly. Aim for abstract, generic components that can be shared across the application easily, and will usually have corresponding stories files for viewing in Storybook.
+  * `/src/config` High-level configuration definitions relevant to the whole application (such as routes).
+  * `/src/constants` Define constants here instead of using string literals for any values with specific meaning in the context of the application. For example, data that comes back from the API that may be used in UI logic (such as a user role or payment request status).
+  * `/src/containers` React Components that are primarily concerned with connecting UI to containers or providers (such as Redux), and sharing behavior or patterns via hooks or higher-order components.
+  * `/src/helpers` Miscellaneous utilities that implement logic, data handling, and other common functions used throughout the application. These should not include React-specific code such as JSX, and they should generally be purely functional and well-tested.
+  * `/src/layout` React components used to render common layout elements, such as header, footer, page content, etc. Similar to the components located in /src/components, they should focus on rendering UI rather than application logic or connecting to providers. However, they are designed such that there should only ever be one instance on each page.
+  * `/src/pages` React components that correspond to actual routes (URLs). These are responsible for assembling the UI components for a page, and hooking them up with the necessary providers such as Redux. Queries should be co-located with page components, since pages are explicitly dependent on them.
+  * `/src/stories` Storybook stories for components live here.
+  * ***NOTE: The code style recommendations above are strictly enforced in the above directories***
+  * `/src/shared/styles` Global or shared styles
+* Previous layout of components PPM and HHG work was done in the following structure and will remain concurrently until it can be migrated to the new recommendations above. ***No new files should go in the following directories.*** New files should be put into the above structure. If there are significant changes to components in the below directories please migrate them to the new structure.
   * `/src/scenes` Group components by scene name
   * `/src/shared` Group shared components, like headers
 * File naming
