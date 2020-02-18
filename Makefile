@@ -375,7 +375,7 @@ ifndef TEST_ACC_ENV
 	SERVE_API_INTERNAL=true \
 	SERVE_API_GHC=false \
 	MUTUAL_TLS_ENABLED=true \
-	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
+	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 ifndef CIRCLECI
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
@@ -383,13 +383,13 @@ ifndef CIRCLECI
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	aws-vault exec $(AWS_PROFILE) -- \
 	chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
-	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
+	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber/v2
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
 	TEST_ACC_CWD=$(PWD) \
 	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
-	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
+	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 endif
 endif
 
@@ -402,36 +402,24 @@ server_test: db_test_reset db_test_migrate server_test_standalone ## Run server 
 
 .PHONY: server_test_standalone
 server_test_standalone: ## Run server unit tests with no deps
-	# Don't run tests in /cmd or /pkg/gen/ or mocks
-	# Pass `-short` to exclude long running tests
-	# Disable test caching with `-count 1` - caching was masking local test failures
-ifndef CIRCLECI
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -parallel 8 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
-else
-	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
-	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -v -parallel 4 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
-endif
+	NO_DB=1 scripts/run-server-test
 
+.PHONY: server_test_build
 server_test_build:
-	# Try to compile tests, but don't run them.
-	go test -run=nope -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	NO_DB=1 DRY_RUN=1 scripts/run-server-test
 
 .PHONY: server_test_all
 server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
-	DB_PORT=$(DB_PORT_TEST) go test -parallel 4 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	LONG_TEST=1 scripts/run-server-test
 
 .PHONY: server_test_coverage_generate
 server_test_coverage_generate: db_test_reset db_test_migrate server_test_coverage_generate_standalone ## Run server unit test coverage
 
 .PHONY: server_test_coverage_generate_standalone
 server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
-	# Don't run tests in /cmd or /pkg/gen
-	# Use -test.parallel 1 to test packages serially and avoid database collisions
-	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Add coverage tracker via go cover
-	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -parallel 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	NO_DB=1 COVERAGE=1 scripts/run-server-test
 
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
@@ -443,7 +431,7 @@ server_test_docker:
 
 .PHONY: server_test_docker_down
 server_test_docker_down:
-	docker-compose -f docker-compose.circle.yml down
+	docker-compose -f docker-compose.circle.yml --compatibility down
 
 #
 # ----- END SERVER TARGETS -----
@@ -570,6 +558,7 @@ ifndef CIRCLECI
 		echo "No database container"
 else
 	@echo "Relying on CircleCI's database setup to destroy the DB."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'DROP DATABASE IF EXISTS $(DB_NAME_TEST);'
 endif
 
 .PHONY: db_test_start
@@ -598,6 +587,7 @@ ifndef CIRCLECI
 		createdb -p $(DB_PORT_TEST) -h localhost -U postgres $(DB_NAME_TEST) || true
 else
 	@echo "Relying on CircleCI's database setup to create the DB."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
 endif
 
 .PHONY: db_test_run
@@ -667,6 +657,8 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 
 .PHONY: db_e2e_up
 db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-end) data
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_TEST} database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
@@ -677,6 +669,8 @@ db_e2e_init: db_test_reset db_test_migrate db_e2e_up ## Initialize e2e (end-to-e
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: db_dev_reset db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="development"
 
