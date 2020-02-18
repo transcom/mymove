@@ -157,8 +157,7 @@ export function getSelectedWeightInfo(state) {
   if (isNull(weightInfo) || isNull(ppm)) {
     return null;
   }
-
-  const size = ppm ? ppm.size : 'L';
+  const size = ppm && ppm.size ? ppm.size : 'L';
   return weightInfo[size]; // eslint-disable-line security/detect-object-injection
 }
 

@@ -93,6 +93,7 @@ application testing
 | Script Name | Description |
 | --- | --- |
 | `check-docker-size` | Script to check the available disk space Docker has used |
+| `ensure-application` | Ensure APPLICATION is set to `app` or `orders` and matches input value |
 | `export-obfuscated-tspp-sample` | Export a subset of rows from the `transportation_service_provider_performances` table |
 | `find-invoices` |  This script will use available API endpoints to find invoices in whatever environment you specify|
 | `generate-devlocal-cert` | Convenience script for creating a new certificate signed by the DevLocal CA. |
@@ -119,6 +120,7 @@ This subset of development scripts is used for testing
 | --- | --- |
 | `run-e2e-test` | Runs cypress tests with interactive GUI |
 | `run-e2e-test-docker` | Runs cypress tests entirely inside docker containers like in CircleCI |
+| `run-server-test` | Run golang server tests |
 | `run-server-test-in-circle-container` | Executed in docker-compose.circle.yml to run the `make server_test` task in a CircleCI container |
 
 ### Secure Migrations
