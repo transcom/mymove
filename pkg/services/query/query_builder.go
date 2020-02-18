@@ -372,7 +372,15 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 				}
 			}
 
-			tableName := flect.Underscore(flect.Pluralize(t.Name()))
+			var tableName string
+			tableNameable, ok := model.(pop.TableNameAble)
+
+			if ok {
+				tableName = tableNameable.TableName()
+			} else {
+				tableName = flect.Underscore(flect.Pluralize(t.Name()))
+			}
+
 			sqlString := fmt.Sprintf("SELECT updated_at from %s WHERE id = $1 FOR UPDATE", pq.QuoteIdentifier(tableName))
 			row := tx.TX.QueryRow(sqlString, id.String())
 			var updatedAt time.Time
@@ -382,7 +390,7 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 				return err
 			}
 
-			encodedUpdatedAt := base64.StdEncoding.EncodeToString([]byte(updatedAt.String()))
+			encodedUpdatedAt := base64.StdEncoding.EncodeToString([]byte(updatedAt.Format(time.RFC3339Nano)))
 
 			if encodedUpdatedAt != *eTag {
 				return StaleIdentifierError{StaleIdentifier: *eTag}
