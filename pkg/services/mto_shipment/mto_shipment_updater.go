@@ -190,22 +190,22 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 
 	if updatedShipment.DestinationAddressID != uuid.Nil {
 		baseQuery = baseQuery + ", \npickup_address_id = ?"
-		params = append(params, updatedShipment.PickupAddressID)
+		params = append(params, updatedShipment.PickupAddress.ID)
 	}
 
 	if updatedShipment.PickupAddressID != uuid.Nil {
 		baseQuery = baseQuery + ", \ndestination_address_id = ?"
-		params = append(params, updatedShipment.DestinationAddressID)
+		params = append(params, updatedShipment.DestinationAddress.ID)
 	}
 
 	if updatedShipment.SecondaryPickupAddress != nil {
 		baseQuery = baseQuery + ", \nsecondary_pickup_address_id = ?"
-		params = append(params, updatedShipment.SecondaryPickupAddressID)
+		params = append(params, updatedShipment.SecondaryPickupAddress.ID)
 	}
 
 	if updatedShipment.SecondaryDeliveryAddress != nil {
 		baseQuery = baseQuery + ", \nsecondary_delivery_address_id = ?"
-		params = append(params, updatedShipment.SecondaryDeliveryAddressID)
+		params = append(params, updatedShipment.SecondaryDeliveryAddress.ID)
 	}
 
 	if updatedShipment.ScheduledPickupDate != nil {

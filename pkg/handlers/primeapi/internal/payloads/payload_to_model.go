@@ -15,6 +15,7 @@ func AddressModel(address *primemessages.Address) *models.Address {
 		return nil
 	}
 	return &models.Address{
+		ID:             uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress1: *address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
