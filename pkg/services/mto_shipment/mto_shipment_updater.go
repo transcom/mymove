@@ -190,8 +190,8 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 			destination_address_id = ?,
 			updated_at = NOW()`
 
-	var basicParams []interface{}
-	basicParams = append(basicParams, updatedShipment.ScheduledPickupDate,
+	var params []interface{}
+	params = append(params, updatedShipment.ScheduledPickupDate,
 		updatedShipment.RequestedPickupDate,
 		updatedShipment.ShipmentType,
 		updatedShipment.PickupAddress.ID,
@@ -200,29 +200,30 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 
 	if updatedShipment.PrimeEstimatedWeight != 0 {
 		estimatedWeightQuery := `,
-			prime_estimated_weight = %d,
+			prime_estimated_weight = ?,
 			prime_estimated_weight_recorded_date = NOW()`
-		baseQuery = baseQuery + fmt.Sprintf(estimatedWeightQuery, updatedShipment.PrimeEstimatedWeight)
+		baseQuery = baseQuery + estimatedWeightQuery
+		params = append(params, updatedShipment.PrimeEstimatedWeight)
 	}
 
 	if updatedShipment.SecondaryPickupAddress != nil {
 		baseQuery = baseQuery + ", \nsecondary_pickup_address_id = ?"
-		basicParams = append(basicParams, updatedShipment.SecondaryPickupAddress.ID)
+		params = append(params, updatedShipment.SecondaryPickupAddress.ID)
 	}
 
 	if updatedShipment.SecondaryDeliveryAddress != nil {
 		baseQuery = baseQuery + ", \nsecondary_delivery_address_id = ?"
-		basicParams = append(basicParams, updatedShipment.SecondaryDeliveryAddress.ID)
+		params = append(params, updatedShipment.SecondaryDeliveryAddress.ID)
 	}
 
 	if updatedShipment.FirstAvailableDeliveryDate.String() != "" {
 		baseQuery = baseQuery + ", \nfirst_available_delivery_date = ?"
-		basicParams = append(basicParams, updatedShipment.FirstAvailableDeliveryDate)
+		params = append(params, updatedShipment.FirstAvailableDeliveryDate)
 	}
 
 	if updatedShipment.PrimeActualWeight != 0 {
 		baseQuery = baseQuery + ", \nprime_actual_weight = ?"
-		basicParams = append(basicParams, updatedShipment.PrimeActualWeight)
+		params = append(params, updatedShipment.PrimeActualWeight)
 	}
 
 	finishedQuery := baseQuery + `
@@ -231,7 +232,8 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		AND
 			updated_at = ?
 		;`
-	params := append(basicParams,
+
+	params = append(params,
 		updatedShipment.ID,
 		unmodifiedSince,
 	)
