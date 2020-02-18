@@ -450,3 +450,4 @@
 20200211150405_mr337_cac.up.sql
 20200212153937_add_contract_id_to_re_ref_tables.up.sql
 20200212201441_rd_cac.up.sql
+20200217175555_move-re-city-state.up.sql

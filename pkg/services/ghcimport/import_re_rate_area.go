@@ -42,7 +42,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 	}
 	for _, ra := range conusToOconus {
 		if _, found := rateAreaToIDMap[ra.OriginDomesticPriceAreaCode]; found {
-			gre.Logger.Info("Rate area already exists",
+			gre.Logger.Debug("Rate area already exists",
 				zap.String("existing code", ra.OriginDomesticPriceAreaCode),
 				zap.String("existing name", ra.OriginDomesticPriceArea))
 		} else {
@@ -122,7 +122,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 	}
 	for _, ra := range oconusToConus {
 		if _, found := rateAreaToIDMap[ra.DestinationDomesticPriceAreaCode]; found {
-			gre.Logger.Info("Rate area already exists",
+			gre.Logger.Debug("Rate area already exists",
 				zap.String("existing code", ra.DestinationDomesticPriceAreaCode),
 				zap.String("existing name", ra.DestinationDomesticPriceArea))
 		} else {
@@ -206,7 +206,7 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 	rateAreaToIDMap := make(map[string]uuid.UUID)
 	for _, sa := range serviceAreas {
 		if _, found := rateAreaToIDMap[sa.RateAreaID]; found {
-			gre.Logger.Info("Rate area already exists",
+			gre.Logger.Debug("Rate area already exists",
 				zap.String("existing code", sa.RateAreaID),
 				zap.String("existing name", sa.RateArea))
 		} else {
