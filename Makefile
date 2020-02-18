@@ -375,7 +375,7 @@ ifndef TEST_ACC_ENV
 	SERVE_API_INTERNAL=true \
 	SERVE_API_GHC=false \
 	MUTUAL_TLS_ENABLED=true \
-	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
+	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 ifndef CIRCLECI
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
@@ -383,13 +383,13 @@ ifndef CIRCLECI
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	aws-vault exec $(AWS_PROFILE) -- \
 	chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
-	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
+	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber/v2
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
 	TEST_ACC_CWD=$(PWD) \
 	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
-	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
+	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 endif
 endif
 
