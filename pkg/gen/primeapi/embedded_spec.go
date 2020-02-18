@@ -937,6 +937,11 @@ func init() {
     },
     "MoveTaskOrder": {
       "type": "object",
+      "required": [
+        "mto_shipments",
+        "mto_service_items",
+        "payment_requests"
+      ],
       "properties": {
         "createdAt": {
           "type": "string",
@@ -961,19 +966,13 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "mto_service_items": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "mto_shipments": {
           "$ref": "#/definitions/MTOShipments"
         },
         "payment_requests": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/PaymentRequest"
-          }
+          "$ref": "#/definitions/PaymentRequests"
         },
         "referenceId": {
           "type": "string",
@@ -2168,6 +2167,11 @@ func init() {
     },
     "MoveTaskOrder": {
       "type": "object",
+      "required": [
+        "mto_shipments",
+        "mto_service_items",
+        "payment_requests"
+      ],
       "properties": {
         "createdAt": {
           "type": "string",
@@ -2192,19 +2196,13 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "mto_service_items": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "mto_shipments": {
           "$ref": "#/definitions/MTOShipments"
         },
         "payment_requests": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/PaymentRequest"
-          }
+          "$ref": "#/definitions/PaymentRequests"
         },
         "referenceId": {
           "type": "string",

@@ -21,8 +21,8 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
-		PaymentRequests:    paymentRequests,
-		MtoServiceItems:    mtoServiceItems,
+		PaymentRequests:    *paymentRequests,
+		MtoServiceItems:    *mtoServiceItems,
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
@@ -147,13 +147,13 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 	}
 }
 
-func PaymentRequests(paymentRequests *[]models.PaymentRequest) []*primemessages.PaymentRequest {
+func PaymentRequests(paymentRequests *models.PaymentRequests) *primemessages.PaymentRequests {
 	payload := make(primemessages.PaymentRequests, len(*paymentRequests))
 
 	for i, p := range *paymentRequests {
 		payload[i] = PaymentRequest(&p)
 	}
-	return payload
+	return &payload
 }
 
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
@@ -195,11 +195,11 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *primemessages.MTOSer
 	}
 }
 
-func MTOServiceItems(mtoServiceItems *[]models.MTOServiceItem) []*primemessages.MTOServiceItem {
+func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *primemessages.MTOServiceItems {
 	payload := make(primemessages.MTOServiceItems, len(*mtoServiceItems))
 
 	for i, p := range *mtoServiceItems {
 		payload[i] = MTOServiceItem(&p)
 	}
-	return payload
+	return &payload
 }

@@ -24,7 +24,15 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 	var mtos models.MoveTaskOrders
 
-	query := h.DB().Where("is_available_to_prime = ?", true).Eager("PaymentRequests", "MTOServiceItems", "MTOServiceItems.ReService", "MTOShipments", "MTOShipments.DestinationAddress", "MTOShipments.PickupAddress", "MTOShipments.SecondaryDeliveryAddress", "MTOShipments.SecondaryPickupAddress")
+	query := h.DB().Where("is_available_to_prime = ?", true).Eager(
+		"PaymentRequests",
+		"MTOServiceItems",
+		"MTOServiceItems.ReService",
+		"MTOShipments",
+		"MTOShipments.DestinationAddress",
+		"MTOShipments.PickupAddress",
+		"MTOShipments.SecondaryDeliveryAddress",
+		"MTOShipments.SecondaryPickupAddress")
 	if params.Since != nil {
 		since := time.Unix(*params.Since, 0)
 		query = query.Where("updated_at > ?", since)

@@ -575,6 +575,10 @@ definitions:
     type: object
   MoveTaskOrder:
     type: object
+    required:
+      - mto_shipments
+      - mto_service_items
+      - payment_requests
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -601,13 +605,9 @@ definitions:
         format: date
         type: string
       payment_requests:
-        type: array
-        items:
-          $ref: '#/definitions/PaymentRequest'
+        $ref: '#/definitions/PaymentRequests'
       mto_service_items:
-        type: array
-        items:
-          $ref: '#/definitions/MTOServiceItem'
+        $ref: '#/definitions/MTOServiceItems'
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
   MoveTaskOrders:
