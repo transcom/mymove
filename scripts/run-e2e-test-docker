@@ -2,6 +2,8 @@
 
 set -eux -o pipefail
 
+scripts/ensure-application app
+
 # Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
 export REACT_APP_NODE_ENV=development
 

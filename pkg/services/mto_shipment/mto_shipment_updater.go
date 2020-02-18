@@ -231,7 +231,6 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		AND
 			updated_at = ?
 		;`
-
 	params := append(basicParams,
 		updatedShipment.ID,
 		unmodifiedSince,

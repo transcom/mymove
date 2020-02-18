@@ -13,6 +13,9 @@ describe('completing the ppm flow', function() {
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
+    cy.location().then(loc => {
+      cy.setFeatureFlag('progearChanges=false', loc.pathname);
+    });
     cy.get('.wizard-header').should('not.exist');
     cy.get('input[name="original_move_date"]')
       .first()
@@ -129,6 +132,9 @@ describe('completing the ppm flow with a move date that we currently do not have
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
+    cy.location().then(loc => {
+      cy.setFeatureFlag('progearChanges=false', loc.pathname);
+    });
     cy.get('.wizard-header').should('not.exist');
     cy.get('input[name="original_move_date"]')
       .first()
@@ -233,6 +239,9 @@ describe('check invalid ppm inputs', () => {
     cy.contains('Continue Move Setup').click();
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
+    });
+    cy.location().then(loc => {
+      cy.setFeatureFlag('progearChanges=false', loc.pathname);
     });
     cy.get('.wizard-header').should('not.exist');
     cy.get('input[name="original_move_date"]')

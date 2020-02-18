@@ -30,6 +30,8 @@ cac-prereqs
 prereqs
 ```
 
+You will also need to have you CAC reader plugged in with your CAC inside it
+
 ## How it works
 
 Mutual TLS is used in the app to authentication traffic. Users are authorized by comparing a SHA 256 hash of the
