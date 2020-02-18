@@ -6,7 +6,6 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -75,19 +74,9 @@ func (gre *GHCRateEngineImporter) buildServiceAreasData(dbTx *pop.Connection) (s
 		foundServiceAreaData, serviceAreaFound := serviceAreasData[serviceAreaNumber]
 		if serviceAreaFound {
 			// Service area already encountered; merge new zips into data structure
-			gre.Logger.Debug("Service area already exists",
-				zap.String("service area number", serviceAreaNumber),
-				zap.String("new base point city", stageArea.BasePointCity),
-				zap.String("new state", stageArea.State))
-
 			zip3sSet := foundServiceAreaData.zip3s
 			for _, zip3 := range splitZip3s {
-				if _, zipFound := zip3sSet[zip3]; zipFound {
-					gre.Logger.Debug("Zip3 already exists for service area",
-						zap.String("service area number", serviceAreaNumber),
-						zap.String("zip3", zip3))
-					// Not updating city/state in this case -- the first city/state encountered wins.
-				} else {
+				if _, zipFound := zip3sSet[zip3]; !zipFound {
 					zip3sSet[zip3] = cityState{
 						city:  stageArea.BasePointCity,
 						state: stageArea.State,

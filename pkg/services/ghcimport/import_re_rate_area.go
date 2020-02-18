@@ -3,11 +3,9 @@ package ghcimport
 import (
 	"fmt"
 
-	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -41,11 +39,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 		return nil, fmt.Errorf("failed to query all StageConusToOconusPrice: %w", err)
 	}
 	for _, ra := range conusToOconus {
-		if _, found := rateAreaToIDMap[ra.OriginDomesticPriceAreaCode]; found {
-			gre.Logger.Debug("Rate area already exists",
-				zap.String("existing code", ra.OriginDomesticPriceAreaCode),
-				zap.String("existing name", ra.OriginDomesticPriceArea))
-		} else {
+		if _, found := rateAreaToIDMap[ra.OriginDomesticPriceAreaCode]; !found {
 			// does the rate area already exist in the rate engine
 			var rateArea *models.ReRateArea
 			rateArea, err = models.FetchReRateAreaItem(db, gre.contractID, ra.OriginDomesticPriceAreaCode)
@@ -121,11 +115,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 		return nil, fmt.Errorf("failed to query all StageOconusToConusPrice error: %w", err)
 	}
 	for _, ra := range oconusToConus {
-		if _, found := rateAreaToIDMap[ra.DestinationDomesticPriceAreaCode]; found {
-			gre.Logger.Debug("Rate area already exists",
-				zap.String("existing code", ra.DestinationDomesticPriceAreaCode),
-				zap.String("existing name", ra.DestinationDomesticPriceArea))
-		} else {
+		if _, found := rateAreaToIDMap[ra.DestinationDomesticPriceAreaCode]; !found {
 			// does the rate area already exist in the rate engine
 			rateArea, err := models.FetchReRateAreaItem(db, gre.contractID, ra.DestinationDomesticPriceAreaCode)
 			if err != nil {
@@ -205,11 +195,7 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 
 	rateAreaToIDMap := make(map[string]uuid.UUID)
 	for _, sa := range serviceAreas {
-		if _, found := rateAreaToIDMap[sa.RateAreaID]; found {
-			gre.Logger.Debug("Rate area already exists",
-				zap.String("existing code", sa.RateAreaID),
-				zap.String("existing name", sa.RateArea))
-		} else {
+		if _, found := rateAreaToIDMap[sa.RateAreaID]; !found {
 			// query for ReRateArea
 			rateArea, err := models.FetchReRateAreaItem(db, gre.contractID, sa.RateAreaID)
 			if err != nil {
