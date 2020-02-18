@@ -451,7 +451,7 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 			TransportationOffice:   transportationOffice,
 		}
 
-		eTag := base64.StdEncoding.EncodeToString([]byte(officeUser.UpdatedAt.String()))
+		eTag := base64.StdEncoding.EncodeToString([]byte(officeUser.UpdatedAt.Format(time.RFC3339Nano)))
 		verrs, err := builder.UpdateOne(&updatedOfficeUserInfo, &eTag)
 		suite.Nil(verrs)
 		suite.Nil(err)
