@@ -17,12 +17,33 @@ import (
 // swagger:model Customer
 type Customer struct {
 
+	// branch
+	Branch string `json:"branch,omitempty"`
+
+	// current address
+	CurrentAddress *Address `json:"currentAddress,omitempty"`
+
+	// destination address
+	DestinationAddress *Address `json:"destinationAddress,omitempty"`
+
 	// dod ID
 	DodID string `json:"dodID,omitempty"`
+
+	// email
+	Email string `json:"email,omitempty"`
+
+	// first name
+	FirstName string `json:"firstName,omitempty"`
 
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
+
+	// last name
+	LastName string `json:"lastName,omitempty"`
+
+	// phone
+	Phone string `json:"phone,omitempty"`
 
 	// user ID
 	// Format: uuid
@@ -32,6 +53,14 @@ type Customer struct {
 // Validate validates this customer
 func (m *Customer) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateCurrentAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
@@ -44,6 +73,42 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.CurrentAddress) { // not required
+		return nil
+	}
+
+	if m.CurrentAddress != nil {
+		if err := m.CurrentAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("currentAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Customer) validateDestinationAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DestinationAddress) { // not required
+		return nil
+	}
+
+	if m.DestinationAddress != nil {
+		if err := m.DestinationAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationAddress")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

@@ -491,10 +491,25 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-#      currentAddress:
-#        $ref: '#/definitions/Address'
-#      destinationAddress:
-#        $ref: '#/definitions/Address'
+      currentAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      firstName:
+        type: string
+        example: Vanya
+      lastName:
+        type: string
+        example: Petrovna
+      branch:
+        type: string
+        example: "COAST_GUARD"
+      phone:
+        type: string
+        format: telephone
+      email:
+        type: string
+        example: fake@example.com
   DutyStation:
     type: object
     properties:
@@ -570,12 +585,25 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      customer:
+        $ref: '#/definitions/Customer'
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
         $ref: '#/definitions/DutyStation'
       originDutyStation:
         $ref: '#/definitions/DutyStation'
+      rank:
+        type: string
+        example: "E_5"
+      reportByDate:
+        type: string
+        format: date
+      confirmationNumber:
+        type: string
+        example: "HYXFJF"
+      orderNumber:
+        type: string
     type: object
   MoveTaskOrder:
     type: object

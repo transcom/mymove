@@ -1,8 +1,6 @@
 package payloads
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -16,7 +14,6 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
-	fmt.Println(moveTaskOrder.MoveOrder)
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
@@ -47,10 +44,24 @@ func Customer(customer *models.Customer) *primemessages.Customer {
 		return nil
 	}
 	payload := primemessages.Customer{
-		DodID:  customer.DODID,
-		ID:     strfmt.UUID(customer.ID.String()),
-		UserID: strfmt.UUID(customer.UserID.String()),
+		FirstName:          customer.FirstName,
+		LastName:           customer.LastName,
+		DodID:              customer.DODID,
+		ID:                 strfmt.UUID(customer.ID.String()),
+		UserID:             strfmt.UUID(customer.UserID.String()),
+		CurrentAddress:     Address(&customer.CurrentAddress),
+		DestinationAddress: Address(&customer.DestinationAddress),
+		Branch:             customer.Agency,
 	}
+
+	if customer.PhoneNumber != nil {
+		payload.Phone = *customer.PhoneNumber
+	}
+
+	if customer.Email != nil {
+		payload.Email = *customer.Email
+	}
+
 	return &payload
 }
 
@@ -66,11 +77,29 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 	entitlements := Entitlement(moveOrder.Entitlement)
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
+		Customer:               Customer(moveOrder.Customer),
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 	}
+
+	if moveOrder.Grade != nil {
+		payload.Rank = *moveOrder.Grade
+	}
+
+	if moveOrder.ConfirmationNumber != nil {
+		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
+	}
+
+	if moveOrder.OrderNumber != nil {
+		payload.OrderNumber = *moveOrder.OrderNumber
+	}
+
+	if moveOrder.ReportByDate != nil {
+		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
+	}
+
 	return &payload
 }
 
