@@ -40,6 +40,8 @@ type WeightTicketSetDocument struct {
 	FullWeight               *unit.Pound         `json:"full_weight,omitempty" db:"full_weight"`
 	FullWeightTicketMissing  bool                `json:"full_weight_ticket_missing,omitempty" db:"full_weight_ticket_missing"`
 	VehicleNickname          *string             `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
+	VehicleMake              *string             `json:"vehicle_make,omitempty" db:"vehicle_make"`
+	VehicleModel             *string             `json:"vehicle_model,omitempty" db:"vehicle_model"`
 	WeightTicketSetType      WeightTicketSetType `json:"weight_ticket_set_type,omitempty" db:"weight_ticket_set_type"`
 	WeightTicketDate         *time.Time          `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
 	TrailerOwnershipMissing  bool                `json:"trailer_ownership_missing,omitempty" db:"trailer_ownership_missing"`
