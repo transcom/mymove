@@ -17,28 +17,28 @@ executors:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
       - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -48,7 +48,7 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
       - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
