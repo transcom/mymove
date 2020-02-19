@@ -1,11 +1,8 @@
 package mtoshipment
 
 import (
-	"encoding/base64"
 	"fmt"
-	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -18,6 +15,7 @@ import (
 
 type UpdateMTOShipmentStatusQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
+	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type mtoShipmentStatusUpdater struct {
@@ -29,29 +27,21 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 	shipmentID := payload.ShipmentID
 	status := payload.Body.Status
 	eTag := payload.IfMatch
-	data, err := base64.StdEncoding.DecodeString(eTag)
-	if err != nil {
-		return nil, err
-	}
-	dateTime, _ := strfmt.ParseDateTime(string(data))
-	unmodifiedSince := time.Time(dateTime)
-
 	var shipment models.MTOShipment
 
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", shipmentID),
 	}
-	err = o.builder.FetchOne(&shipment, queryFilters)
+	err := o.builder.FetchOne(&shipment, queryFilters)
 
 	if err != nil {
 		return nil, NotFoundError{id: shipment.ID}
 	}
 
 	shipment.Status = models.MTOShipmentStatus(status)
+	verrs, err := o.builder.UpdateOne(&shipment, &eTag)
 
-	verrs, err := shipment.Validate(o.db)
-
-	if verrs.Count() > 0 {
+	if verrs != nil && verrs.Count() > 0 {
 		return nil, ValidationError{
 			id:    shipment.ID,
 			Verrs: verrs,
@@ -59,17 +49,15 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 	}
 
 	if err != nil {
-		return nil, err
-	}
-
-	affectedRows, err := o.db.RawQuery("UPDATE mto_shipments SET status = ?, updated_at = NOW() WHERE id = ? AND updated_at = ?", status, shipment.ID.String(), unmodifiedSince).ExecWithCount()
-
-	if err != nil {
-		return nil, err
-	}
-
-	if affectedRows != 1 {
-		return nil, PreconditionFailedError{id: shipment.ID}
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return nil, PreconditionFailedError{
+				id:  shipment.ID,
+				Err: err,
+			}
+		default:
+			return nil, err
+		}
 	}
 
 	return &shipment, nil
@@ -97,7 +85,8 @@ func (e ValidationError) Error() string {
 }
 
 type PreconditionFailedError struct {
-	id uuid.UUID
+	id  uuid.UUID
+	Err error
 }
 
 func (e PreconditionFailedError) Error() string {

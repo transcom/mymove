@@ -17,7 +17,7 @@ import (
 type testAdminUserQueryBuilder struct {
 	fakeFetchOne  func(model interface{}) error
 	fakeCreateOne func(models interface{}) (*validate.Errors, error)
-	fakeUpdateOne func(models interface{}) (*validate.Errors, error)
+	fakeUpdateOne func(models interface{}, eTag *string) (*validate.Errors, error)
 }
 
 func (t *testAdminUserQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
@@ -29,7 +29,7 @@ func (t *testAdminUserQueryBuilder) CreateOne(model interface{}) (*validate.Erro
 	return nil, nil
 }
 
-func (t *testAdminUserQueryBuilder) UpdateOne(model interface{}) (*validate.Errors, error) {
+func (t *testAdminUserQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
 	return nil, nil
 }
 
