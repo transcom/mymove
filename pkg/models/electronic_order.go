@@ -102,7 +102,7 @@ func CreateElectronicOrderWithRevision(ctx context.Context, dbConnection *pop.Co
 	var responseError error
 
 	// If the passed in function returns an error, the transaction is rolled back
-	dbConnection.Transaction(func(dbConnection *pop.Connection) error {
+	errTransaction := dbConnection.Transaction(func(dbConnection *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 		if verrs, err := CreateElectronicOrder(ctx, dbConnection, order); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
@@ -119,8 +119,10 @@ func CreateElectronicOrderWithRevision(ctx context.Context, dbConnection *pop.Co
 
 		return nil
 	})
-
-	return responseVErrors, responseError
+	if errTransaction != nil {
+		return responseVErrors, responseError
+	}
+	return nil, responseError
 }
 
 // FetchElectronicOrderByID gets all revisions of a set of Orders by their shared UUID,

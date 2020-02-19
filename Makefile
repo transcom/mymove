@@ -31,6 +31,7 @@ endif
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
 GC_FLAGS=-trimpath=$(GOPATH)
 DB_PORT_DEV=5432
+DB_PORT_TEST=5433
 DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 ifdef CIRCLECI
@@ -131,10 +132,9 @@ test: client_test server_test e2e_test ## Run all tests
 diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on environment
 
 .PHONY: check_log_dir
-check_log_dir:
+check_log_dir: ## Make sure we have a log directory
 	mkdir -p log
 
-# Make sure we have a log directory
 #
 # ----- END CHECK TARGETS -----
 #
