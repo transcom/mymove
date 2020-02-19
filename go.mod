@@ -30,7 +30,7 @@ require (
 	github.com/go-swagger/go-swagger v0.21.0
 	github.com/gobuffalo/envy v1.9.0
 	github.com/gobuffalo/fizz v1.9.6
-	github.com/gobuffalo/flect v0.2.0
+	github.com/gobuffalo/flect v0.2.1
 	github.com/gobuffalo/nulls v0.1.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/pop v4.13.1+incompatible
