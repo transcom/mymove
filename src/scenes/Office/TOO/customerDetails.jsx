@@ -180,28 +180,26 @@ class CustomerDetails extends Component {
                       <td>{items.status}</td>
                       <td>{items.rejectionReason}</td>
                       <td>
-                        {
-                          <ApproveRejectModal
-                            showModal={items.status === 'SUBMITTED'}
-                            approveBtnOnClick={() =>
-                              this.props.patchMTOShipmentStatus(
-                                get(moveTaskOrder, 'id'),
-                                items.id,
-                                'APPROVED',
-                                items.updatedAt,
-                              )
-                            }
-                            rejectBtnOnClick={rejectionReason =>
-                              this.props.patchMTOShipmentStatus(
-                                get(moveTaskOrder, 'id'),
-                                items.id,
-                                'REJECTED',
-                                items.updatedAt,
-                                rejectionReason,
-                              )
-                            }
-                          />
-                        }
+                        <ApproveRejectModal
+                          showModal={items.status === 'SUBMITTED'}
+                          approveBtnOnClick={() =>
+                            this.props.patchMTOShipmentStatus(
+                              get(moveTaskOrder, 'id'),
+                              items.id,
+                              'APPROVED',
+                              items.updatedAt,
+                            )
+                          }
+                          rejectBtnOnClick={rejectionReason =>
+                            this.props.patchMTOShipmentStatus(
+                              get(moveTaskOrder, 'id'),
+                              items.id,
+                              'REJECTED',
+                              items.updatedAt,
+                              rejectionReason,
+                            )
+                          }
+                        />
                       </td>
                     </tr>
                   </Fragment>

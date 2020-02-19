@@ -775,7 +775,7 @@ tasks_send_payment_reminder: tasks_build_linux_docker ## Run send-payment-remind
 .PHONY: run_prod_migrations
 run_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Prod migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with prod migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-prod-us-west-2/secure-migrations;file://migrations" \
+	MIGRATION_PATH="s3://transcom-ppp-app-prod-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
@@ -785,7 +785,7 @@ run_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Prod migrat
 .PHONY: run_staging_migrations
 run_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Staging migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with staging migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations" \
+	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
@@ -795,7 +795,7 @@ run_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Staging 
 .PHONY: run_experimental_migrations
 run_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Experimental migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with experimental migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations" \
+	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
