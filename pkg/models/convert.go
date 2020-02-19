@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -70,6 +71,33 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 
 	if err := db.Save(&mo); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)
+	}
+
+	// create mto -> move task order
+	mto := MoveTaskOrder{
+		MoveOrderID: mo.ID,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	if err := db.Save(&mto); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not save move task order, %w", err)
+	}
+
+	// create HHG -> house hold goods
+	// mto shipment of type HHG
+	hhg := MTOShipment{
+		MoveTaskOrderID:      mto.ID,
+		PickupAddressID:      *customer.CurrentAddressID,
+		DestinationAddressID: mo.DestinationDutyStation.AddressID,
+		ShipmentType:         MTOShipmentTypeHHG,
+		Status:               MTOShipmentStatusSubmitted,
+		CreatedAt:            time.Now(),
+		UpdatedAt:            time.Now(),
+	}
+
+	if err := db.Save(&hhg); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not save hhg shipment, %w", err)
 	}
 
 	return mo.ID, nil
