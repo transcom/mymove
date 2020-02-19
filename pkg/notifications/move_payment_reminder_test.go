@@ -46,19 +46,19 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 	moves := []testdatagen.Assertions{
 		{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo},
-			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc456"},
 		},
 		{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
-			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc123"},
 		},
 		{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
-			Move:                   models.Move{Status: models.MoveStatusDRAFT},
+			Move:                   models.Move{Status: models.MoveStatusDRAFT, Locator: "def123"},
 		},
 		{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
-			Move:                   models.Move{Show: swag.Bool(false)},
+			Move:                   models.Move{Show: swag.Bool(false), Locator: "def456"},
 		},
 	}
 
@@ -79,6 +79,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 	suite.Equal(ppms[0].IncentiveEstimateMax, emailInfo[0].IncentiveEstimateMax)
 	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.Name, emailInfo[0].TOName)
 	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.PhoneLines[0].Number, emailInfo[0].TOPhone)
+	suite.Equal(ppms[0].Move.Locator, emailInfo[0].Locator)
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
@@ -309,6 +310,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveTxt:         fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", weightEst1.Int(), estimateMin1.ToDollarString(), estimateMax1.ToDollarString()),
 			TOName:               "to1",
 			TOPhone:              "111-111-1111",
+			Locator:              "abc123",
 		},
 		{
 			Email:                &email2,
@@ -319,6 +321,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveTxt:         fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", weightEst2.Int(), estimateMin2.ToDollarString(), estimateMax2.ToDollarString()),
 			TOName:               "to2",
 			TOPhone:              "222-222-2222",
+			Locator:              "abc456",
 		},
 		{
 			Email:                &email3,
@@ -329,6 +332,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveTxt:         "",
 			TOName:               "to0",
 			TOPhone:              "000-000-0000",
+			Locator:              "def123",
 		},
 		{
 			// nil emails should be skipped
@@ -340,6 +344,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveTxt:         "",
 			TOName:               "to0",
 			TOPhone:              "000-000-0000",
+			Locator:              "def456",
 		},
 	}
 	formattedEmails, err := pr.formatEmails(emailInfos)

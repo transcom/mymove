@@ -14,6 +14,7 @@ import (
 )
 
 const testContractCode = "TEST"
+const testContractCode2 = "TEST2"
 const testContractName = "Test Contract"
 
 var tablesToTruncate = [...]string{

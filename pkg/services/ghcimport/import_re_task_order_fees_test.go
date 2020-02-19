@@ -43,7 +43,7 @@ func (suite *GHCRateEngineImportSuite) Test_importRETaskOrderFees() {
 }
 
 func (suite *GHCRateEngineImportSuite) helperVerifyTaskOrderFees() {
-	count, err := suite.DB().Count(&models.ReTaskOrderFees{})
+	count, err := suite.DB().Count(&models.ReTaskOrderFee{})
 	suite.NoError(err)
 	suite.Equal(16, count)
 }
