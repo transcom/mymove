@@ -594,6 +594,9 @@ jobs:
     executor: mymove_small
     steps:
       - run:
+          name: add github fingerprint
+          command: mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+      - run:
           name: clone mymove_admin repo
           command: git clone git@github.com:transcom/milmove_admin.git
 
