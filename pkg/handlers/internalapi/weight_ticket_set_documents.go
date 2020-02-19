@@ -126,7 +126,7 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 		EmptyWeightTicketMissing: *payload.EmptyWeightTicketMissing,
 		FullWeight:               fullWeight,
 		FullWeightTicketMissing:  *payload.FullWeightTicketMissing,
-		VehicleNickname:          *payload.VehicleNickname,
+		VehicleNickname:          payload.VehicleNickname,
 		WeightTicketSetType:      models.WeightTicketSetType(*payload.WeightTicketSetType),
 		WeightTicketDate:         weighTicketDate,
 		TrailerOwnershipMissing:  *payload.TrailerOwnershipMissing,

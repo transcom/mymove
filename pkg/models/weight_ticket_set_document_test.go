@@ -43,6 +43,8 @@ func (suite *ModelSuite) TestCalculateNetWeightWeightTicketAwaitingReview() {
 				Status:                   models.MoveDocumentStatusOK,
 			},
 		})
+
+	vehicleNickname := "My Car"
 	emptyWeight1 := unit.Pound(1000)
 	fullWeight1 := unit.Pound(2500)
 	weightTicketSetDocument1 := models.WeightTicketSetDocument{
@@ -52,7 +54,7 @@ func (suite *ModelSuite) TestCalculateNetWeightWeightTicketAwaitingReview() {
 		EmptyWeightTicketMissing: false,
 		FullWeight:               &fullWeight1,
 		FullWeightTicketMissing:  false,
-		VehicleNickname:          "My Car",
+		VehicleNickname:          &vehicleNickname,
 		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
@@ -79,7 +81,7 @@ func (suite *ModelSuite) TestCalculateNetWeightWeightTicketAwaitingReview() {
 		EmptyWeightTicketMissing: false,
 		FullWeight:               &fullWeight2,
 		FullWeightTicketMissing:  false,
-		VehicleNickname:          "My Car",
+		VehicleNickname:          &vehicleNickname,
 		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
@@ -145,6 +147,8 @@ func (suite *ModelSuite) TestCalculateNetWeight() {
 				Status:                   models.MoveDocumentStatusOK,
 			},
 		})
+
+	vehicleNickname := "My Car"
 	emptyWeight1 := unit.Pound(1000)
 	fullWeight1 := unit.Pound(2500)
 	weightTicketSetDocument1 := models.WeightTicketSetDocument{
@@ -154,7 +158,7 @@ func (suite *ModelSuite) TestCalculateNetWeight() {
 		EmptyWeightTicketMissing: false,
 		FullWeight:               &fullWeight1,
 		FullWeightTicketMissing:  false,
-		VehicleNickname:          "My Car",
+		VehicleNickname:          &vehicleNickname,
 		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
@@ -172,6 +176,7 @@ func (suite *ModelSuite) TestCalculateNetWeight() {
 				Status:                   models.MoveDocumentStatusAWAITINGREVIEW,
 			},
 		})
+
 	emptyWeight2 := unit.Pound(1000)
 	fullWeight2 := unit.Pound(2500)
 	weightTicketSetDocument2 := models.WeightTicketSetDocument{
@@ -181,7 +186,7 @@ func (suite *ModelSuite) TestCalculateNetWeight() {
 		EmptyWeightTicketMissing: false,
 		FullWeight:               &fullWeight2,
 		FullWeightTicketMissing:  false,
-		VehicleNickname:          "My Car",
+		VehicleNickname:          &vehicleNickname,
 		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,

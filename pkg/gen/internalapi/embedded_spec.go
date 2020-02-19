@@ -3940,7 +3940,8 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. 'My car')"
+          "title": "Vehicle nickname (ex. 'My car')",
+          "x-nullable": true
         },
         "weight_ticket_date": {
           "type": "string",
@@ -4420,7 +4421,8 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. 'My car')"
+          "title": "Vehicle nickname (ex. 'My car')",
+          "x-nullable": true
         },
         "weight_ticket_date": {
           "type": "string",
@@ -10124,7 +10126,8 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. 'My car')"
+          "title": "Vehicle nickname (ex. 'My car')",
+          "x-nullable": true
         },
         "weight_ticket_date": {
           "type": "string",
@@ -10606,7 +10609,8 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. 'My car')"
+          "title": "Vehicle nickname (ex. 'My car')",
+          "x-nullable": true
         },
         "weight_ticket_date": {
           "type": "string",
