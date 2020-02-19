@@ -122,7 +122,7 @@ func CreateElectronicOrderWithRevision(ctx context.Context, dbConnection *pop.Co
 	if errTransaction != nil {
 		return responseVErrors, responseError
 	}
-	return nil, responseError
+	return validate.NewErrors(), nil
 }
 
 // FetchElectronicOrderByID gets all revisions of a set of Orders by their shared UUID,
