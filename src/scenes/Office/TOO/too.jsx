@@ -3,11 +3,12 @@ import { arrayOf, shape, string } from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import { getAllMoveOrders } from 'shared/Entities/modules/moveOrders';
+import { getAllMoveOrders, getAllMTOs } from 'shared/Entities/modules/moveOrders';
 
 class TOO extends Component {
   componentDidMount() {
     this.props.getAllMoveOrders();
+    this.props.getAllMTOs();
   }
 
   handleCustomerInfoClick = (moveOrderId, customerId) => {
@@ -80,6 +81,7 @@ const mapStateToProps = state => {
 };
 const mapDispatchToProps = {
   getAllMoveOrders,
+  getAllMTOs,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(TOO));

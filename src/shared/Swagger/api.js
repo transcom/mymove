@@ -65,3 +65,13 @@ export function checkResponse(response, errorMessage) {
     throw err;
   }
 }
+
+export async function getPrimeClient() {
+  if (!ghcClient) {
+    ghcClient = await Swagger({
+      url: '/prime/v1/swagger.yaml',
+      requestInterceptor: requestInterceptor,
+    });
+  }
+  return ghcClient;
+}
