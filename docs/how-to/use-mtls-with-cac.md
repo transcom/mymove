@@ -101,13 +101,7 @@ psql-dev
 > select * from client_certs where subject ILIKE '%GITHUB_USERNAME%';
 ```
 
-Now to test this with transcom/nom you need to enable the Mutual TLS listener and then run the server. To do so, first modify your `.envrc.local` with this content:
-
-```sh
-export MUTUAL_TLS_ENABLED=1
-```
-
-Now run the server and test the secure migration:
+To test this with transcom/nom, run the server and test the secure migration (with your CAC inserted into your reader):
 
 ```sh
 make db_dev_e2e_populate server_run
