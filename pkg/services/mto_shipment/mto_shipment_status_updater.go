@@ -51,7 +51,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 
 	verrs, err := o.builder.UpdateOne(&shipment, &eTag)
 
-	if verrs != nil && verrs.Count() > 0 {
+	if verrs != nil && verrs.HasAny() {
 		return nil, ValidationError{
 			id:    shipment.ID,
 			Verrs: verrs,
@@ -164,7 +164,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 		for _, serviceItem := range serviceItemsToCreate {
 			_, verrs, err := o.siCreator.CreateMTOServiceItem(&serviceItem)
 
-			if verrs != nil {
+			if verrs != nil && verrs.HasAny() {
 				return nil, ValidationError{
 					id:    shipment.ID,
 					Verrs: verrs,

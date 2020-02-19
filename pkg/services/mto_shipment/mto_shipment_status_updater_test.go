@@ -89,6 +89,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.T().Run("Update MTO Shipment SUBMITTED status to REJECTED with a rejection reason should return no error", func(t *testing.T) {
+		eTag = base64.StdEncoding.EncodeToString([]byte(shipment2.UpdatedAt.Format(time.RFC3339Nano)))
 		rejectionReason := "Rejection reason"
 		params = mtoshipmentops.PatchMTOShipmentStatusParams{
 			ShipmentID: strfmt.UUID(shipment2.ID.String()),
@@ -97,11 +98,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		}
 		returnedShipment, err := updater.UpdateMTOShipmentStatus(params)
 		suite.NoError(err)
+		suite.NotNil(returnedShipment)
 		suite.Equal(models.MTOShipmentStatusRejected, returnedShipment.Status)
 		suite.Equal(&rejectionReason, returnedShipment.RejectionReason)
 	})
 
 	suite.T().Run("Update MTO Shipment status to REJECTED with no rejection reason should return error", func(t *testing.T) {
+		eTag = base64.StdEncoding.EncodeToString([]byte(shipment3.UpdatedAt.Format(time.RFC3339Nano)))
 		params = mtoshipmentops.PatchMTOShipmentStatusParams{
 			ShipmentID: strfmt.UUID(shipment3.ID.String()),
 			IfMatch:    eTag,
@@ -131,32 +134,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		}
 		_, err := updater.UpdateMTOShipmentStatus(params)
 		suite.Error(err)
-	})
-
-	suite.T().Run("Update MTO Shipment SUBMITTED status to REJECTED with a rejection reason should return no error", func(t *testing.T) {
-		eTag = base64.StdEncoding.EncodeToString([]byte(shipment2.UpdatedAt.Format(time.RFC3339Nano)))
-		rejectionReason := "Rejection reason"
-		params = mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID: strfmt.UUID(shipment2.ID.String()),
-			IfMatch:    eTag,
-			Body:       &ghcmessages.MTOShipment{Status: "REJECTED", RejectionReason: handlers.FmtString(rejectionReason)},
-		}
-		returnedShipment, err := updater.UpdateMTOShipmentStatus(params)
-		suite.NoError(err)
-		suite.NotNil(returnedShipment)
-		suite.Equal(models.MTOShipmentStatusRejected, returnedShipment.Status)
-		suite.Equal(&rejectionReason, returnedShipment.RejectionReason)
-	})
-
-	suite.T().Run("Update MTO Shipment status to REJECTED with no rejection reason should return error", func(t *testing.T) {
-		eTag = base64.StdEncoding.EncodeToString([]byte(shipment3.UpdatedAt.Format(time.RFC3339Nano)))
-		params = mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID: strfmt.UUID(shipment3.ID.String()),
-			IfMatch:    eTag,
-			Body:       &ghcmessages.MTOShipment{Status: ghcmessages.MTOShipmentStatusREJECTED, RejectionReason: nil},
-		}
-		_, err := updater.UpdateMTOShipmentStatus(params)
-		suite.NoError(err)
 	})
 
 	suite.T().Run("Passing in a stale identifier", func(t *testing.T) {
