@@ -7,7 +7,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
-	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -24,11 +23,7 @@ type mtoShipmentStatusUpdater struct {
 	siCreator services.MTOServiceItemCreator
 }
 
-func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentops.PatchMTOShipmentStatusParams) (*models.MTOShipment, error) {
-	shipmentID := payload.ShipmentID
-	eTag := payload.IfMatch
-	status := models.MTOShipmentStatus(payload.Body.Status)
-	rejectionReason := payload.Body.RejectionReason
+func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 
 	queryFilters := []services.QueryFilter{

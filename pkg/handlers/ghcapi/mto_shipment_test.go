@@ -160,6 +160,8 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipmentStatus",
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
+			mock.Anything,
 		).Return(nil, internalServerErr)
 
 		response := handler.Handle(params)
@@ -176,6 +178,8 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.Anything,
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, mtoshipment.NotFoundError{})
@@ -196,6 +200,8 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipmentStatus",
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
+			mock.Anything,
 		).Return(nil, mtoshipment.ValidationError{Verrs: validate.NewErrors()})
 
 		response := handler.Handle(params)
@@ -214,6 +220,8 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipmentStatus",
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
+			mock.Anything,
 		).Return(nil, mtoshipment.PreconditionFailedError{})
 
 		response := handler.Handle(params)
@@ -230,6 +238,8 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.Anything,
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, mtoshipment.ConflictStatusError{})
