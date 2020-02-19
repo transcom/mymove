@@ -18,7 +18,7 @@ import (
 type MoveOrder struct {
 
 	// confirmation number
-	ConfirmationNumber string `json:"confirmationNumber,omitempty"`
+	ConfirmationNumber *string `json:"confirmationNumber,omitempty"`
 
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
@@ -37,8 +37,11 @@ type MoveOrder struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
+	// lines of accounting
+	LinesOfAccounting string `json:"linesOfAccounting,omitempty"`
+
 	// order number
-	OrderNumber string `json:"orderNumber,omitempty"`
+	OrderNumber *string `json:"orderNumber,omitempty"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`

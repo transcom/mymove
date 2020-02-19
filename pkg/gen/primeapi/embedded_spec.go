@@ -686,6 +686,8 @@ func init() {
         },
         "email": {
           "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "fake@example.com"
         },
         "firstName": {
@@ -942,6 +944,7 @@ func init() {
       "properties": {
         "confirmationNumber": {
           "type": "string",
+          "x-nullable": true,
           "example": "HYXFJF"
         },
         "customer": {
@@ -963,8 +966,12 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "orderNumber": {
+        "linesOfAccounting": {
           "type": "string"
+        },
+        "orderNumber": {
+          "type": "string",
+          "x-nullable": true
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -1963,6 +1970,8 @@ func init() {
         },
         "email": {
           "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "fake@example.com"
         },
         "firstName": {
@@ -2219,6 +2228,7 @@ func init() {
       "properties": {
         "confirmationNumber": {
           "type": "string",
+          "x-nullable": true,
           "example": "HYXFJF"
         },
         "customer": {
@@ -2240,8 +2250,12 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "orderNumber": {
+        "linesOfAccounting": {
           "type": "string"
+        },
+        "orderNumber": {
+          "type": "string",
+          "x-nullable": true
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"

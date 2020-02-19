@@ -82,18 +82,13 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 		Entitlement:            entitlements,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
+		OrderNumber:            moveOrder.OrderNumber,
+		LinesOfAccounting:      moveOrder.LinesOfAccounting,
+		ConfirmationNumber:     moveOrder.ConfirmationNumber,
 	}
 
 	if moveOrder.Grade != nil {
 		payload.Rank = *moveOrder.Grade
-	}
-
-	if moveOrder.ConfirmationNumber != nil {
-		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
-	}
-
-	if moveOrder.OrderNumber != nil {
-		payload.OrderNumber = *moveOrder.OrderNumber
 	}
 
 	if moveOrder.ReportByDate != nil {

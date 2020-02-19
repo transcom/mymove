@@ -509,6 +509,8 @@ definitions:
         format: telephone
       email:
         type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: fake@example.com
   DutyStation:
     type: object
@@ -602,7 +604,11 @@ definitions:
       confirmationNumber:
         type: string
         example: "HYXFJF"
+        x-nullable: true
       orderNumber:
+        type: string
+        x-nullable: true
+      linesOfAccounting:
         type: string
     type: object
   MoveTaskOrder:
