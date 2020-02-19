@@ -49,26 +49,43 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	if moveOrder == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(&moveOrder.DestinationDutyStation)
-	originDutyStation := DutyStation(&moveOrder.OriginDutyStation)
-	moveOrder.Entitlement.SetWeightAllotment(moveOrder.Grade)
-	entitlements := Entitlement(&moveOrder.Entitlement)
+	destinationDutyStation := DutyStation(moveOrder.DestinationDutyStation)
+	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
+	if moveOrder.Grade != nil {
+		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
+	}
+	entitlements := Entitlement(moveOrder.Entitlement)
 	payload := ghcmessages.MoveOrder{
-		Agency:                 moveOrder.Customer.Agency,
-		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
-		FirstName:              moveOrder.Customer.FirstName,
-		LastName:               moveOrder.Customer.LastName,
-		ConfirmationNumber:     moveOrder.ConfirmationNumber,
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
-		Grade:                  moveOrder.Grade,
-		OrderNumber:            &moveOrder.OrderNumber,
-		OrderType:              moveOrder.OrderType,
-		OrderTypeDetail:        &moveOrder.OrderTypeDetail,
-		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
+		OrderNumber:            moveOrder.OrderNumber,
+		OrderTypeDetail:        moveOrder.OrderTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 	}
+
+	if moveOrder.Customer != nil {
+		payload.Agency = moveOrder.Customer.Agency
+		payload.CustomerID = strfmt.UUID(moveOrder.CustomerID.String())
+		payload.FirstName = moveOrder.Customer.FirstName
+		payload.LastName = moveOrder.Customer.LastName
+	}
+	if moveOrder.ReportByDate != nil {
+		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
+	}
+	if moveOrder.DateIssued != nil {
+		payload.DateIssued = strfmt.Date(*moveOrder.DateIssued)
+	}
+	if moveOrder.Grade != nil {
+		payload.Grade = *moveOrder.Grade
+	}
+	if moveOrder.ConfirmationNumber != nil {
+		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
+	}
+	if moveOrder.OrderType != nil {
+		payload.OrderType = *moveOrder.OrderType
+	}
+
 	return &payload
 }
 
@@ -140,15 +157,21 @@ func Address(address *models.Address) *ghcmessages.Address {
 }
 
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
+	strfmt.MarshalFormat = strfmt.RFC3339Micro
 	return &ghcmessages.MTOShipment{
-		ID:                  strfmt.UUID(mtoShipment.ID.String()),
-		MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:        "HHG",
-		Status:              string(mtoShipment.Status),
-		CustomerRemarks:     *mtoShipment.CustomerRemarks,
-		RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
-		CreatedAt:           strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:           strfmt.DateTime(mtoShipment.UpdatedAt),
+		ID:                       strfmt.UUID(mtoShipment.ID.String()),
+		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:             mtoShipment.ShipmentType,
+		Status:                   string(mtoShipment.Status),
+		CustomerRemarks:          mtoShipment.CustomerRemarks,
+		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
+		RejectionReason:          mtoShipment.RejectionReason,
+		PickupAddress:            Address(&mtoShipment.PickupAddress),
+		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
+		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
+		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
+		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
 }
 
@@ -159,7 +182,7 @@ func MTOShipmentWithEtag(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipme
 			MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 			ShipmentType:        "HHG",
 			Status:              string(mtoShipment.Status),
-			CustomerRemarks:     *mtoShipment.CustomerRemarks,
+			CustomerRemarks:     mtoShipment.CustomerRemarks,
 			RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
 			CreatedAt:           strfmt.DateTime(mtoShipment.CreatedAt),
 			UpdatedAt:           strfmt.DateTime(mtoShipment.UpdatedAt),

@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-//ErrNotFound is returned when a given move task order is not found
+// ErrNotFound is returned when a given move task order is not found
 type ErrNotFound struct {
 	id uuid.UUID
 }
@@ -27,7 +27,7 @@ type errInvalidInput struct {
 	validationErrors map[string][]string
 }
 
-//ErrInvalidInput is returned when an update to a move task order fails a validation rule
+// ErrInvalidInput is returned when an update to a move task order fails a validation rule
 type ErrInvalidInput struct {
 	errInvalidInput
 }
@@ -61,10 +61,9 @@ type moveOrderFetcher struct {
 	db *pop.Connection
 }
 
-//Last, First Name | Confirmation # | Branch of Service | Origin Duty Station
 func (f moveOrderFetcher) ListMoveOrders() ([]models.MoveOrder, error) {
 	var moveOrders []models.MoveOrder
-	err := f.db.Eager("Customer", "ConfirmationNumber", "DestinationDutyStation.Address", "OriginDutyStation.Address", "Entitlement").All(&moveOrders)
+	err := f.db.All(&moveOrders)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -73,6 +72,21 @@ func (f moveOrderFetcher) ListMoveOrders() ([]models.MoveOrder, error) {
 			return []models.MoveOrder{}, err
 		}
 	}
+
+	// Attempting to load these associations using Eager() returns an error, so this loop
+	// loads them one at a time. This is creating a N + 1 query for each association, which is
+	// bad. But that's also what the current implementation of Eager does, so this is no worse
+	// that what we had.
+	for i := range moveOrders {
+		f.db.Load(&moveOrders[i], "Customer")
+		f.db.Load(&moveOrders[i], "ConfirmationNumber")
+		f.db.Load(&moveOrders[i], "DestinationDutyStation")
+		f.db.Load(moveOrders[i].DestinationDutyStation, "Address")
+		f.db.Load(&moveOrders[i], "OriginDutyStation")
+		f.db.Load(moveOrders[i].OriginDutyStation, "Address")
+		f.db.Load(&moveOrders[i], "Entitlement")
+	}
+
 	return moveOrders, nil
 }
 
@@ -81,10 +95,10 @@ func NewMoveOrderFetcher(db *pop.Connection) services.MoveOrderFetcher {
 	return &moveOrderFetcher{db}
 }
 
-//FetchMoveOrder retrieves a MoveOrder for a given UUID
+// FetchMoveOrder retrieves a MoveOrder for a given UUID
 func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.MoveOrder, error) {
 	moveOrder := &models.MoveOrder{}
-	err := f.db.Eager("DestinationDutyStation.Address", "OriginDutyStation.Address", "Entitlement").Find(moveOrder, moveOrderID)
+	err := f.db.Find(moveOrder, moveOrderID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -93,5 +107,14 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.MoveOrd
 			return &models.MoveOrder{}, err
 		}
 	}
+
+	f.db.Load(moveOrder, "Customer")
+	f.db.Load(moveOrder, "ConfirmationNumber")
+	f.db.Load(moveOrder, "DestinationDutyStation")
+	f.db.Load(moveOrder.DestinationDutyStation, "Address")
+	f.db.Load(moveOrder, "OriginDutyStation")
+	f.db.Load(moveOrder.OriginDutyStation, "Address")
+	f.db.Load(moveOrder, "Entitlement")
+
 	return moveOrder, nil
 }

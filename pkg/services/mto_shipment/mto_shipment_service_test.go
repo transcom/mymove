@@ -12,6 +12,9 @@ type MTOShipmentServiceSuite struct {
 	testingsuite.PopTestSuite
 }
 
+func (suite *MTOShipmentServiceSuite) SetupTest() {
+	suite.DB().TruncateAll()
+}
 func TestMTOShipmentServiceSuite(t *testing.T) {
 
 	ts := &MTOShipmentServiceSuite{

@@ -22,6 +22,8 @@ environment.
 | `check-gopath` | checks the go path is correct for the project |
 | `check-hosts-file` | Script helps ensure that /etc/hosts has all the correct entries in it |
 | `check-node-version` | checks the node version required for the project |
+| `check-opensc-version` | checks the opensc version required for the project |
+| `kill-process-on-port` | asks to kill a process running on the specified port |
 | `prereqs` | validate if all prerequisite programs have been installed |
 
 ## AWS Scripts
@@ -91,6 +93,7 @@ application testing
 | Script Name | Description |
 | --- | --- |
 | `check-docker-size` | Script to check the available disk space Docker has used |
+| `ensure-application` | Ensure APPLICATION is set to `app` or `orders` and matches input value |
 | `export-obfuscated-tspp-sample` | Export a subset of rows from the `transportation_service_provider_performances` table |
 | `find-invoices` |  This script will use available API endpoints to find invoices in whatever environment you specify|
 | `generate-devlocal-cert` | Convenience script for creating a new certificate signed by the DevLocal CA. |
@@ -117,6 +120,7 @@ This subset of development scripts is used for testing
 | --- | --- |
 | `run-e2e-test` | Runs cypress tests with interactive GUI |
 | `run-e2e-test-docker` | Runs cypress tests entirely inside docker containers like in CircleCI |
+| `run-server-test` | Run golang server tests |
 | `run-server-test-in-circle-container` | Executed in docker-compose.circle.yml to run the `make server_test` task in a CircleCI container |
 
 ### Secure Migrations
@@ -142,6 +146,7 @@ These scripts are primarily used for working with the database
 | `db-restore` |  Restore the contents of the development database from an earlier backup. |
 | `psql-dev` | Convenience script to drop into development postgres DB |
 | `psql-deployed-migrations` | Convenience script to drop into deployed migrations postgres DB |
+| `psql-schema` | Convenience script to dump the schema from the postgres DB |
 | `psql-test` | Convenience script to drop into testing postgres DB |
 | `psql-wrapper` | A wrapper around `psql` that sets correct values |
 | `update-migrations-manifest` | Update manifest for migrations |
@@ -155,7 +160,7 @@ These scripts are primarily used for working with a CAC and the Orders API
 | Script Name | Description |
 | --- | --- |
 | `cac-extract-cert` | Get a certificate from CAC |
-| `cac-extract-fingerprint` | Get SHA 256 fingerprint from CAC |
+| `cac-extract-fingerprint` | Get SHA 256 fingerprint of the public certificate from CAC |
 | `cac-extract-pubkey` | Get a public key from CAC |
 | `cac-extract-subject` | Get Subject from CAC |
 | `cac-extract-token-label` | Get the Token Label from CAC |
@@ -168,8 +173,8 @@ These scripts are primarily for working with Mutual TLS certificates
 
 | Script Name | Description |
 | --- | --- |
-| `mutual-tls-extract-fingerprint` | Get a sha256 hash of the certificate from CAC |
-| `mutual-tls-extract-subject` | Get a sha256 hash of the certificate from CAC |
+| `mutual-tls-extract-fingerprint` | Get SHA 256 fingerprint of the public certificate from a cert file |
+| `mutual-tls-extract-subject` | Get a sha256 hash of the certificate from a cert file|
 
 ### Amazon Console Scripts
 

@@ -13,8 +13,8 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	storageInTransit := 2
 	grade := assertions.MoveOrder.Grade
 
-	if grade == "" {
-		grade = "E_1"
+	if grade == nil || *grade == "" {
+		grade = stringPointer("E_1")
 	}
 
 	entitlement := models.Entitlement{
@@ -24,7 +24,7 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 		PrivatelyOwnedVehicle: &truePtr,
 		StorageInTransit:      &storageInTransit,
 	}
-	entitlement.SetWeightAllotment(grade)
+	entitlement.SetWeightAllotment(*grade)
 
 	// Overwrite values with those from assertions
 	mergeModels(&entitlement, assertions.Entitlement)

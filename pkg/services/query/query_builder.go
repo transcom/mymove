@@ -261,7 +261,19 @@ func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) er
 	if err != nil {
 		return err
 	}
-	return query.First(model)
+
+	// ToDo: Refactor once we expand the query builder for this function
+	// For now, opt-in for eager loading
+	queryAssociations := []services.QueryAssociation{}
+	associations := NewQueryAssociations(queryAssociations)
+	query = associatedQuery(query, associations, model)
+
+	err = query.First(model)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // FetchMany fetches multiple model records using pop's All method
@@ -285,7 +297,8 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, a
 		return err
 	}
 
-	err = associatedQuery(query, associations, model)
+	query = associatedQuery(query, associations, model)
+	err = query.All(model)
 	if err != nil {
 		return err
 	}
@@ -426,14 +439,14 @@ func (p *Builder) QueryForAssociations(model interface{}, associations services.
 		return err
 	}
 
-	err = associatedQuery(query, associations, model)
+	query = associatedQuery(query, associations, model)
+	err = query.All(model)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func associatedQuery(query *pop.Query, associations services.QueryAssociations, model interface{}) error {
-	query = query.Eager(associations.StringGetAssociations()...)
-	return query.All(model)
+func associatedQuery(query *pop.Query, associations services.QueryAssociations, model interface{}) *pop.Query {
+	return query.Eager(associations.StringGetAssociations()...)
 }

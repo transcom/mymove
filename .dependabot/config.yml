@@ -15,6 +15,17 @@ update_configs:
       - dependencies
       - automerge
 
+  - package_manager: "javascript"
+    directory: "/cypress"
+    update_schedule: "live"
+    automerged_updates:
+      - match:
+          dependency_type: "all"
+          update_type: "semver:minor"
+    default_labels:
+      - dependencies
+      - automerge
+
   # Keep go.mod (& go.sum) up to date daily
   - package_manager: "go:modules"
     directory: "/"
@@ -30,6 +41,17 @@ update_configs:
   # Keep Dockerfile up to date, batching pull requests daily
   - package_manager: "docker"
     directory: "/"
+    update_schedule: "daily"
+    automerged_updates:
+      - match:
+          dependency_type: "all"
+          update_type: "semver:minor"
+    default_labels:
+      - dependencies
+      - automerge
+
+  - package_manager: "docker"
+    directory: "/cypress"
     update_schedule: "daily"
     automerged_updates:
       - match:

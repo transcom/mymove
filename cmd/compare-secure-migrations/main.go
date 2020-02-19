@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -230,7 +231,13 @@ func main() {
 	wg.Wait()
 
 	// Compare files and print differences
-	for migration, v := range compareMap {
+	compareKeys := make([]string, 0, len(compareMap))
+	for k := range compareMap {
+		compareKeys = append(compareKeys, k)
+	}
+	sort.Strings(compareKeys)
+	for _, migration := range compareKeys {
+		v := compareMap[migration]
 		if v[bucketNames[0]] == v[bucketNames[1]] && v[bucketNames[1]] == v[bucketNames[2]] {
 			fmt.Println("Migration:", migration)
 			fmt.Println("\t", fmt.Sprintf("%s:", comparison), v[bucketNames[0]])

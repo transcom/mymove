@@ -15,7 +15,9 @@ services:
       - POSTGRES_DB=test_db
 
   server_test:
-    image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
+    depends_on:
+      - database
+    image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
     deploy:
       resources:
         limits:
@@ -27,6 +29,7 @@ services:
       - ./:/home/circleci/transcom/mymove
     working_dir: /home/circleci/transcom/mymove
     environment:
+      - APPLICATION
       - CLIENT_AUTH_SECRET_KEY
       - CSRF_AUTH_KEY
       - CIRCLECI=1
@@ -41,14 +44,13 @@ services:
       - DB_USER=postgres
       - DEVLOCAL_AUTH=true
       - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
-      - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+      - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
       - DPS_AUTH_COOKIE_SECRET_KEY
       - DPS_COOKIE_EXPIRES_IN_MINUTES
       - EIA_KEY=db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
       - ENV=test
       - ENVIRONMENT=test
       - FEATURE_FLAG_ACCESS_CODE=false
-      - GOPROXY=https://gocenter.io
       - HERE_MAPS_APP_CODE
       - HERE_MAPS_APP_ID
       - HERE_MAPS_GEOCODE_ENDPOINT
@@ -66,8 +68,8 @@ services:
       - LOGIN_GOV_MY_CLIENT_ID
       - LOGIN_GOV_OFFICE_CLIENT_ID
       - LOGIN_GOV_SECRET_KEY
-      - MIGRATION_PATH=file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations
-      - MIGRATION_MANIFEST=/home/circleci/transcom/mymove/migrations_manifest.txt
+      - MIGRATION_PATH=file:///home/circleci/transcom/mymove/migrations/app/secure;file:///home/circleci/transcom/mymove/migrations/app/schema
+      - MIGRATION_MANIFEST=/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt
       - MOVE_MIL_DOD_CA_CERT
       - MOVE_MIL_DOD_TLS_CERT
       - MOVE_MIL_DOD_TLS_KEY

@@ -4546,6 +4546,12 @@ func init() {
         "created_at"
       ],
       "properties": {
+        "actual_move_date": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "example": "2018-04-25"
+        },
         "branch_of_service": {
           "type": "string"
         },
@@ -4643,6 +4649,12 @@ func init() {
           "title": "Origin GBLOC",
           "x-nullable": true,
           "example": "LKNQ"
+        },
+        "original_move_date": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "example": "2018-04-25"
         },
         "pm_survey_conducted_date": {
           "type": "string",
@@ -10720,6 +10732,12 @@ func init() {
         "created_at"
       ],
       "properties": {
+        "actual_move_date": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "example": "2018-04-25"
+        },
         "branch_of_service": {
           "type": "string"
         },
@@ -10817,6 +10835,12 @@ func init() {
           "title": "Origin GBLOC",
           "x-nullable": true,
           "example": "LKNQ"
+        },
+        "original_move_date": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "example": "2018-04-25"
         },
         "pm_survey_conducted_date": {
           "type": "string",

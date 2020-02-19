@@ -14,7 +14,7 @@ const (
 	// tempMigrationPath is the temporary path for generated migrations
 	tempMigrationPath string = "./tmp"
 
-	// localMigrationTemplate is the template for local migration files
+	// localMigrationTemplate is the template for local secure migration files
 	localMigrationTemplate string = `-- Local test migration.
 -- This will be run on development environments.
 -- It should mirror what you intend to apply on prod/staging/experimental
@@ -32,12 +32,17 @@ func closeFile(outfile *os.File) {
 }
 
 func createMigration(path string, filename string, t *template.Template, templateData interface{}) error {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		if mkdirErr := os.Mkdir(path, 0755); mkdirErr != nil {
+			return errors.Wrapf(mkdirErr, "error creating path %q", path)
+		}
+	}
 	migrationPath := filepath.Join(path, filename)
 	migrationFile, err := os.Create(migrationPath)
-	defer closeFile(migrationFile)
 	if err != nil {
 		return errors.Wrapf(err, "error creating %s", migrationPath)
 	}
+	defer closeFile(migrationFile)
 	err = t.Execute(migrationFile, templateData)
 	if err != nil {
 		log.Println("error executing template: ", err)
@@ -63,6 +68,11 @@ func addMigrationToManifest(migrationManifest string, filename string) error {
 }
 
 func writeEmptyFile(migrationPath, filename string) error {
+	if _, err := os.Stat(migrationPath); os.IsNotExist(err) {
+		if mkdirErr := os.Mkdir(migrationPath, 0755); mkdirErr != nil {
+			return errors.Wrapf(mkdirErr, "error creating path %q", migrationPath)
+		}
+	}
 	path := filepath.Join(migrationPath, filename)
 
 	err := ioutil.WriteFile(path, []byte{}, 0644)

@@ -22,7 +22,7 @@ type ServiceParam struct {
 }
 
 // ServiceParams is not required by pop and may be deleted
-type ServiceParams []ServiceParams
+type ServiceParams []ServiceParam
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (p *ServiceParam) Validate(tx *pop.Connection) (*validate.Errors, error) {

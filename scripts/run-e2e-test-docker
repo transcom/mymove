@@ -2,6 +2,8 @@
 
 set -eux -o pipefail
 
+scripts/ensure-application app
+
 # Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
 export REACT_APP_NODE_ENV=development
 
@@ -51,10 +53,13 @@ if [[ -n "${CIRCLECI+x}" ]]; then
 
   # Can't mount folders in CircleCI so copy this data in
   # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
-  docker cp ./local_migrations mymove_milmove_migrate_1:/migrate/
+  docker cp ./migrations/app/secure mymove_milmove_migrate_1:/migrate/
 
   # Start everything up
-  docker-compose up -d --no-recreate
+  docker-compose up -d --no-recreate --remove-orphans
+
+  # Build a small tools dockerfile
+  docker build -f Dockerfile.tools --tag tools:latest .
 else
   # Locally development requires that we build the container
 
@@ -62,10 +67,13 @@ else
   docker-compose -f docker-compose.local.yml down || true
 
   # Build artifacts
-  make client_build bin_linux/milmove
+  make client_build
 
   # Build images and start everything up
   docker-compose -f docker-compose.local.yml up -d --build
+
+  # Build a small tools dockerfile
+  docker build -f Dockerfile.tools_local --tag tools:latest .
 fi
 
 # Following the logs should block any more actions until migrations are completed and the container exits
@@ -89,12 +97,6 @@ if [[ "${MIGRATE_EXIT_CODE}" != "0" ]]; then
   echo "Migration exited with exit code ${MIGRATE_EXIT_CODE}"
   exit 1
 fi
-
-# Build a small tools dockerfile
-make bin_linux/generate-test-data
-cp -v bin_linux/generate-test-data ./tools
-cp -v pkg/testdatagen/testdata/test.pdf ./tools
-docker build -f tools/Dockerfile.tools --tag tools:latest ./tools
 
 # Truncate the DB
 $DOCKER_RUN \

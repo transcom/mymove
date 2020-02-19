@@ -92,6 +92,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulData() {
 	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
 		testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				Contract:    contractYear.Contract,
 				ServiceArea: dlhTestServiceArea,
 			},
 		})

@@ -24,12 +24,18 @@ type ShowPPMSitEstimateHandler struct {
 // It returns the discount rate applied to relevant SIT charge.
 func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	engine := rateengine.NewRateEngine(h.DB(), logger)
 
 	ordersID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+
+	move, err := models.FetchMoveByOrderID(h.DB(), ordersID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	engine := rateengine.NewRateEngine(h.DB(), logger, move)
 
 	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), ordersID)
 	if err != nil {
@@ -42,6 +48,7 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(h.DB(),
 		logger,
+		move,
 		params.OriginZip,
 		destinationZip,
 		time.Time(params.OriginalMoveDate),

@@ -58,9 +58,13 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		MoveTaskOrderID: mtoID,
 	}
 
+	// Build up the paymentRequest.PaymentServiceItems using the incoming payload to offload Swagger data coming
+	// in from the API. These paymentRequest.PaymentServiceItems will be used as a temp holder to process the incoming API data
 	paymentRequest.PaymentServiceItems, err = h.buildPaymentServiceItems(payload)
 	if err != nil {
 		logger.Error("could not build service items", zap.Error(err))
+		// TODO: do not bail out before creating the payment request, we need the failed record
+		//       we should create the failed record and store it as failed with a rejection
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
@@ -83,14 +87,14 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 	var paymentServiceItems models.PaymentServiceItems
 
 	for _, payloadServiceItem := range payload.ServiceItems {
-		serviceItemID, err := uuid.FromString(payloadServiceItem.ID.String())
+		mtoServiceItemID, err := uuid.FromString(payloadServiceItem.ID.String())
 		if err != nil {
 			return nil, fmt.Errorf("could not convert service item ID [%v] to UUID: %w", payloadServiceItem.ID, err)
 		}
 
 		paymentServiceItem := models.PaymentServiceItem{
 			// The rest of the model will be filled in when the payment request is created
-			ServiceItemID: serviceItemID,
+			MTOServiceItemID: mtoServiceItemID,
 		}
 
 		paymentServiceItem.PaymentServiceItemParams = h.buildPaymentServiceItemParams(payloadServiceItem)
@@ -101,10 +105,10 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 	return paymentServiceItems, nil
 }
 
-func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadServiceItem *primemessages.ServiceItem) models.PaymentServiceItemParams {
+func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem) models.PaymentServiceItemParams {
 	var paymentServiceItemParams models.PaymentServiceItemParams
 
-	for _, payloadServiceItemParam := range payloadServiceItem.Params {
+	for _, payloadServiceItemParam := range payloadMTOServiceItem.Params {
 		paymentServiceItemParam := models.PaymentServiceItemParam{
 			// ID and PaymentServiceItemID to be filled in when payment request is created
 			IncomingKey: payloadServiceItemParam.Key,

@@ -137,6 +137,7 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticServiceAreaPricesData() {
 	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
 		testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				Contract:    contractYear.Contract,
 				ServiceArea: dsaTestServiceArea,
 			},
 		})

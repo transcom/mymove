@@ -65,25 +65,18 @@ if [[ ${FILESIZE} -gt ${MAX_FILESIZE} ]]; then
   exit 1
 fi
 
-# Ensure our `aws` command is the one infra has wrapped with aws-vault
-command -v "$aws_command" 2> /dev/null | grep "ppp-infra/scripts/aws" &> /dev/null || \
-  ( echo "error: aws command not pointing to 'ppp-infra/scripts/aws"
-    echo "see https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#using-aws-vault"
-    exit 1
-  )
-
 # Test AWS command and freshen AWS session token
 ${aws_command} s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}" > /dev/null
 
 #
-# Test local migration
+# Test local secure migration
 #
 
 echo "Testing migrations ... (This could be several minutes!)"
 
 make db_deployed_migrations_reset
 
-MIGRATION_PATH="file://local_migrations;file://migrations" \
+MIGRATION_PATH="file://migrations/app/schema;file://migrations/app/secure" \
   DB_HOST=localhost \
   DB_PORT="${DB_PORT_DEPLOYED_MIGRATIONS}" \
   DB_NAME="${DB_NAME_DEPLOYED_MIGRATIONS}" \

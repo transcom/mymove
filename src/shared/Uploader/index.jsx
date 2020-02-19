@@ -48,6 +48,11 @@ export class Uploader extends Component {
   }
 
   clearFiles() {
+    // If this component is unloaded quickly, this function can be called after the ref is deleted,
+    // so check that the ref still exists before continuing
+    if (!this.pond) {
+      return;
+    }
     this.pond._pond.removeFiles();
 
     this.setState({
@@ -68,6 +73,11 @@ export class Uploader extends Component {
   }
 
   isIdle() {
+    // If this component is unloaded quickly, this function can be called after the ref is deleted,
+    // so check that the ref still exists before continuing
+    if (!this.pond) {
+      return;
+    }
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
     const isIdle = every(existingFiles, f => {
@@ -139,6 +149,11 @@ export class Uploader extends Component {
   };
 
   setPondOptions() {
+    // If this component is unloaded quickly, this function can be called after the ref is deleted,
+    // so check that the ref still exists before continuing
+    if (!this.pond) {
+      return;
+    }
     const { options } = this.props;
     const defaultOptions = {
       allowMultiple: true,
