@@ -589,6 +589,13 @@ jobs:
           repo: app-migrations
       - announce_failure
 
+  # `build_django_app` builds the django app container and pushes to container repository
+  build_django_app:
+    executor: mymove_small
+    steps:
+      - run:
+          name: clone mymove_admin repo
+          command: git clone git@github.com:transcom/milmove_admin.git
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
     executor: mymove_medium
