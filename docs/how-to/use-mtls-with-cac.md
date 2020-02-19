@@ -101,11 +101,16 @@ psql-dev
 > select * from client_certs where subject ILIKE '%GITHUB_USERNAME%';
 ```
 
-Now to test this with transcom/nom you need to enable the Mutual TLS listener and then run the server. To do so modify your `.envrc.local` with this content:
+Now to test this with transcom/nom you need to enable the Mutual TLS listener and then run the server. To do so, first modify your `.envrc.local` with this content:
 
 ```sh
 export MUTUAL_TLS_ENABLED=1
-make db_dev_e2e_populate
+```
+
+Now run the server and test the secure migration:
+
+```sh
+make db_dev_e2e_populate server_run
 go run ./cmd/prime-api-client/main.go --insecure --cac | jq .
 ```
 
@@ -121,6 +126,11 @@ If the secure migration worked you should receive a response similar to
     "moveOrderID": "6fca843a-a87e-4752-b454-0fac67aa4981",
     "mto_service_items": [],
     "payment_requests": [],
+    "mto_shipments": [
+      {
+        ...
+      }
+    ],
     "updatedAt": "2020-01-22"
   }
 ]
