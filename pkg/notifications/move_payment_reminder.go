@@ -74,7 +74,7 @@ func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
 	dsn.name AS new_duty_station_name,
 	tos.name AS transportation_office_name,
 	opl.number AS transportation_office_phone,
-m.locator
+	m.locator
 FROM personally_procured_moves ppm
 	JOIN moves m ON ppm.move_id = m.id
 	JOIN orders o ON m.orders_id = o.id
