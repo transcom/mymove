@@ -1,6 +1,8 @@
 package payloads
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -14,9 +16,11 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
+	fmt.Println(moveTaskOrder.MoveOrder)
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
+		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
 		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
@@ -50,21 +54,21 @@ func Customer(customer *models.Customer) *primemessages.Customer {
 	return &payload
 }
 
-func MoveOrder(moveOrders *models.MoveOrder) *primemessages.MoveOrder {
-	if moveOrders == nil {
+func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
+	if moveOrder == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(moveOrders.DestinationDutyStation)
-	originDutyStation := DutyStation(moveOrders.OriginDutyStation)
-	if moveOrders.Grade != nil {
-		moveOrders.Entitlement.SetWeightAllotment(*moveOrders.Grade)
+	destinationDutyStation := DutyStation(moveOrder.DestinationDutyStation)
+	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
+	if moveOrder.Grade != nil {
+		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
-	entitlements := Entitlement(moveOrders.Entitlement)
+	entitlements := Entitlement(moveOrder.Entitlement)
 	payload := primemessages.MoveOrder{
-		CustomerID:             strfmt.UUID(moveOrders.CustomerID.String()),
+		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
-		ID:                     strfmt.UUID(moveOrders.ID.String()),
+		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 	}
 	return &payload

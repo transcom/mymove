@@ -491,6 +491,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+#      currentAddress:
+#        $ref: '#/definitions/Address'
+#      destinationAddress:
+#        $ref: '#/definitions/Address'
   DutyStation:
     type: object
     properties:
@@ -591,6 +595,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      moveOrder:
+        $ref: '#/definitions/MoveOrder'
       referenceId:
         example: 1001-3456
         type: string

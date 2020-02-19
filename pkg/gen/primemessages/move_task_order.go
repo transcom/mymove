@@ -31,6 +31,9 @@ type MoveTaskOrder struct {
 	// is canceled
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
+	// move order
+	MoveOrder *MoveOrder `json:"moveOrder,omitempty"`
+
 	// move order ID
 	// Format: uuid
 	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
@@ -64,6 +67,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMoveOrder(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -114,6 +121,24 @@ func (m *MoveTaskOrder) validateID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateMoveOrder(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MoveOrder) { // not required
+		return nil
+	}
+
+	if m.MoveOrder != nil {
+		if err := m.MoveOrder.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("moveOrder")
+			}
+			return err
+		}
 	}
 
 	return nil

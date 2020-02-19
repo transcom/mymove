@@ -960,6 +960,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "moveOrder": {
+          "$ref": "#/definitions/MoveOrder"
+        },
         "moveOrderID": {
           "type": "string",
           "format": "uuid",
@@ -2189,6 +2192,9 @@ func init() {
         "isCanceled": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "moveOrder": {
+          "$ref": "#/definitions/MoveOrder"
         },
         "moveOrderID": {
           "type": "string",

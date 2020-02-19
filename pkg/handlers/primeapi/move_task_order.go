@@ -1,6 +1,7 @@
 package primeapi
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -32,13 +33,17 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
-		"MTOShipments.SecondaryPickupAddress")
+		"MTOShipments.SecondaryPickupAddress",
+		"MoveOrder",
+		"MoveOrder.Customer",
+		"MoveOrder.Entitlement")
 	if params.Since != nil {
 		since := time.Unix(*params.Since, 0)
 		query = query.Where("updated_at > ?", since)
 	}
 
 	err := query.All(&mtos)
+	fmt.Println(&mtos[0].MoveOrder)
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))
