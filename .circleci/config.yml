@@ -596,6 +596,7 @@ jobs:
       - run:
           name: clone mymove_admin repo
           command: git clone git@github.com:transcom/milmove_admin.git
+
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
     executor: mymove_medium
@@ -879,6 +880,10 @@ workflows:
       - build_tasks:
           requires:
             - build_tools
+
+      - build_django_app:
+          requires:
+            - build_migrations
 
       - deploy_experimental_migrations:
           requires:
