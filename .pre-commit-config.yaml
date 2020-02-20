@@ -81,9 +81,9 @@ repos:
 
   - repo: local
     hooks:
-      - id: models-vet
+      - id: model-vet
         name: Check models against DB
-        entry: scripts/pre-commit-models-vet
+        entry: scripts/pre-commit-model-vet
         language: script
         pass_filenames: false
 
