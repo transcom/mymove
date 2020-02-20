@@ -173,8 +173,13 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
 
-	if mtoShipment.ApprovedDate != nil {
-		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
+	if mtoShipment.ApprovedDate != nil && !mtoShipment.ApprovedDate.IsZero() {
+		approvedDate := strfmt.Date(*mtoShipment.ApprovedDate)
+		payload.ApprovedDate = &approvedDate
+	}
+
+	if mtoShipment.FirstAvailableDeliveryDate != nil && !mtoShipment.FirstAvailableDeliveryDate.IsZero() {
+		payload.FirstAvailableDeliveryDate = strfmt.Date(*mtoShipment.FirstAvailableDeliveryDate)
 	}
 
 	if mtoShipment.PrimeEstimatedWeight != nil {
@@ -193,6 +198,7 @@ func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments
 	}
 	return &payload
 }
+
 func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *primemessages.MTOServiceItem {
 	return &primemessages.MTOServiceItem{
 		ID:              strfmt.UUID(mtoServiceItem.ID.String()),

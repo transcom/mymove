@@ -65,6 +65,11 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		destinationDutyStation = MakeDutyStation(db, assertions)
 	}
 
+	orderNumber := assertions.MoveOrder.OrderNumber
+	if orderNumber == nil || *orderNumber == "" {
+		orderNumber = stringPointer("ORDER123")
+	}
+
 	orderType := assertions.MoveOrder.OrderType
 	if orderType == nil || *orderType == "" {
 		orderType = stringPointer("GHC")
@@ -99,7 +104,7 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		Grade:                    grade,
 		OriginDutyStation:        &originDutyStation,
 		OriginDutyStationID:      &originDutyStation.ID,
-		OrderNumber:              assertions.MoveOrder.OrderNumber,
+		OrderNumber:              orderNumber,
 		OrderType:                orderType,
 		OrderTypeDetail:          orderTypeDetail,
 		ReportByDate:             reportByDate,
