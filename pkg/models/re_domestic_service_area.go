@@ -13,8 +13,6 @@ import (
 type ReDomesticServiceArea struct {
 	ID               uuid.UUID `json:"id" db:"id"`
 	ContractID       uuid.UUID `json:"contract_id" db:"contract_id"`
-	BasePointCity    string    `json:"base_point_city" db:"base_point_city"`
-	State            string    `json:"state" db:"state"`
 	ServiceArea      string    `json:"service_area" db:"service_area"`
 	ServicesSchedule int       `json:"services_schedule" db:"services_schedule"`
 	SITPDSchedule    int       `json:"sit_pd_schedule" db:"sit_pd_schedule"`
@@ -33,8 +31,6 @@ type ReDomesticServiceAreas []ReDomesticServiceArea
 func (r *ReDomesticServiceArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
-		&validators.StringIsPresent{Field: r.BasePointCity, Name: "BasePointCity"},
-		&validators.StringIsPresent{Field: r.State, Name: "State"},
 		&validators.StringIsPresent{Field: r.ServiceArea, Name: "ServiceArea"},
 		&validators.IntIsGreaterThan{Field: r.ServicesSchedule, Name: "ServicesSchedule", Compared: 0},
 		&validators.IntIsLessThan{Field: r.ServicesSchedule, Name: "ServicesSchedule", Compared: 4},
