@@ -20,7 +20,7 @@ Once complete move on to the next section to verify the import
 
 ## Verifying the data
 
-The script will output the summary of the staging tables and the rate engine tables that were used for the import. The summary will include the total number of rows inserted as well as the first and last rows. The goal here is to spot check the data as an additional verification of the data import.
+The script will output the summary of the staging tables and the rate engine tables that were used for the import. The summary will include the total number of rows inserted as well as the first two rows. The goal here is to spot check the data as an additional verification of the data import.
 
 To do the verification follow the below steps for each of the `re_*` tables. It's not required to do so for the `stage_*` temporary tables but if there is a discrepancy a summary of those is also printed out to help in finding where the issue is. The examples below use the `re_shipment_type_prices` table as an example.
 
