@@ -192,6 +192,8 @@ paths:
             $ref: '#/definitions/MTOShipment'
         '400':
           description: invalid request
+          schema:
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
@@ -636,6 +638,9 @@ definitions:
       updatedAt:
         format: datetime
         type: string
+      approvedDate:
+        format: date
+        type: string
       scheduledPickupDate:
         format: date
         type: string
@@ -647,6 +652,13 @@ definitions:
         type: string
       primeActualWeight:
         type: integer
+        example: 4500
+      primeEstimatedWeight:
+        type: integer
+        example: 4500
+      primeEstimatedWeightRecordedDate:
+        format: date
+        type: string
       customerRemarks:
         type: string
         example: handle with care

@@ -44,6 +44,7 @@ type errInvalidInput struct {
 	id uuid.UUID
 	error
 	validationErrors map[string][]string
+	message          string
 }
 
 //ErrInvalidInput is returned when an update to a move task order fails a validation rule
@@ -51,17 +52,21 @@ type ErrInvalidInput struct {
 	errInvalidInput
 }
 
-func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string) ErrInvalidInput {
+func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string, message string) ErrInvalidInput {
 	return ErrInvalidInput{
 		errInvalidInput{
 			id:               id,
 			error:            err,
 			validationErrors: validationErrors,
+			message:          message,
 		},
 	}
 }
 
 func (e ErrInvalidInput) Error() string {
+	if e.message != "" {
+		return fmt.Sprintf(e.message)
+	}
 	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.InvalidFields())
 }
 
@@ -101,7 +106,7 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 	// if requestedPickupDate isn't valid then return ErrInvalidInput
 	requestedPickupDate := time.Time(*updatedShipment.RequestedPickupDate)
 	if !requestedPickupDate.Equal(*oldShipment.RequestedPickupDate) {
-		return ErrInvalidInput{}
+		return NewErrInvalidInput(oldShipment.ID, nil, nil, "Requested pickup date must match what customer has requested.")
 	}
 	oldShipment.RequestedPickupDate = &requestedPickupDate
 	if updatedShipment.PrimeActualWeight != 0 {
@@ -131,9 +136,25 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 		oldShipment.SecondaryPickupAddress = secondaryDeliveryAddress
 	}
 
+	if updatedShipment.PrimeEstimatedWeight != 0 {
+		if oldShipment.PrimeEstimatedWeight != nil {
+			return ErrInvalidInput{}
+		}
+		now := time.Now()
+		err := validatePrimeEstimatedWeightRecordedDate(now, scheduledPickupTime, *oldShipment.ApprovedDate)
+		if err != nil {
+			errorMessage := "The time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight."
+			return NewErrInvalidInput(oldShipment.ID, err, nil, errorMessage)
+		}
+
+		estimatedWeightPounds := unit.Pound(updatedShipment.PrimeEstimatedWeight)
+		oldShipment.PrimeEstimatedWeight = &estimatedWeightPounds
+		oldShipment.PrimeEstimatedWeightRecordedDate = &now
+	}
+
 	vErrors, err := oldShipment.Validate(db)
 	if vErrors.HasAny() {
-		return ErrInvalidInput{}
+		return NewErrInvalidInput(oldShipment.ID, nil, vErrors.Errors, "There was an issue with validating the updates")
 	}
 	if err != nil {
 		return err
@@ -141,9 +162,27 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 	return nil
 }
 
+func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.Time, scheduledPickupDate time.Time, approvedDate time.Time) error {
+	approvedDaysFromScheduled := scheduledPickupDate.Sub(approvedDate).Hours() / 24
+	daysFromScheduled := scheduledPickupDate.Sub(estimatedWeightRecordedDate).Hours() / 24
+	if approvedDaysFromScheduled >= 10 && daysFromScheduled >= 10 {
+		return nil
+	}
+
+	if (approvedDaysFromScheduled >= 3 && approvedDaysFromScheduled <= 9) && daysFromScheduled >= 3 {
+		return nil
+	}
+
+	if approvedDaysFromScheduled < 3 && daysFromScheduled >= 1 {
+		return nil
+	}
+
+	return ErrInvalidInput{}
+}
+
 // updateMTOShipment updates the mto shipment with a raw query
 func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSince time.Time, updatedShipment *primemessages.MTOShipment) error {
-	basicQuery := `UPDATE mto_shipments
+	baseQuery := `UPDATE mto_shipments
 		SET scheduled_pickup_date = ?,
 			requested_pickup_date = ?,
 			shipment_type = ?,
@@ -151,41 +190,50 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 			destination_address_id = ?,
 			updated_at = NOW()`
 
-	var basicParams []interface{}
-	basicParams = append(basicParams, updatedShipment.ScheduledPickupDate,
+	var params []interface{}
+	params = append(params, updatedShipment.ScheduledPickupDate,
 		updatedShipment.RequestedPickupDate,
 		updatedShipment.ShipmentType,
 		updatedShipment.PickupAddress.ID,
 		updatedShipment.DestinationAddress.ID,
 	)
 
+	if updatedShipment.PrimeEstimatedWeight != 0 {
+		estimatedWeightQuery := `,
+			prime_estimated_weight = ?,
+			prime_estimated_weight_recorded_date = NOW()`
+		baseQuery = baseQuery + estimatedWeightQuery
+		params = append(params, updatedShipment.PrimeEstimatedWeight)
+	}
+
 	if updatedShipment.SecondaryPickupAddress != nil {
-		basicQuery = basicQuery + ", \nsecondary_pickup_address_id = ?"
-		basicParams = append(basicParams, updatedShipment.SecondaryPickupAddress.ID)
+		baseQuery = baseQuery + ", \nsecondary_pickup_address_id = ?"
+		params = append(params, updatedShipment.SecondaryPickupAddress.ID)
 	}
 
 	if updatedShipment.SecondaryDeliveryAddress != nil {
-		basicQuery = basicQuery + ", \nsecondary_delivery_address_id = ?"
-		basicParams = append(basicParams, updatedShipment.SecondaryDeliveryAddress.ID)
+		baseQuery = baseQuery + ", \nsecondary_delivery_address_id = ?"
+		params = append(params, updatedShipment.SecondaryDeliveryAddress.ID)
 	}
 
 	if updatedShipment.FirstAvailableDeliveryDate.String() != "" {
-		basicQuery = basicQuery + ", \nfirst_available_delivery_date = ?"
-		basicParams = append(basicParams, updatedShipment.FirstAvailableDeliveryDate)
+		baseQuery = baseQuery + ", \nfirst_available_delivery_date = ?"
+		params = append(params, updatedShipment.FirstAvailableDeliveryDate)
 	}
 
 	if updatedShipment.PrimeActualWeight != 0 {
-		basicQuery = basicQuery + ", \nprime_actual_weight = ?"
-		basicParams = append(basicParams, updatedShipment.PrimeActualWeight)
+		baseQuery = baseQuery + ", \nprime_actual_weight = ?"
+		params = append(params, updatedShipment.PrimeActualWeight)
 	}
 
-	finishedQuery := basicQuery + `
+	finishedQuery := baseQuery + `
 		WHERE
 			id = ?
 		AND
 			updated_at = ?
 		;`
-	params := append(basicParams,
+
+	params = append(params,
 		updatedShipment.ID,
 		unmodifiedSince,
 	)
@@ -219,7 +267,6 @@ func (f mtoShipmentFetcher) UpdateMTOShipment(params mtoshipmentops.UpdateMTOShi
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
-
 	err = updateMTOShipment(f.db, mtoShipmentID, unmodifiedSince, mtoShipmentPayload)
 	if err != nil {
 		return &models.MTOShipment{}, err

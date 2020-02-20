@@ -115,13 +115,23 @@ func NewUpdateMTOShipmentBadRequest() *UpdateMTOShipmentBadRequest {
 invalid request
 */
 type UpdateMTOShipmentBadRequest struct {
+	Payload interface{}
 }
 
 func (o *UpdateMTOShipmentBadRequest) Error() string {
-	return fmt.Sprintf("[PUT /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentBadRequest ", 400)
+	return fmt.Sprintf("[PUT /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentBadRequest  %+v", 400, o.Payload)
+}
+
+func (o *UpdateMTOShipmentBadRequest) GetPayload() interface{} {
+	return o.Payload
 }
 
 func (o *UpdateMTOShipmentBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }
