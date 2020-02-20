@@ -53,16 +53,15 @@ type PaymentReminderEmailInfos []PaymentReminderEmailInfo
 type PaymentReminderEmailInfo struct {
 	ServiceMemberID      uuid.UUID   `db:"id"`
 	Email                *string     `db:"personal_email"`
-	DutyStationName      string      `db:"duty_station_name"`
 	NewDutyStationName   string      `db:"new_duty_station_name"`
 	WeightEstimate       *unit.Pound `db:"weight_estimate"`
 	IncentiveEstimateMin *unit.Cents `db:"incentive_estimate_min"`
 	IncentiveEstimateMax *unit.Cents `db:"incentive_estimate_max"`
 	IncentiveTxt         string
-	TOName               string `db:"transportation_office_name"`
-	TOPhone              string `db:"transportation_office_phone"`
-	MoveDate             string `db:"move_date"`
-	Locator              string `db:"locator"`
+	TOName               string  `db:"transportation_office_name"`
+	TOPhone              *string `db:"transportation_office_phone"`
+	MoveDate             string  `db:"move_date"`
+	Locator              string  `db:"locator"`
 }
 
 func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
@@ -80,8 +79,8 @@ FROM personally_procured_moves ppm
 	JOIN orders o ON m.orders_id = o.id
 	JOIN service_members sm ON o.service_member_id = sm.id
 	JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
-	JOIN transportation_offices tos ON tos.id = dsn.transportation_office_id
-	left join office_phone_lines opl on opl.transportation_office_id = tos.id and opl.id =
+	Left JOIN transportation_offices tos ON tos.id = dsn.transportation_office_id
+	LEFT JOIN office_phone_lines opl on opl.transportation_office_id = tos.id and opl.id =
 	(
 		select opl2.id from office_phone_lines opl2
 		where opl2.is_dsn_number is false
@@ -132,7 +131,7 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 			IncentiveEstimateMax:   PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString(),
 			IncentiveTxt:           incentiveTxt,
 			TOName:                 PaymentReminderEmailInfo.TOName,
-			TOPhone:                PaymentReminderEmailInfo.TOPhone,
+			TOPhone:                *PaymentReminderEmailInfo.TOPhone,
 		})
 		if err != nil {
 			m.logger.Error("error rendering template", zap.Error(err))

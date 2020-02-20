@@ -78,7 +78,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 	suite.Equal(ppms[0].IncentiveEstimateMin, emailInfo[0].IncentiveEstimateMin)
 	suite.Equal(ppms[0].IncentiveEstimateMax, emailInfo[0].IncentiveEstimateMax)
 	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.Name, emailInfo[0].TOName)
-	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.PhoneLines[0].Number, emailInfo[0].TOPhone)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.PhoneLines[0].Number, *emailInfo[0].TOPhone)
 	suite.Equal(ppms[0].Move.Locator, emailInfo[0].Locator)
 }
 
@@ -289,16 +289,20 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 	weightEst1 := unit.Pound(100)
 	estimateMin1 := unit.Cents(1000)
 	estimateMax1 := unit.Cents(1100)
+	phone1 := "111-111-1111"
 
 	email2 := "email2"
 	weightEst2 := unit.Pound(200)
 	estimateMin2 := unit.Cents(2000)
 	estimateMax2 := unit.Cents(2200)
+	phone2 := "222-222-2222"
 
 	email3 := "email3"
 	weightEst3 := unit.Pound(0)
 	estimateMin3 := unit.Cents(0)
 	estimateMax3 := unit.Cents(0)
+
+	phone := "000-000-0000"
 
 	emailInfos := PaymentReminderEmailInfos{
 		{
@@ -309,7 +313,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMax: &estimateMax1,
 			IncentiveTxt:         fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", weightEst1.Int(), estimateMin1.ToDollarString(), estimateMax1.ToDollarString()),
 			TOName:               "to1",
-			TOPhone:              "111-111-1111",
+			TOPhone:              &phone1,
 			Locator:              "abc123",
 		},
 		{
@@ -320,7 +324,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMax: &estimateMax2,
 			IncentiveTxt:         fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", weightEst2.Int(), estimateMin2.ToDollarString(), estimateMax2.ToDollarString()),
 			TOName:               "to2",
-			TOPhone:              "222-222-2222",
+			TOPhone:              &phone2,
 			Locator:              "abc456",
 		},
 		{
@@ -331,7 +335,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMax: &estimateMax3,
 			IncentiveTxt:         "",
 			TOName:               "to0",
-			TOPhone:              "000-000-0000",
+			TOPhone:              &phone,
 			Locator:              "def123",
 		},
 		{
@@ -343,7 +347,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMax: &estimateMax3,
 			IncentiveTxt:         "",
 			TOName:               "to0",
-			TOPhone:              "000-000-0000",
+			TOPhone:              &phone,
 			Locator:              "def456",
 		},
 	}
@@ -360,7 +364,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMax:   emailInfo.IncentiveEstimateMax.ToDollarString(),
 			IncentiveTxt:           emailInfo.IncentiveTxt,
 			TOName:                 emailInfo.TOName,
-			TOPhone:                emailInfo.TOPhone,
+			TOPhone:                *emailInfo.TOPhone,
 		}
 		htmlBody, err := pr.RenderHTML(data)
 		suite.NoError(err)
