@@ -3938,6 +3938,16 @@ func init() {
             "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
           }
         },
+        "vehicle_make": {
+          "type": "string",
+          "title": "Vehicle make",
+          "x-nullable": true
+        },
+        "vehicle_model": {
+          "type": "string",
+          "title": "Vehicle model",
+          "x-nullable": true
+        },
         "vehicle_nickname": {
           "type": "string",
           "title": "Vehicle nickname (ex. 'My car')",
@@ -4417,6 +4427,16 @@ func init() {
         "trailer_ownership_missing": {
           "type": "boolean",
           "title": "missing trailer ownership documentation",
+          "x-nullable": true
+        },
+        "vehicle_make": {
+          "type": "string",
+          "title": "Vehicle make",
+          "x-nullable": true
+        },
+        "vehicle_model": {
+          "type": "string",
+          "title": "Vehicle model",
           "x-nullable": true
         },
         "vehicle_nickname": {
@@ -10124,6 +10144,16 @@ func init() {
             "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
           }
         },
+        "vehicle_make": {
+          "type": "string",
+          "title": "Vehicle make",
+          "x-nullable": true
+        },
+        "vehicle_model": {
+          "type": "string",
+          "title": "Vehicle model",
+          "x-nullable": true
+        },
         "vehicle_nickname": {
           "type": "string",
           "title": "Vehicle nickname (ex. 'My car')",
@@ -10605,6 +10635,16 @@ func init() {
         "trailer_ownership_missing": {
           "type": "boolean",
           "title": "missing trailer ownership documentation",
+          "x-nullable": true
+        },
+        "vehicle_make": {
+          "type": "string",
+          "title": "Vehicle make",
+          "x-nullable": true
+        },
+        "vehicle_model": {
+          "type": "string",
+          "title": "Vehicle model",
           "x-nullable": true
         },
         "vehicle_nickname": {
