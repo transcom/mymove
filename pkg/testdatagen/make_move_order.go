@@ -87,6 +87,8 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		dateIssued = models.TimePointer(time.Date(2020, time.January, 15, 0, 0, 0, 0, time.UTC))
 	}
 
+	linesOfAccounting := "F8E1"
+
 	moveOrder := models.MoveOrder{
 		Customer:                 &customer,
 		CustomerID:               &customer.ID,
@@ -103,6 +105,7 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		OrderType:                orderType,
 		OrderTypeDetail:          orderTypeDetail,
 		ReportByDate:             reportByDate,
+		LinesOfAccounting:        linesOfAccounting,
 	}
 
 	// Overwrite values with those from assertions

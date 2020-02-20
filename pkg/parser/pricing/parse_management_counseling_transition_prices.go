@@ -20,7 +20,7 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 		return nil, fmt.Errorf("parseShipmentManagementServices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Shipment Management Services Prices")
+	log.Println("Parsing shipment management services prices")
 	var mgmtPrices []models.StageShipmentManagementServicesPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[mgmtRowIndexStart:]
 	for _, row := range dataRows {
@@ -35,7 +35,7 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 		}
 
 		if params.ShowOutput == true {
-			log.Printf("%v\n", shipMgmtSrvcPrice)
+			log.Printf("%+v\n", shipMgmtSrvcPrice)
 		}
 		mgmtPrices = append(mgmtPrices, shipMgmtSrvcPrice)
 	}
@@ -54,7 +54,7 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 		return nil, fmt.Errorf("parseCounselingServicesPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Counseling Services Prices")
+	log.Println("Parsing counseling services prices")
 	var counPrices []models.StageCounselingServicesPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[counRowIndexStart:]
 	for _, row := range dataRows {
@@ -69,7 +69,7 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 		}
 
 		if params.ShowOutput == true {
-			log.Printf("%v\n", cnslSrvcPrice)
+			log.Printf("%+v\n", cnslSrvcPrice)
 		}
 		counPrices = append(counPrices, cnslSrvcPrice)
 	}
@@ -88,7 +88,7 @@ var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex
 		return nil, fmt.Errorf("parseTransitionPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Transition Prices")
+	log.Println("Parsing transition prices")
 	var tranPrices []models.StageTransitionPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[tranRowIndexStart:]
 	for _, row := range dataRows {
@@ -103,7 +103,7 @@ var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex
 		}
 
 		if params.ShowOutput == true {
-			log.Printf("%v\n", tranPrice)
+			log.Printf("%+v\n", tranPrice)
 		}
 		tranPrices = append(tranPrices, tranPrice)
 	}

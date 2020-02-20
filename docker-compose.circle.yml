@@ -17,7 +17,7 @@ services:
   server_test:
     depends_on:
       - database
-    image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+    image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
     deploy:
       resources:
         limits:
