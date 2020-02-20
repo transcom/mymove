@@ -179,7 +179,6 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		SET updated_at = NOW()`
 
 	var params []interface{}
-
 	if updatedShipment.PrimeEstimatedWeight != nil {
 		estimatedWeightQuery := `,
 			prime_estimated_weight = ?,

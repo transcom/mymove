@@ -452,4 +452,7 @@
 20200211232054_add_fadd_to_mto_shipments.up.sql
 20200212153937_add_contract_id_to_re_ref_tables.up.sql
 20200212201441_rd_cac.up.sql
+20200214175204_create_re_zip5_rate_areas_table.up.sql
 20200217200526_gidjin_cac.up.sql
+20200219162105_garrett_cac.up.sql
+20200219185845_rriser_cac.up.sql

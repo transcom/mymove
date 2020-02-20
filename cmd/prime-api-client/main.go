@@ -169,12 +169,21 @@ func main() {
 	params.SetTimeout(time.Second * 30)
 	resp, errFetchMTOUpdates := primeGateway.MoveTaskOrder.FetchMTOUpdates(&params)
 	if errFetchMTOUpdates != nil {
-		log.Fatal(errFetchMTOUpdates)
+		// If the response cannot be parsed as JSON you may see an error like
+		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
+		// Likely this is because the API doesn't return JSON response for BadRequest OR
+		// The response type is not being set to text
+		log.Fatal(errFetchMTOUpdates.Error())
 	}
 
-	payload, errJSONMarshall := json.Marshal(resp.GetPayload())
-	if errJSONMarshall != nil {
-		log.Fatal(errJSONMarshall)
+	payload := resp.GetPayload()
+	if payload != nil {
+		payload, errJSONMarshall := json.Marshal(payload)
+		if errJSONMarshall != nil {
+			log.Fatal(errJSONMarshall)
+		}
+		fmt.Println(string(payload))
+	} else {
+		log.Fatal(resp.Error())
 	}
-	fmt.Println(string(payload))
 }
