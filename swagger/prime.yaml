@@ -580,6 +580,10 @@ definitions:
       - message
     type: object
   MoveOrder:
+    required:
+      - orderNumber
+      - rank
+      - linesOfAccounting
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -606,10 +610,8 @@ definitions:
       confirmationNumber:
         type: string
         example: "HYXFJF"
-        x-nullable: true
       orderNumber:
         type: string
-        x-nullable: true
       linesOfAccounting:
         type: string
     type: object
@@ -675,6 +677,7 @@ definitions:
       approvedDate:
         format: date
         type: string
+        x-nullable: true
       scheduledPickupDate:
         format: date
         type: string

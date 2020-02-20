@@ -18,7 +18,7 @@ import (
 type MoveOrder struct {
 
 	// confirmation number
-	ConfirmationNumber *string `json:"confirmationNumber,omitempty"`
+	ConfirmationNumber string `json:"confirmationNumber,omitempty"`
 
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
@@ -38,16 +38,19 @@ type MoveOrder struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// lines of accounting
-	LinesOfAccounting string `json:"linesOfAccounting,omitempty"`
+	// Required: true
+	LinesOfAccounting *string `json:"linesOfAccounting"`
 
 	// order number
-	OrderNumber *string `json:"orderNumber,omitempty"`
+	// Required: true
+	OrderNumber *string `json:"orderNumber"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
 
 	// rank
-	Rank string `json:"rank,omitempty"`
+	// Required: true
+	Rank *string `json:"rank"`
 
 	// report by date
 	// Format: date
@@ -78,7 +81,19 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateLinesOfAccounting(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrderNumber(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateOriginDutyStation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRank(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -172,6 +187,24 @@ func (m *MoveOrder) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MoveOrder) validateLinesOfAccounting(formats strfmt.Registry) error {
+
+	if err := validate.Required("linesOfAccounting", "body", m.LinesOfAccounting); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateOrderNumber(formats strfmt.Registry) error {
+
+	if err := validate.Required("orderNumber", "body", m.OrderNumber); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.OriginDutyStation) { // not required
@@ -185,6 +218,15 @@ func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateRank(formats strfmt.Registry) error {
+
+	if err := validate.Required("rank", "body", m.Rank); err != nil {
+		return err
 	}
 
 	return nil

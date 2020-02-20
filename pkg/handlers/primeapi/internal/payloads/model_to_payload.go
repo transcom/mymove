@@ -1,6 +1,8 @@
 package payloads
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -74,7 +76,9 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 	if moveOrder.Grade != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
+	reportByDate := strfmt.Date(*moveOrder.ReportByDate)
 	entitlements := Entitlement(moveOrder.Entitlement)
+
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
 		Customer:               Customer(moveOrder.Customer),
@@ -83,16 +87,10 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		OrderNumber:            moveOrder.OrderNumber,
-		LinesOfAccounting:      moveOrder.LinesOfAccounting,
-		ConfirmationNumber:     moveOrder.ConfirmationNumber,
-	}
-
-	if moveOrder.Grade != nil {
-		payload.Rank = *moveOrder.Grade
-	}
-
-	if moveOrder.ReportByDate != nil {
-		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
+		LinesOfAccounting:      &moveOrder.LinesOfAccounting,
+		Rank:                   moveOrder.Grade,
+		ConfirmationNumber:     *moveOrder.ConfirmationNumber,
+		ReportByDate:           reportByDate,
 	}
 
 	return &payload
@@ -201,8 +199,14 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
 
-	if mtoShipment.ApprovedDate != nil {
-		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
+	if mtoShipment.ApprovedDate != nil && !mtoShipment.ApprovedDate.IsZero() {
+		fmt.Println(mtoShipment.ApprovedDate)
+		approvedDate := strfmt.Date(*mtoShipment.ApprovedDate)
+		payload.ApprovedDate = &approvedDate
+	}
+
+	if mtoShipment.FirstAvailableDeliveryDate != nil && !mtoShipment.FirstAvailableDeliveryDate.IsZero() {
+		payload.FirstAvailableDeliveryDate = strfmt.Date(*mtoShipment.FirstAvailableDeliveryDate)
 	}
 
 	if mtoShipment.PrimeEstimatedWeight != nil {

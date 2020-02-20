@@ -854,7 +854,8 @@ func init() {
       "properties": {
         "approvedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
@@ -950,10 +951,14 @@ func init() {
     },
     "MoveOrder": {
       "type": "object",
+      "required": [
+        "orderNumber",
+        "rank",
+        "linesOfAccounting"
+      ],
       "properties": {
         "confirmationNumber": {
           "type": "string",
-          "x-nullable": true,
           "example": "HYXFJF"
         },
         "customer": {
@@ -979,8 +984,7 @@ func init() {
           "type": "string"
         },
         "orderNumber": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -2150,7 +2154,8 @@ func init() {
       "properties": {
         "approvedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
@@ -2246,10 +2251,14 @@ func init() {
     },
     "MoveOrder": {
       "type": "object",
+      "required": [
+        "orderNumber",
+        "rank",
+        "linesOfAccounting"
+      ],
       "properties": {
         "confirmationNumber": {
           "type": "string",
-          "x-nullable": true,
           "example": "HYXFJF"
         },
         "customer": {
@@ -2275,8 +2284,7 @@ func init() {
           "type": "string"
         },
         "orderNumber": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
