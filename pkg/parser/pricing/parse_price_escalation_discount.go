@@ -19,7 +19,7 @@ var parsePriceEscalationDiscount processXlsxSheet = func(params ParamConfig, she
 		return nil, fmt.Errorf("parsePriceEscalationDiscount expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Price Escalation Discount")
+	log.Println("Parsing price escalation discount")
 	var priceEscalationDiscounts []models.StagePriceEscalationDiscount
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[discountsRowIndexStart:]
 	for _, row := range dataRows {
@@ -35,7 +35,7 @@ var parsePriceEscalationDiscount processXlsxSheet = func(params ParamConfig, she
 		}
 
 		if params.ShowOutput {
-			log.Printf("%v\n", priceEscalationDiscount)
+			log.Printf("%+v\n", priceEscalationDiscount)
 		}
 		priceEscalationDiscounts = append(priceEscalationDiscounts, priceEscalationDiscount)
 	}
