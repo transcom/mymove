@@ -243,7 +243,6 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		updatedShipment.ID,
 		unmodifiedSince,
 	)
-	fmt.Println(params)
 
 	// do the updating in a raw query
 	affectedRows, err := db.RawQuery(finishedQuery, params...).ExecWithCount()
