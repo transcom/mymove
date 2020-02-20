@@ -58,7 +58,7 @@ type PaymentReminderEmailInfo struct {
 	IncentiveEstimateMin *unit.Cents `db:"incentive_estimate_min"`
 	IncentiveEstimateMax *unit.Cents `db:"incentive_estimate_max"`
 	IncentiveTxt         string
-	TOName               *string  `db:"transportation_office_name"`
+	TOName               string `db:"transportation_office_name"`
 	TOPhone              *string `db:"transportation_office_phone"`
 	MoveDate             string  `db:"move_date"`
 	Locator              string  `db:"locator"`
@@ -79,7 +79,7 @@ FROM personally_procured_moves ppm
 	JOIN orders o ON m.orders_id = o.id
 	JOIN service_members sm ON o.service_member_id = sm.id
 	JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
-	LEFT JOIN transportation_offices tos ON tos.id = dsn.transportation_office_id
+	JOIN transportation_offices tos ON tos.id = dsn.transportation_office_id
 	LEFT JOIN office_phone_lines opl on opl.transportation_office_id = tos.id and opl.id =
 	(
 		SELECT opl2.id FROM office_phone_lines opl2
@@ -124,6 +124,10 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 		if PaymentReminderEmailInfo.WeightEstimate.Int() > 0 && PaymentReminderEmailInfo.IncentiveEstimateMin.Int() > 0 && PaymentReminderEmailInfo.IncentiveEstimateMax.Int() > 0 {
 			incentiveTxt = fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", PaymentReminderEmailInfo.WeightEstimate.Int(), PaymentReminderEmailInfo.IncentiveEstimateMin.ToDollarString(), PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString())
 		}
+		toPhone := ""
+		if &PaymentReminderEmailInfo.TOPhone != nil {
+			toPhone = fmt.Sprintf("at %s", *PaymentReminderEmailInfo.TOPhone)
+		}
 		htmlBody, textBody, err := m.renderTemplates(PaymentReminderEmailData{
 			DestinationDutyStation: PaymentReminderEmailInfo.NewDutyStationName,
 			WeightEstimate:         fmt.Sprintf("%d", PaymentReminderEmailInfo.WeightEstimate.Int()),
@@ -131,7 +135,8 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 			IncentiveEstimateMax:   PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString(),
 			IncentiveTxt:           incentiveTxt,
 			TOName:                 PaymentReminderEmailInfo.TOName,
-			TOPhone:                *PaymentReminderEmailInfo.TOPhone,
+			TOPhone:                toPhone,
+			Locator:                PaymentReminderEmailInfo.Locator,
 		})
 		if err != nil {
 			m.logger.Error("error rendering template", zap.Error(err))
@@ -144,7 +149,7 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 		}
 		smEmail := emailContent{
 			recipientEmail: *PaymentReminderEmailInfo.Email,
-			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s", PaymentReminderEmailInfo.NewDutyStationName),
+			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (%s)", PaymentReminderEmailInfo.NewDutyStationName, PaymentReminderEmailInfo.Locator),
 			htmlBody:       htmlBody,
 			textBody:       textBody,
 			onSuccess:      m.OnSuccess(PaymentReminderEmailInfo),
@@ -197,6 +202,7 @@ type PaymentReminderEmailData struct {
 	IncentiveTxt           string
 	TOName                 string
 	TOPhone                string
+	Locator                string
 }
 
 // RenderHTML renders the html for the email
