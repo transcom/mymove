@@ -58,7 +58,7 @@ require (
 	github.com/rickar/cal v1.0.3
 	github.com/rogpeppe/go-internal v1.5.1 // indirect
 	github.com/spf13/afero v1.2.2
-	github.com/spf13/cobra v0.0.5
+	github.com/spf13/cobra v0.0.6
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.2
 	github.com/stretchr/objx v0.2.0
