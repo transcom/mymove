@@ -23,7 +23,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, shee
 		return nil, fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Domestic Linehaul Prices")
+	log.Println("Parsing domestic linehaul prices")
 
 	var domPrices []models.StageDomesticLinehaulPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
@@ -51,7 +51,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, shee
 						}
 						colIndex++
 						if params.ShowOutput == true {
-							log.Printf("%v\n", domPrice)
+							log.Printf("%+v\n", domPrice)
 						}
 						domPrices = append(domPrices, domPrice)
 					}

@@ -15,8 +15,6 @@ func MakeReDomesticServiceArea(db *pop.Connection, assertions Assertions) models
 
 	reDomesticServiceArea := models.ReDomesticServiceArea{
 		ContractID:       reContract.ID,
-		BasePointCity:    "Birmingham",
-		State:            "AL",
 		ServiceArea:      "004",
 		ServicesSchedule: 2,
 		SITPDSchedule:    2,
