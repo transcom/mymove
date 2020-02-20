@@ -15,7 +15,7 @@ const (
 // InitIWSFlags initializes CSRF command line flags
 func InitIWSFlags(flag *pflag.FlagSet) {
 	flag.String(IWSRBSHostFlag, "", "Hostname for the IWS RBS")
-	flag.Bool(IWSRBSEnabledFlag, false, "enable the IWS RBS service")
+	flag.Bool(IWSRBSEnabledFlag, false, "enable the IWS RBS integration")
 }
 
 // CheckIWS validates IWS command line flags
