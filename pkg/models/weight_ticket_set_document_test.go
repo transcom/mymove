@@ -12,7 +12,6 @@ func (suite *ModelSuite) TestBasicWeightTicketSetDocumentInstantiation() {
 
 	expErrors := map[string][]string{
 		"move_document_id":       {"MoveDocumentID can not be blank."},
-		"vehicle_nickname":       {"VehicleNickname can not be blank."},
 		"weight_ticket_set_type": {"WeightTicketSetType can not be blank."},
 	}
 
