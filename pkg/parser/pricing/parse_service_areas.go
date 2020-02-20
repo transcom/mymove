@@ -21,7 +21,7 @@ var parseDomesticServiceAreas processXlsxSheet = func(params ParamConfig, sheetI
 		return nil, fmt.Errorf("parseDomesticServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Domestic Service Areas")
+	log.Println("Parsing domestic service areas")
 	var domServAreas []models.StageDomesticServiceArea
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
 	for _, row := range dataRows {
@@ -37,7 +37,7 @@ var parseDomesticServiceAreas processXlsxSheet = func(params ParamConfig, sheetI
 		}
 
 		if params.ShowOutput == true {
-			log.Printf("%v\n", domServArea)
+			log.Printf("%+v\n", domServArea)
 		}
 		domServAreas = append(domServAreas, domServArea)
 	}
@@ -56,7 +56,7 @@ var parseInternationalServiceAreas processXlsxSheet = func(params ParamConfig, s
 		return nil, fmt.Errorf("parseInternationalServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing International Service Areas")
+	log.Println("Parsing international service areas")
 
 	var intlServAreas []models.StageInternationalServiceArea
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
@@ -71,7 +71,7 @@ var parseInternationalServiceAreas processXlsxSheet = func(params ParamConfig, s
 		}
 
 		if params.ShowOutput == true {
-			log.Printf("%v\n", intlServArea)
+			log.Printf("%+v\n", intlServArea)
 		}
 		intlServAreas = append(intlServAreas, intlServArea)
 	}

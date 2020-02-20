@@ -21,7 +21,7 @@ var parseDomesticMoveAccessorialPrices processXlsxSheet = func(params ParamConfi
 		return nil, fmt.Errorf("parseDomesticMoveAccessorialPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Domestic move accessorial prices")
+	log.Println("Parsing domestic move accessorial prices")
 	var prices []models.StageDomesticMoveAccessorialPrices
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[domAccessorialRowIndexStart:]
 	for _, row := range dataRows {
@@ -37,7 +37,7 @@ var parseDomesticMoveAccessorialPrices processXlsxSheet = func(params ParamConfi
 		}
 
 		if params.ShowOutput == true {
-			log.Printf("%v\n", price)
+			log.Printf("%+v\n", price)
 		}
 		prices = append(prices, price)
 	}
@@ -56,7 +56,7 @@ var parseInternationalMoveAccessorialPrices processXlsxSheet = func(params Param
 		return nil, fmt.Errorf("parseInternationalMoveAccessorialPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing International move accessorial prices")
+	log.Println("Parsing international move accessorial prices")
 	var prices []models.StageInternationalMoveAccessorialPrices
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[intlAccessorialRowIndexStart:]
 	for _, row := range dataRows {
@@ -72,7 +72,7 @@ var parseInternationalMoveAccessorialPrices processXlsxSheet = func(params Param
 		}
 
 		if params.ShowOutput == true {
-			log.Printf("%v\n", price)
+			log.Printf("%+v\n", price)
 		}
 		prices = append(prices, price)
 	}
@@ -91,7 +91,7 @@ var parseDomesticInternationalAdditionalPrices processXlsxSheet = func(params Pa
 		return nil, fmt.Errorf("parseDomesticInternationalAdditionalPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Domestic / International additional prices")
+	log.Println("Parsing domestic/international additional prices")
 	var prices []models.StageDomesticInternationalAdditionalPrices
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[additionalPricesRowIndexStart:]
 	for _, row := range dataRows {
@@ -107,7 +107,7 @@ var parseDomesticInternationalAdditionalPrices processXlsxSheet = func(params Pa
 		}
 
 		if params.ShowOutput == true {
-			log.Printf("%v\n", price)
+			log.Printf("%+v\n", price)
 		}
 		prices = append(prices, price)
 	}
