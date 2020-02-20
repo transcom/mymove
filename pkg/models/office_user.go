@@ -10,10 +10,6 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// type PopModel interface {
-// 	ColumnsWithValues() map[string]string
-// }
-
 // OfficeUser is someone who works in one of the TransportationOffices
 type OfficeUser struct {
 	ID                     uuid.UUID            `json:"id" db:"id"`
@@ -30,12 +26,6 @@ type OfficeUser struct {
 	UpdatedAt              time.Time            `json:"updated_at" db:"updated_at"`
 	Active                 bool                 `json:"active" db:"active"`
 }
-
-// func (o OfficeUser) ColumnsWithValues() map[string]string {
-// 	colsWithValues := map[string]string{}
-//
-// 	return colsWithValues
-// }
 
 // OfficeUsers is not required by pop and may be deleted
 type OfficeUsers []OfficeUser
@@ -62,7 +52,7 @@ func (o *OfficeUser) ValidateCreate(tx *pop.Connection) (*validate.Errors, error
 // ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
 // This method is not required and may be deleted.
 func (o *OfficeUser) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return nil, nil
+	return validate.NewErrors(), nil
 }
 
 // FetchOfficeUserByEmail looks for an office user with a specific email
