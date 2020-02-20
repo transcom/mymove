@@ -58,17 +58,17 @@ type PaymentReminderEmailInfo struct {
 	IncentiveEstimateMin *unit.Cents `db:"incentive_estimate_min"`
 	IncentiveEstimateMax *unit.Cents `db:"incentive_estimate_max"`
 	IncentiveTxt         string
-	TOName               string  `db:"transportation_office_name"`
+	TOName               *string  `db:"transportation_office_name"`
 	TOPhone              *string `db:"transportation_office_phone"`
 	MoveDate             string  `db:"move_date"`
 	Locator              string  `db:"locator"`
 }
 
 func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
-	query := `SELECT sm.id as id, sm.personal_email as personal_email,
-	COALESCE(ppm.weight_estimate, 0) as weight_estimate,
-	COALESCE(ppm.incentive_estimate_min, 0) as incentive_estimate_min,
-	COALESCE(ppm.incentive_estimate_max, 0) as incentive_estimate_max,
+	query := `SELECT sm.id as id, sm.personal_email AS personal_email,
+	COALESCE(ppm.weight_estimate, 0) AS weight_estimate,
+	COALESCE(ppm.incentive_estimate_min, 0) AS incentive_estimate_min,
+	COALESCE(ppm.incentive_estimate_max, 0) AS incentive_estimate_max,
 	ppm.original_move_date as move_date,
 	dsn.name AS new_duty_station_name,
 	tos.name AS transportation_office_name,
@@ -79,21 +79,21 @@ FROM personally_procured_moves ppm
 	JOIN orders o ON m.orders_id = o.id
 	JOIN service_members sm ON o.service_member_id = sm.id
 	JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
-	Left JOIN transportation_offices tos ON tos.id = dsn.transportation_office_id
+	LEFT JOIN transportation_offices tos ON tos.id = dsn.transportation_office_id
 	LEFT JOIN office_phone_lines opl on opl.transportation_office_id = tos.id and opl.id =
 	(
-		select opl2.id from office_phone_lines opl2
-		where opl2.is_dsn_number is false
-		and tos.id = opl2.transportation_office_id
-		limit 1
+		SELECT opl2.id FROM office_phone_lines opl2
+		WHERE opl2.is_dsn_number IS false
+		AND tos.id = opl2.transportation_office_id
+		LIMIT 1
 	)
 	LEFT JOIN notifications n ON sm.id = n.service_member_id
- WHERE ppm.original_move_date <= now() - ($1)::INTERVAL
+	WHERE ppm.original_move_date <= now() - ($1)::INTERVAL
 	AND ppm.original_move_date >= $2
 	AND (ppm.status != 'APPROVED' OR n.service_member_id IS NULL)
 	AND (notification_type != 'MOVE_PAYMENT_REMINDER_EMAIL' OR n.service_member_id IS NULL)
 	AND m.status = 'APPROVED'
-	AND m.show is true;`
+	AND m.show IS true;`
 
 	paymentReminderEmailInfos := PaymentReminderEmailInfos{}
 	err := m.db.RawQuery(query, m.emailAfter, m.noEmailBefore).All(&paymentReminderEmailInfos)
