@@ -617,12 +617,6 @@ definitions:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
   MTOShipment:
-    required:
-      - pickupAddress
-      - destinationAddress
-      - scheduledPickupDate
-      - requestedPickupDate
-      - shipmentType
     properties:
       moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
