@@ -176,12 +176,12 @@ func (gre *GHCRateEngineImporter) importREDomesticOtherPrices(db *pop.Connection
 	var modelsToSaveSit []DomOtherPriceToInsert
 
 	var err error
-	modelsToSavePack, err = importPackUnpackPrices(db, gre.serviceToIDMap, gre.contractID)
+	modelsToSavePack, err = importPackUnpackPrices(db, gre.serviceToIDMap, gre.ContractID)
 	if err != nil {
 		return err
 	}
 
-	modelsToSaveSit, err = importSitPrices(db, gre.serviceToIDMap, gre.contractID)
+	modelsToSaveSit, err = importSitPrices(db, gre.serviceToIDMap, gre.ContractID)
 	if err != nil {
 		return err
 	}

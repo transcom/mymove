@@ -94,8 +94,8 @@ func (gre *GHCRateEngineImporter) buildServiceAreasData(dbTx *pop.Connection) (s
 			}
 
 			serviceAreasData[serviceAreaNumber] = domesticServiceAreaData{
-				serviceArea: &models.ReDomesticServiceArea{
-					ContractID:  gre.contractID,
+			serviceArea: &models.ReDomesticServiceArea{
+				ContractID:  gre.ContractID,
 					ServiceArea: serviceAreaNumber,
 					// Fill in services schedule and SIT PD schedule later from other tab.
 				},
@@ -158,7 +158,7 @@ func (gre *GHCRateEngineImporter) saveServiceAreasAndZip3s(dbTx *pop.Connection,
 		// See if there is an existing service area record.  If so, we may need to update it.
 		var existingServiceAreas models.ReDomesticServiceAreas
 		err := dbTx.
-			Where("contract_id = ?", gre.contractID).
+			Where("contract_id = ?", gre.ContractID).
 			Where("service_area = ?", reServiceArea.ServiceArea).
 			All(&existingServiceAreas)
 		if err != nil {
@@ -196,7 +196,7 @@ func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, 
 	// Save the associated zips.
 	for zip3, cityState := range zip3s {
 		reZip3 := models.ReZip3{
-			ContractID:            gre.contractID,
+			ContractID:            gre.ContractID,
 			Zip3:                  zip3,
 			BasePointCity:         cityState.city,
 			State:                 cityState.state,
@@ -206,7 +206,7 @@ func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, 
 		// See if there is an existing zip3 record.  If so, we need to update it.
 		var existingZip3s models.ReZip3s
 		err := dbTx.
-			Where("contract_id = ?", gre.contractID).
+			Where("contract_id = ?", gre.ContractID).
 			Where("zip3 = ?", reZip3.Zip3).
 			All(&existingZip3s)
 		if err != nil {
