@@ -1,6 +1,8 @@
 package ghcapi
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -11,10 +13,36 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 )
+
+type ListAllMoveTaskOrdersHandler struct {
+	handlers.HandlerContext
+	services.MoveTaskOrderFetcher
+}
+
+// Handle getting the all move task orders
+func (h ListAllMoveTaskOrdersHandler) Handle(params movetaskorderops.ListAllMoveTaskOrdersParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveTaskOrders, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders()
+	if err != nil {
+		logger.Error("fetching all move task orders", zap.Error(err))
+		switch err {
+		case sql.ErrNoRows:
+			return movetaskorderops.NewListAllMoveTaskOrdersNotFound()
+		default:
+			return movetaskorderops.NewListAllMoveTaskOrdersInternalServerError()
+		}
+	}
+	moveTaskOrdersPayload := make(ghcmessages.MoveTaskOrders, len(moveTaskOrders))
+	for i, moveTaskOrder := range moveTaskOrders {
+		moveTaskOrdersPayload[i] = payloads.MoveTaskOrder(&moveTaskOrder)
+	}
+	return movetaskorderops.NewListAllMoveTaskOrdersOK().WithPayload(moveTaskOrdersPayload)
+}
 
 // GetMoveTaskOrderHandler updates the status of a Move Task Order
 type GetMoveTaskOrderHandler struct {

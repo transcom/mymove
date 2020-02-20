@@ -55,6 +55,36 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	suite.Equal(strfmt.UUID(moveTaskOrder.MoveOrderID.String()), moveTaskOrderPayload.MoveOrderID)
 	suite.Nil(moveTaskOrderPayload.ReferenceID)
 }
+func (suite *HandlerSuite) TestListAllMoveTaskOrderHandlerIntegration() {
+	moveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveOrder: moveOrder,
+	})
+
+	request := httptest.NewRequest("GET", "/move-task-orders/", nil)
+	params := move_task_order.ListAllMoveTaskOrdersParams{
+		HTTPRequest: request,
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := ListAllMoveTaskOrdersHandler{
+		context,
+		movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+	}
+
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+	moveTaskOrderResponse := response.(*movetaskorderops.ListAllMoveTaskOrdersOK)
+	moveTaskOrderPayload := moveTaskOrderResponse.Payload
+
+	suite.Assertions.IsType(&move_task_order.ListAllMoveTaskOrdersOK{}, response)
+	suite.Equal(1, len(moveTaskOrderPayload))
+	resultMTO := moveTaskOrderPayload[0]
+	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), resultMTO.ID)
+	suite.False(*resultMTO.IsAvailableToPrime)
+	suite.False(*resultMTO.IsCanceled)
+	suite.Equal(strfmt.UUID(moveTaskOrder.MoveOrderID.String()), resultMTO.MoveOrderID)
+	suite.Nil(resultMTO.ReferenceID)
+}
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
