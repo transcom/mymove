@@ -1,0 +1,20 @@
+@import './shared/styles/settings';
+@import 'uswds';
+@import '~@trussworks/react-uswds/lib/index.css';
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.inline_radio {
+  margin-left: 4px;
+  display: inline-block;
+  margin-right: 10px;
+}
