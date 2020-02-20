@@ -30,7 +30,7 @@ var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheet
 		return nil, fmt.Errorf("parseNonStandardLocnPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Non Standard Location Prices")
+	log.Println("Parsing non-standard location prices")
 
 	var nonStandardLocationPrices []models.StageNonStandardLocnPrice
 	nToNRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
@@ -69,7 +69,7 @@ var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheet
 				nonStandardLocationPrice.UBPrice = getCell(row.Cells, colIndex)
 
 				if params.ShowOutput == true {
-					log.Printf("%v\n", nonStandardLocationPrice)
+					log.Printf("%+v\n", nonStandardLocationPrice)
 				}
 				nonStandardLocationPrices = append(nonStandardLocationPrices, nonStandardLocationPrice)
 

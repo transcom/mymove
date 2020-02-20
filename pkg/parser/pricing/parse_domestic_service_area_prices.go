@@ -23,7 +23,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params ParamConfig, s
 		return nil, fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Domestic Service Area Prices")
+	log.Println("Parsing domestic service area prices")
 
 	var domPrices []models.StageDomesticServiceAreaPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
@@ -51,7 +51,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params ParamConfig, s
 				colIndex++ // skip column SIT Pickup / Delivery ≤50 miles (per cwt)
 
 				if params.ShowOutput == true {
-					log.Printf("%v\n", domPrice)
+					log.Printf("%+v\n", domPrice)
 				}
 				domPrices = append(domPrices, domPrice)
 

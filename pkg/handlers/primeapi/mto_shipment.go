@@ -4,6 +4,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipmentservice "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -27,7 +29,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		case mtoshipmentservice.ErrNotFound:
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
 		case mtoshipmentservice.ErrInvalidInput:
-			return mtoshipmentops.NewUpdateMTOShipmentBadRequest()
+			return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
 		case mtoshipmentservice.ErrPreconditionFailed:
 			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed()
 		default:
