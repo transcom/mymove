@@ -61,10 +61,8 @@ committing.
 | --- | --- |
 | `commit-msg` | Ensure JIRA issue is tagged to commit message |
 | `gen-docs-index` | generate index for documents |
-| `pre-commit-go-imports` | modify imports in go files |
-| `pre-commit-go-lint` | modify go files with linting rules |
 | `pre-commit-go-mod` | modify `go.mod` and `go.sum` to match whats in the project |
-| `pre-commit-go-vet` | analyze code with `go vet` |
+| `pre-commit-models-vet` | Run model-vet check to verify DB against Golang models |
 
 ## CircleCI Scripts
 

@@ -144,7 +144,7 @@ func loadModelsFromFile(path string) ([]Model, error) {
 
 // Using a model definition, check that all matching columns in the database have compatible nullability
 // Columns that aren't found are ignored.
-func auditModel(db *pop.Connection, model Model) (bool, error) {
+func auditModel(db *pop.Connection, model Model, logger *zap.Logger) (bool, error) {
 	printedModelName := false
 	mismatch := false
 	sql := "select column_name, udt_name, is_nullable::boolean from information_schema.columns where table_name=$1 AND column_name=$2"
@@ -160,7 +160,7 @@ func auditModel(db *pop.Connection, model Model) (bool, error) {
 		}
 		if field.pointer != column.Nullable {
 			if !printedModelName {
-				fmt.Printf("\n%s\n", model.name)
+				logger.Info(fmt.Sprintf("%s", model.name))
 				printedModelName = true
 			}
 			mismatch = true
@@ -175,7 +175,7 @@ func auditModel(db *pop.Connection, model Model) (bool, error) {
 				pointer = "*"
 			}
 
-			fmt.Printf("  %s%s : %s is %v\n", pointer, field.name, field.dbName, nullable)
+			logger.Info(fmt.Sprintf("\t%s%s : %s is %v", pointer, field.name, field.dbName, nullable))
 		}
 	}
 	return mismatch, nil
@@ -192,7 +192,6 @@ func main() {
 	v.AutomaticEnv()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
-
 	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
@@ -222,7 +221,7 @@ func main() {
 		}
 		if models, loadErr := loadModelsFromFile("./pkg/models/" + file.Name()); loadErr == nil {
 			for _, model := range models {
-				mismatch, auditErr := auditModel(dbConnection, model)
+				mismatch, auditErr := auditModel(dbConnection, model, logger)
 				if auditErr != nil {
 					logger.Fatal("auditing model", zap.Error(auditErr))
 				}

@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+#
+# Run model-vet check to verify DB against Golang models
+#
+# Set these environment variables to change behavior:
+# - NO_DB: Will disable the db reset and migration steps
+#
+
+set -eu -o pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
+# Set up the test DB instance and wipe it
+# do not run db commands if NO_DB is set to 1
+if [[ "${NO_DB:-}" -ne 1 ]]; then
+  make db_dev_run db_dev_migrate
+fi
+
+if [ ! -f bin/model-vet ]; then
+  make bin/model-vet
+fi
+
+"${DIR}/../bin/model-vet"

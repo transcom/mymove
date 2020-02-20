@@ -79,6 +79,14 @@ repos:
         files: go.mod
         pass_filenames: false
 
+  - repo: local
+    hooks:
+      - id: models-vet
+        name: Check models against DB
+        entry: scripts/pre-commit-models-vet
+        language: script
+        pass_filenames: false
+
   - repo: git://github.com/trussworks/pre-commit-hooks
     rev: v0.0.3
     hooks:
