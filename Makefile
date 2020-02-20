@@ -839,7 +839,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 	npx prettier --write --loglevel warn "src/**/*.{js,jsx}"
 
 .PHONY: docker_circleci
-docker_circleci:
+docker_circleci: ## Run CircleCI container locally with project mounted
 	docker pull trussworks/circleci-docker-primary:latest
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) trussworks/circleci-docker-primary:latest bash
 
