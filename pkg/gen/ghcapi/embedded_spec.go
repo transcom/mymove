@@ -339,6 +339,63 @@ func init() {
         }
       ]
     },
+    "/move-task-orders": {
+      "get": {
+        "description": "Gets all move task orders",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Gets all move task orders",
+        "operationId": "listAllMoveTaskOrders",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all move orders",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrders"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets a move order",
@@ -2825,6 +2882,78 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/move-task-orders": {
+      "get": {
+        "description": "Gets all move task orders",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Gets all move task orders",
+        "operationId": "listAllMoveTaskOrders",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all move orders",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrders"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      }
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {

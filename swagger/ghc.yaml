@@ -223,6 +223,46 @@ paths:
       description: Gets move task orders associated with a move order
       operationId: listMoveTaskOrders
       summary: Gets move task orders associated with a move order
+  /move-task-orders:
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all move orders
+          schema:
+            $ref: '#/definitions/MoveTaskOrders'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Gets all move task orders
+      x-swagger-roles:
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
+      operationId: listAllMoveTaskOrders
+      summary: Gets all move task orders
   '/move-task-orders/{moveTaskOrderID}':
     parameters:
       - description: ID of move order to use
