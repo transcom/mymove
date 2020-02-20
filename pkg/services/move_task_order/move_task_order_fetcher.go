@@ -74,6 +74,19 @@ func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]model
 	}
 	return moveTaskOrders, nil
 }
+func (f moveTaskOrderFetcher) ListAllMoveTaskOrders() ([]models.MoveTaskOrder, error) {
+	var moveTaskOrders []models.MoveTaskOrder
+	err := f.db.Eager().All(&moveTaskOrders)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return []models.MoveTaskOrder{}, ErrNotFound{}
+		default:
+			return []models.MoveTaskOrder{}, err
+		}
+	}
+	return moveTaskOrders, nil
+}
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
 func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {

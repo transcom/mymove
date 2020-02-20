@@ -11,6 +11,7 @@ import (
 type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error)
 	ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.MoveTaskOrder, error)
+	ListAllMoveTaskOrders() ([]models.MoveTaskOrder, error)
 }
 
 //MoveTaskOrderStatusUpdater is the service object interface for MakeAvailableToPrime
