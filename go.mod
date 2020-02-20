@@ -7,14 +7,12 @@ require (
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.3
 	github.com/aws/aws-sdk-go v1.28.12
-	github.com/cockroachdb/cockroach-go v0.0.0-20190925194419-606b3d062051 // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.2
 	github.com/dustin/go-humanize v1.0.0
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a
-	github.com/fatih/color v1.7.0 // indirect
 	github.com/felixge/httpsnoop v1.0.1
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-ini/ini v1.49.0 // indirect
@@ -29,9 +27,8 @@ require (
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-swagger/go-swagger v0.21.0
 	github.com/gobuffalo/envy v1.9.0
-	github.com/gobuffalo/fizz v1.9.6
+	github.com/gobuffalo/fizz v1.9.7
 	github.com/gobuffalo/flect v0.2.1
-	github.com/gobuffalo/nulls v0.1.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/pop v4.13.1+incompatible
 	github.com/gobuffalo/validate v2.0.4+incompatible
@@ -40,7 +37,6 @@ require (
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gorilla/csrf v1.6.2
 	github.com/imdario/mergo v0.3.8
-	github.com/jackc/pgconn v1.1.0 // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jstemmer/go-junit-report v0.9.1
@@ -48,8 +44,6 @@ require (
 	github.com/leodido/go-urn v1.2.0
 	github.com/lib/pq v1.3.0
 	github.com/markbates/goth v1.61.1
-	github.com/mattn/go-colorable v0.1.4 // indirect
-	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mattn/go-shellwords v1.0.6 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/namsral/flag v1.7.4-pre
