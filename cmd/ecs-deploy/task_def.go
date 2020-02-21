@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -325,7 +326,7 @@ func buildContainerEnvironment(environmentName string, dbHost string, variablesF
 			log.Fatal(fmt.Errorf("File %q does not exist: %w", variablesFile, err))
 		}
 		// Read contents of variables file into vars
-		vars, readFileErr := ioutil.ReadFile(variablesFile)
+		vars, readFileErr := ioutil.ReadFile(filepath.Clean(variablesFile))
 		if readFileErr != nil {
 			log.Fatal(errors.New("error reading variables file"))
 		}

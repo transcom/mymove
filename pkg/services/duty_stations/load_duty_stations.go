@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"time"
@@ -46,7 +47,7 @@ type StationData struct {
 func (b MigrationBuilder) ParseStations(filename string) ([]StationData, error) {
 	var stations []StationData
 
-	csvFile, err := os.Open(filename)
+	csvFile, err := os.Open(filepath.Clean(filename))
 	if err != nil {
 		fmt.Println(err)
 		return stations, err
