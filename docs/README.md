@@ -66,6 +66,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Upgrade Go Version](how-to/upgrade-go-version.md#how-to-upgrade-go-version)
 * [Upload Electronic Orders Using your CAC](how-to/upload-electronic-orders.md#how-to-upload-electronic-orders-using-your-cac)
 * [Upload Electronic Orders Using your CAC](how-to/use-mtls-with-cac.md#how-to-upload-electronic-orders-using-your-cac)
+* [Use Optimistic Locking](how-to/use-optimistic-locking.md#how-to-use-optimistic-locking)
 * [View ECS Service Logs](how-to/view-ecs-service-logs.md#how-to-view-ecs-service-logs)
 
 ## ADRs
