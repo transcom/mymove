@@ -892,6 +892,14 @@ storybook: ## Start the storybook server
 storybook_build: ## Build static storybook site
 	yarn run build-storybook
 
+.PHONY: storybook_tests
+storybook_tests: ## Run the Loki storybook tests to ensure no breaking changes
+	yarn run loki test
+
+.PHONY: loki_approve_changes
+loki_approve_changes: ## Approves differences in Loki test results
+	yarn run loki approve
+
 #
 # ----- END RANDOM TARGETS -----
 #
