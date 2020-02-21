@@ -18,6 +18,11 @@ executors:
     working_directory: ~/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
+  milmove_admin_small:
+    resource_class: small
+    working_directory: ~/transcom
+    docker:
+      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
@@ -590,8 +595,8 @@ jobs:
       - announce_failure
 
   # `build_django_app` builds the django app container and pushes to container repository
-  build_django_app:
-    executor: mymove_small
+  build_milmove_admin_app:
+    executor: milmove_admin_small
     steps:
       - run:
           name: add github fingerprint
@@ -599,6 +604,12 @@ jobs:
       - run:
           name: clone mymove_admin repo
           command: git clone git@github.com:transcom/milmove_admin.git
+      - run:
+          name: what dir am I in?
+          command: pwd
+      - run:
+          name: generate models and migrate
+          command: make generate_models
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
@@ -884,7 +895,7 @@ workflows:
           requires:
             - build_tools
 
-      - build_django_app:
+      - build_milmove_admin_app:
           requires:
             - build_migrations
 
