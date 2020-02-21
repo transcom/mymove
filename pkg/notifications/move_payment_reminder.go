@@ -58,7 +58,7 @@ type PaymentReminderEmailInfo struct {
 	IncentiveEstimateMin *unit.Cents `db:"incentive_estimate_min"`
 	IncentiveEstimateMax *unit.Cents `db:"incentive_estimate_max"`
 	IncentiveTxt         string
-	TOName               string `db:"transportation_office_name"`
+	TOName               string  `db:"transportation_office_name"`
 	TOPhone              *string `db:"transportation_office_phone"`
 	MoveDate             string  `db:"move_date"`
 	Locator              string  `db:"locator"`
