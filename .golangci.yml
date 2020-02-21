@@ -51,9 +51,6 @@ issues:
     # staticcheck: Developers tend to write in C-style with an explicit 'break' in a 'switch', so it's ok to ignore
     - ineffective break statement. Did you mean to break out of the outer loop
 
-    # gosec: Too many false-positives on 'unsafe' usage
-    - Use of unsafe calls should be audited
-
     # gosec: Too many false-positives for parametrized shell calls
     - Subprocess launch(ed with variable|ing should be audited)
 
