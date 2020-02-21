@@ -413,3 +413,67 @@ func Test_MustBeBothNilOrBothNotNil_IsValid(t *testing.T) {
 		}
 	})
 }
+
+func Test_OneMustHaveValueOneMustNot_IsValid(t *testing.T) {
+	make := "Flyer"
+	model := "Wagon"
+
+	t.Run("field has value while other is nil succeeds", func(t *testing.T) {
+
+		v := models.OneMustHaveValueOneMustNot{
+			FieldName1:  "VehicleMake",
+			FieldValue1: &make,
+			FieldName2:  "VehicleModel",
+			FieldValue2: nil,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() != 0 {
+			t.Fatalf("got errors when should be valid: %v", errs)
+		}
+	})
+
+	t.Run("field is nil while other has value succeeds", func(t *testing.T) {
+		v := models.OneMustHaveValueOneMustNot{
+			FieldName1:  "VehicleMake",
+			FieldValue1: nil,
+			FieldName2:  "VehicleModel",
+			FieldValue2: &model,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() != 0 {
+			t.Fatalf("got errors when should be valid: %v", errs)
+		}
+	})
+
+	t.Run("fields are both nil fails", func(t *testing.T) {
+		v := models.OneMustHaveValueOneMustNot{
+			FieldName1:  "VehicleMake",
+			FieldValue1: nil,
+			FieldName2:  "VehicleModel",
+			FieldValue2: nil,
+		}
+
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Fatalf("should throw an error if %v and %v are both nil: %v", v.FieldName1, v.FieldName2, errs)
+		}
+	})
+
+	t.Run("fields both have values fails", func(t *testing.T) {
+		v := models.OneMustHaveValueOneMustNot{
+			FieldName1:  "VehicleMake",
+			FieldValue1: &make,
+			FieldName2:  "VehicleModel",
+			FieldValue2: &model,
+		}
+
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Fatalf("should throw an error if %v and %v are both filled: %v", v.FieldName1, v.FieldName2, errs)
+		}
+	})
+}
