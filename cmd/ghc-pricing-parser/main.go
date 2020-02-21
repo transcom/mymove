@@ -146,235 +146,348 @@ func main() {
 	}
 }
 
-func secondIndex(length int) int {
-	if length > 1 {
-		return 1
-	}
-	return 0
-}
-
 func summarizeXlsxStageParsing(db *pop.Connection) error {
 	log.Println("XLSX to Stage Table Parsing Complete")
 	log.Println(" Summary:")
 
 	// 1b Service Areas
 	stageDomServiceAreas := []models.StageDomesticServiceArea{}
-	db.Limit(2).All(&stageDomServiceAreas)
-
+	err := db.Limit(2).All(&stageDomServiceAreas)
+	if err != nil {
+		return err
+	}
 	length, err := db.Count(models.StageDomesticServiceArea{})
 	if err != nil {
 		return err
 	}
 
 	log.Printf("   1b: Service Areas (StageDomesticServiceArea): %d\n", length)
-	log.Printf("     first: %+v\n", stageDomServiceAreas[0])
-	log.Printf("      second: %+v\n", stageDomServiceAreas[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageDomServiceAreas[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageDomServiceAreas[1])
+	}
 	log.Println("   ---")
 
 	stageIntlServiceArea := []models.StageInternationalServiceArea{}
-	db.Limit(2).All(&stageIntlServiceArea)
-
+	err = db.Limit(2).All(&stageIntlServiceArea)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageInternationalServiceArea{})
 	if err != nil {
 		return err
 	}
 
 	log.Printf("   1b: Service Areas (StageInternationalServiceArea): %d\n", length)
-	log.Printf("     first: %+v\n", stageIntlServiceArea[0])
-	log.Printf("      second: %+v\n", stageIntlServiceArea[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageIntlServiceArea[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageIntlServiceArea[1])
+	}
 	log.Println("   ---")
 
 	// 2a Domestic Linehaul Prices
 	stageDomLinePrice := []models.StageDomesticLinehaulPrice{}
-	db.Limit(2).All(&stageDomLinePrice)
-
+	err = db.Limit(2).All(&stageDomLinePrice)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageDomesticLinehaulPrice{})
 	if err != nil {
 		return err
 	}
+
 	log.Printf("   2a: Domestic Linehaul Prices (StageDomesticLinehaulPrice): %d\n", length)
-	log.Printf("     first: %+v\n", stageDomLinePrice[0])
-	log.Printf("      second: %+v\n", stageDomLinePrice[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageDomLinePrice[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageDomLinePrice[1])
+	}
 	log.Println("   ---")
 
 	// 2b Domestic Service Area Prices
 	stageDomSerAreaPrice := []models.StageDomesticServiceAreaPrice{}
-	db.Limit(2).All(&stageDomSerAreaPrice)
+	err = db.Limit(2).All(&stageDomSerAreaPrice)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageDomesticServiceAreaPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   2b: Domestic Service Area Prices (StageDomesticServiceAreaPrice): %d\n", length)
-	log.Printf("     first: %+v\n", stageDomSerAreaPrice[0])
-	log.Printf("      second: %+v\n", stageDomSerAreaPrice[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageDomSerAreaPrice[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageDomSerAreaPrice[1])
+	}
 	log.Println("   ---")
 
 	// 2c Other Domestic Prices
 	stageDomOtherPackPrice := []models.StageDomesticOtherPackPrice{}
-	db.Limit(2).All(&stageDomOtherPackPrice)
+	err = db.Limit(2).All(&stageDomOtherPackPrice)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageDomesticOtherPackPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   2c: Other Domestic Prices (StageDomesticOtherPackPrice): %d\n", length)
-	log.Printf("     first: %+v\n", stageDomOtherPackPrice[0])
-	log.Printf("      second: %+v\n", stageDomOtherPackPrice[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageDomOtherPackPrice[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageDomOtherPackPrice[1])
+	}
 	log.Println("   ---")
 
 	stageDomOtherSitPrice := []models.StageDomesticOtherSitPrice{}
-	db.Limit(2).All(&stageDomOtherSitPrice)
-	// length = len(stageDomOtherSitPrice)
+	err = db.Limit(2).All(&stageDomOtherSitPrice)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageDomesticOtherSitPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   2c: Other Domestic Prices (StageDomesticOtherSitPrice): %d\n", length)
-	log.Printf("     first: %+v\n", stageDomOtherSitPrice[0])
-	log.Printf("      second: %+v\n", stageDomOtherSitPrice[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageDomOtherSitPrice[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageDomOtherSitPrice[1])
+	}
 	log.Println("   ---")
 
 	// 3a OCONUS to OCONUS Prices
 	stageOconusToOconus := []models.StageOconusToOconusPrice{}
-	db.Limit(2).All(&stageOconusToOconus)
-	// length = len(stageOconusToOconus)
+	err = db.Limit(2).All(&stageOconusToOconus)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageOconusToOconusPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   3a: OCONUS to OCONUS Prices (StageOconusToOconusPrice): %d\n", length)
-	log.Printf("     first: %+v\n", stageOconusToOconus[0])
-	log.Printf("      second: %+v\n", stageOconusToOconus[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageOconusToOconus[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageOconusToOconus[1])
+	}
 	log.Println("   ---")
 
 	// 3b CONUS to OCONUS Prices
 	stageConusToOconus := []models.StageConusToOconusPrice{}
-	db.Limit(2).All(&stageConusToOconus)
-	// length = len(stageConusToOconus)
+	err = db.Limit(2).All(&stageConusToOconus)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageConusToOconusPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   3b: CONUS to OCONUS Prices (StageConusToOconusPrice): %d\n", length)
-	log.Printf("     first: %+v\n", stageConusToOconus[0])
-	log.Printf("      second: %+v\n", stageConusToOconus[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageConusToOconus[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageConusToOconus[1])
+	}
 	log.Println("   ---")
 
 	// 3c OCONUS to CONUS Prices
 	stageOconusToConus := []models.StageOconusToConusPrice{}
-	db.Limit(2).All(&stageOconusToConus)
-	// length = len(stageOconusToConus)
+	err = db.Limit(2).All(&stageOconusToConus)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageOconusToConusPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   3c: OCONUS to CONUS Prices (StageOconusToConusPrice): %d\n", length)
-	log.Printf("     first: %+v\n", stageOconusToConus[0])
-	log.Printf("      second: %+v\n", stageOconusToConus[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageOconusToConus[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageOconusToConus[1])
+	}
 	log.Println("   ---")
 
 	// 3d Other International Prices
 	stageOtherIntlPrices := []models.StageOtherIntlPrice{}
-	db.Limit(2).All(&stageOtherIntlPrices)
+	err = db.Limit(2).All(&stageOtherIntlPrices)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageOtherIntlPrice{})
 	if err != nil {
 		return err
 	}
 
 	log.Printf("   3d: Other International Prices (StageOtherIntlPrice): %d\n", length)
-	log.Printf("     first: %+v\n", stageOtherIntlPrices[0])
-	log.Printf("      second: %+v\n", stageOtherIntlPrices[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageOtherIntlPrices[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageOtherIntlPrices[1])
+	}
 	log.Println("   ---")
 
 	// 3e Non-Standard Location Prices
 	stageNonStdLocaPrices := []models.StageNonStandardLocnPrice{}
-	db.Limit(2).All(&stageNonStdLocaPrices)
+	err = db.Limit(2).All(&stageNonStdLocaPrices)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageNonStandardLocnPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   3e: Non-Standard Location Prices (StageNonStandardLocnPrice): %d\n", length)
-	log.Printf("     first: %+v\n", stageNonStdLocaPrices[0])
-	log.Printf("      second: %+v\n", stageNonStdLocaPrices[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageNonStdLocaPrices[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageNonStdLocaPrices[1])
+	}
 	log.Println("   ---")
 
 	// 4a Management, Counseling, and Transition Prices
 	stageMgmt := []models.StageShipmentManagementServicesPrice{}
-	db.Limit(2).All(&stageMgmt)
+	err = db.Limit(2).All(&stageMgmt)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageShipmentManagementServicesPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   4a: Management, Counseling, and Transition Prices (StageShipmentManagementServicesPrice): %d\n", length)
-	log.Printf("     first: %+v\n", stageMgmt[0])
-	log.Printf("      second: %+v\n", stageMgmt[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageMgmt[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageMgmt[1])
+	}
 	log.Println("   ---")
 
 	stageCounsel := []models.StageCounselingServicesPrice{}
-	db.Limit(2).All(&stageCounsel)
+	err = db.Limit(2).All(&stageCounsel)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageCounselingServicesPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   4a: Management, Counseling, and Transition Prices (StageCounselingServicesPrice): %d\n", length)
-	log.Printf("     first: %+v\n", stageCounsel[0])
-	log.Printf("      second: %+v\n", stageCounsel[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageCounsel[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageCounsel[1])
+	}
 	log.Println("   ---")
 
 	stageTransition := []models.StageTransitionPrice{}
-	db.Limit(2).All(&stageTransition)
+	err = db.Limit(2).All(&stageTransition)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageTransitionPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   4a: Management, Counseling, and Transition Prices (StageTransitionPrice): %d\n", length)
-	log.Printf("     first: %+v\n", stageTransition[0])
-	log.Printf("      second: %+v\n", stageTransition[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageTransition[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageTransition[1])
+	}
 	log.Println("   ---")
 
 	// 5a Accessorial and Additional Prices
 	stageDomMoveAccess := []models.StageDomesticMoveAccessorialPrices{}
-	db.Limit(2).All(&stageDomMoveAccess)
+	err = db.Limit(2).All(&stageDomMoveAccess)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageDomesticMoveAccessorialPrices{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   5a Accessorial and Additional Prices (StageDomesticMoveAccessorialPrices): %d\n", length)
-	log.Printf("     first: %+v\n", stageDomMoveAccess[0])
-	log.Printf("      second: %+v\n", stageDomMoveAccess[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageDomMoveAccess[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageDomMoveAccess[1])
+	}
 	log.Println("   ---")
 
 	stageIntlMoveAccess := []models.StageInternationalMoveAccessorialPrices{}
-	db.Limit(2).All(&stageIntlMoveAccess)
+	err = db.Limit(2).All(&stageIntlMoveAccess)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageInternationalMoveAccessorialPrices{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   5a Accessorial and Additional Prices (StageInternationalMoveAccessorialPrices): %d\n", length)
-	log.Printf("     first: %+v\n", stageIntlMoveAccess[0])
-	log.Printf("      second: %+v\n", stageIntlMoveAccess[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageIntlMoveAccess[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageIntlMoveAccess[1])
+	}
 	log.Println("   ---")
 
 	stageDomIntlAdd := []models.StageDomesticInternationalAdditionalPrices{}
-	db.Limit(2).All(&stageDomIntlAdd)
+	err = db.Limit(2).All(&stageDomIntlAdd)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StageDomesticInternationalAdditionalPrices{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   5a Accessorial and Additional Prices (StageDomesticInternationalAdditionalPrices): %d\n", length)
-	log.Printf("     first: %+v\n", stageDomIntlAdd[0])
-	log.Printf("      second: %+v\n", stageDomIntlAdd[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stageDomIntlAdd[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stageDomIntlAdd[1])
+	}
 	log.Println("   ---")
 
 	// 5b Price Escalation Discount
 	stagePriceEsc := []models.StagePriceEscalationDiscount{}
-	db.Limit(2).All(&stagePriceEsc)
+	err = db.Limit(2).All(&stagePriceEsc)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.StagePriceEscalationDiscount{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   5b: Price Escalation Discount (StagePriceEscalationDiscount): %d\n", length)
-	log.Printf("     first: %+v\n", stagePriceEsc[0])
-	log.Printf("      second: %+v\n", stagePriceEsc[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", stagePriceEsc[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", stagePriceEsc[1])
+	}
 	log.Println("   ---")
 
 	return nil
@@ -386,163 +499,251 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 
 	// re_contract
 	reContract := []models.ReContract{}
-	db.Where("id = ?", contractID).Limit(2).All(&reContract)
-
+	err := db.Where("id = ?", contractID).Limit(2).All(&reContract)
+	if err != nil {
+		return err
+	}
 	length, err := db.Where("id = ?", contractID).Count(models.ReContract{})
 	if err != nil {
 		return err
 	}
 
 	log.Printf("   re_contract (ReContract): %d\n", length)
-	log.Printf("     first: %s\n", reContract[0])
-	log.Printf("      second: %s\n", reContract[length-1])
+	if length > 0 {
+		log.Printf("     first: %s\n", reContract[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %s\n", reContract[length-1])
+	}
 	log.Println("   ---")
 
 	// re_contract_years
 	reContractYears := []models.ReContractYear{}
-	db.Where("contract_id = ?", contractID).Limit(2).All(&reContractYears)
-
+	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reContractYears)
+	if err != nil {
+		return err
+	}
 	length, err = db.Where("contract_id = ?", contractID).Count(models.ReContractYear{})
 	if err != nil {
 		return err
 	}
+
 	log.Printf("   re_contract_years (ReContractYear): %d\n", length)
-	log.Printf("     first: %+v\n", reContractYears[0])
-	log.Printf("      second: %+v\n", reContractYears[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", reContractYears[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", reContractYears[1])
+	}
 	log.Println("   ---")
 
 	// re_domestic_service_areas
 	reDomSerAreas := []models.ReDomesticServiceArea{}
-	db.Where("contract_id = ?", contractID).Limit(2).All(&reDomSerAreas)
-
+	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomSerAreas)
+	if err != nil {
+		return err
+	}
 	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticServiceArea{})
 	if err != nil {
 		return err
 	}
 
 	log.Printf("   re_domestic_service_areas (ReDomesticServiceArea): %d\n", length)
-	log.Printf("     first: %+v\n", reDomSerAreas[0])
-	log.Printf("      second: %+v\n", reDomSerAreas[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", reDomSerAreas[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", reDomSerAreas[1])
+	}
 	log.Println("   ---")
 
 	// re_rate_areas
 	reRateAreas := []models.ReRateArea{}
-	db.Where("contract_id = ?", contractID).Limit(2).All(&reRateAreas)
+	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reRateAreas)
+	if err != nil {
+		return err
+	}
 	length, err = db.Where("contract_id = ?", contractID).Count(models.ReRateArea{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   re_rate_areas (ReRateArea): %d\n", length)
-	log.Printf("     first: %+v\n", reRateAreas[0])
-	log.Printf("      second: %+v\n", reRateAreas[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", reRateAreas[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", reRateAreas[1])
+	}
 	log.Println("   ---")
 
 	// re_domestic_linehaul_prices
 	reDomLinePrices := []models.ReDomesticLinehaulPrice{}
-	db.Where("contract_id = ?", contractID).Limit(2).All(&reDomLinePrices)
+	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomLinePrices)
+	if err != nil {
+		return err
+	}
 	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticLinehaulPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   reDomLinePrices (ReDomesticLinehaulPrice): %d\n", length)
-	log.Printf("     first: %+v\n", reDomLinePrices[0])
-	log.Printf("      second: %+v\n", reDomLinePrices[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", reDomLinePrices[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", reDomLinePrices[1])
+	}
 	log.Println("   ---")
 
 	// re_domestic_service_area_prices
 	reDomSerAreaPrices := []models.ReDomesticServiceAreaPrice{}
-	db.Where("contract_id = ?", contractID).Limit(2).All(&reDomSerAreaPrices)
+	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomSerAreaPrices)
+	if err != nil {
+		return err
+	}
 	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticServiceAreaPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   re_domestic_service_area_prices (ReDomesticServiceAreaPrice): %d\n", length)
-	log.Printf("     first: %+v\n", reDomSerAreaPrices[0])
-	log.Printf("      second: %+v\n", reDomSerAreaPrices[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", reDomSerAreaPrices[0])
+	}
+	log.Printf("      second: %+v\n", reDomSerAreaPrices[1])
 	log.Println("   ---")
 
 	// re_domestic_other_prices
 	reDomOtherPrices := []models.ReDomesticOtherPrice{}
-	db.Where("contract_id = ?", contractID).Limit(2).All(&reDomOtherPrices)
+	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomOtherPrices)
+	if err != nil {
+		return err
+	}
 	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticOtherPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   re_domestic_other_prices (ReDomesticOtherPrice): %d\n", length)
-	log.Printf("     first: %+v\n", reDomOtherPrices[0])
-	log.Printf("      second: %+v\n", reDomOtherPrices[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", reDomOtherPrices[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", reDomOtherPrices[1])
+	}
 	log.Println("   ---")
 
 	// re_international_prices
 	reIntlPrices := []models.ReIntlPrice{}
-	db.Where("contract_id = ?", contractID).Limit(2).All(&reIntlPrices)
+	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reIntlPrices)
+	if err != nil {
+		return err
+	}
 	length, err = db.Where("contract_id = ?", contractID).Count(models.ReIntlPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   re_international_prices (ReIntlPrice): %d\n", length)
-	log.Printf("     first: %+v\n", reIntlPrices[0])
-	log.Printf("      second: %+v\n", reIntlPrices[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", reIntlPrices[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", reIntlPrices[1])
+	}
 	log.Println("   ---")
 
 	// re_international_other_prices
 	reIntlOtherPrices := []models.ReIntlOtherPrice{}
-	db.Where("contract_id = ?", contractID).Limit(2).All(&reIntlOtherPrices)
+	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reIntlOtherPrices)
+	if err != nil {
+		return err
+	}
 	length, err = db.Where("contract_id = ?", contractID).Count(models.ReIntlOtherPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   re_international_other_prices (ReIntlOtherPrice): %d\n", length)
-	log.Printf("     first: %+v\n", reIntlOtherPrices[0])
-	log.Printf("      second: %+v\n", reIntlOtherPrices[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", reIntlOtherPrices[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", reIntlOtherPrices[1])
+	}
 	log.Println("   ---")
 
 	// re_task_order_fees
+	//possibly need a join where contract year id  = contract_year.contract_id
 	reTaskOrderFees := []models.ReTaskOrderFee{}
-	db.Limit(2).All(&reTaskOrderFees)
+	err = db.Limit(2).All(&reTaskOrderFees)
+	if err != nil {
+		return err
+	}
 	length, err = db.Count(models.ReTaskOrderFee{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   re_task_order_fees (ReTaskOrderFee): %d\n", length)
-	log.Printf("     first: %+v\n", reTaskOrderFees[0])
-	log.Printf("      second: %+v\n", reTaskOrderFees[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", reTaskOrderFees[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", reTaskOrderFees[1])
+	}
 	log.Println("   ---")
 
 	// re_domestic_accessorial_prices
 	reDomAccPrices := []models.ReDomesticAccessorialPrice{}
-	db.Where("contract_id = ?", contractID).Limit(2).All(&reDomAccPrices)
+	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomAccPrices)
+	if err != nil {
+		return err
+	}
 	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticAccessorialPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   re_domestic_accessorial_prices (ReDomesticAccessorialPrice): %d\n", length)
-	log.Printf("     first: %+v\n", reDomAccPrices[0])
-	log.Printf("      second: %+v\n", reDomAccPrices[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", reDomAccPrices[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", reDomAccPrices[1])
+	}
 	log.Println("   ---")
 
 	// re_intl_accessorial_prices
 	reIntlAccPrices := []models.ReIntlAccessorialPrice{}
-	db.Where("contract_id = ?", contractID).Limit(2).All(&reIntlAccPrices)
+	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reIntlAccPrices)
+	if err != nil {
+		return err
+	}
 	length, err = db.Where("contract_id = ?", contractID).Count(models.ReIntlAccessorialPrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   re_intl_accessorial_prices (ReIntlAccessorialPrice): %d\n", length)
-	log.Printf("     first: %+v\n", reIntlAccPrices[0])
-	log.Printf("      second: %+v\n", reIntlAccPrices[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", reIntlAccPrices[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", reIntlAccPrices[1])
+	}
 	log.Println("   ---")
 
 	// re_shipment_type_prices
 	reShipmentTypePrices := []models.ReShipmentTypePrice{}
-	db.Where("contract_id = ?", contractID).Limit(2).All(&reShipmentTypePrices)
+	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reShipmentTypePrices)
+	if err != nil {
+		return err
+	}
 	length, err = db.Where("contract_id = ?", contractID).Count(models.ReShipmentTypePrice{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   re_shipment_type_prices (ReShipmentTypePrice): %d\n", length)
-	log.Printf("     first: %+v\n", reShipmentTypePrices[0])
-	log.Printf("      second: %+v\n", reShipmentTypePrices[secondIndex(length)])
+	if length > 0 {
+		log.Printf("     first: %+v\n", reShipmentTypePrices[0])
+	}
+	if length > 1 {
+		log.Printf("      second: %+v\n", reShipmentTypePrices[1])
+	}
 	log.Println("   ---")
 
 	return nil
