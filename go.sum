@@ -692,5 +692,5 @@ pault.ag/go/othername v0.0.0-20190316144542-859caba4369b h1:mIaVWfAAW33WRl0j2jKq
 pault.ag/go/othername v0.0.0-20190316144542-859caba4369b/go.mod h1:u939XwodO0MGyc2Wsk3DUHLu64//oyyi9xFxId8hW48=
 pault.ag/go/piv v0.0.0-20190320181422-d9d61c70919c h1:m1IRvlrAOG0OYOIwY0HOoW/SjnfyRd1TVZKztAkgy34=
 pault.ag/go/piv v0.0.0-20190320181422-d9d61c70919c/go.mod h1:fYW2wqJxyUbboP9qWa5ugkzT3vUqPFr542FMw9lXHv0=
-pault.ag/go/pksigner v1.0.1 h1:j6cAwxi8RkGmSTCnIzKvG6PNKgkxzlDv25kdUN6NCQs=
-pault.ag/go/pksigner v1.0.1/go.mod h1:FM5GTTKzN2EB/nLKPvBEYP86R8fUWQ9QWc1f17cZYWE=
+pault.ag/go/pksigner v1.0.2 h1:XvwoAdQAhfm46Mh9x/d0g5TlxgTfsawYNEhiPCab/yc=
+pault.ag/go/pksigner v1.0.2/go.mod h1:FM5GTTKzN2EB/nLKPvBEYP86R8fUWQ9QWc1f17cZYWE=

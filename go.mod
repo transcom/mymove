@@ -71,7 +71,7 @@ require (
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
-	pault.ag/go/pksigner v1.0.1
+	pault.ag/go/pksigner v1.0.2
 )
 
 // transcom/sqlx v1.2.1 is just jmoiron's 1.2.0 with custom driver fixes
