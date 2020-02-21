@@ -40,6 +40,7 @@ issues:
     - (comment on exported (method|function|type|const)|should have( a package)? comment|comment should be of the form)
 
     # gosec: Duplicated errcheck checks
+    # TODO: Remove this when errcheck is enabled above - duplication is ok
     - G104
   fix: true
 
