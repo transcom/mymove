@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -13,6 +15,19 @@ func (suite *ModelSuite) TestBasicWeightTicketSetDocumentInstantiation() {
 	expErrors := map[string][]string{
 		"move_document_id":       {"MoveDocumentID can not be blank."},
 		"weight_ticket_set_type": {"WeightTicketSetType can not be blank."},
+	}
+
+	suite.verifyValidationErrors(expenseDoc, expErrors)
+}
+
+func (suite *ModelSuite) TestBasicWeightTicketSetDocumentMustHaveMakeAndModel() {
+	expenseDoc := &models.WeightTicketSetDocument{
+		MoveDocumentID:      uuid.FromStringOrNil("d5602d02-45f5-412b-893b-aacf130051c9"),
+		WeightTicketSetType: models.WeightTicketSetTypeCAR,
+		VehicleMake:         models.StringPointer("Honda")}
+
+	expErrors := map[string][]string{
+		"vehicle_make": {"VehicleMake can not be nil if VehicleModel has a value and vice versa"},
 	}
 
 	suite.verifyValidationErrors(expenseDoc, expErrors)
