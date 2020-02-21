@@ -608,6 +608,9 @@ jobs:
           name: cd into the milmove admin dir
           command: cd milmove_admin
       - run:
+          name: pwd
+          command: pwd
+      - run:
           name: generate models and migrate
           command: make generate_models
 
