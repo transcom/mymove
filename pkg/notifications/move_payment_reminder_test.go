@@ -141,13 +141,13 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 	suite.NoError(err)
 	emailInfoBeforeSending, err := PaymentReminder.GetEmailInfo()
 	suite.NoError(err)
-	suite.Len(emailInfoBeforeSending, 2)
+	suite.Len(emailInfoBeforeSending, 1)
 
 	err = PaymentReminder.OnSuccess(emailInfoBeforeSending[0])("SESID")
 	suite.NoError(err)
 	emailInfoAfterSending, err := PaymentReminder.GetEmailInfo()
 	suite.NoError(err)
-	suite.Len(emailInfoAfterSending, 1)
+	suite.Len(emailInfoAfterSending, 0)
 }
 
 func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
