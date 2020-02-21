@@ -1,6 +1,7 @@
 package movedocument
 
 import (
+	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -518,4 +519,112 @@ func (suite *MoveDocumentServiceSuite) TestMakeAndModelUpdate() {
 	suite.Require().Nil(err)
 	suite.Require().Equal(*updateMoveDocPayload.FullWeight-*updateMoveDocPayload.EmptyWeight, int64(*updatedPpm.NetWeight))
 
+}
+
+func (suite *MoveDocumentServiceSuite) TestValueForEitherMakeOrModelFails() {
+	wtu := WeightTicketUpdater{suite.DB(), moveDocumentStatusUpdater{}}
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	session := &auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          *officeUser.UserID,
+		OfficeUserID:    officeUser.ID,
+	}
+
+	emptyWeight1 := unit.Pound(1000)
+	fullWeight1 := unit.Pound(2500)
+	// made up net weight (as if office user overrode weight tickets)
+	netWeight1 := unit.Pound(10000)
+	wtDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{PersonallyProcuredMove: models.PersonallyProcuredMove{NetWeight: &netWeight1}})
+	move := ppm.Move
+	sm := ppm.Move.Orders.ServiceMember
+	moveDocument := testdatagen.MakeMoveDocument(suite.DB(),
+		testdatagen.Assertions{
+			MoveDocument: models.MoveDocument{
+				MoveID:                   move.ID,
+				Move:                     move,
+				PersonallyProcuredMoveID: &ppm.ID,
+				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
+				Status:                   models.MoveDocumentStatusOK,
+			},
+			Document: models.Document{
+				ServiceMemberID: sm.ID,
+				ServiceMember:   sm,
+			},
+		})
+
+	vehicleNickname := "My Box Truck"
+	weightTicketSetDocument := models.WeightTicketSetDocument{
+		MoveDocumentID:           moveDocument.ID,
+		MoveDocument:             moveDocument,
+		EmptyWeight:              &emptyWeight1,
+		EmptyWeightTicketMissing: false,
+		FullWeight:               &fullWeight1,
+		FullWeightTicketMissing:  false,
+		VehicleNickname:          &vehicleNickname,
+		WeightTicketSetType:      models.WeightTicketSetTypeBOXTRUCK,
+		WeightTicketDate:         &testdatagen.NextValidMoveDate,
+		TrailerOwnershipMissing:  false,
+	}
+	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
+	suite.NoVerrs(verrs)
+	suite.NoError(err)
+
+	suite.T().Run("weight ticket set has model but not make fails", func(t *testing.T) {
+		vehicleModel := "Wagon"
+		emptyWeight := (int64)(1000)
+		fullWeight := (int64)(2500)
+		weightTicketSetType := internalmessages.WeightTicketSetTypeCAR
+
+		updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
+			ID:                  handlers.FmtUUID(moveDocument.ID),
+			MoveID:              handlers.FmtUUID(move.ID),
+			Title:               handlers.FmtString("super_awesome.pdf"),
+			Notes:               handlers.FmtString("This document is super awesome."),
+			Status:              internalmessages.MoveDocumentStatusOK,
+			VehicleNickname:     &vehicleNickname,
+			VehicleMake:         nil,
+			VehicleModel:        &vehicleModel,
+			EmptyWeight:         &emptyWeight,
+			FullWeight:          &fullWeight,
+			WeightTicketSetType: &weightTicketSetType,
+			MoveDocumentType:    internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
+			WeightTicketDate:    handlers.FmtDate(wtDate),
+		}
+
+		originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
+		suite.Nil(err)
+		_, verrs, err = wtu.Update(updateMoveDocPayload, originalMoveDocument, session)
+		suite.NoError(err)
+		suite.NotEmpty(verrs)
+	})
+
+	suite.T().Run("weight ticket set has make but not model fails", func(t *testing.T) {
+		vehicleMake := "Radio Flyer"
+		emptyWeight := (int64)(1000)
+		fullWeight := (int64)(2500)
+		weightTicketSetType := internalmessages.WeightTicketSetTypeCAR
+
+		updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
+			ID:                  handlers.FmtUUID(moveDocument.ID),
+			MoveID:              handlers.FmtUUID(move.ID),
+			Title:               handlers.FmtString("super_awesome.pdf"),
+			Notes:               handlers.FmtString("This document is super awesome."),
+			Status:              internalmessages.MoveDocumentStatusOK,
+			VehicleNickname:     &vehicleNickname,
+			VehicleMake:         &vehicleMake,
+			VehicleModel:        nil,
+			EmptyWeight:         &emptyWeight,
+			FullWeight:          &fullWeight,
+			WeightTicketSetType: &weightTicketSetType,
+			MoveDocumentType:    internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
+			WeightTicketDate:    handlers.FmtDate(wtDate),
+		}
+
+		originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
+		suite.Nil(err)
+		_, verrs, err = wtu.Update(updateMoveDocPayload, originalMoveDocument, session)
+		suite.NoError(err)
+		suite.NotEmpty(verrs)
+	})
 }
