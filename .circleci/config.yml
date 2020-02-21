@@ -20,7 +20,7 @@ executors:
       - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
   milmove_admin_small:
     resource_class: small
-    working_directory: ~/transcom
+    working_directory: ~/transcom/milmove_admin
     docker:
       - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
   mymove_medium:
