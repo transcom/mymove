@@ -94,8 +94,8 @@ func (gre *GHCRateEngineImporter) buildServiceAreasData(dbTx *pop.Connection) (s
 			}
 
 			serviceAreasData[serviceAreaNumber] = domesticServiceAreaData{
-			serviceArea: &models.ReDomesticServiceArea{
-				ContractID:  gre.ContractID,
+				serviceArea: &models.ReDomesticServiceArea{
+					ContractID:  gre.ContractID,
 					ServiceArea: serviceAreaNumber,
 					// Fill in services schedule and SIT PD schedule later from other tab.
 				},

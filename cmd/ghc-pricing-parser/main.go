@@ -163,10 +163,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 
 	log.Printf("   1b: Service Areas (StageDomesticServiceArea): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageDomServiceAreas[0])
+		log.Printf("\tfirst: %+v\n", stageDomServiceAreas[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageDomServiceAreas[1])
+		log.Printf("\tsecond: %+v\n", stageDomServiceAreas[1])
 	}
 	log.Println("   ---")
 
@@ -182,10 +182,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 
 	log.Printf("   1b: Service Areas (StageInternationalServiceArea): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageIntlServiceArea[0])
+		log.Printf("\tfirst: %+v\n", stageIntlServiceArea[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageIntlServiceArea[1])
+		log.Printf("\tsecond: %+v\n", stageIntlServiceArea[1])
 	}
 	log.Println("   ---")
 
@@ -202,10 +202,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 
 	log.Printf("   2a: Domestic Linehaul Prices (StageDomesticLinehaulPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageDomLinePrice[0])
+		log.Printf("\tfirst: %+v\n", stageDomLinePrice[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageDomLinePrice[1])
+		log.Printf("\tsecond: %+v\n", stageDomLinePrice[1])
 	}
 	log.Println("   ---")
 
@@ -221,10 +221,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   2b: Domestic Service Area Prices (StageDomesticServiceAreaPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageDomSerAreaPrice[0])
+		log.Printf("\tfirst: %+v\n", stageDomSerAreaPrice[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageDomSerAreaPrice[1])
+		log.Printf("\tsecond: %+v\n", stageDomSerAreaPrice[1])
 	}
 	log.Println("   ---")
 
@@ -240,10 +240,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   2c: Other Domestic Prices (StageDomesticOtherPackPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageDomOtherPackPrice[0])
+		log.Printf("\tfirst: %+v\n", stageDomOtherPackPrice[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageDomOtherPackPrice[1])
+		log.Printf("\tsecond: %+v\n", stageDomOtherPackPrice[1])
 	}
 	log.Println("   ---")
 
@@ -258,10 +258,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   2c: Other Domestic Prices (StageDomesticOtherSitPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageDomOtherSitPrice[0])
+		log.Printf("\tfirst: %+v\n", stageDomOtherSitPrice[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageDomOtherSitPrice[1])
+		log.Printf("\tsecond: %+v\n", stageDomOtherSitPrice[1])
 	}
 	log.Println("   ---")
 
@@ -277,10 +277,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   3a: OCONUS to OCONUS Prices (StageOconusToOconusPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageOconusToOconus[0])
+		log.Printf("\tfirst: %+v\n", stageOconusToOconus[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageOconusToOconus[1])
+		log.Printf("\tsecond: %+v\n", stageOconusToOconus[1])
 	}
 	log.Println("   ---")
 
@@ -296,10 +296,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   3b: CONUS to OCONUS Prices (StageConusToOconusPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageConusToOconus[0])
+		log.Printf("\tfirst: %+v\n", stageConusToOconus[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageConusToOconus[1])
+		log.Printf("\tsecond: %+v\n", stageConusToOconus[1])
 	}
 	log.Println("   ---")
 
@@ -315,10 +315,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   3c: OCONUS to CONUS Prices (StageOconusToConusPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageOconusToConus[0])
+		log.Printf("\tfirst: %+v\n", stageOconusToConus[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageOconusToConus[1])
+		log.Printf("\tsecond: %+v\n", stageOconusToConus[1])
 	}
 	log.Println("   ---")
 
@@ -335,10 +335,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 
 	log.Printf("   3d: Other International Prices (StageOtherIntlPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageOtherIntlPrices[0])
+		log.Printf("\tfirst: %+v\n", stageOtherIntlPrices[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageOtherIntlPrices[1])
+		log.Printf("\tsecond: %+v\n", stageOtherIntlPrices[1])
 	}
 	log.Println("   ---")
 
@@ -354,10 +354,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   3e: Non-Standard Location Prices (StageNonStandardLocnPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageNonStdLocaPrices[0])
+		log.Printf("\tfirst: %+v\n", stageNonStdLocaPrices[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageNonStdLocaPrices[1])
+		log.Printf("\tsecond: %+v\n", stageNonStdLocaPrices[1])
 	}
 	log.Println("   ---")
 
@@ -373,10 +373,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   4a: Management, Counseling, and Transition Prices (StageShipmentManagementServicesPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageMgmt[0])
+		log.Printf("\tfirst: %+v\n", stageMgmt[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageMgmt[1])
+		log.Printf("\tsecond: %+v\n", stageMgmt[1])
 	}
 	log.Println("   ---")
 
@@ -391,10 +391,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   4a: Management, Counseling, and Transition Prices (StageCounselingServicesPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageCounsel[0])
+		log.Printf("\tfirst: %+v\n", stageCounsel[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageCounsel[1])
+		log.Printf("\tsecond: %+v\n", stageCounsel[1])
 	}
 	log.Println("   ---")
 
@@ -409,10 +409,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   4a: Management, Counseling, and Transition Prices (StageTransitionPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageTransition[0])
+		log.Printf("\tfirst: %+v\n", stageTransition[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageTransition[1])
+		log.Printf("\tsecond: %+v\n", stageTransition[1])
 	}
 	log.Println("   ---")
 
@@ -428,10 +428,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   5a Accessorial and Additional Prices (StageDomesticMoveAccessorialPrices): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageDomMoveAccess[0])
+		log.Printf("\tfirst: %+v\n", stageDomMoveAccess[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageDomMoveAccess[1])
+		log.Printf("\tsecond: %+v\n", stageDomMoveAccess[1])
 	}
 	log.Println("   ---")
 
@@ -446,10 +446,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   5a Accessorial and Additional Prices (StageInternationalMoveAccessorialPrices): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageIntlMoveAccess[0])
+		log.Printf("\tfirst: %+v\n", stageIntlMoveAccess[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageIntlMoveAccess[1])
+		log.Printf("\tsecond: %+v\n", stageIntlMoveAccess[1])
 	}
 	log.Println("   ---")
 
@@ -464,10 +464,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   5a Accessorial and Additional Prices (StageDomesticInternationalAdditionalPrices): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stageDomIntlAdd[0])
+		log.Printf("\tfirst: %+v\n", stageDomIntlAdd[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stageDomIntlAdd[1])
+		log.Printf("\tsecond: %+v\n", stageDomIntlAdd[1])
 	}
 	log.Println("   ---")
 
@@ -483,10 +483,10 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	}
 	log.Printf("   5b: Price Escalation Discount (StagePriceEscalationDiscount): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", stagePriceEsc[0])
+		log.Printf("\tfirst: %+v\n", stagePriceEsc[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", stagePriceEsc[1])
+		log.Printf("\tsecond: %+v\n", stagePriceEsc[1])
 	}
 	log.Println("   ---")
 
@@ -510,10 +510,10 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 
 	log.Printf("   re_contract (ReContract): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %s\n", reContract[0])
+		log.Printf("\tfirst: %+v\n", reContract[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %s\n", reContract[length-1])
+		log.Printf("\tsecond: %+v\n", reContract[length-1])
 	}
 	log.Println("   ---")
 
@@ -530,10 +530,10 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 
 	log.Printf("   re_contract_years (ReContractYear): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", reContractYears[0])
+		log.Printf("\tfirst: %+v\n", reContractYears[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", reContractYears[1])
+		log.Printf("\tsecond: %+v\n", reContractYears[1])
 	}
 	log.Println("   ---")
 
@@ -550,10 +550,10 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 
 	log.Printf("   re_domestic_service_areas (ReDomesticServiceArea): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", reDomSerAreas[0])
+		log.Printf("\tfirst: %+v\n", reDomSerAreas[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", reDomSerAreas[1])
+		log.Printf("\tsecond: %+v\n", reDomSerAreas[1])
 	}
 	log.Println("   ---")
 
@@ -569,10 +569,10 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	}
 	log.Printf("   re_rate_areas (ReRateArea): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", reRateAreas[0])
+		log.Printf("\tfirst: %+v\n", reRateAreas[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", reRateAreas[1])
+		log.Printf("\tsecond: %+v\n", reRateAreas[1])
 	}
 	log.Println("   ---")
 
@@ -588,10 +588,10 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	}
 	log.Printf("   reDomLinePrices (ReDomesticLinehaulPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", reDomLinePrices[0])
+		log.Printf("\tfirst: %+v\n", reDomLinePrices[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", reDomLinePrices[1])
+		log.Printf("\tsecond: %+v\n", reDomLinePrices[1])
 	}
 	log.Println("   ---")
 
@@ -607,9 +607,9 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	}
 	log.Printf("   re_domestic_service_area_prices (ReDomesticServiceAreaPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", reDomSerAreaPrices[0])
+		log.Printf("\tfirst: %+v\n", reDomSerAreaPrices[0])
 	}
-	log.Printf("      second: %+v\n", reDomSerAreaPrices[1])
+	log.Printf("\tsecond: %+v\n", reDomSerAreaPrices[1])
 	log.Println("   ---")
 
 	// re_domestic_other_prices
@@ -624,10 +624,10 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	}
 	log.Printf("   re_domestic_other_prices (ReDomesticOtherPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", reDomOtherPrices[0])
+		log.Printf("\tfirst: %+v\n", reDomOtherPrices[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", reDomOtherPrices[1])
+		log.Printf("\tsecond: %+v\n", reDomOtherPrices[1])
 	}
 	log.Println("   ---")
 
@@ -643,10 +643,10 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	}
 	log.Printf("   re_international_prices (ReIntlPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", reIntlPrices[0])
+		log.Printf("\tfirst: %+v\n", reIntlPrices[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", reIntlPrices[1])
+		log.Printf("\tsecond: %+v\n", reIntlPrices[1])
 	}
 	log.Println("   ---")
 
@@ -662,30 +662,30 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	}
 	log.Printf("   re_international_other_prices (ReIntlOtherPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", reIntlOtherPrices[0])
+		log.Printf("\tfirst: %+v\n", reIntlOtherPrices[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", reIntlOtherPrices[1])
+		log.Printf("\tsecond: %+v\n", reIntlOtherPrices[1])
 	}
 	log.Println("   ---")
 
 	// re_task_order_fees
 	//possibly need a join where contract year id  = contract_year.contract_id
 	reTaskOrderFees := []models.ReTaskOrderFee{}
-	err = db.Limit(2).All(&reTaskOrderFees)
+	err = db.Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id").Limit(2).All(&reTaskOrderFees)
 	if err != nil {
 		return err
 	}
-	length, err = db.Count(models.ReTaskOrderFee{})
+	length, err = db.Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id").Count(models.ReTaskOrderFee{})
 	if err != nil {
 		return err
 	}
 	log.Printf("   re_task_order_fees (ReTaskOrderFee): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", reTaskOrderFees[0])
+		log.Printf("\tfirst: %+v\n", reTaskOrderFees[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", reTaskOrderFees[1])
+		log.Printf("\tsecond: %+v\n", reTaskOrderFees[1])
 	}
 	log.Println("   ---")
 
@@ -701,10 +701,10 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	}
 	log.Printf("   re_domestic_accessorial_prices (ReDomesticAccessorialPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", reDomAccPrices[0])
+		log.Printf("\tfirst: %+v\n", reDomAccPrices[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", reDomAccPrices[1])
+		log.Printf("\tsecond: %+v\n", reDomAccPrices[1])
 	}
 	log.Println("   ---")
 
@@ -720,10 +720,10 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	}
 	log.Printf("   re_intl_accessorial_prices (ReIntlAccessorialPrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", reIntlAccPrices[0])
+		log.Printf("\tfirst: %+v\n", reIntlAccPrices[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", reIntlAccPrices[1])
+		log.Printf("\tsecond: %+v\n", reIntlAccPrices[1])
 	}
 	log.Println("   ---")
 
@@ -739,10 +739,10 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	}
 	log.Printf("   re_shipment_type_prices (ReShipmentTypePrice): %d\n", length)
 	if length > 0 {
-		log.Printf("     first: %+v\n", reShipmentTypePrices[0])
+		log.Printf("\tfirst: %+v\n", reShipmentTypePrices[0])
 	}
 	if length > 1 {
-		log.Printf("      second: %+v\n", reShipmentTypePrices[1])
+		log.Printf("\tsecond: %+v\n", reShipmentTypePrices[1])
 	}
 	log.Println("   ---")
 
