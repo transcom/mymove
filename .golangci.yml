@@ -48,9 +48,6 @@ issues:
     # govet: Common false positives
     - (possible misuse of unsafe.Pointer|should have signature)
 
-    # staticcheck: Developers tend to write in C-style with an explicit 'break' in a 'switch', so it's ok to ignore
-    - ineffective break statement. Did you mean to break out of the outer loop
-
     # gosec: Duplicated errcheck checks
     - G104
   fix: true
