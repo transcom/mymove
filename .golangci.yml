@@ -42,9 +42,6 @@ issues:
     # golint: Annoying issue about not having a comment. The rare codebase has such comments
     - (comment on exported (method|function|type|const)|should have( a package)? comment|comment should be of the form)
 
-    # golint: False positive when tests are defined in package 'test'
-    - func name will be used as test\.Test.* by other packages, and that stutters; consider calling this
-
     # gosec: Duplicated errcheck checks
     - G104
   fix: true
