@@ -74,27 +74,35 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	}
 
 	// create mto -> move task order
-	mto := MoveTaskOrder{
+	var mto MoveTaskOrder = MoveTaskOrder{
 		MoveOrderID: mo.ID,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
 
+	fmt.Printf("MTO object %#v", mto)
+
 	if err := db.Save(&mto); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not save move task order, %w", err)
 	}
 
+	if err := db.Eager("OriginDutyStation.Address", "DestinationDutyStation.Address").Find(&mo, mo.ID); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not fetch %s, %w", mo.ID, err)
+	}
+
 	// create HHG -> house hold goods
 	// mto shipment of type HHG
-	hhg := MTOShipment{
+	var hhg MTOShipment = MTOShipment{
 		MoveTaskOrderID:      mto.ID,
-		PickupAddressID:      *customer.CurrentAddressID,
+		PickupAddressID:      mo.OriginDutyStation.AddressID,
 		DestinationAddressID: mo.DestinationDutyStation.AddressID,
 		ShipmentType:         MTOShipmentTypeHHG,
 		Status:               MTOShipmentStatusSubmitted,
 		CreatedAt:            time.Now(),
 		UpdatedAt:            time.Now(),
 	}
+
+	fmt.Printf("HHG object %#v", hhg)
 
 	if err := db.Save(&hhg); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not save hhg shipment, %w", err)
