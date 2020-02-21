@@ -90,7 +90,7 @@ FROM personally_procured_moves ppm
 	LEFT JOIN notifications n ON sm.id = n.service_member_id
 	WHERE ppm.original_move_date <= now() - ($1)::INTERVAL
 	AND ppm.original_move_date >= $2
-	AND (ppm.status != 'APPROVED' OR n.service_member_id IS NULL)
+	AND ppm.status = 'APPROVED'
 	AND (notification_type != 'MOVE_PAYMENT_REMINDER_EMAIL' OR n.service_member_id IS NULL)
 	AND m.status = 'APPROVED'
 	AND m.show IS true;`
