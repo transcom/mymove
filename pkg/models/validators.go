@@ -238,20 +238,6 @@ func (v *MustBeBothNilOrBothNotNil) IsValid(errors *validate.Errors) {
 	}
 }
 
-type OneMustHaveValueOneMustNot struct {
-	FieldName1  string
-	FieldValue1 *string
-	FieldName2  string
-	FieldValue2 *string
-}
-
-// IsValid adds an error if fieldValue1 and fieldValue2 both have values or both are nil
-func (v *OneMustHaveValueOneMustNot) IsValid(errors *validate.Errors) {
-	if (v.FieldValue1 != nil && v.FieldValue2 != nil) || (v.FieldValue1 == nil && v.FieldValue2 == nil) {
-		errors.Add(validators.GenerateKey(v.FieldName1), fmt.Sprintf("%s must be nil if %s has a value and vice versa", v.FieldName1, v.FieldName2))
-	}
-}
-
 // DateIsWorkday validates that field is on a workday
 type DateIsWorkday struct {
 	Name     string
