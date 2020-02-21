@@ -125,7 +125,7 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 			incentiveTxt = fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", PaymentReminderEmailInfo.WeightEstimate.Int(), PaymentReminderEmailInfo.IncentiveEstimateMin.ToDollarString(), PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString())
 		}
 		toPhone := ""
-		if &PaymentReminderEmailInfo.TOPhone != nil {
+		if PaymentReminderEmailInfo.TOPhone != nil {
 			toPhone = fmt.Sprintf("at %s", *PaymentReminderEmailInfo.TOPhone)
 		}
 		htmlBody, textBody, err := m.renderTemplates(PaymentReminderEmailData{
