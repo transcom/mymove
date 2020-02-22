@@ -1,3 +1,10 @@
 $theme-image-path: '~uswds/src/img';
 $theme-font-path: '~uswds/src/fonts';
 $theme-hero-image: '~uswds/src/img/hero.png';
+
+/* TYPOGRAPHY */
+$theme-respect-user-font-size: false;
+$theme-root-font-size: 15px;
+$theme-font-path: '~uswds/src/fonts';
+$theme-font-type-sans: 'public-sans';
+$theme-style-body-element: true;
