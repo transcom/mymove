@@ -10,9 +10,9 @@ const cx = classNames.bind(styles);
 const TabNav = ({ options, children }) => (
   <Tabs>
     <TabList className={cx('tab-nav')}>
-      {options.map(({ title, active, notice }, index) => (
-        <Tab key={index.toString()} className={cx('tab-item')}>
-          <span className={cx('tab-title', { 'tab-title-active': active })}>{title}</span>
+      {options.map(({ title, notice }, index) => (
+        <Tab key={index.toString()} selectedClassName={cx('tab-active')} className={cx('tab-item')}>
+          <span className={cx('tab-title')}>{title}</span>
           {notice && <Tag>{notice}</Tag>}
         </Tab>
       ))}
@@ -25,7 +25,6 @@ TabNav.propTypes = {
   options: PropTypes.arrayOf(
     PropTypes.shape({
       title: PropTypes.string,
-      active: PropTypes.bool,
       notice: PropTypes.string,
     }),
   ).isRequired,

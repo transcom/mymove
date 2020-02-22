@@ -1,27 +1,34 @@
 @import '../../shared/styles/basics';
 
 .tab-title {
+  @include u-padding-bottom('1');
   @include u-text('gray-50');
   @include u-margin-right('05');
-}
-.tab-title-active {
-  @include u-text('gray-cool-70', 'bold');
-  @include u-border-bottom('05', 'primary-vivid');
 }
 .tab-title:hover {
   @include u-text('blue-40v');
   @include u-border-bottom('05', 'primary-vivid');
 }
+.tab-active .tab-title {
+  @include u-text('gray-cool-70', 'bold');
+  @include u-border-bottom('05', 'primary-vivid');
+}
+.tab-active .tab-title:hover {
+  @include u-text('gray-cool-70', 'bold');
+}
 .tab-item {
   @include u-padding('2');
-  @include u-display('inline');
+  @include u-display('inline-block');
 }
 .tab-item:focus {
-  @include u-border('2px', 'blue-40v');
+  @include u-border('05', 'blue-40v');
 }
 .tab-item :global .usa-tag {
   @include u-bg('gold-20v')
 }
 .tab-nav {
-  @include u-border-bottom('1px', 'base-lighter');
+  @include u-height('6');
+  @include u-padding('0');
+  @include u-margin('0');
+  @include u-border('1px', 'base-lighter');
 }
