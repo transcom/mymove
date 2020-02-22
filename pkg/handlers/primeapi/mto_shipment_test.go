@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
 
@@ -110,5 +112,39 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
+	})
+
+	mto2 := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: mto,
+	})
+
+	payload := primemessages.MTOShipment{
+		ID:              strfmt.UUID(mtoShipment2.ID.String()),
+		MoveTaskOrderID: strfmt.UUID(mtoShipment2.MoveTaskOrderID.String()),
+	}
+
+	req2 := httptest.NewRequest("PUT", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto2.ID.String(), mtoShipment2.ID.String()), nil)
+
+	params = mtoshipmentops.UpdateMTOShipmentParams{
+		HTTPRequest:       req2,
+		MoveTaskOrderID:   *handlers.FmtUUID(mtoShipment2.MoveTaskOrderID),
+		MtoShipmentID:     *handlers.FmtUUID(mtoShipment2.ID),
+		Body:              &payload,
+		IfUnmodifiedSince: strfmt.DateTime(mtoShipment2.UpdatedAt),
+	}
+
+	suite.T().Run("Successful PUT - Integration Test with Only Required Fields in Payload", func(t *testing.T) {
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB())
+		handler := UpdateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.Equal(mtoShipment2.ID.String(), okResponse.Payload.ID.String())
 	})
 }

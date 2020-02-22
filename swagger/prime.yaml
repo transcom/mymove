@@ -635,6 +635,7 @@ definitions:
       approvedDate:
         format: date
         type: string
+        x-nullable: true
       scheduledPickupDate:
         format: date
         type: string

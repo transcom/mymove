@@ -27,7 +27,7 @@ require (
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-swagger/go-swagger v0.21.0
 	github.com/gobuffalo/envy v1.9.0
-	github.com/gobuffalo/fizz v1.9.7
+	github.com/gobuffalo/fizz v1.9.8
 	github.com/gobuffalo/flect v0.2.1
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/pop v4.13.1+incompatible
@@ -59,10 +59,9 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx v1.0.5
-	github.com/transcom/nom v0.0.0-20190822223231-fc93620f238d
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
-	go.uber.org/zap v1.13.0
+	go.uber.org/zap v1.14.0
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20191028145041-f83a4685e152
 	golang.org/x/net v0.0.0-20191028085509-fe3aa8a45271
@@ -72,6 +71,7 @@ require (
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
+	pault.ag/go/pksigner v1.0.2
 )
 
 // transcom/sqlx v1.2.1 is just jmoiron's 1.2.0 with custom driver fixes

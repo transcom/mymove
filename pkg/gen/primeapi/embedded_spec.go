@@ -826,7 +826,8 @@ func init() {
       "properties": {
         "approvedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
@@ -2069,7 +2070,8 @@ func init() {
       "properties": {
         "approvedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
