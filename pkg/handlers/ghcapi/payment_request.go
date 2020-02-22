@@ -32,11 +32,13 @@ func payloadForPaymentRequestModel(pr models.PaymentRequest) *ghcmessages.Paymen
 	}
 }
 
+// ListPaymentRequestsHandler lists payments requests
 type ListPaymentRequestsHandler struct {
 	handlers.HandlerContext
 	services.PaymentRequestListFetcher
 }
 
+// Handle lists payment requests
 func (h ListPaymentRequestsHandler) Handle(params paymentrequestop.ListPaymentRequestsParams) middleware.Responder {
 	// TODO: add authorizations
 	logger := h.LoggerFromRequest(params.HTTPRequest)
@@ -55,11 +57,13 @@ func (h ListPaymentRequestsHandler) Handle(params paymentrequestop.ListPaymentRe
 	return paymentrequestop.NewListPaymentRequestsOK().WithPayload(paymentRequestsList)
 }
 
+// GetPaymentRequestHandler gets payment requests
 type GetPaymentRequestHandler struct {
 	handlers.HandlerContext
 	services.PaymentRequestFetcher
 }
 
+// Handle gets payment requests
 func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentRequestParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
@@ -89,12 +93,14 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 	return response
 }
 
+// UpdatePaymentRequestStatusHandler updates payment requests status
 type UpdatePaymentRequestStatusHandler struct {
 	handlers.HandlerContext
 	services.PaymentRequestStatusUpdater
 	services.PaymentRequestFetcher
 }
 
+// Handle updates payment requests status
 func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())

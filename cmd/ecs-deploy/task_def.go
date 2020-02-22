@@ -112,6 +112,7 @@ const (
 	registerFlag      string = "register"
 )
 
+// ECRImage represents an ECR Image tag broken into its constituent parts
 type ECRImage struct {
 	AWSRegion      string
 	imageURI       string
@@ -121,6 +122,7 @@ type ECRImage struct {
 	RepositoryName string
 }
 
+// NewECRImage returns a new ECR Image object
 func NewECRImage(imageURI string) (*ECRImage, error) {
 	imageParts := strings.Split(imageURI, ":")
 	if len(imageParts) != 2 {

@@ -22,6 +22,7 @@ import (
 const hereRequestTimeout = time.Duration(15) * time.Second
 
 const (
+	// InsertTemplate is the query insert template for duty stations
 	InsertTemplate string = `
 	{{range .}}
 INSERT INTO addresses (id, street_address_1, city, state, postal_code, created_at, updated_at, country) VALUES ('{{.AddressID}}', 'N/A', '{{.Address.City}}', '{{.Address.State}}', '{{.Address.PostalCode}}', now(), now(), 'United States');
@@ -29,6 +30,7 @@ INSERT INTO duty_stations (id, name, affiliation, address_id, created_at, update
 	{{end}}`
 )
 
+// DutyStationMigration represents a duty station migration
 type DutyStationMigration struct {
 	Address       models.Address
 	To            models.TransportationOffice
@@ -37,6 +39,7 @@ type DutyStationMigration struct {
 	DutyStationID uuid.UUID
 }
 
+// StationData represents Duty Station data
 type StationData struct {
 	Unit string
 	Name string
@@ -146,6 +149,7 @@ func (b *MigrationBuilder) nearestTransportationOffice(address models.Address) (
 	return to, nil
 }
 
+// Build builds a migration for loading duty stations
 func (b *MigrationBuilder) Build(dutyStationsFilePath string) ([]DutyStationMigration, error) {
 	stations, err := b.ParseStations(dutyStationsFilePath)
 	if err != nil {

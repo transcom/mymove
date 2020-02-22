@@ -13,12 +13,13 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// PPMCompleter completes PPMs
 type PPMCompleter struct {
 	db *pop.Connection
 	moveDocumentStatusUpdater
 }
 
-//Update moves ppm status to complete when ssw is uploaded
+// Update moves ppm status to complete when ssw is uploaded
 func (ppmc PPMCompleter) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)

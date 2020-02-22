@@ -48,7 +48,7 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 	return officeUser
 }
 
-// MakeOfficeUser creates a single office user and associated TransportOffice
+// MakeOfficeUserWithNoUser creates a single office user and associated TransportOffice
 func MakeOfficeUserWithNoUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
 	// There's a uniqueness constraint on office user emails so add some randomness
 	email := fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5))

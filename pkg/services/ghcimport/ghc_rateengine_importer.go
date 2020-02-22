@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// GHCRateEngineImporter is the rate engine importer for GHC
 type GHCRateEngineImporter struct {
 	Logger       Logger
 	ContractCode string
@@ -109,6 +110,7 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 	return nil
 }
 
+// Import runs the import
 func (gre *GHCRateEngineImporter) Import(db *pop.Connection) error {
 	err := db.Transaction(func(connection *pop.Connection) error {
 		dbTxError := gre.runImports(connection)

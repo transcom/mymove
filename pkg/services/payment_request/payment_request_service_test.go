@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
+// PaymentRequestServiceSuite is a suite for testing payment requests
 type PaymentRequestServiceSuite struct {
 	testingsuite.PopTestSuite
 	logger Logger

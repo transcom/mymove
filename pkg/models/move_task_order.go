@@ -52,6 +52,7 @@ func generateReferenceID(tx *pop.Connection) (string, error) {
 	return newReferenceID, nil
 }
 
+// GenerateReferenceID generates a reference ID for the MTO
 func GenerateReferenceID(tx *pop.Connection) (string, error) {
 	const maxAttempts = 10
 	var referenceID string

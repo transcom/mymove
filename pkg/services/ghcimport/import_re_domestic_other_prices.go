@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// DomOtherPriceToInsert is the domestic other price to insert
 type DomOtherPriceToInsert struct {
 	model   models.ReDomesticOtherPrice
 	message string

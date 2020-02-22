@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// Organization represents an organization and their contact information
 type Organization struct {
 	ID        uuid.UUID `json:"id" db:"id"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`

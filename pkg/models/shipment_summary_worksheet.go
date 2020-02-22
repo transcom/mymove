@@ -72,7 +72,7 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	MileageTotal                    string
 }
 
-//ShipmentSummaryWorkSheetShipments is and object representing shipment line items on Shipment Summary Worksheet
+// ShipmentSummaryWorkSheetShipments is an object representing shipment line items on Shipment Summary Worksheet
 type ShipmentSummaryWorkSheetShipments struct {
 	ShipmentNumberAndTypes  string
 	PickUpDates             string
@@ -80,6 +80,7 @@ type ShipmentSummaryWorkSheetShipments struct {
 	CurrentShipmentStatuses string
 }
 
+// ShipmentSummaryWorkSheetSIT is an object representing SIT on the Shipment Summary Worksheet
 type ShipmentSummaryWorkSheetSIT struct {
 	NumberAndTypes string
 	EntryDates     string
@@ -95,8 +96,10 @@ type ShipmentSummaryWorksheetPage2Values struct {
 	FormattedMovingExpenses
 }
 
+// Dollar represents a type for dollar monetary unit
 type Dollar float64
 
+// String is a string representation of a Dollar
 func (d Dollar) String() string {
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("$%.2f", d)
@@ -159,25 +162,25 @@ type ShipmentSummaryFormData struct {
 	SignedCertification     SignedCertification
 }
 
-//Obligations an object representing the Max Obligation and Actual Obligation sections of the shipment summary worksheet
+// Obligations an object representing the Max Obligation and Actual Obligation sections of the shipment summary worksheet
 type Obligations struct {
 	MaxObligation    Obligation
 	ActualObligation Obligation
 }
 
-//Obligation an object representing the obligations section on the shipment summary worksheet
+// Obligation an object representing the obligations section on the shipment summary worksheet
 type Obligation struct {
 	Gcc   unit.Cents
 	SIT   unit.Cents
 	Miles unit.Miles
 }
 
-//GCC100 calculates the 100% GCC on shipment summary worksheet
+// GCC100 calculates the 100% GCC on shipment summary worksheet
 func (obligation Obligation) GCC100() float64 {
 	return obligation.Gcc.ToDollarFloat()
 }
 
-//GCC95 calculates the 95% GCC on shipment summary worksheet
+// GCC95 calculates the 95% GCC on shipment summary worksheet
 func (obligation Obligation) GCC95() float64 {
 	return obligation.Gcc.MultiplyFloat64(.95).ToDollarFloat()
 }
@@ -187,7 +190,7 @@ func (obligation Obligation) FormatSIT() float64 {
 	return obligation.SIT.ToDollarFloat()
 }
 
-//MaxAdvance calculates the Max Advance on the shipment summary worksheet
+// MaxAdvance calculates the Max Advance on the shipment summary worksheet
 func (obligation Obligation) MaxAdvance() float64 {
 	return obligation.Gcc.MultiplyFloat64(.60).ToDollarFloat()
 }
@@ -445,7 +448,7 @@ func FormatRank(rank *ServiceMemberRank) string {
 	return ""
 }
 
-//FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
+// FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
 func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage2Values, error) {
 	var err error
 	page2 := ShipmentSummaryWorksheetPage2Values{}
@@ -461,7 +464,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 	return page2, nil
 }
 
-//FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
+// FormatValuesShipmentSummaryWorksheetFormPage3 formats the data for page 2 of the Shipment Summary Worksheet
 func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage3Values {
 	page3 := ShipmentSummaryWorksheetPage3Values{}
 	page3.PreparationDate = FormatDate(data.PreparationDate)
@@ -471,6 +474,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData)
 	return page3
 }
 
+// FormatOtherExpenses formats other expenses
 func FormatOtherExpenses(docs MovingExpenseDocuments) FormattedOtherExpenses {
 	var expenseDescriptions []string
 	var expenseAmounts []string
@@ -594,6 +598,7 @@ func SubTotalExpenses(expenseDocuments MovingExpenseDocuments) map[string]float6
 	return totals
 }
 
+// SubTotalsMapToStruct takes subtotal map and returns struct
 func SubTotalsMapToStruct(subTotals map[string]float64) (FormattedMovingExpenses, error) {
 	expenses := FormattedMovingExpenses{}
 	err := mapstructure.Decode(subTotals, &expenses)

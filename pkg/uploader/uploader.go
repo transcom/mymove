@@ -18,30 +18,39 @@ import (
 // ErrZeroLengthFile represents an error caused by a file with no content
 var ErrZeroLengthFile = errors.New("File has length of 0")
 
+// ErrTooLarge is an error where the file size exceeds the limit
 type ErrTooLarge struct {
 	FileSize      int64
 	FileSizeLimit ByteSize
 }
 
+// ErrFileSizeLimitExceedsMax is an error where file size exceeds max size
 var ErrFileSizeLimitExceedsMax = errors.Errorf("FileSizeLimit exceeds max of %d bytes", MaxFileSizeLimit)
 
+// MaxFileSizeLimit sets the maximum file size limit
 // Anti-Virus scanning won't be able to scan files larger than 250MB
 // Any unscanned files will not be available for download so while we can upload a larger
 // file of any size the file will be locked from downloading forever.
 const MaxFileSizeLimit = 250 * MB
 
+// ErrTooLarge is the string representation of an error
 func (e ErrTooLarge) Error() string {
 	return fmt.Sprintf("file is too large: %d > %d filesize limit", e.FileSize, e.FileSizeLimit)
 }
 
+// ByteSize is a snack
 type ByteSize int64
 
 const (
-	B  ByteSize = 1
-	KB          = 1000
-	MB          = 1000 * 1000
+	// B Byte
+	B ByteSize = 1
+	// KB KiloByte
+	KB = 1000
+	// MB MegaByte
+	MB = 1000 * 1000
 )
 
+// Int64 returns an integer of the byte size
 func (b ByteSize) Int64() int64 {
 	return int64(b)
 }

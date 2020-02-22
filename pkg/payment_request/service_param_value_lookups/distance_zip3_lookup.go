@@ -1,5 +1,6 @@
 package serviceparamvaluelookups
 
+// DistanceZip3Lookup contains zip3 lookup
 type DistanceZip3Lookup struct {
 }
 

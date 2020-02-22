@@ -39,7 +39,7 @@ func (h GetMoveOrdersHandler) Handle(params moveorderop.GetMoveOrderParams) midd
 	return moveorderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
 }
 
-// ListMoveOrders fetches all the move orders
+// ListMoveOrdersHandler fetches all the move orders
 type ListMoveOrdersHandler struct {
 	handlers.HandlerContext
 	services.MoveOrderFetcher
@@ -65,7 +65,7 @@ func (h ListMoveOrdersHandler) Handle(params moveorderop.ListMoveOrdersParams) m
 	return moveorderop.NewListMoveOrdersOK().WithPayload(moveOrdersPayload)
 }
 
-// ListMoveOrders fetches all the move orders
+// ListMoveTaskOrdersHandler fetches all the move orders
 type ListMoveTaskOrdersHandler struct {
 	handlers.HandlerContext
 	services.MoveTaskOrderFetcher

@@ -41,7 +41,7 @@ func MakeAdminUser(db *pop.Connection, assertions Assertions) models.AdminUser {
 	return adminUser
 }
 
-// MakeAdminUser creates a single admin user and associated TransportOffice
+// MakeAdminUserWithNoUser creates a single admin user and associated TransportOffice
 func MakeAdminUserWithNoUser(db *pop.Connection, assertions Assertions) models.AdminUser {
 	// There's a uniqueness constraint on admin user emails so add some randomness
 	email := fmt.Sprintf("admin_%s@example.com", makeRandomString(5))

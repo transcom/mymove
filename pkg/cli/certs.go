@@ -22,10 +22,12 @@ const (
 	MoveMilDoDTLSKeyFlag string = "move-mil-dod-tls-key"
 )
 
+// ErrInvalidPKCS7 is an Invalid PKCS7 error
 type ErrInvalidPKCS7 struct {
 	Path string
 }
 
+// Error is the error method
 func (e *ErrInvalidPKCS7) Error() string {
 	return fmt.Sprintf("invalid DER encoded PKCS7 package: %s", e.Path)
 }

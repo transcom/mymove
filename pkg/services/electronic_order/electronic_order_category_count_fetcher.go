@@ -22,7 +22,7 @@ func (o *electronicOrderCategoricalCountsFetcher) FetchElectronicOrderCategorica
 	return counts, nil
 }
 
-// NewElectronicOrderListFetcher returns an implementation of OrdersListFetcher
+// NewElectronicOrdersCategoricalCountsFetcher returns an implementation of OrdersListFetcher
 func NewElectronicOrdersCategoricalCountsFetcher(builder electronicOrderCategoricalCountQueryBuilder) services.ElectronicOrderCategoryCountFetcher {
 	return &electronicOrderCategoricalCountsFetcher{builder}
 }
