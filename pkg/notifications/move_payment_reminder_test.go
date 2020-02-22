@@ -207,7 +207,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 		IncentiveEstimateMax:   "1000",
 		IncentiveTxt:           "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
 		TOName:                 "TEST PPPO",
-		TOPhone:                "at 555-555-5555",
+		TOPhone:                "555-555-5555",
 		Locator:                "abc123",
 	}
 	expectedHTMLContent := `<p>We hope your move to DestDutyStation went well.</p>
@@ -242,7 +242,7 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 
 <p>If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.</p>
 
-<p>If you’re missing certified weight tickets, your PPPO will have to help. Call the TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move ID: abc123.</p>
+<p>If you’re missing certified weight tickets, your PPPO will have to help. Call TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move ID: abc123.</p>
 
 <p>Log in to MilMove to complete your request and get paid.</p>
 
@@ -269,7 +269,7 @@ func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 		IncentiveEstimateMax:   "1000",
 		IncentiveTxt:           "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
 		TOName:                 "TEST PPPO",
-		TOPhone:                "at 555-555-5555",
+		TOPhone:                "555-555-5555",
 		Locator:                "abc123",
 	}
 	expectedTextContent := `We hope your move to DestDutyStation went well.
@@ -300,7 +300,7 @@ What if you’re missing documents?
 
 If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.
 
-If you’re missing certified weight tickets, your PPPO will have to help. Call the TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move ID: abc123.
+If you’re missing certified weight tickets, your PPPO will have to help. Call TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move ID: abc123.
 
 Log in to MilMove to complete your request and get paid.
 
@@ -367,7 +367,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMin: &estimateMin3,
 			IncentiveEstimateMax: &estimateMax3,
 			IncentiveTxt:         "",
-			TOName:               "to0",
+			TOName:               "",
 			TOPhone:              &phone,
 			Locator:              "def123",
 		},
@@ -397,7 +397,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMax:   emailInfo.IncentiveEstimateMax.ToDollarString(),
 			IncentiveTxt:           emailInfo.IncentiveTxt,
 			TOName:                 emailInfo.TOName,
-			TOPhone:                fmt.Sprintf("at %s", *emailInfo.TOPhone),
+			TOPhone:                *emailInfo.TOPhone,
 			Locator:                emailInfo.Locator,
 		}
 		htmlBody, err := pr.RenderHTML(data)
