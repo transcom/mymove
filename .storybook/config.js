@@ -1,4 +1,5 @@
-import { configure } from '@storybook/react';
+import { configure, addDecorator } from '@storybook/react';
+import { withInfo } from '@storybook/addon-info';
 import 'loki/configure-react';
 
 import 'uswds';
@@ -9,4 +10,5 @@ function loadStories() {
   require('../src/stories/statusTimeLine.stories.jsx');
 }
 
+addDecorator(withInfo);
 configure(loadStories, module);
