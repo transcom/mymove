@@ -53,7 +53,7 @@ func (gre *GHCRateEngineImporter) importREIntlAccessorialPrices(dbTx *pop.Connec
 				}
 
 				intlAccessorial := models.ReIntlAccessorialPrice{
-					ContractID:   gre.contractID,
+					ContractID:   gre.ContractID,
 					Market:       market,
 					ServiceID:    serviceID,
 					PerUnitCents: unit.Cents(perUnitCentsService),
