@@ -157,16 +157,13 @@ func PaymentRequests(paymentRequests *[]models.PaymentRequest) []*primemessages.
 }
 
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
-	requestedPickupDate := strfmt.Date(*mtoShipment.RequestedPickupDate)
-	scheduledPickupDate := strfmt.Date(*mtoShipment.ScheduledPickupDate)
-
-	return &primemessages.MTOShipment{
+	payload := &primemessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             primemessages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:          *mtoShipment.CustomerRemarks,
-		RequestedPickupDate:      &requestedPickupDate,
-		ScheduledPickupDate:      &scheduledPickupDate,
+		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
+		ScheduledPickupDate:      strfmt.Date(*mtoShipment.ScheduledPickupDate),
 		PickupAddress:            Address(&mtoShipment.PickupAddress),
 		Status:                   string(mtoShipment.Status),
 		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
@@ -175,6 +172,22 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
+
+	if mtoShipment.ApprovedDate != nil && !mtoShipment.ApprovedDate.IsZero() {
+		approvedDate := strfmt.Date(*mtoShipment.ApprovedDate)
+		payload.ApprovedDate = &approvedDate
+	}
+
+	if mtoShipment.FirstAvailableDeliveryDate != nil && !mtoShipment.FirstAvailableDeliveryDate.IsZero() {
+		payload.FirstAvailableDeliveryDate = strfmt.Date(*mtoShipment.FirstAvailableDeliveryDate)
+	}
+
+	if mtoShipment.PrimeEstimatedWeight != nil {
+		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
+		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
+	}
+
+	return payload
 }
 
 func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments {
@@ -185,6 +198,7 @@ func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments
 	}
 	return &payload
 }
+
 func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *primemessages.MTOServiceItem {
 	return &primemessages.MTOServiceItem{
 		ID:              strfmt.UUID(mtoServiceItem.ID.String()),

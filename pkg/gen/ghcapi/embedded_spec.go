@@ -1875,6 +1875,10 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "approvedDate": {
+          "type": "string",
+          "format": "date"
+        },
         "createdAt": {
           "type": "string",
           "format": "datetime"
@@ -4438,6 +4442,10 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "approvedDate": {
+          "type": "string",
+          "format": "date"
+        },
         "createdAt": {
           "type": "string",
           "format": "datetime"

@@ -10,8 +10,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/tcnksm/go-input"
-
-	"github.com/transcom/nom/pkg/pkcs11"
+	"pault.ag/go/pksigner"
 )
 
 type ErrInvalidPath struct {
@@ -82,19 +81,19 @@ func CheckCAC(v *viper.Viper) error {
 
 // GetCACStore retrieves the CAC store
 // Call 'defer store.Close()' after retrieving the store
-func GetCACStore(v *viper.Viper) (*pkcs11.Store, error) {
+func GetCACStore(v *viper.Viper) (*pksigner.Store, error) {
 	pkcs11ModulePath := v.GetString(PKCS11ModuleFlag)
 	tokenLabel := v.GetString(TokenLabelFlag)
 	certLabel := v.GetString(CertLabelFlag)
 	keyLabel := v.GetString(KeyLabelFlag)
-	pkcsConfig := pkcs11.Config{
+	pkcsConfig := pksigner.Config{
 		Module:           pkcs11ModulePath,
 		CertificateLabel: certLabel,
 		PrivateKeyLabel:  keyLabel,
 		TokenLabel:       tokenLabel,
 	}
 
-	store, errPKCS11New := pkcs11.New(pkcsConfig)
+	store, errPKCS11New := pksigner.New(pkcsConfig)
 	if errPKCS11New != nil {
 		return nil, errPKCS11New
 	}

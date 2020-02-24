@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -eu -o pipefail
+set -exu -o pipefail
 
 #
 # Title: Anti Virus Scanning of Source Code
@@ -34,8 +34,13 @@ docker rm -f "${CONTAINER_NAME}" || true
 rm -f "${WHITELIST}"
 
 # Start the clamd service and update with freshclam (takes several minutes to be running)
-# Mount the project directory inside for scanning later
+echo
+echo "Starting clamd service:"
 docker pull "${DOCKER_IMAGE}"
+
+# Mount the project directory inside for scanning later
+echo
+echo "Mounting the project directory for scanning:"
 docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
 
 if [[ -n "${CIRCLECI+x}" ]]; then
@@ -47,6 +52,8 @@ fi
 # Create a whitelist of files to ignore
 # See https://www.clamav.net/documents/whitelist-databases
 # See https://owlbearconsulting.com/doku.php?id=linux_wiki:clamav#whitelist_a_file
+echo
+echo "Creating whitelist of files to ignore:"
 touch "${WHITELIST}"
 for file in ${IGNORE_FILES}; do
   docker exec -it "${CONTAINER_NAME}" ls "${MOUNT_DIR}/${file}"
@@ -54,6 +61,8 @@ for file in ${IGNORE_FILES}; do
 done
 
 # Copy the ignore list into the container in the same directory as the virus database
+echo
+echo "Copying the ignore list into the container:"
 docker cp "${WHITELIST}" "${CONTAINER_NAME}:/store/"
 docker exec -it "${CONTAINER_NAME}" chown clamav:clamav "/store/${WHITELIST}"
 
