@@ -149,6 +149,8 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
 			},
 		})
+
+	vehicleNickname := "My Car"
 	emptyWeight := unit.Pound(1000)
 	fullWeight := unit.Pound(2500)
 	weightTicketSetDocument := models.WeightTicketSetDocument{
@@ -158,7 +160,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 		EmptyWeightTicketMissing: false,
 		FullWeight:               &fullWeight,
 		FullWeightTicketMissing:  false,
-		VehicleNickname:          "My Car",
+		VehicleNickname:          &vehicleNickname,
 		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
@@ -203,6 +205,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	move := ppm.Move
 	sm := move.Orders.ServiceMember
+	vehicleNickname := "My Car"
 
 	moveDoc := testdatagen.MakeMoveDocument(suite.DB(),
 		testdatagen.Assertions{
@@ -220,7 +223,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 		EmptyWeightTicketMissing: true,
 		FullWeight:               nil,
 		FullWeightTicketMissing:  true,
-		VehicleNickname:          "My Car",
+		VehicleNickname:          &vehicleNickname,
 		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         nil,
 		TrailerOwnershipMissing:  false,
@@ -390,6 +393,8 @@ func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
 			ServiceMember:   sm,
 		},
 	})
+
+	vehicleNickname := "My Car"
 	weightTicketSetDocument := models.WeightTicketSetDocument{
 		MoveDocumentID:           moveDocument2.ID,
 		MoveDocument:             moveDocument2,
@@ -397,7 +402,7 @@ func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
 		EmptyWeightTicketMissing: true,
 		FullWeight:               nil,
 		FullWeightTicketMissing:  true,
-		VehicleNickname:          "My Car",
+		VehicleNickname:          &vehicleNickname,
 		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         nil,
 		TrailerOwnershipMissing:  false,
