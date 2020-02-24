@@ -328,7 +328,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 	weightEst2 := unit.Pound(200)
 	estimateMin2 := unit.Cents(2000)
 	estimateMax2 := unit.Cents(2200)
-	phone2 := "222-222-2222"
+	phone2 := ""
 
 	email3 := "email3"
 	weightEst3 := unit.Pound(0)
@@ -367,7 +367,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMin: &estimateMin3,
 			IncentiveEstimateMax: &estimateMax3,
 			IncentiveTxt:         "",
-			TOName:               "",
+			TOName:               "to3",
 			TOPhone:              &phone,
 			Locator:              "def123",
 		},
@@ -379,7 +379,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			IncentiveEstimateMin: &estimateMin3,
 			IncentiveEstimateMax: &estimateMax3,
 			IncentiveTxt:         "",
-			TOName:               "to0",
+			TOName:               "to4",
 			TOPhone:              &phone,
 			Locator:              "def456",
 		},
@@ -411,6 +411,8 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			textBody:       textBody,
 		}
 		if emailInfo.Email != nil {
+			fmt.Printf("\n\n*** %s\n", emailInfo.TOName)
+			fmt.Printf(expectedEmailContent.htmlBody)
 			suite.Equal(expectedEmailContent.recipientEmail, actualEmailContent.recipientEmail)
 			suite.Equal(expectedEmailContent.subject, actualEmailContent.subject)
 			suite.Equal(expectedEmailContent.htmlBody, actualEmailContent.htmlBody, "htmlBody diffferent: %s", emailInfo.TOName)
