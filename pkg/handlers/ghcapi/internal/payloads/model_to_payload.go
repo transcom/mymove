@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -155,13 +156,17 @@ func Address(address *models.Address) *ghcmessages.Address {
 
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	strfmt.MarshalFormat = strfmt.RFC3339Micro
+	var requestedPickupDate *strfmt.Date = handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
+	if requestedPickupDate == nil {
+		requestedPickupDate = &strfmt.Date{}
+	}
 	return &ghcmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             mtoShipment.ShipmentType,
 		Status:                   string(mtoShipment.Status),
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
+		RequestedPickupDate:      *requestedPickupDate,
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(&mtoShipment.PickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
