@@ -373,6 +373,7 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 			for i := 0; i < t.NumField(); i++ {
 				if t.Field(i).Name == "ID" {
 					id = v.Field(i).Interface().(uuid.UUID)
+					break
 				}
 			}
 
