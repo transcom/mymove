@@ -39,7 +39,7 @@ sudo defaults write /Library/Preferences/com.apple.security.smartcard DisabledTo
       prereqs
     ```
 
-2. Plug in your card reader
+2. Plug in your card reader to your computer
 
 3. Insert your CAC into the reader
 
