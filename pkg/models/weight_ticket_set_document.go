@@ -59,7 +59,7 @@ func (m *WeightTicketSetDocument) Validate(tx *pop.Connection) (*validate.Errors
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.MoveDocumentID, Name: "MoveDocumentID"},
 		&validators.StringIsPresent{Field: string(m.WeightTicketSetType), Name: "WeightTicketSetType"},
-		&MustBeBothNilOrBothNotNil{
+		&MustBeBothNilOrBothHaveValue{
 			FieldName1:  "VehicleMake",
 			FieldValue1: m.VehicleMake,
 			FieldName2:  "VehicleModel",
