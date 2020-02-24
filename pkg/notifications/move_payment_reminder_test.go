@@ -18,7 +18,6 @@ func (suite *NotificationSuite) createPaymentReminderMoves(assertions []testdata
 	estimateMax := unit.Cents(2000)
 
 	for _, assertion := range assertions {
-		assertion.PersonallyProcuredMove.Status = models.PPMStatusAPPROVED
 		assertion.PersonallyProcuredMove.IncentiveEstimateMin = &estimateMin
 		assertion.PersonallyProcuredMove.IncentiveEstimateMax = &estimateMax
 
@@ -67,25 +66,45 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 	moves := []testdatagen.Assertions{
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc123"},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc456"},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "abc789"},
 			DestinationDutyStation: station,
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusDRAFT, Locator: "def123"},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Show: swag.Bool(false), Locator: "def456"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusDRAFT},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "111111"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusSUBMITTED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "222222"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusPAYMENTREQUESTED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "333333"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusCOMPLETED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "444444"},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusCANCELED},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED, Locator: "555555"},
 		},
 	}
 
@@ -105,8 +124,8 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 	suite.Equal(ppms[0].IncentiveEstimateMin, emailInfo[0].IncentiveEstimateMin)
 	suite.Equal(ppms[0].IncentiveEstimateMax, emailInfo[0].IncentiveEstimateMax)
 	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.Name, emailInfo[0].TOName)
-	// suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.PhoneLines[0].Number, *emailInfo[0].TOPhone)
-	// suite.Equal(ppms[0].Move.Locator, emailInfo[0].Locator)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.PhoneLines[0].Number, *emailInfo[0].TOPhone)
+	suite.Equal(ppms[0].Move.Locator, emailInfo[0].Locator)
 }
 
 func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {

@@ -93,7 +93,8 @@ FROM personally_procured_moves ppm
 	AND ppm.status = 'APPROVED'
 	AND (notification_type != 'MOVE_PAYMENT_REMINDER_EMAIL' OR n.service_member_id IS NULL)
 	AND m.status = 'APPROVED'
-	AND m.show IS true;`
+	AND m.show IS true
+	ORDER BY m.locator;`
 
 	paymentReminderEmailInfos := PaymentReminderEmailInfos{}
 	err := m.db.RawQuery(query, m.emailAfter, m.noEmailBefore).All(&paymentReminderEmailInfos)
