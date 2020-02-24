@@ -48,9 +48,12 @@ func generateReferenceID(tx *pop.Connection) (string, error) {
 	secondNum := rand.Intn(max - min + 1)
 	newReferenceID := fmt.Sprintf("%04d-%04d", firstNum, secondNum)
 	count, err := tx.Where(`reference_id= $1`, newReferenceID).Count(&MoveTaskOrder{})
-	if err != nil || count > 0 {
+	if err != nil {
 		return "", err
+	} else if count > 0 {
+		return "", errors.New("move_task_order: reference_id already exists")
 	}
+
 	return newReferenceID, nil
 }
 
