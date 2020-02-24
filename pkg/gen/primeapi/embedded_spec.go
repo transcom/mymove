@@ -209,7 +209,10 @@ func init() {
             }
           },
           "400": {
-            "description": "invalid request"
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
           },
           "401": {
             "description": "The request was denied",
@@ -820,14 +823,12 @@ func init() {
       }
     },
     "MTOShipment": {
-      "required": [
-        "pickupAddress",
-        "destinationAddress",
-        "scheduledPickupDate",
-        "requestedPickupDate",
-        "shipmentType"
-      ],
       "properties": {
+        "approvedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "createdAt": {
           "type": "string",
           "format": "datetime"
@@ -857,7 +858,16 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "primeActualWeight": {
-          "type": "integer"
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeightRecordedDate": {
+          "type": "string",
+          "format": "date"
         },
         "requestedPickupDate": {
           "type": "string",
@@ -1383,7 +1393,13 @@ func init() {
             }
           },
           "400": {
-            "description": "invalid request"
+            "description": "invalid request",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
           },
           "401": {
             "description": "The request was denied",
@@ -2051,14 +2067,12 @@ func init() {
       }
     },
     "MTOShipment": {
-      "required": [
-        "pickupAddress",
-        "destinationAddress",
-        "scheduledPickupDate",
-        "requestedPickupDate",
-        "shipmentType"
-      ],
       "properties": {
+        "approvedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "createdAt": {
           "type": "string",
           "format": "datetime"
@@ -2088,7 +2102,16 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "primeActualWeight": {
-          "type": "integer"
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeightRecordedDate": {
+          "type": "string",
+          "format": "date"
         },
         "requestedPickupDate": {
           "type": "string",

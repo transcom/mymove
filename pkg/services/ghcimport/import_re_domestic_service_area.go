@@ -6,18 +6,26 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
-type stringSet map[string]struct{}
-
+// A set of service area strings and their associated data
 type serviceAreasSet map[string]domesticServiceAreaData
 
+// The ReDomesticServiceArea model and the related zip3 set
 type domesticServiceAreaData struct {
 	serviceArea *models.ReDomesticServiceArea
-	zip3s       stringSet
+	zip3s       zip3Set
+}
+
+// A set of zip3s and their associated city/state
+type zip3Set map[string]cityState
+
+// City/state data we need for each zip3
+type cityState struct {
+	city  string
+	state string
 }
 
 func (gre *GHCRateEngineImporter) importREDomesticServiceArea(dbTx *pop.Connection) error {
@@ -27,9 +35,6 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceArea(dbTx *pop.Connecti
 	if err != nil {
 		return err
 	}
-
-	// TODO: We aren't currently cleaning up any records that may not be part of the latest
-	//   import.  That may get tricky with referential integrity.
 
 	// Insert the service area and zip3 records; store a map of service area UUIDs to use
 	// in later imports.
@@ -68,39 +73,30 @@ func (gre *GHCRateEngineImporter) buildServiceAreasData(dbTx *pop.Connection) (s
 
 		foundServiceAreaData, serviceAreaFound := serviceAreasData[serviceAreaNumber]
 		if serviceAreaFound {
-			gre.Logger.Info("Service area already exists",
-				zap.String("service area number", serviceAreaNumber),
-				zap.String("existing base point city", foundServiceAreaData.serviceArea.BasePointCity),
-				zap.String("existing state", foundServiceAreaData.serviceArea.State),
-				zap.String("new base point city", stageArea.BasePointCity),
-				zap.String("new state", stageArea.State))
-
-			// TODO: We're not storing the additional city/state right now.  We may
-			//   want a separate story to consider putting that in the re_zip3s table
-			//   if we think it's important (we don't currently use it for pricing).
-
-			// Add zips to existing set
+			// Service area already encountered; merge new zips into data structure
 			zip3sSet := foundServiceAreaData.zip3s
 			for _, zip3 := range splitZip3s {
-				if _, zipFound := zip3sSet[zip3]; zipFound {
-					gre.Logger.Info("Zip3 already exists for service area",
-						zap.String("service area number", serviceAreaNumber),
-						zap.String("zip3", zip3))
+				if _, zipFound := zip3sSet[zip3]; !zipFound {
+					zip3sSet[zip3] = cityState{
+						city:  stageArea.BasePointCity,
+						state: stageArea.State,
+					}
 				}
-				zip3sSet[zip3] = struct{}{}
 			}
 		} else {
-			zip3sSet := make(stringSet)
+			// Service area has not been seen yet; create entire data structure
+			zip3sSet := make(zip3Set)
 			for _, zip3 := range splitZip3s {
-				zip3sSet[zip3] = struct{}{}
+				zip3sSet[zip3] = cityState{
+					city:  stageArea.BasePointCity,
+					state: stageArea.State,
+				}
 			}
 
 			serviceAreasData[serviceAreaNumber] = domesticServiceAreaData{
 				serviceArea: &models.ReDomesticServiceArea{
-					ContractID:    gre.contractID,
-					BasePointCity: stageArea.BasePointCity,
-					State:         stageArea.State,
-					ServiceArea:   serviceAreaNumber,
+					ContractID:  gre.contractID,
+					ServiceArea: serviceAreaNumber,
 					// Fill in services schedule and SIT PD schedule later from other tab.
 				},
 				zip3s: zip3sSet,
@@ -179,7 +175,7 @@ func (gre *GHCRateEngineImporter) saveServiceAreasAndZip3s(dbTx *pop.Connection,
 		if doSaveServiceArea {
 			verrs, saveErr := dbTx.ValidateAndSave(reServiceArea)
 			if verrs.HasAny() {
-				return nil, fmt.Errorf("validation errors when saving contract [%+v]: %w", *reServiceArea, verrs)
+				return nil, fmt.Errorf("validation errors when saving service area [%+v]: %w", *reServiceArea, verrs)
 			}
 			if saveErr != nil {
 				return nil, fmt.Errorf("could not save service area [%+v]: %w", *reServiceArea, saveErr)
@@ -196,12 +192,14 @@ func (gre *GHCRateEngineImporter) saveServiceAreasAndZip3s(dbTx *pop.Connection,
 	return serviceAreaToIDMap, nil
 }
 
-func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, zip3s stringSet, serviceAreaID uuid.UUID) error {
+func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, zip3s zip3Set, serviceAreaID uuid.UUID) error {
 	// Save the associated zips.
-	for zip3 := range zip3s {
+	for zip3, cityState := range zip3s {
 		reZip3 := models.ReZip3{
 			ContractID:            gre.contractID,
 			Zip3:                  zip3,
+			BasePointCity:         cityState.city,
+			State:                 cityState.state,
 			DomesticServiceAreaID: serviceAreaID,
 		}
 
@@ -237,25 +235,25 @@ func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, 
 }
 
 func updateExistingServiceArea(existing *models.ReDomesticServiceArea, new models.ReDomesticServiceArea) bool {
-	if existing.BasePointCity == new.BasePointCity &&
-		existing.State == new.State &&
-		existing.ServicesSchedule == new.ServicesSchedule &&
+	if existing.ServicesSchedule == new.ServicesSchedule &&
 		existing.SITPDSchedule == new.SITPDSchedule {
 		return false
 	}
 
-	existing.BasePointCity = new.BasePointCity
-	existing.State = new.State
 	existing.ServicesSchedule = new.ServicesSchedule
 	existing.SITPDSchedule = new.SITPDSchedule
 	return true
 }
 
 func updateExistingZip3(existing *models.ReZip3, new models.ReZip3) bool {
-	if existing.DomesticServiceAreaID == new.DomesticServiceAreaID {
+	if existing.BasePointCity == new.BasePointCity &&
+		existing.State == new.State &&
+		existing.DomesticServiceAreaID == new.DomesticServiceAreaID {
 		return false
 	}
 
+	existing.BasePointCity = new.BasePointCity
+	existing.State = new.State
 	existing.DomesticServiceAreaID = new.DomesticServiceAreaID
 	return true
 }

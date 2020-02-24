@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
@@ -43,6 +44,11 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 
 	shipment.Status = status
 	shipment.RejectionReason = rejectionReason
+
+	if shipment.Status == models.MTOShipmentStatusApproved {
+		approvedDate := time.Now()
+		shipment.ApprovedDate = &approvedDate
+	}
 
 	verrs, err := o.builder.UpdateOne(&shipment, &eTag)
 

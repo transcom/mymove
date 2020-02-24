@@ -135,4 +135,33 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		fmt.Printf("%#v", err)
 		suite.IsType(NotFoundError{}, err)
 	})
+
+	suite.T().Run("Changing to APPROVED status records approved_date", func(t *testing.T) {
+		shipment5 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MoveTaskOrder: mto,
+		})
+		eTag = base64.StdEncoding.EncodeToString([]byte(shipment5.UpdatedAt.Format(time.RFC3339Nano)))
+
+		suite.Nil(shipment5.ApprovedDate)
+		_, err := updater.UpdateMTOShipmentStatus(shipment5.ID, models.MTOShipmentStatusApproved, nil, eTag)
+		suite.NoError(err)
+		suite.DB().Find(&shipment5, shipment5.ID)
+		suite.Equal(models.MTOShipmentStatusApproved, shipment5.Status)
+		suite.NotNil(shipment5.ApprovedDate)
+	})
+
+	suite.T().Run("Changing to a non-APPROVED status does not record approved_date", func(t *testing.T) {
+		shipment6 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MoveTaskOrder: mto,
+		})
+		eTag = base64.StdEncoding.EncodeToString([]byte(shipment6.UpdatedAt.Format(time.RFC3339Nano)))
+		rejectionReason := "reason"
+
+		suite.Nil(shipment6.ApprovedDate)
+		_, err := updater.UpdateMTOShipmentStatus(shipment6.ID, models.MTOShipmentStatusRejected, &rejectionReason, eTag)
+		suite.NoError(err)
+		suite.DB().Find(&shipment6, shipment6.ID)
+		suite.Equal(models.MTOShipmentStatusRejected, shipment6.Status)
+		suite.Nil(shipment3.ApprovedDate)
+	})
 }

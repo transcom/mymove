@@ -1,15 +1,15 @@
-const proxy = require('http-proxy-middleware');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function(app) {
-  app.use(proxy('/api', { target: 'http://milmovelocal:8080/' }));
-  app.use(proxy('/internal', { target: 'http://milmovelocal:8080/' }));
-  app.use(proxy('/admin', { target: 'http://milmovelocal:8080/' }));
-  app.use(proxy('/ghc', { target: 'http://milmovelocal:8080/' }));
-  app.use(proxy('/prime', { target: 'http://milmovelocal:8080/' }));
-  app.use(proxy('/storage', { target: 'http://milmovelocal:8080/' }));
-  app.use(proxy('/devlocal-auth', { target: 'http://milmovelocal:8080/' }));
-  app.use(proxy('/auth/**', { target: 'http://milmovelocal:8080/' }));
-  app.use(proxy('/logout', { target: 'http://milmovelocal:8080/' }));
-  app.use(proxy('/downloads', { target: 'http://milmovelocal:8080/' }));
-  app.use(proxy('/debug/**', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/api', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/internal', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/admin', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/ghc', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/prime', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/storage', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/devlocal-auth', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/auth/**', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/logout', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/downloads', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/debug/**', { target: 'http://milmovelocal:8080/' }));
 };

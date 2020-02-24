@@ -65,6 +65,11 @@ const UpdateMTOShipmentBadRequestCode int = 400
 swagger:response updateMTOShipmentBadRequest
 */
 type UpdateMTOShipmentBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentBadRequest creates UpdateMTOShipmentBadRequest with default headers values
@@ -73,12 +78,25 @@ func NewUpdateMTOShipmentBadRequest() *UpdateMTOShipmentBadRequest {
 	return &UpdateMTOShipmentBadRequest{}
 }
 
+// WithPayload adds the payload to the update m t o shipment bad request response
+func (o *UpdateMTOShipmentBadRequest) WithPayload(payload interface{}) *UpdateMTOShipmentBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update m t o shipment bad request response
+func (o *UpdateMTOShipmentBadRequest) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateMTOShipmentBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(400)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
 
 // UpdateMTOShipmentUnauthorizedCode is the HTTP code returned for type UpdateMTOShipmentUnauthorized

@@ -1528,6 +1528,9 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+      approvedDate:
+        format: date
+        type: string
       pickupAddress:
         x-nullabe: true
         $ref: '#/definitions/Address'

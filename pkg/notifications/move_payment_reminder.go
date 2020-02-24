@@ -62,6 +62,7 @@ type PaymentReminderEmailInfo struct {
 	TOName               string `db:"transportation_office_name"`
 	TOPhone              string `db:"transportation_office_phone"`
 	MoveDate             string `db:"move_date"`
+	Locator              string `db:"locator"`
 }
 
 func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
@@ -72,7 +73,8 @@ func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
 	ppm.original_move_date as move_date,
 	dsn.name AS new_duty_station_name,
 	tos.name AS transportation_office_name,
-	opl.number AS transportation_office_phone
+	opl.number AS transportation_office_phone,
+	m.locator
 FROM personally_procured_moves ppm
 	JOIN moves m ON ppm.move_id = m.id
 	JOIN orders o ON m.orders_id = o.id
@@ -148,8 +150,10 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 			textBody:       textBody,
 			onSuccess:      m.OnSuccess(PaymentReminderEmailInfo),
 		}
-		m.logger.Info("generated move reviewed email to service member",
-			zap.String("service member uuid", PaymentReminderEmailInfo.ServiceMemberID.String()))
+		m.logger.Info("generated payment reminder email to service member",
+			zap.String("service member uuid", PaymentReminderEmailInfo.ServiceMemberID.String()),
+			zap.String("moveLocator", PaymentReminderEmailInfo.Locator),
+		)
 		emails = append(emails, smEmail)
 	}
 	return emails, nil
