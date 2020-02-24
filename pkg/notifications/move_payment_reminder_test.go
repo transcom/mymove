@@ -13,6 +13,7 @@ import (
 )
 
 func (suite *NotificationSuite) createPaymentReminderMoves(assertions []testdatagen.Assertions) []models.PersonallyProcuredMove {
+	suite.DB().TruncateAll()
 	ppms := make([]models.PersonallyProcuredMove, 0)
 	estimateMin := unit.Cents(1000)
 	estimateMax := unit.Cents(2000)
@@ -34,7 +35,8 @@ func offsetDate(dayOffset int) time.Time {
 
 // cutoff date for sending payment reminders (don't send if older than this...)
 func cutoffDate() time.Time {
-	cutoffDate, _ := time.Parse("2019-01-01", "2019-06-02")
+	cutoffDate, _ := time.Parse("2006-01-02", "2019-05-31")
+
 	return cutoffDate
 }
 
@@ -137,19 +139,19 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 	moves := []testdatagen.Assertions{
 		{
 
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusDRAFT},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Show: swag.Bool(false)},
 		},
 	}
@@ -172,17 +174,16 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 
 	moves := []testdatagen.Assertions{
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
 		},
 		{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld},
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld, Status: models.PPMStatusAPPROVED},
 			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
 		},
 	}
 	suite.createPaymentReminderMoves(moves)
 
-	suite.createPPMMoves(moves)
 	PaymentReminder, err := NewPaymentReminder(db, suite.logger)
 	suite.NoError(err)
 	emailInfoBeforeSending, err := PaymentReminder.GetEmailInfo()
@@ -430,8 +431,6 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			textBody:       textBody,
 		}
 		if emailInfo.Email != nil {
-			fmt.Printf("\n\n*** %s\n", emailInfo.TOName)
-			fmt.Printf(expectedEmailContent.htmlBody)
 			suite.Equal(expectedEmailContent.recipientEmail, actualEmailContent.recipientEmail)
 			suite.Equal(expectedEmailContent.subject, actualEmailContent.subject)
 			suite.Equal(expectedEmailContent.htmlBody, actualEmailContent.htmlBody, "htmlBody diffferent: %s", emailInfo.TOName)
