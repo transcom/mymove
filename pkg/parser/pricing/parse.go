@@ -111,6 +111,7 @@ const xlsxSheetsCountMax int = 35
 type processXlsxSheet func(ParamConfig, int) (interface{}, error)
 type verifyXlsxSheet func(ParamConfig, int) error
 
+// XlsxDataSheetInfo is the xlsx data sheet info
 type XlsxDataSheetInfo struct {
 	Description    *string
 	ProcessMethods []xlsxProcessInfo
@@ -123,6 +124,7 @@ type xlsxProcessInfo struct {
 	adtlSuffix *string
 }
 
+// ParamConfig is the parameter conifguration
 type ParamConfig struct {
 	ProcessAll    bool
 	ShowOutput    bool
@@ -139,7 +141,7 @@ type ParamConfig struct {
 	ContractName  string
 }
 
-// InitDataSheetInfo: When adding new functions for parsing sheets, must add new XlsxDataSheetInfo
+// InitDataSheetInfo - When adding new functions for parsing sheets, must add new XlsxDataSheetInfo
 // defining the parse function
 //
 // The index MUST match the sheet that is being processed. Refer to file comments or XLSX to
@@ -315,6 +317,7 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 	return xlsxDataSheets
 }
 
+// Parse will parsh xlsx data sheet info
 func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Connection, logger Logger) error {
 	// Must be after processing config param
 	// Run the process function

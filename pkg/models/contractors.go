@@ -20,6 +20,7 @@ type Contractor struct {
 	ClaimedAt      *time.Time `json:"claimed_at" db:"claimed_at"`
 }
 
+// Contractors is a slice of Contractor objects
 type Contractors []Contractor
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

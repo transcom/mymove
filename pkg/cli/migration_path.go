@@ -27,12 +27,12 @@ func (e *errInvalidMigrationPath) Error() string {
 	return fmt.Sprintf("invalid migration path %q", e.Path)
 }
 
-// InitMigrationFlags initializes the Migration command line flags
+// InitMigrationPathFlags initializes the Migration command line flags
 func InitMigrationPathFlags(flag *pflag.FlagSet) {
 	flag.StringP(MigrationPathFlag, "p", "file:///migrations/app/schema", "Path to the migrations folder")
 }
 
-// CheckMigration validates migration command line flags
+// CheckMigrationPath validates migration command line flags
 func CheckMigrationPath(v *viper.Viper) error {
 	// Remove any extra quotes around path
 	migrationPath := strings.Trim(v.GetString(MigrationPathFlag), "\"")

@@ -48,8 +48,10 @@ func NewPaymentReminder(db *pop.Connection, logger Logger) (*PaymentReminder, er
 	}, nil
 }
 
+// PaymentReminderEmailInfos is a slice of PaymentReminderEmailInfo
 type PaymentReminderEmailInfos []PaymentReminderEmailInfo
 
+// PaymentReminderEmailInfo contains payment reminder data for rendering a template
 type PaymentReminderEmailInfo struct {
 	ServiceMemberID      uuid.UUID   `db:"id"`
 	Email                *string     `db:"personal_email"`
@@ -65,6 +67,7 @@ type PaymentReminderEmailInfo struct {
 	Locator              string `db:"locator"`
 }
 
+// GetEmailInfo fetches payment email information
 func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
 	query := `SELECT sm.id as id, sm.personal_email as personal_email,
 	COALESCE(ppm.weight_estimate, 0) as weight_estimate,
@@ -190,6 +193,7 @@ func (m PaymentReminder) OnSuccess(PaymentReminderEmailInfo PaymentReminderEmail
 	}
 }
 
+// PaymentReminderEmailData is used to render an email template
 type PaymentReminderEmailData struct {
 	DestinationDutyStation string
 	WeightEstimate         string

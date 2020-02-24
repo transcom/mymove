@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -39,7 +40,7 @@ func (suite *serverSuite) readFile(filename string) []byte {
 	testDataDir := "testdata"
 	filePath := strings.Join([]string{testDataDir, filename}, "/")
 
-	contents, err := ioutil.ReadFile(filePath)
+	contents, err := ioutil.ReadFile(filepath.Clean(filePath))
 	if err != nil {
 		suite.T().Fatalf("failed to read file %s: %s", filename, err)
 	}

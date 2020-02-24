@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 )
 
+// Capture captures an audit record
 func Capture(model interface{}, payload interface{}, logger Logger, session *auth.Session, request *http.Request) ([]zap.Field, error) {
 	var logItems []zap.Field
 	eventType := extractEventType(request)

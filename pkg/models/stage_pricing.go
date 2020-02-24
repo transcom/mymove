@@ -3,6 +3,8 @@ package models
 //
 // Tab 1b: Service Areas
 //
+
+// StageDomesticServiceArea is the stage domestic service area
 type StageDomesticServiceArea struct {
 	BasePointCity     string `db:"base_point_city" csv:"base_point_city"`
 	State             string `db:"state" csv:"state"`
@@ -10,6 +12,7 @@ type StageDomesticServiceArea struct {
 	Zip3s             string `db:"zip3s" csv:"zip3s"`
 }
 
+// StageInternationalServiceArea is the stage international service area
 type StageInternationalServiceArea struct {
 	RateArea   string `db:"rate_area" csv:"rate_area"`
 	RateAreaID string `db:"rate_area_id" csv:"rate_area_id"`
@@ -18,6 +21,8 @@ type StageInternationalServiceArea struct {
 //
 // Tab 2a: Domestic Linehaul Prices
 //
+
+// StageDomesticLinehaulPrice is the stage domestic linehaul price
 type StageDomesticLinehaulPrice struct {
 	ServiceAreaNumber string `db:"service_area_number" csv:"service_area_number"`
 	OriginServiceArea string `db:"origin_service_area" csv:"origin_service_area"`
@@ -34,6 +39,8 @@ type StageDomesticLinehaulPrice struct {
 //
 // Tab 2b: Domestic Service Area Prices
 //
+
+// StageDomesticServiceAreaPrice is the stage domestic service area price
 type StageDomesticServiceAreaPrice struct {
 	ServiceAreaNumber                     string `db:"service_area_number" csv:"service_area_number"`
 	ServiceAreaName                       string `db:"service_area_name" csv:"service_area_name"`
@@ -49,6 +56,8 @@ type StageDomesticServiceAreaPrice struct {
 //
 // Tab 2c: Other Domestic Prices
 //
+
+// StageDomesticOtherPackPrice is the stage domestic other pack price
 type StageDomesticOtherPackPrice struct {
 	ServicesSchedule   string `db:"services_schedule" csv:"services_schedule"`
 	ServiceProvided    string `db:"service_provided" csv:"service_provided"`
@@ -56,6 +65,7 @@ type StageDomesticOtherPackPrice struct {
 	PeakPricePerCwt    string `db:"peak_price_per_cwt" csv:"peak_price_per_cwt"`
 }
 
+// StageDomesticOtherSitPrice is  the stage domestic other SIT price
 type StageDomesticOtherSitPrice struct {
 	SITPickupDeliverySchedule string `db:"sit_pickup_delivery_schedule" csv:"sit_pickup_delivery_schedule"`
 	ServiceProvided           string `db:"service_provided" csv:"service_provided"`
@@ -66,6 +76,8 @@ type StageDomesticOtherSitPrice struct {
 //
 // Tab 3a: OCONUS to OCONUS Prices
 //
+
+// StageOconusToOconusPrice is the stage OCONOUS To OCONUS price
 type StageOconusToOconusPrice struct {
 	OriginIntlPriceAreaID      string `db:"origin_intl_price_area_id" csv:"origin_intl_price_area_id"`
 	OriginIntlPriceArea        string `db:"origin_intl_price_area" csv:"origin_intl_price_area"`
@@ -79,6 +91,8 @@ type StageOconusToOconusPrice struct {
 //
 // Tab 3b: CONUS to OCONUS Prices
 //
+
+// StageConusToOconusPrice is the stage CONOUS To OCONUS price
 type StageConusToOconusPrice struct {
 	OriginDomesticPriceAreaCode string `db:"origin_domestic_price_area_code" csv:"origin_domestic_price_area_code"`
 	OriginDomesticPriceArea     string `db:"origin_domestic_price_area" csv:"origin_domestic_price_area"`
@@ -92,6 +106,8 @@ type StageConusToOconusPrice struct {
 //
 // Tab 3c: OCONUS to CONUS Prices
 //
+
+// StageOconusToConusPrice is the stage OCONOUS To CONUS price
 type StageOconusToConusPrice struct {
 	OriginIntlPriceAreaID            string `db:"origin_intl_price_area_id" csv:"origin_intl_price_area_id"`
 	OriginIntlPriceArea              string `db:"origin_intl_price_area" csv:"origin_intl_price_area"`
@@ -105,6 +121,8 @@ type StageOconusToConusPrice struct {
 //
 // Tab 3d: Other International Prices
 //
+
+// StageOtherIntlPrice is the stage other international price
 type StageOtherIntlPrice struct {
 	RateAreaCode                          string `db:"rate_area_code" csv:"rate_area_code"`
 	RateAreaName                          string `db:"rate_area_name" csv:"rate_area_name"`
@@ -122,6 +140,8 @@ type StageOtherIntlPrice struct {
 //
 // Tab 3e: Non-Standard Location Prices
 //
+
+// StageNonStandardLocnPrice is the stage non-standard location price
 type StageNonStandardLocnPrice struct {
 	OriginID        string `db:"origin_id" csv:"origin_id"`
 	OriginArea      string `db:"origin_area" csv:"origin_area"`
@@ -136,16 +156,20 @@ type StageNonStandardLocnPrice struct {
 //
 // Tab 4a: Management, Counseling, and Transition Prices
 //
+
+// StageShipmentManagementServicesPrice is the stage shipment management service price
 type StageShipmentManagementServicesPrice struct {
 	ContractYear      string `db:"contract_year" csv:"contract_year"`
 	PricePerTaskOrder string `db:"price_per_task_order" csv:"price_per_task_order"`
 }
 
+// StageCounselingServicesPrice is the stage counceling service price
 type StageCounselingServicesPrice struct {
 	ContractYear      string `db:"contract_year" csv:"contract_year"`
 	PricePerTaskOrder string `db:"price_per_task_order" csv:"price_per_task_order"`
 }
 
+// StageTransitionPrice is the stage transtion price
 type StageTransitionPrice struct {
 	ContractYear      string `db:"contract_year" csv:"contract_year"`
 	PricePerTaskOrder string `db:"price_total_cost" csv:"price_total_cost"`
@@ -154,18 +178,22 @@ type StageTransitionPrice struct {
 //
 // Tab 5a: Accessorial and Additional Prices
 //
+
+// StageDomesticMoveAccessorialPrices is the stage domestic move accessorial prices
 type StageDomesticMoveAccessorialPrices struct {
 	ServicesSchedule string `db:"services_schedule" csv:"services_schedule"`
 	ServiceProvided  string `db:"service_provided" csv:"service_provided"`
 	PricePerUnit     string `db:"price_per_unit" csv:"price_per_unit"`
 }
 
+// StageInternationalMoveAccessorialPrices is the stage international move accessorial prices
 type StageInternationalMoveAccessorialPrices struct {
 	Market          string `db:"market" csv:"market"`
 	ServiceProvided string `db:"service_provided" csv:"service_provided"`
 	PricePerUnit    string `db:"price_per_unit" csv:"price_per_unit"`
 }
 
+// StageDomesticInternationalAdditionalPrices is the stage domestic international additional prices
 type StageDomesticInternationalAdditionalPrices struct {
 	Market       string `db:"market" csv:"market"`
 	ShipmentType string `db:"shipment_type" csv:"shipment_type"`
@@ -175,6 +203,8 @@ type StageDomesticInternationalAdditionalPrices struct {
 //
 // Tab 5b: Price Escalation Discount
 //
+
+// StagePriceEscalationDiscount is the stage price escalation discount
 type StagePriceEscalationDiscount struct {
 	ContractYear          string `db:"contract_year" csv:"contract_year"`
 	ForecastingAdjustment string `db:"forecasting_adjustment" csv:"forecasting_adjustment"`

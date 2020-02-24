@@ -9,18 +9,25 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// PaymentRequestStatus is a type of Payment Request Status
 type PaymentRequestStatus string
 
+// String is a string representation of a Payment Request Status
 func (p PaymentRequestStatus) String() string {
 	return string(p)
 }
 
 const (
-	PaymentRequestStatusPending       PaymentRequestStatus = "PENDING"
-	PaymentRequestStatusReviewed      PaymentRequestStatus = "REVIEWED"
-	PaymentRequestStatusSentToGex     PaymentRequestStatus = "SENT_TO_GEX"
+	// PaymentRequestStatusPending is pending
+	PaymentRequestStatusPending PaymentRequestStatus = "PENDING"
+	// PaymentRequestStatusReviewed is reviewed
+	PaymentRequestStatusReviewed PaymentRequestStatus = "REVIEWED"
+	// PaymentRequestStatusSentToGex is sent to gex
+	PaymentRequestStatusSentToGex PaymentRequestStatus = "SENT_TO_GEX"
+	// PaymentRequestStatusReceivedByGex is received by gex
 	PaymentRequestStatusReceivedByGex PaymentRequestStatus = "RECEIVED_BY_GEX"
-	PaymentRequestStatusPaid          PaymentRequestStatus = "PAID"
+	// PaymentRequestStatusPaid is paid
+	PaymentRequestStatusPaid PaymentRequestStatus = "PAID"
 )
 
 var validPaymentRequestStatus = []string{
@@ -52,6 +59,7 @@ type PaymentRequest struct {
 	ProofOfServiceDocs  ProofOfServiceDocs  `has_many:"proof_of_service_docs"`
 }
 
+// PaymentRequests is a slice of PaymentRequest
 type PaymentRequests []PaymentRequest
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
