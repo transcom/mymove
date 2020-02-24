@@ -156,17 +156,13 @@ func Address(address *models.Address) *ghcmessages.Address {
 
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	strfmt.MarshalFormat = strfmt.RFC3339Micro
-	var requestedPickupDate *strfmt.Date = handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
-	if requestedPickupDate == nil {
-		requestedPickupDate = &strfmt.Date{}
-	}
-	return &ghcmessages.MTOShipment{
+
+	payload := &ghcmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             mtoShipment.ShipmentType,
 		Status:                   string(mtoShipment.Status),
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		RequestedPickupDate:      *requestedPickupDate,
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(&mtoShipment.PickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
@@ -175,6 +171,16 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
+
+	if mtoShipment.RequestedPickupDate != nil {
+		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
+	}
+
+	if mtoShipment.ApprovedDate != nil {
+		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
+	}
+
+	return payload
 }
 
 func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {

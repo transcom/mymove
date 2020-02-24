@@ -74,7 +74,7 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	}
 
 	// create mto -> move task order
-	mto := MoveTaskOrder{
+	var mto MoveTaskOrder = MoveTaskOrder{
 		MoveOrderID: mo.ID,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
