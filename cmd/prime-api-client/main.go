@@ -24,6 +24,16 @@ func main() {
 	initFetchMTOsFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
 
+	updateMTOShipmentCommand := &cobra.Command{
+		Use:          "update-mto-shipment",
+		Short:        "update mto shipment",
+		Long:         "update move task order shipment",
+		RunE:         updateMTOShipment,
+		SilenceUsage: true,
+	}
+	initUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
+	root.AddCommand(updateMTOShipmentCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
