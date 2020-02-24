@@ -33,11 +33,12 @@ For help run: <program> -h
  *************************************************************************/
 
 func main() {
+	// Set up spreadsheet metadata and parameter configuration
 	xlsxDataSheets := pricing.InitDataSheetInfo()
-
 	params := pricing.ParamConfig{}
 	params.RunTime = time.Now()
 
+	// Set up parser's command line flags
 	flag := pflag.CommandLine
 	flag.StringVar(&params.XlsxFilename, "filename", "", "Filename including path of the XLSX to parse for Rate Engine GHC import")
 	flag.BoolVar(&params.ProcessAll, "all", true, "Parse entire Rate Engine GHC XLSX")
@@ -51,40 +52,17 @@ func main() {
 	flag.StringVar(&params.ContractCode, "contract-code", "", "Contract code to use for this import")
 	flag.StringVar(&params.ContractName, "contract-name", "", "Contract name to use for this import")
 
-	// DB Config
+	// Set up DB flags
 	cli.InitDatabaseFlags(flag)
 
-	// Don't sort flags
+	// Parse flags
 	flag.SortFlags = false
-
 	err := flag.Parse(os.Args[1:])
 	if err != nil {
 		log.Fatalf("Could not parse flags: %v\n", err)
 	}
 
-	// option `xlsxSheets` will override `all` flag
-	if len(params.XlsxSheets) > 0 {
-		params.ProcessAll = false
-		log.Println("Setting --xlsxSheets disables --re-import so no data will be imported into the rate engine tables. Only stage table data will be updated.")
-		params.RunImport = false
-	}
-
-	if params.XlsxFilename == "" {
-		log.Fatalf("Did not receive an XLSX filename to parse; missing --filename\n")
-	}
-	log.Printf("Importing file %s\n", params.XlsxFilename)
-
-	if params.RunImport && params.ContractCode == "" {
-		log.Fatalf("Did not receive a contract code; missing --contract-code\n")
-	}
-
-	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
-	if err != nil {
-		log.Fatalf("Failed to open file %s with error %v\n", params.XlsxFilename, err)
-	}
-
-	// Connect to the database
-	// DB connection
+	// Bind flags
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
@@ -93,20 +71,18 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	dbEnv := v.GetString(cli.DbEnvFlag)
-
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	// Create logger
+	logger, err := logging.Config(v.GetString(cli.DbEnvFlag), v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
 
+	// Connect to the database
 	err = cli.CheckDatabase(v, logger)
 	if err != nil {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
-
-	// Create a connection to the DB
 	db, err := cli.InitDatabase(v, nil, logger)
 	if err != nil {
 		// No connection object means that the configuraton failed to validate and we should not startup
@@ -118,6 +94,30 @@ func main() {
 			log.Fatalf("Could not close database: %v", closeErr)
 		}
 	}()
+
+	// Ensure we've been given a spreadsheet to parse
+	if params.XlsxFilename == "" {
+		log.Fatalf("Did not receive an XLSX filename to parse; missing --filename\n")
+	}
+
+	// Running with a subset of worksheets will turn off ProcessAll flag and the rate engine import
+	if len(params.XlsxSheets) > 0 {
+		params.ProcessAll = false
+		log.Println("Setting --xlsxSheets disables --re-import so no data will be imported into the rate engine tables. Only stage table data will be updated.")
+		params.RunImport = false
+	}
+
+	// If we are importing into the rate engine tables, we need a contract code
+	if params.RunImport && params.ContractCode == "" {
+		log.Fatalf("Did not receive a contract code; missing --contract-code\n")
+	}
+
+	// Open the spreadsheet
+	log.Printf("Importing file %s\n", params.XlsxFilename)
+	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
+	if err != nil {
+		log.Fatalf("Failed to open file %s with error %v\n", params.XlsxFilename, err)
+	}
 
 	// Now kick off the parsing
 	err = pricing.Parse(xlsxDataSheets, params, db, logger)
@@ -139,7 +139,6 @@ func main() {
 		if err != nil {
 			log.Fatalf("GHC Rate Engine import failed due to %v", err)
 		}
-		// Summarize import for verification
 		if err := summarizeStageReImport(db, ghcREImporter.ContractID); err != nil {
 			log.Fatalf("Failed to summarize stage table to rate engine table import: %v", err)
 		}
