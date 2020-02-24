@@ -13,19 +13,23 @@ import (
 	"pault.ag/go/pksigner"
 )
 
+// ErrInvalidPath is an invalid path error
 type ErrInvalidPath struct {
 	Path string
 }
 
+// Error is an error return
 func (e *ErrInvalidPath) Error() string {
 	return fmt.Sprintf("invalid path %q", e.Path)
 }
 
+// ErrInvalidLabel is an invalid label error
 type ErrInvalidLabel struct {
 	Cert string
 	Key  string
 }
 
+// Error is an error return
 func (e *ErrInvalidLabel) Error() string {
 	return fmt.Sprintf("invalid cert label %q or key label %q", e.Cert, e.Key)
 }
@@ -35,11 +39,11 @@ const (
 	CACFlag string = "cac"
 	// PKCS11ModuleFlag is the location of the PCKS11 module to use with the smart card
 	PKCS11ModuleFlag string = "pkcs11module"
-	// TokenLabel is the Token Label to use with the smart card
+	// TokenLabelFlag is the Token Label to use with the smart card
 	TokenLabelFlag string = "tokenlabel"
-	// CertLabel is the Certificate Label to use with the smart card
+	// CertLabelFlag is the Certificate Label to use with the smart card
 	CertLabelFlag string = "certlabel"
-	// KeyLabel is the Key Label to use with the smart card
+	// KeyLabelFlag is the Key Label to use with the smart card
 	KeyLabelFlag string = "keylabel"
 )
 

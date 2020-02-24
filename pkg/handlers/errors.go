@@ -33,6 +33,7 @@ type ValidationErrorsResponse struct {
 	Errors map[string]string `json:"errors,omitempty"`
 }
 
+// NewValidationErrorsResponse returns a new validations errors response
 func NewValidationErrorsResponse(verrs *validate.Errors) *ValidationErrorsResponse {
 	errors := make(map[string]string)
 	for _, key := range verrs.Keys() {

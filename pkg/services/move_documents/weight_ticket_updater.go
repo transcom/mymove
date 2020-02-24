@@ -14,12 +14,13 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// WeightTicketUpdater updates weight tickets
 type WeightTicketUpdater struct {
 	db *pop.Connection
 	moveDocumentStatusUpdater
 }
 
-//Update updates the weight ticket documents
+// Update updates the weight ticket documents
 func (wtu WeightTicketUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)

@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
+// ErrInvalidID is an error indicating that an id is invaid
 type ErrInvalidID struct {
 	MTOShipmentID string
 	MTOID         string
@@ -33,6 +34,7 @@ func (e *ErrInvalidID) Error() string {
 	return fmt.Sprintf("invalid mto id %q or mto shipment id %q", e.MTOID, e.MTOShipmentID)
 }
 
+// ErrInvalidTimestamp is an error indicating that the timestamp is invalid
 type ErrInvalidTimestamp struct {
 	Timestamp time.Time
 }
@@ -42,9 +44,12 @@ func (e *ErrInvalidTimestamp) Error() string {
 }
 
 const (
+	// MTOShipmentIDFlag is the id of the mto shipment to be updated
 	MTOShipmentIDFlag string = "mtoShipmentID"
-	MTOIDFlag         string = "mtoID"
-	//TODO: refactor when if-unmodified-since is replaced if-math for this endpoint
+	// MTOIDFlag is the id of the move task order whose shipment is being updated
+	MTOIDFlag string = "mtoID"
+	// UnmodifiedSinceFlag is the timestamp of when the mto shipment was last updated
+	// TODO: refactor when if-unmodified-since is replaced if-math for this endpoint
 	UnmodifiedSinceFlag string = "unmodifiedSince"
 )
 

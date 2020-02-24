@@ -20,7 +20,7 @@ const (
 	// WeightTicketSetTypeCAR captures enum value "CAR"
 	WeightTicketSetTypeCAR WeightTicketSetType = "CAR"
 
-	// WeightTicketSetTypeCAR captures enum value "CAR_TRAILER"
+	// WeightTicketSetTypeCARTRAILER captures enum value "CAR_TRAILER"
 	WeightTicketSetTypeCARTRAILER WeightTicketSetType = "CAR_TRAILER"
 
 	// WeightTicketSetTypeBOXTRUCK captures enum value "BOXTRUCK"

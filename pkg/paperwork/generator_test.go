@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/validate"
@@ -21,9 +22,9 @@ func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string
 	var file afero.File
 	var err error
 	if fs != nil {
-		file, err = fs.Open(path)
+		file, err = fs.Open(filepath.Clean(path))
 	} else {
-		file, err = os.Open(path)
+		file, err = os.Open(filepath.Clean(path))
 	}
 	if err != nil {
 		suite.NoError(err)

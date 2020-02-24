@@ -82,7 +82,7 @@ func (gre *GHCRateEngineImporter) importOconusToOconusPrices(dbTx *pop.Connectio
 		}
 
 		intlPricingModelIOOLH := models.ReIntlPrice{
-			ContractID:            gre.contractID,
+			ContractID:            gre.ContractID,
 			ServiceID:             serviceIOOLH,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
@@ -92,7 +92,7 @@ func (gre *GHCRateEngineImporter) importOconusToOconusPrices(dbTx *pop.Connectio
 		intlPricingModels = append(intlPricingModels, intlPricingModelIOOLH)
 
 		intlPricingModelIOOUB := models.ReIntlPrice{
-			ContractID:            gre.contractID,
+			ContractID:            gre.ContractID,
 			ServiceID:             serviceIOOUB,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
@@ -165,7 +165,7 @@ func (gre *GHCRateEngineImporter) importConusToOconusPrices(dbTx *pop.Connection
 		}
 
 		intlPricingModelICOLH := models.ReIntlPrice{
-			ContractID:            gre.contractID,
+			ContractID:            gre.ContractID,
 			ServiceID:             serviceICOLH,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
@@ -175,7 +175,7 @@ func (gre *GHCRateEngineImporter) importConusToOconusPrices(dbTx *pop.Connection
 		intlPricingModels = append(intlPricingModels, intlPricingModelICOLH)
 
 		intlPricingModelICOUB := models.ReIntlPrice{
-			ContractID:            gre.contractID,
+			ContractID:            gre.ContractID,
 			ServiceID:             serviceICOUB,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
@@ -248,7 +248,7 @@ func (gre *GHCRateEngineImporter) importOconusToConusPrices(dbTx *pop.Connection
 		}
 
 		intlPricingModelIOCLH := models.ReIntlPrice{
-			ContractID:            gre.contractID,
+			ContractID:            gre.ContractID,
 			ServiceID:             serviceIOCLH,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
@@ -258,7 +258,7 @@ func (gre *GHCRateEngineImporter) importOconusToConusPrices(dbTx *pop.Connection
 		intlPricingModels = append(intlPricingModels, intlPricingModelIOCLH)
 
 		intlPricingModelIOCUB := models.ReIntlPrice{
-			ContractID:            gre.contractID,
+			ContractID:            gre.ContractID,
 			ServiceID:             serviceIOCUB,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
@@ -336,7 +336,7 @@ func (gre *GHCRateEngineImporter) importNonStandardLocationPrices(dbTx *pop.Conn
 		}
 
 		intlPricingModelNSTH := models.ReIntlPrice{
-			ContractID:            gre.contractID,
+			ContractID:            gre.ContractID,
 			ServiceID:             serviceNSTH,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
@@ -346,7 +346,7 @@ func (gre *GHCRateEngineImporter) importNonStandardLocationPrices(dbTx *pop.Conn
 		intlPricingModels = append(intlPricingModels, intlPricingModelNSTH)
 
 		intlPricingModelNSTUB := models.ReIntlPrice{
-			ContractID:            gre.contractID,
+			ContractID:            gre.ContractID,
 			ServiceID:             serviceNSTUB,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,

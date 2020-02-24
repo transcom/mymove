@@ -11,6 +11,7 @@ type adminUserCreator struct {
 	builder adminUserQueryBuilder
 }
 
+// CreateAdminUser creates admin user
 func (o *adminUserCreator) CreateAdminUser(user *models.AdminUser, organizationIDFilter []services.QueryFilter) (*models.AdminUser, *validate.Errors, error) {
 	// Use FetchOne to see if we have an organization that matches the provided id
 	var organization models.Organization
@@ -28,6 +29,7 @@ func (o *adminUserCreator) CreateAdminUser(user *models.AdminUser, organizationI
 	return user, nil, nil
 }
 
+// NewAdminUserCreator returns a new admin user creator builder
 func NewAdminUserCreator(builder adminUserQueryBuilder) services.AdminUserCreator {
 	return &adminUserCreator{builder}
 }
