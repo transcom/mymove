@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 
 	runtimeClient "github.com/go-openapi/runtime/client"
 	"github.com/spf13/viper"
@@ -14,7 +18,19 @@ import (
 )
 
 // CreateClient creates the prime api client
-func CreateClient(v *viper.Viper) (*primeClient.Mymove, error) {
+func CreateClient(cmd *cobra.Command, v *viper.Viper, args []string) (*primeClient.Mymove, error) {
+	err := cmd.ParseFlags(args)
+	if err != nil {
+		return nil, errors.Wrap(err, "Could not parse args")
+	}
+	flags := cmd.Flags()
+	err = v.BindPFlags(flags)
+	if err != nil {
+		return nil, errors.Wrap(err, "Could not bind flags")
+	}
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
 	// Use command line inputs
 	hostname := v.GetString(cli.HostnameFlag)
 	port := v.GetInt(cli.PortFlag)

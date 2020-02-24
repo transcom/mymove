@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -45,31 +43,20 @@ func initFetchMTOsFlags(flag *pflag.FlagSet) {
 }
 
 func fetchMTOs(cmd *cobra.Command, args []string) error {
-	err := cmd.ParseFlags(args)
-	if err != nil {
-		return errors.Wrap(err, "Could not parse args")
-	}
-	flags := cmd.Flags()
 	v := viper.New()
-	err = v.BindPFlags(flags)
-	if err != nil {
-		return errors.Wrap(err, "Could not bind flags")
-	}
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
 
 	//Create the logger
 	//Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	err = checkFetchMTOsConfig(v, logger)
+	err := checkFetchMTOsConfig(v, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	primeGateway, err := CreateClient(v)
+	primeGateway, err := CreateClient(cmd, v, args)
 	if err != nil {
-		logger.Fatal(err)
+		return nil
 	}
 
 	var params mto.FetchMTOUpdatesParams
