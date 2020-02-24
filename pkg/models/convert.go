@@ -11,7 +11,7 @@ import (
 // ConvertFromPPMToGHC creates models in the new GHC data model from data in a PPM move
 func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error) {
 	var move Move
-	if err := db.Eager("Orders.ServiceMember").Find(&move, moveID); err != nil {
+	if err := db.Eager("Orders.ServiceMember.DutyStation.Address", "Orders.NewDutyStation.Address").Find(&move, moveID); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not fetch move with id %s, %w", moveID, err)
 	}
 
@@ -86,10 +86,12 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 
 	// create HHG -> house hold goods
 	// mto shipment of type HHG
+	requestedPickupDate := time.Now()
 	hhg := MTOShipment{
 		MoveTaskOrderID:      mto.ID,
-		PickupAddressID:      *customer.CurrentAddressID,
-		DestinationAddressID: mo.DestinationDutyStation.AddressID,
+		RequestedPickupDate:  &requestedPickupDate,
+		PickupAddressID:      sm.DutyStation.AddressID,
+		DestinationAddressID: orders.NewDutyStation.AddressID,
 		ShipmentType:         MTOShipmentTypeHHG,
 		Status:               MTOShipmentStatusSubmitted,
 		CreatedAt:            time.Now(),
