@@ -1171,7 +1171,7 @@ func init() {
           "200": {
             "description": "Successfully updated shipment",
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/MTOShipmentWithEtag"
             }
           },
           "404": {
@@ -3822,7 +3822,7 @@ func init() {
           "200": {
             "description": "Successfully updated shipment",
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/MTOShipmentWithEtag"
             }
           },
           "404": {

@@ -527,7 +527,7 @@ paths:
         '200':
           description: Successfully updated shipment
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: '#/definitions/MTOShipmentWithEtag'
         '404':
           description: The requested resource wasn't found
           schema:

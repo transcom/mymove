@@ -144,6 +144,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 
 		okResponse := response.(*mtoshipmentops.PatchMTOShipmentStatusOK)
 		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
+		suite.NotNil(okResponse.Payload.ETag)
 	})
 
 	suite.T().Run("Patch failure - 500", func(t *testing.T) {
