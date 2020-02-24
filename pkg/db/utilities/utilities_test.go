@@ -89,6 +89,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssocia
 	suite.MustSave(&moveDoc)
 	suite.Nil(moveDoc.DeletedAt)
 
+	vehicleNickname := "My Car"
 	emptyWeight := unit.Pound(1000)
 	fullWeight := unit.Pound(2500)
 	weightTicketSetDocument := models.WeightTicketSetDocument{
@@ -98,7 +99,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssocia
 		EmptyWeightTicketMissing: false,
 		FullWeight:               &fullWeight,
 		FullWeightTicketMissing:  false,
-		VehicleNickname:          "My Car",
+		VehicleNickname:          &vehicleNickname,
 		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,

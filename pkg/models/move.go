@@ -401,7 +401,7 @@ func (m Move) CreateWeightTicketSetDocument(
 			personallyProcuredMoveID,
 			MoveDocumentTypeWEIGHTTICKETSET,
 			"weight_ticket_set",
-			&weightTicketSetDocument.VehicleNickname,
+			weightTicketSetDocument.VehicleNickname,
 			moveType)
 		if responseVErrors.HasAny() || responseError != nil {
 			return transactionError

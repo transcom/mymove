@@ -457,5 +457,6 @@
 20200217200526_gidjin_cac.up.sql
 20200219162105_garrett_cac.up.sql
 20200219185845_rriser_cac.up.sql
+20200220000000_add_cols_make_and_model_to_weight_ticket_set_document.up.sql
 20200221230540_kimallen_cac.up.sql
 20200224175606_update-mto-reference-id-constraints-and-backfill-existing.up.sql
