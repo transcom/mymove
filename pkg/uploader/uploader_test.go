@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
@@ -38,7 +39,7 @@ func (suite *UploaderSuite) SetupTest() {
 }
 
 func (suite *UploaderSuite) openLocalFile(path string) (afero.File, error) {
-	file, err := os.Open(path)
+	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		suite.logger.Fatal("Error opening local file", zap.Error(err))
 	}

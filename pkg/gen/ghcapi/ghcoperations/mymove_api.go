@@ -53,9 +53,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderDeleteMoveTaskOrderHandler: move_task_order.DeleteMoveTaskOrderHandlerFunc(func(params move_task_order.DeleteMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderDeleteMoveTaskOrder has not yet been implemented")
 		}),
-		CustomerGetAllCustomerMovesHandler: customer.GetAllCustomerMovesHandlerFunc(func(params customer.GetAllCustomerMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation CustomerGetAllCustomerMoves has not yet been implemented")
-		}),
 		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation CustomerGetCustomer has not yet been implemented")
 		}),
@@ -147,8 +144,6 @@ type MymoveAPI struct {
 	MtoServiceItemDeleteMTOServiceItemHandler mto_service_item.DeleteMTOServiceItemHandler
 	// MoveTaskOrderDeleteMoveTaskOrderHandler sets the operation handler for the delete move task order operation
 	MoveTaskOrderDeleteMoveTaskOrderHandler move_task_order.DeleteMoveTaskOrderHandler
-	// CustomerGetAllCustomerMovesHandler sets the operation handler for the get all customer moves operation
-	CustomerGetAllCustomerMovesHandler customer.GetAllCustomerMovesHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
 	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// MoveTaskOrderGetEntitlementsHandler sets the operation handler for the get entitlements operation
@@ -258,10 +253,6 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveTaskOrderDeleteMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.DeleteMoveTaskOrderHandler")
-	}
-
-	if o.CustomerGetAllCustomerMovesHandler == nil {
-		unregistered = append(unregistered, "customer.GetAllCustomerMovesHandler")
 	}
 
 	if o.CustomerGetCustomerHandler == nil {
@@ -448,11 +439,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/move-task-orders/{moveTaskOrderID}"] = move_task_order.NewDeleteMoveTaskOrder(o.context, o.MoveTaskOrderDeleteMoveTaskOrderHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/customer"] = customer.NewGetAllCustomerMoves(o.context, o.CustomerGetAllCustomerMovesHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

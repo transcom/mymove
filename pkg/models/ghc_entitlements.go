@@ -21,6 +21,7 @@ type Entitlement struct {
 	UpdatedAt          time.Time        `db:"updated_at"`
 }
 
+// SetWeightAllotment sets the weight allotment
 //TODO probably want to reconsider keeping grade a string rather than enum
 //TODO and possibly consider creating ghc specific GetWeightAllotment should the two
 //TODO diverge in the future
@@ -29,6 +30,7 @@ func (e *Entitlement) SetWeightAllotment(grade string) {
 	e.weightAllotment = &wa
 }
 
+// WeightAllotment returns the weight allotment
 func (e *Entitlement) WeightAllotment() *WeightAllotment {
 	return e.weightAllotment
 }

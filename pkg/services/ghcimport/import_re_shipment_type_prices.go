@@ -51,7 +51,7 @@ func (gre *GHCRateEngineImporter) importREShipmentTypePrices(dbTx *pop.Connectio
 				}
 
 				shipmentTypePrice := models.ReShipmentTypePrice{
-					ContractID: gre.contractID,
+					ContractID: gre.ContractID,
 					Market:     market,
 					ServiceID:  serviceID,
 					Factor:     factor,

@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+// ListMTOShipmentsHandler returns a list of MTO Shipments
 type ListMTOShipmentsHandler struct {
 	handlers.HandlerContext
 	services.ListFetcher
@@ -70,12 +71,14 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
 
+// PatchShipmentHandler patches shipments
 type PatchShipmentHandler struct {
 	handlers.HandlerContext
 	services.Fetcher
 	services.MTOShipmentStatusUpdater
 }
 
+// Handle patches shipments
 func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 

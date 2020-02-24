@@ -124,6 +124,8 @@ class CustomerDetails extends Component {
               <dd>{get(moveTaskOrder, 'isAvailableToPrime').toString()}</dd>
               <dt>Is Canceled</dt>
               <dd>{get(moveTaskOrder, 'isCanceled', false).toString()}</dd>
+              <dt>Reference ID</dt>
+              <dd>{get(moveTaskOrder, 'referenceId', '').toString()}</dd>
             </dl>
 
             <h2>Requested Shipments</h2>
@@ -180,28 +182,26 @@ class CustomerDetails extends Component {
                       <td>{items.status}</td>
                       <td>{items.rejectionReason}</td>
                       <td>
-                        {
-                          <ApproveRejectModal
-                            showModal={items.status === 'SUBMITTED'}
-                            approveBtnOnClick={() =>
-                              this.props.patchMTOShipmentStatus(
-                                get(moveTaskOrder, 'id'),
-                                items.id,
-                                'APPROVED',
-                                items.updatedAt,
-                              )
-                            }
-                            rejectBtnOnClick={rejectionReason =>
-                              this.props.patchMTOShipmentStatus(
-                                get(moveTaskOrder, 'id'),
-                                items.id,
-                                'REJECTED',
-                                items.updatedAt,
-                                rejectionReason,
-                              )
-                            }
-                          />
-                        }
+                        <ApproveRejectModal
+                          showModal={items.status === 'SUBMITTED'}
+                          approveBtnOnClick={() =>
+                            this.props.patchMTOShipmentStatus(
+                              get(moveTaskOrder, 'id'),
+                              items.id,
+                              'APPROVED',
+                              items.updatedAt,
+                            )
+                          }
+                          rejectBtnOnClick={rejectionReason =>
+                            this.props.patchMTOShipmentStatus(
+                              get(moveTaskOrder, 'id'),
+                              items.id,
+                              'REJECTED',
+                              items.updatedAt,
+                              rejectionReason,
+                            )
+                          }
+                        />
                       </td>
                     </tr>
                   </Fragment>

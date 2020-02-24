@@ -13,6 +13,7 @@ type paymentRequestFetcher struct {
 	builder paymentRequestQueryBuilder
 }
 
+// NewPaymentRequestFetcher returns a new payment request fetcher
 func NewPaymentRequestFetcher(builder paymentRequestQueryBuilder) services.PaymentRequestFetcher {
 	return &paymentRequestFetcher{builder}
 }

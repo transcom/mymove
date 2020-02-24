@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// UploadInformation contains information for uploads
 type UploadInformation struct {
 	UploadID               uuid.UUID `db:"upload_id"`
 	ContentType            string    `db:"content_type"`

@@ -168,4 +168,40 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		fmt.Printf("%#v", err)
 		suite.IsType(NotFoundError{}, err)
 	})
+
+	suite.T().Run("Changing to APPROVED status records approved_date", func(t *testing.T) {
+		shipment5 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MoveTaskOrder: mto,
+		})
+		params := mtoshipmentops.PatchMTOShipmentStatusParams{
+			ShipmentID:        strfmt.UUID(shipment5.ID.String()),
+			IfUnmodifiedSince: strfmt.DateTime(shipment5.UpdatedAt),
+			Body:              &ghcmessages.MTOShipment{Status: "APPROVED"},
+		}
+
+		suite.Nil(shipment5.ApprovedDate)
+		_, err := updater.UpdateMTOShipmentStatus(params)
+		suite.NoError(err)
+		suite.DB().Find(&shipment5, shipment5.ID)
+		suite.Equal(models.MTOShipmentStatusApproved, shipment5.Status)
+		suite.NotNil(shipment5.ApprovedDate)
+	})
+
+	suite.T().Run("Changing to a non-APPROVED status does not record approved_date", func(t *testing.T) {
+		shipment6 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MoveTaskOrder: mto,
+		})
+		params := mtoshipmentops.PatchMTOShipmentStatusParams{
+			ShipmentID:        strfmt.UUID(shipment6.ID.String()),
+			IfUnmodifiedSince: strfmt.DateTime(shipment6.UpdatedAt),
+			Body:              &ghcmessages.MTOShipment{Status: "REJECTED", RejectionReason: handlers.FmtString("stuff happens")},
+		}
+
+		suite.Nil(shipment6.ApprovedDate)
+		_, err := updater.UpdateMTOShipmentStatus(params)
+		suite.NoError(err)
+		suite.DB().Find(&shipment6, shipment6.ID)
+		suite.Equal(models.MTOShipmentStatusRejected, shipment6.Status)
+		suite.Nil(shipment3.ApprovedDate)
+	})
 }

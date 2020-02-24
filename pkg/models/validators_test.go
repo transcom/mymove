@@ -349,3 +349,67 @@ func Test_OptionalUUIDIsPresent(t *testing.T) {
 		t.Fatalf("wrong error; expected %s, got %s", "Name can not be blank.", errors.Get("name")[0])
 	}
 }
+
+func Test_MustBeBothNilOrBothNotNil_IsValid(t *testing.T) {
+	make := "Honda"
+	model := "Civic"
+
+	t.Run("fields both have value succeeds", func(t *testing.T) {
+
+		v := models.MustBeBothNilOrBothHaveValue{
+			FieldName1:  "VehicleMake",
+			FieldValue1: &make,
+			FieldName2:  "VehicleModel",
+			FieldValue2: &model,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() != 0 {
+			t.Fatalf("got errors when should be valid: %v", errs)
+		}
+	})
+
+	t.Run("fields are both nil succeeds", func(t *testing.T) {
+		v := models.MustBeBothNilOrBothHaveValue{
+			FieldName1:  "VehicleMake",
+			FieldValue1: nil,
+			FieldName2:  "VehicleModel",
+			FieldValue2: nil,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() != 0 {
+			t.Fatalf("got errors when should be valid: %v", errs)
+		}
+	})
+
+	t.Run("first field is nil and the second field has value fails", func(t *testing.T) {
+		v := models.MustBeBothNilOrBothHaveValue{
+			FieldName1:  "VehicleMake",
+			FieldValue1: nil,
+			FieldName2:  "VehicleModel",
+			FieldValue2: &model,
+		}
+
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Fatalf("should throw an error if %v is empty and %v is filled: %v", v.FieldName1, v.FieldName2, errs)
+		}
+	})
+
+	t.Run("first field has value and the second field is nil fails", func(t *testing.T) {
+		v := models.MustBeBothNilOrBothHaveValue{
+			FieldName1:  "VehicleMake",
+			FieldValue1: &make,
+			FieldName2:  "VehicleModel",
+			FieldValue2: nil,
+		}
+
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Fatalf("should throw an error if %v is filled and %v is empty: %v", v.FieldName1, v.FieldName2, errs)
+		}
+	})
+}

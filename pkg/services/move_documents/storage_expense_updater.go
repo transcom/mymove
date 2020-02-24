@@ -15,12 +15,13 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// StorageExpenseUpdater updates storage expenses
 type StorageExpenseUpdater struct {
 	db *pop.Connection
 	moveDocumentStatusUpdater
 }
 
-//Update updates the storage expense documents
+// Update updates the storage expense documents
 func (seu StorageExpenseUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)

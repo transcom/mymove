@@ -19,6 +19,10 @@ import (
 // swagger:model MTOShipment
 type MTOShipment struct {
 
+	// approved date
+	// Format: date
+	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
+
 	// created at
 	// Format: datetime
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
@@ -74,6 +78,10 @@ type MTOShipment struct {
 func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateApprovedDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -121,6 +129,19 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MTOShipment) validateApprovedDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ApprovedDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("approvedDate", "body", "date", m.ApprovedDate.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

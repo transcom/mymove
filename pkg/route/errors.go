@@ -144,6 +144,7 @@ type shortHaulError struct {
 	routingInfo string
 }
 
+// NewShortHaulError is the new short haul error
 func NewShortHaulError(source LatLong, dest LatLong, moveDistance int) Error {
 	return &shortHaulError{
 		baseError{ShortHaulError},

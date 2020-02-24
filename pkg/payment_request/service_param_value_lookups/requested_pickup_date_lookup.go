@@ -1,5 +1,6 @@
 package serviceparamvaluelookups
 
+// RequestedPickupDateLookup does lookup on requested pickup date
 type RequestedPickupDateLookup struct {
 }
 
