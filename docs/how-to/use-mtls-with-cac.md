@@ -1,4 +1,4 @@
-# How to Create CAC Access (for uploading Electronic Orders)
+# How to Create CAC Access (for using Prime API and uploading Electronic Orders)
 
 ## Overview
 
@@ -84,7 +84,7 @@ For testing locally:
     ```
 
 2. Change the migration sql file in `migrations/app/secure/` (which is for Devlocal only) by updating the `CN` field with your GitHub username.
-This will prevent your name and EPIDI from getting checked into git.
+This will prevent your name and EDIPI from getting checked into git.
 
     Example:
 
@@ -94,7 +94,7 @@ This will prevent your name and EPIDI from getting checked into git.
     CN=GITHUB_USERNAME,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US
     ```
 
-    Note: After your secure migration of `tmp` file, staging and experimental migration files will continue to have your name and EPIDI in the format `CN=LAST.FIRST.MIDDLE.EDIPI,...`).
+    Note: After your secure migration of `tmp` file, staging and experimental migration files will continue to have your name and EDIPI in the format `CN=LAST.FIRST.MIDDLE.EDIPI,...`).
 
 3. Test this by running:
 
