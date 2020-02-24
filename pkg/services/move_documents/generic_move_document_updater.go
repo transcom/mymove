@@ -12,12 +12,13 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// GenericUpdater is a genertic document updater
 type GenericUpdater struct {
 	db *pop.Connection
 	moveDocumentStatusUpdater
 }
 
-//Update updates the generic (non-special case) move documents
+// Update updates the generic (non-special case) move documents
 func (gu GenericUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)

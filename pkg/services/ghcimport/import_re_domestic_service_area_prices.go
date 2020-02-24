@@ -60,7 +60,7 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 			}
 
 			domPricingModel := models.ReDomesticServiceAreaPrice{
-				ContractID:            gre.contractID,
+				ContractID:            gre.ContractID,
 				ServiceID:             serviceID,
 				IsPeakPeriod:          isPeakPeriod,
 				DomesticServiceAreaID: serviceAreaID,

@@ -21,6 +21,7 @@ type AccessCode struct {
 	ClaimedAt       *time.Time        `json:"claimed_at" db:"claimed_at"`
 }
 
+// AccessCodes is a slice of AccessCode objects
 type AccessCodes []AccessCode
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

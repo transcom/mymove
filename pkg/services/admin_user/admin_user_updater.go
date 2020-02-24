@@ -43,6 +43,7 @@ func (o *adminUserUpdater) UpdateAdminUser(id uuid.UUID, payload *adminmessages.
 	return &foundUser, nil, nil
 }
 
+// NewAdminUserUpdater returns a new admin user updater builder
 func NewAdminUserUpdater(builder adminUserQueryBuilder) services.AdminUserUpdater {
 	return &adminUserUpdater{builder}
 }

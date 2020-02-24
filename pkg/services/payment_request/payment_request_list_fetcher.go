@@ -14,6 +14,7 @@ type paymentRequestListFetcher struct {
 	db *pop.Connection
 }
 
+// NewPaymentRequestListFetcher returns a new payment request list fetcher
 func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestListFetcher {
 	return &paymentRequestListFetcher{db}
 }

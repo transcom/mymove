@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// ProofOfServiceDoc represents a document for proof of service
 type ProofOfServiceDoc struct {
 	ID               uuid.UUID `json:"id" db:"id"`
 	PaymentRequestID uuid.UUID `json:"payment_request_id" db:"payment_request_id"`

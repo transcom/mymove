@@ -56,7 +56,7 @@ const (
 	// DbEnvDevelopment is the Development DB Env name
 	DbEnvDevelopment string = "development"
 
-	// The name of the test database
+	// DbNameTest The name of the test database
 	DbNameTest string = "test_db"
 
 	// SSLModeDisable is the disable SSL Mode

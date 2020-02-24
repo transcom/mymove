@@ -15,6 +15,7 @@ type paymentRequestStatusUpdater struct {
 	builder paymentRequestStatusQueryBuilder
 }
 
+// NewPaymentRequestStatusUpdater returns a new payment request status updater
 func NewPaymentRequestStatusUpdater(builder paymentRequestStatusQueryBuilder) services.PaymentRequestStatusUpdater {
 	return &paymentRequestStatusUpdater{builder}
 }

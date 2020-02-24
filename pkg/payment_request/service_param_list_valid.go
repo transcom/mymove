@@ -4,6 +4,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// ValidServiceParamList validates service params
 func (p *RequestPaymentHelper) ValidServiceParamList(mtoServiceItem models.MTOServiceItem, serviceParams models.ServiceParams, paymentServiceItemParams models.PaymentServiceItemParams) (bool, string) {
 	var errorString string
 	hasError := false

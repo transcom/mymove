@@ -14,12 +14,12 @@ type usersRolesCreator struct {
 	db *pop.Connection
 }
 
-// NewNewUsersRolesCreator creates a new struct with the service dependencies
+// NewUsersRolesCreator creates a new struct with the service dependencies
 func NewUsersRolesCreator(db *pop.Connection) services.UserRoleAssociator {
 	return usersRolesCreator{db}
 }
 
-//UpdateUserRoles associates a given user with a set of roles
+// UpdateUserRoles associates a given user with a set of roles
 func (u usersRolesCreator) UpdateUserRoles(userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, error) {
 	_, err := u.addUserRoles(userID, rs)
 	if err != nil {

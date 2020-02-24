@@ -20,7 +20,7 @@ Once complete move on to the next section to verify the import
 
 ## Verifying the data
 
-The script will output the summary of the staging tables and the rate engine tables that were used for the import. The summary will include the total number of rows inserted as well as the first and last rows. The goal here is to spot check the data as an additional verification of the data import.
+The script will output the summary of the staging tables and the rate engine tables that were used for the import. The summary will include the total number of rows inserted as well as a sample of two rows. The goal here is to spot check the data as an additional verification of the data import.
 
 To do the verification follow the below steps for each of the `re_*` tables. It's not required to do so for the `stage_*` temporary tables but if there is a discrepancy a summary of those is also printed out to help in finding where the issue is. The examples below use the `re_shipment_type_prices` table as an example.
 
@@ -44,17 +44,17 @@ Pricing parser output example:
 2020/02/07 23:05:42    re_shipment_type_prices (ReShipmentTypePrice): 7
 ```
 
-### 2. Verify first and last row matches
+### 2. Verify two row matches
 
-If the number of rows matches you can then move to verifying the first and last row are as expected.
+If the number of rows matches you can then move to verifying the two rows are as expected.
 
-Pricing parser output example with first and last row:
+Pricing parser output example with first and second row:
 
 ```sh
 2020/02/07 23:05:42    ---
 2020/02/07 23:05:42    re_shipment_type_prices (ReShipmentTypePrice): 7
 2020/02/07 23:05:42      first: {ID:9af2b8c0-153f-4069-9f75-aa3983ebbecd ContractID:111058a8-a5de-424f-921a-932fa35a6a2a ServiceID:dbd3a39a-6bb9-42da-b81a-9229df7019cf Market:C Factor:1.2 CreatedAt:2020-02-07 23:05:42.034574 +0000 +0000 UpdatedAt:2020-02-07 23:05:42.034576 +0000 +0000 Contract:{ID:00000000-0000-0000-0000-000000000000 Code: Name: CreatedAt:0001-01-01 00:00:00 +0000 UTC UpdatedAt:0001-01-01 00:00:00 +0000 UTC} Service:{ID:00000000-0000-0000-0000-000000000000 Code: Name: CreatedAt:0001-01-01 00:00:00 +0000 UTC UpdatedAt:0001-01-01 00:00:00 +0000 UTC}}
-2020/02/07 23:05:42       last: {ID:1900c460-1e51-478b-82d2-64a072210be8 ContractID:111058a8-a5de-424f-921a-932fa35a6a2a ServiceID:874cb86a-bc39-4f57-a614-53ee3fcacf14 Market:O Factor:1.45 CreatedAt:2020-02-07 23:05:42.065301 +0000 +0000 UpdatedAt:2020-02-07 23:05:42.065303 +0000 +0000 Contract:{ID:00000000-0000-0000-0000-000000000000 Code: Name: CreatedAt:0001-01-01 00:00:00 +0000 UTC UpdatedAt:0001-01-01 00:00:00 +0000 UTC} Service:{ID:00000000-0000-0000-0000-000000000000 Code: Name: CreatedAt:0001-01-01 00:00:00 +0000 UTC UpdatedAt:0001-01-01 00:00:00 +0000 UTC}}
+2020/02/07 23:05:42       second: {ID:1900c460-1e51-478b-82d2-64a072210be8 ContractID:111058a8-a5de-424f-921a-932fa35a6a2a ServiceID:874cb86a-bc39-4f57-a614-53ee3fcacf14 Market:O Factor:1.45 CreatedAt:2020-02-07 23:05:42.065301 +0000 +0000 UpdatedAt:2020-02-07 23:05:42.065303 +0000 +0000 Contract:{ID:00000000-0000-0000-0000-000000000000 Code: Name: CreatedAt:0001-01-01 00:00:00 +0000 UTC UpdatedAt:0001-01-01 00:00:00 +0000 UTC} Service:{ID:00000000-0000-0000-0000-000000000000 Code: Name: CreatedAt:0001-01-01 00:00:00 +0000 UTC UpdatedAt:0001-01-01 00:00:00 +0000 UTC}}
 ```
 
 ## Useful Command Options

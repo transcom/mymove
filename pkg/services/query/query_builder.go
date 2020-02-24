@@ -305,6 +305,7 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, a
 	return nil
 }
 
+// Count returns a count from a filter
 func (p *Builder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
@@ -331,6 +332,7 @@ func (p *Builder) Count(model interface{}, filters []services.QueryFilter) (int,
 	return count, nil
 }
 
+// CreateOne creates exactly one model
 func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
@@ -344,6 +346,7 @@ func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 	return nil, nil
 }
 
+// StaleIdentifierError is used when optimistic locking determines that the identifier refers to stale data
 type StaleIdentifierError struct {
 	StaleIdentifier string
 }
@@ -352,6 +355,7 @@ func (e StaleIdentifierError) Error() string {
 	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
 }
 
+// UpdateOne updates exactly one model
 func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
@@ -410,6 +414,7 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 	return nil, nil
 }
 
+// FetchCategoricalCountsFromOneModel returns categorical counts from exactly one model
 func (p *Builder) FetchCategoricalCountsFromOneModel(model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
 	conn := p.db
 	t := reflect.TypeOf(model)
@@ -420,6 +425,7 @@ func (p *Builder) FetchCategoricalCountsFromOneModel(model interface{}, filters 
 	return categoricalCounts, nil
 }
 
+// QueryForAssociations builds a query for associations
 func (p *Builder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {

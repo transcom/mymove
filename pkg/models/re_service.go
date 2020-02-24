@@ -9,20 +9,32 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// ReServiceName is a type of service name
 type ReServiceName string
 
 const (
-	DomesticLinehaul           ReServiceName = "Dom. Linehaul"
-	FuelSurcharge              ReServiceName = "Fuel Surcharge"
-	DomesticOriginPrice        ReServiceName = "Dom. Origin Price"
-	DomesticDestinationPrice   ReServiceName = "Dom. Destination Price"
-	DomesticPacking            ReServiceName = "Dom. Packing"
-	DomesticUnpacking          ReServiceName = "Dom. Unpacking"
-	DomesticShorthaul          ReServiceName = "Dom. Shorthaul"
-	DomesticNTSPackingFactor   ReServiceName = "Dom. NTS Packing Factor"
-	DomesticMobileHomeFactor   ReServiceName = "Dom. Mobile Home Factor"
+	// DomesticLinehaul is a Service Name for  Domestic Linehaul
+	DomesticLinehaul ReServiceName = "Dom. Linehaul"
+	// FuelSurcharge is a Service Name for  Fuel Surchage
+	FuelSurcharge ReServiceName = "Fuel Surcharge"
+	// DomesticOriginPrice is a Service Name for Domestic Origin Price
+	DomesticOriginPrice ReServiceName = "Dom. Origin Price"
+	// DomesticDestinationPrice  is a Service Name for Domestic Destination Price
+	DomesticDestinationPrice ReServiceName = "Dom. Destination Price"
+	// DomesticPacking a Service Name for Domestic Packing
+	DomesticPacking ReServiceName = "Dom. Packing"
+	// DomesticUnpacking is a Service Name for Domestic Unpacking
+	DomesticUnpacking ReServiceName = "Dom. Unpacking"
+	// DomesticShorthaul is a Service Name for Domestic Shorthaul
+	DomesticShorthaul ReServiceName = "Dom. Shorthaul"
+	// DomesticNTSPackingFactor is a Service Name for Domestic NTS Packing Factor
+	DomesticNTSPackingFactor ReServiceName = "Dom. NTS Packing Factor"
+	// DomesticMobileHomeFactor is a Service Name for Domestic Mobile Home Factor
+	DomesticMobileHomeFactor ReServiceName = "Dom. Mobile Home Factor"
+	// DomesticHaulAwayBoatFactor is a Service Name for Domestic Haul Away Boat Factor
 	DomesticHaulAwayBoatFactor ReServiceName = "Dom. Haul Away Boat Factor"
-	DomesticTowAwayBoatFactor  ReServiceName = "Dom. Tow Away Boat Factor"
+	// DomesticTowAwayBoatFactor is a Service Name for Domestic Tow Away Boat Factor
+	DomesticTowAwayBoatFactor ReServiceName = "Dom. Tow Away Boat Factor"
 )
 
 // ReService model struct

@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+// UpdateMTOShipmentStatusQueryBuilder is the query builder for updating MTO Shipments
 type UpdateMTOShipmentStatusQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
@@ -24,6 +25,7 @@ type mtoShipmentStatusUpdater struct {
 	siCreator services.MTOServiceItemCreator
 }
 
+// UpdateMTOShipmentStatus updates MTO Shipment Status
 func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 
@@ -196,43 +198,52 @@ func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServ
 	return serviceItems
 }
 
+// NewMTOShipmentStatusUpdater creates a new MTO Shipment Status Updater
 func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentStatusQueryBuilder, siCreator services.MTOServiceItemCreator) services.MTOShipmentStatusUpdater {
 	return &mtoShipmentStatusUpdater{db, builder, siCreator}
 }
 
+// ConflictStatusError returns an error for a conflict in status
 type ConflictStatusError struct {
 	id                   uuid.UUID
 	transitionFromStatus models.MTOShipmentStatus
 	transitionToStatus   models.MTOShipmentStatus
 }
 
+// Error is the string representation of the error
 func (e ConflictStatusError) Error() string {
 	return fmt.Sprintf("shipment with id '%s' can not transition status from '%s' to '%s'. Must be in status '%s'.",
 		e.id.String(), e.transitionFromStatus, e.transitionToStatus, models.MTOShipmentStatusSubmitted)
 }
 
+// NotFoundError is the not found error
 type NotFoundError struct {
 	id uuid.UUID
 }
 
+// Error is the string representation of the error
 func (e NotFoundError) Error() string {
 	return fmt.Sprintf("shipment with id '%s' not found", e.id.String())
 }
 
+// ValidationError is the validation error
 type ValidationError struct {
 	id    uuid.UUID
 	Verrs *validate.Errors
 }
 
+// Error is the string representation of the validation error
 func (e ValidationError) Error() string {
 	return fmt.Sprintf("shipment with id: '%s' could not be updated due to a validation error", e.id.String())
 }
 
+// PreconditionFailedError is the precondition failed error
 type PreconditionFailedError struct {
 	id  uuid.UUID
 	Err error
 }
 
+// Error is the string representation of the precondition failed error
 func (e PreconditionFailedError) Error() string {
 	return fmt.Sprintf("shipment with id: '%s' could not be updated due to the record being stale", e.id.String())
 }

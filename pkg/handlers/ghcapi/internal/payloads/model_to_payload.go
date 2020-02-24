@@ -10,10 +10,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// MoveTaskOrder payload
 func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
 		return nil
 	}
+
 	payload := &ghcmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
@@ -26,6 +28,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 	return payload
 }
 
+// Customer payload
 func Customer(customer *models.Customer) *ghcmessages.Customer {
 	if customer == nil {
 		return nil
@@ -45,6 +48,7 @@ func Customer(customer *models.Customer) *ghcmessages.Customer {
 	return &payload
 }
 
+// MoveOrder payload
 func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	if moveOrder == nil {
 		return nil
@@ -89,6 +93,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	return &payload
 }
 
+// Entitlement payload
 func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement == nil {
 		return nil
@@ -126,6 +131,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	}
 }
 
+// DutyStation payload
 func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
 	if dutyStation == nil {
 		return nil
@@ -140,6 +146,7 @@ func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
 	return &payload
 }
 
+// Address payload
 func Address(address *models.Address) *ghcmessages.Address {
 	if address == nil {
 		return nil
@@ -156,6 +163,7 @@ func Address(address *models.Address) *ghcmessages.Address {
 	}
 }
 
+// MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	strfmt.MarshalFormat = strfmt.RFC3339Micro
 	payload := &ghcmessages.MTOShipment{
@@ -181,6 +189,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	return payload
 }
 
+// MTOShipmentWithEtag payload
 func MTOShipmentWithEtag(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipmentWithEtag {
 	return &ghcmessages.MTOShipmentWithEtag{
 		MTOShipment: ghcmessages.MTOShipment{
@@ -197,6 +206,7 @@ func MTOShipmentWithEtag(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipme
 	}
 }
 
+// MTOShipments payload
 func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 

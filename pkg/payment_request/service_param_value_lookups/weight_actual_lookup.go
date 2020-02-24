@@ -1,5 +1,6 @@
 package serviceparamvaluelookups
 
+// WeightActualLookup is the weight actual lookup
 type WeightActualLookup struct {
 }
 

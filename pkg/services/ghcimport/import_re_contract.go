@@ -42,7 +42,7 @@ func (gre *GHCRateEngineImporter) importREContract(dbTx *pop.Connection) error {
 		return fmt.Errorf("could not save contract [%+v]: %w", contract, err)
 	}
 
-	gre.contractID = contract.ID
+	gre.ContractID = contract.ID
 
 	return nil
 }
