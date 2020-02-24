@@ -12,6 +12,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 	if moveTaskOrder == nil {
 		return nil
 	}
+
 	payload := &ghcmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),

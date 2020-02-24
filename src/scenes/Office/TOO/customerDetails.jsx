@@ -124,6 +124,8 @@ class CustomerDetails extends Component {
               <dd>{get(moveTaskOrder, 'isAvailableToPrime').toString()}</dd>
               <dt>Is Canceled</dt>
               <dd>{get(moveTaskOrder, 'isCanceled', false).toString()}</dd>
+              <dt>Reference ID</dt>
+              <dd>{get(moveTaskOrder, 'referenceId', '').toString()}</dd>
             </dl>
 
             <h2>Requested Shipments</h2>
