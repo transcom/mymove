@@ -25,6 +25,7 @@ Using E-tags provides us with a simple way to prevent users from updating stale 
 - The client sends a `PUT` or `PATCH` along with the record's base64 encoded E-tag in the `If-Match` header of the request.
 - We query for the given record's `updated_at` value in the database, base64 encode it and compare it against the `If-Match` header.
 - If they don't match, we return a `412 Precondition Failed`, indicating to the client that they need to re-fetch the record that they're attempting to update.
+- If they do match, we update the record and return the updated payload **including the new E-tag as a part of the payload body**
 
 ## Pros and Cons of the Alternatives
 

@@ -71,5 +71,7 @@ if err != nil {
     return widgetops.NewPatchWidgetInternalServerError()
   }
 }
+
+return widgetops.NewPatchWidgetOk().WithPayload(widget) // make sure payload includes updated E-tag.
 //...
 ```
