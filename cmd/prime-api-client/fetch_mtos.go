@@ -56,7 +56,7 @@ func fetchMTOs(cmd *cobra.Command, args []string) error {
 
 	primeGateway, err := CreateClient(cmd, v, args)
 	if err != nil {
-		return nil
+		logger.Fatal(err)
 	}
 
 	var params mto.FetchMTOUpdatesParams

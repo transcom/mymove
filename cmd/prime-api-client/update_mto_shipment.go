@@ -104,7 +104,7 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 
 	primeGateway, err := CreateClient(cmd, v, args)
 	if err != nil {
-		return err
+		logger.Fatal(err)
 	}
 
 	// Use command line inputs
