@@ -178,8 +178,6 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	myRuntime.EnableConnectionReuse()
 	myRuntime.SetDebug(verbose)
 
-	primeGateway := primeClient.New(myRuntime, nil)
-
 	params := mtoShipment.UpdateMTOShipmentParams{
 		MoveTaskOrderID:   strfmt.UUID(mtoID),
 		MtoShipmentID:     strfmt.UUID(mtoShipmentID),
@@ -187,6 +185,9 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 		Body:              &shipment,
 	}
 	params.SetTimeout(time.Second * 30)
+
+	primeGateway := primeClient.New(myRuntime, nil)
+
 	resp, errUpdateMTOShipment := primeGateway.MtoShipment.UpdateMTOShipment(&params)
 	if errUpdateMTOShipment != nil {
 		// If the response cannot be parsed as JSON you may see an error like
