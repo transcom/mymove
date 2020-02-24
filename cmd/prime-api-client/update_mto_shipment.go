@@ -2,16 +2,13 @@ package main
 
 import (
 	"bufio"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	runtimeClient "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -19,7 +16,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/cli"
-	primeClient "github.com/transcom/mymove/pkg/gen/primeclient"
 	mtoShipment "github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
@@ -118,54 +114,12 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
-	// Use command line inputs
-	hostname := v.GetString(cli.HostnameFlag)
-	port := v.GetInt(cli.PortFlag)
-	insecure := v.GetBool(cli.InsecureFlag)
-
-	var httpClient *http.Client
-
-	// The client certificate comes from a smart card
-	if v.GetBool(cli.CACFlag) {
-		store, errStore := cli.GetCACStore(v)
-		if errStore != nil {
-			log.Fatal(errStore)
-		}
-		defer store.Close()
-		cert, errTLSCert := store.TLSCertificate()
-		if errTLSCert != nil {
-			log.Fatal(errTLSCert)
-		}
-
-		// #nosec b/c gosec triggers on InsecureSkipVerify
-		tlsConfig := &tls.Config{
-			Certificates:       []tls.Certificate{*cert},
-			InsecureSkipVerify: insecure,
-			MinVersion:         tls.VersionTLS12,
-			MaxVersion:         tls.VersionTLS12,
-		}
-		tlsConfig.BuildNameToCertificate()
-		transport := &http.Transport{
-			TLSClientConfig: tlsConfig,
-		}
-		httpClient = &http.Client{
-			Transport: transport,
-		}
-	} else if !v.GetBool(cli.CACFlag) {
-		certPath := v.GetString(cli.CertPathFlag)
-		keyPath := v.GetString(cli.KeyPathFlag)
-
-		var errRuntimeClientTLS error
-		httpClient, errRuntimeClientTLS = runtimeClient.TLSClient(runtimeClient.TLSClientOptions{
-			Key:                keyPath,
-			Certificate:        certPath,
-			InsecureSkipVerify: insecure})
-		if errRuntimeClientTLS != nil {
-			log.Fatal(errRuntimeClientTLS)
-		}
+	primeGateway, err := CreateClient(v)
+	if err != nil {
+		logger.Fatal(err)
 	}
 
-	verbose := v.GetBool(cli.VerboseFlag)
+	// Use command line inputs
 	mtoID := v.GetString(MTOIDFlag)
 	mtoShipmentID := v.GetString(MTOShipmentIDFlag)
 	unmodifiedSince := v.GetTime(UnmodifiedSinceFlag)
@@ -178,11 +132,6 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "decoding data failed")
 	}
 
-	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
-	myRuntime := runtimeClient.NewWithClient(hostWithPort, primeClient.DefaultBasePath, []string{"https"}, httpClient)
-	myRuntime.EnableConnectionReuse()
-	myRuntime.SetDebug(verbose)
-
 	params := mtoShipment.UpdateMTOShipmentParams{
 		MoveTaskOrderID:   strfmt.UUID(mtoID),
 		MtoShipmentID:     strfmt.UUID(mtoShipmentID),
@@ -190,8 +139,6 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 		Body:              &shipment,
 	}
 	params.SetTimeout(time.Second * 30)
-
-	primeGateway := primeClient.New(myRuntime, nil)
 
 	resp, errUpdateMTOShipment := primeGateway.MtoShipment.UpdateMTOShipment(&params)
 	if errUpdateMTOShipment != nil {
