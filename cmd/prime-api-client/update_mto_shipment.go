@@ -97,14 +97,14 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	//Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	err := checkUpdateMTOShipmentConfig(v, logger)
-	if err != nil {
-		logger.Fatal(err)
-	}
-
 	primeGateway, err := CreateClient(cmd, v, args)
 	if err != nil {
 		return err
+	}
+
+	err = checkUpdateMTOShipmentConfig(v, logger)
+	if err != nil {
+		logger.Fatal(err)
 	}
 
 	// Use command line inputs
