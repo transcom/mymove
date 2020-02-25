@@ -20,7 +20,6 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateArea(action string) {
 	texas, err = models.FetchReRateAreaItem(suite.DB(), contract.ID, "US68")
 	suite.NoError(err)
 	suite.Equal(true, suite.NotNil(texas))
-	fmt.Printf("\nFetch US6B rate area %v\n\n", texas)
 	suite.Equal("Texas-South", texas.Name)
 
 	// Update oconus US8101000 name "Alaska (Zone) I" to something else and verify it was changed back when done

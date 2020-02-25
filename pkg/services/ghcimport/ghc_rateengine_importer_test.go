@@ -60,20 +60,16 @@ func (suite *GHCRateEngineImportSuite) TearDownSuite() {
 }
 
 func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
-	fmt.Print("Importing stage data...")
 	path := filepath.Join("fixtures", "stage_ghc_pricing.sql")
 	c, ioErr := ioutil.ReadFile(filepath.Clean(path))
 	suite.NoError(ioErr)
 
 	sql := string(c)
 	err := suite.DB().RawQuery(sql).Exec()
-	if suite.NoError(err) {
-		fmt.Println(" success")
-	}
+	suite.NoError(err)
 }
 
 func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
-	fmt.Print("Importing re_services data...")
 	path := filepath.Join("./fixtures", "20191101201107_create-re-services-table-with-values.up.sql")
 	c, ioErr := ioutil.ReadFile(filepath.Clean(path))
 	suite.NoError(ioErr)
@@ -88,9 +84,7 @@ func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
 
 		sql := string(c)
 		err := suite.DB().RawQuery(sql).Exec()
-		if suite.NoError(err) {
-			fmt.Println(" success")
-		}
+		suite.NoError(err)
 	}
 }
 
