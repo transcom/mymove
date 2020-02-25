@@ -6,12 +6,12 @@ import store from 'shared/store';
 import { HashRouter as Router } from 'react-router-dom';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 
-function mountComponents(moreWeightTickets = 'Yes', formInvalid, uploderWithInvalidState) {
+function mountComponents(moreWeightTickets = 'Yes', formInvalid, uploderWithInvalidState, weightTicketType = 'CAR') {
   const initialValues = {
     empty_weight: 1100,
     full_weight: 2000,
-    vehicle_nickname: 'KIRBY',
-    weight_ticket_set_type: 'CAR',
+    // vehicle_nickname: 'KIRBY',
+    // weight_ticket_set_type: 'CAR',
     weight_ticket_date: '2019-05-22',
   };
   const match = { params: { moveId: 'someID' } };
@@ -43,6 +43,30 @@ describe('Weight tickets page', () => {
       expect(buttonGroup.length).toEqual(1);
       expect(saveAndAdd.props().disabled).toEqual(true);
       expect(finishLater.props().disabled).not.toEqual(true);
+    });
+  });
+  describe('Service member chooses CAR as weight ticket type', () => {
+    it.skip('renders vehicle make and model fields', () => {
+      const weightTicket = mountComponents('No', true, true, 'CAR');
+      const vehicleNickname = weightTicket.find('input[data-cy="vehicle_nickname"]');
+      const vehicleMake = weightTicket.find('input[data-cy="vehicle_make"]');
+      const vehicleModel = weightTicket.find('input[data-cy="vehicle_model"]');
+
+      expect(vehicleNickname.length).toEqual(0);
+      expect(vehicleMake.length).toEqual(1);
+      expect(vehicleModel.length).toEqual(1);
+    });
+  });
+  describe('Service member chooses BOX TRUCK as weight ticket type', () => {
+    it.skip('renders vehicle nickname field', () => {
+      const weightTicket = mountComponents('No', 'BOX_TRUCK');
+      const vehicleNickname = weightTicket.find('input[data-cy="vehicle_nickname"]');
+      const vehicleMake = weightTicket.find('input[data-cy="vehicle_make"]');
+      const vehicleModel = weightTicket.find('input[data-cy="vehicle_model"]');
+
+      expect(vehicleNickname.length).toEqual(1);
+      expect(vehicleMake.length).toEqual(0);
+      expect(vehicleModel.length).toEqual(0);
     });
   });
   describe('Service member has uploaded both a weight tickets', () => {
