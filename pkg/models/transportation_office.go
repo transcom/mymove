@@ -56,6 +56,7 @@ func (t *TransportationOffice) ValidateUpdate(tx *pop.Connection) (*validate.Err
 	return validate.NewErrors(), nil
 }
 
+// FetchNearestTransportationOffice fetches the nearest transportation office
 func FetchNearestTransportationOffice(tx *pop.Connection, long float32, lat float32) (TransportationOffice, error) {
 	var to TransportationOffice
 

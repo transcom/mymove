@@ -51,7 +51,7 @@ type MoveTaskOrder struct {
 	PaymentRequests PaymentRequests `json:"payment_requests"`
 
 	// reference Id
-	ReferenceID *string `json:"referenceId,omitempty"`
+	ReferenceID string `json:"referenceId,omitempty"`
 
 	// updated at
 	// Format: date

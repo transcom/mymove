@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// MakeGrade makes a service member grade
 func MakeGrade() string {
 	grades := [28]string{"E_1",
 		"E_2",

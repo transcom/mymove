@@ -585,7 +585,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
 	}
-	handlerContext.SetIWSPersonLookup(*rbs)
+	handlerContext.SetIWSPersonLookup(rbs)
 
 	dpsAuthSecretKey := v.GetString(cli.DPSAuthSecretKeyFlag)
 	dpsCookieDomain := v.GetString(cli.DPSCookieDomainFlag)

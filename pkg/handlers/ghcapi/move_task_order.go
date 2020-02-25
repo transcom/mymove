@@ -22,7 +22,7 @@ type GetMoveTaskOrderHandler struct {
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
-// GetMoveTaskOrderHandler updates the status of a MoveTaskOrder
+// Handle updates the status of a MoveTaskOrder
 func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -49,7 +49,7 @@ type UpdateMoveTaskOrderStatusHandlerFunc struct {
 	moveTaskOrderStatusUpdater services.MoveTaskOrderStatusUpdater
 }
 
-// UpdateMoveTaskOrderStatusHandlerFunc updates the status of a MoveTaskOrder
+// Handle updates the status of a MoveTaskOrder
 func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 

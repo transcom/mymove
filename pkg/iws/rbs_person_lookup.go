@@ -14,6 +14,7 @@ import (
 
 	"github.com/spf13/viper"
 	"go.mozilla.org/pkcs7"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/cli"
 )
@@ -253,10 +254,20 @@ func recordFromResponse(data []byte) (Record, error) {
 }
 
 // InitRBSPersonLookup is the RBS Person Lookup service
-func InitRBSPersonLookup(v *viper.Viper, logger Logger) (*RBSPersonLookup, error) {
-	return NewRBSPersonLookup(
-		v.GetString(cli.IWSRBSHostFlag),
-		v.GetString(cli.DoDCAPackageFlag),
-		v.GetString(cli.MoveMilDoDTLSCertFlag),
-		v.GetString(cli.MoveMilDoDTLSKeyFlag))
+func InitRBSPersonLookup(v *viper.Viper, logger Logger) (PersonLookup, error) {
+	if v.GetBool(cli.IWSRBSEnabledFlag) {
+		logger.Debug("Enabling IWS RBS Person Lookup")
+		rbs, err := NewRBSPersonLookup(
+			v.GetString(cli.IWSRBSHostFlag),
+			v.GetString(cli.DoDCAPackageFlag),
+			v.GetString(cli.MoveMilDoDTLSCertFlag),
+			v.GetString(cli.MoveMilDoDTLSKeyFlag))
+		if err != nil {
+			return nil, err
+		}
+		logger.Debug("IWS RBS Client Initialized", zap.String("host", rbs.Host))
+		return rbs, nil
+	}
+	logger.Debug("Local Test IWS RBS Client Initialized (Fake data only!)")
+	return NewTestingPersonLookup()
 }

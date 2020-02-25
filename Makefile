@@ -838,6 +838,11 @@ pre_commit_tests: .client_deps.stamp bin/swagger ## Run pre-commit tests
 pretty: gofmt ## Run code through JS and Golang formatters
 	npx prettier --write --loglevel warn "src/**/*.{js,jsx}"
 
+.PHONY: docker_circleci
+docker_circleci: ## Run CircleCI container locally with project mounted
+	docker pull trussworks/circleci-docker-primary:latest
+	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 trussworks/circleci-docker-primary:latest bash
+
 .PHONY: prune_images
 prune_images:  ## Prune docker images
 	@echo '****************'

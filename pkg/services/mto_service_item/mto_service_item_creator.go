@@ -15,6 +15,7 @@ type mtoServiceItemCreator struct {
 	builder createMTOServiceItemQueryBuilder
 }
 
+// CreateMTOServiceItem creates an MTO Service Item
 func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItem, *validate.Errors, error) {
 	verrs, err := o.builder.CreateOne(serviceItem)
 	if verrs != nil || err != nil {
@@ -24,6 +25,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	return serviceItem, nil, nil
 }
 
+// NewMTOServiceItemCreator returns a new MTO service item creator
 func NewMTOServiceItemCreator(builder createMTOServiceItemQueryBuilder) services.MTOServiceItemCreator {
 	return &mtoServiceItemCreator{builder}
 }

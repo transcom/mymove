@@ -7,6 +7,11 @@ const edipi = 1234567890
 // TestingPersonLookup is a mock of RBS that returns dummy data
 type TestingPersonLookup struct{}
 
+// NewTestingPersonLookup returns a new Testing Person Lookup
+func NewTestingPersonLookup() (*TestingPersonLookup, error) {
+	return &TestingPersonLookup{}, nil
+}
+
 // GetPersonUsingEDIPI returns a static dummy RBS result
 func (r TestingPersonLookup) GetPersonUsingEDIPI(edipi uint64) (*Person, []Personnel, error) {
 	return getTestPerson(), []Personnel{getTestPersonnel()}, nil

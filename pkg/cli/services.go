@@ -19,7 +19,7 @@ const (
 	ServeDPSFlag string = "serve-dps"
 	// ServeAPIInternalFlag is the internal api service flag
 	ServeAPIInternalFlag string = "serve-api-internal"
-	// ServeGHCAPIFlag is the ghc api service flag
+	// ServeGHCFlag is the ghc api service flag
 	ServeGHCFlag string = "serve-api-ghc"
 	// ServePrimeFlag is the prime api flag
 	ServePrimeFlag string = "serve-api-prime"

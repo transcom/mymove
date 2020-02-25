@@ -101,7 +101,7 @@ func (suite *webServerSuite) loadContext(variablesFile string) map[string]string
 			suite.logger.Fatal(fmt.Sprintf("File %q does not exist", variablesFile))
 		}
 		// Read contents of variables file into vars
-		vars, err := ioutil.ReadFile(variablesFile)
+		vars, err := ioutil.ReadFile(filepath.Clean(variablesFile))
 		if err != nil {
 			suite.logger.Fatal(fmt.Sprintf("error reading variables from file %s", variablesFile))
 		}

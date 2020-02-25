@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-//ErrNotFound is returned when a given move task order is not found
+// ErrNotFound is returned when a given move task order is not found
 type ErrNotFound struct {
 	id uuid.UUID
 }
@@ -32,6 +32,7 @@ type ErrInvalidInput struct {
 	errInvalidInput
 }
 
+// NewErrInvalidInput returns an error for invalid input
 func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string) ErrInvalidInput {
 	return ErrInvalidInput{
 		errInvalidInput{
@@ -46,6 +47,7 @@ func (e ErrInvalidInput) Error() string {
 	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.InvalidFields())
 }
 
+// InvalidFields returns invalid fields for input
 func (e ErrInvalidInput) InvalidFields() map[string]string {
 	es := make(map[string]string)
 	if e.validationErrors == nil {

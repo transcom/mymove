@@ -11,7 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// ReTaskOrderPrice model struct
+// ReTaskOrderFee model struct
 type ReTaskOrderFee struct {
 	ID             uuid.UUID  `json:"id" db:"id"`
 	ContractYearID uuid.UUID  `json:"contract_year_id" db:"contract_year_id"`
@@ -25,7 +25,7 @@ type ReTaskOrderFee struct {
 	Service      ReService      `belongs_to:"re_service"`
 }
 
-// ReTaskOrderPrices is not required by pop and may be deleted
+// ReTaskOrderFees is not required by pop and may be deleted
 type ReTaskOrderFees []ReTaskOrderFee
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

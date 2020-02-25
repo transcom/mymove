@@ -1,17 +1,15 @@
 package mtoshipment
 
 import (
+	"encoding/base64"
 	"fmt"
 	"testing"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
-	"github.com/go-openapi/strfmt"
-
-	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -47,11 +45,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		},
 	})
 	shipment.Status = models.MTOShipmentStatusSubmitted
-	params := mtoshipmentops.PatchMTOShipmentStatusParams{
-		ShipmentID:        strfmt.UUID(shipment.ID.String()),
-		IfUnmodifiedSince: strfmt.DateTime(shipment.UpdatedAt),
-		Body:              &ghcmessages.MTOShipment{Status: "APPROVED"},
-	}
+	eTag := base64.StdEncoding.EncodeToString([]byte(shipment.UpdatedAt.Format(time.RFC3339Nano)))
+	status := models.MTOShipmentStatusApproved
 	//Need some values for reServices
 	reServiceNames := []models.ReServiceName{
 		models.DomesticLinehaul,
@@ -78,7 +73,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	updater := NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator)
 
 	suite.T().Run("If we get a mto shipment pointer with a status it should update and return no error", func(t *testing.T) {
-		_, err := updater.UpdateMTOShipmentStatus(params)
+		_, err := updater.UpdateMTOShipmentStatus(shipment.ID, status, nil, eTag)
 		serviceItems := models.MTOServiceItems{}
 		_ = suite.DB().All(&serviceItems)
 		shipments := models.MTOShipment{}
@@ -87,83 +82,55 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.T().Run("Update MTO Shipment SUBMITTED status to REJECTED with a rejection reason should return no error", func(t *testing.T) {
+		eTag = base64.StdEncoding.EncodeToString([]byte(shipment2.UpdatedAt.Format(time.RFC3339Nano)))
 		rejectionReason := "Rejection reason"
-		params = mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID(shipment2.ID.String()),
-			IfUnmodifiedSince: strfmt.DateTime(shipment2.UpdatedAt),
-			Body:              &ghcmessages.MTOShipment{Status: "REJECTED", RejectionReason: handlers.FmtString(rejectionReason)},
-		}
-		returnedShipment, err := updater.UpdateMTOShipmentStatus(params)
+		returnedShipment, err := updater.UpdateMTOShipmentStatus(shipment2.ID, "REJECTED", &rejectionReason, eTag)
 		suite.NoError(err)
+		suite.NotNil(returnedShipment)
 		suite.Equal(models.MTOShipmentStatusRejected, returnedShipment.Status)
 		suite.Equal(&rejectionReason, returnedShipment.RejectionReason)
 	})
 
 	suite.T().Run("Update MTO Shipment status to REJECTED with no rejection reason should return error", func(t *testing.T) {
-		params = mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID(shipment3.ID.String()),
-			IfUnmodifiedSince: strfmt.DateTime(shipment3.UpdatedAt),
-			Body:              &ghcmessages.MTOShipment{Status: ghcmessages.MTOShipmentStatusREJECTED, RejectionReason: nil},
-		}
-		_, err := updater.UpdateMTOShipmentStatus(params)
+		eTag = base64.StdEncoding.EncodeToString([]byte(shipment3.UpdatedAt.Format(time.RFC3339Nano)))
+		_, err := updater.UpdateMTOShipmentStatus(shipment3.ID, "REJECTED", nil, eTag)
 		suite.Error(err)
 		fmt.Printf("%#v", err)
 		suite.IsType(ValidationError{}, err)
 	})
 
 	suite.T().Run("Update MTO Shipment in APPROVED status should return error", func(t *testing.T) {
-		params := mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID(approvedShipment.ID.String()),
-			IfUnmodifiedSince: strfmt.DateTime(approvedShipment.UpdatedAt),
-			Body:              &ghcmessages.MTOShipment{Status: ghcmessages.MTOShipmentStatusREJECTED, RejectionReason: handlers.FmtString("Rejection reason")},
-		}
-		_, err := updater.UpdateMTOShipmentStatus(params)
+		rejectionReason := "Rejection reason"
+		_, err := updater.UpdateMTOShipmentStatus(approvedShipment.ID, "REJECTED", &rejectionReason, eTag)
 		suite.Error(err)
 	})
 
 	suite.T().Run("Update MTO Shipment in REJECTED status should return error", func(t *testing.T) {
-		params := mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID(rejectedShipment.ID.String()),
-			IfUnmodifiedSince: strfmt.DateTime(rejectedShipment.UpdatedAt),
-			Body:              &ghcmessages.MTOShipment{Status: ghcmessages.MTOShipmentStatusAPPROVED},
-		}
-		_, err := updater.UpdateMTOShipmentStatus(params)
+		_, err := updater.UpdateMTOShipmentStatus(rejectedShipment.ID, "APPROVED", nil, eTag)
 		suite.Error(err)
 	})
 
 	suite.T().Run("Passing in a stale identifier", func(t *testing.T) {
-		params := mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID(shipment4.ID.String()),
-			IfUnmodifiedSince: strfmt.DateTime(time.Now()), // Stale identifier
-			Body:              &ghcmessages.MTOShipment{Status: "APPROVED"},
-		}
+		staleETag := base64.StdEncoding.EncodeToString([]byte(time.Now().String()))
 
-		_, err := updater.UpdateMTOShipmentStatus(params)
+		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "APPROVED", nil, staleETag)
 		suite.Error(err)
 		suite.IsType(PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Passing in an invalid status", func(t *testing.T) {
-		params := mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID(shipment4.ID.String()),
-			IfUnmodifiedSince: strfmt.DateTime(time.Now()), // Stale identifier
-			Body:              &ghcmessages.MTOShipment{Status: "invalid"},
-		}
+		eTag = base64.StdEncoding.EncodeToString([]byte(shipment4.UpdatedAt.Format(time.RFC3339Nano)))
 
-		_, err := updater.UpdateMTOShipmentStatus(params)
+		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "invalid", nil, eTag)
 		suite.Error(err)
 		fmt.Printf("%#v", err)
 		suite.IsType(ValidationError{}, err)
 	})
 
 	suite.T().Run("Passing in a bad shipment id", func(t *testing.T) {
-		params := mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID("424d930b-cf8d-4c10-8059-be8a25ba952a"),
-			IfUnmodifiedSince: strfmt.DateTime(time.Now()), // Stale identifier
-			Body:              &ghcmessages.MTOShipment{Status: "invalid"},
-		}
+		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err := updater.UpdateMTOShipmentStatus(params)
+		_, err := updater.UpdateMTOShipmentStatus(badShipmentID, "APPROVED", nil, eTag)
 		suite.Error(err)
 		fmt.Printf("%#v", err)
 		suite.IsType(NotFoundError{}, err)
@@ -173,14 +140,10 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		shipment5 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MoveTaskOrder: mto,
 		})
-		params := mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID(shipment5.ID.String()),
-			IfUnmodifiedSince: strfmt.DateTime(shipment5.UpdatedAt),
-			Body:              &ghcmessages.MTOShipment{Status: "APPROVED"},
-		}
+		eTag = base64.StdEncoding.EncodeToString([]byte(shipment5.UpdatedAt.Format(time.RFC3339Nano)))
 
 		suite.Nil(shipment5.ApprovedDate)
-		_, err := updater.UpdateMTOShipmentStatus(params)
+		_, err := updater.UpdateMTOShipmentStatus(shipment5.ID, models.MTOShipmentStatusApproved, nil, eTag)
 		suite.NoError(err)
 		suite.DB().Find(&shipment5, shipment5.ID)
 		suite.Equal(models.MTOShipmentStatusApproved, shipment5.Status)
@@ -191,14 +154,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		shipment6 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MoveTaskOrder: mto,
 		})
-		params := mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID(shipment6.ID.String()),
-			IfUnmodifiedSince: strfmt.DateTime(shipment6.UpdatedAt),
-			Body:              &ghcmessages.MTOShipment{Status: "REJECTED", RejectionReason: handlers.FmtString("stuff happens")},
-		}
+		eTag = base64.StdEncoding.EncodeToString([]byte(shipment6.UpdatedAt.Format(time.RFC3339Nano)))
+		rejectionReason := "reason"
 
 		suite.Nil(shipment6.ApprovedDate)
-		_, err := updater.UpdateMTOShipmentStatus(params)
+		_, err := updater.UpdateMTOShipmentStatus(shipment6.ID, models.MTOShipmentStatusRejected, &rejectionReason, eTag)
 		suite.NoError(err)
 		suite.DB().Find(&shipment6, shipment6.ID)
 		suite.Equal(models.MTOShipmentStatusRejected, shipment6.Status)

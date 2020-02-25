@@ -1,5 +1,6 @@
 package serviceparamvaluelookups
 
+// WeightEstimatedLookup is the weight estimated lookup
 type WeightEstimatedLookup struct {
 }
 
