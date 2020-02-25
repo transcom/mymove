@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 
@@ -149,343 +150,63 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 	logger.Info("XLSX to Stage Table Parsing Complete")
 	logger.Info("Summary:")
 
-	// 1b Service Areas
-	stageDomServiceAreas := []models.StageDomesticServiceArea{}
-	err := db.Limit(2).All(&stageDomServiceAreas)
+	tables := []struct {
+		header   string
+		ptrSlice interface{}
+	}{
+		{"1b: Service Areas", &[]models.StageDomesticServiceArea{}},
+		{"1b: Service Areas", &[]models.StageInternationalServiceArea{}},
+		{"2a: Domestic Linehaul Prices", &[]models.StageDomesticLinehaulPrice{}},
+		{"2b: Domestic Service Area Prices", &[]models.StageDomesticServiceAreaPrice{}},
+		{"2c: Other Domestic Prices", &[]models.StageDomesticOtherPackPrice{}},
+		{"2c: Other Domestic Prices", &[]models.StageDomesticOtherSitPrice{}},
+		{"3a: OCONUS to OCONUS Prices", &[]models.StageOconusToOconusPrice{}},
+		{"3b: CONUS to OCONUS Prices", &[]models.StageConusToOconusPrice{}},
+		{"3c: OCONUS to CONUS Prices", &[]models.StageOconusToConusPrice{}},
+		{"3d: Other International Prices", &[]models.StageOtherIntlPrice{}},
+		{"3e: Non-Standard Location Prices", &[]models.StageNonStandardLocnPrice{}},
+		{"4a: Management, Counseling, and Transition Prices", &[]models.StageShipmentManagementServicesPrice{}},
+		{"4a: Management, Counseling, and Transition Prices", &[]models.StageCounselingServicesPrice{}},
+		{"4a: Management, Counseling, and Transition Prices", &[]models.StageTransitionPrice{}},
+		{"5a: Accessorial and Additional Prices", &[]models.StageDomesticMoveAccessorialPrice{}},
+		{"5a: Accessorial and Additional Prices", &[]models.StageInternationalMoveAccessorialPrice{}},
+		{"5a: Accessorial and Additional Prices", &[]models.StageDomesticInternationalAdditionalPrice{}},
+		{"5b: Price Escalation Discount", &[]models.StagePriceEscalationDiscount{}},
+	}
+
+	for _, table := range tables {
+		err := summarizeXlsxStageTable(db, logger, table.header, table.ptrSlice)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func summarizeXlsxStageTable(db *pop.Connection, logger logger, header string, modelSlice interface{}) error {
+	modelType := reflect.TypeOf(modelSlice).Elem().Elem()
+	modelName := modelType.Name()
+	modelInstance := reflect.New(modelType)
+
+	err := db.Limit(2).All(modelSlice)
 	if err != nil {
 		return err
 	}
-	length, err := db.Count(models.StageDomesticServiceArea{})
+	length, err := db.Count(modelInstance.Interface())
 	if err != nil {
 		return err
 	}
 
-	logger.Info("\t1b: Service Areas (StageDomesticServiceArea)", zap.Int("length", length))
+	modelSliceValue := reflect.ValueOf(modelSlice).Elem()
+
+	headerMsg := fmt.Sprintf("\t%s (%s)", header, modelName)
+	logger.Info(headerMsg, zap.Int("length", length))
 	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageDomesticServiceArea", stageDomServiceAreas[0]))
+		logger.Info("\t\tfirst", zap.Any(modelName, modelSliceValue.Index(0).Interface()))
 	}
 	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageDomesticServiceArea", stageDomServiceAreas[1]))
-	}
-	logger.Info("\t---")
-
-	stageIntlServiceAreas := []models.StageInternationalServiceArea{}
-	err = db.Limit(2).All(&stageIntlServiceAreas)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageInternationalServiceArea{})
-	if err != nil {
-		return err
-	}
-
-	logger.Info("\t1b: Service Areas (StageInternationalServiceArea)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageInternationalServiceArea", stageIntlServiceAreas[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageInternationalServiceArea", stageIntlServiceAreas[1]))
-	}
-	logger.Info("\t---")
-
-	// 2a Domestic Linehaul Prices
-	stageDomLinePrices := []models.StageDomesticLinehaulPrice{}
-	err = db.Limit(2).All(&stageDomLinePrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageDomesticLinehaulPrice{})
-	if err != nil {
-		return err
-	}
-
-	logger.Info("\t2a: Domestic Linehaul Prices (StageDomesticLinehaulPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageDomesticLinehaulPrice", stageDomLinePrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageDomesticLinehaulPrice", stageDomLinePrices[1]))
-	}
-	logger.Info("\t---")
-
-	// 2b Domestic Service Area Prices
-	stageDomSerAreaPrices := []models.StageDomesticServiceAreaPrice{}
-	err = db.Limit(2).All(&stageDomSerAreaPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageDomesticServiceAreaPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t2b: Domestic Service Area Prices (StageDomesticServiceAreaPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageDomesticServiceAreaPrice", stageDomSerAreaPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageDomesticServiceAreaPrice", stageDomSerAreaPrices[1]))
-	}
-	logger.Info("\t---")
-
-	// 2c Other Domestic Prices
-	stageDomOtherPackPrices := []models.StageDomesticOtherPackPrice{}
-	err = db.Limit(2).All(&stageDomOtherPackPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageDomesticOtherPackPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t2c: Other Domestic Prices (StageDomesticOtherPackPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageDomesticOtherPackPrice", stageDomOtherPackPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageDomesticOtherPackPrice", stageDomOtherPackPrices[1]))
-	}
-	logger.Info("\t---")
-
-	stageDomOtherSitPrices := []models.StageDomesticOtherSitPrice{}
-	err = db.Limit(2).All(&stageDomOtherSitPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageDomesticOtherSitPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t2c: Other Domestic Prices (StageDomesticOtherSitPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageDomesticOtherSitPrice", stageDomOtherSitPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageDomesticOtherSitPrice", stageDomOtherSitPrices[1]))
-	}
-	logger.Info("\t---")
-
-	// 3a OCONUS to OCONUS Prices
-	stageOconusToOconuses := []models.StageOconusToOconusPrice{}
-	err = db.Limit(2).All(&stageOconusToOconuses)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageOconusToOconusPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t3a: OCONUS to OCONUS Prices (StageOconusToOconusPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageOconusToOconusPrice", stageOconusToOconuses[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageOconusToOconusPrice", stageOconusToOconuses[1]))
-	}
-	logger.Info("\t---")
-
-	// 3b CONUS to OCONUS Prices
-	stageConusToOconuses := []models.StageConusToOconusPrice{}
-	err = db.Limit(2).All(&stageConusToOconuses)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageConusToOconusPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t3b: CONUS to OCONUS Prices (StageConusToOconusPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageConusToOconusPrice", stageConusToOconuses[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageConusToOconusPrice", stageConusToOconuses[1]))
-	}
-	logger.Info("\t---")
-
-	// 3c OCONUS to CONUS Prices
-	stageOconusToConuses := []models.StageOconusToConusPrice{}
-	err = db.Limit(2).All(&stageOconusToConuses)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageOconusToConusPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t3c: OCONUS to CONUS Prices (StageOconusToConusPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageOconusToConusPrice", stageOconusToConuses[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageOconusToConusPrice", stageOconusToConuses[1]))
-	}
-	logger.Info("\t---")
-
-	// 3d Other International Prices
-	stageOtherIntlPrices := []models.StageOtherIntlPrice{}
-	err = db.Limit(2).All(&stageOtherIntlPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageOtherIntlPrice{})
-	if err != nil {
-		return err
-	}
-
-	logger.Info("\t3d: Other International Prices (StageOtherIntlPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageOtherIntlPrice", stageOtherIntlPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageOtherIntlPrice", stageOtherIntlPrices[1]))
-	}
-	logger.Info("\t---")
-
-	// 3e Non-Standard Location Prices
-	stageNonStdLocnPrices := []models.StageNonStandardLocnPrice{}
-	err = db.Limit(2).All(&stageNonStdLocnPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageNonStandardLocnPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t3e: Non-Standard Location Prices (StageNonStandardLocnPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageNonStandardLocnPrice", stageNonStdLocnPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageNonStandardLocnPrice", stageNonStdLocnPrices[1]))
-	}
-	logger.Info("\t---")
-
-	// 4a Management, Counseling, and Transition Prices
-	stageMgmtServicesPrices := []models.StageShipmentManagementServicesPrice{}
-	err = db.Limit(2).All(&stageMgmtServicesPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageShipmentManagementServicesPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t4a: Management, Counseling, and Transition Prices (StageShipmentManagementServicesPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageShipmentManagementServicesPrice", stageMgmtServicesPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageShipmentManagementServicesPrice", stageMgmtServicesPrices[1]))
-	}
-	logger.Info("\t---")
-
-	stageCounselingPrices := []models.StageCounselingServicesPrice{}
-	err = db.Limit(2).All(&stageCounselingPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageCounselingServicesPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t4a: Management, Counseling, and Transition Prices (StageCounselingServicesPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageCounselingServicesPrice", stageCounselingPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageCounselingServicesPrice", stageCounselingPrices[1]))
-	}
-	logger.Info("\t---")
-
-	stageTransitionPrices := []models.StageTransitionPrice{}
-	err = db.Limit(2).All(&stageTransitionPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageTransitionPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t4a: Management, Counseling, and Transition Prices (StageTransitionPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageTransitionPrice", stageTransitionPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageTransitionPrice", stageTransitionPrices[1]))
-	}
-	logger.Info("\t---")
-
-	// 5a Accessorial and Additional Prices
-	stageDomMoveAccessPrices := []models.StageDomesticMoveAccessorialPrice{}
-	err = db.Limit(2).All(&stageDomMoveAccessPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageDomesticMoveAccessorialPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t5a Accessorial and Additional Prices (StageDomesticMoveAccessorialPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageDomesticMoveAccessorialPrice", stageDomMoveAccessPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageDomesticMoveAccessorialPrice", stageDomMoveAccessPrices[1]))
-	}
-	logger.Info("\t---")
-
-	stageIntlMoveAccess := []models.StageInternationalMoveAccessorialPrice{}
-	err = db.Limit(2).All(&stageIntlMoveAccess)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageInternationalMoveAccessorialPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t5a Accessorial and Additional Prices (StageInternationalMoveAccessorialPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageInternationalMoveAccessorialPrice", stageIntlMoveAccess[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageInternationalMoveAccessorialPrice", stageIntlMoveAccess[1]))
-	}
-	logger.Info("\t---")
-
-	stageDomIntlAdd := []models.StageDomesticInternationalAdditionalPrice{}
-	err = db.Limit(2).All(&stageDomIntlAdd)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageDomesticInternationalAdditionalPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t5a Accessorial and Additional Prices (StageDomesticInternationalAdditionalPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageDomesticInternationalAdditionalPrice", stageDomIntlAdd[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageDomesticInternationalAdditionalPrice", stageDomIntlAdd[1]))
-	}
-	logger.Info("\t---")
-
-	// 5b Price Escalation Discount
-	stagePriceEscalations := []models.StagePriceEscalationDiscount{}
-	err = db.Limit(2).All(&stagePriceEscalations)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StagePriceEscalationDiscount{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\t5b: Price Escalation Discount (StagePriceEscalationDiscount)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StagePriceEscalationDiscount", stagePriceEscalations[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StagePriceEscalationDiscount", stagePriceEscalations[1]))
+		logger.Info("\t\tsecond", zap.Any(modelName, modelSliceValue.Index(1).Interface()))
 	}
 	logger.Info("\t---")
 
