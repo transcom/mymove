@@ -177,6 +177,8 @@ class WeightTicket extends Component {
       upload_ids: uploadIds,
       weight_ticket_set_type: formValues.weight_ticket_set_type,
       vehicle_nickname: formValues.vehicle_nickname,
+      vehicle_make: formValues.vehicle_make,
+      vehicle_model: formValues.vehicle_model,
       empty_weight_ticket_missing: this.state.missingEmptyWeightTicket,
       empty_weight: formValues.empty_weight,
       full_weight_ticket_missing: this.state.missingFullWeightTicket,
