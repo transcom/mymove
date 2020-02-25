@@ -607,6 +607,12 @@ jobs:
       - run:
           name: generate models and migrate
           command: make generate_models
+          environment:
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT: 5432
+            DB_NAME: test_db
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
