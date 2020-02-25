@@ -2,8 +2,7 @@ import { configure, addDecorator } from '@storybook/react';
 import { withInfo } from '@storybook/addon-info';
 import 'loki/configure-react';
 
-import 'uswds';
-import 'uswds/dist/css/uswds.css';
+import '../src/index.scss';
 
 function loadStories() {
   require('../src/stories/index.stories.jsx');
