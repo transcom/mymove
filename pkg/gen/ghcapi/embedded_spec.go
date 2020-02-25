@@ -1105,8 +1105,7 @@ func init() {
           },
           {
             "type": "string",
-            "format": "datetime",
-            "name": "If-Unmodified-Since",
+            "name": "If-Match",
             "in": "header",
             "required": true
           }
@@ -1115,7 +1114,7 @@ func init() {
           "200": {
             "description": "Successfully updated shipment",
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/MTOShipmentWithEtag"
             }
           },
           "404": {
@@ -1948,10 +1947,25 @@ func init() {
         }
       }
     },
+    "MTOShipmentWithEtag": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOShipment"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "eTag": {
+          "type": "string"
+        }
+      }
+    },
     "MTOShipments": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/MTOShipment"
+        "$ref": "#/definitions/MTOShipmentWithEtag"
       }
     },
     "MoveOrder": {
@@ -3615,8 +3629,7 @@ func init() {
           },
           {
             "type": "string",
-            "format": "datetime",
-            "name": "If-Unmodified-Since",
+            "name": "If-Match",
             "in": "header",
             "required": true
           }
@@ -3625,7 +3638,7 @@ func init() {
           "200": {
             "description": "Successfully updated shipment",
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/MTOShipmentWithEtag"
             }
           },
           "404": {
@@ -4515,10 +4528,25 @@ func init() {
         }
       }
     },
+    "MTOShipmentWithEtag": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOShipment"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "eTag": {
+          "type": "string"
+        }
+      }
+    },
     "MTOShipments": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/MTOShipment"
+        "$ref": "#/definitions/MTOShipmentWithEtag"
       }
     },
     "MoveOrder": {

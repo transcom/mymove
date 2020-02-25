@@ -1,9 +1,13 @@
 package payloads
 
 import (
+	"encoding/base64"
+	"time"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -163,13 +167,13 @@ func Address(address *models.Address) *ghcmessages.Address {
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	strfmt.MarshalFormat = strfmt.RFC3339Micro
+
 	payload := &ghcmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             mtoShipment.ShipmentType,
 		Status:                   string(mtoShipment.Status),
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(&mtoShipment.PickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
@@ -179,6 +183,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
 
+	if mtoShipment.RequestedPickupDate != nil {
+		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
+	}
+
 	if mtoShipment.ApprovedDate != nil {
 		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
 	}
@@ -186,12 +194,29 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	return payload
 }
 
+// MTOShipmentWithEtag payload
+func MTOShipmentWithEtag(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipmentWithEtag {
+	return &ghcmessages.MTOShipmentWithEtag{
+		MTOShipment: ghcmessages.MTOShipment{
+			ID:                  strfmt.UUID(mtoShipment.ID.String()),
+			MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+			ShipmentType:        "HHG",
+			Status:              string(mtoShipment.Status),
+			CustomerRemarks:     mtoShipment.CustomerRemarks,
+			RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
+			CreatedAt:           strfmt.DateTime(mtoShipment.CreatedAt),
+			UpdatedAt:           strfmt.DateTime(mtoShipment.UpdatedAt),
+		},
+		ETag: base64.StdEncoding.EncodeToString([]byte(mtoShipment.UpdatedAt.Format(time.RFC3339Nano))),
+	}
+}
+
 // MTOShipments payload
 func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
-		payload[i] = MTOShipment(&m)
+		payload[i] = MTOShipmentWithEtag(&m)
 	}
 	return &payload
 }

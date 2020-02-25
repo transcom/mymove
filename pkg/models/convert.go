@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -10,7 +11,7 @@ import (
 // ConvertFromPPMToGHC creates models in the new GHC data model from data in a PPM move
 func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error) {
 	var move Move
-	if err := db.Eager("Orders.ServiceMember").Find(&move, moveID); err != nil {
+	if err := db.Eager("Orders.ServiceMember.DutyStation.Address", "Orders.NewDutyStation.Address").Find(&move, moveID); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not fetch move with id %s, %w", moveID, err)
 	}
 
@@ -57,6 +58,7 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	mo.DestinationDutyStationID = &orders.NewDutyStationID
 
 	orderType := "GHC"
+	mo.OrderNumber = orders.OrdersNumber
 	mo.OrderType = &orderType
 	orderTypeDetail := "TBD"
 	mo.OrderTypeDetail = &orderTypeDetail
@@ -67,9 +69,39 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	mo.Grade = (*string)(sm.Rank)
 	mo.DateIssued = &orders.IssueDate
 	mo.ReportByDate = &orders.ReportByDate
+	mo.LinesOfAccounting = *orders.TAC
 
 	if err := db.Save(&mo); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)
+	}
+
+	// create mto -> move task order
+	var mto MoveTaskOrder = MoveTaskOrder{
+		MoveOrderID: mo.ID,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	if err := db.Save(&mto); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not save move task order, %w", err)
+	}
+
+	// create HHG -> house hold goods
+	// mto shipment of type HHG
+	requestedPickupDate := time.Now()
+	hhg := MTOShipment{
+		MoveTaskOrderID:      mto.ID,
+		RequestedPickupDate:  &requestedPickupDate,
+		PickupAddressID:      sm.DutyStation.AddressID,
+		DestinationAddressID: orders.NewDutyStation.AddressID,
+		ShipmentType:         MTOShipmentTypeHHG,
+		Status:               MTOShipmentStatusSubmitted,
+		CreatedAt:            time.Now(),
+		UpdatedAt:            time.Now(),
+	}
+
+	if err := db.Save(&hhg); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not save hhg shipment, %w", err)
 	}
 
 	return mo.ID, nil
