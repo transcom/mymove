@@ -80,7 +80,6 @@ func main() {
 		RunE:         updateMTOShipment,
 		SilenceUsage: true,
 	}
-	initUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
 	root.AddCommand(updateMTOShipmentCommand)
 
 	completionCommand := &cobra.Command{
