@@ -493,27 +493,6 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      currentAddress:
-        $ref: '#/definitions/Address'
-      destinationAddress:
-        $ref: '#/definitions/Address'
-      firstName:
-        type: string
-        example: Vanya
-      lastName:
-        type: string
-        example: Petrovna
-      branch:
-        type: string
-        example: "COAST_GUARD"
-      phone:
-        type: string
-        format: telephone
-      email:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        example: fake@example.com
   DutyStation:
     type: object
     properties:
@@ -580,10 +559,6 @@ definitions:
       - message
     type: object
   MoveOrder:
-    required:
-      - orderNumber
-      - rank
-      - linesOfAccounting
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -593,34 +568,15 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      customer:
-        $ref: '#/definitions/Customer'
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
         $ref: '#/definitions/DutyStation'
       originDutyStation:
         $ref: '#/definitions/DutyStation'
-      rank:
-        type: string
-        example: "E_5"
-      reportByDate:
-        type: string
-        format: date
-      confirmationNumber:
-        type: string
-        example: "HYXFJF"
-      orderNumber:
-        type: string
-      linesOfAccounting:
-        type: string
     type: object
   MoveTaskOrder:
     type: object
-    required:
-      - mto_shipments
-      - mto_service_items
-      - payment_requests
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -633,8 +589,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      moveOrder:
-        $ref: '#/definitions/MoveOrder'
       referenceId:
         example: 1001-3456
         type: string
@@ -648,9 +602,13 @@ definitions:
         format: date
         type: string
       payment_requests:
-        $ref: '#/definitions/PaymentRequests'
+        type: array
+        items:
+          $ref: '#/definitions/PaymentRequest'
       mto_service_items:
-        $ref: '#/definitions/MTOServiceItems'
+        type: array
+        items:
+          $ref: '#/definitions/MTOServiceItem'
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
   MoveTaskOrders:
