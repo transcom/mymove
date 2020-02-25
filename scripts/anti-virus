@@ -42,6 +42,11 @@ docker pull "${DOCKER_IMAGE}"
 echo
 echo "Mounting the project directory for scanning:"
 docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
+if ! docker inspect -f '{{.State.Running}}' "${CONTAINER_NAME}"; then
+  docker logs "${CONTAINER_NAME}"
+  echo "Container not running!"
+  exit 1
+fi
 
 if [[ -n "${CIRCLECI+x}" ]]; then
   # Can't mount folders in CircleCI so copy this data in
