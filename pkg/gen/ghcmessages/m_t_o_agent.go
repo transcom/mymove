@@ -41,6 +41,10 @@ type MTOAgent struct {
 	// last name
 	LastName *string `json:"lastName,omitempty"`
 
+	// move task order ID
+	// Format: uuid
+	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+
 	// phone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Phone *string `json:"phone,omitempty"`
@@ -67,6 +71,10 @@ func (m *MTOAgent) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMoveTaskOrderID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -160,6 +168,19 @@ func (m *MTOAgent) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOAgent) validateMoveTaskOrderID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MoveTaskOrderID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
 		return err
 	}
 

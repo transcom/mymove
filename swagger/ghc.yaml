@@ -587,6 +587,16 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
+      tags:
+        - mtoAgent
+      description: Fetches a list of agents associated with a move task order.
+      x-swagger-roles:
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
+      operationId: fetchMTOAgentList
+      summary: Fetch move task order agents.
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
     parameters:
       - description: ID of move order to use
@@ -1490,6 +1500,10 @@ definitions:
   MTOAgent:
     properties:
       id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string

@@ -942,7 +942,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	testdatagen.MakeATOAgent(db, testdatagen.Assertions{
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			MoveTaskOrder:   mto,
 			MoveTaskOrderID: mto.ID,

@@ -186,3 +186,26 @@ func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 	}
 	return &payload
 }
+
+func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
+	payload := &ghcmessages.MTOAgent{
+		ID:              strfmt.UUID(mtoAgent.ID.String()),
+		MoveTaskOrderID: strfmt.UUID(mtoAgent.MoveTaskOrderID.String()),
+		CreatedAt:       strfmt.Date(mtoAgent.CreatedAt),
+		UpdatedAt:       strfmt.Date(mtoAgent.UpdatedAt),
+		FirstName:       mtoAgent.FirstName,
+		LastName:        mtoAgent.LastName,
+		AgentType:       string(mtoAgent.MTOAgentType),
+		Email:           mtoAgent.Email,
+		Phone:           mtoAgent.Phone,
+	}
+	return payload
+}
+
+func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
+	payload := make(ghcmessages.MTOAgents, len(*mtoAgents))
+	for i, m := range *mtoAgents {
+		payload[i] = MTOAgent(&m)
+	}
+	return &payload
+}

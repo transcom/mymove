@@ -590,9 +590,15 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-agents/": {
       "get": {
+        "description": "Fetches a list of agents associated with a move task order.",
         "produces": [
           "application/json"
         ],
+        "tags": [
+          "mtoAgent"
+        ],
+        "summary": "Fetch move task order agents.",
+        "operationId": "fetchMTOAgentList",
         "responses": {
           "200": {
             "description": "Successfully retrieved all agents for a move task order",
@@ -618,7 +624,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
       },
       "parameters": [
         {
@@ -1937,6 +1949,11 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
@@ -3231,9 +3248,15 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-agents/": {
       "get": {
+        "description": "Fetches a list of agents associated with a move task order.",
         "produces": [
           "application/json"
         ],
+        "tags": [
+          "mtoAgent"
+        ],
+        "summary": "Fetch move task order agents.",
+        "operationId": "fetchMTOAgentList",
         "responses": {
           "200": {
             "description": "Successfully retrieved all agents for a move task order",
@@ -3265,7 +3288,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
       },
       "parameters": [
         {
@@ -4730,6 +4759,11 @@ func init() {
         "lastName": {
           "type": "string",
           "x-nullable": true
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "phone": {
           "type": "string",

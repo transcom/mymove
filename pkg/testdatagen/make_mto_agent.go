@@ -8,7 +8,7 @@ import (
 )
 
 // MakeMTOAgent creates a single MTOAgent and its associations.
-func MakeATOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
+func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 	// Will make an MTO if one is not provided via assertion.
 	moveTaskOrder := assertions.PaymentRequest.MoveTaskOrder
 	if isZeroUUID(moveTaskOrder.ID) {

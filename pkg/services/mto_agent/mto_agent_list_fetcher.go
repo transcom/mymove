@@ -6,7 +6,7 @@ import (
 )
 
 type mtoAgentQueryBuilder interface {
-	FetchMany(model interface{}, filters []services.QueryFilter) error
+	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
 }
 
 type mtoAgentListFetcher struct {
@@ -16,7 +16,7 @@ type mtoAgentListFetcher struct {
 // FetchMTOAgents fetches a list of move task order agents based on the move task order id.
 func (m *mtoAgentListFetcher) FetchMTOAgentList(filters []services.QueryFilter) (*models.MTOAgents, error) {
 	var mtoAgents models.MTOAgents
-	err := m.builder.FetchMany(&mtoAgents, filters)
+	err := m.builder.FetchMany(&mtoAgents, filters, nil, nil, nil)
 	return &mtoAgents, err
 }
 

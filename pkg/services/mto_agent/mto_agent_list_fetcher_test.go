@@ -16,7 +16,7 @@ type testMTOAgentQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
 }
 
-func (t *testMTOAgentQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter) error {
+func (t *testMTOAgentQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
 	m := t.fakeFetchMany(model)
 	return m
 }
