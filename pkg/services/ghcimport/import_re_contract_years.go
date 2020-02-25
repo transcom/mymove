@@ -35,7 +35,7 @@ func (gre *GHCRateEngineImporter) importREContractYears(dbTx *pop.Connection) er
 		compoundedEscalation *= escalation
 
 		contractYear := models.ReContractYear{
-			ContractID:           gre.contractID,
+			ContractID:           gre.ContractID,
 			Name:                 stagePriceEscalationDiscount.ContractYear,
 			StartDate:            basePeriodStartDateForPrimeContract1.AddDate(incrementYear, 0, 0),
 			EndDate:              basePeriodEndDateForPrimeContract1.AddDate(incrementYear, 0, 0),

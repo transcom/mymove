@@ -15,6 +15,7 @@ import (
 )
 
 const (
+	// DisableUserEmailFlag is the email of the user to disable
 	DisableUserEmailFlag string = "migration-email"
 
 	// template for adding office users

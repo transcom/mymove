@@ -10,7 +10,7 @@ import (
 type adminUserQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
 	CreateOne(model interface{}) (*validate.Errors, error)
-	UpdateOne(model interface{}) (*validate.Errors, error)
+	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type adminUserFetcher struct {

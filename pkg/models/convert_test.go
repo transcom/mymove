@@ -40,4 +40,10 @@ func (suite *ModelSuite) TestConvert() {
 
 	suite.NotEqual(uuid.Nil, customer.UserID)
 	suite.Equal(&customer.ID, mo.CustomerID)
+
+	var mto models.MoveTaskOrder
+	suite.FatalNoError(suite.DB().Eager().Where("move_order_id = ?", mo.ID).First(&mto))
+
+	var mtoShipment models.MTOShipment
+	suite.FatalNoError(suite.DB().Eager().Where("move_task_order_id = ?", mto.ID).First(&mtoShipment))
 }

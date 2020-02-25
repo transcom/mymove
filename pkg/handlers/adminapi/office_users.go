@@ -93,12 +93,14 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 	return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload)
 }
 
+// GetOfficeUserHandler retrieves office user handler
 type GetOfficeUserHandler struct {
 	handlers.HandlerContext
 	services.OfficeUserFetcher
 	services.NewQueryFilter
 }
 
+// Handle retrieves an office user
 func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
@@ -126,12 +128,14 @@ func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) mi
 	return officeuserop.NewGetOfficeUserOK().WithPayload(payload)
 }
 
+// CreateOfficeUserHandler creates an office user
 type CreateOfficeUserHandler struct {
 	handlers.HandlerContext
 	services.OfficeUserCreator
 	services.NewQueryFilter
 }
 
+// Handle creates an office user
 func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserParams) middleware.Responder {
 	payload := params.OfficeUser
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
@@ -181,6 +185,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 	return officeuserop.NewCreateOfficeUserCreated().WithPayload(returnPayload)
 }
 
+// UpdateOfficeUserHandler updates an office user
 type UpdateOfficeUserHandler struct {
 	handlers.HandlerContext
 	services.OfficeUserUpdater
@@ -188,6 +193,7 @@ type UpdateOfficeUserHandler struct {
 	services.UserRoleAssociator
 }
 
+// Handle updates an office user
 func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserParams) middleware.Responder {
 	payload := params.OfficeUser
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)

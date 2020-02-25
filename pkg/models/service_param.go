@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// ServiceParam is a Service Parameter
 type ServiceParam struct {
 	ID                    uuid.UUID `json:"id" db:"id"`
 	ServiceID             uuid.UUID `json:"service_id" db:"service_id"`

@@ -23,11 +23,13 @@ func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload 
 	}
 }
 
+// CreateUploadHandler is the create upload handler
 type CreateUploadHandler struct {
 	handlers.HandlerContext
 	services.PaymentRequestUploadCreator
 }
 
+// Handle creates uploads
 func (h *CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	userID := session.UserID // TODO: restrict to prime user when prime auth is implemented

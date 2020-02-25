@@ -19,6 +19,7 @@ type paymentRequestCreator struct {
 	db *pop.Connection
 }
 
+// NewPaymentRequestCreator returns a new payment request creator
 func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator {
 	return &paymentRequestCreator{db: db}
 }

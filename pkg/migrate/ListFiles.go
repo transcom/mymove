@@ -12,11 +12,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+// FileHelper is an afero filesystem struct
 type FileHelper struct {
 	fs afero.Fs
 }
 
-// NewUploader creates and returns a new uploader
+// NewFileHelper creates and returns a new File Helper
 func NewFileHelper() *FileHelper {
 	fs := afero.NewOsFs()
 	return &FileHelper{
@@ -24,6 +25,7 @@ func NewFileHelper() *FileHelper {
 	}
 }
 
+// SetFileSystem sets the file system for the file helper
 func (fh *FileHelper) SetFileSystem(fs afero.Fs) {
 	fh.fs = fs
 }

@@ -21,7 +21,7 @@ type MoveTaskOrder struct {
 	PaymentRequests    []PaymentRequest `has_many:"payment_requests"`
 	MTOShipments       MTOShipments     `has_many:"mto_shipments"`
 	MoveOrderID        uuid.UUID        `db:"move_order_id"`
-	ReferenceID        *string          `db:"reference_id"`
+	ReferenceID        string           `db:"reference_id"`
 	IsAvailableToPrime bool             `db:"is_available_to_prime"`
 	IsCanceled         bool             `db:"is_canceled"`
 	CreatedAt          time.Time        `db:"created_at"`
@@ -31,7 +31,9 @@ type MoveTaskOrder struct {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
-	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveOrderID, Name: "MoveOrderID"})
+	vs = append(vs,
+		&validators.UUIDIsPresent{Field: m.MoveOrderID, Name: "MoveOrderID"},
+		&validators.StringIsPresent{Field: m.ReferenceID, Name: "ReferenceID"})
 	return validate.Validate(vs...), nil
 }
 
@@ -46,12 +48,16 @@ func generateReferenceID(tx *pop.Connection) (string, error) {
 	secondNum := rand.Intn(max - min + 1)
 	newReferenceID := fmt.Sprintf("%04d-%04d", firstNum, secondNum)
 	count, err := tx.Where(`reference_id= $1`, newReferenceID).Count(&MoveTaskOrder{})
-	if err != nil || count > 0 {
+	if err != nil {
 		return "", err
+	} else if count > 0 {
+		return "", errors.New("move_task_order: reference_id already exists")
 	}
+
 	return newReferenceID, nil
 }
 
+// GenerateReferenceID generates a reference ID for the MTO
 func GenerateReferenceID(tx *pop.Connection) (string, error) {
 	const maxAttempts = 10
 	var referenceID string

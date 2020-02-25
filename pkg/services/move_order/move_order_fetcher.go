@@ -17,6 +17,7 @@ type ErrNotFound struct {
 	id uuid.UUID
 }
 
+// Error is the string representation of an error
 func (e ErrNotFound) Error() string {
 	return fmt.Sprintf("move task order id: %s not found", e.id.String())
 }
@@ -32,6 +33,7 @@ type ErrInvalidInput struct {
 	errInvalidInput
 }
 
+// NewErrInvalidInput creates a new error for invalid input
 func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string) ErrInvalidInput {
 	return ErrInvalidInput{
 		errInvalidInput{
@@ -42,10 +44,12 @@ func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]s
 	}
 }
 
+// Error is the string representation of an error
 func (e ErrInvalidInput) Error() string {
 	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.InvalidFields())
 }
 
+// InvalidFields returns invalid fields for invalid input
 func (e ErrInvalidInput) InvalidFields() map[string]string {
 	es := make(map[string]string)
 	if e.validationErrors == nil {

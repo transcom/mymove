@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// NewDomesticServiceAreaPricer is the public constructor for a DomesticRateAreaPricer using Pop
+// NewDomesticShorthaulPricer is the public constructor for a DomesticRateAreaPricer using Pop
 func NewDomesticShorthaulPricer(db *pop.Connection, logger Logger, contractCode string) services.DomesticShorthaulPricer {
 	return &domesticShorthaulPricer{
 		db:           db,
@@ -30,6 +30,7 @@ type domesticShorthaulPricer struct {
 	contractCode string
 }
 
+// PriceDomesticShorthaul does a pricing for domestic short haul
 func (dsh *domesticShorthaulPricer) PriceDomesticShorthaul(moveDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (totalCost unit.Cents, err error) {
 	// Validate parameters
 	if moveDate.IsZero() {

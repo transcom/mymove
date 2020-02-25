@@ -592,7 +592,6 @@ definitions:
       referenceId:
         example: 1001-3456
         type: string
-        x-nullable: true
       isAvailableToPrime:
         type: boolean
         x-nullable: true
@@ -635,6 +634,7 @@ definitions:
       approvedDate:
         format: date
         type: string
+        x-nullable: true
       scheduledPickupDate:
         format: date
         type: string

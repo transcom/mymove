@@ -25,6 +25,7 @@ func payloadForElectronicOrderModel(o models.ElectronicOrder) *adminmessages.Ele
 	}
 }
 
+// IndexElectronicOrdersHandler returns an index of electronic orders
 type IndexElectronicOrdersHandler struct {
 	handlers.HandlerContext
 	services.ElectronicOrderListFetcher
@@ -32,6 +33,7 @@ type IndexElectronicOrdersHandler struct {
 	services.NewPagination
 }
 
+// Handle returns an index of electronic orders
 func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElectronicOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	queryFilters := []services.QueryFilter{}
@@ -60,6 +62,7 @@ func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElect
 	return electronicorderop.NewIndexElectronicOrdersOK().WithContentRange(fmt.Sprintf("electronic_orders %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalElectronicOrdersCount)).WithPayload(payload)
 }
 
+// GetElectronicOrdersTotalsHandler returns totals of electronic orders
 type GetElectronicOrdersTotalsHandler struct {
 	handlers.HandlerContext
 	services.ElectronicOrderCategoryCountFetcher
@@ -89,6 +92,7 @@ func translateComparator(s string) string {
 	return s
 }
 
+// Handle returns electronic orders totals
 func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetElectronicOrdersTotalsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	comparator := ""

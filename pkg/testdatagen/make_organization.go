@@ -32,7 +32,7 @@ func MakeOrganization(db *pop.Connection, assertions Assertions) models.Organiza
 	return organization
 }
 
-// MakeOrganization makes a default Organization
+// MakeDefaultOrganization makes a default Organization
 func MakeDefaultOrganization(db *pop.Connection) models.Organization {
 	return MakeOrganization(db, Assertions{})
 }

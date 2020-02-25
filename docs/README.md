@@ -66,7 +66,8 @@ If you are looking to understand choices made in this project, see the list of [
 * [Unit Test React Components](how-to/unit-test-react-components.md#how-to-unit-test-react-components)
 * [Upgrade Go Version](how-to/upgrade-go-version.md#how-to-upgrade-go-version)
 * [Upload Electronic Orders Using your CAC](how-to/upload-electronic-orders.md#how-to-upload-electronic-orders-using-your-cac)
-* [Upload Electronic Orders Using your CAC](how-to/use-mtls-with-cac.md#how-to-upload-electronic-orders-using-your-cac)
+* [Create CAC Access (for using Prime API and uploading Electronic Orders)](how-to/use-mtls-with-cac.md#how-to-create-cac-access-for-using-prime-api-and-uploading-electronic-orders)
+* [Use Optimistic Locking](how-to/use-optimistic-locking.md#how-to-use-optimistic-locking)
 * [View ECS Service Logs](how-to/view-ecs-service-logs.md#how-to-view-ecs-service-logs)
 
 ## ADRs
@@ -113,7 +114,7 @@ If you are looking to understand choices made in this project, see the list of [
 * 0039 [Use React Lazy for code splitting](adr/0039-react-lazy-and-code-splitting.md#use-react-lazy-for-code-splitting)
 * 0040 [Add Role-Based Authorization](adr/0040-role-base-authorization.md#add-role-based-authorization)
 * 0041 [Front End Form Library](adr/0041-front-end-form-library.md#front-end-form-library)
-* 0042 [Use Last-Modified / If-Unmodified-Since for optimistic locking](adr/0042-optimistic-locking.md#use-last-modified-if-unmodified-since-for-optimistic-locking)
+* 0042 [Use If-Match / E-tags for optimistic locking](adr/0042-optimistic-locking.md#use-if-match-e-tags-for-optimistic-locking)
 * 0043 [*Handling time in the Prime API*](adr/0043-prime-time.md#handling-time-in-the-prime-api)
 
 <!--endindex-->

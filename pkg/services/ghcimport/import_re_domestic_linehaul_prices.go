@@ -58,7 +58,7 @@ func (gre *GHCRateEngineImporter) importREDomesticLinehaulPrices(dbTx *pop.Conne
 		}
 
 		domesticLinehaulPrice := models.ReDomesticLinehaulPrice{
-			ContractID:            gre.contractID,
+			ContractID:            gre.ContractID,
 			WeightLower:           unit.Pound(weightLowerInt),
 			WeightUpper:           unit.Pound(weightUpperInt),
 			MilesLower:            milesLowerInt,

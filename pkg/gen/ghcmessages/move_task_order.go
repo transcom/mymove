@@ -53,7 +53,7 @@ type MoveTaskOrder struct {
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
 	// reference Id
-	ReferenceID *string `json:"referenceId,omitempty"`
+	ReferenceID string `json:"referenceId,omitempty"`
 
 	// requested pickup date
 	// Format: date

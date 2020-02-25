@@ -18,7 +18,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREContract() {
 		err := gre.importREContract(suite.DB())
 		suite.NoError(err)
 		suite.helperCheckContractName(testContractName)
-		suite.NotNil(gre.contractID)
+		suite.NotNil(gre.ContractID)
 	})
 
 	suite.T().Run("no contract code", func(t *testing.T) {
@@ -43,7 +43,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREContract_runTwice() {
 		err := gre.importREContract(suite.DB())
 		suite.NoError(err)
 		suite.helperCheckContractName(testContractCode)
-		suite.NotNil(gre.contractID)
+		suite.NotNil(gre.ContractID)
 	})
 
 	suite.T().Run("try to run again with same contract code", func(t *testing.T) {
