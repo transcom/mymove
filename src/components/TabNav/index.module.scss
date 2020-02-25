@@ -21,7 +21,7 @@
   @include u-display('inline-block');
 }
 .tab-item:focus {
-  @include u-border('05', 'blue-40v');
+  @include u-outline('05', 'blue-40v');
 }
 .tab-item :global .usa-tag {
   @include u-bg('gold-20v')
