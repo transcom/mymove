@@ -64,6 +64,7 @@ done
 echo
 echo "Copying the ignore list into the container:"
 docker cp "${WHITELIST}" "${CONTAINER_NAME}:/store/"
+docker logs "${CONTAINER_NAME}"
 docker exec -it "${CONTAINER_NAME}" chown clamav:clamav "/store/${WHITELIST}"
 
 echo
