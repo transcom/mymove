@@ -44,7 +44,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(id uuid.UUID, payload *adminmessage
 		foundUser.Active = *payload.Active
 	}
 
-	verrs, err := o.builder.UpdateOne(&foundUser)
+	verrs, err := o.builder.UpdateOne(&foundUser, nil)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}

@@ -6,8 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-
-	ghcmtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 )
 
 // MTOShipmentFetcher is the exported interface for FetchMTOShipment
@@ -25,5 +23,5 @@ type MTOShipmentUpdater interface {
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status
 //go:generate mockery -name MTOShipmentStatusUpdater
 type MTOShipmentStatusUpdater interface {
-	UpdateMTOShipmentStatus(payload ghcmtoshipmentops.PatchMTOShipmentStatusParams) (*models.MTOShipment, error)
+	UpdateMTOShipmentStatus(shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error)
 }
