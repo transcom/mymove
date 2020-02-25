@@ -8,7 +8,7 @@ import (
 )
 
 type paymentRequestStatusQueryBuilder interface {
-	UpdateOne(model interface{}) (*validate.Errors, error)
+	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type paymentRequestStatusUpdater struct {
@@ -21,6 +21,6 @@ func NewPaymentRequestStatusUpdater(builder paymentRequestStatusQueryBuilder) se
 }
 
 func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest *models.PaymentRequest) (*validate.Errors, error) {
-	verrs, err := p.builder.UpdateOne(paymentRequest)
+	verrs, err := p.builder.UpdateOne(paymentRequest, nil)
 	return verrs, err
 }

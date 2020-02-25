@@ -16,7 +16,7 @@ import (
 
 // MTOShipments m t o shipments
 // swagger:model MTOShipments
-type MTOShipments []*MTOShipment
+type MTOShipments []*MTOShipmentWithEtag
 
 // Validate validates this m t o shipments
 func (m MTOShipments) Validate(formats strfmt.Registry) error {

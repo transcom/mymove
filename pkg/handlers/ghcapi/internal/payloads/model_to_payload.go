@@ -1,6 +1,9 @@
 package payloads
 
 import (
+	"encoding/base64"
+	"time"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -186,12 +189,29 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	return payload
 }
 
+// MTOShipmentWithEtag payload
+func MTOShipmentWithEtag(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipmentWithEtag {
+	return &ghcmessages.MTOShipmentWithEtag{
+		MTOShipment: ghcmessages.MTOShipment{
+			ID:                  strfmt.UUID(mtoShipment.ID.String()),
+			MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+			ShipmentType:        "HHG",
+			Status:              string(mtoShipment.Status),
+			CustomerRemarks:     mtoShipment.CustomerRemarks,
+			RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
+			CreatedAt:           strfmt.DateTime(mtoShipment.CreatedAt),
+			UpdatedAt:           strfmt.DateTime(mtoShipment.UpdatedAt),
+		},
+		ETag: base64.StdEncoding.EncodeToString([]byte(mtoShipment.UpdatedAt.Format(time.RFC3339Nano))),
+	}
+}
+
 // MTOShipments payload
 func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
-		payload[i] = MTOShipment(&m)
+		payload[i] = MTOShipmentWithEtag(&m)
 	}
 	return &payload
 }
