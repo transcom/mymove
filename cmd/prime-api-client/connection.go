@@ -32,9 +32,9 @@ func CreateClient(cmd *cobra.Command, v *viper.Viper, args []string) (*primeClie
 	v.AutomaticEnv()
 
 	// Use command line inputs
-	hostname := v.GetString(cli.HostnameFlag)
-	port := v.GetInt(cli.PortFlag)
-	insecure := v.GetBool(cli.InsecureFlag)
+	hostname := v.GetString(HostnameFlag)
+	port := v.GetInt(PortFlag)
+	insecure := v.GetBool(InsecureFlag)
 
 	var httpClient *http.Client
 
@@ -65,8 +65,8 @@ func CreateClient(cmd *cobra.Command, v *viper.Viper, args []string) (*primeClie
 			Transport: transport,
 		}
 	} else if !v.GetBool(cli.CACFlag) {
-		certPath := v.GetString(cli.CertPathFlag)
-		keyPath := v.GetString(cli.KeyPathFlag)
+		certPath := v.GetString(CertPathFlag)
+		keyPath := v.GetString(KeyPathFlag)
 
 		var errRuntimeClientTLS error
 		httpClient, errRuntimeClientTLS = runtimeClient.TLSClient(runtimeClient.TLSClientOptions{

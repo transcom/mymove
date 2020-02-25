@@ -8,39 +8,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/transcom/mymove/pkg/cli"
 	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 )
-
-func checkFetchMTOsConfig(v *viper.Viper, logger *log.Logger) error {
-	err := cli.CheckCAC(v)
-	if err != nil {
-		return err
-	}
-
-	err = cli.CheckPrimeAPI(v)
-	if err != nil {
-		return err
-	}
-
-	err = cli.CheckVerbose(v)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func initFetchMTOsFlags(flag *pflag.FlagSet) {
-	cli.InitCACFlags(flag)
-	cli.InitPrimeAPIFlags(flag)
-	cli.InitVerboseFlags(flag)
-
-	flag.SortFlags = false
-}
 
 func fetchMTOs(cmd *cobra.Command, args []string) error {
 	v := viper.New()
@@ -49,7 +20,7 @@ func fetchMTOs(cmd *cobra.Command, args []string) error {
 	//Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	err := checkFetchMTOsConfig(v, logger)
+	err := CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}

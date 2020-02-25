@@ -14,7 +14,6 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/transcom/mymove/pkg/cli"
 	mtoShipment "github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
@@ -49,6 +48,11 @@ const (
 )
 
 func checkUpdateMTOShipmentConfig(v *viper.Viper, logger *log.Logger) error {
+	err := CheckRootConfig(v)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
 	mtoID := v.GetString(MTOIDFlag)
 	mtoShipmentID := v.GetString(MTOShipmentIDFlag)
 	if mtoID == "" || mtoShipmentID == "" {
@@ -60,29 +64,10 @@ func checkUpdateMTOShipmentConfig(v *viper.Viper, logger *log.Logger) error {
 		return fmt.Errorf("UnmodifiedSinceFlag is invalid: %w", &ErrInvalidTimestamp{Timestamp: unmodifiedSince})
 	}
 
-	err := cli.CheckCAC(v)
-	if err != nil {
-		return err
-	}
-
-	err = cli.CheckPrimeAPI(v)
-	if err != nil {
-		return err
-	}
-
-	err = cli.CheckVerbose(v)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
 func initUpdateMTOShipmentFlags(flag *pflag.FlagSet) {
-	cli.InitCACFlags(flag)
-	cli.InitPrimeAPIFlags(flag)
-	cli.InitVerboseFlags(flag)
-
 	flag.String(MTOShipmentIDFlag, "", "ID of the MTO Shipment that is being updated")
 	flag.String(MTOIDFlag, "", "ID of the MTO whose shipment is being updated")
 	flag.String(UnmodifiedSinceFlag, "", "Timestamp of when mto shipment was last updated")
