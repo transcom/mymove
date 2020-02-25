@@ -416,57 +416,57 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 	logger.Info("\t---")
 
 	// 5a Accessorial and Additional Prices
-	stageDomMoveAccessPrices := []models.StageDomesticMoveAccessorialPrices{}
+	stageDomMoveAccessPrices := []models.StageDomesticMoveAccessorialPrice{}
 	err = db.Limit(2).All(&stageDomMoveAccessPrices)
 	if err != nil {
 		return err
 	}
-	length, err = db.Count(models.StageDomesticMoveAccessorialPrices{})
+	length, err = db.Count(models.StageDomesticMoveAccessorialPrice{})
 	if err != nil {
 		return err
 	}
-	logger.Info("\t5a Accessorial and Additional Prices (StageDomesticMoveAccessorialPrices)", zap.Int("length", length))
+	logger.Info("\t5a Accessorial and Additional Prices (StageDomesticMoveAccessorialPrice)", zap.Int("length", length))
 	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageDomesticMoveAccessorialPrices", stageDomMoveAccessPrices[0]))
+		logger.Info("\t\tfirst", zap.Any("StageDomesticMoveAccessorialPrice", stageDomMoveAccessPrices[0]))
 	}
 	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageDomesticMoveAccessorialPrices", stageDomMoveAccessPrices[1]))
+		logger.Info("\t\tsecond", zap.Any("StageDomesticMoveAccessorialPrice", stageDomMoveAccessPrices[1]))
 	}
 	logger.Info("\t---")
 
-	stageIntlMoveAccess := []models.StageInternationalMoveAccessorialPrices{}
+	stageIntlMoveAccess := []models.StageInternationalMoveAccessorialPrice{}
 	err = db.Limit(2).All(&stageIntlMoveAccess)
 	if err != nil {
 		return err
 	}
-	length, err = db.Count(models.StageInternationalMoveAccessorialPrices{})
+	length, err = db.Count(models.StageInternationalMoveAccessorialPrice{})
 	if err != nil {
 		return err
 	}
-	logger.Info("\t5a Accessorial and Additional Prices (StageInternationalMoveAccessorialPrices)", zap.Int("length", length))
+	logger.Info("\t5a Accessorial and Additional Prices (StageInternationalMoveAccessorialPrice)", zap.Int("length", length))
 	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageInternationalMoveAccessorialPrices", stageIntlMoveAccess[0]))
+		logger.Info("\t\tfirst", zap.Any("StageInternationalMoveAccessorialPrice", stageIntlMoveAccess[0]))
 	}
 	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageInternationalMoveAccessorialPrices", stageIntlMoveAccess[1]))
+		logger.Info("\t\tsecond", zap.Any("StageInternationalMoveAccessorialPrice", stageIntlMoveAccess[1]))
 	}
 	logger.Info("\t---")
 
-	stageDomIntlAdd := []models.StageDomesticInternationalAdditionalPrices{}
+	stageDomIntlAdd := []models.StageDomesticInternationalAdditionalPrice{}
 	err = db.Limit(2).All(&stageDomIntlAdd)
 	if err != nil {
 		return err
 	}
-	length, err = db.Count(models.StageDomesticInternationalAdditionalPrices{})
+	length, err = db.Count(models.StageDomesticInternationalAdditionalPrice{})
 	if err != nil {
 		return err
 	}
-	logger.Info("\t5a Accessorial and Additional Prices (StageDomesticInternationalAdditionalPrices)", zap.Int("length", length))
+	logger.Info("\t5a Accessorial and Additional Prices (StageDomesticInternationalAdditionalPrice)", zap.Int("length", length))
 	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("StageDomesticInternationalAdditionalPrices", stageDomIntlAdd[0]))
+		logger.Info("\t\tfirst", zap.Any("StageDomesticInternationalAdditionalPrice", stageDomIntlAdd[0]))
 	}
 	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("StageDomesticInternationalAdditionalPrices", stageDomIntlAdd[1]))
+		logger.Info("\t\tsecond", zap.Any("StageDomesticInternationalAdditionalPrice", stageDomIntlAdd[1]))
 	}
 	logger.Info("\t---")
 

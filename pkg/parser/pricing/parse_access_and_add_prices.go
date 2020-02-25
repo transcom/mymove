@@ -22,10 +22,10 @@ var parseDomesticMoveAccessorialPrices processXlsxSheet = func(params ParamConfi
 	}
 
 	log.Println("Parsing domestic move accessorial prices")
-	var prices []models.StageDomesticMoveAccessorialPrices
+	var prices []models.StageDomesticMoveAccessorialPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[domAccessorialRowIndexStart:]
 	for _, row := range dataRows {
-		price := models.StageDomesticMoveAccessorialPrices{
+		price := models.StageDomesticMoveAccessorialPrice{
 			ServicesSchedule: getCell(row.Cells, firstColumnIndexStart),
 			ServiceProvided:  getCell(row.Cells, secondColumnIndexStart),
 			PricePerUnit:     getCell(row.Cells, thirdColumnIndexStart),
@@ -57,10 +57,10 @@ var parseInternationalMoveAccessorialPrices processXlsxSheet = func(params Param
 	}
 
 	log.Println("Parsing international move accessorial prices")
-	var prices []models.StageInternationalMoveAccessorialPrices
+	var prices []models.StageInternationalMoveAccessorialPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[intlAccessorialRowIndexStart:]
 	for _, row := range dataRows {
-		price := models.StageInternationalMoveAccessorialPrices{
+		price := models.StageInternationalMoveAccessorialPrice{
 			Market:          getCell(row.Cells, firstColumnIndexStart),
 			ServiceProvided: getCell(row.Cells, secondColumnIndexStart),
 			PricePerUnit:    getCell(row.Cells, thirdColumnIndexStart),
@@ -92,10 +92,10 @@ var parseDomesticInternationalAdditionalPrices processXlsxSheet = func(params Pa
 	}
 
 	log.Println("Parsing domestic/international additional prices")
-	var prices []models.StageDomesticInternationalAdditionalPrices
+	var prices []models.StageDomesticInternationalAdditionalPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[additionalPricesRowIndexStart:]
 	for _, row := range dataRows {
-		price := models.StageDomesticInternationalAdditionalPrices{
+		price := models.StageDomesticInternationalAdditionalPrice{
 			Market:       getCell(row.Cells, firstColumnIndexStart),
 			ShipmentType: getCell(row.Cells, secondColumnIndexStart),
 			Factor:       getCell(row.Cells, thirdColumnIndexStart),
