@@ -79,6 +79,10 @@ class WeightTicket extends Component {
     return this.state.weightTicketSetType === WEIGHT_TICKET_SET_TYPE.CAR_TRAILER;
   }
 
+  get isCar() {
+    return this.state.weightTicketSetType === WEIGHT_TICKET_SET_TYPE.CAR;
+  }
+
   get isProGear() {
     return this.state.weightTicketSetType === WEIGHT_TICKET_SET_TYPE.PRO_GEAR;
   }
@@ -267,16 +271,37 @@ class WeightTicket extends Component {
                   value={weightTicketSetType}
                   required
                 />
-                <SwaggerField
-                  fieldName="vehicle_nickname"
-                  title={
-                    this.isProGear
-                      ? "Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
-                      : "Vehicle nickname (ex. 'My car')"
-                  }
-                  swagger={schema}
-                  required
-                />
+                {weightTicketSetType &&
+                  (this.isCarTrailer || this.isCar ? (
+                    <>
+                      <SwaggerField
+                        fieldName="vehicle_make"
+                        data-cy="vehicle_make"
+                        title="Make"
+                        swagger={schema}
+                        required={this.isCarTrailer || this.isCar}
+                      />
+                      <SwaggerField
+                        fieldName="vehicle_model"
+                        data-cy="vehicle_model"
+                        title="Model"
+                        swagger={schema}
+                        required={this.isCarTrailer || this.isCar}
+                      />
+                    </>
+                  ) : (
+                    <SwaggerField
+                      fieldName="vehicle_nickname"
+                      data-cy="vehicle_nickname"
+                      title={
+                        this.isProGear
+                          ? "Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
+                          : "Vehicle nickname (ex. 'Large box truck')"
+                      }
+                      swagger={schema}
+                      required={!this.isCarTrailer && !this.isCar}
+                    />
+                  ))}
                 {weightTicketSetType && this.isCarTrailer && (
                   <>
                     <div className="radio-group-wrapper normalize-margins">
