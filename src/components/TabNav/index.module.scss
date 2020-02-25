@@ -1,7 +1,7 @@
 @import '../../shared/styles/basics';
 
 .tab-title {
-  @include u-padding-bottom('1');
+  @include u-padding-bottom('05');
   @include u-text('gray-50');
   @include u-margin-right('05');
 }
