@@ -91,41 +91,41 @@ func main() {
 	}
 	defer func() {
 		if closeErr := db.Close(); closeErr != nil {
-			log.Fatalf("Could not close database: %v", closeErr)
+			logger.Fatal("Could not close database", zap.Error(closeErr))
 		}
 	}()
 
 	// Ensure we've been given a spreadsheet to parse
 	if params.XlsxFilename == "" {
-		log.Fatalf("Did not receive an XLSX filename to parse; missing --filename\n")
+		logger.Fatal("Did not receive an XLSX filename to parse; missing --filename")
 	}
 
 	// Running with a subset of worksheets will turn off ProcessAll flag and the rate engine import
 	if len(params.XlsxSheets) > 0 {
 		params.ProcessAll = false
-		log.Println("Setting --xlsxSheets disables --re-import so no data will be imported into the rate engine tables. Only stage table data will be updated.")
+		logger.Info("Setting --xlsxSheets disables --re-import so no data will be imported into the rate engine tables. Only stage table data will be updated.")
 		params.RunImport = false
 	}
 
 	// If we are importing into the rate engine tables, we need a contract code
 	if params.RunImport && params.ContractCode == "" {
-		log.Fatalf("Did not receive a contract code; missing --contract-code\n")
+		logger.Fatal("Did not receive a contract code; missing --contract-code")
 	}
 
 	// Open the spreadsheet
-	log.Printf("Importing file %s\n", params.XlsxFilename)
+	logger.Info("Importing file", zap.String("XlsxFilename", params.XlsxFilename))
 	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
 	if err != nil {
-		log.Fatalf("Failed to open file %s with error %v\n", params.XlsxFilename, err)
+		logger.Fatal("Failed to open file", zap.String("XlsxFilename", params.XlsxFilename), zap.Error(err))
 	}
 
 	// Now kick off the parsing
 	err = pricing.Parse(xlsxDataSheets, params, db, logger)
 	if err != nil {
-		log.Fatalf("Failed to parse pricing template due to %v", err)
+		logger.Fatal("Failed to parse pricing template", zap.Error(err))
 	}
-	if err = summarizeXlsxStageParsing(db); err != nil {
-		log.Fatalf("Failed to summarize XLSX to stage table parsing: %v", err)
+	if err = summarizeXlsxStageParsing(db, logger); err != nil {
+		logger.Fatal("Failed to summarize XLSX to stage table parsing", zap.Error(err))
 	}
 
 	// If the parsing was successful, run GHC Rate Engine importer
@@ -137,17 +137,17 @@ func main() {
 		}
 		err = ghcREImporter.Import(db)
 		if err != nil {
-			log.Fatalf("GHC Rate Engine import failed due to %v", err)
+			logger.Fatal("GHC Rate Engine import failed", zap.Error(err))
 		}
-		if err := summarizeStageReImport(db, ghcREImporter.ContractID); err != nil {
-			log.Fatalf("Failed to summarize stage table to rate engine table import: %v", err)
+		if err := summarizeStageReImport(db, logger, ghcREImporter.ContractID); err != nil {
+			logger.Fatal("Failed to summarize stage table to rate engine table import", zap.Error(err))
 		}
 	}
 }
 
-func summarizeXlsxStageParsing(db *pop.Connection) error {
-	log.Println("XLSX to Stage Table Parsing Complete")
-	log.Println(" Summary:")
+func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
+	logger.Info("XLSX to Stage Table Parsing Complete")
+	logger.Info("Summary:")
 
 	// 1b Service Areas
 	stageDomServiceAreas := []models.StageDomesticServiceArea{}
@@ -160,17 +160,17 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 		return err
 	}
 
-	log.Printf("   1b: Service Areas (StageDomesticServiceArea): %d\n", length)
+	logger.Info("\t1b: Service Areas (StageDomesticServiceArea)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomServiceAreas[0])
+		logger.Info("\t\tfirst", zap.Any("StageDomesticServiceArea", stageDomServiceAreas[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomServiceAreas[1])
+		logger.Info("\t\tsecond", zap.Any("StageDomesticServiceArea", stageDomServiceAreas[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
-	stageIntlServiceArea := []models.StageInternationalServiceArea{}
-	err = db.Limit(2).All(&stageIntlServiceArea)
+	stageIntlServiceAreas := []models.StageInternationalServiceArea{}
+	err = db.Limit(2).All(&stageIntlServiceAreas)
 	if err != nil {
 		return err
 	}
@@ -179,18 +179,18 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 		return err
 	}
 
-	log.Printf("   1b: Service Areas (StageInternationalServiceArea): %d\n", length)
+	logger.Info("\t1b: Service Areas (StageInternationalServiceArea)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageIntlServiceArea[0])
+		logger.Info("\t\tfirst", zap.Any("StageInternationalServiceArea", stageIntlServiceAreas[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageIntlServiceArea[1])
+		logger.Info("\t\tsecond", zap.Any("StageInternationalServiceArea", stageIntlServiceAreas[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// 2a Domestic Linehaul Prices
-	stageDomLinePrice := []models.StageDomesticLinehaulPrice{}
-	err = db.Limit(2).All(&stageDomLinePrice)
+	stageDomLinePrices := []models.StageDomesticLinehaulPrice{}
+	err = db.Limit(2).All(&stageDomLinePrices)
 	if err != nil {
 		return err
 	}
@@ -199,18 +199,18 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 		return err
 	}
 
-	log.Printf("   2a: Domestic Linehaul Prices (StageDomesticLinehaulPrice): %d\n", length)
+	logger.Info("\t2a: Domestic Linehaul Prices (StageDomesticLinehaulPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomLinePrice[0])
+		logger.Info("\t\tfirst", zap.Any("StageDomesticLinehaulPrice", stageDomLinePrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomLinePrice[1])
+		logger.Info("\t\tsecond", zap.Any("StageDomesticLinehaulPrice", stageDomLinePrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// 2b Domestic Service Area Prices
-	stageDomSerAreaPrice := []models.StageDomesticServiceAreaPrice{}
-	err = db.Limit(2).All(&stageDomSerAreaPrice)
+	stageDomSerAreaPrices := []models.StageDomesticServiceAreaPrice{}
+	err = db.Limit(2).All(&stageDomSerAreaPrices)
 	if err != nil {
 		return err
 	}
@@ -218,18 +218,18 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   2b: Domestic Service Area Prices (StageDomesticServiceAreaPrice): %d\n", length)
+	logger.Info("\t2b: Domestic Service Area Prices (StageDomesticServiceAreaPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomSerAreaPrice[0])
+		logger.Info("\t\tfirst", zap.Any("StageDomesticServiceAreaPrice", stageDomSerAreaPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomSerAreaPrice[1])
+		logger.Info("\t\tsecond", zap.Any("StageDomesticServiceAreaPrice", stageDomSerAreaPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// 2c Other Domestic Prices
-	stageDomOtherPackPrice := []models.StageDomesticOtherPackPrice{}
-	err = db.Limit(2).All(&stageDomOtherPackPrice)
+	stageDomOtherPackPrices := []models.StageDomesticOtherPackPrice{}
+	err = db.Limit(2).All(&stageDomOtherPackPrices)
 	if err != nil {
 		return err
 	}
@@ -237,17 +237,17 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   2c: Other Domestic Prices (StageDomesticOtherPackPrice): %d\n", length)
+	logger.Info("\t2c: Other Domestic Prices (StageDomesticOtherPackPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomOtherPackPrice[0])
+		logger.Info("\t\tfirst", zap.Any("StageDomesticOtherPackPrice", stageDomOtherPackPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomOtherPackPrice[1])
+		logger.Info("\t\tsecond", zap.Any("StageDomesticOtherPackPrice", stageDomOtherPackPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
-	stageDomOtherSitPrice := []models.StageDomesticOtherSitPrice{}
-	err = db.Limit(2).All(&stageDomOtherSitPrice)
+	stageDomOtherSitPrices := []models.StageDomesticOtherSitPrice{}
+	err = db.Limit(2).All(&stageDomOtherSitPrices)
 	if err != nil {
 		return err
 	}
@@ -255,18 +255,18 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   2c: Other Domestic Prices (StageDomesticOtherSitPrice): %d\n", length)
+	logger.Info("\t2c: Other Domestic Prices (StageDomesticOtherSitPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomOtherSitPrice[0])
+		logger.Info("\t\tfirst", zap.Any("StageDomesticOtherSitPrice", stageDomOtherSitPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomOtherSitPrice[1])
+		logger.Info("\t\tsecond", zap.Any("StageDomesticOtherSitPrice", stageDomOtherSitPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// 3a OCONUS to OCONUS Prices
-	stageOconusToOconus := []models.StageOconusToOconusPrice{}
-	err = db.Limit(2).All(&stageOconusToOconus)
+	stageOconusToOconuses := []models.StageOconusToOconusPrice{}
+	err = db.Limit(2).All(&stageOconusToOconuses)
 	if err != nil {
 		return err
 	}
@@ -274,18 +274,18 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   3a: OCONUS to OCONUS Prices (StageOconusToOconusPrice): %d\n", length)
+	logger.Info("\t3a: OCONUS to OCONUS Prices (StageOconusToOconusPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageOconusToOconus[0])
+		logger.Info("\t\tfirst", zap.Any("StageOconusToOconusPrice", stageOconusToOconuses[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageOconusToOconus[1])
+		logger.Info("\t\tsecond", zap.Any("StageOconusToOconusPrice", stageOconusToOconuses[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// 3b CONUS to OCONUS Prices
-	stageConusToOconus := []models.StageConusToOconusPrice{}
-	err = db.Limit(2).All(&stageConusToOconus)
+	stageConusToOconuses := []models.StageConusToOconusPrice{}
+	err = db.Limit(2).All(&stageConusToOconuses)
 	if err != nil {
 		return err
 	}
@@ -293,18 +293,18 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   3b: CONUS to OCONUS Prices (StageConusToOconusPrice): %d\n", length)
+	logger.Info("\t3b: CONUS to OCONUS Prices (StageConusToOconusPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageConusToOconus[0])
+		logger.Info("\t\tfirst", zap.Any("StageConusToOconusPrice", stageConusToOconuses[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageConusToOconus[1])
+		logger.Info("\t\tsecond", zap.Any("StageConusToOconusPrice", stageConusToOconuses[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// 3c OCONUS to CONUS Prices
-	stageOconusToConus := []models.StageOconusToConusPrice{}
-	err = db.Limit(2).All(&stageOconusToConus)
+	stageOconusToConuses := []models.StageOconusToConusPrice{}
+	err = db.Limit(2).All(&stageOconusToConuses)
 	if err != nil {
 		return err
 	}
@@ -312,14 +312,14 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   3c: OCONUS to CONUS Prices (StageOconusToConusPrice): %d\n", length)
+	logger.Info("\t3c: OCONUS to CONUS Prices (StageOconusToConusPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageOconusToConus[0])
+		logger.Info("\t\tfirst", zap.Any("StageOconusToConusPrice", stageOconusToConuses[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageOconusToConus[1])
+		logger.Info("\t\tsecond", zap.Any("StageOconusToConusPrice", stageOconusToConuses[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// 3d Other International Prices
 	stageOtherIntlPrices := []models.StageOtherIntlPrice{}
@@ -332,18 +332,18 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 		return err
 	}
 
-	log.Printf("   3d: Other International Prices (StageOtherIntlPrice): %d\n", length)
+	logger.Info("\t3d: Other International Prices (StageOtherIntlPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageOtherIntlPrices[0])
+		logger.Info("\t\tfirst", zap.Any("StageOtherIntlPrice", stageOtherIntlPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageOtherIntlPrices[1])
+		logger.Info("\t\tsecond", zap.Any("StageOtherIntlPrice", stageOtherIntlPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// 3e Non-Standard Location Prices
-	stageNonStdLocaPrices := []models.StageNonStandardLocnPrice{}
-	err = db.Limit(2).All(&stageNonStdLocaPrices)
+	stageNonStdLocnPrices := []models.StageNonStandardLocnPrice{}
+	err = db.Limit(2).All(&stageNonStdLocnPrices)
 	if err != nil {
 		return err
 	}
@@ -351,18 +351,18 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   3e: Non-Standard Location Prices (StageNonStandardLocnPrice): %d\n", length)
+	logger.Info("\t3e: Non-Standard Location Prices (StageNonStandardLocnPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageNonStdLocaPrices[0])
+		logger.Info("\t\tfirst", zap.Any("StageNonStandardLocnPrice", stageNonStdLocnPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageNonStdLocaPrices[1])
+		logger.Info("\t\tsecond", zap.Any("StageNonStandardLocnPrice", stageNonStdLocnPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// 4a Management, Counseling, and Transition Prices
-	stageMgmt := []models.StageShipmentManagementServicesPrice{}
-	err = db.Limit(2).All(&stageMgmt)
+	stageMgmtServicesPrices := []models.StageShipmentManagementServicesPrice{}
+	err = db.Limit(2).All(&stageMgmtServicesPrices)
 	if err != nil {
 		return err
 	}
@@ -370,17 +370,17 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   4a: Management, Counseling, and Transition Prices (StageShipmentManagementServicesPrice): %d\n", length)
+	logger.Info("\t4a: Management, Counseling, and Transition Prices (StageShipmentManagementServicesPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageMgmt[0])
+		logger.Info("\t\tfirst", zap.Any("StageShipmentManagementServicesPrice", stageMgmtServicesPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageMgmt[1])
+		logger.Info("\t\tsecond", zap.Any("StageShipmentManagementServicesPrice", stageMgmtServicesPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
-	stageCounsel := []models.StageCounselingServicesPrice{}
-	err = db.Limit(2).All(&stageCounsel)
+	stageCounselingPrices := []models.StageCounselingServicesPrice{}
+	err = db.Limit(2).All(&stageCounselingPrices)
 	if err != nil {
 		return err
 	}
@@ -388,17 +388,17 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   4a: Management, Counseling, and Transition Prices (StageCounselingServicesPrice): %d\n", length)
+	logger.Info("\t4a: Management, Counseling, and Transition Prices (StageCounselingServicesPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageCounsel[0])
+		logger.Info("\t\tfirst", zap.Any("StageCounselingServicesPrice", stageCounselingPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageCounsel[1])
+		logger.Info("\t\tsecond", zap.Any("StageCounselingServicesPrice", stageCounselingPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
-	stageTransition := []models.StageTransitionPrice{}
-	err = db.Limit(2).All(&stageTransition)
+	stageTransitionPrices := []models.StageTransitionPrice{}
+	err = db.Limit(2).All(&stageTransitionPrices)
 	if err != nil {
 		return err
 	}
@@ -406,18 +406,18 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   4a: Management, Counseling, and Transition Prices (StageTransitionPrice): %d\n", length)
+	logger.Info("\t4a: Management, Counseling, and Transition Prices (StageTransitionPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageTransition[0])
+		logger.Info("\t\tfirst", zap.Any("StageTransitionPrice", stageTransitionPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageTransition[1])
+		logger.Info("\t\tsecond", zap.Any("StageTransitionPrice", stageTransitionPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// 5a Accessorial and Additional Prices
-	stageDomMoveAccess := []models.StageDomesticMoveAccessorialPrices{}
-	err = db.Limit(2).All(&stageDomMoveAccess)
+	stageDomMoveAccessPrices := []models.StageDomesticMoveAccessorialPrices{}
+	err = db.Limit(2).All(&stageDomMoveAccessPrices)
 	if err != nil {
 		return err
 	}
@@ -425,14 +425,14 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   5a Accessorial and Additional Prices (StageDomesticMoveAccessorialPrices): %d\n", length)
+	logger.Info("\t5a Accessorial and Additional Prices (StageDomesticMoveAccessorialPrices)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomMoveAccess[0])
+		logger.Info("\t\tfirst", zap.Any("StageDomesticMoveAccessorialPrices", stageDomMoveAccessPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomMoveAccess[1])
+		logger.Info("\t\tsecond", zap.Any("StageDomesticMoveAccessorialPrices", stageDomMoveAccessPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	stageIntlMoveAccess := []models.StageInternationalMoveAccessorialPrices{}
 	err = db.Limit(2).All(&stageIntlMoveAccess)
@@ -443,14 +443,14 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   5a Accessorial and Additional Prices (StageInternationalMoveAccessorialPrices): %d\n", length)
+	logger.Info("\t5a Accessorial and Additional Prices (StageInternationalMoveAccessorialPrices)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageIntlMoveAccess[0])
+		logger.Info("\t\tfirst", zap.Any("StageInternationalMoveAccessorialPrices", stageIntlMoveAccess[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageIntlMoveAccess[1])
+		logger.Info("\t\tsecond", zap.Any("StageInternationalMoveAccessorialPrices", stageIntlMoveAccess[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	stageDomIntlAdd := []models.StageDomesticInternationalAdditionalPrices{}
 	err = db.Limit(2).All(&stageDomIntlAdd)
@@ -461,18 +461,18 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   5a Accessorial and Additional Prices (StageDomesticInternationalAdditionalPrices): %d\n", length)
+	logger.Info("\t5a Accessorial and Additional Prices (StageDomesticInternationalAdditionalPrices)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomIntlAdd[0])
+		logger.Info("\t\tfirst", zap.Any("StageDomesticInternationalAdditionalPrices", stageDomIntlAdd[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomIntlAdd[1])
+		logger.Info("\t\tsecond", zap.Any("StageDomesticInternationalAdditionalPrices", stageDomIntlAdd[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// 5b Price Escalation Discount
-	stagePriceEsc := []models.StagePriceEscalationDiscount{}
-	err = db.Limit(2).All(&stagePriceEsc)
+	stagePriceEscalations := []models.StagePriceEscalationDiscount{}
+	err = db.Limit(2).All(&stagePriceEscalations)
 	if err != nil {
 		return err
 	}
@@ -480,25 +480,25 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   5b: Price Escalation Discount (StagePriceEscalationDiscount): %d\n", length)
+	logger.Info("\t5b: Price Escalation Discount (StagePriceEscalationDiscount)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stagePriceEsc[0])
+		logger.Info("\t\tfirst", zap.Any("StagePriceEscalationDiscount", stagePriceEscalations[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stagePriceEsc[1])
+		logger.Info("\t\tsecond", zap.Any("StagePriceEscalationDiscount", stagePriceEscalations[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	return nil
 }
 
-func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
-	log.Println("Stage Table import into Rate Engine Tables Complete")
-	log.Println(" Summary:")
+func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.UUID) error {
+	logger.Info("Stage Table import into Rate Engine Tables Complete")
+	logger.Info(" Summary:")
 
 	// re_contract
-	reContract := []models.ReContract{}
-	err := db.Where("id = ?", contractID).Limit(2).All(&reContract)
+	reContracts := []models.ReContract{}
+	err := db.Where("id = ?", contractID).Limit(2).All(&reContracts)
 	if err != nil {
 		return err
 	}
@@ -507,14 +507,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 		return err
 	}
 
-	log.Printf("   re_contract (ReContract): %d\n", length)
+	logger.Info("\tre_contract (ReContract)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reContract[0])
+		logger.Info("\t\tfirst", zap.Any("ReContract", reContracts[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reContract[length-1])
+		logger.Info("\t\tsecond", zap.Any("ReContract", reContracts[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// re_contract_years
 	reContractYears := []models.ReContractYear{}
@@ -527,14 +527,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 		return err
 	}
 
-	log.Printf("   re_contract_years (ReContractYear): %d\n", length)
+	logger.Info("\tre_contract_years (ReContractYear)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reContractYears[0])
+		logger.Info("\t\tfirst", zap.Any("ReContractYear", reContractYears[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reContractYears[1])
+		logger.Info("\t\tsecond", zap.Any("ReContractYear", reContractYears[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// re_domestic_service_areas
 	reDomSerAreas := []models.ReDomesticServiceArea{}
@@ -547,14 +547,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 		return err
 	}
 
-	log.Printf("   re_domestic_service_areas (ReDomesticServiceArea): %d\n", length)
+	logger.Info("\tre_domestic_service_areas (ReDomesticServiceArea)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reDomSerAreas[0])
+		logger.Info("\t\tfirst", zap.Any("ReDomesticServiceArea", reDomSerAreas[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reDomSerAreas[1])
+		logger.Info("\t\tsecond", zap.Any("ReDomesticServiceArea", reDomSerAreas[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// re_rate_areas
 	reRateAreas := []models.ReRateArea{}
@@ -566,14 +566,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   re_rate_areas (ReRateArea): %d\n", length)
+	logger.Info("\tre_rate_areas (ReRateArea)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reRateAreas[0])
+		logger.Info("\t\tfirst", zap.Any("ReRateArea", reRateAreas[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reRateAreas[1])
+		logger.Info("\t\tsecond", zap.Any("ReRateArea", reRateAreas[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// re_domestic_linehaul_prices
 	reDomLinePrices := []models.ReDomesticLinehaulPrice{}
@@ -585,14 +585,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   reDomLinePrices (ReDomesticLinehaulPrice): %d\n", length)
+	logger.Info("\treDomLinePrices (ReDomesticLinehaulPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reDomLinePrices[0])
+		logger.Info("\t\tfirst", zap.Any("ReDomesticLinehaulPrice", reDomLinePrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reDomLinePrices[1])
+		logger.Info("\t\tsecond", zap.Any("ReRReDomesticLinehaulPriceateArea", reDomLinePrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// re_domestic_service_area_prices
 	reDomSerAreaPrices := []models.ReDomesticServiceAreaPrice{}
@@ -604,12 +604,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   re_domestic_service_area_prices (ReDomesticServiceAreaPrice): %d\n", length)
+	logger.Info("\tre_domestic_service_area_prices (ReDomesticServiceAreaPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reDomSerAreaPrices[0])
+		logger.Info("\t\tfirst", zap.Any("ReDomesticServiceAreaPrice", reDomSerAreaPrices[0]))
 	}
-	log.Printf("\tsecond: %+v\n", reDomSerAreaPrices[1])
-	log.Println("   ---")
+	if length > 1 {
+		logger.Info("\t\tsecond", zap.Any("ReDomesticServiceAreaPrice", reDomSerAreaPrices[1]))
+	}
+	logger.Info("\t---")
 
 	// re_domestic_other_prices
 	reDomOtherPrices := []models.ReDomesticOtherPrice{}
@@ -621,14 +623,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   re_domestic_other_prices (ReDomesticOtherPrice): %d\n", length)
+	logger.Info("\tre_domestic_other_prices (ReDomesticOtherPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reDomOtherPrices[0])
+		logger.Info("\t\tfirst", zap.Any("ReDomesticOtherPrice", reDomOtherPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reDomOtherPrices[1])
+		logger.Info("\t\tsecond", zap.Any("ReDomesticOtherPrice", reDomOtherPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// re_international_prices
 	reIntlPrices := []models.ReIntlPrice{}
@@ -640,14 +642,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   re_international_prices (ReIntlPrice): %d\n", length)
+	logger.Info("\tre_international_prices (ReIntlPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reIntlPrices[0])
+		logger.Info("\t\tfirst", zap.Any("ReIntlPrice", reIntlPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reIntlPrices[1])
+		logger.Info("\t\tsecond", zap.Any("ReIntlPrice", reIntlPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// re_international_other_prices
 	reIntlOtherPrices := []models.ReIntlOtherPrice{}
@@ -659,14 +661,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   re_international_other_prices (ReIntlOtherPrice): %d\n", length)
+	logger.Info("\tre_international_other_prices (ReIntlOtherPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reIntlOtherPrices[0])
+		logger.Info("\t\tfirst", zap.Any("ReIntlOtherPrice", reIntlOtherPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reIntlOtherPrices[1])
+		logger.Info("\t\tsecond", zap.Any("ReIntlOtherPrice", reIntlOtherPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// re_task_order_fees
 	//possibly need a join where contract year id  = contract_year.contract_id
@@ -679,14 +681,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   re_task_order_fees (ReTaskOrderFee): %d\n", length)
+	logger.Info("\tre_task_order_fees (ReTaskOrderFee)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reTaskOrderFees[0])
+		logger.Info("\t\tfirst", zap.Any("ReTaskOrderFee", reTaskOrderFees[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reTaskOrderFees[1])
+		logger.Info("\t\tsecond", zap.Any("ReTaskOrderFee", reTaskOrderFees[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// re_domestic_accessorial_prices
 	reDomAccPrices := []models.ReDomesticAccessorialPrice{}
@@ -698,14 +700,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   re_domestic_accessorial_prices (ReDomesticAccessorialPrice): %d\n", length)
+	logger.Info("\tre_domestic_accessorial_prices (ReDomesticAccessorialPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reDomAccPrices[0])
+		logger.Info("\t\tfirst", zap.Any("ReDomesticAccessorialPrice", reDomAccPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reDomAccPrices[1])
+		logger.Info("\t\tsecond", zap.Any("ReDomesticAccessorialPrice", reDomAccPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// re_intl_accessorial_prices
 	reIntlAccPrices := []models.ReIntlAccessorialPrice{}
@@ -717,14 +719,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   re_intl_accessorial_prices (ReIntlAccessorialPrice): %d\n", length)
+	logger.Info("\tre_intl_accessorial_prices (ReIntlAccessorialPrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reIntlAccPrices[0])
+		logger.Info("\t\tfirst", zap.Any("ReIntlAccessorialPrice", reIntlAccPrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reIntlAccPrices[1])
+		logger.Info("\t\tsecond", zap.Any("ReIntlAccessorialPrice", reIntlAccPrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	// re_shipment_type_prices
 	reShipmentTypePrices := []models.ReShipmentTypePrice{}
@@ -736,14 +738,14 @@ func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("   re_shipment_type_prices (ReShipmentTypePrice): %d\n", length)
+	logger.Info("\tre_shipment_type_prices (ReShipmentTypePrice)", zap.Int("length", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reShipmentTypePrices[0])
+		logger.Info("\t\tfirst", zap.Any("ReShipmentTypePrice", reShipmentTypePrices[0]))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reShipmentTypePrices[1])
+		logger.Info("\t\tsecond", zap.Any("ReShipmentTypePrice", reShipmentTypePrices[1]))
 	}
-	log.Println("   ---")
+	logger.Info("\t---")
 
 	return nil
 }
