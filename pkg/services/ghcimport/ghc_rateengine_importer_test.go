@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -62,11 +63,14 @@ func (suite *GHCRateEngineImportSuite) TearDownSuite() {
 func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
 	fmt.Print("Importing stage data...")
 	path := filepath.Join("fixtures", "stage_ghc_pricing.sql")
+	_, err := os.Stat(path)
+	suite.NoError(err)
+
 	c, ioErr := ioutil.ReadFile(filepath.Clean(path))
 	suite.NoError(ioErr)
 
 	sql := string(c)
-	err := suite.DB().RawQuery(sql).Exec()
+	err = suite.DB().RawQuery(sql).Exec()
 	if suite.NoError(err) {
 		fmt.Println(" success")
 	}
@@ -74,23 +78,18 @@ func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
 
 func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
 	fmt.Print("Importing re_services data...")
-	path := filepath.Join("./fixtures", "20191101201107_create-re-services-table-with-values.up.sql")
+
+	path := filepath.Join("fixtures", "re_services_data.sql")
+	_, err := os.Stat(path)
+	suite.NoError(err)
+
 	c, ioErr := ioutil.ReadFile(filepath.Clean(path))
 	suite.NoError(ioErr)
 
 	sql := string(c)
-	err := suite.DB().RawQuery(sql).Exec()
+	err = suite.DB().RawQuery(sql).Exec()
 	if suite.NoError(err) {
-		// read second migration
-		path = filepath.Join("./fixtures", "20191126160639_update-and-add-values-for-reservices-table.up.sql")
-		c, ioErr = ioutil.ReadFile(filepath.Clean(path))
-		suite.NoError(ioErr)
-
-		sql := string(c)
-		err := suite.DB().RawQuery(sql).Exec()
-		if suite.NoError(err) {
-			fmt.Println(" success")
-		}
+		fmt.Println(" success")
 	}
 }
 
