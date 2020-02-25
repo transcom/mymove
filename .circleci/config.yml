@@ -603,13 +603,7 @@ jobs:
           command: mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
       - run:
           name: clone mymove_admin repo
-          command: git clone git@github.com:transcom/milmove_admin.git
-      - run:
-          name: cd into the milmove admin dir
-          command: cd milmove_admin
-      - run:
-          name: pwd
-          command: pwd
+          command: cd ..; git clone git@github.com:transcom/milmove_admin.git
       - run:
           name: generate models and migrate
           command: make generate_models
