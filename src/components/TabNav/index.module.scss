@@ -6,7 +6,7 @@
   @include u-margin-right('05');
 }
 .tab-title:hover {
-  @include u-text('blue-40v');
+  @include u-text('primary-vivid');
   @include u-border-bottom('05', 'primary-vivid');
 }
 .tab-active .tab-title {
