@@ -2226,6 +2226,27 @@
     react-inspector "^4.0.0"
     uuid "^3.3.2"
 
+"@storybook/addon-info@^5.3.14":
+  version "5.3.14"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-info/-/addon-info-5.3.14.tgz#2d5309f12816ff51c5a141616133a2701b39173b"
+  integrity sha512-xZCR1OmOIT2zz0r22PSMCUvcIqCWxTTpAc3R8ByJts9j/FxlvMerAgPYhZ8R9WNFEjG2Mszwyw66pU7Oj+qipg==
+  dependencies:
+    "@storybook/addons" "5.3.14"
+    "@storybook/client-logger" "5.3.14"
+    "@storybook/components" "5.3.14"
+    "@storybook/theming" "5.3.14"
+    core-js "^3.0.1"
+    global "^4.3.2"
+    marksy "^8.0.0"
+    nested-object-assign "^1.0.3"
+    prop-types "^15.7.2"
+    react "^16.8.3"
+    react-addons-create-fragment "^15.6.2"
+    react-element-to-jsx-string "^14.0.2"
+    react-is "^16.8.3"
+    react-lifecycles-compat "^3.0.4"
+    util-deprecate "^1.0.2"
+
 "@storybook/addon-knobs@^5.3.14":
   version "5.3.14"
   resolved "https://registry.yarnpkg.com/@storybook/addon-knobs/-/addon-knobs-5.3.14.tgz#b8b753c7e64f7087668396d66aee253a51717a2d"
