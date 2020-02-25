@@ -26,7 +26,8 @@
   @include u-padding-bottom('05');
 }
 .tab-item :global .usa-tag {
-  @include u-bg('gold-20v')
+  @include u-text('gray-cool-70');
+  @include u-bg('gold-20v');
 }
 .tab-nav {
   @include u-height('6');
