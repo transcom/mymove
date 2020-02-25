@@ -54,7 +54,7 @@ paths:
       summary: Gets all move orders
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
-      - description: ID of move order to use
+      - description: ID of move task order to use
         in: path
         name: moveTaskOrderID
         required: true
@@ -71,16 +71,8 @@ paths:
           schema:
             type: object
             properties:
-              scheduled-move-date:
-                type: string
-                format: date
-                example: '2018-04-26'
-              secondary-pickup-address:
-                $ref: '#/definitions/Address'
-              secondary-delivery-address:
-                $ref: '#/definitions/Address'
-              ppm-is-included:
-                type: boolean
+              ppm:
+                $ref: '#/definitions/PrimePPM'
       responses:
         '200':
           description: Successfully updated move task order post counseling information
@@ -652,6 +644,23 @@ definitions:
         $ref: '#/definitions/MTOServiceItems'
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
+      ppm_type:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      ppm_estimated_weight:
+        type: integer
+  PrimePPM:
+    type: object
+    properties:
+      type:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      estimatedWeight:
+        type: integer
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'

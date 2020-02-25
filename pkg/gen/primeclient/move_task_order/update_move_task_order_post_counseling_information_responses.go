@@ -12,7 +12,6 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 
@@ -264,33 +263,15 @@ swagger:model UpdateMoveTaskOrderPostCounselingInformationBody
 */
 type UpdateMoveTaskOrderPostCounselingInformationBody struct {
 
-	// ppm is included
-	PpmIsIncluded bool `json:"ppm-is-included,omitempty"`
-
-	// scheduled move date
-	// Format: date
-	ScheduledMoveDate strfmt.Date `json:"scheduled-move-date,omitempty"`
-
-	// secondary delivery address
-	SecondaryDeliveryAddress *primemessages.Address `json:"secondary-delivery-address,omitempty"`
-
-	// secondary pickup address
-	SecondaryPickupAddress *primemessages.Address `json:"secondary-pickup-address,omitempty"`
+	// ppm
+	Ppm *primemessages.PrimePPM `json:"ppm,omitempty"`
 }
 
 // Validate validates this update move task order post counseling information body
 func (o *UpdateMoveTaskOrderPostCounselingInformationBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateScheduledMoveDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateSecondaryDeliveryAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateSecondaryPickupAddress(formats); err != nil {
+	if err := o.validatePpm(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -300,47 +281,16 @@ func (o *UpdateMoveTaskOrderPostCounselingInformationBody) Validate(formats strf
 	return nil
 }
 
-func (o *UpdateMoveTaskOrderPostCounselingInformationBody) validateScheduledMoveDate(formats strfmt.Registry) error {
+func (o *UpdateMoveTaskOrderPostCounselingInformationBody) validatePpm(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.ScheduledMoveDate) { // not required
+	if swag.IsZero(o.Ppm) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"scheduled-move-date", "body", "date", o.ScheduledMoveDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *UpdateMoveTaskOrderPostCounselingInformationBody) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.SecondaryDeliveryAddress) { // not required
-		return nil
-	}
-
-	if o.SecondaryDeliveryAddress != nil {
-		if err := o.SecondaryDeliveryAddress.Validate(formats); err != nil {
+	if o.Ppm != nil {
+		if err := o.Ppm.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "secondary-delivery-address")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *UpdateMoveTaskOrderPostCounselingInformationBody) validateSecondaryPickupAddress(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.SecondaryPickupAddress) { // not required
-		return nil
-	}
-
-	if o.SecondaryPickupAddress != nil {
-		if err := o.SecondaryPickupAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "secondary-pickup-address")
+				return ve.ValidateName("body" + "." + "ppm")
 			}
 			return err
 		}

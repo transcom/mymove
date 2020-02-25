@@ -64,7 +64,7 @@ type UpdateMoveTaskOrderPostCounselingInformationParams struct {
 	/*Body*/
 	Body UpdateMoveTaskOrderPostCounselingInformationBody
 	/*MoveTaskOrderID
-	  ID of move order to use
+	  ID of move task order to use
 
 	*/
 	MoveTaskOrderID string

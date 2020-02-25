@@ -37,7 +37,7 @@ type UpdateMoveTaskOrderPostCounselingInformationParams struct {
 	  In: body
 	*/
 	Body UpdateMoveTaskOrderPostCounselingInformationBody
-	/*ID of move order to use
+	/*ID of move task order to use
 	  Required: true
 	  In: path
 	*/
