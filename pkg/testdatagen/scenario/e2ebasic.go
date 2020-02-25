@@ -4,6 +4,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/gobuffalo/pop"
@@ -937,6 +939,17 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		MoveTaskOrder: models.MoveTaskOrder{
 			ID:          uuid.FromStringOrNil("2b485ded-a395-4dbb-9aa7-3f902dd4ccea"),
 			MoveOrderID: moveOrders5.ID,
+		},
+	})
+
+	testdatagen.MakeATOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MoveTaskOrder:   mto,
+			MoveTaskOrderID: mto.ID,
+			FirstName:       swag.String("Test"),
+			LastName:        swag.String("Agent"),
+			Email:           swag.String("test@test.email.com"),
+			MTOAgentType:    models.MTOAgentReleasing,
 		},
 	})
 

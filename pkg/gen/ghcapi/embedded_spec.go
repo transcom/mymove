@@ -588,6 +588,49 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/mto-agents/": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all agents for a move task order",
+            "schema": {
+              "$ref": "#/definitions/MTOAgents"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move task order for mto agent to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}": {
       "get": {
         "description": "Gets a line item by ID for a move order by ID",
@@ -1678,11 +1721,11 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "current_address": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "destination_address": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -1859,6 +1902,57 @@ func init() {
         "message": {
           "type": "string"
         }
+      }
+    },
+    "MTOAgent": {
+      "type": "object",
+      "properties": {
+        "agentType": {
+          "type": "string",
+          "enum": [
+            "RELEASING_AGENT",
+            "RECEIVING_AGENT"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "MTOAgents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOAgent"
       }
     },
     "MTOServiceItem": {
@@ -3135,6 +3229,55 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/mto-agents/": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all agents for a move task order",
+            "schema": {
+              "$ref": "#/definitions/MTOAgents"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move task order for mto agent to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}": {
       "get": {
         "description": "Gets a line item by ID for a move order by ID",
@@ -4372,11 +4515,11 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "current_address": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "destination_address": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -4553,6 +4696,57 @@ func init() {
         "message": {
           "type": "string"
         }
+      }
+    },
+    "MTOAgent": {
+      "type": "object",
+      "properties": {
+        "agentType": {
+          "type": "string",
+          "enum": [
+            "RELEASING_AGENT",
+            "RECEIVING_AGENT"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "MTOAgents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOAgent"
       }
     },
     "MTOServiceItem": {

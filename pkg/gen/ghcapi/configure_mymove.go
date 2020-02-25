@@ -39,6 +39,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsHandler == nil {
+		api.GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsHandler = ghcoperations.GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsHandlerFunc(func(params ghcoperations.GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation .GetMoveTaskOrdersMoveTaskOrderIDMtoAgents has not yet been implemented")
+		})
+	}
 	if api.MtoServiceItemCreateMTOServiceItemHandler == nil {
 		api.MtoServiceItemCreateMTOServiceItemHandler = mto_service_item.CreateMTOServiceItemHandlerFunc(func(params mto_service_item.CreateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.CreateMTOServiceItem has not yet been implemented")

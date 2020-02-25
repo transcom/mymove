@@ -44,6 +44,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
+		GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsHandler: GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsHandlerFunc(func(params GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetMoveTaskOrdersMoveTaskOrderIDMtoAgents has not yet been implemented")
+		}),
 		MtoServiceItemCreateMTOServiceItemHandler: mto_service_item.CreateMTOServiceItemHandlerFunc(func(params mto_service_item.CreateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoServiceItemCreateMTOServiceItem has not yet been implemented")
 		}),
@@ -141,6 +144,8 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsHandler sets the operation handler for the get move task orders move task order ID mto agents operation
+	GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsHandler GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsHandler
 	// MtoServiceItemCreateMTOServiceItemHandler sets the operation handler for the create m t o service item operation
 	MtoServiceItemCreateMTOServiceItemHandler mto_service_item.CreateMTOServiceItemHandler
 	// MtoServiceItemDeleteMTOServiceItemHandler sets the operation handler for the delete m t o service item operation
@@ -246,6 +251,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
+	}
+
+	if o.GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsHandler == nil {
+		unregistered = append(unregistered, "GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsHandler")
 	}
 
 	if o.MtoServiceItemCreateMTOServiceItemHandler == nil {
@@ -433,6 +442,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/mto-agents"] = NewGetMoveTaskOrdersMoveTaskOrderIDMtoAgents(o.context, o.GetMoveTaskOrdersMoveTaskOrderIDMtoAgentsHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)

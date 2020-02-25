@@ -1,0 +1,26 @@
+package mtoagent
+
+import (
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+)
+
+type mtoAgentQueryBuilder interface {
+	FetchMany(model interface{}, filters []services.QueryFilter) error
+}
+
+type mtoAgentListFetcher struct {
+	builder mtoAgentQueryBuilder
+}
+
+// FetchMTOAgents fetches a list of move task order agents based on the move task order id.
+func (m *mtoAgentListFetcher) FetchMTOAgentList(filters []services.QueryFilter) (*models.MTOAgents, error) {
+	var mtoAgents models.MTOAgents
+	err := m.builder.FetchMany(&mtoAgents, filters)
+	return &mtoAgents, err
+}
+
+// NewMTOAgentFetcher returns an implementation of the MTOAgentListFetcher interface
+func NewMTOAgentListFetcher(builder mtoAgentQueryBuilder) services.MTOAgentListFetcher {
+	return &mtoAgentListFetcher{builder}
+}
