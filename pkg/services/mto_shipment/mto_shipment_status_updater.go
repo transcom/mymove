@@ -8,7 +8,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
-	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -17,6 +16,7 @@ import (
 // UpdateMTOShipmentStatusQueryBuilder is the query builder for updating MTO Shipments
 type UpdateMTOShipmentStatusQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
+	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type mtoShipmentStatusUpdater struct {
@@ -26,12 +26,7 @@ type mtoShipmentStatusUpdater struct {
 }
 
 // UpdateMTOShipmentStatus updates MTO Shipment Status
-func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentops.PatchMTOShipmentStatusParams) (*models.MTOShipment, error) {
-	shipmentID := payload.ShipmentID
-	status := models.MTOShipmentStatus(payload.Body.Status)
-	rejectionReason := payload.Body.RejectionReason
-	unmodifiedSince := time.Time(payload.IfUnmodifiedSince)
-
+func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 
 	queryFilters := []services.QueryFilter{
@@ -52,8 +47,14 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 	shipment.Status = status
 	shipment.RejectionReason = rejectionReason
 
-	verrs, err := shipment.Validate(o.db)
-	if verrs.Count() > 0 {
+	if shipment.Status == models.MTOShipmentStatusApproved {
+		approvedDate := time.Now()
+		shipment.ApprovedDate = &approvedDate
+	}
+
+	verrs, err := o.builder.UpdateOne(&shipment, &eTag)
+
+	if verrs != nil && verrs.HasAny() {
 		return nil, ValidationError{
 			id:    shipment.ID,
 			Verrs: verrs,
@@ -61,33 +62,15 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 	}
 
 	if err != nil {
-		return nil, err
-	}
-
-	baseQuery := `UPDATE mto_shipments
-		SET status = ?,
-		rejection_reason = ?,
-		updated_at = NOW()`
-
-	if shipment.Status == models.MTOShipmentStatusApproved {
-		baseQuery = baseQuery + `,
-			approved_date = NOW()`
-	}
-
-	finishedQuery := baseQuery + `
-		WHERE
-			id = ?
-		AND
-			updated_at = ?
-		;`
-
-	affectedRows, err := o.db.RawQuery(finishedQuery, status, shipment.RejectionReason, shipment.ID.String(), unmodifiedSince).ExecWithCount()
-	if err != nil {
-		return nil, err
-	}
-
-	if affectedRows != 1 {
-		return nil, PreconditionFailedError{id: shipment.ID}
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return nil, PreconditionFailedError{
+				id:  shipment.ID,
+				Err: err,
+			}
+		default:
+			return nil, err
+		}
 	}
 
 	if shipment.Status == models.MTOShipmentStatusApproved {
@@ -184,7 +167,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 		for _, serviceItem := range serviceItemsToCreate {
 			_, verrs, err := o.siCreator.CreateMTOServiceItem(&serviceItem)
 
-			if verrs != nil {
+			if verrs != nil && verrs.HasAny() {
 				return nil, ValidationError{
 					id:    shipment.ID,
 					Verrs: verrs,
@@ -256,7 +239,8 @@ func (e ValidationError) Error() string {
 
 // PreconditionFailedError is the precondition failed error
 type PreconditionFailedError struct {
-	id uuid.UUID
+	id  uuid.UUID
+	Err error
 }
 
 // Error is the string representation of the precondition failed error
