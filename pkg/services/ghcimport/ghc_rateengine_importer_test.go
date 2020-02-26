@@ -60,8 +60,8 @@ func (suite *GHCRateEngineImportSuite) TearDownSuite() {
 	suite.PopTestSuite.TearDown()
 }
 
-func (suite *GHCRateEngineImportSuite) helperLoadSQLFixture(pathName string) {
-	path := filepath.Join("fixtures", pathName)
+func (suite *GHCRateEngineImportSuite) helperLoadSQLFixture(fileName string) {
+	path := filepath.Join("fixtures", fileName)
 	_, err := os.Stat(path)
 	suite.NoError(err)
 
