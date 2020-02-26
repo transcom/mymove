@@ -829,7 +829,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: gm-anti-virus-debugging
 
       - client_test:
           requires:
@@ -837,7 +837,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: gm-anti-virus-debugging
 
       - server_test:
           requires:
@@ -845,7 +845,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: gm-anti-virus-debugging
 
       - build_app:
           requires:
