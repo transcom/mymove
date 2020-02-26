@@ -3,8 +3,6 @@ package ghcapi
 import (
 	"log"
 
-	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
-
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moveorder "github.com/transcom/mymove/pkg/services/move_order"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -93,8 +91,8 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.MtoAgentFetchMTOAgentListHandler = ListMTOAgentsHandler{
-		HandlerContext:      context,
-		MTOAgentListFetcher: mtoagent.NewMTOAgentListFetcher(queryBuilder),
+		HandlerContext: context,
+		ListFetcher:    fetch.NewListFetcher(queryBuilder),
 	}
 
 	return ghcAPI

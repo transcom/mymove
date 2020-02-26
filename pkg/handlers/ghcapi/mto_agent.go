@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -19,7 +21,7 @@ import (
 //ListMTOAgentsHandler is a struct for the handler.
 type ListMTOAgentsHandler struct {
 	handlers.HandlerContext
-	services.MTOAgentListFetcher
+	services.ListFetcher
 }
 
 //Handle handles the handling for listing MTO Agents.
@@ -39,19 +41,17 @@ func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) 
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("mto_shipment_id", "=", mtoShipmentID.String()),
 	}
-
-	mtoAgents, err := h.FetchMTOAgentList(queryFilters)
+	var mtoAgents models.MTOAgents
+	err = h.FetchRecordList(&mtoAgents, queryFilters, query.NewQueryAssociations([]services.QueryAssociation{}), nil, nil)
 	// return errors
 	if err != nil {
+		if err.Error() == "FETCH_NOT_FOUND" {
+			return mtoagentop.NewFetchMTOAgentListNotFound()
+		}
 		logger.Error(fmt.Sprintf("Error fetching mto agents for mto shipment with id: %s", mtoShipmentID.String()), zap.Error(err))
 		return mtoagentop.NewFetchMTOAgentListInternalServerError()
 	}
 
-	if mtoAgents == nil {
-		logger.Error(fmt.Sprintf("Found 0 mto agents for mto shipment id: %s", mtoShipmentID.String()))
-		return mtoagentop.NewFetchMTOAgentListNotFound()
-	}
-
-	returnPayload := payloads.MTOAgents(mtoAgents)
+	returnPayload := payloads.MTOAgents(&mtoAgents)
 	return mtoagentop.NewFetchMTOAgentListOK().WithPayload(*returnPayload)
 }

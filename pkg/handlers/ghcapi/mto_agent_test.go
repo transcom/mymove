@@ -6,11 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -29,21 +30,22 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 			HTTPRequest: req,
 			ShipmentID:  strfmt.UUID(testMTOAgent.MTOShipmentID.String()),
 		}
-		mtoAgentListFetcher := &mocks.MTOAgentListFetcher{}
-		mtoAgentListFetcher.On("FetchMTOAgentList",
+		listFetcher := &mocks.ListFetcher{}
+		listFetcher.On("FetchRecordList",
 			mock.Anything,
-		).Return(&models.MTOAgents{testMTOAgent}, nil).Once()
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil).Once()
 
 		handler := ListMTOAgentsHandler{
-			HandlerContext:      handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			MTOAgentListFetcher: mtoAgentListFetcher,
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			ListFetcher:    listFetcher,
 		}
 
 		response := handler.Handle(params)
 		suite.IsType(mtoagentop.NewFetchMTOAgentListOK(), response)
-		okResponse := response.(*mtoagentop.FetchMTOAgentListOK)
-		suite.Len(okResponse.Payload, 1)
-		suite.Equal(testMTOAgent.ID.String(), okResponse.Payload[0].ID.String())
 	})
 
 	suite.T().Run("Error Response", func(t *testing.T) {
@@ -51,14 +53,18 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 			HTTPRequest: req,
 			ShipmentID:  strfmt.UUID(testMTOAgent.MTOShipmentID.String()),
 		}
-		mtoAgentListFetcher := &mocks.MTOAgentListFetcher{}
-		mtoAgentListFetcher.On("FetchMTOAgentList",
+		listFetcher := &mocks.ListFetcher{}
+		listFetcher.On("FetchRecordList",
 			mock.Anything,
-		).Return(nil, errors.New("an error happened")).Once()
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(errors.New("an error happened")).Once()
 
 		handler := ListMTOAgentsHandler{
-			HandlerContext:      handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			MTOAgentListFetcher: mtoAgentListFetcher,
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			ListFetcher:    listFetcher,
 		}
 		response := handler.Handle(params)
 		expectedResponse := mtoagentop.NewFetchMTOAgentListInternalServerError()
@@ -70,14 +76,18 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 			HTTPRequest: req,
 			ShipmentID:  strfmt.UUID(testMTOAgent.MTOShipmentID.String()),
 		}
-		mtoAgentListFetcher := &mocks.MTOAgentListFetcher{}
-		mtoAgentListFetcher.On("FetchMTOAgentList",
+		listFetcher := &mocks.ListFetcher{}
+		listFetcher.On("FetchRecordList",
 			mock.Anything,
-		).Return(nil, nil).Once()
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(models.ErrFetchNotFound).Once()
 
 		handler := ListMTOAgentsHandler{
-			HandlerContext:      handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			MTOAgentListFetcher: mtoAgentListFetcher,
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			ListFetcher:    listFetcher,
 		}
 		response := handler.Handle(params)
 		expectedResponse := mtoagentop.NewFetchMTOAgentListNotFound()
