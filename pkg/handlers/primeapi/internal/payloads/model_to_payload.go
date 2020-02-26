@@ -164,7 +164,6 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		CustomerRemarks:          *mtoShipment.CustomerRemarks,
 		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
 		ScheduledPickupDate:      strfmt.Date(*mtoShipment.ScheduledPickupDate),
-		ActualPickupDate:         strfmt.Date(*mtoShipment.ActualPickupDate),
 		PickupAddress:            Address(&mtoShipment.PickupAddress),
 		Status:                   string(mtoShipment.Status),
 		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
@@ -177,6 +176,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	if mtoShipment.ApprovedDate != nil && !mtoShipment.ApprovedDate.IsZero() {
 		approvedDate := strfmt.Date(*mtoShipment.ApprovedDate)
 		payload.ApprovedDate = &approvedDate
+	}
+
+	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
+		payload.ActualPickupDate = strfmt.Date(*mtoShipment.ActualPickupDate)
 	}
 
 	if mtoShipment.FirstAvailableDeliveryDate != nil && !mtoShipment.FirstAvailableDeliveryDate.IsZero() {
