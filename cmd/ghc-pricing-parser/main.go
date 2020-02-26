@@ -154,28 +154,82 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 		header   string
 		ptrSlice interface{}
 	}{
-		{"1b: Service Areas", &[]models.StageDomesticServiceArea{}},
-		{"1b: Service Areas", &[]models.StageInternationalServiceArea{}},
-		{"2a: Domestic Linehaul Prices", &[]models.StageDomesticLinehaulPrice{}},
-		{"2b: Domestic Service Area Prices", &[]models.StageDomesticServiceAreaPrice{}},
-		{"2c: Other Domestic Prices", &[]models.StageDomesticOtherPackPrice{}},
-		{"2c: Other Domestic Prices", &[]models.StageDomesticOtherSitPrice{}},
-		{"3a: OCONUS to OCONUS Prices", &[]models.StageOconusToOconusPrice{}},
-		{"3b: CONUS to OCONUS Prices", &[]models.StageConusToOconusPrice{}},
-		{"3c: OCONUS to CONUS Prices", &[]models.StageOconusToConusPrice{}},
-		{"3d: Other International Prices", &[]models.StageOtherIntlPrice{}},
-		{"3e: Non-Standard Location Prices", &[]models.StageNonStandardLocnPrice{}},
-		{"4a: Management, Counseling, and Transition Prices", &[]models.StageShipmentManagementServicesPrice{}},
-		{"4a: Management, Counseling, and Transition Prices", &[]models.StageCounselingServicesPrice{}},
-		{"4a: Management, Counseling, and Transition Prices", &[]models.StageTransitionPrice{}},
-		{"5a: Accessorial and Additional Prices", &[]models.StageDomesticMoveAccessorialPrice{}},
-		{"5a: Accessorial and Additional Prices", &[]models.StageInternationalMoveAccessorialPrice{}},
-		{"5a: Accessorial and Additional Prices", &[]models.StageDomesticInternationalAdditionalPrice{}},
-		{"5b: Price Escalation Discount", &[]models.StagePriceEscalationDiscount{}},
+		{
+			"1b: Service Areas",
+			&[]models.StageDomesticServiceArea{},
+		},
+		{
+			"1b: Service Areas",
+			&[]models.StageInternationalServiceArea{},
+		},
+		{
+			"2a: Domestic Linehaul Prices",
+			&[]models.StageDomesticLinehaulPrice{},
+		},
+		{
+			"2b: Domestic Service Area Prices",
+			&[]models.StageDomesticServiceAreaPrice{},
+		},
+		{
+			"2c: Other Domestic Prices",
+			&[]models.StageDomesticOtherPackPrice{},
+		},
+		{
+			"2c: Other Domestic Prices",
+			&[]models.StageDomesticOtherSitPrice{},
+		},
+		{
+			"3a: OCONUS to OCONUS Prices",
+			&[]models.StageOconusToOconusPrice{},
+		},
+		{
+			"3b: CONUS to OCONUS Prices",
+			&[]models.StageConusToOconusPrice{},
+		},
+		{
+			"3c: OCONUS to CONUS Prices",
+			&[]models.StageOconusToConusPrice{},
+		},
+		{
+			"3d: Other International Prices",
+			&[]models.StageOtherIntlPrice{},
+		},
+		{
+			"3e: Non-Standard Location Prices",
+			&[]models.StageNonStandardLocnPrice{},
+		},
+		{
+			"4a: Management, Counseling, and Transition Prices",
+			&[]models.StageShipmentManagementServicesPrice{},
+		},
+		{
+			"4a: Management, Counseling, and Transition Prices",
+			&[]models.StageCounselingServicesPrice{},
+		},
+		{
+			"4a: Management, Counseling, and Transition Prices",
+			&[]models.StageTransitionPrice{},
+		},
+		{
+			"5a: Accessorial and Additional Prices",
+			&[]models.StageDomesticMoveAccessorialPrice{},
+		},
+		{
+			"5a: Accessorial and Additional Prices",
+			&[]models.StageInternationalMoveAccessorialPrice{},
+		},
+		{
+			"5a: Accessorial and Additional Prices",
+			&[]models.StageDomesticInternationalAdditionalPrice{},
+		},
+		{
+			"5b: Price Escalation Discount",
+			&[]models.StagePriceEscalationDiscount{},
+		},
 	}
 
 	for _, table := range tables {
-		err := summarizeXlsxStageTable(db, logger, table.header, table.ptrSlice)
+		err := summarizeTable(db, logger, table.header, table.ptrSlice, nil)
 		if err != nil {
 			return err
 		}
@@ -184,289 +238,121 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 	return nil
 }
 
-func summarizeXlsxStageTable(db *pop.Connection, logger logger, header string, modelSlice interface{}) error {
+func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.UUID) error {
+	logger.Info("Stage Table import into Rate Engine Tables Complete")
+	logger.Info("Summary:")
+
+	tables := []struct {
+		header   string
+		ptrSlice interface{}
+		filter   *pop.Query
+	}{
+		{
+			"re_contract",
+			&[]models.ReContract{},
+			db.Where("id = ?", contractID),
+		},
+		{
+			"re_contract_years",
+			&[]models.ReContractYear{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_domestic_service_areas",
+			&[]models.ReDomesticServiceArea{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_rate_areas",
+			&[]models.ReRateArea{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"reDomLinePrices",
+			&[]models.ReDomesticLinehaulPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_domestic_service_area_prices",
+			&[]models.ReDomesticServiceAreaPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_domestic_other_prices",
+			&[]models.ReDomesticOtherPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_international_prices",
+			&[]models.ReIntlPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_international_other_prices",
+			&[]models.ReIntlOtherPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_task_order_fees",
+			&[]models.ReTaskOrderFee{},
+			db.Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id"),
+		},
+		{
+			"re_domestic_accessorial_prices",
+			&[]models.ReDomesticAccessorialPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_intl_accessorial_prices",
+			&[]models.ReIntlAccessorialPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_shipment_type_prices",
+			&[]models.ReShipmentTypePrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+	}
+
+	for _, table := range tables {
+		err := summarizeTable(db, logger, table.header, table.ptrSlice, table.filter)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func summarizeTable(db *pop.Connection, logger logger, header string, modelSlice interface{}, filter *pop.Query) error {
 	modelType := reflect.TypeOf(modelSlice).Elem().Elem()
 	modelName := modelType.Name()
 	modelInstance := reflect.New(modelType)
 
-	err := db.Limit(2).All(modelSlice)
+	if filter == nil {
+		filter = db.Q()
+	}
+
+	err := filter.Limit(2).All(modelSlice)
 	if err != nil {
 		return err
 	}
-	length, err := db.Count(modelInstance.Interface())
+	length, err := filter.Count(modelInstance.Interface())
 	if err != nil {
 		return err
 	}
 
 	modelSliceValue := reflect.ValueOf(modelSlice).Elem()
 
-	headerMsg := fmt.Sprintf("\t%s (%s)", header, modelName)
+	headerMsg := fmt.Sprintf("  %s (%s)", header, modelName)
 	logger.Info(headerMsg, zap.Int("length", length))
 	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any(modelName, modelSliceValue.Index(0).Interface()))
+		logger.Info("    first", zap.Any(modelName, modelSliceValue.Index(0).Interface()))
 	}
 	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any(modelName, modelSliceValue.Index(1).Interface()))
+		logger.Info("    second", zap.Any(modelName, modelSliceValue.Index(1).Interface()))
 	}
-	logger.Info("\t---")
-
-	return nil
-}
-
-func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.UUID) error {
-	logger.Info("Stage Table import into Rate Engine Tables Complete")
-	logger.Info(" Summary:")
-
-	// re_contract
-	reContracts := []models.ReContract{}
-	err := db.Where("id = ?", contractID).Limit(2).All(&reContracts)
-	if err != nil {
-		return err
-	}
-	length, err := db.Where("id = ?", contractID).Count(models.ReContract{})
-	if err != nil {
-		return err
-	}
-
-	logger.Info("\tre_contract (ReContract)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReContract", reContracts[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReContract", reContracts[1]))
-	}
-	logger.Info("\t---")
-
-	// re_contract_years
-	reContractYears := []models.ReContractYear{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reContractYears)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReContractYear{})
-	if err != nil {
-		return err
-	}
-
-	logger.Info("\tre_contract_years (ReContractYear)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReContractYear", reContractYears[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReContractYear", reContractYears[1]))
-	}
-	logger.Info("\t---")
-
-	// re_domestic_service_areas
-	reDomSerAreas := []models.ReDomesticServiceArea{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomSerAreas)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticServiceArea{})
-	if err != nil {
-		return err
-	}
-
-	logger.Info("\tre_domestic_service_areas (ReDomesticServiceArea)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReDomesticServiceArea", reDomSerAreas[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReDomesticServiceArea", reDomSerAreas[1]))
-	}
-	logger.Info("\t---")
-
-	// re_rate_areas
-	reRateAreas := []models.ReRateArea{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reRateAreas)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReRateArea{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\tre_rate_areas (ReRateArea)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReRateArea", reRateAreas[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReRateArea", reRateAreas[1]))
-	}
-	logger.Info("\t---")
-
-	// re_domestic_linehaul_prices
-	reDomLinePrices := []models.ReDomesticLinehaulPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomLinePrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticLinehaulPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\treDomLinePrices (ReDomesticLinehaulPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReDomesticLinehaulPrice", reDomLinePrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReRReDomesticLinehaulPriceateArea", reDomLinePrices[1]))
-	}
-	logger.Info("\t---")
-
-	// re_domestic_service_area_prices
-	reDomSerAreaPrices := []models.ReDomesticServiceAreaPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomSerAreaPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticServiceAreaPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\tre_domestic_service_area_prices (ReDomesticServiceAreaPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReDomesticServiceAreaPrice", reDomSerAreaPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReDomesticServiceAreaPrice", reDomSerAreaPrices[1]))
-	}
-	logger.Info("\t---")
-
-	// re_domestic_other_prices
-	reDomOtherPrices := []models.ReDomesticOtherPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomOtherPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticOtherPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\tre_domestic_other_prices (ReDomesticOtherPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReDomesticOtherPrice", reDomOtherPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReDomesticOtherPrice", reDomOtherPrices[1]))
-	}
-	logger.Info("\t---")
-
-	// re_international_prices
-	reIntlPrices := []models.ReIntlPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reIntlPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReIntlPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\tre_international_prices (ReIntlPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReIntlPrice", reIntlPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReIntlPrice", reIntlPrices[1]))
-	}
-	logger.Info("\t---")
-
-	// re_international_other_prices
-	reIntlOtherPrices := []models.ReIntlOtherPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reIntlOtherPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReIntlOtherPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\tre_international_other_prices (ReIntlOtherPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReIntlOtherPrice", reIntlOtherPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReIntlOtherPrice", reIntlOtherPrices[1]))
-	}
-	logger.Info("\t---")
-
-	// re_task_order_fees
-	//possibly need a join where contract year id  = contract_year.contract_id
-	reTaskOrderFees := []models.ReTaskOrderFee{}
-	err = db.Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id").Limit(2).All(&reTaskOrderFees)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id").Count(models.ReTaskOrderFee{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\tre_task_order_fees (ReTaskOrderFee)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReTaskOrderFee", reTaskOrderFees[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReTaskOrderFee", reTaskOrderFees[1]))
-	}
-	logger.Info("\t---")
-
-	// re_domestic_accessorial_prices
-	reDomAccPrices := []models.ReDomesticAccessorialPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomAccPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticAccessorialPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\tre_domestic_accessorial_prices (ReDomesticAccessorialPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReDomesticAccessorialPrice", reDomAccPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReDomesticAccessorialPrice", reDomAccPrices[1]))
-	}
-	logger.Info("\t---")
-
-	// re_intl_accessorial_prices
-	reIntlAccPrices := []models.ReIntlAccessorialPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reIntlAccPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReIntlAccessorialPrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\tre_intl_accessorial_prices (ReIntlAccessorialPrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReIntlAccessorialPrice", reIntlAccPrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReIntlAccessorialPrice", reIntlAccPrices[1]))
-	}
-	logger.Info("\t---")
-
-	// re_shipment_type_prices
-	reShipmentTypePrices := []models.ReShipmentTypePrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reShipmentTypePrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReShipmentTypePrice{})
-	if err != nil {
-		return err
-	}
-	logger.Info("\tre_shipment_type_prices (ReShipmentTypePrice)", zap.Int("length", length))
-	if length > 0 {
-		logger.Info("\t\tfirst", zap.Any("ReShipmentTypePrice", reShipmentTypePrices[0]))
-	}
-	if length > 1 {
-		logger.Info("\t\tsecond", zap.Any("ReShipmentTypePrice", reShipmentTypePrices[1]))
-	}
-	logger.Info("\t---")
+	logger.Info("  ---")
 
 	return nil
 }
