@@ -7,12 +7,13 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// GHCRateEngineImporter is the rate engine importer for GHC
 type GHCRateEngineImporter struct {
 	Logger       Logger
 	ContractCode string
 	ContractName string
 	// TODO: add reference maps here as needed for dependencies between tables
-	contractID                   uuid.UUID
+	ContractID                   uuid.UUID
 	serviceAreaToIDMap           map[string]uuid.UUID
 	domesticRateAreaToIDMap      map[string]uuid.UUID
 	internationalRateAreaToIDMap map[string]uuid.UUID
@@ -23,7 +24,7 @@ type GHCRateEngineImporter struct {
 func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 	// Reference tables
 	gre.Logger.Info("Importing contract")
-	err := gre.importREContract(dbTx) // Also populates gre.contractID
+	err := gre.importREContract(dbTx) // Also populates gre.ContractID
 	if err != nil {
 		return fmt.Errorf("failed to import re_contract: %w", err)
 	}
@@ -109,6 +110,7 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 	return nil
 }
 
+// Import runs the import
 func (gre *GHCRateEngineImporter) Import(db *pop.Connection) error {
 	err := db.Transaction(func(connection *pop.Connection) error {
 		dbTxError := gre.runImports(connection)

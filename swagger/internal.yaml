@@ -834,6 +834,15 @@ definitions:
       vehicle_nickname:
         type: string
         title: Vehicle nickname (ex. 'My car')
+        x-nullable: true
+      vehicle_make:
+        type: string
+        title: Vehicle make
+        x-nullable: true
+      vehicle_model:
+        type: string
+        title: Vehicle model
+        x-nullable: true
       empty_weight:
         title: Empty Weight
         type: integer
@@ -1045,6 +1054,15 @@ definitions:
       vehicle_nickname:
         type: string
         title: Vehicle nickname (ex. 'My car')
+        x-nullable: true
+      vehicle_make:
+        type: string
+        title: Vehicle make
+        x-nullable: true
+      vehicle_model:
+        type: string
+        title: Vehicle model
+        x-nullable: true
       empty_weight_ticket_missing:
         title: missing empty weight ticket
         type: boolean

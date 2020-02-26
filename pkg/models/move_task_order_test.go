@@ -13,8 +13,10 @@ import (
 
 func (suite *ModelSuite) TestMoveTaskOrderValidation() {
 	suite.T().Run("test valid MoveTaskOrder", func(t *testing.T) {
+		referenceID, _ := models.GenerateReferenceID(suite.DB())
 		validMoveTaskOrder := models.MoveTaskOrder{
 			MoveOrderID: uuid.Must(uuid.NewV4()),
+			ReferenceID: referenceID,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMoveTaskOrder, expErrors)

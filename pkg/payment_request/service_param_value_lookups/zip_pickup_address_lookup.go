@@ -1,5 +1,6 @@
 package serviceparamvaluelookups
 
+// ZipPickupAddressLookup does zip pickup address lookup
 type ZipPickupAddressLookup struct {
 }
 

@@ -23,7 +23,7 @@ func (m *mtoAgentListFetcher) FetchMTOAgentList(filters []services.QueryFilter) 
 	return &mtoAgents, err
 }
 
-// NewMTOAgentFetcher returns an implementation of the MTOAgentListFetcher interface
+//NewMTOAgentListFetcher returns an implementation of the MTOAgentListFetcher interface
 func NewMTOAgentListFetcher(builder mtoAgentQueryBuilder) services.MTOAgentListFetcher {
 	return &mtoAgentListFetcher{builder}
 }

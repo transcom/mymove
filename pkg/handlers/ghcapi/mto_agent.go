@@ -16,11 +16,13 @@ import (
 	mtoagentop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
 )
 
+//ListMTOAgentsHandler is a struct for the handler.
 type ListMTOAgentsHandler struct {
 	handlers.HandlerContext
 	services.MTOAgentListFetcher
 }
 
+//Handle handles the handling for listing MTO Agents.
 func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 

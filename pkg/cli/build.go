@@ -11,7 +11,7 @@ const (
 	// BuildRootFlag is the build root flag
 	BuildRootFlag string = "build-root"
 
-	// Path to the build directory
+	// DefaultBuildRoot Path to the build directory
 	DefaultBuildRoot string = "build"
 )
 

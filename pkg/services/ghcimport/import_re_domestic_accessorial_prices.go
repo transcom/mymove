@@ -53,7 +53,7 @@ func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(dbTx *pop.Co
 				}
 
 				domesticAccessorial := models.ReDomesticAccessorialPrice{
-					ContractID:       gre.contractID,
+					ContractID:       gre.ContractID,
 					ServicesSchedule: servicesSchedule,
 					ServiceID:        serviceID,
 					PerUnitCents:     unit.Cents(perUnitCentsService),

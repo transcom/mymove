@@ -51,7 +51,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures(
 
 	err := gre.importREContract(suite.DB())
 	suite.NoError(err)
-	suite.NotNil(gre.contractID)
+	suite.NotNil(gre.ContractID)
 
 	err = gre.loadServiceMap(suite.DB())
 	suite.NoError(err)

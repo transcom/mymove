@@ -24,7 +24,8 @@ var (
 	moveReviewedRawTextTemplate = string(assets.MustAsset("pkg/notifications/templates/move_reviewed_template.txt"))
 	textTemplate                = text.Must(text.New("text_template").Parse(moveReviewedRawTextTemplate))
 	moveReviewedRawHTMLTemplate = string(assets.MustAsset("pkg/notifications/templates/move_reviewed_template.html"))
-	HTMLTemplate                = html.Must(html.New("text_template").Parse(moveReviewedRawHTMLTemplate))
+	// HTMLTemplate is a template for reviewed moves
+	HTMLTemplate = html.Must(html.New("text_template").Parse(moveReviewedRawHTMLTemplate))
 )
 
 // MoveReviewed has notification content for completed/reviewed moves
@@ -48,8 +49,10 @@ func NewMoveReviewed(db *pop.Connection, logger Logger, date time.Time) (*MoveRe
 	}, nil
 }
 
+// EmailInfos is a slice of email info
 type EmailInfos []EmailInfo
 
+// EmailInfo email information for rendering a template
 type EmailInfo struct {
 	ServiceMemberID    uuid.UUID `db:"id"`
 	Email              *string   `db:"personal_email"`
@@ -57,6 +60,7 @@ type EmailInfo struct {
 	NewDutyStationName string    `db:"new_duty_station_name"`
 }
 
+// GetEmailInfo retreives email information
 func (m MoveReviewed) GetEmailInfo(date time.Time) (EmailInfos, error) {
 	dateString := date.Format("2006-01-02")
 	query := `SELECT sm.id, sm.personal_email, dsn.name AS new_duty_station_name, dso.name AS duty_station_name

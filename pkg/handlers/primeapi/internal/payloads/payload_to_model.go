@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// AddressModel model
 func AddressModel(address *primemessages.Address) *models.Address {
 	if address == nil {
 		return nil
@@ -26,6 +27,7 @@ func AddressModel(address *primemessages.Address) *models.Address {
 	}
 }
 
+// MTOShipmentModel model
 func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipment {
 	if mtoShipment == nil {
 		return nil

@@ -71,12 +71,14 @@ func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams)
 	return adminuserop.NewIndexAdminUsersOK().WithContentRange(fmt.Sprintf("admin users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedAdminUsersCount, totalAdminUsersCount)).WithPayload(payload)
 }
 
+// GetAdminUserHandler retrieves a handler for admin users
 type GetAdminUserHandler struct {
 	handlers.HandlerContext
 	services.AdminUserFetcher
 	services.NewQueryFilter
 }
 
+// Handle retrieves a new admin user
 func (h GetAdminUserHandler) Handle(params adminuserop.GetAdminUserParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
@@ -94,12 +96,14 @@ func (h GetAdminUserHandler) Handle(params adminuserop.GetAdminUserParams) middl
 	return adminuserop.NewGetAdminUserOK().WithPayload(payload)
 }
 
+// CreateAdminUserHandler is the handler for creating users.
 type CreateAdminUserHandler struct {
 	handlers.HandlerContext
 	services.AdminUserCreator
 	services.NewQueryFilter
 }
 
+// Handle creates an admin user
 func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams) middleware.Responder {
 	payload := params.AdminUser
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
@@ -137,12 +141,14 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 	return adminuserop.NewCreateAdminUserCreated().WithPayload(returnPayload)
 }
 
+// UpdateAdminUserHandler is the handler for updating users
 type UpdateAdminUserHandler struct {
 	handlers.HandlerContext
 	services.AdminUserUpdater
 	services.NewQueryFilter
 }
 
+// Handle updates admin users
 func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams) middleware.Responder {
 	payload := params.AdminUser
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)

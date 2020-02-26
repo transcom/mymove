@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// DomOtherPriceToInsert is the domestic other price to insert
 type DomOtherPriceToInsert struct {
 	model   models.ReDomesticOtherPrice
 	message string
@@ -176,12 +177,12 @@ func (gre *GHCRateEngineImporter) importREDomesticOtherPrices(db *pop.Connection
 	var modelsToSaveSit []DomOtherPriceToInsert
 
 	var err error
-	modelsToSavePack, err = importPackUnpackPrices(db, gre.serviceToIDMap, gre.contractID)
+	modelsToSavePack, err = importPackUnpackPrices(db, gre.serviceToIDMap, gre.ContractID)
 	if err != nil {
 		return err
 	}
 
-	modelsToSaveSit, err = importSitPrices(db, gre.serviceToIDMap, gre.contractID)
+	modelsToSaveSit, err = importSitPrices(db, gre.serviceToIDMap, gre.ContractID)
 	if err != nil {
 		return err
 	}

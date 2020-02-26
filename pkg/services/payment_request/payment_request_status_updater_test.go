@@ -15,12 +15,12 @@ import (
 )
 
 type testPaymentRequestStatusQueryBuilder struct {
-	fakeUpdateOne func(model interface{}) (*validate.Errors, error)
+	fakeUpdateOne func(model interface{}, eTag *string) (*validate.Errors, error)
 	fakeFetchOne  func(model interface{}) error
 }
 
-func (t *testPaymentRequestStatusQueryBuilder) UpdateOne(model interface{}) (*validate.Errors, error) {
-	v, m := t.fakeUpdateOne(model)
+func (t *testPaymentRequestStatusQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
+	v, m := t.fakeUpdateOne(model, nil)
 	return v, m
 }
 
@@ -41,7 +41,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 			return nil
 		}
 
-		fakeUpdateOne := func(model interface{}) (*validate.Errors, error) {
+		fakeUpdateOne := func(model interface{}, eTag *string) (*validate.Errors, error) {
 			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(id))
 			return &validate.Errors{}, nil
 		}
@@ -63,7 +63,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 
-		fakeUpdateOne := func(model interface{}) (*validate.Errors, error) {
+		fakeUpdateOne := func(model interface{}, eTag *string) (*validate.Errors, error) {
 			return nil, errors.New("Update error")
 		}
 

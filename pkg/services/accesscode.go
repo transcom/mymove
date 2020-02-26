@@ -27,6 +27,7 @@ type AccessCodeClaimer interface {
 	ClaimAccessCode(code string, serviceMemberID uuid.UUID) (*models.AccessCode, *validate.Errors, error)
 }
 
+// OfficeAccessCodes is a slice of access codes for the office
 type OfficeAccessCodes []adminmessages.AccessCode
 
 // AccessCodeListFetcher is the service object interface for FetchAccessCodeList
