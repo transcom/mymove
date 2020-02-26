@@ -618,8 +618,6 @@ jobs:
             DB_NAME_TEST: test_db
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
-            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
-            LOGIN_GOV_CALLBACK_PROTOCOL: http
 
       - run:
           name: make db_test_migrate for milmove_admin
@@ -650,7 +648,9 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
-            DJANGO_ALLOWED_HOSTS: 'localhost 127.0.0.1 [::1] ${LOCAL_HOST_NAME}'
+            DJANGO_ALLOWED_HOSTS: 'localhost 127.0.0.1 [::1]'
+            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
+            LOGIN_GOV_CALLBACK_PROTOCOL: http
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
