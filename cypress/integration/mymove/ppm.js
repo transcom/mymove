@@ -327,6 +327,7 @@ describe('allows a SM to continue requesting a payment', function() {
   it('service should be able to continue requesting payment', () => {
     serviceMemberStartsPPMPaymentRequest();
     serviceMemberSubmitsWeightTicket('CAR', true);
+    serviceMemberSubmitsWeightTicket('BOX_TRUCK', true);
 
     cy.get('button')
       .contains('Finish Later')
@@ -370,11 +371,11 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
 
   cy.get('select[name="weight_ticket_set_type"]').select(vehicleType);
 
-  if (vehicleType === 'BOXTRUCK' || vehicleType === 'PROGEAR') {
-    cy.get('input[data-cy="vehicle_nickname"]').type('Nickname');
-  } else if (vehicleType === 'CAR' || vehicleType === 'CARTRAILER') {
-    cy.get('input[data-cy="vehicle_make"]').type('Make');
-    cy.get('input[data-cy="vehicle_model"]').type('Model');
+  if (vehicleType === 'BOX_TRUCK' || vehicleType === 'PRO_GEAR') {
+    cy.get('input[name="vehicle_nickname"]').type('Nickname');
+  } else if (vehicleType === 'CAR' || vehicleType === 'CAR_TRAILER') {
+    cy.get('input[name="vehicle_make"]').type('Make');
+    cy.get('input[name="vehicle_model"]').type('Model');
   }
 
   cy.get('input[name="empty_weight"]').type('1000');

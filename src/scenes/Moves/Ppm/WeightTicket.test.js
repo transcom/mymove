@@ -63,7 +63,7 @@ describe('Weight tickets page', () => {
   });
   describe('Service member chooses BOX TRUCK as weight ticket type', () => {
     it('renders vehicle nickname field', () => {
-      const weightTicket = mountComponents('No', true, true, 'BOXTRUCK');
+      const weightTicket = mountComponents('No', true, true, 'BOX_TRUCK');
       const vehicleNickname = weightTicket.find('[data-cy="vehicle_nickname"]');
       const vehicleMake = weightTicket.find('[data-cy="vehicle_make"]');
       const vehicleModel = weightTicket.find('[data-cy="vehicle_model"]');
