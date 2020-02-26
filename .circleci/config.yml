@@ -596,8 +596,42 @@ jobs:
 
   # `build_django_app` builds the django app container and pushes to container repository
   build_milmove_admin_app:
-    executor: milmove_admin_small
+    executor: mymove_and_postgres_medium
     steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: sudo apt-get update && sudo apt-get install -yy postgresql-client
+      - run:
+          name: make db_test_reset for milmove_admin
+          command: make db_test_reset
+          environment:
+            APPLICATION: app
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+      - run:
+          name: make db_test_migrate for milmove_admin
+          command: make db_test_migrate
+          environment:
+            APPLICATION: app
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
       - run:
           name: add github fingerprint
           command: mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
@@ -606,7 +640,7 @@ jobs:
           command: cd ..; git clone git@github.com:transcom/milmove_admin.git
       - run:
           name: generate models and migrate
-          command: make generate_models
+          command: cd milmove_admin; make generate_models
           environment:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
@@ -814,6 +848,10 @@ workflows:
 
       - pre_deps_yarn
 
+      - build_milmove_admin_app:
+          requires:
+            - pre_deps_golang
+
       - check_generated_code:
           requires:
             - pre_deps_golang
@@ -897,10 +935,6 @@ workflows:
       - build_tasks:
           requires:
             - build_tools
-
-      - build_milmove_admin_app:
-          requires:
-            - build_migrations
 
       - deploy_experimental_migrations:
           requires:
