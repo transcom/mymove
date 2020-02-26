@@ -6,12 +6,16 @@ import store from 'shared/store';
 import { HashRouter as Router } from 'react-router-dom';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 
-function mountComponents(moreWeightTickets = 'Yes', formInvalid, uploaderWithInvalidState, weightTicketType = 'CAR') {
+function mountComponents(
+  moreWeightTickets = 'Yes',
+  formInvalid,
+  uploaderWithInvalidState,
+  weightTicketSetType = 'CAR',
+) {
   const initialValues = {
     empty_weight: 1100,
     full_weight: 2000,
-    // vehicle_nickname: 'KIRBY',
-    // weight_ticket_set_type: 'CAR',
+    weight_ticket_set_type: weightTicketSetType,
     weight_ticket_date: '2019-05-22',
   };
   const match = { params: { moveId: 'someID' } };
