@@ -273,11 +273,6 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 			db.Where("contract_id = ?", contractID),
 		},
 		{
-			"re_zip5_rate_areas",
-			&[]models.ReZip5RateArea{},
-			db.Where("contract_id = ?", contractID),
-		},
-		{
 			"re_domestic_linehaul_prices",
 			&[]models.ReDomesticLinehaulPrice{},
 			db.Where("contract_id = ?", contractID),
