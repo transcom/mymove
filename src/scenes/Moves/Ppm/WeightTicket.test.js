@@ -13,10 +13,10 @@ function mountComponents(
   weightTicketSetType = 'CAR',
 ) {
   const initialValues = {
-    empty_weight: 1100,
-    full_weight: 2000,
-    weight_ticket_set_type: weightTicketSetType,
-    weight_ticket_date: '2019-05-22',
+    emptyWeight: 1100,
+    fullWeight: 2000,
+    weightTicketSetType: weightTicketSetType,
+    weightTicketDate: '2019-05-22',
   };
   const match = { params: { moveId: 'someID' } };
   const wrapper = mount(
@@ -31,7 +31,7 @@ function mountComponents(
     wt.instance().invalid = jest.fn().mockReturnValue(formInvalid);
     wt.instance().uploaderWithInvalidState = jest.fn().mockReturnValue(uploaderWithInvalidState);
   }
-  wt.setState({ additionalWeightTickets: moreWeightTickets, initialValues: initialValues });
+  wt.setState({ additionalWeightTickets: moreWeightTickets, ...initialValues });
   wt.update();
   return wrapper.find('WeightTicket');
 }
@@ -52,9 +52,9 @@ describe('Weight tickets page', () => {
   describe('Service member chooses CAR as weight ticket type', () => {
     it('renders vehicle make and model fields', () => {
       const weightTicket = mountComponents('No', true, true, 'CAR');
-      const vehicleNickname = weightTicket.find('input[data-cy="vehicle_nickname"]');
-      const vehicleMake = weightTicket.find('input[data-cy="vehicle_make"]');
-      const vehicleModel = weightTicket.find('input[data-cy="vehicle_model"]');
+      const vehicleNickname = weightTicket.find('[data-cy="vehicle_nickname"]');
+      const vehicleMake = weightTicket.find('[data-cy="vehicle_make"]');
+      const vehicleModel = weightTicket.find('[data-cy="vehicle_model"]');
 
       expect(vehicleNickname.length).toEqual(0);
       expect(vehicleMake.length).toEqual(1);
@@ -64,9 +64,9 @@ describe('Weight tickets page', () => {
   describe('Service member chooses BOX TRUCK as weight ticket type', () => {
     it('renders vehicle nickname field', () => {
       const weightTicket = mountComponents('No', true, true, 'BOXTRUCK');
-      const vehicleNickname = weightTicket.find('input[data-cy="vehicle_nickname"]');
-      const vehicleMake = weightTicket.find('input[data-cy="vehicle_make"]');
-      const vehicleModel = weightTicket.find('input[data-cy="vehicle_model"]');
+      const vehicleNickname = weightTicket.find('[data-cy="vehicle_nickname"]');
+      const vehicleMake = weightTicket.find('[data-cy="vehicle_make"]');
+      const vehicleModel = weightTicket.find('[data-cy="vehicle_model"]');
 
       expect(vehicleNickname.length).toEqual(1);
       expect(vehicleMake.length).toEqual(0);
