@@ -647,6 +647,7 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
+            DJANGO_ALLOWED_HOSTS: 'localhost 127.0.0.1 [::1] ${LOCAL_HOST_NAME}'
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
