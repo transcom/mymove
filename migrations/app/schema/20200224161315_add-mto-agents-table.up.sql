@@ -6,7 +6,7 @@ CREATE TYPE mto_agents_type AS ENUM (
 create table mto_agents
 (
     id uuid PRIMARY KEY NOT NULL,
-    move_task_order_id uuid REFERENCES move_task_orders,
+    mto_shipment_id uuid REFERENCES mto_shipments,
     agent_type mto_agents_type,
     first_name text,
     last_name text,

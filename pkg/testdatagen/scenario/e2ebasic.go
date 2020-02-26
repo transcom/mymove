@@ -942,20 +942,20 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MoveTaskOrder:   mto,
-			MoveTaskOrderID: mto.ID,
-			FirstName:       swag.String("Test"),
-			LastName:        swag.String("Agent"),
-			Email:           swag.String("test@test.email.com"),
-			MTOAgentType:    models.MTOAgentReleasing,
-		},
-	})
-
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment:   models.MTOShipment{ID: uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff9b5")},
 		MoveTaskOrder: mto,
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   MTOShipment,
+			MTOShipmentID: MTOShipment.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
 	})
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{

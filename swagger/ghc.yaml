@@ -558,11 +558,17 @@ paths:
         - contracting_officer
       operationId: patchMTOShipmentStatus
       summary: Updates a shipment's status
-  '/move-task-orders/{moveTaskOrderID}/mto-agents/':
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
-      - description: ID of move task order for mto agent to use
+      - description: ID of move task order
         in: path
         name: moveTaskOrderID
+        required: true
+        format: uuid
+        type: string
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
         required: true
         format: uuid
         type: string
@@ -1502,8 +1508,9 @@ definitions:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
+        readOnly: true
         type: string
-      moveTaskOrderID:
+      mtoShipmentID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string

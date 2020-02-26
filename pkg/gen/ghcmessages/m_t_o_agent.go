@@ -35,15 +35,16 @@ type MTOAgent struct {
 	FirstName *string `json:"firstName,omitempty"`
 
 	// id
+	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// last name
 	LastName *string `json:"lastName,omitempty"`
 
-	// move task order ID
+	// mto shipment ID
 	// Format: uuid
-	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+	MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
 	// phone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
@@ -74,7 +75,7 @@ func (m *MTOAgent) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateMoveTaskOrderID(formats); err != nil {
+	if err := m.validateMtoShipmentID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -174,13 +175,13 @@ func (m *MTOAgent) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOAgent) validateMoveTaskOrderID(formats strfmt.Registry) error {
+func (m *MTOAgent) validateMtoShipmentID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MoveTaskOrderID) { // not required
+	if swag.IsZero(m.MtoShipmentID) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
+	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID.String(), formats); err != nil {
 		return err
 	}
 

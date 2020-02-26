@@ -26,8 +26,8 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 
 	suite.T().Run("Successful Response", func(t *testing.T) {
 		params := mtoagentop.FetchMTOAgentListParams{
-			HTTPRequest:     req,
-			MoveTaskOrderID: strfmt.UUID(testMTOAgent.MoveTaskOrderID.String()),
+			HTTPRequest: req,
+			ShipmentID:  strfmt.UUID(testMTOAgent.MTOShipmentID.String()),
 		}
 		mtoAgentListFetcher := &mocks.MTOAgentListFetcher{}
 		mtoAgentListFetcher.On("FetchMTOAgentList",
@@ -48,8 +48,8 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 
 	suite.T().Run("Error Response", func(t *testing.T) {
 		params := mtoagentop.FetchMTOAgentListParams{
-			HTTPRequest:     req,
-			MoveTaskOrderID: strfmt.UUID(testMTOAgent.MoveTaskOrderID.String()),
+			HTTPRequest: req,
+			ShipmentID:  strfmt.UUID(testMTOAgent.MTOShipmentID.String()),
 		}
 		mtoAgentListFetcher := &mocks.MTOAgentListFetcher{}
 		mtoAgentListFetcher.On("FetchMTOAgentList",
@@ -67,8 +67,8 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 
 	suite.T().Run("404 Response", func(t *testing.T) {
 		params := mtoagentop.FetchMTOAgentListParams{
-			HTTPRequest:     req,
-			MoveTaskOrderID: strfmt.UUID(testMTOAgent.MoveTaskOrderID.String()),
+			HTTPRequest: req,
+			ShipmentID:  strfmt.UUID(testMTOAgent.MTOShipmentID.String()),
 		}
 		mtoAgentListFetcher := &mocks.MTOAgentListFetcher{}
 		mtoAgentListFetcher.On("FetchMTOAgentList",

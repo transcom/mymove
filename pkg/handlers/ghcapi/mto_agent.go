@@ -24,10 +24,10 @@ type ListMTOAgentsHandler struct {
 func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
+	mtoShipmentID, err := uuid.FromString(params.ShipmentID.String())
 	// Return parsing sadness
 	if err != nil {
-		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MoveTaskOrderID", err).Error()
+		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MTOShipmentID", err).Error()
 		logger.Error(parsingError)
 		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
 		return mtoagentop.NewFetchMTOAgentListUnprocessableEntity().WithPayload(payload)
@@ -35,18 +35,18 @@ func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) 
 
 	// Let's set up our filter for the service object call
 	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("move_task_order_id", "=", moveTaskOrderID.String()),
+		query.NewQueryFilter("mto_shipment_id", "=", mtoShipmentID.String()),
 	}
 
 	mtoAgents, err := h.FetchMTOAgentList(queryFilters)
 	// return errors
 	if err != nil {
-		logger.Error(fmt.Sprintf("Error fetching mto agents for mto with id: %s", moveTaskOrderID.String()), zap.Error(err))
+		logger.Error(fmt.Sprintf("Error fetching mto agents for mto shipment with id: %s", mtoShipmentID.String()), zap.Error(err))
 		return mtoagentop.NewFetchMTOAgentListInternalServerError()
 	}
 
 	if mtoAgents == nil {
-		logger.Error(fmt.Sprintf("Found 0 mto agents for mto id: %s", moveTaskOrderID.String()))
+		logger.Error(fmt.Sprintf("Found 0 mto agents for mto shipment id: %s", mtoShipmentID.String()))
 		return mtoagentop.NewFetchMTOAgentListNotFound()
 	}
 

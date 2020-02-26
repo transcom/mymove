@@ -18,16 +18,16 @@ const (
 )
 
 type MTOAgent struct {
-	ID              uuid.UUID     `db:"id"`
-	MoveTaskOrder   MoveTaskOrder `belongs_to:"move_task_orders"`
-	MoveTaskOrderID uuid.UUID     `db:"move_task_order_id"`
-	FirstName       *string       `db:"first_name"`
-	LastName        *string       `db:"last_name"`
-	Email           *string       `db:"email"`
-	Phone           *string       `db:"phone"`
-	MTOAgentType    MTOAgentType  `db:"agent_type"`
-	CreatedAt       time.Time     `db:"created_at"`
-	UpdatedAt       time.Time     `db:"updated_at"`
+	ID            uuid.UUID    `db:"id"`
+	MTOShipment   MTOShipment  `belongs_to:"move_task_orders"`
+	MTOShipmentID uuid.UUID    `db:"mto_shipment_id"`
+	FirstName     *string      `db:"first_name"`
+	LastName      *string      `db:"last_name"`
+	Email         *string      `db:"email"`
+	Phone         *string      `db:"phone"`
+	MTOAgentType  MTOAgentType `db:"agent_type"`
+	CreatedAt     time.Time    `db:"created_at"`
+	UpdatedAt     time.Time    `db:"updated_at"`
 }
 
 // NewTables is not required by pop and may be deleted
@@ -36,7 +36,7 @@ type MTOAgents []MTOAgent
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (m *MTOAgent) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
-	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
+	vs = append(vs, &validators.UUIDIsPresent{Field: m.MTOShipmentID, Name: "MTOShipmentID"})
 	vs = append(vs, &validators.StringInclusion{Field: string(m.MTOAgentType), Name: "MTOAgentType", List: []string{
 		string(MTOAgentReceiving),
 		string(MTOAgentReleasing),

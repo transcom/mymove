@@ -10,9 +10,11 @@ import {
   selectMoveOrder,
   selectMoveTaskOrders,
 } from 'shared/Entities/modules/moveTaskOrders';
+import { getMTOAgentList } from 'shared/Entities/modules/mtoAgents';
 import { getMTOServiceItems, selectMTOServiceItems } from 'shared/Entities/modules/mtoServiceItems';
 import { getMTOShipments, patchMTOShipmentStatus, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
 import { ApproveRejectModal } from 'shared/ApproveRejectModal';
+import { selectMTOAgents } from 'shared/Entities/modules/mtoAgents';
 
 class CustomerDetails extends Component {
   componentDidMount() {
@@ -22,12 +24,16 @@ class CustomerDetails extends Component {
       this.props.getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
         // TODO: would like to do batch fetching later
         moveTaskOrder.forEach(item => this.props.getMTOServiceItems(item.id));
-        moveTaskOrder.forEach(item => this.props.getMTOShipments(item.id));
+        moveTaskOrder.forEach(item =>
+          this.props.getMTOShipments(item.id).then(({ response: { body: mtoShipments } }) => {
+            mtoShipments.forEach(shipment => this.props.getMTOAgentList(item.id, shipment.id));
+          }),
+        );
       });
     });
   }
   render() {
-    const { moveTaskOrder, customer, moveOrder, mtoServiceItems, mtoShipments } = this.props;
+    const { moveTaskOrder, customer, moveOrder, mtoServiceItems, mtoShipments, mtoAgents } = this.props;
     const entitlements = get(moveOrder, 'entitlement', {});
     return (
       <>
@@ -202,6 +208,29 @@ class CustomerDetails extends Component {
                         />
                       </td>
                     </tr>
+                    <tr>
+                      <h3>Shipment Agents</h3>
+                    </tr>
+                    {mtoAgents.map(shipmentAgent => (
+                      <Fragment key={shipmentAgent.id}>
+                        <tr>
+                          <th>id</th>
+                          <th>Agent Type</th>
+                          <th>First Name</th>
+                          <th>Last Name</th>
+                          <th>Email</th>
+                          <th>Phone</th>
+                        </tr>
+                        <tr>
+                          <td>{shipmentAgent[0].id}</td>
+                          <td>{shipmentAgent[0].agentType}</td>
+                          <td>{shipmentAgent[0].firstName}</td>
+                          <td>{shipmentAgent[0].lastName}</td>
+                          <td>{shipmentAgent[0].email}</td>
+                          <td>{shipmentAgent[0].phone}</td>
+                        </tr>
+                      </Fragment>
+                    ))}
                   </Fragment>
                 ))}
               </tbody>
@@ -247,6 +276,10 @@ const mapStateToProps = (state, ownProps) => {
   const moveOrderId = ownProps.match.params.moveOrderId;
   const moveOrder = selectMoveOrder(state, moveOrderId);
   const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
+  let moveTaskOrderId;
+  if (moveTaskOrders[0]) {
+    moveTaskOrderId = moveTaskOrders[0].id;
+  }
   return {
     moveOrder,
     customer: selectCustomer(state, ownProps.match.params.customerId),
@@ -254,6 +287,7 @@ const mapStateToProps = (state, ownProps) => {
     mtoShipments: selectMTOShipments(state, moveOrderId),
     // TODO: Change when we start making use of multiple move task orders
     moveTaskOrder: moveTaskOrders[0],
+    mtoAgents: selectMTOAgents(state, moveTaskOrderId),
   };
 };
 
@@ -265,6 +299,7 @@ const mapDispatchToProps = {
   getMTOServiceItems,
   getMTOShipments,
   patchMTOShipmentStatus,
+  getMTOAgentList,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CustomerDetails);

@@ -17,6 +17,7 @@ import (
 // FetchMTOAgentListURL generates an URL for the fetch m t o agent list operation
 type FetchMTOAgentListURL struct {
 	MoveTaskOrderID strfmt.UUID
+	ShipmentID      strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -42,13 +43,20 @@ func (o *FetchMTOAgentListURL) SetBasePath(bp string) {
 func (o *FetchMTOAgentListURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move-task-orders/{moveTaskOrderID}/mto-agents/"
+	var _path = "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents"
 
 	moveTaskOrderID := o.MoveTaskOrderID.String()
 	if moveTaskOrderID != "" {
 		_path = strings.Replace(_path, "{moveTaskOrderID}", moveTaskOrderID, -1)
 	} else {
 		return nil, errors.New("moveTaskOrderId is required on FetchMTOAgentListURL")
+	}
+
+	shipmentID := o.ShipmentID.String()
+	if shipmentID != "" {
+		_path = strings.Replace(_path, "{shipmentID}", shipmentID, -1)
+	} else {
+		return nil, errors.New("shipmentId is required on FetchMTOAgentListURL")
 	}
 
 	_basePath := o._basePath

@@ -588,61 +588,6 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/mto-agents/": {
-      "get": {
-        "description": "Fetches a list of agents associated with a move task order.",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoAgent"
-        ],
-        "summary": "Fetch move task order agents.",
-        "operationId": "fetchMTOAgentList",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all agents for a move task order",
-            "schema": {
-              "$ref": "#/definitions/MTOAgents"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move task order for mto agent to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}": {
       "get": {
         "description": "Gets a line item by ID for a move order by ID",
@@ -1187,6 +1132,69 @@ func init() {
           "format": "uuid",
           "description": "ID of move task order for mto shipment to use",
           "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents": {
+      "get": {
+        "description": "Fetches a list of agents associated with a move task order.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoAgent"
+        ],
+        "summary": "Fetch move task order agents.",
+        "operationId": "fetchMTOAgentList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all agents for a move task order",
+            "schema": {
+              "$ref": "#/definitions/MTOAgents"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move task order",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
           "in": "path",
           "required": true
         }
@@ -1943,13 +1951,14 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "lastName": {
           "type": "string",
           "x-nullable": true
         },
-        "moveTaskOrderID": {
+        "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -3246,67 +3255,6 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/mto-agents/": {
-      "get": {
-        "description": "Fetches a list of agents associated with a move task order.",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoAgent"
-        ],
-        "summary": "Fetch move task order agents.",
-        "operationId": "fetchMTOAgentList",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all agents for a move task order",
-            "schema": {
-              "$ref": "#/definitions/MTOAgents"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move task order for mto agent to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}": {
       "get": {
         "description": "Gets a line item by ID for a move order by ID",
@@ -3941,6 +3889,75 @@ func init() {
           "format": "uuid",
           "description": "ID of move task order for mto shipment to use",
           "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents": {
+      "get": {
+        "description": "Fetches a list of agents associated with a move task order.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoAgent"
+        ],
+        "summary": "Fetch move task order agents.",
+        "operationId": "fetchMTOAgentList",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all agents for a move task order",
+            "schema": {
+              "$ref": "#/definitions/MTOAgents"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move task order",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
           "in": "path",
           "required": true
         }
@@ -4754,13 +4771,14 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "lastName": {
           "type": "string",
           "x-nullable": true
         },
-        "moveTaskOrderID": {
+        "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"

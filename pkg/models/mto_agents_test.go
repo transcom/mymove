@@ -11,17 +11,17 @@ import (
 
 func (suite *ModelSuite) TestMTOAgentValidation() {
 	suite.T().Run("test valid MTOAgent", func(t *testing.T) {
-		moveTaskOrderID := uuid.Must(uuid.NewV4())
+		mtoShipmentID := uuid.Must(uuid.NewV4())
 		mtoAgentID := uuid.Must(uuid.NewV4())
 
 		validMTOAgent := models.MTOAgent{
-			ID:              mtoAgentID,
-			MoveTaskOrderID: moveTaskOrderID,
-			FirstName:       swag.String("Test"),
-			LastName:        swag.String("Agent"),
-			Email:           swag.String("test@testagent.agent"),
-			Phone:           nil,
-			MTOAgentType:    models.MTOAgentReleasing,
+			ID:            mtoAgentID,
+			MTOShipmentID: mtoShipmentID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@testagent.agent"),
+			Phone:         nil,
+			MTOAgentType:  models.MTOAgentReleasing,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMTOAgent, expErrors)

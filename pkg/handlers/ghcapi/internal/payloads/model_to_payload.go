@@ -189,15 +189,15 @@ func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 
 func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
 	payload := &ghcmessages.MTOAgent{
-		ID:              strfmt.UUID(mtoAgent.ID.String()),
-		MoveTaskOrderID: strfmt.UUID(mtoAgent.MoveTaskOrderID.String()),
-		CreatedAt:       strfmt.Date(mtoAgent.CreatedAt),
-		UpdatedAt:       strfmt.Date(mtoAgent.UpdatedAt),
-		FirstName:       mtoAgent.FirstName,
-		LastName:        mtoAgent.LastName,
-		AgentType:       string(mtoAgent.MTOAgentType),
-		Email:           mtoAgent.Email,
-		Phone:           mtoAgent.Phone,
+		ID:            strfmt.UUID(mtoAgent.ID.String()),
+		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
+		CreatedAt:     strfmt.Date(mtoAgent.CreatedAt),
+		UpdatedAt:     strfmt.Date(mtoAgent.UpdatedAt),
+		FirstName:     mtoAgent.FirstName,
+		LastName:      mtoAgent.LastName,
+		AgentType:     string(mtoAgent.MTOAgentType),
+		Email:         mtoAgent.Email,
+		Phone:         mtoAgent.Phone,
 	}
 	return payload
 }
