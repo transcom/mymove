@@ -10,10 +10,12 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// ErrNotFound returns not found error
 type ErrNotFound struct {
 	id uuid.UUID
 }
 
+// Error is the string representation of not found error
 func (e ErrNotFound) Error() string {
 	return fmt.Sprintf("upload id: %s not found", e.id.String())
 }
@@ -27,6 +29,7 @@ func NewUploadInformationFetcher(db *pop.Connection) services.UploadInformationF
 	return &uploadInformationFetcher{db}
 }
 
+// FetchUploadInformation fetches upload information
 func (uif *uploadInformationFetcher) FetchUploadInformation(uploadID uuid.UUID) (services.UploadInformation, error) {
 	q := `
 SELECT uploads.id as upload_id,

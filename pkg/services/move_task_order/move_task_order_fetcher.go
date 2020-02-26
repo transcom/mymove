@@ -17,6 +17,7 @@ type ErrNotFound struct {
 	id uuid.UUID
 }
 
+// Error is the string representation of an error
 func (e ErrNotFound) Error() string {
 	return fmt.Sprintf("move task order id: %s not found", e.id.String())
 }
@@ -27,11 +28,12 @@ type errInvalidInput struct {
 	validationErrors map[string][]string
 }
 
-//ErrInvalidInput is returned when an update to a move task order fails a validation rule
+// ErrInvalidInput is returned when an update to a move task order fails a validation rule
 type ErrInvalidInput struct {
 	errInvalidInput
 }
 
+// NewErrInvalidInput returns a new error for invalid input
 func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string) ErrInvalidInput {
 	return ErrInvalidInput{
 		errInvalidInput{
@@ -42,10 +44,12 @@ func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]s
 	}
 }
 
+// Error is the string representation of an error
 func (e ErrInvalidInput) Error() string {
 	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.InvalidFields())
 }
 
+// InvalidFields returns invalid fields for invalid input
 func (e ErrInvalidInput) InvalidFields() map[string]string {
 	es := make(map[string]string)
 	if e.validationErrors == nil {
@@ -138,7 +142,7 @@ type moveTaskOrderStatusUpdater struct {
 	moveTaskOrderFetcher
 }
 
-// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
+// NewMoveTaskOrderStatusUpdater creates a new struct with the service dependencies
 func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderStatusUpdater {
 	return &moveTaskOrderStatusUpdater{db, moveTaskOrderFetcher{db}}
 }

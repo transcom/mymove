@@ -18,14 +18,7 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}
 
-	sequenceNumber := 1
-	var referenceID string
-	if moveTaskOrder.ReferenceID == nil {
-		referenceID = "XXXX-XXXX"
-	} else {
-		referenceID = *moveTaskOrder.ReferenceID
-	}
-	paymentRequestNumber := fmt.Sprintf("%s-%d", referenceID, sequenceNumber)
+	paymentRequestNumber := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, assertions.PaymentRequest.SequenceNumber)
 
 	paymentRequest := models.PaymentRequest{
 		MoveTaskOrder:        moveTaskOrder,
@@ -34,7 +27,6 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 		RejectionReason:      swag.String("Not good enough"),
 		Status:               models.PaymentRequestStatusPending,
 		PaymentRequestNumber: paymentRequestNumber,
-		SequenceNumber:       sequenceNumber,
 	}
 
 	// Overwrite values with those from assertions

@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -18,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+// ListMTOShipmentsHandler returns a list of MTO Shipments
 type ListMTOShipmentsHandler struct {
 	handlers.HandlerContext
 	services.ListFetcher
@@ -69,16 +71,22 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
 
+// PatchShipmentHandler patches shipments
 type PatchShipmentHandler struct {
 	handlers.HandlerContext
 	services.Fetcher
 	services.MTOShipmentStatusUpdater
 }
 
+// Handle patches shipments
 func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	shipment, err := h.UpdateMTOShipmentStatus(params)
+	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+	status := models.MTOShipmentStatus(params.Body.Status)
+	rejectionReason := params.Body.RejectionReason
+	eTag := params.IfMatch
+	shipment, err := h.UpdateMTOShipmentStatus(shipmentID, status, rejectionReason, eTag)
 	if err != nil {
 		logger.Error("UpdateMTOShipmentStatus error: ", zap.Error(err))
 
@@ -87,15 +95,16 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 			return mtoshipmentops.NewPatchMTOShipmentStatusNotFound()
 		case mtoshipment.ValidationError:
 			payload := payloadForValidationError("Validation errors", "UpdateShipmentMTOStatus", h.GetTraceID(), e.Verrs)
-
 			return mtoshipmentops.NewPatchMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
 		case mtoshipment.PreconditionFailedError:
 			return mtoshipmentops.NewPatchMTOShipmentStatusPreconditionFailed()
+		case mtoshipment.ConflictStatusError:
+			return mtoshipmentops.NewPatchMTOShipmentStatusConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return mtoshipmentops.NewPatchMTOShipmentStatusInternalServerError()
 		}
 	}
 
-	payload := payloads.MTOShipment(shipment)
+	payload := payloads.MTOShipmentWithEtag(shipment)
 	return mtoshipmentops.NewPatchMTOShipmentStatusOK().WithPayload(payload)
 }

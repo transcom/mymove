@@ -101,7 +101,7 @@ func (suite *webServerSuite) loadContext(variablesFile string) map[string]string
 			suite.logger.Fatal(fmt.Sprintf("File %q does not exist", variablesFile))
 		}
 		// Read contents of variables file into vars
-		vars, err := ioutil.ReadFile(variablesFile)
+		vars, err := ioutil.ReadFile(filepath.Clean(variablesFile))
 		if err != nil {
 			suite.logger.Fatal(fmt.Sprintf("error reading variables from file %s", variablesFile))
 		}
@@ -127,7 +127,7 @@ func (suite *webServerSuite) patchContext(ctx map[string]string) map[string]stri
 		}
 		// Overwrite the migration path to something on the local system
 		if k == "MIGRATION_PATH" {
-			ctx[k] = "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
+			ctx[k] = "file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure"
 		}
 	}
 	return ctx

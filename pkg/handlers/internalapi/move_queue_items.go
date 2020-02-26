@@ -39,6 +39,8 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 		InvoiceApprovedDate:        handlers.FmtDateTimePtr(MoveQueueItem.InvoiceApprovedDate),
 		WeightAllotment:            payloadForWeightAllotmentModel(models.GetWeightAllotment(*MoveQueueItem.Rank)),
 		BranchOfService:            handlers.FmtString(MoveQueueItem.BranchOfService),
+		ActualMoveDate:             handlers.FmtDatePtr(MoveQueueItem.ActualMoveDate),
+		OriginalMoveDate:           handlers.FmtDatePtr(MoveQueueItem.OriginalMoveDate),
 	}
 	return &MoveQueueItemPayload
 }
@@ -48,9 +50,10 @@ type ShowQueueHandler struct {
 	handlers.HandlerContext
 }
 
+// JSONDate is a time type
 type JSONDate time.Time
 
-// Dates without timestamps need custom unmarshalling
+// UnmarshalJSON Dates without timestamps need custom unmarshalling
 func (j *JSONDate) UnmarshalJSON(b []byte) error {
 	s := strings.Trim(string(b), "\"")
 	if s == "null" {
@@ -64,6 +67,7 @@ func (j *JSONDate) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// QueueSitData is SIT data in a queue
 type QueueSitData struct {
 	ID              uuid.UUID `json:"id"`
 	Status          string    `json:"status"`
@@ -72,6 +76,7 @@ type QueueSitData struct {
 	Location        string    `json:"location"`
 }
 
+// MoveQueueItems is a set of move queue items
 // Implementation of a type and methods in order to use sort.Interface directly.
 // This allows us to call sortQueueItemsByLastModifiedDate in the ShowQueueHandler which will
 // sort the slice by the LastModfiedDate. Doing it this way allows us to avoid having reflect called

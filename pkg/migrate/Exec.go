@@ -15,6 +15,7 @@ var (
 	endCopyFromStdin = "\\."
 )
 
+// Exec executes a query
 func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 
 	lines := make(chan string, 1000)

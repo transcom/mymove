@@ -566,9 +566,14 @@ X.X
 pkcs7
 v5.6
 opensc
+tbd
 onboarding
 diem
 UI
 UIs
+dev_db
+5a
+base64
+LICENSE.txt
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md

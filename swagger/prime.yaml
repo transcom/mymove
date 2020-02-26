@@ -52,58 +52,6 @@ paths:
       description: Gets all move orders
       operationId: fetchMTOUpdates
       summary: Gets all move orders
-  '/move-task-orders/{moveTaskOrderID}/prime-estimated-weight':
-    parameters:
-      - description: ID of move order to use
-        in: path
-        name: moveTaskOrderID
-        required: true
-        type: string
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            type: object
-            properties:
-              primeEstimatedWeight:
-                type: integer
-      responses:
-        '200':
-          description: Successfully retrieved move task order
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '422':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-        - prime
-      description: Updates a move order's estimated weight by ID
-      operationId: updateMoveTaskOrderEstimatedWeight
-      summary: Updates a move order's estimated weight by ID
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
       - description: ID of move order to use
@@ -164,105 +112,6 @@ paths:
       description: Updates move task order's post counseling information
       operationId: updateMoveTaskOrderPostCounselingInformation
       summary: Updates move task order's post counseling information
-  '/move-task-orders/{moveTaskOrderID}/destination-address':
-    parameters:
-      - description: ID of move order to use
-        in: path
-        name: moveTaskOrderID
-        required: true
-        type: string
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: destinationAddress
-          required: true
-          schema:
-            $ref: '#/definitions/Address'
-      responses:
-        '200':
-          description: Successfully updated move task order destination address
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '422':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-        - prime
-      description: Updates move task order's destination address
-      operationId: updateMoveTaskOrderDestinationAddress
-      summary: Updates move task order's destination address
-  '/move-task-orders/{moveTaskOrderID}/prime-actual-weight':
-    parameters:
-      - description: ID of move order to use
-        in: path
-        name: moveTaskOrderID
-        required: true
-        type: string
-    patch:
-      consumes:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            type: object
-            properties:
-              actualWeight:
-                type: integer
-      responses:
-        '200':
-          description: Successfully retrieved move task order
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-        - prime
-      description: Updates a move order's actual weight by ID
-      operationId: updateMoveTaskOrderActualWeight
-      summary: Updates a move order's actual weight by ID
   '/move-task-orders/{moveTaskOrderID}/customer':
     parameters:
       - description: ID of move order to use
@@ -305,50 +154,12 @@ paths:
       description: Gets a the customer associated with a move task order ID
       operationId: getMoveTaskOrderCustomer
       summary: Gets a the customer associated with a move task order ID
-  '/move-task-orders/{moveTaskOrderID}/prime-entitlements':
-    parameters:
-      - description: ID of move order to use
-        in: path
-        name: moveTaskOrderID
-        required: true
-        type: string
-    get:
-      produces:
-        - application/json
-      parameters: []
-      tags:
-        - moveTaskOrder
-        - prime
-      responses:
-        '200':
-          description: Successfully retrieved entitlements
-          schema:
-            $ref: '#/definitions/Entitlements'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      description: Gets entitlements
-      operationId: getPrimeEntitlements
-      summary: Gets entitlements for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}':
     put:
+      consumes:
+        - application/json
+      produces:
+        - application/json
       summary: Updates mto shipment
       operationId: updateMTOShipment
       tags:
@@ -381,6 +192,8 @@ paths:
             $ref: '#/definitions/MTOShipment'
         '400':
           description: invalid request
+          schema:
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
@@ -779,7 +592,6 @@ definitions:
       referenceId:
         example: 1001-3456
         type: string
-        x-nullable: true
       isAvailableToPrime:
         type: boolean
         x-nullable: true
@@ -797,17 +609,13 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MTOServiceItem'
+      mto_shipments:
+        $ref: '#/definitions/MTOShipments'
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
   MTOShipment:
-    required:
-      - pickupAddress
-      - destinationAddress
-      - scheduledPickupDate
-      - requestedPickupDate
-      - shipmentType
     properties:
       moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -823,14 +631,28 @@ definitions:
       updatedAt:
         format: datetime
         type: string
+      approvedDate:
+        format: date
+        type: string
+        x-nullable: true
       scheduledPickupDate:
         format: date
         type: string
       requestedPickupDate:
         format: date
         type: string
+      firstAvailableDeliveryDate:
+        format: date
+        type: string
       primeActualWeight:
         type: integer
+        example: 4500
+      primeEstimatedWeight:
+        type: integer
+        example: 4500
+      primeEstimatedWeightRecordedDate:
+        format: date
+        type: string
       customerRemarks:
         type: string
         example: handle with care

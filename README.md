@@ -8,6 +8,14 @@ This repository contains the application source code for the Personal Property P
 
 This prototype was built by a [Defense Digital Service](https://www.dds.mil/) team in support of USTRANSCOM's mission.
 
+## License Information
+
+Works created by U.S. Federal employees as part of their jobs typically are not eligible for copyright in the United
+States. In places where the contributions of U.S. Federal employees are not eligible for copyright, this work is in
+the public domain. In places where it is eligible for copyright, such as some foreign jurisdictions, the remainder of
+this work is licensed under [the MIT License](https://opensource.org/licenses/MIT), the full text of which is included
+in the [LICENSE.txt](./LICENSE.txt) file in this repository.
+
 ## Table of Contents
 
 <!-- Table of Contents auto-generated with `scripts/generate-md-toc` -->
@@ -213,8 +221,7 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 * `cypress`: The integration test files for the [Cypress tool](https://www.cypress.io/)
 * `docs`: A location for docs for the project. This is where ADRs are
 * `internal`: Generated code for duty station loader
-* `local_migrations`: Database migrations used locally in place of secure migrations
-* `migrations`: Database migrations
+* `migrations`: Database migrations, see [./migrations/README.md]
 * `node_modules`: Cached javascript dependencies for the client
 * `pkg`: The location of all of our go code for the server and various tools
 * `public`: The client's static resources

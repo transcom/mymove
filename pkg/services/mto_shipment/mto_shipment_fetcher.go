@@ -14,12 +14,12 @@ type mtoShipmentFetcher struct {
 	db *pop.Connection
 }
 
-// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
+// NewMTOShipmentFetcher creates a new struct with the service dependencies
 func NewMTOShipmentFetcher(db *pop.Connection) services.MTOShipmentFetcher {
 	return &mtoShipmentFetcher{db}
 }
 
-//FetchMTOShipment retrieves a MTOShipment for a given UUID
+// FetchMTOShipment retrieves a MTOShipment for a given UUID
 func (f mtoShipmentFetcher) FetchMTOShipment(mtoShipmentID uuid.UUID) (*models.MTOShipment, error) {
 	shipment := &models.MTOShipment{}
 	if err := f.db.Eager().Find(shipment, mtoShipmentID); err != nil {

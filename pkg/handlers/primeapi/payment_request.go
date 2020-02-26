@@ -23,11 +23,13 @@ func payloadForPaymentRequestModel(pr models.PaymentRequest) *primemessages.Paym
 	}
 }
 
+// CreatePaymentRequestHandler is the handler for creating payment requests
 type CreatePaymentRequestHandler struct {
 	handlers.HandlerContext
 	services.PaymentRequestCreator
 }
 
+// Handle creates the payment request
 func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymentRequestParams) middleware.Responder {
 	// TODO: authorization to create payment request
 

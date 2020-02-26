@@ -9,7 +9,9 @@ import (
 )
 
 var (
-	ErrWait   = errors.New("wait for input")
+	// ErrWait is an error when waiting for input
+	ErrWait = errors.New("wait for input")
+	// ErrClosed is an error when buffer is closed for writing
 	ErrClosed = errors.New("buffer is closed for writing")
 )
 

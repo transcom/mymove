@@ -14,6 +14,7 @@ type officeUserUpdater struct {
 	builder officeUserQueryBuilder
 }
 
+// UpdateOfficeUser updates an office user
 func (o *officeUserUpdater) UpdateOfficeUser(id uuid.UUID, payload *adminmessages.OfficeUserUpdatePayload) (*models.OfficeUser, *validate.Errors, error) {
 	var foundUser models.OfficeUser
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
@@ -43,7 +44,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(id uuid.UUID, payload *adminmessage
 		foundUser.Active = *payload.Active
 	}
 
-	verrs, err := o.builder.UpdateOne(&foundUser)
+	verrs, err := o.builder.UpdateOne(&foundUser, nil)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}
@@ -51,6 +52,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(id uuid.UUID, payload *adminmessage
 	return &foundUser, nil, nil
 }
 
+// NewOfficeUserUpdater returns a new office user updater
 func NewOfficeUserUpdater(builder officeUserQueryBuilder) services.OfficeUserUpdater {
 	return &officeUserUpdater{builder}
 }

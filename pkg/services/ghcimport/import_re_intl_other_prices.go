@@ -64,7 +64,7 @@ func (gre *GHCRateEngineImporter) importREInternationalOtherPrices(dbTx *pop.Con
 			}
 
 			intlOtherPrice := models.ReIntlOtherPrice{
-				ContractID:   gre.contractID,
+				ContractID:   gre.ContractID,
 				ServiceID:    serviceID,
 				RateAreaID:   rateAreaID,
 				IsPeakPeriod: isPeakPeriod,

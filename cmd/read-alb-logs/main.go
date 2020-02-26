@@ -14,6 +14,7 @@ import (
 	"os"
 )
 
+// ALBLog represents a log line from an ALB Log
 type ALBLog struct {
 	RequestType            string `json:"requestType"`
 	Timestamp              string `json:"timestamp"`
@@ -42,6 +43,7 @@ type ALBLog struct {
 	ErrorReason            string `json:"errorReason"`
 }
 
+// NewALBLog returns a new ALBLog object
 func NewALBLog(record []string) ALBLog {
 
 	logLine := ALBLog{

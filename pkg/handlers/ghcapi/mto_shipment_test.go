@@ -1,13 +1,14 @@
 package ghcapi
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
@@ -114,16 +115,17 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	})
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	eTag := base64.StdEncoding.EncodeToString([]byte(mtoShipment.UpdatedAt.Format(time.RFC3339Nano)))
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := mtoshipmentops.PatchMTOShipmentStatusParams{
-		HTTPRequest:       req,
-		MoveTaskOrderID:   *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		ShipmentID:        *handlers.FmtUUID(mtoShipment.ID),
-		Body:              &ghcmessages.MTOShipment{Status: "APPROVED"},
-		IfUnmodifiedSince: strfmt.DateTime(mtoShipment.UpdatedAt),
+		HTTPRequest:     req,
+		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+		ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
+		Body:            &ghcmessages.MTOShipment{Status: "APPROVED"},
+		IfMatch:         eTag,
 	}
 
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
@@ -142,6 +144,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 
 		okResponse := response.(*mtoshipmentops.PatchMTOShipmentStatusOK)
 		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
+		suite.NotNil(okResponse.Payload.ETag)
 	})
 
 	suite.T().Run("Patch failure - 500", func(t *testing.T) {
@@ -156,6 +159,8 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		internalServerErr := errors.New("ServerError")
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.Anything,
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, internalServerErr)
@@ -176,6 +181,8 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipmentStatus",
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
+			mock.Anything,
 		).Return(nil, mtoshipment.NotFoundError{})
 
 		response := handler.Handle(params)
@@ -192,6 +199,8 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.Anything,
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, mtoshipment.ValidationError{Verrs: validate.NewErrors()})
@@ -212,9 +221,31 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipmentStatus",
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
+			mock.Anything,
 		).Return(nil, mtoshipment.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("Patch failure - 409", func(t *testing.T) {
+		mockFetcher := mocks.Fetcher{}
+		mockUpdater := mocks.MTOShipmentStatusUpdater{}
+		handler := PatchShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockFetcher,
+			&mockUpdater,
+		}
+
+		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, mtoshipment.ConflictStatusError{})
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusConflict{}, response)
 	})
 }

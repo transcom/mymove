@@ -48,51 +48,56 @@ func NewPaymentReminder(db *pop.Connection, logger Logger) (*PaymentReminder, er
 	}, nil
 }
 
+// PaymentReminderEmailInfos is a slice of PaymentReminderEmailInfo
 type PaymentReminderEmailInfos []PaymentReminderEmailInfo
 
+// PaymentReminderEmailInfo contains payment reminder data for rendering a template
 type PaymentReminderEmailInfo struct {
 	ServiceMemberID      uuid.UUID   `db:"id"`
 	Email                *string     `db:"personal_email"`
-	DutyStationName      string      `db:"duty_station_name"`
 	NewDutyStationName   string      `db:"new_duty_station_name"`
 	WeightEstimate       *unit.Pound `db:"weight_estimate"`
 	IncentiveEstimateMin *unit.Cents `db:"incentive_estimate_min"`
 	IncentiveEstimateMax *unit.Cents `db:"incentive_estimate_max"`
 	IncentiveTxt         string
-	TOName               string `db:"transportation_office_name"`
-	TOPhone              string `db:"transportation_office_phone"`
-	MoveDate             string `db:"move_date"`
+	TOName               string  `db:"transportation_office_name"`
+	TOPhone              *string `db:"transportation_office_phone"`
+	MoveDate             string  `db:"move_date"`
+	Locator              string  `db:"locator"`
 }
 
+// GetEmailInfo fetches payment email information
 func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
-	query := `SELECT sm.id as id, sm.personal_email as personal_email,
-	COALESCE(ppm.weight_estimate, 0) as weight_estimate,
-	COALESCE(ppm.incentive_estimate_min, 0) as incentive_estimate_min,
-	COALESCE(ppm.incentive_estimate_max, 0) as incentive_estimate_max,
+	query := `SELECT sm.id as id, sm.personal_email AS personal_email,
+	COALESCE(ppm.weight_estimate, 0) AS weight_estimate,
+	COALESCE(ppm.incentive_estimate_min, 0) AS incentive_estimate_min,
+	COALESCE(ppm.incentive_estimate_max, 0) AS incentive_estimate_max,
 	ppm.original_move_date as move_date,
 	dsn.name AS new_duty_station_name,
 	tos.name AS transportation_office_name,
-	opl.number AS transportation_office_phone
+	opl.number AS transportation_office_phone,
+	m.locator
 FROM personally_procured_moves ppm
 	JOIN moves m ON ppm.move_id = m.id
 	JOIN orders o ON m.orders_id = o.id
 	JOIN service_members sm ON o.service_member_id = sm.id
 	JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
 	JOIN transportation_offices tos ON tos.id = dsn.transportation_office_id
-	left join office_phone_lines opl on opl.transportation_office_id = tos.id and opl.id =
+	LEFT JOIN office_phone_lines opl on opl.transportation_office_id = tos.id and opl.id =
 	(
-		select opl2.id from office_phone_lines opl2
-		where opl2.is_dsn_number is false
-		and tos.id = opl2.transportation_office_id
-		limit 1
+		SELECT opl2.id FROM office_phone_lines opl2
+		WHERE opl2.is_dsn_number IS false
+		AND tos.id = opl2.transportation_office_id
+		LIMIT 1
 	)
 	LEFT JOIN notifications n ON sm.id = n.service_member_id
- WHERE ppm.original_move_date <= now() - ($1)::INTERVAL
+	WHERE ppm.original_move_date <= now() - ($1)::INTERVAL
 	AND ppm.original_move_date >= $2
-	AND (ppm.status != 'APPROVED' OR n.service_member_id IS NULL)
+	AND ppm.status = 'APPROVED'
 	AND (notification_type != 'MOVE_PAYMENT_REMINDER_EMAIL' OR n.service_member_id IS NULL)
 	AND m.status = 'APPROVED'
-	AND m.show is true;`
+	AND m.show IS true
+	ORDER BY m.locator;`
 
 	paymentReminderEmailInfos := PaymentReminderEmailInfos{}
 	err := m.db.RawQuery(query, m.emailAfter, m.noEmailBefore).All(&paymentReminderEmailInfos)
@@ -123,6 +128,10 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 		if PaymentReminderEmailInfo.WeightEstimate.Int() > 0 && PaymentReminderEmailInfo.IncentiveEstimateMin.Int() > 0 && PaymentReminderEmailInfo.IncentiveEstimateMax.Int() > 0 {
 			incentiveTxt = fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", PaymentReminderEmailInfo.WeightEstimate.Int(), PaymentReminderEmailInfo.IncentiveEstimateMin.ToDollarString(), PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString())
 		}
+		toPhone := ""
+		if PaymentReminderEmailInfo.TOPhone != nil {
+			toPhone = fmt.Sprintf("%s", *PaymentReminderEmailInfo.TOPhone)
+		}
 		htmlBody, textBody, err := m.renderTemplates(PaymentReminderEmailData{
 			DestinationDutyStation: PaymentReminderEmailInfo.NewDutyStationName,
 			WeightEstimate:         fmt.Sprintf("%d", PaymentReminderEmailInfo.WeightEstimate.Int()),
@@ -130,7 +139,8 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 			IncentiveEstimateMax:   PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString(),
 			IncentiveTxt:           incentiveTxt,
 			TOName:                 PaymentReminderEmailInfo.TOName,
-			TOPhone:                PaymentReminderEmailInfo.TOPhone,
+			TOPhone:                toPhone,
+			Locator:                PaymentReminderEmailInfo.Locator,
 		})
 		if err != nil {
 			m.logger.Error("error rendering template", zap.Error(err))
@@ -143,13 +153,15 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 		}
 		smEmail := emailContent{
 			recipientEmail: *PaymentReminderEmailInfo.Email,
-			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s", PaymentReminderEmailInfo.NewDutyStationName),
+			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (%s)", PaymentReminderEmailInfo.NewDutyStationName, PaymentReminderEmailInfo.Locator),
 			htmlBody:       htmlBody,
 			textBody:       textBody,
 			onSuccess:      m.OnSuccess(PaymentReminderEmailInfo),
 		}
-		m.logger.Info("generated move reviewed email to service member",
-			zap.String("service member uuid", PaymentReminderEmailInfo.ServiceMemberID.String()))
+		m.logger.Info("generated payment reminder email to service member",
+			zap.String("service member uuid", PaymentReminderEmailInfo.ServiceMemberID.String()),
+			zap.String("moveLocator", PaymentReminderEmailInfo.Locator),
+		)
 		emails = append(emails, smEmail)
 	}
 	return emails, nil
@@ -186,6 +198,7 @@ func (m PaymentReminder) OnSuccess(PaymentReminderEmailInfo PaymentReminderEmail
 	}
 }
 
+// PaymentReminderEmailData is used to render an email template
 type PaymentReminderEmailData struct {
 	DestinationDutyStation string
 	WeightEstimate         string
@@ -194,6 +207,7 @@ type PaymentReminderEmailData struct {
 	IncentiveTxt           string
 	TOName                 string
 	TOPhone                string
+	Locator                string
 }
 
 // RenderHTML renders the html for the email

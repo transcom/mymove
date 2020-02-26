@@ -12,46 +12,6 @@ basePath: /ghc/v1
 schemes:
   - http
 paths:
-  '/customer':
-    get:
-      tags:
-        - Customer
-      operationId: getAllCustomerMoves
-      description: Gets all customers
-      summary: Gets all customers
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: Successfully retrieved information on all customer
-          schema:
-            $ref: '#/definitions/CustomerMoveItems'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
   '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
@@ -520,19 +480,22 @@ paths:
           schema:
             $ref: '#/definitions/MTOShipment'
         - in: header
-          name: If-Unmodified-Since
+          name: If-Match
           type: string
-          format: datetime
           required: true
       responses:
         '200':
           description: Successfully updated shipment
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: '#/definitions/MTOShipmentWithEtag'
         '404':
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error
+          schema:
+            $ref: '#/responses/Conflict'
         '412':
           description: Precondition failed
           schema:
@@ -1189,48 +1152,6 @@ definitions:
       - city
       - state
       - postal_code
-  CustomerMoveItem:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      reference_id:
-        type: string
-        x-nullable: true
-        example: 1234-5678
-      customer_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      created_at:
-        type: string
-        format: datetime
-        example: 2018-04-12T23:20:50.52Z
-        description: when the access code was created
-      customer_name:
-        type: string
-        example: Mickey Mouse
-        x-nullable: true
-        title: Customer Name
-      branch_of_service:
-        type: string
-        example: Agency
-        x-nullable:
-        title: Branch of service / Agency
-      confirmation_number:
-        type: string
-        example: '12432'
-      origin_duty_station_name:
-        type: string
-        example: Fort Knox
-        title: Origin Duty Station Name
-        x-nullable: true
-  CustomerMoveItems:
-    type: array
-    items:
-      $ref: '#/definitions/CustomerMoveItem'
   Customer:
     type: object
     properties:
@@ -1409,7 +1330,6 @@ definitions:
       referenceId:
         example: 1001-3456
         type: string
-        x-nullable: true
       isAvailableToPrime:
         type: boolean
         x-nullable: true
@@ -1525,9 +1445,25 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+      approvedDate:
+        format: date
+        type: string
+      pickupAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
       customerRemarks:
         type: string
         example: handle with care
+        x-nullable: true
       shipmentType:
         enum:
           - HHG
@@ -1539,9 +1475,20 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+      rejectionReason:
+        type: string
+        example: MTO Shipment not good enough
+        x-nullable: true
+  MTOShipmentWithEtag:
+    allOf:
+      - $ref: '#/definitions/MTOShipment'
+      - type: object
+    properties:
+      eTag:
+        type: string
   MTOShipments:
     items:
-      $ref: '#/definitions/MTOShipment'
+      $ref: '#/definitions/MTOShipmentWithEtag'
     type: array
   MTOServiceItem:
     properties:
@@ -1709,5 +1656,9 @@ responses:
       $ref: '#/definitions/Error'
   PreconditionFailed:
     description: Precondition failed
+    schema:
+      $ref: '#/definitions/Error'
+  Conflict:
+    description: Conflict error
     schema:
       $ref: '#/definitions/Error'

@@ -10,10 +10,7 @@
 /docs/adr/* @tinyels @chrisrcoles @Ryan-Koch @chrisgilmerproj @jacquelineIO
 
 # Docs about the database should be reviewed by people working on our database guidelines
-/docs/database/* @chrisgilmerproj @tinyels @garrettqmartin8 @gidjin @lynzt @reggieriser @rdhariwal @Ryan-Koch @jim @chrisrcoles
+/docs/database/* @transcom/truss-db
 
 # Migrations are where database schema changes are made and we want them reviewed by people working on our database guidelines
-/migrations/* @chrisgilmerproj @tinyels @garrettqmartin8 @gidjin @lynzt @reggieriser @rdhariwal @Ryan-Koch @jim @chrisrcoles
-
-# we also want to make sure the local migrations are not doing schema changes
-/local_migrations/* @chrisgilmerproj @tinyels @garrettqmartin8 @gidjin @lynzt @reggieriser @rdhariwal @Ryan-Koch @jim @chrisrcoles
+/migrations/ @transcom/truss-db

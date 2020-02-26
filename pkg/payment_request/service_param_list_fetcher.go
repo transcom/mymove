@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// FetchServiceParamList fetches the service param list
 func (p *RequestPaymentHelper) FetchServiceParamList(mtoServiceID uuid.UUID) (models.ServiceParams, error) {
 	mtoServiceItem := models.MTOServiceItem{}
 	serviceParams := models.ServiceParams{}

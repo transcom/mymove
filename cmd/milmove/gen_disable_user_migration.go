@@ -15,6 +15,7 @@ import (
 )
 
 const (
+	// DisableUserEmailFlag is the email of the user to disable
 	DisableUserEmailFlag string = "migration-email"
 
 	// template for adding office users
@@ -108,8 +109,8 @@ func genDisableUserMigration(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	t2 := template.Must(template.New("local_migrations").Parse(localMigrationTemplate))
-	err = createMigration("./local_migrations", secureMigrationName, t2, nil)
+	t2 := template.Must(template.New("migrations/app/secure").Parse(localMigrationTemplate))
+	err = createMigration("./migrations/app/secure", secureMigrationName, t2, nil)
 	if err != nil {
 		return err
 	}

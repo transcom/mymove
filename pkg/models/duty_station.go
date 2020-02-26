@@ -142,7 +142,7 @@ func FetchDutyStationTransportationOffice(db *pop.Connection, dutyStationID uuid
 	return dutyStation.TransportationOffice, nil
 }
 
-// FetchDutyStationByPostalCode returns a station for a given postal code
+// FetchDutyStationsByPostalCode returns a station for a given postal code
 func FetchDutyStationsByPostalCode(tx *pop.Connection, postalCode string) (DutyStations, error) {
 	var stations DutyStations
 	query := tx.

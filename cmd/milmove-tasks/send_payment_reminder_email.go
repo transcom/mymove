@@ -123,7 +123,6 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("initializing MoveReviewed", zap.Error(err))
 	}
-	fmt.Printf("%+v\n", movePaymentReminderNotifier)
 
 	err = notificationSender.SendNotification(ctx, movePaymentReminderNotifier)
 	if err != nil {

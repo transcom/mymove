@@ -8,14 +8,15 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
-	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+// UpdateMTOShipmentStatusQueryBuilder is the query builder for updating MTO Shipments
 type UpdateMTOShipmentStatusQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
+	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type mtoShipmentStatusUpdater struct {
@@ -24,11 +25,8 @@ type mtoShipmentStatusUpdater struct {
 	siCreator services.MTOServiceItemCreator
 }
 
-func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentops.PatchMTOShipmentStatusParams) (*models.MTOShipment, error) {
-	shipmentID := payload.ShipmentID
-	status := payload.Body.Status
-	unmodifiedSince := time.Time(payload.IfUnmodifiedSince)
-
+// UpdateMTOShipmentStatus updates MTO Shipment Status
+func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 
 	queryFilters := []services.QueryFilter{
@@ -40,11 +38,23 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 		return nil, NotFoundError{id: shipment.ID}
 	}
 
-	shipment.Status = models.MTOShipmentStatus(status)
+	if shipment.Status != models.MTOShipmentStatusSubmitted {
+		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: models.MTOShipmentStatus(status)}
+	} else if status != models.MTOShipmentStatusRejected {
+		rejectionReason = nil
+	}
 
-	verrs, err := shipment.Validate(o.db)
+	shipment.Status = status
+	shipment.RejectionReason = rejectionReason
 
-	if verrs.Count() > 0 {
+	if shipment.Status == models.MTOShipmentStatusApproved {
+		approvedDate := time.Now()
+		shipment.ApprovedDate = &approvedDate
+	}
+
+	verrs, err := o.builder.UpdateOne(&shipment, &eTag)
+
+	if verrs != nil && verrs.HasAny() {
 		return nil, ValidationError{
 			id:    shipment.ID,
 			Verrs: verrs,
@@ -52,17 +62,15 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 	}
 
 	if err != nil {
-		return nil, err
-	}
-
-	affectedRows, err := o.db.RawQuery("UPDATE mto_shipments SET status = ?, updated_at = NOW() WHERE id = ? AND updated_at = ?", status, shipment.ID.String(), unmodifiedSince).ExecWithCount()
-
-	if err != nil {
-		return nil, err
-	}
-
-	if affectedRows != 1 {
-		return nil, PreconditionFailedError{id: shipment.ID}
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return nil, PreconditionFailedError{
+				id:  shipment.ID,
+				Err: err,
+			}
+		default:
+			return nil, err
+		}
 	}
 
 	if shipment.Status == models.MTOShipmentStatusApproved {
@@ -159,7 +167,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 		for _, serviceItem := range serviceItemsToCreate {
 			_, verrs, err := o.siCreator.CreateMTOServiceItem(&serviceItem)
 
-			if verrs != nil {
+			if verrs != nil && verrs.HasAny() {
 				return nil, ValidationError{
 					id:    shipment.ID,
 					Verrs: verrs,
@@ -190,31 +198,52 @@ func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServ
 	return serviceItems
 }
 
+// NewMTOShipmentStatusUpdater creates a new MTO Shipment Status Updater
 func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentStatusQueryBuilder, siCreator services.MTOServiceItemCreator) services.MTOShipmentStatusUpdater {
 	return &mtoShipmentStatusUpdater{db, builder, siCreator}
 }
 
+// ConflictStatusError returns an error for a conflict in status
+type ConflictStatusError struct {
+	id                   uuid.UUID
+	transitionFromStatus models.MTOShipmentStatus
+	transitionToStatus   models.MTOShipmentStatus
+}
+
+// Error is the string representation of the error
+func (e ConflictStatusError) Error() string {
+	return fmt.Sprintf("shipment with id '%s' can not transition status from '%s' to '%s'. Must be in status '%s'.",
+		e.id.String(), e.transitionFromStatus, e.transitionToStatus, models.MTOShipmentStatusSubmitted)
+}
+
+// NotFoundError is the not found error
 type NotFoundError struct {
 	id uuid.UUID
 }
 
+// Error is the string representation of the error
 func (e NotFoundError) Error() string {
 	return fmt.Sprintf("shipment with id '%s' not found", e.id.String())
 }
 
+// ValidationError is the validation error
 type ValidationError struct {
 	id    uuid.UUID
 	Verrs *validate.Errors
 }
 
+// Error is the string representation of the validation error
 func (e ValidationError) Error() string {
 	return fmt.Sprintf("shipment with id: '%s' could not be updated due to a validation error", e.id.String())
 }
 
+// PreconditionFailedError is the precondition failed error
 type PreconditionFailedError struct {
-	id uuid.UUID
+	id  uuid.UUID
+	Err error
 }
 
+// Error is the string representation of the precondition failed error
 func (e PreconditionFailedError) Error() string {
 	return fmt.Sprintf("shipment with id: '%s' could not be updated due to the record being stale", e.id.String())
 }

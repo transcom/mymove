@@ -81,12 +81,14 @@ func (s *NamedServer) ListenAndServeTLS() error {
 	return s.Serve(listener)
 }
 
+// IsReady returns if a server is ready
 func (s *NamedServer) IsReady() bool {
 	s.IsServerReadyMutex.Lock()
 	defer s.IsServerReadyMutex.Unlock()
 	return s.IsServerReady
 }
 
+// WaitUntilReady waits until the server is ready
 func (s *NamedServer) WaitUntilReady() {
 	times := 0
 	// Wait for server to be ready

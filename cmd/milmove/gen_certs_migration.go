@@ -169,10 +169,11 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 	if v.GetBool(cli.CACFlag) {
 
 		store, errStore := cli.GetCACStore(v)
-		defer store.Close()
 		if errStore != nil {
-			return errStore
+			return fmt.Errorf("Ensure CAC reader and card inserted: %w", errStore)
 		}
+		defer store.Close()
+
 		cert, errTLSCert := store.TLSCertificate()
 		if errTLSCert != nil {
 			return errTLSCert
@@ -202,8 +203,8 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	t2 := template.Must(template.New("local_migrations").Parse(localMigrationTemplate))
-	err = createMigration("./local_migrations", secureMigrationName, t2, nil)
+	t2 := template.Must(template.New("migrations/app/secure").Parse(localMigrationTemplate))
+	err = createMigration("./migrations/app/secure", secureMigrationName, t2, nil)
 	if err != nil {
 		return err
 	}

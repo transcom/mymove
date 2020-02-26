@@ -21,7 +21,6 @@ import (
 )
 
 const (
-
 	// CertPathFlag is the path to the certificate to use for TLS
 	CertPathFlag string = "certpath"
 	// KeyPathFlag is the path to the key to use for TLS
@@ -30,13 +29,13 @@ const (
 	HostnameFlag string = "hostname"
 	// PortFlag is the port to connect to
 	PortFlag string = "port"
-	// Insecure flag indicates that TLS verification and validation can be skipped
+	// InsecureFlag indicates that TLS verification and validation can be skipped
 	InsecureFlag string = "insecure"
 	// VerboseFlag holds string identifier for command line usage
 	VerboseFlag string = "verbose"
 )
 
-// initialize flags
+// initializeFlags sets up CLI flags
 func initFlags(flag *pflag.FlagSet) {
 
 	cli.InitCACFlags(flag)
@@ -50,6 +49,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
+// checkConfig checks the config
 func checkConfig(v *viper.Viper, logger *log.Logger) error {
 
 	if err := cli.CheckCAC(v); err != nil {
@@ -169,12 +169,21 @@ func main() {
 	params.SetTimeout(time.Second * 30)
 	resp, errFetchMTOUpdates := primeGateway.MoveTaskOrder.FetchMTOUpdates(&params)
 	if errFetchMTOUpdates != nil {
-		log.Fatal(errFetchMTOUpdates)
+		// If the response cannot be parsed as JSON you may see an error like
+		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
+		// Likely this is because the API doesn't return JSON response for BadRequest OR
+		// The response type is not being set to text
+		log.Fatal(errFetchMTOUpdates.Error())
 	}
 
-	payload, errJSONMarshall := json.Marshal(resp.GetPayload())
-	if errJSONMarshall != nil {
-		log.Fatal(errJSONMarshall)
+	payload := resp.GetPayload()
+	if payload != nil {
+		payload, errJSONMarshall := json.Marshal(payload)
+		if errJSONMarshall != nil {
+			log.Fatal(errJSONMarshall)
+		}
+		fmt.Println(string(payload))
+	} else {
+		log.Fatal(resp.Error())
 	}
-	fmt.Println(string(payload))
 }

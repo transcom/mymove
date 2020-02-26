@@ -7,11 +7,14 @@ describe('completing the ppm flow', function() {
     //profile@comple.te
     cy.signInAsUserPostRequest(milmoveAppName, '13f3949d-0d53-4be4-b1b1-ae4314793f34');
     cy.contains('Fort Gordon (from Yuma AFB)');
-    cy.get('[data-cy="move-header-weight-estimate"]').contains('10,500 lbs');
+    cy.get('[data-cy="move-header-weight-estimate"]').contains('8,000 lbs');
     cy.contains('Continue Move Setup').click();
 
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
+    });
+    cy.location().then(loc => {
+      cy.setFeatureFlag('progearChanges=false', loc.pathname);
     });
     cy.get('.wizard-header').should('not.exist');
     cy.get('input[name="original_move_date"]')
@@ -123,11 +126,14 @@ describe('completing the ppm flow with a move date that we currently do not have
     //profile@complete.draft
     cy.signInAsUserPostRequest(milmoveAppName, '3b9360a3-3304-4c60-90f4-83d687884070');
     cy.contains('Fort Gordon (from Yuma AFB)');
-    cy.get('[data-cy="move-header-weight-estimate"]').contains('10,500 lbs');
+    cy.get('[data-cy="move-header-weight-estimate"]').contains('8,000 lbs');
     cy.contains('Continue Move Setup').click();
 
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
+    });
+    cy.location().then(loc => {
+      cy.setFeatureFlag('progearChanges=false', loc.pathname);
     });
     cy.get('.wizard-header').should('not.exist');
     cy.get('input[name="original_move_date"]')
@@ -233,6 +239,9 @@ describe('check invalid ppm inputs', () => {
     cy.contains('Continue Move Setup').click();
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
+    });
+    cy.location().then(loc => {
+      cy.setFeatureFlag('progearChanges=false', loc.pathname);
     });
     cy.get('.wizard-header').should('not.exist');
     cy.get('input[name="original_move_date"]')

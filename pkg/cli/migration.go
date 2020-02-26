@@ -21,7 +21,7 @@ var (
 
 // InitMigrationFlags initializes the Migration command line flags
 func InitMigrationFlags(flag *pflag.FlagSet) {
-	flag.StringP(MigrationManifestFlag, "m", "migrations_manifest.txt", "Path to the manifest")
+	flag.StringP(MigrationManifestFlag, "m", "migrations/app/migrations_manifest.txt", "Path to the manifest")
 	flag.DurationP(MigrationWaitFlag, "w", time.Millisecond*10, "duration to wait when polling for new data from migration file")
 }
 

@@ -1,5 +1,6 @@
 package serviceparamvaluelookups
 
+// WeightBilledActualLookup is the weight billed actual lookup
 type WeightBilledActualLookup struct {
 }
 

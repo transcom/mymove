@@ -16,7 +16,7 @@ var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, she
 	const nonPeakPriceColumn int = 4
 	const peakPriceColumn int = 5
 
-	log.Println("Parsing Domestic Other (Pack/Unpack) Prices")
+	log.Println("Parsing domestic other (pack/unpack) prices")
 
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseDomesticOtherPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
@@ -38,9 +38,6 @@ var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, she
 				log.Printf("%+v\n", packPrice)
 			}
 		} else {
-			if params.ShowOutput == true {
-				log.Println("Parse of Domestic Other (Pack/Unpack) Prices Complete")
-			}
 			break
 		}
 	}
@@ -57,7 +54,7 @@ var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, shee
 	const nonPeakPriceColumn int = 4
 	const peakPriceColumn int = 5
 
-	log.Println("Parsing Domestic Other (SIT Pickup/Delivery) Prices")
+	log.Println("Parsing domestic other (SIT pickup/delivery) prices")
 
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseDomesticOtherPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
@@ -79,9 +76,6 @@ var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, shee
 				log.Printf("%+v\n", sitPrice)
 			}
 		} else {
-			if params.ShowOutput == true {
-				log.Println("Parse of Domestic Other (Pack/Unpack) Prices Complete")
-			}
 			break
 		}
 	}

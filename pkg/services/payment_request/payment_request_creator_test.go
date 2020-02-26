@@ -16,7 +16,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	referenceID := "5432-1234"
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			ReferenceID: &referenceID,
+			ReferenceID: referenceID,
 		},
 	})
 	mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{

@@ -93,8 +93,14 @@ type MoveDocumentPayload struct {
 	// missing trailer ownership documentation
 	TrailerOwnershipMissing *bool `json:"trailer_ownership_missing,omitempty"`
 
+	// Vehicle make
+	VehicleMake *string `json:"vehicle_make,omitempty"`
+
+	// Vehicle model
+	VehicleModel *string `json:"vehicle_model,omitempty"`
+
 	// Vehicle nickname (ex. 'My car')
-	VehicleNickname string `json:"vehicle_nickname,omitempty"`
+	VehicleNickname *string `json:"vehicle_nickname,omitempty"`
 
 	// Weight ticket date
 	// Format: date

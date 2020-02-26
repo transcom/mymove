@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -50,6 +51,7 @@ var servicesToEntryPoints = map[string][]string{
 	"app-tasks": {
 		fmt.Sprintf("%s save-fuel-price-data", binMilMoveTasks),
 		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
+		fmt.Sprintf("%s send-payment-reminder", binMilMoveTasks),
 	},
 }
 
@@ -110,6 +112,7 @@ const (
 	registerFlag      string = "register"
 )
 
+// ECRImage represents an ECR Image tag broken into its constituent parts
 type ECRImage struct {
 	AWSRegion      string
 	imageURI       string
@@ -119,6 +122,7 @@ type ECRImage struct {
 	RepositoryName string
 }
 
+// NewECRImage returns a new ECR Image object
 func NewECRImage(imageURI string) (*ECRImage, error) {
 	imageParts := strings.Split(imageURI, ":")
 	if len(imageParts) != 2 {
@@ -324,7 +328,7 @@ func buildContainerEnvironment(environmentName string, dbHost string, variablesF
 			log.Fatal(fmt.Errorf("File %q does not exist: %w", variablesFile, err))
 		}
 		// Read contents of variables file into vars
-		vars, readFileErr := ioutil.ReadFile(variablesFile)
+		vars, readFileErr := ioutil.ReadFile(filepath.Clean(variablesFile))
 		if readFileErr != nil {
 			log.Fatal(errors.New("error reading variables file"))
 		}

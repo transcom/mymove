@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
+// ServiceItemParamKeyData contains service item parameter keys
 type ServiceItemParamKeyData struct {
 	lookups            map[string]ServiceItemParamKeyLookup
 	PayloadServiceItem primemessages.ServiceItem
@@ -16,10 +17,12 @@ type ServiceItemParamKeyData struct {
 	MoveTaskOrderID    uuid.UUID
 }
 
+// ServiceItemParamKeyLookup does lookup on service item parameter keys
 type ServiceItemParamKeyLookup interface {
 	lookup(keyData *ServiceItemParamKeyData) (string, error)
 }
 
+// ServiceParamLookupInitialize initializes service parameter lookup
 func ServiceParamLookupInitialize(
 	mtoServiceItemID uuid.UUID,
 	paymentRequestID uuid.UUID,
@@ -45,6 +48,7 @@ func ServiceParamLookupInitialize(
 	return &s
 }
 
+// ServiceParamValue returns a service parameter value from a key
 func (s *ServiceItemParamKeyData) ServiceParamValue(key string) (string, error) {
 	if lookup, ok := s.lookups[key]; ok {
 		value, err := lookup.lookup(s)

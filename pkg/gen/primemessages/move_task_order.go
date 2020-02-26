@@ -40,11 +40,14 @@ type MoveTaskOrder struct {
 	// mto service items
 	MtoServiceItems []*MTOServiceItem `json:"mto_service_items"`
 
+	// mto shipments
+	MtoShipments MTOShipments `json:"mto_shipments,omitempty"`
+
 	// payment requests
 	PaymentRequests []*PaymentRequest `json:"payment_requests"`
 
 	// reference Id
-	ReferenceID *string `json:"referenceId,omitempty"`
+	ReferenceID string `json:"referenceId,omitempty"`
 
 	// updated at
 	// Format: date
@@ -68,6 +71,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMtoServiceItems(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMtoShipments(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -144,6 +151,22 @@ func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateMtoShipments(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MtoShipments) { // not required
+		return nil
+	}
+
+	if err := m.MtoShipments.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mto_shipments")
+		}
+		return err
 	}
 
 	return nil

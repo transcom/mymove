@@ -17,9 +17,9 @@ import (
 )
 
 var (
-	moveSubmittedRawTextTemplate = string(assets.MustAsset("pkg/notifications/templates/move_approved_template.txt"))
+	moveSubmittedRawTextTemplate = string(assets.MustAsset("pkg/notifications/templates/move_submitted_template.txt"))
 	moveSubmittedTextTemplate    = text.Must(text.New("text_template").Parse(moveSubmittedRawTextTemplate))
-	moveSubmittedRawHTMLTemplate = string(assets.MustAsset("pkg/notifications/templates/move_approved_template.html"))
+	moveSubmittedRawHTMLTemplate = string(assets.MustAsset("pkg/notifications/templates/move_submitted_template.html"))
 	moveSubmittedHTMLTemplate    = html.Must(html.New("text_template").Parse(moveSubmittedRawHTMLTemplate))
 )
 
@@ -78,6 +78,7 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 		OriginDutyStation:          originDSTransportInfo.Name,
 		DestinationDutyStation:     orders.NewDutyStation.Name,
 		OriginDutyStationPhoneLine: originDSTransportInfo.PhoneLine,
+		Locator:                    move.Locator,
 	})
 
 	if err != nil {
@@ -91,8 +92,8 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 		textBody:       textBody,
 	}
 
-	m.logger.Info("Generated move submitted email to service member",
-		zap.String("service member email address", *serviceMember.PersonalEmail))
+	m.logger.Info("Generated move submitted email",
+		zap.String("moveLocator", move.Locator))
 
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
@@ -115,6 +116,7 @@ type moveSubmittedEmailData struct {
 	OriginDutyStation          string
 	DestinationDutyStation     string
 	OriginDutyStationPhoneLine string
+	Locator                    string
 }
 
 // RenderHTML renders the html for the email

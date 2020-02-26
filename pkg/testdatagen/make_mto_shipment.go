@@ -31,32 +31,38 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 
 	// mock remarks
 	remarks := "please treat gently"
+	rejectionReason := "shipment not good enough"
 
 	// mock weights
-	estimatedWeight := unit.Pound(1000)
 	actualWeight := unit.Pound(980)
 
 	// mock dates
 	scheduledPickupDate := time.Date(TestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
 	requestedPickupDate := time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
-	primeEstimatedWeightDate := time.Date(TestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
 
 	MTOShipment := models.MTOShipment{
-		MoveTaskOrder:                    moveTaskOrder,
-		MoveTaskOrderID:                  moveTaskOrder.ID,
-		ScheduledPickupDate:              &scheduledPickupDate,
-		RequestedPickupDate:              &requestedPickupDate,
-		CustomerRemarks:                  &remarks,
-		PickupAddress:                    pickupAddress,
-		PickupAddressID:                  pickupAddress.ID,
-		DestinationAddress:               destinationAddress,
-		DestinationAddressID:             destinationAddress.ID,
-		PrimeEstimatedWeight:             &estimatedWeight,
-		PrimeEstimatedWeightRecordedDate: &primeEstimatedWeightDate,
-		PrimeActualWeight:                &actualWeight,
-		ShipmentType:                     shipmentType,
-		Status:                           "SUBMITTED",
+		MoveTaskOrder:            moveTaskOrder,
+		MoveTaskOrderID:          moveTaskOrder.ID,
+		ScheduledPickupDate:      &scheduledPickupDate,
+		RequestedPickupDate:      &requestedPickupDate,
+		CustomerRemarks:          &remarks,
+		PickupAddress:            pickupAddress,
+		PickupAddressID:          pickupAddress.ID,
+		DestinationAddress:       destinationAddress,
+		DestinationAddressID:     destinationAddress.ID,
+		PrimeActualWeight:        &actualWeight,
+		SecondaryPickupAddress:   &pickupAddress,
+		SecondaryDeliveryAddress: &destinationAddress,
+		ShipmentType:             shipmentType,
+		Status:                   "SUBMITTED",
+		RejectionReason:          &rejectionReason,
 	}
+
+	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
+		approvedDate := time.Date(TestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
+		MTOShipment.ApprovedDate = &approvedDate
+	}
+
 	// Overwrite values with those from assertions
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 

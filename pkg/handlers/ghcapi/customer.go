@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 )
 
-// GetCustomerInfoHandler fetches the information of a specific customer
+// GetCustomerHandler fetches the information of a specific customer
 type GetCustomerHandler struct {
 	handlers.HandlerContext
 	services.CustomerFetcher
