@@ -3899,7 +3899,6 @@ func init() {
       "required": [
         "personally_procured_move_id",
         "weight_ticket_set_type",
-        "vehicle_nickname",
         "full_weight_ticket_missing",
         "empty_weight_ticket_missing",
         "trailer_ownership_missing"
@@ -3950,7 +3949,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. 'My car')",
+          "title": "Vehicle nickname (ex. 'Large box truck')",
           "x-nullable": true
         },
         "weight_ticket_date": {
@@ -10103,7 +10102,6 @@ func init() {
       "required": [
         "personally_procured_move_id",
         "weight_ticket_set_type",
-        "vehicle_nickname",
         "full_weight_ticket_missing",
         "empty_weight_ticket_missing",
         "trailer_ownership_missing"
@@ -10156,7 +10154,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. 'My car')",
+          "title": "Vehicle nickname (ex. 'Large box truck')",
           "x-nullable": true
         },
         "weight_ticket_date": {
