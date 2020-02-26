@@ -46,6 +46,7 @@ func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) 
 	// return errors
 	if err != nil {
 		if err.Error() == "FETCH_NOT_FOUND" {
+			logger.Error(fmt.Sprintf("Error while fetching mto agents. Could not find record with mto shipment with id: %s", mtoShipmentID.String()), zap.Error(err))
 			return mtoagentop.NewFetchMTOAgentListNotFound()
 		}
 		logger.Error(fmt.Sprintf("Error fetching mto agents for mto shipment with id: %s", mtoShipmentID.String()), zap.Error(err))
