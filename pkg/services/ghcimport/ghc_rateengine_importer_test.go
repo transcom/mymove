@@ -60,9 +60,8 @@ func (suite *GHCRateEngineImportSuite) TearDownSuite() {
 	suite.PopTestSuite.TearDown()
 }
 
-func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
-	fmt.Print("Importing stage data...")
-	path := filepath.Join("fixtures", "stage_ghc_pricing.sql")
+func (suite *GHCRateEngineImportSuite) helperLoadSQLFixture(pathName string) {
+	path := filepath.Join("fixtures", pathName)
 	_, err := os.Stat(path)
 	suite.NoError(err)
 
@@ -76,21 +75,14 @@ func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
 	}
 }
 
+func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
+	fmt.Print("Importing stage data...")
+	suite.helperLoadSQLFixture("stage_ghc_pricing.sql")
+}
+
 func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
 	fmt.Print("Importing re_services data...")
-
-	path := filepath.Join("fixtures", "re_services_data.sql")
-	_, err := os.Stat(path)
-	suite.NoError(err)
-
-	c, ioErr := ioutil.ReadFile(filepath.Clean(path))
-	suite.NoError(ioErr)
-
-	sql := string(c)
-	err = suite.DB().RawQuery(sql).Exec()
-	if suite.NoError(err) {
-		fmt.Println(" success")
-	}
+	suite.helperLoadSQLFixture("re_services_data.sql")
 }
 
 func TestGHCRateEngineImportSuite(t *testing.T) {
