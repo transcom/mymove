@@ -279,14 +279,14 @@ class WeightTicket extends Component {
                       <SwaggerField
                         fieldName="vehicle_make"
                         data-cy="vehicle_make"
-                        title="Make"
+                        title="Vehicle make"
                         swagger={schema}
                         required={this.isCarTrailer || this.isCar}
                       />
                       <SwaggerField
                         fieldName="vehicle_model"
                         data-cy="vehicle_model"
-                        title="Model"
+                        title="Vehicle model"
                         swagger={schema}
                         required={this.isCarTrailer || this.isCar}
                       />
