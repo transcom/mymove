@@ -92,15 +92,15 @@ func (f moveTaskOrderFetcher) createDefaultServiceItems(mto *models.MoveTaskOrde
 	return nil
 }
 
-type moveTaskOrderStatusUpdater struct {
+type moveTaskOrderUpdater struct {
 	db *pop.Connection
 	moveTaskOrderFetcher
 	builder UpdateMoveTaskOrderQueryBuilder
 }
 
 // NewMoveTaskOrderStatusUpdater creates a new struct with the service dependencies
-func NewMoveTaskOrderStatusUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQueryBuilder) services.MoveTaskOrderStatusUpdater {
-	return &moveTaskOrderStatusUpdater{db, moveTaskOrderFetcher{db}, builder}
+func NewMoveTaskOrderStatusUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQueryBuilder) services.MoveTaskOrderUpdater {
+	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db}, builder}
 }
 
 //MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
@@ -125,7 +125,7 @@ type UpdateMoveTaskOrderQueryBuilder interface {
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
-func (o *moveTaskOrderStatusUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.MoveTaskOrder, error) {
+func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.MoveTaskOrder, error) {
 	var moveTaskOrder models.MoveTaskOrder
 
 	queryFilters := []services.QueryFilter{

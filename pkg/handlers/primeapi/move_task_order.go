@@ -59,14 +59,14 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 type UpdateMTOPostCounselingInformationHandler struct {
 	handlers.HandlerContext
 	services.Fetcher
-	services.MoveTaskOrderStatusUpdater
+	services.MoveTaskOrderUpdater
 }
 
 func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderops.UpdateMTOPostCounselingInformationParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	mtoID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	eTag := params.IfMatch
-	mto, err := h.MoveTaskOrderStatusUpdater.UpdatePostCounselingInfo(mtoID, params.Body, eTag)
+	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(mtoID, params.Body, eTag)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOPotstCounselingInformation error", zap.Error(err))
 		switch err.(type) {
