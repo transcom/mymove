@@ -147,89 +147,38 @@ func main() {
 }
 
 func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
-	logger.Info("XLSX to Stage Table Parsing Complete")
-	logger.Info("Summary:")
+	logger.Info("XLSX to stage table parsing complete. Summary follows:")
+	logger.Info("====")
 
 	tables := []struct {
-		header   string
-		ptrSlice interface{}
+		header string
+		model  interface{}
 	}{
-		{
-			"1b: Service Areas",
-			&[]models.StageDomesticServiceArea{},
-		},
-		{
-			"1b: Service Areas",
-			&[]models.StageInternationalServiceArea{},
-		},
-		{
-			"2a: Domestic Linehaul Prices",
-			&[]models.StageDomesticLinehaulPrice{},
-		},
-		{
-			"2b: Domestic Service Area Prices",
-			&[]models.StageDomesticServiceAreaPrice{},
-		},
-		{
-			"2c: Other Domestic Prices",
-			&[]models.StageDomesticOtherPackPrice{},
-		},
-		{
-			"2c: Other Domestic Prices",
-			&[]models.StageDomesticOtherSitPrice{},
-		},
-		{
-			"3a: OCONUS to OCONUS Prices",
-			&[]models.StageOconusToOconusPrice{},
-		},
-		{
-			"3b: CONUS to OCONUS Prices",
-			&[]models.StageConusToOconusPrice{},
-		},
-		{
-			"3c: OCONUS to CONUS Prices",
-			&[]models.StageOconusToConusPrice{},
-		},
-		{
-			"3d: Other International Prices",
-			&[]models.StageOtherIntlPrice{},
-		},
-		{
-			"3e: Non-Standard Location Prices",
-			&[]models.StageNonStandardLocnPrice{},
-		},
-		{
-			"4a: Management, Counseling, and Transition Prices",
-			&[]models.StageShipmentManagementServicesPrice{},
-		},
-		{
-			"4a: Management, Counseling, and Transition Prices",
-			&[]models.StageCounselingServicesPrice{},
-		},
-		{
-			"4a: Management, Counseling, and Transition Prices",
-			&[]models.StageTransitionPrice{},
-		},
-		{
-			"5a: Accessorial and Additional Prices",
-			&[]models.StageDomesticMoveAccessorialPrice{},
-		},
-		{
-			"5a: Accessorial and Additional Prices",
-			&[]models.StageInternationalMoveAccessorialPrice{},
-		},
-		{
-			"5a: Accessorial and Additional Prices",
-			&[]models.StageDomesticInternationalAdditionalPrice{},
-		},
-		{
-			"5b: Price Escalation Discount",
-			&[]models.StagePriceEscalationDiscount{},
-		},
+		{"1b: Service Areas", models.StageDomesticServiceArea{}},
+		{"1b: Service Areas", models.StageInternationalServiceArea{}},
+		{"2a: Domestic Linehaul Prices", models.StageDomesticLinehaulPrice{}},
+		{"2b: Domestic Service Area Prices", models.StageDomesticServiceAreaPrice{}},
+		{"2c: Other Domestic Prices", models.StageDomesticOtherPackPrice{}},
+		{"2c: Other Domestic Prices", models.StageDomesticOtherSitPrice{}},
+		{"3a: OCONUS to OCONUS Prices", models.StageOconusToOconusPrice{}},
+		{"3b: CONUS to OCONUS Prices", models.StageConusToOconusPrice{}},
+		{"3c: OCONUS to CONUS Prices", models.StageOconusToConusPrice{}},
+		{"3d: Other International Prices", models.StageOtherIntlPrice{}},
+		{"3e: Non-Standard Location Prices", models.StageNonStandardLocnPrice{}},
+		{"4a: Management, Counseling, and Transition Prices", models.StageShipmentManagementServicesPrice{}},
+		{"4a: Management, Counseling, and Transition Prices", models.StageCounselingServicesPrice{}},
+		{"4a: Management, Counseling, and Transition Prices", models.StageTransitionPrice{}},
+		{"5a: Accessorial and Additional Prices", models.StageDomesticMoveAccessorialPrice{}},
+		{"5a: Accessorial and Additional Prices", models.StageInternationalMoveAccessorialPrice{}},
+		{"5a: Accessorial and Additional Prices", models.StageDomesticInternationalAdditionalPrice{}},
+		{"5b: Price Escalation Discount", models.StagePriceEscalationDiscount{}},
 	}
 
-	for _, table := range tables {
-		err := summarizeTable(db, logger, table.header, table.ptrSlice, nil)
+	for index, table := range tables {
+		if index != 0 {
+			logger.Info("----")
+		}
+		err := summarizeModel(db, logger, table.header, table.model, nil)
 		if err != nil {
 			return err
 		}
@@ -239,8 +188,8 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 }
 
 func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.UUID) error {
-	logger.Info("Stage Table import into Rate Engine Tables Complete")
-	logger.Info("Summary:")
+	logger.Info("Stage table import into rate engine tables complete. Summary follows:")
+	logger.Info("====")
 
 	tables := []struct {
 		header   string
@@ -249,78 +198,81 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 	}{
 		{
 			"re_contract",
-			&[]models.ReContract{},
+			models.ReContract{},
 			db.Where("id = ?", contractID),
 		},
 		{
 			"re_contract_years",
-			&[]models.ReContractYear{},
+			models.ReContractYear{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
 			"re_domestic_service_areas",
-			&[]models.ReDomesticServiceArea{},
+			models.ReDomesticServiceArea{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
 			"re_zip3s",
-			&[]models.ReZip3{},
+			models.ReZip3{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
 			"re_rate_areas",
-			&[]models.ReRateArea{},
+			models.ReRateArea{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
 			"re_domestic_linehaul_prices",
-			&[]models.ReDomesticLinehaulPrice{},
+			models.ReDomesticLinehaulPrice{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
 			"re_domestic_service_area_prices",
-			&[]models.ReDomesticServiceAreaPrice{},
+			models.ReDomesticServiceAreaPrice{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
 			"re_domestic_other_prices",
-			&[]models.ReDomesticOtherPrice{},
+			models.ReDomesticOtherPrice{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
 			"re_intl_prices",
-			&[]models.ReIntlPrice{},
+			models.ReIntlPrice{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
 			"re_intl_other_prices",
-			&[]models.ReIntlOtherPrice{},
+			models.ReIntlOtherPrice{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
 			"re_task_order_fees",
-			&[]models.ReTaskOrderFee{},
+			models.ReTaskOrderFee{},
 			db.Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id"),
 		},
 		{
 			"re_domestic_accessorial_prices",
-			&[]models.ReDomesticAccessorialPrice{},
+			models.ReDomesticAccessorialPrice{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
 			"re_intl_accessorial_prices",
-			&[]models.ReIntlAccessorialPrice{},
+			models.ReIntlAccessorialPrice{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
 			"re_shipment_type_prices",
-			&[]models.ReShipmentTypePrice{},
+			models.ReShipmentTypePrice{},
 			db.Where("contract_id = ?", contractID),
 		},
 	}
 
-	for _, table := range tables {
-		err := summarizeTable(db, logger, table.header, table.ptrSlice, table.filter)
+	for index, table := range tables {
+		if index != 0 {
+			logger.Info("----")
+		}
+		err := summarizeModel(db, logger, table.header, table.ptrSlice, table.filter)
 		if err != nil {
 			return err
 		}
@@ -329,35 +281,41 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 	return nil
 }
 
-func summarizeTable(db *pop.Connection, logger logger, header string, modelSlice interface{}, filter *pop.Query) error {
-	modelType := reflect.TypeOf(modelSlice).Elem().Elem()
+func summarizeModel(db *pop.Connection, logger logger, header string, model interface{}, filter *pop.Query) error {
+	// Inspired by https://stackoverflow.com/a/25386460
+	modelType := reflect.TypeOf(model)
 	modelName := modelType.Name()
-	modelInstance := reflect.New(modelType)
+	if modelType.Kind() != reflect.Struct {
+		return fmt.Errorf("model (%s) must be a struct", modelName)
+	}
+
+	modelSlice := reflect.MakeSlice(reflect.SliceOf(modelType), 0, 2)
+	modelPtrSlice := reflect.New(modelSlice.Type())
+	modelPtrSlice.Elem().Set(modelSlice)
 
 	if filter == nil {
 		filter = db.Q()
 	}
 
-	err := filter.Limit(2).All(modelSlice)
+	err := filter.Limit(2).All(modelPtrSlice.Interface())
 	if err != nil {
 		return err
 	}
-	length, err := filter.Count(modelInstance.Interface())
+	length, err := filter.Count(model)
 	if err != nil {
 		return err
 	}
 
-	modelSliceValue := reflect.ValueOf(modelSlice).Elem()
+	modelSlice = modelPtrSlice.Elem()
 
-	headerMsg := fmt.Sprintf("  %s (%s)", header, modelName)
+	headerMsg := fmt.Sprintf("%s (%s)", header, modelName)
 	logger.Info(headerMsg, zap.Int("length", length))
 	if length > 0 {
-		logger.Info("    first", zap.Any(modelName, modelSliceValue.Index(0).Interface()))
+		logger.Info("first", zap.Any(modelName, modelSlice.Index(0).Interface()))
 	}
 	if length > 1 {
-		logger.Info("    second", zap.Any(modelName, modelSliceValue.Index(1).Interface()))
+		logger.Info("second", zap.Any(modelName, modelSlice.Index(1).Interface()))
 	}
-	logger.Info("  ---")
 
 	return nil
 }
