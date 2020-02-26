@@ -12,31 +12,37 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewUpdateMoveTaskOrderPostCounselingInformationParams creates a new UpdateMoveTaskOrderPostCounselingInformationParams object
+// NewUpdateMTOPostCounselingInformationParams creates a new UpdateMTOPostCounselingInformationParams object
 // no default values defined in spec.
-func NewUpdateMoveTaskOrderPostCounselingInformationParams() UpdateMoveTaskOrderPostCounselingInformationParams {
+func NewUpdateMTOPostCounselingInformationParams() UpdateMTOPostCounselingInformationParams {
 
-	return UpdateMoveTaskOrderPostCounselingInformationParams{}
+	return UpdateMTOPostCounselingInformationParams{}
 }
 
-// UpdateMoveTaskOrderPostCounselingInformationParams contains all the bound params for the update move task order post counseling information operation
+// UpdateMTOPostCounselingInformationParams contains all the bound params for the update m t o post counseling information operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters updateMoveTaskOrderPostCounselingInformation
-type UpdateMoveTaskOrderPostCounselingInformationParams struct {
+// swagger:parameters updateMTOPostCounselingInformation
+type UpdateMTOPostCounselingInformationParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
 	/*
 	  Required: true
+	  In: header
+	*/
+	IfMatch string
+	/*
+	  Required: true
 	  In: body
 	*/
-	Body UpdateMoveTaskOrderPostCounselingInformationBody
+	Body UpdateMTOPostCounselingInformationBody
 	/*ID of move task order to use
 	  Required: true
 	  In: path
@@ -47,15 +53,19 @@ type UpdateMoveTaskOrderPostCounselingInformationParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewUpdateMoveTaskOrderPostCounselingInformationParams() beforehand.
-func (o *UpdateMoveTaskOrderPostCounselingInformationParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewUpdateMTOPostCounselingInformationParams() beforehand.
+func (o *UpdateMTOPostCounselingInformationParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
 
+	if err := o.bindIfMatch(r.Header[http.CanonicalHeaderKey("If-Match")], true, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body UpdateMoveTaskOrderPostCounselingInformationBody
+		var body UpdateMTOPostCounselingInformationBody
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body"))
@@ -86,8 +96,29 @@ func (o *UpdateMoveTaskOrderPostCounselingInformationParams) BindRequest(r *http
 	return nil
 }
 
+// bindIfMatch binds and validates parameter IfMatch from header.
+func (o *UpdateMTOPostCounselingInformationParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("If-Match", "header")
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+
+	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
+		return err
+	}
+
+	o.IfMatch = raw
+
+	return nil
+}
+
 // bindMoveTaskOrderID binds and validates parameter MoveTaskOrderID from path.
-func (o *UpdateMoveTaskOrderPostCounselingInformationParams) bindMoveTaskOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateMTOPostCounselingInformationParams) bindMoveTaskOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
