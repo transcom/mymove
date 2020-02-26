@@ -796,7 +796,7 @@ workflows:
       - anti_virus:
           filters:
             branches:
-              only: gm-anti-virus-debugging
+              only: master
 
       - pre_test:
           requires:
