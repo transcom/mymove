@@ -284,11 +284,11 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 func summarizeModel(db *pop.Connection, logger logger, header string, model interface{}, filter *pop.Query) error {
 	// Inspired by https://stackoverflow.com/a/25386460
 	modelType := reflect.TypeOf(model)
-	modelName := modelType.Name()
 	if modelType.Kind() != reflect.Struct {
-		return fmt.Errorf("model (%s) must be a struct", modelName)
+		return fmt.Errorf("model for header [%s] should be a struct, but got %s instead", header, modelType.Kind())
 	}
 
+	modelName := modelType.Name()
 	modelSlice := reflect.MakeSlice(reflect.SliceOf(modelType), 0, 2)
 	modelPtrSlice := reflect.New(modelSlice.Type())
 	modelPtrSlice.Elem().Set(modelSlice)
