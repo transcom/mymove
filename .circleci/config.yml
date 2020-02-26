@@ -641,10 +641,7 @@ jobs:
           command: cd ..; git clone git@github.com:transcom/milmove_admin.git
       - run:
           name: generate models and migrate
-          command: |
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            source $BASH_ENV
-            cd ..;cd milmove_admin; make generate_models
+          command: cd ..;cd milmove_admin; make generate_models
           environment:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
@@ -659,6 +656,7 @@ jobs:
             LOGIN_GOV_CALLBACK_PORT: 3000
             LOGIN_GOV_KID_JWK: milmove_admin
             LOGIN_GOV_JWK_SET_FILENAME: keyset.jwk
+            DJANGO_SECRET_KEY: '9k#x@9w3zh+2w0)g=zk4#p%-h4f3r@^q&2rwp#phjicfb-#f@*'
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
