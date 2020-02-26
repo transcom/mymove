@@ -263,12 +263,22 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 			db.Where("contract_id = ?", contractID),
 		},
 		{
+			"re_zip3s",
+			&[]models.ReZip3{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
 			"re_rate_areas",
 			&[]models.ReRateArea{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
-			"reDomLinePrices",
+			"re_zip5_rate_areas",
+			&[]models.ReZip5RateArea{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_domestic_linehaul_prices",
 			&[]models.ReDomesticLinehaulPrice{},
 			db.Where("contract_id = ?", contractID),
 		},
@@ -283,12 +293,12 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 			db.Where("contract_id = ?", contractID),
 		},
 		{
-			"re_international_prices",
+			"re_intl_prices",
 			&[]models.ReIntlPrice{},
 			db.Where("contract_id = ?", contractID),
 		},
 		{
-			"re_international_other_prices",
+			"re_intl_other_prices",
 			&[]models.ReIntlOtherPrice{},
 			db.Where("contract_id = ?", contractID),
 		},
