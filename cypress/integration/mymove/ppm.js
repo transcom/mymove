@@ -370,7 +370,12 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
 
   cy.get('select[name="weight_ticket_set_type"]').select(vehicleType);
 
-  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+  if (vehicleType === 'BOXTRUCK' || vehicleType === 'PROGEAR') {
+    cy.get('input[data-cy="vehicle_nickname"]').type('Nickname');
+  } else if (vehicleType === 'CAR' || vehicleType === 'CARTRAILER') {
+    cy.get('input[data-cy="vehicle_make"]').type('Make');
+    cy.get('input[data-cy="vehicle_model"]').type('Model');
+  }
 
   cy.get('input[name="empty_weight"]').type('1000');
 

@@ -6,7 +6,7 @@ import store from 'shared/store';
 import { HashRouter as Router } from 'react-router-dom';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 
-function mountComponents(moreWeightTickets = 'Yes', formInvalid, uploderWithInvalidState, weightTicketType = 'CAR') {
+function mountComponents(moreWeightTickets = 'Yes', formInvalid, uploaderWithInvalidState, weightTicketType = 'CAR') {
   const initialValues = {
     empty_weight: 1100,
     full_weight: 2000,
@@ -25,7 +25,7 @@ function mountComponents(moreWeightTickets = 'Yes', formInvalid, uploderWithInva
   const wt = wrapper.find('WeightTicket');
   if (formInvalid !== undefined) {
     wt.instance().invalid = jest.fn().mockReturnValue(formInvalid);
-    wt.instance().uploaderWithInvalidState = jest.fn().mockReturnValue(uploderWithInvalidState);
+    wt.instance().uploaderWithInvalidState = jest.fn().mockReturnValue(uploaderWithInvalidState);
   }
   wt.setState({ additionalWeightTickets: moreWeightTickets, initialValues: initialValues });
   wt.update();
@@ -46,7 +46,7 @@ describe('Weight tickets page', () => {
     });
   });
   describe('Service member chooses CAR as weight ticket type', () => {
-    it.skip('renders vehicle make and model fields', () => {
+    it('renders vehicle make and model fields', () => {
       const weightTicket = mountComponents('No', true, true, 'CAR');
       const vehicleNickname = weightTicket.find('input[data-cy="vehicle_nickname"]');
       const vehicleMake = weightTicket.find('input[data-cy="vehicle_make"]');
@@ -58,8 +58,8 @@ describe('Weight tickets page', () => {
     });
   });
   describe('Service member chooses BOX TRUCK as weight ticket type', () => {
-    it.skip('renders vehicle nickname field', () => {
-      const weightTicket = mountComponents('No', 'BOX_TRUCK');
+    it('renders vehicle nickname field', () => {
+      const weightTicket = mountComponents('No', true, true, 'BOXTRUCK');
       const vehicleNickname = weightTicket.find('input[data-cy="vehicle_nickname"]');
       const vehicleMake = weightTicket.find('input[data-cy="vehicle_make"]');
       const vehicleModel = weightTicket.find('input[data-cy="vehicle_model"]');
