@@ -651,6 +651,11 @@ jobs:
             DJANGO_ALLOWED_HOSTS: 'localhost 127.0.0.1 [::1]'
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             LOGIN_GOV_CALLBACK_PROTOCOL: http
+            LOGIN_GOV_ENGADMIN_CLIENT_ID: 'urn:gov:gsa:openidconnect.profiles:sp:sso:dod:engadminmovemillocal'
+            LOCAL_HOST_NAME: engadminlocal
+            LOGIN_GOV_CALLBACK_PORT: 3000
+            LOGIN_GOV_KID_JWK: milmove_admin
+            LOGIN_GOV_JWK_SET_FILENAME: keyset.jwk
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
