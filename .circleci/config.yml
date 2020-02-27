@@ -12,33 +12,33 @@
 version: '2.1'
 
 executors:
-  # `mymove_small` and `mymove_medium` use the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
+  # `mymove_small` and `mymove_medium` use the `milmove/milmove-app` docker image with a checkout of the mymove code
   mymove_small:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
+      - image: milmove/circleci-docker:milmove-app-de8cba2300204631e07fd90c4c43ea2e1a06d93a
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
+      - image: milmove/circleci-docker:milmove-app-de8cba2300204631e07fd90c4c43ea2e1a06d93a
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
+      - image: milmove/circleci-docker:milmove-app-de8cba2300204631e07fd90c4c43ea2e1a06d93a
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
+      - image: milmove/circleci-docker:milmove-app-de8cba2300204631e07fd90c4c43ea2e1a06d93a
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
+      - image: milmove/circleci-docker:milmove-app-de8cba2300204631e07fd90c4c43ea2e1a06d93a
       - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -48,7 +48,7 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
+      - image: milmove/circleci-docker:milmove-app-de8cba2300204631e07fd90c4c43ea2e1a06d93a
       - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -381,7 +381,6 @@ jobs:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run: make bin/swagger
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
@@ -459,7 +458,6 @@ jobs:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
-      - run: rm -f bin/swagger && make bin/swagger
       - run: make server_generate
       - run: rm -f bin/generate-test-data && make bin/generate-test-data
       - e2e_tests
@@ -601,7 +599,6 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - run: make bin/rds-ca-2019-root.pem
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
-      - run: rm -f bin/swagger && make bin/swagger
       - run: make server_generate
       - run: rm -f bin/milmove-tasks && make bin/milmove-tasks
       - build_tag_push:

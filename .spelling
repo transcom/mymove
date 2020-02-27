@@ -356,6 +356,7 @@ zap.Object
 dp3-ask-the-govies
 trussworks
 circleci-docker-primary
+circleci-docker
 checksum
 64-bit
 Dockerfile

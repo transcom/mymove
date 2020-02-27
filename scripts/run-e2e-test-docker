@@ -64,13 +64,13 @@ else
   # Locally development requires that we build the container
 
   # Let's clean things up before starting
-  docker-compose -f docker-compose.local.yml down || true
+  docker-compose -f docker-compose.local.yml down --remove-orphans || true
 
   # Build artifacts
   make client_build
 
   # Build images and start everything up
-  docker-compose -f docker-compose.local.yml up -d --build
+  docker-compose -f docker-compose.local.yml up --remove-orphans -d --build
 
   # Build a small tools dockerfile
   docker build -f Dockerfile.tools_local --tag tools:latest .
