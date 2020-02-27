@@ -111,7 +111,7 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		OrderType:                orderType,
 		OrderTypeDetail:          orderTypeDetail,
 		ReportByDate:             reportByDate,
-		LinesOfAccounting:        linesOfAccounting,
+		LinesOfAccounting:        &linesOfAccounting,
 	}
 
 	// Overwrite values with those from assertions

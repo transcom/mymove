@@ -89,7 +89,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		OrderNumber:            moveOrder.OrderNumber,
-		LinesOfAccounting:      &moveOrder.LinesOfAccounting,
+		LinesOfAccounting:      moveOrder.LinesOfAccounting,
 		Rank:                   moveOrder.Grade,
 		ConfirmationNumber:     *moveOrder.ConfirmationNumber,
 		ReportByDate:           reportByDate,
