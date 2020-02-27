@@ -25,7 +25,7 @@ type UpdateMTOPostCounselingInformationOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.MoveTaskOrder `json:"body,omitempty"`
+	Payload *primemessages.MoveTaskOrderWithEtag `json:"body,omitempty"`
 }
 
 // NewUpdateMTOPostCounselingInformationOK creates UpdateMTOPostCounselingInformationOK with default headers values
@@ -35,13 +35,13 @@ func NewUpdateMTOPostCounselingInformationOK() *UpdateMTOPostCounselingInformati
 }
 
 // WithPayload adds the payload to the update m t o post counseling information o k response
-func (o *UpdateMTOPostCounselingInformationOK) WithPayload(payload *primemessages.MoveTaskOrder) *UpdateMTOPostCounselingInformationOK {
+func (o *UpdateMTOPostCounselingInformationOK) WithPayload(payload *primemessages.MoveTaskOrderWithEtag) *UpdateMTOPostCounselingInformationOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o post counseling information o k response
-func (o *UpdateMTOPostCounselingInformationOK) SetPayload(payload *primemessages.MoveTaskOrder) {
+func (o *UpdateMTOPostCounselingInformationOK) SetPayload(payload *primemessages.MoveTaskOrderWithEtag) {
 	o.Payload = payload
 }
 

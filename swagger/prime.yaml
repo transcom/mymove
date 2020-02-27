@@ -86,7 +86,7 @@ paths:
         '200':
           description: Successfully updated move task order post counseling information
           schema:
-            $ref: '#/definitions/MoveTaskOrder'
+            $ref: '#/definitions/MoveTaskOrderWithEtag'
         '401':
           description: The request was denied
           schema:
@@ -668,6 +668,14 @@ definitions:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
+
+  MoveTaskOrderWithEtag:
+    allOf:
+      - $ref: '#/definitions/MoveTaskOrder'
+      - type: object
+    properties:
+      eTag:
+        type: string
   MTOShipment:
     properties:
       moveTaskOrderID:

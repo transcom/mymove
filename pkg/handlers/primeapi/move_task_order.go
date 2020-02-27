@@ -78,6 +78,6 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError()
 		}
 	}
-	mtoPayload := payloads.MoveTaskOrder(mto)
+	mtoPayload := payloads.MoveTaskOrderWithEtag(mto)
 	return movetaskorderops.NewUpdateMTOPostCounselingInformationOK().WithPayload(mtoPayload)
 }

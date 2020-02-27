@@ -86,20 +86,20 @@ func NewUpdateMTOPostCounselingInformationOK() *UpdateMTOPostCounselingInformati
 Successfully updated move task order post counseling information
 */
 type UpdateMTOPostCounselingInformationOK struct {
-	Payload *primemessages.MoveTaskOrder
+	Payload *primemessages.MoveTaskOrderWithEtag
 }
 
 func (o *UpdateMTOPostCounselingInformationOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationOK  %+v", 200, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationOK) GetPayload() *primemessages.MoveTaskOrder {
+func (o *UpdateMTOPostCounselingInformationOK) GetPayload() *primemessages.MoveTaskOrderWithEtag {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.MoveTaskOrder)
+	o.Payload = new(primemessages.MoveTaskOrderWithEtag)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

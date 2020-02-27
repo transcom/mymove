@@ -3,15 +3,8 @@ package primeapi
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/gobuffalo/validate"
-	"github.com/stretchr/testify/mock"
-	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/services/fetch"
-	"github.com/transcom/mymove/pkg/services/mocks"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
 	"net/http/httptest"
 	"testing"
@@ -134,24 +127,24 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		IfMatch: eTag,
 	}
 
-	//suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
-	//	queryBuilder := query.NewQueryBuilder(suite.DB())
-	//	fetcher := fetch.NewFetcher(queryBuilder)
-	//	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
-	//	updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator)
-	//	handler := PatchShipmentHandler{
-	//		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	//		fetcher,
-	//		updater,
-	//	}
-	//
-	//	response := handler.Handle(params)
-	//	suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusOK{}, response)
-	//
-	//	okResponse := response.(*mtoshipmentops.PatchMTOShipmentStatusOK)
-	//	suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
-	//	suite.NotNil(okResponse.Payload.ETag)
-	//})
+	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		fetcher := fetch.NewFetcher(queryBuilder)
+		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder)
+		handler := UpdateMTOPostCounselingInformationHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationOK{}, response)
+
+		okResponse := response.(*movetaskorderops.UpdateMTOPostCounselingInformationOK)
+		suite.Equal(mto.ID.String(), okResponse.Payload.ID.String())
+		suite.NotNil(okResponse.Payload.ETag)
+	})
+
 	//
 	//suite.T().Run("Patch failure - 500", func(t *testing.T) {
 	//	mockFetcher := mocks.Fetcher{}

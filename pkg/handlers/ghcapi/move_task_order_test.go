@@ -70,7 +70,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderStatusUpdater(suite.DB()),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB()),
 	}
 	response := handler.Handle(params)
 

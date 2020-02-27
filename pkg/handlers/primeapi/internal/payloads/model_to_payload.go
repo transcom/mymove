@@ -1,7 +1,9 @@
 package payloads
 
 import (
+	"encoding/base64"
 	"github.com/go-openapi/strfmt"
+	"time"
 
 	"github.com/transcom/mymove/pkg/etag"
 
@@ -32,6 +34,34 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
+	return payload
+}
+
+func MoveTaskOrderWithEtag(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskOrderWithEtag {
+	if moveTaskOrder == nil {
+		return nil
+	}
+	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
+	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
+	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
+	payload := &primemessages.MoveTaskOrderWithEtag{
+		MoveTaskOrder: primemessages.MoveTaskOrder{
+			ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
+			CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
+			IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
+			IsCanceled:         &moveTaskOrder.IsCanceled,
+			MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
+			ReferenceID:        moveTaskOrder.ReferenceID,
+			PaymentRequests:    paymentRequests,
+			PpmEstimatedWeight: moveTaskOrder.PPMEstimatedWeight.Int64(),
+			PpmType:            moveTaskOrder.PPMType,
+			MtoServiceItems:    mtoServiceItems,
+			MtoShipments:       *mtoShipments,
+			UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
+		},
+		ETag: base64.StdEncoding.EncodeToString([]byte(moveTaskOrder.UpdatedAt.Format(time.RFC3339Nano))),
+	}
+
 	return payload
 }
 
