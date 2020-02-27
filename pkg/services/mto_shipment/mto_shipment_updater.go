@@ -104,6 +104,10 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 		oldShipment.FirstAvailableDeliveryDate = updatedShipment.FirstAvailableDeliveryDate
 	}
 
+	if updatedShipment.ActualPickupDate != nil {
+		oldShipment.ActualPickupDate = updatedShipment.ActualPickupDate
+	}
+
 	scheduledPickupTime := *oldShipment.ScheduledPickupDate
 	if updatedShipment.ScheduledPickupDate != nil {
 		scheduledPickupTime = *updatedShipment.ScheduledPickupDate
@@ -222,6 +226,11 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 	if updatedShipment.FirstAvailableDeliveryDate != nil {
 		baseQuery = baseQuery + ", \nfirst_available_delivery_date = ?"
 		params = append(params, updatedShipment.FirstAvailableDeliveryDate)
+	}
+
+	if updatedShipment.ActualPickupDate != nil {
+		baseQuery = baseQuery + ", \nactual_pickup_date = ?"
+		params = append(params, updatedShipment.ActualPickupDate)
 	}
 
 	if updatedShipment.ShipmentType != "" {

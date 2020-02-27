@@ -2,7 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
-import { formatCents, formatCentsRange } from 'shared/formatters';
+import { formatCents } from 'shared/formatters';
+import { formatIncentiveRange } from 'shared/incentive';
 import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 
@@ -13,7 +14,8 @@ const SubmittedPpmMoveDetails = props => {
     : '';
   const advanceString = ppm.has_requested_advance ? `Advance Requested: $${formatCents(advance.requested_amount)}` : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
-  const incentiveRange = formatCentsRange(ppm.currentPpm.incentive_estimate_min, ppm.currentPpm.incentive_estimate_max);
+  const incentiveRange = formatIncentiveRange(ppm);
+
   return (
     <div className="titled_block">
       <div className="title">Details</div>
