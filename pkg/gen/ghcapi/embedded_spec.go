@@ -1100,7 +1100,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/PatchMTOShipmentStatusPayload"
             }
           },
           {
@@ -2122,6 +2122,23 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "PatchMTOShipmentStatusPayload": {
+      "properties": {
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment not good enough"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "REJECTED",
+            "APPROVED",
+            "SUBMITTED"
+          ]
+        }
       }
     },
     "PaymentRequest": {
@@ -3624,7 +3641,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/PatchMTOShipmentStatusPayload"
             }
           },
           {
@@ -4703,6 +4720,23 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "PatchMTOShipmentStatusPayload": {
+      "properties": {
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment not good enough"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "REJECTED",
+            "APPROVED",
+            "SUBMITTED"
+          ]
+        }
       }
     },
     "PaymentRequest": {

@@ -17,12 +17,6 @@ import (
 // swagger:model MoveOrder
 type MoveOrder struct {
 
-	// confirmation number
-	ConfirmationNumber string `json:"confirmationNumber,omitempty"`
-
-	// customer
-	Customer *Customer `json:"customer,omitempty"`
-
 	// customer ID
 	// Format: uuid
 	CustomerID strfmt.UUID `json:"customerID,omitempty"`
@@ -37,33 +31,13 @@ type MoveOrder struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// lines of accounting
-	// Required: true
-	LinesOfAccounting *string `json:"linesOfAccounting"`
-
-	// order number
-	// Required: true
-	OrderNumber *string `json:"orderNumber"`
-
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
-
-	// rank
-	// Required: true
-	Rank *string `json:"rank"`
-
-	// report by date
-	// Format: date
-	ReportByDate strfmt.Date `json:"reportByDate,omitempty"`
 }
 
 // Validate validates this move order
 func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateCustomer(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateCustomerID(formats); err != nil {
 		res = append(res, err)
@@ -81,47 +55,13 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateLinesOfAccounting(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateOrderNumber(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateOriginDutyStation(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRank(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReportByDate(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *MoveOrder) validateCustomer(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Customer) { // not required
-		return nil
-	}
-
-	if m.Customer != nil {
-		if err := m.Customer.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("customer")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -187,24 +127,6 @@ func (m *MoveOrder) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateLinesOfAccounting(formats strfmt.Registry) error {
-
-	if err := validate.Required("linesOfAccounting", "body", m.LinesOfAccounting); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MoveOrder) validateOrderNumber(formats strfmt.Registry) error {
-
-	if err := validate.Required("orderNumber", "body", m.OrderNumber); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.OriginDutyStation) { // not required
@@ -218,28 +140,6 @@ func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *MoveOrder) validateRank(formats strfmt.Registry) error {
-
-	if err := validate.Required("rank", "body", m.Rank); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MoveOrder) validateReportByDate(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ReportByDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
-		return err
 	}
 
 	return nil

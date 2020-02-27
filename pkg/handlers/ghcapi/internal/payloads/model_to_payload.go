@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -166,13 +167,13 @@ func Address(address *models.Address) *ghcmessages.Address {
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	strfmt.MarshalFormat = strfmt.RFC3339Micro
+
 	payload := &ghcmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             mtoShipment.ShipmentType,
 		Status:                   string(mtoShipment.Status),
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(&mtoShipment.PickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
@@ -180,6 +181,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
+	}
+
+	if mtoShipment.RequestedPickupDate != nil {
+		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
 	}
 
 	if mtoShipment.ApprovedDate != nil {

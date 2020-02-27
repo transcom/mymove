@@ -18,13 +18,12 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
-		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
 		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
-		PaymentRequests:    *paymentRequests,
-		MtoServiceItems:    *mtoServiceItems,
+		PaymentRequests:    paymentRequests,
+		MtoServiceItems:    mtoServiceItems,
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
@@ -47,54 +46,36 @@ func Customer(customer *models.Customer) *primemessages.Customer {
 		return nil
 	}
 	payload := primemessages.Customer{
-		FirstName:          customer.FirstName,
-		LastName:           customer.LastName,
-		DodID:              customer.DODID,
-		ID:                 strfmt.UUID(customer.ID.String()),
-		UserID:             strfmt.UUID(customer.UserID.String()),
-		CurrentAddress:     Address(&customer.CurrentAddress),
-		DestinationAddress: Address(&customer.DestinationAddress),
-		Branch:             customer.Agency,
+		DodID:  customer.DODID,
+		ID:     strfmt.UUID(customer.ID.String()),
+		UserID: strfmt.UUID(customer.UserID.String()),
 	}
-
-	if customer.PhoneNumber != nil {
-		payload.Phone = *customer.PhoneNumber
-	}
-
-	if customer.Email != nil {
-		payload.Email = *customer.Email
-	}
-
 	return &payload
 }
 
 // MoveOrder payload
-func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
-	if moveOrder == nil {
+func MoveOrder(moveOrders *models.MoveOrder) *primemessages.MoveOrder {
+	if moveOrders == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(moveOrder.DestinationDutyStation)
-	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
-	if moveOrder.Grade != nil {
-		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
+	destinationDutyStation := DutyStation(moveOrders.DestinationDutyStation)
+	originDutyStation := DutyStation(moveOrders.OriginDutyStation)
+	if moveOrders.Grade != nil {
+		moveOrders.Entitlement.SetWeightAllotment(*moveOrders.Grade)
 	}
-	reportByDate := strfmt.Date(*moveOrder.ReportByDate)
-	entitlements := Entitlement(moveOrder.Entitlement)
-
+	entitlements := Entitlement(moveOrders.Entitlement)
 	payload := primemessages.MoveOrder{
-		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
-		Customer:               Customer(moveOrder.Customer),
+		CustomerID:             strfmt.UUID(moveOrders.CustomerID.String()),
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
-		ID:                     strfmt.UUID(moveOrder.ID.String()),
+		ID:                     strfmt.UUID(moveOrders.ID.String()),
 		OriginDutyStation:      originDutyStation,
-		OrderNumber:            moveOrder.OrderNumber,
-		LinesOfAccounting:      moveOrder.LinesOfAccounting,
-		Rank:                   moveOrder.Grade,
-		ConfirmationNumber:     *moveOrder.ConfirmationNumber,
-		ReportByDate:           reportByDate,
+		//OrderNumber:            moveOrder.OrderNumber,
+		//LinesOfAccounting:      moveOrder.LinesOfAccounting,
+		//Rank:                   moveOrder.Grade,
+		//ConfirmationNumber:     *moveOrder.ConfirmationNumber,
+		//ReportByDate:           reportByDate,
 	}
-
 	return &payload
 }
 
@@ -180,13 +161,13 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 }
 
 // PaymentRequests payload
-func PaymentRequests(paymentRequests *models.PaymentRequests) *primemessages.PaymentRequests {
+func PaymentRequests(paymentRequests *[]models.PaymentRequest) []*primemessages.PaymentRequest {
 	payload := make(primemessages.PaymentRequests, len(*paymentRequests))
 
 	for i, p := range *paymentRequests {
 		payload[i] = PaymentRequest(&p)
 	}
-	return &payload
+	return payload
 }
 
 // MTOShipment payload
@@ -210,6 +191,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	if mtoShipment.ApprovedDate != nil && !mtoShipment.ApprovedDate.IsZero() {
 		approvedDate := strfmt.Date(*mtoShipment.ApprovedDate)
 		payload.ApprovedDate = &approvedDate
+	}
+
+	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
+		payload.ActualPickupDate = strfmt.Date(*mtoShipment.ActualPickupDate)
 	}
 
 	if mtoShipment.FirstAvailableDeliveryDate != nil && !mtoShipment.FirstAvailableDeliveryDate.IsZero() {
@@ -246,11 +231,11 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *primemessages.MTOSer
 }
 
 // MTOServiceItems payload
-func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *primemessages.MTOServiceItems {
+func MTOServiceItems(mtoServiceItems *[]models.MTOServiceItem) []*primemessages.MTOServiceItem {
 	payload := make(primemessages.MTOServiceItems, len(*mtoServiceItems))
 
 	for i, p := range *mtoServiceItems {
 		payload[i] = MTOServiceItem(&p)
 	}
-	return &payload
+	return payload
 }

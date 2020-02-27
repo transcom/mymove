@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents } from 'shared/formatters';
+import { formatIncentiveRange } from 'shared/incentive';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import { selectReimbursement } from 'shared/Entities/modules/ppms';
@@ -17,6 +18,7 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments }) => {
       ? `Advance Requested: $${formatCents(advance.requested_amount)}`
       : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
+  const incentiveRange = formatIncentiveRange(ppm);
 
   return (
     <div className="titled_block">
@@ -39,7 +41,7 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments }) => {
           </>
         ) : (
           <>
-            <div>${formatCents(ppm.incentive_estimate_min)}</div>
+            <div>{incentiveRange}</div>
             <div style={{ fontSize: '0.90em', color: '#767676' }}>
               <em>Actual payment may vary, subject to Finance review.</em>
             </div>
