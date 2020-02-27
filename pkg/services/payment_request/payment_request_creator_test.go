@@ -2,7 +2,6 @@ package paymentrequest
 
 import (
 	"fmt"
-
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -13,12 +12,7 @@ import (
 
 func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	// Create some records we'll need to link to
-	referenceID := "5432-1234"
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
-			ReferenceID: referenceID,
-		},
-	})
+	moveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder,
 		ReService: models.ReService{
@@ -109,9 +103,11 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		paymentRequestReturn, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
 
-		expectedPaymentRequestNumber := fmt.Sprintf("%s-%d", referenceID, 1)
+		expectedSequenceNumber := 1
+		expectedPaymentRequestNumber := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber)
 		// Verify some of the data that came back
 		suite.Equal(expectedPaymentRequestNumber, paymentRequestReturn.PaymentRequestNumber)
+		suite.Equal(expectedSequenceNumber, paymentRequestReturn.SequenceNumber)
 		suite.NotEqual(paymentRequestReturn.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequestReturn.PaymentServiceItems), "PaymentServiceItems expect 2")
 		if suite.Len(paymentRequestReturn.PaymentServiceItems, 2) {
@@ -334,9 +330,14 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.FatalNoError(err)
 
 		// Verify expected payment request numbers
-		expectedPaymentRequestNumber1 := fmt.Sprintf("%s-%d", referenceID, max+1)
+		expectedSequenceNumber1 := max + 1
+		expectedPaymentRequestNumber1 := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber1)
 		suite.Equal(expectedPaymentRequestNumber1, paymentRequest1.PaymentRequestNumber)
-		expectedPaymentRequestNumber2 := fmt.Sprintf("%s-%d", referenceID, max+2)
+		suite.Equal(expectedSequenceNumber1, paymentRequest1.SequenceNumber)
+
+		expectedSequenceNumber2 := max + 2
+		expectedPaymentRequestNumber2 := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber2)
 		suite.Equal(expectedPaymentRequestNumber2, paymentRequest2.PaymentRequestNumber)
+		suite.Equal(expectedSequenceNumber2, paymentRequest2.SequenceNumber)
 	})
 }

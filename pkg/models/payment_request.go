@@ -69,5 +69,7 @@ func (p *PaymentRequest) Validate(tx *pop.Connection) (*validate.Errors, error) 
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.MoveTaskOrderID, Name: "MoveTaskOrderID"},
 		&validators.StringInclusion{Field: p.Status.String(), Name: "Status", List: validPaymentRequestStatus},
+		&validators.StringIsPresent{Field: p.PaymentRequestNumber, Name: "PaymentRequestNumber"},
+		&validators.IntIsGreaterThan{Field: p.SequenceNumber, Name: "SequenceNumber", Compared: 0},
 	), nil
 }
