@@ -181,7 +181,7 @@ paths:
       tags:
         - moveOrder
       description: Gets move task orders associated with a move order
-      operationId: listMoveTaskOrders
+      operationId: listMoveTaskOrdersForMoveOrder
       summary: Gets move task orders associated with a move order
   /move-task-orders:
     get:

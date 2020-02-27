@@ -60,8 +60,8 @@ func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders() ([]models.MoveTaskOrder,
 	return r0, r1
 }
 
-// ListMoveTaskOrders provides a mock function with given fields: moveOrderID
-func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.MoveTaskOrder, error) {
+// ListMoveTaskOrdersForMoveOrder provides a mock function with given fields: moveOrderID
+func (_m *MoveTaskOrderFetcher) ListMoveTaskOrdersForMoveOrder(moveOrderID uuid.UUID) ([]models.MoveTaskOrder, error) {
 	ret := _m.Called(moveOrderID)
 
 	var r0 []models.MoveTaskOrder

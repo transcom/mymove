@@ -15,18 +15,18 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewListMoveTaskOrdersParams creates a new ListMoveTaskOrdersParams object
+// NewListMoveTaskOrdersForMoveOrderParams creates a new ListMoveTaskOrdersForMoveOrderParams object
 // no default values defined in spec.
-func NewListMoveTaskOrdersParams() ListMoveTaskOrdersParams {
+func NewListMoveTaskOrdersForMoveOrderParams() ListMoveTaskOrdersForMoveOrderParams {
 
-	return ListMoveTaskOrdersParams{}
+	return ListMoveTaskOrdersForMoveOrderParams{}
 }
 
-// ListMoveTaskOrdersParams contains all the bound params for the list move task orders operation
+// ListMoveTaskOrdersForMoveOrderParams contains all the bound params for the list move task orders for move order operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters listMoveTaskOrders
-type ListMoveTaskOrdersParams struct {
+// swagger:parameters listMoveTaskOrdersForMoveOrder
+type ListMoveTaskOrdersForMoveOrderParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -41,8 +41,8 @@ type ListMoveTaskOrdersParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewListMoveTaskOrdersParams() beforehand.
-func (o *ListMoveTaskOrdersParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewListMoveTaskOrdersForMoveOrderParams() beforehand.
+func (o *ListMoveTaskOrdersForMoveOrderParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -59,7 +59,7 @@ func (o *ListMoveTaskOrdersParams) BindRequest(r *http.Request, route *middlewar
 }
 
 // bindMoveOrderID binds and validates parameter MoveOrderID from path.
-func (o *ListMoveTaskOrdersParams) bindMoveOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *ListMoveTaskOrdersForMoveOrderParams) bindMoveOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -83,7 +83,7 @@ func (o *ListMoveTaskOrdersParams) bindMoveOrderID(rawData []string, hasKey bool
 }
 
 // validateMoveOrderID carries on validations for parameter MoveOrderID
-func (o *ListMoveTaskOrdersParams) validateMoveOrderID(formats strfmt.Registry) error {
+func (o *ListMoveTaskOrdersForMoveOrderParams) validateMoveOrderID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("moveOrderID", "path", "uuid", o.MoveOrderID.String(), formats); err != nil {
 		return err

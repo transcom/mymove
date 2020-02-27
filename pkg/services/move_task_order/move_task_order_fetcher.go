@@ -65,7 +65,7 @@ type moveTaskOrderFetcher struct {
 	db *pop.Connection
 }
 
-func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.MoveTaskOrder, error) {
+func (f moveTaskOrderFetcher) ListMoveTaskOrdersForMoveOrder(moveOrderID uuid.UUID) ([]models.MoveTaskOrder, error) {
 	var moveTaskOrders []models.MoveTaskOrder
 	err := f.db.Where("move_order_id = $1", moveOrderID).Eager().All(&moveTaskOrders)
 	if err != nil {

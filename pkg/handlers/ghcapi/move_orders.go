@@ -65,29 +65,29 @@ func (h ListMoveOrdersHandler) Handle(params moveorderop.ListMoveOrdersParams) m
 	return moveorderop.NewListMoveOrdersOK().WithPayload(moveOrdersPayload)
 }
 
-// ListMoveTaskOrdersHandler fetches all the move orders
-type ListMoveTaskOrdersHandler struct {
+// ListMoveTaskOrdersForMoveOrderHandler fetches all the move orders
+type ListMoveTaskOrdersForMoveOrderHandler struct {
 	handlers.HandlerContext
 	services.MoveTaskOrderFetcher
 }
 
 // Handle getting the all move orders
-func (h ListMoveTaskOrdersHandler) Handle(params moveorderop.ListMoveTaskOrdersParams) middleware.Responder {
+func (h ListMoveTaskOrdersForMoveOrderHandler) Handle(params moveorderop.ListMoveTaskOrdersForMoveOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	moveOrderID, _ := uuid.FromString(params.MoveOrderID.String())
-	moveTaskOrders, err := h.ListMoveTaskOrders(moveOrderID)
+	moveTaskOrders, err := h.ListMoveTaskOrdersForMoveOrder(moveOrderID)
 	if err != nil {
 		logger.Error("fetching all move orders", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
-			return moveorderop.NewListMoveTaskOrdersNotFound()
+			return moveorderop.NewListMoveTaskOrdersForMoveOrderNotFound()
 		default:
-			return moveorderop.NewListMoveTaskOrdersInternalServerError()
+			return moveorderop.NewListMoveTaskOrdersForMoveOrderInternalServerError()
 		}
 	}
 	moveTaskOrdersPayload := make(ghcmessages.MoveTaskOrders, len(moveTaskOrders))
 	for i, moveTaskOrder := range moveTaskOrders {
 		moveTaskOrdersPayload[i] = payloads.MoveTaskOrder(&moveTaskOrder)
 	}
-	return moveorderop.NewListMoveTaskOrdersOK().WithPayload(moveTaskOrdersPayload)
+	return moveorderop.NewListMoveTaskOrdersForMoveOrderOK().WithPayload(moveTaskOrdersPayload)
 }

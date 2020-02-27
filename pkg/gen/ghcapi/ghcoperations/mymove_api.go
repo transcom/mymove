@@ -83,8 +83,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveOrderListMoveOrdersHandler: move_order.ListMoveOrdersHandlerFunc(func(params move_order.ListMoveOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveOrderListMoveOrders has not yet been implemented")
 		}),
-		MoveOrderListMoveTaskOrdersHandler: move_order.ListMoveTaskOrdersHandlerFunc(func(params move_order.ListMoveTaskOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveOrderListMoveTaskOrders has not yet been implemented")
+		MoveOrderListMoveTaskOrdersForMoveOrderHandler: move_order.ListMoveTaskOrdersForMoveOrderHandlerFunc(func(params move_order.ListMoveTaskOrdersForMoveOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveOrderListMoveTaskOrdersForMoveOrder has not yet been implemented")
 		}),
 		PaymentRequestsListPaymentRequestsHandler: payment_requests.ListPaymentRequestsHandlerFunc(func(params payment_requests.ListPaymentRequestsParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsListPaymentRequests has not yet been implemented")
@@ -167,8 +167,8 @@ type MymoveAPI struct {
 	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
 	// MoveOrderListMoveOrdersHandler sets the operation handler for the list move orders operation
 	MoveOrderListMoveOrdersHandler move_order.ListMoveOrdersHandler
-	// MoveOrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
-	MoveOrderListMoveTaskOrdersHandler move_order.ListMoveTaskOrdersHandler
+	// MoveOrderListMoveTaskOrdersForMoveOrderHandler sets the operation handler for the list move task orders for move order operation
+	MoveOrderListMoveTaskOrdersForMoveOrderHandler move_order.ListMoveTaskOrdersForMoveOrderHandler
 	// PaymentRequestsListPaymentRequestsHandler sets the operation handler for the list payment requests operation
 	PaymentRequestsListPaymentRequestsHandler payment_requests.ListPaymentRequestsHandler
 	// MtoShipmentPatchMTOShipmentStatusHandler sets the operation handler for the patch m t o shipment status operation
@@ -300,8 +300,8 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "move_order.ListMoveOrdersHandler")
 	}
 
-	if o.MoveOrderListMoveTaskOrdersHandler == nil {
-		unregistered = append(unregistered, "move_order.ListMoveTaskOrdersHandler")
+	if o.MoveOrderListMoveTaskOrdersForMoveOrderHandler == nil {
+		unregistered = append(unregistered, "move_order.ListMoveTaskOrdersForMoveOrderHandler")
 	}
 
 	if o.PaymentRequestsListPaymentRequestsHandler == nil {
@@ -502,7 +502,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-orders/{moveOrderID}/move-task-orders"] = move_order.NewListMoveTaskOrders(o.context, o.MoveOrderListMoveTaskOrdersHandler)
+	o.handlers["GET"]["/move-orders/{moveOrderID}/move-task-orders"] = move_order.NewListMoveTaskOrdersForMoveOrder(o.context, o.MoveOrderListMoveTaskOrdersForMoveOrderHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

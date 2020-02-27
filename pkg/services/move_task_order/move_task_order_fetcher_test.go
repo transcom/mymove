@@ -57,7 +57,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
-	moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedMoveOrder.ID)
+	moveTaskOrders, err := mtoFetcher.ListMoveTaskOrdersForMoveOrder(expectedMoveOrder.ID)
 	suite.NoError(err)
 
 	actualMTO := moveTaskOrders[0]

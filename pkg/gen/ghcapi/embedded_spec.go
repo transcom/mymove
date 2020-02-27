@@ -231,7 +231,7 @@ func init() {
           "moveOrder"
         ],
         "summary": "Gets move task orders associated with a move order",
-        "operationId": "listMoveTaskOrders",
+        "operationId": "listMoveTaskOrdersForMoveOrder",
         "responses": {
           "200": {
             "description": "Successfully retrieved all move task orders associated with a move order",
@@ -2664,7 +2664,7 @@ func init() {
           "moveOrder"
         ],
         "summary": "Gets move task orders associated with a move order",
-        "operationId": "listMoveTaskOrders",
+        "operationId": "listMoveTaskOrdersForMoveOrder",
         "responses": {
           "200": {
             "description": "Successfully retrieved all move task orders associated with a move order",
