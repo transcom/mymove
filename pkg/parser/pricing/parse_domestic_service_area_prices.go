@@ -2,13 +2,14 @@ package pricing
 
 import (
 	"fmt"
-	"log"
+
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // parseDomesticServiceAreaPrices: parser for: 2b) Dom. Service Area Prices
-var parseDomesticServiceAreaPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseDomesticServiceAreaPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 7  // 2b) Domestic Service Area Prices
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
@@ -23,7 +24,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params ParamConfig, s
 		return nil, fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing domestic service area prices")
+	logger.Info("Parsing domestic service area prices")
 
 	var domPrices []models.StageDomesticServiceAreaPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
@@ -51,7 +52,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params ParamConfig, s
 				colIndex++ // skip column SIT Pickup / Delivery ≤50 miles (per cwt)
 
 				if params.ShowOutput == true {
-					log.Printf("%+v\n", domPrice)
+					logger.Info("", zap.Any("StageDomesticServiceAreaPrice", domPrice))
 				}
 				domPrices = append(domPrices, domPrice)
 

@@ -2,12 +2,13 @@ package pricing
 
 import (
 	"fmt"
-	"log"
+
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 8 // 2c) Domestic Other Prices
 	const rowIndexStart int = 12
@@ -16,7 +17,7 @@ var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, she
 	const nonPeakPriceColumn int = 4
 	const peakPriceColumn int = 5
 
-	log.Println("Parsing domestic other (pack/unpack) prices")
+	logger.Info("Parsing domestic other (pack/unpack) prices")
 
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseDomesticOtherPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
@@ -35,7 +36,7 @@ var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, she
 		if packPrice.ServicesSchedule != "" {
 			packUnpackPrices = append(packUnpackPrices, packPrice)
 			if params.ShowOutput == true {
-				log.Printf("%+v\n", packPrice)
+				logger.Info("", zap.Any("StageDomesticOtherPackPrice", packPrice))
 			}
 		} else {
 			break
@@ -45,7 +46,7 @@ var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, she
 	return packUnpackPrices, nil
 }
 
-var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 8 // 2c) Domestic Other Prices
 	const rowIndexStart int = 24
@@ -54,7 +55,7 @@ var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, shee
 	const nonPeakPriceColumn int = 4
 	const peakPriceColumn int = 5
 
-	log.Println("Parsing domestic other (SIT pickup/delivery) prices")
+	logger.Info("Parsing domestic other (SIT pickup/delivery) prices")
 
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseDomesticOtherPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
@@ -73,7 +74,7 @@ var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, shee
 		if sitPrice.SITPickupDeliverySchedule != "" {
 			sitPrices = append(sitPrices, sitPrice)
 			if params.ShowOutput == true {
-				log.Printf("%+v\n", sitPrice)
+				logger.Info("", zap.Any("StageDomesticOtherSitPrice", sitPrice))
 			}
 		} else {
 			break

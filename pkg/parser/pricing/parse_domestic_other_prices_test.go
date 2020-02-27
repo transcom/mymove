@@ -24,11 +24,11 @@ func (suite *PricingParserSuite) Test_parseDomesticOtherPrices() {
 	}
 
 	suite.T().Run("parseDomesticOtherPricesPack", func(t *testing.T) {
-		slice, err := parseDomesticOtherPricesPack(params, sheetIndex)
+		slice, err := parseDomesticOtherPricesPack(params, sheetIndex, suite.logger)
 		suite.NoError(err, "parseDomesticOtherPricesPack function failed")
 
 		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
-		err = createCSV(outputFilename, slice)
+		err = createCSV(outputFilename, slice, suite.logger)
 		suite.NoError(err, "could not create CSV")
 
 		const goldenFilename string = "8_2c_domestic_other_prices_pack_golden.csv"
@@ -36,11 +36,11 @@ func (suite *PricingParserSuite) Test_parseDomesticOtherPrices() {
 	})
 
 	suite.T().Run("parseDomesticOtherPricesSit", func(t *testing.T) {
-		slice, err := parseDomesticOtherPricesSit(params, sheetIndex)
+		slice, err := parseDomesticOtherPricesSit(params, sheetIndex, suite.logger)
 		suite.NoError(err, "parseDomesticOtherPricesSit function failed")
 
 		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
-		err = createCSV(outputFilename, slice)
+		err = createCSV(outputFilename, slice, suite.logger)
 		suite.NoError(err, "could not create CSV")
 
 		const goldenFilename string = "8_2c_domestic_other_prices_sit_golden.csv"
