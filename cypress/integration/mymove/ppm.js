@@ -22,11 +22,11 @@ describe('completing the ppm flow', function() {
   describe('check invalid ppm inputs', () => {
     it('doesnt allow same origin and destination zip', () => {
       cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
-      SMInputsInvalidInputs1();
+      SMInputsSamePostalCodes();
     });
     it('doesnt allow SM to progress if dont have rate data for zips"', () => {
       cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
-      SMInputsInvalidInputs2();
+      SMInputsInvalidPostalCodes();
     });
   });
 
@@ -255,14 +255,12 @@ function SMCompletesMove() {
   );
 }
 
-function SMInputsInvalidInputs1() {
+function SMInputsSamePostalCodes() {
   cy.contains('Continue Move Setup').click();
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
   });
-  cy.location().then(loc => {
-    cy.setFeatureFlag('progearChanges=false', loc.pathname);
-  });
+
   cy.get('.wizard-header').should('not.exist');
   cy.get('input[name="original_move_date"]')
     .first()
@@ -278,7 +276,7 @@ function SMInputsInvalidInputs1() {
   cy.get('#destination_postal_code-error').should('exist');
 }
 
-function SMInputsInvalidInputs2() {
+function SMInputsInvalidPostalCodes() {
   cy.contains('Continue Move Setup').click();
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
