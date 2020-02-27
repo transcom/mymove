@@ -41,17 +41,17 @@ func main() {
 
 	// Set up parser's command line flags
 	flag := pflag.CommandLine
-	flag.StringVar(&params.XlsxFilename, "filename", "", "Filename including path of the XLSX to parse for Rate Engine GHC import")
-	flag.BoolVar(&params.ProcessAll, "all", true, "Parse entire Rate Engine GHC XLSX")
+	flag.StringVar(&params.XlsxFilename, "filename", "", "Filename (including path) of the XLSX to parse for the GHC rate engine data import")
+	flag.StringVar(&params.ContractCode, "contract-code", "", "Contract code to use for this import")
+	flag.StringVar(&params.ContractName, "contract-name", "", "Contract name to use for this import; if not provided, the contract-code value will be used")
+	flag.BoolVar(&params.ProcessAll, "all", true, "Parse entire GHC Rate Engine XLSX")
 	flag.StringSliceVar(&params.XlsxSheets, "xlsxSheets", []string{}, xlsxSheetsUsage(xlsxDataSheets))
 	flag.BoolVar(&params.ShowOutput, "display", false, "Display output of parsed info")
-	flag.BoolVar(&params.SaveToFile, "save-csv", false, "Save output to CSV file")
-	flag.BoolVar(&params.RunVerify, "verify", true, "Default is true, if false skip sheet format verification")
-	flag.BoolVar(&params.RunImport, "re-import", true, "Run GHC Rate Engine Import")
-	flag.BoolVar(&params.UseTempTables, "use-temp-tables", true, "Default is true, if false stage tables are NOT temp tables")
-	flag.BoolVar(&params.DropIfExists, "drop", false, "Default is false, if true stage tables will be dropped if they exist")
-	flag.StringVar(&params.ContractCode, "contract-code", "", "Contract code to use for this import")
-	flag.StringVar(&params.ContractName, "contract-name", "", "Contract name to use for this import")
+	flag.BoolVar(&params.SaveToFile, "save-csv", false, "Save output of XLSX sheets to CSV file")
+	flag.BoolVar(&params.RunVerify, "verify", true, "Perform sheet format verification -- but does not validate data")
+	flag.BoolVar(&params.RunImport, "re-import", true, "Perform the import from staging tables to GHC rate engine tables")
+	flag.BoolVar(&params.UseTempTables, "use-temp-tables", true, "Make the staging tables be temp tables that don't persist after import")
+	flag.BoolVar(&params.DropIfExists, "drop", false, "Drop any existing staging tables prior to creating them; useful when turning `--use-temp-tables` off")
 
 	// Set up DB flags
 	cli.InitDatabaseFlags(flag)
@@ -309,7 +309,7 @@ func summarizeModel(db *pop.Connection, logger logger, header string, modelInsta
 	modelSlice = modelPtrSlice.Elem()
 
 	headerMsg := fmt.Sprintf("%s (%s)", header, modelName)
-	logger.Info(headerMsg, zap.Int("length", length))
+	logger.Info(headerMsg, zap.Int("row count", length))
 	if length > 0 {
 		logger.Info("first:", zap.Any(modelName, modelSlice.Index(0).Interface()))
 	}
