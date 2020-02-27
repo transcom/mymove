@@ -19,7 +19,7 @@ require (
 	github.com/go-openapi/errors v0.19.3
 	github.com/go-openapi/loads v0.19.4
 	github.com/go-openapi/runtime v0.19.11
-	github.com/go-openapi/spec v0.19.5
+	github.com/go-openapi/spec v0.19.6
 	github.com/go-openapi/strfmt v0.19.4
 	github.com/go-openapi/swag v0.19.7
 	github.com/go-openapi/validate v0.19.6
@@ -63,8 +63,8 @@ require (
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.uber.org/zap v1.14.0
 	goji.io v2.0.2+incompatible
-	golang.org/x/crypto v0.0.0-20191028145041-f83a4685e152
-	golang.org/x/net v0.0.0-20191028085509-fe3aa8a45271
+	golang.org/x/crypto v0.0.0-20200128174031-69ecbb4d6d5d
+	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
 	golang.org/x/text v0.3.2
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
