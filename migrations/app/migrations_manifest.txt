@@ -442,7 +442,6 @@
 20200124172904_alter_table_payment_service_items_column_service_item_id.up.sql
 20200124192943_update_tariff400ng_mistaken_rate_area.up.sql
 20200128024819_fix_rolename_typo.up.sql
-20200129005832_add-counter-column-to-payment-requests.up.sql
 20200131173648_remove-service_id-from-payment_service_item.up.sql
 20200203200715_mto_shipments_add_rejection_reason.up.sql
 20200204194821_erin_cac.up.sql
@@ -466,3 +465,4 @@
 20200225133755_lynzt_cac.up.sql
 20200225191202_deep_cac.up.sql
 20200226211945_jacquelinemckinney_cac.up.sql
+20200227191708_add_payment_request_number.up.sql

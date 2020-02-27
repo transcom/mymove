@@ -1,9 +1,10 @@
--- Make new nullable fields (we'll set them to non-nullable after we provide values)
+-- Make new nullable fields (we'll set them to non-nullable after we provide values).
 ALTER TABLE payment_requests
     ADD COLUMN payment_request_number text,
     ADD COLUMN sequence_number integer;
 
--- Figure out the values for those field for any existing payment requests
+-- Generate the values for those fields for any existing payment requests.
+-- Lock the table to prevent any concurrent updates that may affect our sequencing.
 LOCK TABLE payment_requests IN SHARE MODE;
 
 DO
@@ -45,7 +46,7 @@ $do$
     END
 $do$;
 
--- Now make the columns not null and establish the unique constraints
+-- Now make the columns not null and establish the unique constraints.
 ALTER TABLE payment_requests
     ALTER COLUMN payment_request_number SET NOT NULL,
     ALTER COLUMN sequence_number SET NOT NULL,
