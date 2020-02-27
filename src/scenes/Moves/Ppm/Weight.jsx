@@ -16,6 +16,9 @@ import styles from './Weight.module.scss';
 import { withContext } from 'shared/AppContext';
 import RangeSlider from 'shared/RangeSlider';
 import { hasShortHaulError } from 'shared/incentive';
+import carGray from 'shared/icon/car-gray.svg';
+import trailerGray from 'shared/icon/trailer-gray.svg';
+import truckGray from 'shared/icon/truck-gray.svg';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -113,14 +116,15 @@ export class PpmWeight extends Component {
   }
 
   chooseVehicleIcon(currentEstimate) {
+    console.log('currentEstimate', currentEstimate);
     if (currentEstimate < 500) {
-      return <img className="icon" src="/static/media/car-gray.4405e309.svg" alt="car-gray" />;
+      return <img className="icon" src={carGray} alt="car-gray" />;
     }
     if (currentEstimate >= 500 && currentEstimate < 1500) {
-      return <img className="icon" src="/static/media/trailer-gray.fbfa9bc3.svg" alt="trailer-gray" />;
+      return <img className="icon" src={trailerGray} alt="trailer-gray" />;
     }
     if (currentEstimate >= 1500) {
-      return <img className="icon" src="/static/media/truck-gray.55075f90.svg" alt="truck-gray" />;
+      return <img className="icon" src={truckGray} alt="truck-gray" />;
     }
   }
 
