@@ -311,10 +311,10 @@ func summarizeModel(db *pop.Connection, logger logger, header string, modelInsta
 	headerMsg := fmt.Sprintf("%s (%s)", header, modelName)
 	logger.Info(headerMsg, zap.Int("length", length))
 	if length > 0 {
-		logger.Info("first", zap.Any(modelName, modelSlice.Index(0).Interface()))
+		logger.Info("first:", zap.Any(modelName, modelSlice.Index(0).Interface()))
 	}
 	if length > 1 {
-		logger.Info("second", zap.Any(modelName, modelSlice.Index(1).Interface()))
+		logger.Info("second:", zap.Any(modelName, modelSlice.Index(1).Interface()))
 	}
 
 	return nil
