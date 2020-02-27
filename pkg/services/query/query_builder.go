@@ -1,13 +1,18 @@
 package query
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
+	"github.com/gobuffalo/flect"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -341,16 +346,70 @@ func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 	return nil, nil
 }
 
+// StaleIdentifierError is used when optimistic locking determines that the identifier refers to stale data
+type StaleIdentifierError struct {
+	StaleIdentifier string
+}
+
+func (e StaleIdentifierError) Error() string {
+	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
+}
+
 // UpdateOne updates exactly one model
-func (p *Builder) UpdateOne(model interface{}) (*validate.Errors, error) {
+func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return nil, errors.New(FetchOneReflectionMessage)
 	}
 
-	verrs, err := p.db.ValidateAndUpdate(model)
-	if err != nil || verrs.HasAny() {
-		return verrs, err
+	var verrs *validate.Errors
+	var err error
+
+	if eTag != nil {
+		err = p.db.Transaction(func(tx *pop.Connection) error {
+			t = t.Elem()
+			v := reflect.ValueOf(model).Elem()
+			var id uuid.UUID
+			for i := 0; i < t.NumField(); i++ {
+				if t.Field(i).Name == "ID" {
+					id = v.Field(i).Interface().(uuid.UUID)
+					break
+				}
+			}
+
+			var tableName string
+			tableNameable, ok := model.(pop.TableNameAble)
+
+			if ok {
+				tableName = tableNameable.TableName()
+			} else {
+				tableName = flect.Underscore(flect.Pluralize(t.Name()))
+			}
+
+			sqlString := fmt.Sprintf("SELECT updated_at from %s WHERE id = $1 FOR UPDATE", pq.QuoteIdentifier(tableName))
+			var updatedAt time.Time
+			tx.RawQuery(sqlString, id.String()).First(&updatedAt)
+
+			encodedUpdatedAt := base64.StdEncoding.EncodeToString([]byte(updatedAt.Format(time.RFC3339Nano)))
+
+			if encodedUpdatedAt != *eTag {
+				return StaleIdentifierError{StaleIdentifier: *eTag}
+			}
+
+			verrs, err = tx.ValidateAndUpdate(model)
+
+			return nil
+		})
+	} else {
+		verrs, err = p.db.ValidateAndUpdate(model)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	if verrs != nil && verrs.HasAny() {
+		return verrs, nil
 	}
 
 	return nil, nil

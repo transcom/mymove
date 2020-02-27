@@ -29,6 +29,22 @@ func (wtu WeightTicketUpdater) Update(moveDocumentPayload *internalmessages.Move
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "weightticketupdater.update: error updating move document status")
 	}
+
+	var vehicleNickname *string
+	if moveDocumentPayload.VehicleNickname != nil {
+		vehicleNickname = moveDocumentPayload.VehicleNickname
+	}
+
+	var vehicleMake *string
+	if moveDocumentPayload.VehicleMake != nil {
+		vehicleMake = moveDocumentPayload.VehicleMake
+	}
+
+	var vehicleModel *string
+	if moveDocumentPayload.VehicleModel != nil {
+		vehicleModel = moveDocumentPayload.VehicleModel
+	}
+
 	if moveDocumentPayload.EmptyWeight != nil {
 		ew := unit.Pound(*moveDocumentPayload.EmptyWeight)
 		emptyWeight = &ew
@@ -70,7 +86,9 @@ func (wtu WeightTicketUpdater) Update(moveDocumentPayload *internalmessages.Move
 	updatedMoveDoc.WeightTicketSetDocument.EmptyWeightTicketMissing = emptyWeightTicketMissing
 	updatedMoveDoc.WeightTicketSetDocument.FullWeight = fullWeight
 	updatedMoveDoc.WeightTicketSetDocument.FullWeightTicketMissing = fullWeightTicketMissing
-	updatedMoveDoc.WeightTicketSetDocument.VehicleNickname = moveDocumentPayload.VehicleNickname
+	updatedMoveDoc.WeightTicketSetDocument.VehicleNickname = vehicleNickname
+	updatedMoveDoc.WeightTicketSetDocument.VehicleMake = vehicleMake
+	updatedMoveDoc.WeightTicketSetDocument.VehicleModel = vehicleModel
 	updatedMoveDoc.WeightTicketSetDocument.WeightTicketSetType = models.WeightTicketSetType(*moveDocumentPayload.WeightTicketSetType)
 	updatedMoveDoc.WeightTicketSetDocument.WeightTicketDate = weightTicketDate
 	updatedMoveDoc.WeightTicketSetDocument.TrailerOwnershipMissing = trailerOwnershipMissing

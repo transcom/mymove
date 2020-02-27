@@ -82,7 +82,11 @@ type PatchShipmentHandler struct {
 func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	shipment, err := h.UpdateMTOShipmentStatus(params)
+	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+	status := models.MTOShipmentStatus(params.Body.Status)
+	rejectionReason := params.Body.RejectionReason
+	eTag := params.IfMatch
+	shipment, err := h.UpdateMTOShipmentStatus(shipmentID, status, rejectionReason, eTag)
 	if err != nil {
 		logger.Error("UpdateMTOShipmentStatus error: ", zap.Error(err))
 
@@ -101,6 +105,6 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 		}
 	}
 
-	payload := payloads.MTOShipment(shipment)
+	payload := payloads.MTOShipmentWithEtag(shipment)
 	return mtoshipmentops.NewPatchMTOShipmentStatusOK().WithPayload(payload)
 }

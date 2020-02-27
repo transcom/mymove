@@ -137,7 +137,7 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		RequestedAmountCents:     int64(requestedAmt),
 		PaymentMethod:            paymentMethod,
 		ReceiptMissing:           receiptMissing,
-		VehicleNickname:          vehicleNickname,
+		VehicleNickname:          &vehicleNickname,
 		EmptyWeight:              emptyWeight,
 		EmptyWeightTicketMissing: emptyWeightTicketMissing,
 		FullWeight:               fullWeight,

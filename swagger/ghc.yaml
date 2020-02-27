@@ -480,15 +480,14 @@ paths:
           schema:
             $ref: '#/definitions/MTOShipment'
         - in: header
-          name: If-Unmodified-Since
+          name: If-Match
           type: string
-          format: datetime
           required: true
       responses:
         '200':
           description: Successfully updated shipment
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: '#/definitions/MTOShipmentWithEtag'
         '404':
           description: The requested resource wasn't found
           schema:
@@ -1480,9 +1479,16 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+  MTOShipmentWithEtag:
+    allOf:
+      - $ref: '#/definitions/MTOShipment'
+      - type: object
+    properties:
+      eTag:
+        type: string
   MTOShipments:
     items:
-      $ref: '#/definitions/MTOShipment'
+      $ref: '#/definitions/MTOShipmentWithEtag'
     type: array
   MTOServiceItem:
     properties:
