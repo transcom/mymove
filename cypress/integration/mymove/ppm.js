@@ -64,9 +64,7 @@ function SMSubmitsMove() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
   });
-  cy.location().then(loc => {
-    cy.setFeatureFlag('progearChanges=false', loc.pathname);
-  });
+
   cy.get('.wizard-header').should('not.exist');
   cy.get('input[name="original_move_date"]')
     .first()
@@ -90,23 +88,13 @@ function SMSubmitsMove() {
   cy.nextPage();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-size/);
-  });
-
-  cy.get('.wizard-header').should('not.exist');
-  //todo verify entitlement
-  cy.contains('moving truck').click();
-
-  cy.nextPage();
-
-  cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-incentive/);
   });
 
   cy.get('.wizard-header').should('not.exist');
-  cy.get('.rangeslider__handle').click();
+  cy.get('#incentive-estimation-slider').click();
 
-  cy.get('.incentive').contains('$');
+  cy.get('[data-cy="incentive-range-text"]').contains('$');
 
   cy.nextPage();
 
@@ -179,9 +167,7 @@ function SMCompletesMove() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
   });
-  cy.location().then(loc => {
-    cy.setFeatureFlag('progearChanges=false', loc.pathname);
-  });
+
   cy.get('.wizard-header').should('not.exist');
   cy.get('input[name="original_move_date"]')
     .first()
@@ -205,23 +191,13 @@ function SMCompletesMove() {
   cy.nextPage();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-size/);
-  });
-
-  cy.get('.wizard-header').should('not.exist');
-  //todo verify entitlement
-  cy.contains('moving truck').click();
-
-  cy.nextPage();
-
-  cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-incentive/);
   });
 
   cy.get('.wizard-header').should('not.exist');
-  cy.get('.rangeslider__handle').click();
+  cy.get('#incentive-estimation-slider').click();
 
-  cy.get('.incentive').contains('Not ready yet');
+  cy.get('[data-cy="incentive-range-text"]').contains('Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
   cy.get('[data-cy="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',

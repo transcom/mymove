@@ -9,6 +9,7 @@ import { formatCentsRange } from 'shared/formatters';
 import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
+import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
 import styles from './Weight.module.scss';
@@ -160,6 +161,21 @@ export class PpmWeight extends Component {
     }
   }
 
+  chooseIncentiveRangeText(hasEstimateError) {
+    const { incentive_estimate_min, incentive_estimate_max } = this.props;
+
+    if (hasEstimateError) {
+      return (
+        <td className="incentive">
+          Not ready yet{' '}
+          <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+        </td>
+      );
+    } else {
+      return <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td>;
+    }
+  }
+
   handleChange = (event, type) => {
     this.setState({ [type]: event.target.value });
   };
@@ -241,8 +257,8 @@ export class PpmWeight extends Component {
               {this.chooseVehicleIcon(this.state.pendingPpmWeight)}
               {this.chooseEstimateText(this.state.pendingPpmWeight)}
               <h4>Your incentive for moving {this.state.pendingPpmWeight} lbs:</h4>
-              <h3 className={styles['incentive-range-text']}>
-                {formatCentsRange(incentive_estimate_min, incentive_estimate_max)}
+              <h3 className={styles['incentive-range-text']} data-cy="incentive-range-text">
+                {this.chooseIncentiveRangeText(hasEstimateError)}
               </h3>
               <p className="text-gray-50">Final payment will be based on the weight you actually move.</p>
             </div>
