@@ -13,7 +13,13 @@ const SubmittedPpmMoveDetails = props => {
     : '';
   const advanceString = ppm.has_requested_advance ? `Advance Requested: $${formatCents(advance.requested_amount)}` : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
-  const incentiveRange = formatCentsRange(ppm.currentPpm.incentive_estimate_min, ppm.currentPpm.incentive_estimate_max);
+
+  let incentiveRange = formatCentsRange(ppm.currentPpm.incentive_estimate_min, ppm.currentPpm.incentive_estimate_max);
+  // work around for for ppm redux storage in multiple places...
+  if (incentiveRange === '') {
+    incentiveRange = formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max);
+  }
+
   return (
     <div className="titled_block">
       <div className="title">Details</div>
