@@ -25,7 +25,7 @@ require (
 	github.com/go-openapi/validate v0.19.6
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
-	github.com/go-swagger/go-swagger v0.21.0
+	github.com/go-swagger/go-swagger v0.22.0
 	github.com/gobuffalo/envy v1.9.0
 	github.com/gobuffalo/fizz v1.9.8
 	github.com/gobuffalo/flect v0.2.1
