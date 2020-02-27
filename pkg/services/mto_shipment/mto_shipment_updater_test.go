@@ -16,6 +16,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	requestedPickupDate := *oldMTOShipment.RequestedPickupDate
 	scheduledPickupDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	firstAvailableDeliveryDate := time.Date(2019, time.March, 10, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := time.Date(2020, time.June, 8, 0, 0, 0, 0, time.UTC)
+
 	secondaryPickupAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
 	secondaryDeliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
 	primeActualWeight := unit.Pound(1234)
@@ -31,6 +33,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		SecondaryDeliveryAddress:   &secondaryDeliveryAddress,
 		PrimeActualWeight:          &primeActualWeight,
 		FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
+		ActualPickupDate:           &actualPickupDate,
 	}
 
 	suite.T().Run("If-Unmodified-Since is not equal to the updated_at date", func(t *testing.T) {
@@ -55,6 +58,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.NotZero(updatedMTOShipment.SecondaryPickupAddress.ID, secondaryPickupAddress.ID)
 		suite.NotZero(updatedMTOShipment.SecondaryDeliveryAddress.ID, secondaryDeliveryAddress.ID)
 		suite.Equal(updatedMTOShipment.PrimeActualWeight, &primeActualWeight)
+		suite.True(actualPickupDate.Equal(*updatedMTOShipment.ActualPickupDate))
 		suite.True(firstAvailableDeliveryDate.Equal(*updatedMTOShipment.FirstAvailableDeliveryDate))
 	})
 
