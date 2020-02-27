@@ -96,7 +96,7 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 		case mtoshipment.ValidationError:
 			payload := payloadForValidationError("Validation errors", "UpdateShipmentMTOStatus", h.GetTraceID(), e.Verrs)
 			return mtoshipmentops.NewPatchMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
-		case mtoshipment.PreconditionFailedError:
+		case mtoshipment.ErrPreconditionFailed:
 			return mtoshipmentops.NewPatchMTOShipmentStatusPreconditionFailed()
 		case mtoshipment.ConflictStatusError:
 			return mtoshipmentops.NewPatchMTOShipmentStatusConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})

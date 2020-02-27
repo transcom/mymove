@@ -223,7 +223,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.PreconditionFailedError{})
+		).Return(nil, mtoshipment.ErrPreconditionFailed{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusPreconditionFailed{}, response)

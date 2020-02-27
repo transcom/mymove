@@ -1,8 +1,6 @@
 package primeapi
 
 import (
-	"time"
-
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
@@ -26,9 +24,9 @@ type UpdateMTOShipmentHandler struct {
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	mtoShipment := payloads.MTOShipmentModel(params.Body)
-	unmodifiedSince := time.Time(params.IfUnmodifiedSince)
+	eTag := params.IfMatch
 
-	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, unmodifiedSince)
+	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 		switch err.(type) {

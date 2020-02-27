@@ -64,7 +64,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	if err != nil {
 		switch err.(type) {
 		case query.StaleIdentifierError:
-			return nil, PreconditionFailedError{
+			return nil, ErrPreconditionFailed{
 				id:  shipment.ID,
 				Err: err,
 			}
@@ -237,13 +237,13 @@ func (e ValidationError) Error() string {
 	return fmt.Sprintf("shipment with id: '%s' could not be updated due to a validation error", e.id.String())
 }
 
-// PreconditionFailedError is the precondition failed error
-type PreconditionFailedError struct {
+// ErrPreconditionFailed is the precondition failed error
+type ErrPreconditionFailed struct {
 	id  uuid.UUID
 	Err error
 }
 
 // Error is the string representation of the precondition failed error
-func (e PreconditionFailedError) Error() string {
+func (e ErrPreconditionFailed) Error() string {
 	return fmt.Sprintf("shipment with id: '%s' could not be updated due to the record being stale", e.id.String())
 }

@@ -5,13 +5,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/query"
 )
+
+// UpdateMTOShipmentQueryBuilder is the query builder for updating MTO Shipments
+type UpdateMTOShipmentQueryBuilder interface {
+	FetchOne(model interface{}, filters []services.QueryFilter) error
+	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
+}
 
 //ErrNotFound is returned when a given mto shipment is not found
 type ErrNotFound struct {
@@ -65,24 +73,15 @@ func (e ErrInvalidInput) InvalidFields() map[string]string {
 	return es
 }
 
-//ErrPreconditionFailed is returned when a given mto shipment if attempting to update after the if-unmodified-since date
-type ErrPreconditionFailed struct {
-	id              uuid.UUID
-	unmodifiedSince time.Time
-}
-
-func (e ErrPreconditionFailed) Error() string {
-	return fmt.Sprintf("mto shipment %s can not be updated after date %s", e.id.String(), strfmt.Date(e.unmodifiedSince))
-}
-
 type mtoShipmentUpdater struct {
-	db *pop.Connection
-	mtoShipmentFetcher
+	db      *pop.Connection
+	builder UpdateMTOShipmentQueryBuilder
+	services.Fetcher
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(db *pop.Connection) services.MTOShipmentUpdater {
-	return &mtoShipmentUpdater{db, mtoShipmentFetcher{db}}
+func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher) services.MTOShipmentUpdater {
+	return &mtoShipmentUpdater{db, builder, fetch.NewFetcher(builder)}
 }
 
 // validateUpdatedMTOShipment validates the updated shipment
@@ -175,110 +174,54 @@ func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.T
 	return ErrInvalidInput{}
 }
 
-// updateMTOShipment updates the mto shipment with a raw query
-func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSince time.Time, updatedShipment *models.MTOShipment) error {
-	baseQuery := `UPDATE mto_shipments
-		SET updated_at = NOW()`
-
-	var params []interface{}
-	if updatedShipment.PrimeEstimatedWeight != nil {
-		estimatedWeightQuery := `,
-			prime_estimated_weight = ?,
-			prime_estimated_weight_recorded_date = NOW()`
-		baseQuery = baseQuery + estimatedWeightQuery
-		params = append(params, updatedShipment.PrimeEstimatedWeight)
-	}
-
-	if updatedShipment.DestinationAddressID != uuid.Nil {
-		baseQuery = baseQuery + ", \npickup_address_id = ?"
-		params = append(params, updatedShipment.PickupAddress.ID)
-	}
-
-	if updatedShipment.PickupAddressID != uuid.Nil {
-		baseQuery = baseQuery + ", \ndestination_address_id = ?"
-		params = append(params, updatedShipment.DestinationAddress.ID)
-	}
-
-	if updatedShipment.SecondaryPickupAddress != nil {
-		baseQuery = baseQuery + ", \nsecondary_pickup_address_id = ?"
-		params = append(params, updatedShipment.SecondaryPickupAddress.ID)
-	}
-
-	if updatedShipment.SecondaryDeliveryAddress != nil {
-		baseQuery = baseQuery + ", \nsecondary_delivery_address_id = ?"
-		params = append(params, updatedShipment.SecondaryDeliveryAddress.ID)
-	}
-
-	if updatedShipment.ScheduledPickupDate != nil {
-		baseQuery = baseQuery + ", \nscheduled_pickup_date = ?"
-		params = append(params, updatedShipment.ScheduledPickupDate)
-	}
-
-	if updatedShipment.RequestedPickupDate != nil {
-		baseQuery = baseQuery + ", \nrequested_pickup_date = ?"
-		params = append(params, updatedShipment.RequestedPickupDate)
-	}
-
-	if updatedShipment.FirstAvailableDeliveryDate != nil {
-		baseQuery = baseQuery + ", \nfirst_available_delivery_date = ?"
-		params = append(params, updatedShipment.FirstAvailableDeliveryDate)
-	}
-
-	if updatedShipment.ShipmentType != "" {
-		baseQuery = baseQuery + ", \nshipment_type = ?"
-		params = append(params, updatedShipment.ShipmentType)
-	}
-
-	if updatedShipment.PrimeActualWeight != nil {
-		baseQuery = baseQuery + ", \nprime_actual_weight = ?"
-		params = append(params, updatedShipment.PrimeActualWeight)
-	}
-
-	finishedQuery := baseQuery + `
-		WHERE
-			id = ?
-		AND
-			updated_at = ?
-		;`
-
-	params = append(params,
-		updatedShipment.ID,
-		unmodifiedSince,
-	)
-
-	// do the updating in a raw query
-	affectedRows, err := db.RawQuery(finishedQuery, params...).ExecWithCount()
-
-	if err != nil {
-		return err
-	}
-
-	if affectedRows != 1 {
-		return ErrPreconditionFailed{id: mtoShipmentID, unmodifiedSince: unmodifiedSince}
-	}
-
-	return nil
-}
-
 //UpdateMTOShipment updates the mto shipment
-func (f mtoShipmentFetcher) UpdateMTOShipment(mtoShipment *models.MTOShipment, unmodifiedSince time.Time) (*models.MTOShipment, error) {
-	oldShipment, err := f.FetchMTOShipment(mtoShipment.ID)
+func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", mtoShipment.ID.String()),
+	}
+	var oldShipment models.MTOShipment
+	err := f.FetchRecord(&oldShipment, queryFilters)
+
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
 
-	err = validateUpdatedMTOShipment(f.db, oldShipment, mtoShipment)
+	err = validateUpdatedMTOShipment(f.db, &oldShipment, mtoShipment)
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
-	err = updateMTOShipment(f.db, mtoShipment.ID, unmodifiedSince, mtoShipment)
+	verrs, err := f.builder.UpdateOne(&oldShipment, &eTag)
+
+	if verrs != nil && verrs.HasAny() {
+		return &models.MTOShipment{}, ValidationError{
+			id:    mtoShipment.ID,
+			Verrs: verrs,
+		}
+	}
+
+	if err != nil {
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return &models.MTOShipment{}, ErrPreconditionFailed{
+				id:  mtoShipment.ID,
+				Err: err,
+			}
+		default:
+			return &models.MTOShipment{}, err
+		}
+	}
+
+	var updatedShipment models.MTOShipment
+	err = f.FetchRecord(&updatedShipment, queryFilters)
+
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
 
-	updatedShipment, err := f.FetchMTOShipment(mtoShipment.ID)
-	if err != nil {
-		return &models.MTOShipment{}, err
-	}
-	return updatedShipment, nil
+	fmt.Println("================")
+	fmt.Println("================")
+	fmt.Printf("%#v", updatedShipment)
+	fmt.Println("================")
+	fmt.Println("================")
+	return &updatedShipment, nil
 }

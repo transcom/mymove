@@ -115,7 +115,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "APPROVED", nil, staleETag)
 		suite.Error(err)
-		suite.IsType(PreconditionFailedError{}, err)
+		suite.IsType(ErrPreconditionFailed{}, err)
 	})
 
 	suite.T().Run("Passing in an invalid status", func(t *testing.T) {
