@@ -70,7 +70,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 	suite.False(expectedMTO.IsCanceled)
 }
 
-func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
+func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrders() {
 	expectedMoveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
 	expectedMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveOrder: expectedMoveOrder,
