@@ -56,19 +56,21 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
 }
 
+// UpdateMTOPostCounselingInformationHandler updates the move task order with post-counseling information
 type UpdateMTOPostCounselingInformationHandler struct {
 	handlers.HandlerContext
 	services.Fetcher
 	services.MoveTaskOrderUpdater
 }
 
+// Handle updates to move task order post-counseling
 func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderops.UpdateMTOPostCounselingInformationParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	mtoID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	eTag := params.IfMatch
 	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(mtoID, params.Body, eTag)
 	if err != nil {
-		logger.Error("primeapi.UpdateMTOPotstCounselingInformation error", zap.Error(err))
+		logger.Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
 		switch err.(type) {
 		case movetaskorderservice.ErrNotFound:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound()

@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"github.com/transcom/mymove/pkg/services/query"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
@@ -67,10 +68,11 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder(suite.DB())
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB()),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder),
 	}
 	response := handler.Handle(params)
 
