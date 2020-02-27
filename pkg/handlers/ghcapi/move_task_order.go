@@ -19,12 +19,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/audit"
 )
 
+// ListAllMoveTaskOrdersHandler gets the all move task orders
 type ListAllMoveTaskOrdersHandler struct {
 	handlers.HandlerContext
 	services.MoveTaskOrderFetcher
 }
 
-// Handle getting the all move task orders
+// Handle getting all the move task orders
 func (h ListAllMoveTaskOrdersHandler) Handle(params movetaskorderops.ListAllMoveTaskOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	moveTaskOrders, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders()
