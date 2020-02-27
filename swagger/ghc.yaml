@@ -478,7 +478,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: '#/definitions/PatchMTOShipmentStatusPayload'
         - in: header
           name: If-Match
           type: string
@@ -1490,6 +1490,18 @@ definitions:
     items:
       $ref: '#/definitions/MTOShipmentWithEtag'
     type: array
+  PatchMTOShipmentStatusPayload:
+    properties:
+      status:
+        type: string
+        enum:
+          - REJECTED
+          - APPROVED
+          - SUBMITTED
+      rejectionReason:
+        type: string
+        example: MTO Shipment not good enough
+        x-nullable: true
   MTOServiceItem:
     properties:
       moveTaskOrderID:
