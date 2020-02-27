@@ -116,7 +116,6 @@ export class PpmWeight extends Component {
   }
 
   chooseVehicleIcon(currentEstimate) {
-    console.log('currentEstimate', currentEstimate);
     if (currentEstimate < 500) {
       return <img className="icon" src={carGray} alt="car-gray" />;
     }
