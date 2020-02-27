@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/route"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -23,6 +24,7 @@ type mtoShipmentStatusUpdater struct {
 	db        *pop.Connection
 	builder   UpdateMTOShipmentStatusQueryBuilder
 	siCreator services.MTOServiceItemCreator
+	planner   route.Planner
 }
 
 // UpdateMTOShipmentStatus updates MTO Shipment Status
@@ -50,6 +52,15 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	if shipment.Status == models.MTOShipmentStatusApproved {
 		approvedDate := time.Now()
 		shipment.ApprovedDate = &approvedDate
+
+		pickupAddressZip := shipment.PickupAddress.PostalCode
+		destinationAddressZip := shipment.DestinationAddress.PostalCode
+
+		distanceMilesFromPickupAddressZip, err := o.planner().Zip5TransitDistance(pickupAddressZip, destinationAddressZip)
+		if err != nil {
+			return err
+		}
+
 	}
 
 	verrs, err := o.builder.UpdateOne(&shipment, &eTag)
@@ -199,8 +210,8 @@ func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServ
 }
 
 // NewMTOShipmentStatusUpdater creates a new MTO Shipment Status Updater
-func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentStatusQueryBuilder, siCreator services.MTOServiceItemCreator) services.MTOShipmentStatusUpdater {
-	return &mtoShipmentStatusUpdater{db, builder, siCreator}
+func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentStatusQueryBuilder, siCreator services.MTOServiceItemCreator, planner route.Planner) services.MTOShipmentStatusUpdater {
+	return &mtoShipmentStatusUpdater{db, builder, siCreator, planner}
 }
 
 // ConflictStatusError returns an error for a conflict in status
