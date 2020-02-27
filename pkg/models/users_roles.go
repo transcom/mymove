@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// UsersRoles represents a user and a role
 type UsersRoles struct {
 	ID        uuid.UUID  `db:"id"`
 	UserID    uuid.UUID  `db:"user_id"`

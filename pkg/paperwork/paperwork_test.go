@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -34,7 +35,7 @@ func (suite *PaperworkSuite) closeFile(file afero.File) {
 }
 
 func (suite *PaperworkSuite) openLocalFile(path string, fs *afero.Afero) (afero.File, error) {
-	file, err := os.Open(path)
+	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open file")
 	}

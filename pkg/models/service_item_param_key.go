@@ -10,27 +10,37 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// ServiceItemParamType is a type of service item parameter
 type ServiceItemParamType string
 
+// String is a string representation of a ServiceItemParamType
 func (s ServiceItemParamType) String() string {
 	return string(s)
 }
 
 const (
-	ServiceItemParamTypeString  ServiceItemParamType = "STRING"
-	ServiceItemParamTypeDate    ServiceItemParamType = "DATE"
+	// ServiceItemParamTypeString is a string
+	ServiceItemParamTypeString ServiceItemParamType = "STRING"
+	// ServiceItemParamTypeDate is a date
+	ServiceItemParamTypeDate ServiceItemParamType = "DATE"
+	// ServiceItemParamTypeInteger is an integer
 	ServiceItemParamTypeInteger ServiceItemParamType = "INTEGER"
+	// ServiceItemParamTypeDecimal is a decimal
 	ServiceItemParamTypeDecimal ServiceItemParamType = "DECIMAL"
 )
 
+// ServiceItemParamOrigin is a type of service item parameter origin
 type ServiceItemParamOrigin string
 
+// String is a string representation of a ServiceItemParamOrigin
 func (s ServiceItemParamOrigin) String() string {
 	return string(s)
 }
 
 const (
-	ServiceItemParamOriginPrime  ServiceItemParamOrigin = "PRIME"
+	// ServiceItemParamOriginPrime is the Prime origin
+	ServiceItemParamOriginPrime ServiceItemParamOrigin = "PRIME"
+	// ServiceItemParamOriginSystem is the System origin
 	ServiceItemParamOriginSystem ServiceItemParamOrigin = "SYSTEM"
 )
 
@@ -46,6 +56,7 @@ var validServiceItemParamOrigin = []string{
 	string(ServiceItemParamOriginSystem),
 }
 
+// ServiceItemParamKey is a key for a Service Item Param
 type ServiceItemParamKey struct {
 	ID          uuid.UUID              `json:"id" db:"id"`
 	Key         string                 `json:"key" db:"key"`
@@ -59,6 +70,7 @@ type ServiceItemParamKey struct {
 // ServiceItemParamKeys is not required by pop and may be deleted
 type ServiceItemParamKeys []ServiceItemParamKey
 
+// Validate validates a ServiceItemParamKey
 func (s *ServiceItemParamKey) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: s.Key, Name: "Key"},

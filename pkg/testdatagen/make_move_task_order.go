@@ -12,7 +12,11 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	if isZeroUUID(moveOrder.ID) {
 		moveOrder = MakeMoveOrder(db, assertions)
 	}
-	var referenceID *string
+
+	var referenceID string
+	if assertions.MoveTaskOrder.ReferenceID == "" {
+		referenceID, _ = models.GenerateReferenceID(db)
+	}
 
 	moveTaskOrder := models.MoveTaskOrder{
 		MoveOrder:          moveOrder,

@@ -1,5 +1,6 @@
 package serviceparamvaluelookups
 
+// ServiceAreaOriginLookup does lookup on service area origin
 type ServiceAreaOriginLookup struct {
 }
 

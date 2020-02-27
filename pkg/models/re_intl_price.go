@@ -30,7 +30,7 @@ type ReIntlPrice struct {
 	DestinationRateArea ReRateArea `belongs_to:"re_rate_area"`
 }
 
-// ReIntlPrices
+// ReIntlPrices is a slice of ReIntlPrice objects
 type ReIntlPrices []ReIntlPrice
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

@@ -28,7 +28,7 @@ func main() {
 	}
 	count := 0
 	for _, file := range files {
-		f, err := os.Open(file)
+		f, err := os.Open(filepath.Clean(file))
 		if err != nil {
 			panic(err)
 		}

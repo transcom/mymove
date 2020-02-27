@@ -13,13 +13,14 @@ import (
 const (
 	// InterfaceFlag is the Interface Flag
 	InterfaceFlag string = "interface"
+
 	// GracefulShutdownTimeoutFlag is the Graceful Shutdown Timeout Flag
 	GracefulShutdownTimeoutFlag string = "graceful-shutdown-timeout"
 
-	// The default graceful shutdown duration
+	// DefaultGracefulShutdownDuration The default graceful shutdown duration
 	DefaultGracefulShutdownDuration = time.Second * 25
 
-	// The minimum graceful shutdown duration
+	// MinimumGracefulShutdownDuration The minimum graceful shutdown duration
 	MinimumGracefulShutdownDuration = time.Second * 5
 )
 

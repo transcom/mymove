@@ -1,5 +1,6 @@
 package serviceparamvaluelookups
 
+// ZipDestAddressLookup does zip destination address lookup
 type ZipDestAddressLookup struct {
 }
 

@@ -33,7 +33,7 @@ func closeFile(outfile *os.File) {
 
 func createMigration(path string, filename string, t *template.Template, templateData interface{}) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if mkdirErr := os.Mkdir(path, 0755); mkdirErr != nil {
+		if mkdirErr := os.Mkdir(path, 0750); mkdirErr != nil {
 			return errors.Wrapf(mkdirErr, "error creating path %q", path)
 		}
 	}
@@ -69,7 +69,7 @@ func addMigrationToManifest(migrationManifest string, filename string) error {
 
 func writeEmptyFile(migrationPath, filename string) error {
 	if _, err := os.Stat(migrationPath); os.IsNotExist(err) {
-		if mkdirErr := os.Mkdir(migrationPath, 0755); mkdirErr != nil {
+		if mkdirErr := os.Mkdir(migrationPath, 0750); mkdirErr != nil {
 			return errors.Wrapf(mkdirErr, "error creating path %q", migrationPath)
 		}
 	}

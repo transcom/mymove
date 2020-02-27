@@ -152,6 +152,7 @@ func getS3BucketByEnv(env, region string) (string, error) {
 	}
 }
 
+// CheckEnv checks the environment for querying
 func CheckEnv(serviceAthena *athena.Athena, logger, infoLogger *log.Logger, v *viper.Viper) {
 
 	//get values from flags

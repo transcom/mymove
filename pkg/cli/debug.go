@@ -10,7 +10,7 @@ const (
 	DebugPProfFlag string = "debug-pprof"
 )
 
-//  InitDebugFlags initializes the Debug command line flags
+// InitDebugFlags initializes the Debug command line flags
 func InitDebugFlags(flag *pflag.FlagSet) {
 	flag.Bool(DebugPProfFlag, false, "Enables the go pprof debugging endpoints")
 }

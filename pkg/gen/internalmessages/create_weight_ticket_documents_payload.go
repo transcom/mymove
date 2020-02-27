@@ -47,6 +47,12 @@ type CreateWeightTicketDocumentsPayload struct {
 	// upload ids
 	UploadIds []strfmt.UUID `json:"upload_ids"`
 
+	// Vehicle make
+	VehicleMake *string `json:"vehicle_make,omitempty"`
+
+	// Vehicle model
+	VehicleModel *string `json:"vehicle_model,omitempty"`
+
 	// Vehicle nickname (ex. 'My car')
 	// Required: true
 	VehicleNickname *string `json:"vehicle_nickname"`

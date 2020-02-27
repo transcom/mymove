@@ -11,18 +11,25 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// PaymentServiceItemStatus is a type of Payment Service Item Status
 type PaymentServiceItemStatus string
 
+// PaymentServiceItemStatus is a string representation of a Payment Service Item Status
 func (p PaymentServiceItemStatus) String() string {
 	return string(p)
 }
 
 const (
+	// PaymentServiceItemStatusRequested is the requested status
 	PaymentServiceItemStatusRequested PaymentServiceItemStatus = "REQUESTED"
-	PaymentServiceItemStatusApproved  PaymentServiceItemStatus = "APPROVED"
-	PaymentServiceItemStatusDenied    PaymentServiceItemStatus = "DENIED"
+	// PaymentServiceItemStatusApproved is the approved status
+	PaymentServiceItemStatusApproved PaymentServiceItemStatus = "APPROVED"
+	// PaymentServiceItemStatusDenied is the denied status
+	PaymentServiceItemStatusDenied PaymentServiceItemStatus = "DENIED"
+	// PaymentServiceItemStatusSentToGex is the sent-to-gex status
 	PaymentServiceItemStatusSentToGex PaymentServiceItemStatus = "SENT_TO_GEX"
-	PaymentServiceItemStatusPaid      PaymentServiceItemStatus = "PAID"
+	// PaymentServiceItemStatusPaid is the paid status
+	PaymentServiceItemStatusPaid PaymentServiceItemStatus = "PAID"
 )
 
 var validPaymentServiceItemStatus = []string{
@@ -33,6 +40,7 @@ var validPaymentServiceItemStatus = []string{
 	string(PaymentServiceItemStatusPaid),
 }
 
+// PaymentServiceItem represents a payment service item
 type PaymentServiceItem struct {
 	ID               uuid.UUID                `json:"id" db:"id"`
 	PaymentRequestID uuid.UUID                `json:"payment_request_id" db:"payment_request_id"`

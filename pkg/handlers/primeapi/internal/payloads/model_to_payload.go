@@ -7,6 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// MoveTaskOrder payload
 func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
 		return nil
@@ -29,6 +30,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	return payload
 }
 
+// MoveTaskOrders payload
 func MoveTaskOrders(moveTaskOrders *models.MoveTaskOrders) []*primemessages.MoveTaskOrder {
 	payload := make(primemessages.MoveTaskOrders, len(*moveTaskOrders))
 
@@ -38,6 +40,7 @@ func MoveTaskOrders(moveTaskOrders *models.MoveTaskOrders) []*primemessages.Move
 	return payload
 }
 
+// Customer payload
 func Customer(customer *models.Customer) *primemessages.Customer {
 	if customer == nil {
 		return nil
@@ -50,6 +53,7 @@ func Customer(customer *models.Customer) *primemessages.Customer {
 	return &payload
 }
 
+// MoveOrder payload
 func MoveOrder(moveOrders *models.MoveOrder) *primemessages.MoveOrder {
 	if moveOrders == nil {
 		return nil
@@ -70,6 +74,7 @@ func MoveOrder(moveOrders *models.MoveOrder) *primemessages.MoveOrder {
 	return &payload
 }
 
+// Entitlement payload
 func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	if entitlement == nil {
 		return nil
@@ -107,6 +112,7 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	}
 }
 
+// DutyStation payload
 func DutyStation(dutyStation *models.DutyStation) *primemessages.DutyStation {
 	if dutyStation == nil {
 		return nil
@@ -121,6 +127,7 @@ func DutyStation(dutyStation *models.DutyStation) *primemessages.DutyStation {
 	return &payload
 }
 
+// Address payload
 func Address(address *models.Address) *primemessages.Address {
 	if address == nil {
 		return nil
@@ -137,6 +144,7 @@ func Address(address *models.Address) *primemessages.Address {
 	}
 }
 
+// PaymentRequest payload
 func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.PaymentRequest {
 	return &primemessages.PaymentRequest{
 		ID:              strfmt.UUID(paymentRequest.ID.String()),
@@ -147,6 +155,7 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 	}
 }
 
+// PaymentRequests payload
 func PaymentRequests(paymentRequests *[]models.PaymentRequest) []*primemessages.PaymentRequest {
 	payload := make(primemessages.PaymentRequests, len(*paymentRequests))
 
@@ -156,17 +165,15 @@ func PaymentRequests(paymentRequests *[]models.PaymentRequest) []*primemessages.
 	return payload
 }
 
+// MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
-	requestedPickupDate := strfmt.Date(*mtoShipment.RequestedPickupDate)
-	scheduledPickupDate := strfmt.Date(*mtoShipment.ScheduledPickupDate)
-
 	payload := &primemessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             primemessages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:          *mtoShipment.CustomerRemarks,
-		RequestedPickupDate:      &requestedPickupDate,
-		ScheduledPickupDate:      &scheduledPickupDate,
+		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
+		ScheduledPickupDate:      strfmt.Date(*mtoShipment.ScheduledPickupDate),
 		PickupAddress:            Address(&mtoShipment.PickupAddress),
 		Status:                   string(mtoShipment.Status),
 		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
@@ -176,8 +183,13 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
 
-	if mtoShipment.ApprovedDate != nil {
-		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
+	if mtoShipment.ApprovedDate != nil && !mtoShipment.ApprovedDate.IsZero() {
+		approvedDate := strfmt.Date(*mtoShipment.ApprovedDate)
+		payload.ApprovedDate = &approvedDate
+	}
+
+	if mtoShipment.FirstAvailableDeliveryDate != nil && !mtoShipment.FirstAvailableDeliveryDate.IsZero() {
+		payload.FirstAvailableDeliveryDate = strfmt.Date(*mtoShipment.FirstAvailableDeliveryDate)
 	}
 
 	if mtoShipment.PrimeEstimatedWeight != nil {
@@ -188,6 +200,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	return payload
 }
 
+// MTOShipments payload
 func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments {
 	payload := make(primemessages.MTOShipments, len(*mtoShipments))
 
@@ -196,6 +209,8 @@ func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments
 	}
 	return &payload
 }
+
+// MTOServiceItem payload
 func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *primemessages.MTOServiceItem {
 	return &primemessages.MTOServiceItem{
 		ID:              strfmt.UUID(mtoServiceItem.ID.String()),
@@ -206,6 +221,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *primemessages.MTOSer
 	}
 }
 
+// MTOServiceItems payload
 func MTOServiceItems(mtoServiceItems *[]models.MTOServiceItem) []*primemessages.MTOServiceItem {
 	payload := make(primemessages.MTOServiceItems, len(*mtoServiceItems))
 

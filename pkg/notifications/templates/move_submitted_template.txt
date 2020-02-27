@@ -2,6 +2,8 @@ Your move from {{.OriginDutyStation}} to {{.DestinationDutyStation}} has been su
 
 This can take up to 3 business days. The office will email you once your move has been approved.
 
+Your move ID is {{.Locator}}. Use this ID when communicating with the office about your move.
+
 In the meantime, if you have questions or need expedited processing, call the {{.OriginDutyStation}} PPPO at {{.OriginDutyStationPhoneLine}}.
 
 You can check the status of your move at any time at https://my.move.mil/
