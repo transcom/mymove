@@ -1,8 +1,9 @@
 package ghcapi
 
 import (
-	"github.com/transcom/mymove/pkg/services/query"
 	"net/http/httptest"
+
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"

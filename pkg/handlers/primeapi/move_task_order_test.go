@@ -3,16 +3,18 @@ package primeapi
 import (
 	"encoding/base64"
 	"fmt"
+	"net/http/httptest"
+	"testing"
+	"time"
+
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
+
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
-	"net/http/httptest"
-	"testing"
-	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 

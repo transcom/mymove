@@ -3,9 +3,10 @@ package models
 import (
 	"errors"
 	"fmt"
-	"github.com/transcom/mymove/pkg/unit"
 	"math/rand"
 	"time"
+
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"

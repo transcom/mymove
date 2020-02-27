@@ -2,10 +2,11 @@ package payloads
 
 import (
 	"encoding/base64"
-	"github.com/go-openapi/strfmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/etag"
+
+	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -37,7 +38,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	return payload
 }
 
-// MoveTaskOrderWithETag payload used for optimistic locking
+// MoveTaskOrderWithEtag payload
 func MoveTaskOrderWithEtag(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskOrderWithEtag {
 	if moveTaskOrder == nil {
 		return nil

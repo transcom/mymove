@@ -1,9 +1,10 @@
 package primeapi
 
 import (
+	"time"
+
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorderservice "github.com/transcom/mymove/pkg/services/move_task_order"
-	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
