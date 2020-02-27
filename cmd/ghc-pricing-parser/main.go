@@ -150,9 +150,9 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 	logger.Info("XLSX to stage table parsing complete. Summary follows:")
 	logger.Info("====")
 
-	tables := []struct {
-		header string
-		model  interface{}
+	models := []struct {
+		header        string
+		modelInstance interface{}
 	}{
 		{"1b: Service Areas", models.StageDomesticServiceArea{}},
 		{"1b: Service Areas", models.StageInternationalServiceArea{}},
@@ -174,11 +174,11 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 		{"5b: Price Escalation Discount", models.StagePriceEscalationDiscount{}},
 	}
 
-	for index, table := range tables {
+	for index, model := range models {
 		if index != 0 {
 			logger.Info("----")
 		}
-		err := summarizeModel(db, logger, table.header, table.model, nil)
+		err := summarizeModel(db, logger, model.header, model.modelInstance, nil)
 		if err != nil {
 			return err
 		}
@@ -191,10 +191,10 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 	logger.Info("Stage table import into rate engine tables complete. Summary follows:")
 	logger.Info("====")
 
-	tables := []struct {
-		header   string
-		ptrSlice interface{}
-		filter   *pop.Query
+	models := []struct {
+		header        string
+		modelInstance interface{}
+		filter        *pop.Query
 	}{
 		{
 			"re_contract",
@@ -268,11 +268,11 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 		},
 	}
 
-	for index, table := range tables {
+	for index, model := range models {
 		if index != 0 {
 			logger.Info("----")
 		}
-		err := summarizeModel(db, logger, table.header, table.ptrSlice, table.filter)
+		err := summarizeModel(db, logger, model.header, model.modelInstance, model.filter)
 		if err != nil {
 			return err
 		}
@@ -281,11 +281,11 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 	return nil
 }
 
-func summarizeModel(db *pop.Connection, logger logger, header string, model interface{}, filter *pop.Query) error {
+func summarizeModel(db *pop.Connection, logger logger, header string, modelInstance interface{}, filter *pop.Query) error {
 	// Inspired by https://stackoverflow.com/a/25386460
-	modelType := reflect.TypeOf(model)
+	modelType := reflect.TypeOf(modelInstance)
 	if modelType.Kind() != reflect.Struct {
-		return fmt.Errorf("model for header [%s] should be a struct, but got %s instead", header, modelType.Kind())
+		return fmt.Errorf("model type under header [%s] should be a struct, but got %s instead", header, modelType.Kind())
 	}
 
 	modelName := modelType.Name()
@@ -301,7 +301,7 @@ func summarizeModel(db *pop.Connection, logger logger, header string, model inte
 	if err != nil {
 		return err
 	}
-	length, err := filter.Count(model)
+	length, err := filter.Count(modelInstance)
 	if err != nil {
 		return err
 	}
