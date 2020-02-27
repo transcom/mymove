@@ -22,11 +22,11 @@ func (suite *PricingParserSuite) Test_parseDomesticServiceAreaPrices() {
 		RunVerify:    true,
 	}
 
-	slice, err := parseDomesticServiceAreaPrices(params, sheetIndex)
+	slice, err := parseDomesticServiceAreaPrices(params, sheetIndex, suite.logger)
 	suite.NoError(err, "parseDomesticServiceAreaPrices function failed")
 
 	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
-	err = createCSV(outputFilename, slice)
+	err = createCSV(outputFilename, slice, suite.logger)
 	suite.NoError(err, "could not create CSV")
 
 	const goldenFilename string = "7_2b_domestic_service_area_prices_golden.csv"

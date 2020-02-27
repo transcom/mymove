@@ -11,7 +11,7 @@ import (
 
 func (gre *GHCRateEngineImporter) importREShipmentTypePrices(dbTx *pop.Connection) error {
 	//tab 5a) Access. and Add. Prices
-	var domesticIntlAddlPrices []models.StageDomesticInternationalAdditionalPrices
+	var domesticIntlAddlPrices []models.StageDomesticInternationalAdditionalPrice
 	err := dbTx.All(&domesticIntlAddlPrices)
 	if err != nil {
 		return fmt.Errorf("could not read staged domestic international additional prices: %w", err)

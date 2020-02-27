@@ -70,18 +70,14 @@ func (suite *GHCRateEngineImportSuite) helperLoadSQLFixture(fileName string) {
 
 	sql := string(c)
 	err = suite.DB().RawQuery(sql).Exec()
-	if suite.NoError(err) {
-		fmt.Println(" success")
-	}
+	suite.NoError(err)
 }
 
 func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
-	fmt.Print("Importing stage data...")
 	suite.helperLoadSQLFixture("stage_ghc_pricing.sql")
 }
 
 func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
-	fmt.Print("Importing re_services data...")
 	suite.helperLoadSQLFixture("re_services_data.sql")
 }
 
