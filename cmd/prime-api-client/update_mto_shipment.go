@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
+
+	"github.com/spf13/pflag"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -16,21 +19,30 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-// TODO Add If-Match flag and check when replaces If-Unmodified-Since
-// NOTE: leaving this function in here due to the above
+const (
+	// FilenameFlag is the name of the file being passed in
+	FilenameFlag string = "filename"
+)
+
+func initUpdateMTOShipmentFlags(flag *pflag.FlagSet) {
+	flag.String(FilenameFlag, "", "Name of the file being passed in")
+}
+
 func checkUpdateMTOShipmentConfig(v *viper.Viper, logger *log.Logger) error {
 	err := CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	fileStats, err := os.Stdin.Stat()
-	if err != nil {
-		logger.Fatal(err)
-	}
+	if v.GetString(FilenameFlag) == "" {
+		fileStats, err := os.Stdin.Stat()
+		if err != nil {
+			logger.Fatal(err)
+		}
 
-	if fileStats.Size() == 0 {
-		logger.Fatal(errors.New("update-mto-shipment expects a file to be passed in"))
+		if fileStats.Size() == 0 {
+			logger.Fatal(errors.New("update-mto-shipment expects a file to be passed in"))
+		}
 	}
 
 	return nil
@@ -54,7 +66,19 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	}
 
 	// Decode json from file that was passed into MTOShipment
-	jsonDecoder := json.NewDecoder(bufio.NewReader(os.Stdin))
+	filename := v.GetString(FilenameFlag)
+	var reader *bufio.Reader
+	if filename != "" {
+		file, fileErr := os.Open(filepath.Clean(filename))
+		if fileErr != nil {
+			logger.Fatal(fileErr)
+		}
+		reader = bufio.NewReader(file)
+	} else {
+		reader = bufio.NewReader(os.Stdin)
+	}
+
+	jsonDecoder := json.NewDecoder(reader)
 	var shipment primemessages.MTOShipment
 	err = jsonDecoder.Decode(&shipment)
 	if err != nil {
