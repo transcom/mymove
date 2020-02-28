@@ -750,6 +750,10 @@ definitions:
         x-nullable: true
       status:
         $ref: '#/definitions/PaymentRequestStatus'
+      paymentRequestNumber:
+        example: 1234-5678-1
+        readOnly: true
+        type: string
     type: object
   PaymentRequestStatus:
     enum:
