@@ -94,6 +94,7 @@ func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 		OriginDutyStation:          dsTransportInfo.Name,
 		DestinationDutyStation:     orders.NewDutyStation.Name,
 		OriginDutyStationPhoneLine: dsTransportInfo.PhoneLine,
+		Locator:                    move.Locator,
 	})
 
 	if err != nil {
@@ -102,10 +103,15 @@ func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        "[MilMove] Your move is approved",
+		subject:        fmt.Sprintf("[MilMove] Your Move is approved (locator: %s)", move.Locator),
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}
+
+	m.logger.Info("generated move approved email to service member",
+		zap.String("service member uuid", serviceMember.ID.String()),
+		zap.String("moveLocator", move.Locator),
+	)
 
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
@@ -128,6 +134,7 @@ type moveApprovedEmailData struct {
 	OriginDutyStation          string
 	DestinationDutyStation     string
 	OriginDutyStationPhoneLine string
+	Locator                    string
 }
 
 // RenderHTML renders the html for the email
