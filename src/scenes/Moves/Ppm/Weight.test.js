@@ -16,7 +16,7 @@ describe('Weight', () => {
     expect(shallow(<PpmWeight {...minProps} />).length).toEqual(1);
   });
 
-  describe('Test Estimate icon', () => {
+  describe('Test estimate icon', () => {
     let wrapper;
     const iconAndTextProps = {
       currentPpm: {},
@@ -24,26 +24,40 @@ describe('Weight', () => {
       getPpmWeightEstimate: jest.fn(),
     };
     describe('Move under 500 lbs', () => {
-      it('Should show car icon', () => {
+      it('Should show car icon for 499 lbs', () => {
         wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={499} />);
         expect(wrapper.find({ 'data-cy': 'vehicleIcon' }).prop('src')).toEqual('car-gray.svg');
-        expect(wrapper.find({ 'data-cy': 'estimateText' }).text()).toEqual('Just a few things. One trip in a car.');
       });
     });
     describe('Move between 500 lbs and 1499 lbs', () => {
-      it('Should show correct icon and text for move size', () => {
+      it('Should show trailer icon for 500 lbs', () => {
         wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={500} />);
         expect(wrapper.find({ 'data-cy': 'vehicleIcon' }).prop('src')).toEqual('trailer-gray.svg');
       });
-      it('Should show correct icon and text for move size', () => {
+      it('Should show trailer icon for 1499 lbs', () => {
         wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={1499} />);
         expect(wrapper.find({ 'data-cy': 'vehicleIcon' }).prop('src')).toEqual('trailer-gray.svg');
       });
     });
     describe('Move 1500 lbs or greater', () => {
-      it('Should show correct icon and text for move size', () => {
+      it('Should show truck icon for 1500 lbs', () => {
         wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={1500} />);
         expect(wrapper.find({ 'data-cy': 'vehicleIcon' }).prop('src')).toEqual('truck-gray.svg');
+      });
+    });
+  });
+
+  describe('Test estimate text', () => {
+    let wrapper;
+    const iconAndTextProps = {
+      currentPpm: {},
+      orders: { id: 1 },
+      getPpmWeightEstimate: jest.fn(),
+    };
+    describe('Move under 500 lbs', () => {
+      it('Should show text for 499 lbs', () => {
+        wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={499} />);
+        expect(wrapper.find({ 'data-cy': 'estimateText' }).text()).toEqual('Just a few things. One trip in a car.');
       });
     });
   });
