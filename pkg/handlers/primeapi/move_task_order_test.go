@@ -11,8 +11,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
+
+	"github.com/transcom/mymove/pkg/services/fetch"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
 
@@ -152,7 +153,6 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		suite.Equal(okResponse.Payload.PpmType, "FULL")
 		suite.Equal(okResponse.Payload.PpmEstimatedWeight, int64(3000))
 	})
-
 	suite.T().Run("Patch failure - 500", func(t *testing.T) {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
@@ -164,8 +164,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 		internalServerErr := errors.New("ServerError")
 
-		mockUpdater.On("UpdateMTOPostCounselingInfo",
-			mock.Anything,
+		mockUpdater.On("UpdatePostCounselingInfo",
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -184,12 +183,11 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			&mockUpdater,
 		}
 
-		mockUpdater.On("UpdateMTOPostCounselingInformation",
+		mockUpdater.On("UpdatePostCounselingInfo",
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-			mock.Anything,
-		).Return(nil, movetaskorder.NotFoundError{})
+		).Return(nil, movetaskorder.ErrNotFound{})
 
 		response := handler.Handle(params)
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationNotFound{}, response)
@@ -204,8 +202,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			&mockUpdater,
 		}
 
-		mockUpdater.On("UpdateMTOPostCounselingInfo",
-			mock.Anything,
+		mockUpdater.On("UpdatePostCounselingInfo",
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

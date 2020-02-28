@@ -4,12 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/transcom/mymove/pkg/services/fetch"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/loads"
 

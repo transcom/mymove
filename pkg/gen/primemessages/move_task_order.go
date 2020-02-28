@@ -7,7 +7,6 @@ package primemessages
 
 import (
 	"encoding/json"
-	"strconv"
 
 	strfmt "github.com/go-openapi/strfmt"
 
