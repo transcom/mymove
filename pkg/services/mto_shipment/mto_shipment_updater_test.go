@@ -114,7 +114,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		_, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
 		suite.Error(err)
 	})
-	//
+
 	suite.T().Run("Successful case if both approved date and estimated weight recorded date is more than ten days prior to scheduled move date", func(t *testing.T) {
 		tenDaysFromNow := now.AddDate(0, 0, 11)
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
