@@ -8,6 +8,9 @@ In order to properly test the Prime API, you will need the ability to access it 
 
 You will first have to complete steps to create CAC [access](https://github.com/transcom/mymove/blob/master/docs/how-to/use-mtls-with-cac.md).
 
+
+Additionally, those changes must be deployed to each environment. Merging to master will deploy to Staging. But you need to explicitly deploy to Experimental to get access there, otherwise you won't have access.
+
 ## Prerequisites
 
 Download DoD certificates:
