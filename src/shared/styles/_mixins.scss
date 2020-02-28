@@ -12,9 +12,8 @@
 //mixin that makes an underline that wont cause changes in height to elements and will stick to the bottom of the parent container
 @mixin underline ($size,$color){
   &:after {
-    height:$size ;
+    @include u-height($size);
     @include u-bg($color);
-    border-radius: 0;
     content: " ";
     @include u-display('block') ;
     @include u-position('absolute');
