@@ -2,23 +2,21 @@
 @import '../../shared/styles/mixins';
 
 .tab-nav {
-  /*
-  @include u-height('6');
-  @include u-padding('0');  */
+  //@include u-height('6');
+  //@include u-padding('0'); i changed how the spacing was implemented to use an after to do the underline instead of a border-bottom
   @include u-margin('0');
   @include u-border('1px', 'gray-cool-10');
-  @include u-line-height('body', 1)
-  @include u-position('relative')
+  @include u-line-height('body', 1);
+  @include u-position('relative');
   @include u-bg('white');
 }
 
 .tab-title {
-  @include u-padding-bottom('1.5');  /*
-  @include u-text('gray-50');
-  @include u-margin-right('05');
-  */
+  @include u-padding-bottom('1.5');
+  //@include u-text('gray-50');
+  //@include u-margin-right('05');
   @include u-position('relative');
-  @include u-font-size('body', 3);
+  @include u-font-size('body', 4);
   @include u-text('gray-cool-70');
 }
 .tab-title:hover {
