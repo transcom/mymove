@@ -23,11 +23,11 @@ func (suite *PricingParserSuite) Test_NonStandardLocnPrices() {
 		RunVerify:    true,
 	}
 	suite.T().Run("parse non-standard location prices", func(t *testing.T) {
-		slice, err := parseNonStandardLocnPrices(params, sheetIndex)
+		slice, err := parseNonStandardLocnPrices(params, sheetIndex, suite.logger)
 		suite.NoError(err, "parseNonStandardLocnPrices function failed")
 
 		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
-		err = createCSV(outputFilename, slice)
+		err = createCSV(outputFilename, slice, suite.logger)
 		suite.NoError(err, "could not create CSV")
 
 		const goldenFilename string = "14_3e_non_standard_locn_prices_golden.csv"
@@ -35,7 +35,7 @@ func (suite *PricingParserSuite) Test_NonStandardLocnPrices() {
 	})
 
 	suite.T().Run("attempt to parse NonStandardLocation prices with incorrect sheet index", func(t *testing.T) {
-		_, err := parseNonStandardLocnPrices(params, 13)
+		_, err := parseNonStandardLocnPrices(params, 13, suite.logger)
 		if suite.Error(err) {
 			suite.Equal("parseNonStandardLocnPrices expected to process sheet 14, but received sheetIndex 13", err.Error())
 		}

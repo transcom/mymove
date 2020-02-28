@@ -18,10 +18,10 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
-		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
 		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
+		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		PaymentRequests:    *paymentRequests,
 		MtoServiceItems:    *mtoServiceItems,
@@ -64,7 +64,6 @@ func Customer(customer *models.Customer) *primemessages.Customer {
 	if customer.Email != nil {
 		payload.Email = *customer.Email
 	}
-
 	return &payload
 }
 
@@ -80,7 +79,6 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 	}
 	reportByDate := strfmt.Date(*moveOrder.ReportByDate)
 	entitlements := Entitlement(moveOrder.Entitlement)
-
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
 		Customer:               Customer(moveOrder.Customer),
@@ -89,12 +87,11 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		OrderNumber:            moveOrder.OrderNumber,
-		LinesOfAccounting:      &moveOrder.LinesOfAccounting,
+		LinesOfAccounting:      moveOrder.LinesOfAccounting,
 		Rank:                   moveOrder.Grade,
 		ConfirmationNumber:     *moveOrder.ConfirmationNumber,
 		ReportByDate:           reportByDate,
 	}
-
 	return &payload
 }
 
@@ -210,6 +207,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	if mtoShipment.ApprovedDate != nil && !mtoShipment.ApprovedDate.IsZero() {
 		approvedDate := strfmt.Date(*mtoShipment.ApprovedDate)
 		payload.ApprovedDate = &approvedDate
+	}
+
+	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
+		payload.ActualPickupDate = strfmt.Date(*mtoShipment.ActualPickupDate)
 	}
 
 	if mtoShipment.FirstAvailableDeliveryDate != nil && !mtoShipment.FirstAvailableDeliveryDate.IsZero() {

@@ -69,7 +69,7 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	mo.Grade = (*string)(sm.Rank)
 	mo.DateIssued = &orders.IssueDate
 	mo.ReportByDate = &orders.ReportByDate
-	mo.LinesOfAccounting = *orders.TAC
+	mo.LinesOfAccounting = orders.TAC
 
 	if err := db.Save(&mo); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)

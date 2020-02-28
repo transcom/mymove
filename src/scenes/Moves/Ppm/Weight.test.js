@@ -6,6 +6,11 @@ describe('Weight', () => {
   const minProps = {
     selectedWeightInfo: { min: 0, max: 0 },
     hasLoadSuccess: true,
+    entitlement: {
+      weight: 0,
+      pro_gear: 0,
+      pro_gear_spouse: 0,
+    },
   };
   it('Component renders', () => {
     expect(shallow(<PpmWeight {...minProps} />).length).toEqual(1);

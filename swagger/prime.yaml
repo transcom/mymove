@@ -589,12 +589,12 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      customer:
+        $ref: '#/definitions/Customer'
       customerID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      customer:
-        $ref: '#/definitions/Customer'
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
@@ -693,6 +693,9 @@ definitions:
         type: integer
         example: 4500
       primeEstimatedWeightRecordedDate:
+        format: date
+        type: string
+      actualPickupDate:
         format: date
         type: string
       customerRemarks:

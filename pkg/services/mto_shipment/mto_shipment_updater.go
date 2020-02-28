@@ -104,6 +104,10 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 		oldShipment.FirstAvailableDeliveryDate = updatedShipment.FirstAvailableDeliveryDate
 	}
 
+	if updatedShipment.ActualPickupDate != nil {
+		oldShipment.ActualPickupDate = updatedShipment.ActualPickupDate
+	}
+
 	scheduledPickupTime := *oldShipment.ScheduledPickupDate
 	if updatedShipment.ScheduledPickupDate != nil {
 		scheduledPickupTime = *updatedShipment.ScheduledPickupDate
@@ -224,6 +228,11 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		params = append(params, updatedShipment.FirstAvailableDeliveryDate)
 	}
 
+	if updatedShipment.ActualPickupDate != nil {
+		baseQuery = baseQuery + ", \nactual_pickup_date = ?"
+		params = append(params, updatedShipment.ActualPickupDate)
+	}
+
 	if updatedShipment.ShipmentType != "" {
 		baseQuery = baseQuery + ", \nshipment_type = ?"
 		params = append(params, updatedShipment.ShipmentType)
@@ -245,7 +254,6 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		updatedShipment.ID,
 		unmodifiedSince,
 	)
-	fmt.Println(params)
 
 	// do the updating in a raw query
 	affectedRows, err := db.RawQuery(finishedQuery, params...).ExecWithCount()

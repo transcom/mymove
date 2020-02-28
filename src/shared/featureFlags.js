@@ -16,7 +16,6 @@ const defaultFlags = {
   ppmPaymentRequest: true,
   too: false,
   tio: false,
-  progearChanges: false,
 };
 
 const environmentFlags = {
