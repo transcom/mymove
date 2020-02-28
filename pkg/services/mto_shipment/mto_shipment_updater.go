@@ -2,7 +2,6 @@ package mtoshipment
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -19,58 +18,8 @@ import (
 type UpdateMTOShipmentQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
-}
-
-//ErrNotFound is returned when a given mto shipment is not found
-type ErrNotFound struct {
-	id uuid.UUID
-}
-
-func (e ErrNotFound) Error() string {
-	return fmt.Sprintf("mto shipment id: %s not found", e.id.String())
-}
-
-type errInvalidInput struct {
-	id uuid.UUID
-	error
-	validationErrors map[string][]string
-	message          string
-}
-
-//ErrInvalidInput is returned when an update to a move task order fails a validation rule
-type ErrInvalidInput struct {
-	errInvalidInput
-}
-
-// NewErrInvalidInput returns an error for invalid input
-func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string, message string) ErrInvalidInput {
-	return ErrInvalidInput{
-		errInvalidInput{
-			id:               id,
-			error:            err,
-			validationErrors: validationErrors,
-			message:          message,
-		},
-	}
-}
-
-func (e ErrInvalidInput) Error() string {
-	if e.message != "" {
-		return fmt.Sprintf(e.message)
-	}
-	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.InvalidFields())
-}
-
-// InvalidFields returns the invalid fields for invalid input
-func (e ErrInvalidInput) InvalidFields() map[string]string {
-	es := make(map[string]string)
-	if e.validationErrors == nil {
-		return es
-	}
-	for k, v := range e.validationErrors {
-		es[k] = strings.Join(v, " ")
-	}
-	return es
+	Count(model interface{}, filters []services.QueryFilter) (int, error)
+	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
 }
 
 type mtoShipmentUpdater struct {
@@ -84,13 +33,13 @@ func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBui
 	return &mtoShipmentUpdater{db, builder, fetch.NewFetcher(builder)}
 }
 
-// validateUpdatedMTOShipment validates the updated shipment
-func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipment, updatedShipment *models.MTOShipment) error {
+// setNewShipmentFields validates the updated shipment
+func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *models.MTOShipment) error {
 	if updatedShipment.RequestedPickupDate != nil {
 		requestedPickupDate := updatedShipment.RequestedPickupDate
 		// if requestedPickupDate isn't valid then return ErrInvalidInput
 		if !requestedPickupDate.Equal(*oldShipment.RequestedPickupDate) {
-			return NewErrInvalidInput(oldShipment.ID, nil, nil, "Requested pickup date must match what customer has requested.")
+			return NewInvalidInputError(oldShipment.ID, nil, nil, "Requested pickup date must match what customer has requested.")
 		}
 		oldShipment.RequestedPickupDate = requestedPickupDate
 	}
@@ -111,13 +60,13 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 
 	if updatedShipment.PrimeEstimatedWeight != nil {
 		if oldShipment.PrimeEstimatedWeight != nil {
-			return ErrInvalidInput{}
+			return InvalidInputError{}
 		}
 		now := time.Now()
 		err := validatePrimeEstimatedWeightRecordedDate(now, scheduledPickupTime, *oldShipment.ApprovedDate)
 		if err != nil {
 			errorMessage := "The time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight."
-			return NewErrInvalidInput(oldShipment.ID, err, nil, errorMessage)
+			return NewInvalidInputError(oldShipment.ID, err, nil, errorMessage)
 		}
 		oldShipment.PrimeEstimatedWeight = updatedShipment.PrimeEstimatedWeight
 		oldShipment.PrimeEstimatedWeightRecordedDate = &now
@@ -146,13 +95,6 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 	if updatedShipment.ShipmentType != "" {
 		oldShipment.ShipmentType = updatedShipment.ShipmentType
 	}
-	vErrors, err := oldShipment.Validate(db)
-	if vErrors.HasAny() {
-		return NewErrInvalidInput(oldShipment.ID, nil, vErrors.Errors, "There was an issue with validating the updates")
-	}
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -171,7 +113,7 @@ func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.T
 		return nil
 	}
 
-	return ErrInvalidInput{}
+	return InvalidInputError{}
 }
 
 //UpdateMTOShipment updates the mto shipment
@@ -186,23 +128,22 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 		return &models.MTOShipment{}, err
 	}
 
-	err = validateUpdatedMTOShipment(f.db, &oldShipment, mtoShipment)
+	err = setNewShipmentFields(&oldShipment, mtoShipment)
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
 	verrs, err := f.builder.UpdateOne(&oldShipment, &eTag)
 
 	if verrs != nil && verrs.HasAny() {
-		return &models.MTOShipment{}, ValidationError{
-			id:    mtoShipment.ID,
-			Verrs: verrs,
-		}
+		invalidInputError := NewInvalidInputError(oldShipment.ID, nil, verrs, "There was an issue with validating the updates")
+
+		return &models.MTOShipment{}, invalidInputError
 	}
 
 	if err != nil {
 		switch err.(type) {
 		case query.StaleIdentifierError:
-			return &models.MTOShipment{}, ErrPreconditionFailed{
+			return &models.MTOShipment{}, PreconditionFailedError{
 				id:  mtoShipment.ID,
 				Err: err,
 			}
@@ -221,15 +162,9 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	return &updatedShipment, nil
 }
 
-// UpdateMTOShipmentStatusQueryBuilder is the query builder for updating MTO Shipments
-type UpdateMTOShipmentStatusQueryBuilder interface {
-	FetchOne(model interface{}, filters []services.QueryFilter) error
-	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
-}
-
 type mtoShipmentStatusUpdater struct {
 	db        *pop.Connection
-	builder   UpdateMTOShipmentStatusQueryBuilder
+	builder   UpdateMTOShipmentQueryBuilder
 	siCreator services.MTOServiceItemCreator
 }
 
@@ -263,16 +198,15 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	verrs, err := o.builder.UpdateOne(&shipment, &eTag)
 
 	if verrs != nil && verrs.HasAny() {
-		return nil, ValidationError{
-			id:    shipment.ID,
-			Verrs: verrs,
-		}
+		invalidInputError := NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
+
+		return &models.MTOShipment{}, invalidInputError
 	}
 
 	if err != nil {
 		switch err.(type) {
 		case query.StaleIdentifierError:
-			return nil, ErrPreconditionFailed{
+			return nil, PreconditionFailedError{
 				id:  shipment.ID,
 				Err: err,
 			}
@@ -283,10 +217,16 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 
 	if shipment.Status == models.MTOShipmentStatusApproved {
 		reServices := models.ReServices{}
-		err := o.db.All(&reServices)
+
+		queryFilters := []services.QueryFilter{}
+		queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{})
+		listFetcher := fetch.NewListFetcher(o.builder)
+		err := listFetcher.FetchRecordList(&reServices, queryFilters, queryAssociations, nil, nil)
+
 		if err != nil {
 			// need to do the error handling here
 		}
+
 		// Let's build a map of the services for convenience
 		servicesMap := map[string]models.ReService{}
 		for _, service := range reServices {
@@ -376,10 +316,9 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 			_, verrs, err := o.siCreator.CreateMTOServiceItem(&serviceItem)
 
 			if verrs != nil && verrs.HasAny() {
-				return nil, ValidationError{
-					id:    shipment.ID,
-					Verrs: verrs,
-				}
+				invalidInputError := NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")
+
+				return &models.MTOShipment{}, invalidInputError
 			}
 
 			if err != nil {
@@ -407,9 +346,13 @@ func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServ
 }
 
 // NewMTOShipmentStatusUpdater creates a new MTO Shipment Status Updater
-func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentStatusQueryBuilder, siCreator services.MTOServiceItemCreator) services.MTOShipmentStatusUpdater {
+func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, siCreator services.MTOServiceItemCreator) services.MTOShipmentStatusUpdater {
 	return &mtoShipmentStatusUpdater{db, builder, siCreator}
 }
+
+//
+// Errors
+//
 
 // ConflictStatusError returns an error for a conflict in status
 type ConflictStatusError struct {
@@ -424,34 +367,47 @@ func (e ConflictStatusError) Error() string {
 		e.id.String(), e.transitionFromStatus, e.transitionToStatus, models.MTOShipmentStatusSubmitted)
 }
 
-// NotFoundError is the not found error
-type NotFoundError struct {
-	id uuid.UUID
-}
-
-// Error is the string representation of the error
-func (e NotFoundError) Error() string {
-	return fmt.Sprintf("shipment with id '%s' not found", e.id.String())
-}
-
-// ValidationError is the validation error
-type ValidationError struct {
-	id    uuid.UUID
-	Verrs *validate.Errors
-}
-
-// Error is the string representation of the validation error
-func (e ValidationError) Error() string {
-	return fmt.Sprintf("shipment with id: '%s' could not be updated due to a validation error", e.id.String())
-}
-
-// ErrPreconditionFailed is the precondition failed error
-type ErrPreconditionFailed struct {
+// PreconditionFailedError is the precondition failed error
+type PreconditionFailedError struct {
 	id  uuid.UUID
 	Err error
 }
 
 // Error is the string representation of the precondition failed error
-func (e ErrPreconditionFailed) Error() string {
+func (e PreconditionFailedError) Error() string {
 	return fmt.Sprintf("shipment with id: '%s' could not be updated due to the record being stale", e.id.String())
+}
+
+//NotFoundError is returned when a given mto shipment is not found
+type NotFoundError struct {
+	id uuid.UUID
+}
+
+func (e NotFoundError) Error() string {
+	return fmt.Sprintf("mto shipment id: %s not found", e.id.String())
+}
+
+//InvalidInputError is returned when an update to a move task order fails a validation rule
+type InvalidInputError struct {
+	id               uuid.UUID
+	ValidationErrors *validate.Errors
+	message          string
+	error
+}
+
+// NewInvalidInputError returns an error for invalid input
+func NewInvalidInputError(id uuid.UUID, err error, validationErrors *validate.Errors, message string) InvalidInputError {
+	return InvalidInputError{
+		id:               id,
+		error:            err,
+		ValidationErrors: validationErrors,
+		message:          message,
+	}
+}
+
+func (e InvalidInputError) Error() string {
+	if e.message != "" {
+		return fmt.Sprintf(e.message)
+	}
+	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.ValidationErrors)
 }

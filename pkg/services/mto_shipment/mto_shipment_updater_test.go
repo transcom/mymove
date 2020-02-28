@@ -50,7 +50,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		eTag := base64.StdEncoding.EncodeToString([]byte(time.Now().Format(time.RFC3339Nano)))
 		_, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment, eTag)
 		suite.Error(err)
-		suite.IsType(ErrPreconditionFailed{}, err)
+		suite.IsType(PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("If-Unmodified-Since is equal to the updated_at date", func(t *testing.T) {
@@ -297,7 +297,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		_, err := updater.UpdateMTOShipmentStatus(shipment3.ID, "REJECTED", nil, eTag)
 		suite.Error(err)
 		fmt.Printf("%#v", err)
-		suite.IsType(ValidationError{}, err)
+		suite.IsType(InvalidInputError{}, err)
 	})
 
 	suite.T().Run("Update MTO Shipment in APPROVED status should return error", func(t *testing.T) {
@@ -316,7 +316,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "APPROVED", nil, staleETag)
 		suite.Error(err)
-		suite.IsType(ErrPreconditionFailed{}, err)
+		suite.IsType(PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Passing in an invalid status", func(t *testing.T) {
@@ -325,7 +325,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "invalid", nil, eTag)
 		suite.Error(err)
 		fmt.Printf("%#v", err)
-		suite.IsType(ValidationError{}, err)
+		suite.IsType(InvalidInputError{}, err)
 	})
 
 	suite.T().Run("Passing in a bad shipment id", func(t *testing.T) {

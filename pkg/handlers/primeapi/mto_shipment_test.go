@@ -83,7 +83,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipment",
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.NewErrInvalidInput(mtoShipment.ID, nil, nil, "invalid input"))
+		).Return(nil, mtoshipment.NewInvalidInputError(mtoShipment.ID, nil, nil, "invalid input"))
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentBadRequest{}, response)
@@ -99,7 +99,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipment",
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.ErrNotFound{})
+		).Return(nil, mtoshipment.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipment",
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.ErrPreconditionFailed{})
+		).Return(nil, mtoshipment.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)

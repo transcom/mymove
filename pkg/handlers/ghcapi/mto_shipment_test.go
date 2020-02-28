@@ -7,9 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gobuffalo/validate"
+
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
-	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
@@ -203,7 +204,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.ValidationError{Verrs: validate.NewErrors()})
+		).Return(nil, mtoshipment.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusUnprocessableEntity{}, response)
@@ -223,7 +224,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.ErrPreconditionFailed{})
+		).Return(nil, mtoshipment.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusPreconditionFailed{}, response)

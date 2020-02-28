@@ -30,11 +30,11 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 		switch err.(type) {
-		case mtoshipmentservice.ErrNotFound:
+		case mtoshipmentservice.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
-		case mtoshipmentservice.ErrInvalidInput:
+		case mtoshipmentservice.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
-		case mtoshipmentservice.ErrPreconditionFailed:
+		case mtoshipmentservice.PreconditionFailedError:
 			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed()
 		default:
 			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError()
