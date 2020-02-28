@@ -52,6 +52,10 @@ func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *mode
 		oldShipment.FirstAvailableDeliveryDate = updatedShipment.FirstAvailableDeliveryDate
 	}
 
+	if updatedShipment.ActualPickupDate != nil {
+		oldShipment.ActualPickupDate = updatedShipment.ActualPickupDate
+	}
+
 	scheduledPickupTime := *oldShipment.ScheduledPickupDate
 	if updatedShipment.ScheduledPickupDate != nil {
 		scheduledPickupTime = *updatedShipment.ScheduledPickupDate

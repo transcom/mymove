@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, concat, includes, map, reject } from 'lodash';
@@ -37,7 +37,6 @@ let EditOrdersForm = props => {
     initialValues,
     existingUploads,
     deleteQueue,
-    progearChanges,
   } = props;
   const visibleUploads = reject(existingUploads, upload => {
     return includes(deleteQueue, upload.id);
@@ -65,16 +64,6 @@ let EditOrdersForm = props => {
             <SwaggerField fieldName="report_by_date" swagger={schema} required />
             <SwaggerField fieldName="has_dependents" swagger={schema} component={YesNoBoolean} />
             <br />
-            {!progearChanges && get(props, 'formValues.has_dependents', false) && (
-              <Fragment>
-                <SwaggerField
-                  fieldName="spouse_has_pro_gear"
-                  swagger={props.schema}
-                  component={YesNoBoolean}
-                  className="wider-label"
-                />
-              </Fragment>
-            )}
             <Field name="new_duty_station" component={DutyStationSearchBox} />
             <p>Uploads:</p>
             {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
@@ -166,7 +155,6 @@ class EditOrders extends Component {
 
   render() {
     const { error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
-    const { context: { flags: { progearChanges } } = { flags: { progearChanges: null } } } = this.props;
 
     return (
       <div className="usa-grid">
@@ -196,7 +184,6 @@ class EditOrders extends Component {
               onUpload={this.handleNewUpload}
               onDelete={this.handleDelete}
               formValues={formValues}
-              progearChanges={progearChanges}
             />
           </div>
         )}

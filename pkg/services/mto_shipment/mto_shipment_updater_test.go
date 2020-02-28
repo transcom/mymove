@@ -25,6 +25,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	requestedPickupDate := *oldMTOShipment.RequestedPickupDate
 	scheduledPickupDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	firstAvailableDeliveryDate := time.Date(2019, time.March, 10, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := time.Date(2020, time.June, 8, 0, 0, 0, 0, time.UTC)
+
 	secondaryPickupAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
 	secondaryDeliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
 	primeActualWeight := unit.Pound(1234)
@@ -44,6 +46,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		PrimeActualWeight:          &primeActualWeight,
 		FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
 		Status:                     oldMTOShipment.Status,
+		ActualPickupDate:           &actualPickupDate,
 	}
 
 	suite.T().Run("Etag is stale", func(t *testing.T) {
@@ -67,6 +70,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.NotZero(updatedMTOShipment.SecondaryPickupAddressID, secondaryPickupAddress.ID)
 		suite.NotZero(updatedMTOShipment.SecondaryDeliveryAddressID, secondaryDeliveryAddress.ID)
 		suite.Equal(updatedMTOShipment.PrimeActualWeight, &primeActualWeight)
+		suite.True(actualPickupDate.Equal(*updatedMTOShipment.ActualPickupDate))
 		suite.True(firstAvailableDeliveryDate.Equal(*updatedMTOShipment.FirstAvailableDeliveryDate))
 	})
 
