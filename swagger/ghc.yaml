@@ -517,6 +517,51 @@ paths:
         - contracting_officer
       operationId: patchMTOShipmentStatus
       summary: Updates a shipment's status
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
+    parameters:
+      - description: ID of move task order
+        in: path
+        name: moveTaskOrderID
+        required: true
+        format: uuid
+        type: string
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all agents for a move task order
+          schema:
+            $ref: '#/definitions/MTOAgents'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - mtoAgent
+      description: Fetches a list of agents associated with a move task order.
+      x-swagger-roles:
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
+      operationId: fetchMTOAgentList
+      summary: Fetch move task order agents.
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
     parameters:
       - description: ID of move order to use
@@ -1175,10 +1220,10 @@ definitions:
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
       current_address:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       destination_address:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       id:
         type: string
@@ -1370,6 +1415,49 @@ definitions:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
+  MTOAgents:
+    items:
+      $ref: '#/definitions/MTOAgent'
+    type: array
+  MTOAgent:
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        readOnly: true
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date
+        type: string
+      updatedAt:
+        format: date
+        type: string
+      firstName:
+        type: string
+        x-nullable: true
+      lastName:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      agentType:
+        type: string
+        enum:
+          - RELEASING_AGENT
+          - RECEIVING_AGENT
+    type: object
   PaymentRequest:
     properties:
       documentPackage:
