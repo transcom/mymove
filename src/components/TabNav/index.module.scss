@@ -3,7 +3,7 @@
 
 .tab-nav {
   //@include u-height('6');
-  //@include u-padding('0'); i changed how the spacing was implemented to use an after to do the underline instead of a border-bottom
+  //@include u-padding('0'); changed how the spacing was implemented to use an after to do the underline instead of a border-bottom
   @include u-margin('0');
   @include u-border('1px', 'gray-cool-10');
   @include u-line-height('body', 1);
@@ -18,29 +18,28 @@
   @include u-position('relative');
   @include u-font-size('body', 4);
   @include u-text('gray-cool-70');
-}
-.tab-title:hover {
-  @include u-text('blue-warm-60v');
-  //@include u-border-bottom('05', 'blue-warm-60v');
-  @include underline(.25rem, 'blue-warm-60v');
+  &:hover {
+    @include u-text('blue-warm-60v');
+    //@include u-border-bottom('05', 'blue-warm-60v');
+    @include underline(.25rem, 'blue-warm-60v');
+  }
 }
 .tab-active .tab-title {
   @include u-text('gray-cool-70', 'bold');
   //@include u-border-bottom('05', 'blue-warm-60v');
   @include underline(.25rem, 'blue-warm-60v');
-}
-.tab-active .tab-title:hover {
-  @include u-text('gray-cool-70', 'bold');
+  &:hover {
+    @include u-text('gray-cool-70', 'bold');
+  }
 }
 .tab-item {
   @include u-padding('2');
   @include u-display('inline-block');
-  padding: 16px;
-}
-.tab-item:focus {
-  @include u-outline('05', 'blue-40v');
-//  @include u-padding-top('05'); adjusting padding on focus will make our menu items scoot, we don't want that!!
-//  @include u-padding-bottom('05');
+  &:focus {
+    @include u-outline('05', 'blue-40v');
+  //  @include u-padding-top('05'); adjusting padding on focus will make our menu items scoot, we don't want that!!
+  //  @include u-padding-bottom('05');
+  }
 }
 .tab-item :global .usa-tag {
   @include u-text('gray-cool-70');
