@@ -148,3 +148,7 @@ export const customer = new schema.Entity('customer');
 export const paymentRequest = new schema.Entity('paymentRequests');
 
 export const paymentRequests = new schema.Array(paymentRequest);
+
+// MTO Agents
+export const mtoAgent = new schema.Entity('mtoAgents');
+export const mtoAgents = new schema.Array(mtoAgent);

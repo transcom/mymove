@@ -2,15 +2,15 @@ package pricing
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/tealeg/xlsx"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // parseNonStandardLocnPrices: parser for 3e) Non-Standard Loc'n Prices
-var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 14        // 3e) Non-Standard Loc'n Prices
@@ -30,7 +30,7 @@ var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheet
 		return nil, fmt.Errorf("parseNonStandardLocnPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing non-standard location prices")
+	logger.Info("Parsing non-standard location prices")
 
 	var nonStandardLocationPrices []models.StageNonStandardLocnPrice
 	nToNRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
@@ -69,7 +69,7 @@ var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheet
 				nonStandardLocationPrice.UBPrice = getCell(row.Cells, colIndex)
 
 				if params.ShowOutput == true {
-					log.Printf("%+v\n", nonStandardLocationPrice)
+					logger.Info("", zap.Any("StageNonStandardLocnPrice", nonStandardLocationPrice))
 				}
 				nonStandardLocationPrices = append(nonStandardLocationPrices, nonStandardLocationPrice)
 
