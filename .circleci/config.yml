@@ -192,7 +192,7 @@ commands:
           name: 'Build, tag, and push docker image << parameters.tag >> from Dockerfile << parameters.dockerfile >>'
           command: |
             docker build -f << parameters.dockerfile >> -t << parameters.tag >> .
-            bash -c "$(aws ecr get-login-password --region $AWS_DEFAULT_REGION)"
+            aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             shopt -s extglob
