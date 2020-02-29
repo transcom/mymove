@@ -65,7 +65,7 @@ repos:
     hooks:
       - id: swagger
         name: Swagger
-        entry: swagger validate
+        entry: scripts/pre-commit-swagger-validate
         language: script
         files: swagger/*
         types: [yaml]
