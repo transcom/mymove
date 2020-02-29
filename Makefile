@@ -198,6 +198,9 @@ admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 bin/gin: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
+bin/go-bindata: .check_go_version.stamp .check_gopath.stamp
+	go build -ldflags "$(LDFLAGS)" -o bin/go-bindata github.com/kevinburke/go-bindata/go-bindata
+
 bin/soda: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
 

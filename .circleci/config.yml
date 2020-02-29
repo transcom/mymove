@@ -344,7 +344,9 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: echo 'export PATH=~/go/bin:~/transcom/mymove/bin:${PATH}' >> $BASH_ENV
+      - run: make bin/go-bindata
+      - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code
       - save_cache:
