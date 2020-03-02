@@ -476,7 +476,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		RepositoryName: aws.String(ecrImage.RepositoryName),
 	})
 	if describeImageErr != nil {
-		quit(logger, nil, fmt.Errorf("unable to retrieve image from %q: %w", recordedImageDigest, err))
+		quit(logger, nil, fmt.Errorf("unable to retrieve image from %q: %w", recordedImageDigest, describeImageErr))
 	}
 	// We should find atleast one image with this criteria
 	if len(imageList.ImageDetails) < 1 {
