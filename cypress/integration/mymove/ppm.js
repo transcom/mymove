@@ -5,14 +5,14 @@ import { milmoveAppName } from '../../support/constants';
 describe('completing the ppm flow', function() {
   describe('progresses thru forms', () => {
     //profile@comple.te
-    it('submit a PPM move', () => {
+    it.skip('submit a PPM move', () => {
       cy.signInAsUserPostRequest(milmoveAppName, '13f3949d-0d53-4be4-b1b1-ae4314793f34');
       SMSubmitsMove();
     });
   });
 
   describe('completing the ppm flow with a move date that we currently do not have rates for', () => {
-    it('complete a PPM move', () => {
+    it.skip('complete a PPM move', () => {
       //profile@complete.draft
       cy.signInAsUserPostRequest(milmoveAppName, '3b9360a3-3304-4c60-90f4-83d687884070');
       SMCompletesMove();
