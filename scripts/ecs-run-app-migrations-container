@@ -53,6 +53,7 @@ put_metric() {
 
 # create new task definition with the given image
 echo "* Registering new task definition"
+set +e
 task_definition_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
   --aws-region us-west-2 \
@@ -64,6 +65,10 @@ task_definition_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --cpu "${RESERVATION_CPU}" \
   --memory "${RESERVATION_MEM}" \
   --register)
+
+# shellcheck disable=SC2181
+if [ "$?" != "0" ]; then echo "$task_definition_arn"; exit 1; fi
+set -e
 
 readonly task_definition_arn
 check_arn "$task_definition_arn"
