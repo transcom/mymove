@@ -44,7 +44,7 @@ type PatchMTOShipmentStatusParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *ghcmessages.MTOShipment
+	Body *ghcmessages.PatchMTOShipmentStatusPayload
 	/*ID of move task order for mto shipment to use
 	  Required: true
 	  In: path
@@ -72,7 +72,7 @@ func (o *PatchMTOShipmentStatusParams) BindRequest(r *http.Request, route *middl
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.MTOShipment
+		var body ghcmessages.PatchMTOShipmentStatusPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body"))

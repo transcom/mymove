@@ -10,7 +10,7 @@ You will need to build the parser first.
 make bin/ghc-pricing-parser
 ```
 
-Once built you can run the command. This command will take some time, the sample data xlsx used below takes 5-6 minutes to complete.
+Once built you can run the command. This command will take some time, the sample data XLSX used below takes 5-6 minutes to complete.
 
 ```sh
 ghc-pricing-parser --filename pkg/parser/pricing/fixtures/pricing_template_2019-09-19_fake-data.xlsx --contract-code=UNIQUECODE --contract-name="Unique Name"
@@ -26,8 +26,8 @@ To do the verification follow the below steps for each of the `re_*` tables. It'
 
 ### Tips
 
-If you are having trouble locating the start of the Rate Engine Table summary you can search for `Stage Table import into Rate Engine Tables Complete` in the output.
-You only need to look into the Stage / Temp table summary if you wish to debug why the data was inaccurately parsed into the rate engine tables. The heading for those is `XLSX to Stage Table Parsing Complete`
+If you are having trouble locating the start of the Rate Engine Table summary you can search for `Stage table import into rate engine tables complete` in the output.
+You only need to look into the Stage / Temp table summary if you wish to debug why the data was inaccurately parsed into the rate engine tables. The heading for those is `XLSX to stage table parsing complete`
 
 ### 1. Make sure table total row count matches expectation
 
@@ -40,54 +40,55 @@ Once you find the main source of the information you can verify that the number 
 Pricing parser output example:
 
 ```sh
-2020/02/07 23:05:42    ---
-2020/02/07 23:05:42    re_shipment_type_prices (ReShipmentTypePrice): 7
+2020-02-27T17:13:21.044Z  INFO  ghc-pricing-parser/main.go:273  ----
+2020-02-27T17:13:21.049Z  INFO  ghc-pricing-parser/main.go:312  re_shipment_type_prices (ReShipmentTypePrice)  {"row count": 7}
 ```
 
 ### 2. Verify two row matches
 
 If the number of rows matches you can then move to verifying the two rows are as expected.
 
-Pricing parser output example with first and second row:
+Pricing parser output example with first and second row (note that these are two sample rows and not
+in any particular order relative to the spreadsheet):
 
 ```sh
-2020/02/07 23:05:42    ---
-2020/02/07 23:05:42    re_shipment_type_prices (ReShipmentTypePrice): 7
-2020/02/07 23:05:42      first: {ID:9af2b8c0-153f-4069-9f75-aa3983ebbecd ContractID:111058a8-a5de-424f-921a-932fa35a6a2a ServiceID:dbd3a39a-6bb9-42da-b81a-9229df7019cf Market:C Factor:1.2 CreatedAt:2020-02-07 23:05:42.034574 +0000 +0000 UpdatedAt:2020-02-07 23:05:42.034576 +0000 +0000 Contract:{ID:00000000-0000-0000-0000-000000000000 Code: Name: CreatedAt:0001-01-01 00:00:00 +0000 UTC UpdatedAt:0001-01-01 00:00:00 +0000 UTC} Service:{ID:00000000-0000-0000-0000-000000000000 Code: Name: CreatedAt:0001-01-01 00:00:00 +0000 UTC UpdatedAt:0001-01-01 00:00:00 +0000 UTC}}
-2020/02/07 23:05:42       second: {ID:1900c460-1e51-478b-82d2-64a072210be8 ContractID:111058a8-a5de-424f-921a-932fa35a6a2a ServiceID:874cb86a-bc39-4f57-a614-53ee3fcacf14 Market:O Factor:1.45 CreatedAt:2020-02-07 23:05:42.065301 +0000 +0000 UpdatedAt:2020-02-07 23:05:42.065303 +0000 +0000 Contract:{ID:00000000-0000-0000-0000-000000000000 Code: Name: CreatedAt:0001-01-01 00:00:00 +0000 UTC UpdatedAt:0001-01-01 00:00:00 +0000 UTC} Service:{ID:00000000-0000-0000-0000-000000000000 Code: Name: CreatedAt:0001-01-01 00:00:00 +0000 UTC UpdatedAt:0001-01-01 00:00:00 +0000 UTC}}
+2020-02-27T17:13:21.044Z  INFO  ghc-pricing-parser/main.go:273  ----
+2020-02-27T17:13:21.049Z  INFO  ghc-pricing-parser/main.go:312  re_shipment_type_prices (ReShipmentTypePrice)  {"row count": 7}
+2020-02-27T17:13:21.049Z  INFO  ghc-pricing-parser/main.go:314  first:  {"ReShipmentTypePrice": {"id":"b93c75b2-559b-4990-8a24-a4ac9b40d7c4","contract_id":"7beb7e1b-b5d7-48e4-bd62-82ebf2f6bd96","service_id":"dbd3a39a-6bb9-42da-b81a-9229df7019cf","market":"C","factor":1.2,"created_at":"2020-02-27T17:13:20.884717Z","updated_at":"2020-02-27T17:13:20.88472Z","Contract":{"id":"00000000-0000-0000-0000-000000000000","code":"","name":"","created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z"},"Service":{"id":"00000000-0000-0000-0000-000000000000","code":"","name":"","created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z"}}}
+2020-02-27T17:13:21.049Z  INFO  ghc-pricing-parser/main.go:317  second:  {"ReShipmentTypePrice": {"id":"e4b94491-072f-40d5-8915-7877c0a64014","contract_id":"7beb7e1b-b5d7-48e4-bd62-82ebf2f6bd96","service_id":"0e45b6f5-f2f5-4235-94e4-7b4cb899eb5d","market":"C","factor":1.1,"created_at":"2020-02-27T17:13:20.888991Z","updated_at":"2020-02-27T17:13:20.888993Z","Contract":{"id":"00000000-0000-0000-0000-000000000000","code":"","name":"","created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z"},"Service":{"id":"00000000-0000-0000-0000-000000000000","code":"","name":"","created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z"}}}
 ```
 
 ## Useful Command Options
 
-You can run the parser with the `--help` flag to see all possible options. Below is a selection of the most commonly needed flags
+You can run the parser with the `--help` flag to see all possible options. Below is a selection of the most commonly needed flags:
 
 * `--filename string` **Required**
-  * Filename including path of the XLSX to parse for Rate Engine GHC import
+  * Filename (including path) of the XLSX to parse for the GHC rate engine data import
 * `--contract-code string` **Required**
   * Contract code to use for this import
 * `--contract-name string`
-  * Contract name to use for this import
+  * Contract name to use for this import; if not provided, the contract-code value will be used
 * `--display`
-  * Display output of parsed info
+  * Display output of parsed info (default false)
 * `--save-csv`
-  * Save output of xlsx sheets to CSV file
+  * Save output of XLSX sheets to CSV file (default false)
 * `--verify`
-  * Default is true, if false skip sheet format verification (default true) this will verify that the xlsx looks as we expect it too, this does not validate data.
+  * Perform sheet format verification -- but does not validate data (default true)
 * `--re-import`
-  * Run GHC Rate Engine Import (default true)
+  * Perform the import from staging tables to GHC rate engine tables (default true)
 * `--use-temp-tables`
-  * Default is true, if false stage tables are NOT temp tables (default true)
+  * Make the staging tables be temp tables that don't persist after import (default true)
 * `--drop`
-  * Default is false, if true stage tables will be dropped if they exist this is useful in conjunction with turning `--use-temp-tables` off
+  * Drop any existing staging tables prior to creating them; useful when turning `--use-temp-tables` off (default false)
 * `--db-env string`
-  * database environment: container, test, development (default "development")
+  * Database environment: container, test, development (default "development")
 * `--db-name string`
-  * Database Name (default "dev_db")
+  * Database name (default "dev_db")
 * `--db-host string`
-  * Database Hostname (default "localhost")
+  * Database hostname (default "localhost")
 * `--db-port int`
-  * Database Port (default 5432)
+  * Database port (default 5432)
 * `--db-user string`
-  * Database Username (default "postgres")
+  * Database username (default "postgres")
 * `--db-password string`
-  * Database Password
+  * Database password

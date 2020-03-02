@@ -64,11 +64,11 @@ func (suite *PricingParserSuite) Test_parseDomesticServiceAreas() {
 		RunVerify:    true,
 	}
 
-	slice, err := parseDomesticServiceAreas(params, sheetIndex)
+	slice, err := parseDomesticServiceAreas(params, sheetIndex, suite.logger)
 	suite.NoError(err, "parseDomesticServiceAreas function failed")
 
 	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("domestic"))
-	err = createCSV(outputFilename, slice)
+	err = createCSV(outputFilename, slice, suite.logger)
 	suite.NoError(err, "could not create CSV")
 
 	const domesticGoldenFilename string = "4_1b_service_areas_domestic_golden.csv"
@@ -92,11 +92,11 @@ func (suite *PricingParserSuite) Test_parseInternationalServiceAreas() {
 		RunVerify:    true,
 	}
 
-	slice, err := parseInternationalServiceAreas(params, sheetIndex)
+	slice, err := parseInternationalServiceAreas(params, sheetIndex, suite.logger)
 	suite.NoError(err, "parseInternationalServiceAreas function failed")
 
 	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("international"))
-	err = createCSV(outputFilename, slice)
+	err = createCSV(outputFilename, slice, suite.logger)
 	suite.NoError(err, "could not create CSV")
 
 	const internationalGoldenFilename string = "4_1b_service_areas_international_golden.csv"

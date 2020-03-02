@@ -18,7 +18,7 @@ require (
 	github.com/go-ini/ini v1.49.0 // indirect
 	github.com/go-openapi/errors v0.19.3
 	github.com/go-openapi/loads v0.19.4
-	github.com/go-openapi/runtime v0.19.10
+	github.com/go-openapi/runtime v0.19.11
 	github.com/go-openapi/spec v0.19.5
 	github.com/go-openapi/strfmt v0.19.4
 	github.com/go-openapi/swag v0.19.7
@@ -43,7 +43,7 @@ require (
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/leodido/go-urn v1.2.0
 	github.com/lib/pq v1.3.0
-	github.com/markbates/goth v1.61.1
+	github.com/markbates/goth v1.61.2
 	github.com/mattn/go-shellwords v1.0.6 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/namsral/flag v1.7.4-pre
@@ -52,7 +52,7 @@ require (
 	github.com/rickar/cal v1.0.3
 	github.com/rogpeppe/go-internal v1.5.1 // indirect
 	github.com/spf13/afero v1.2.2
-	github.com/spf13/cobra v0.0.5
+	github.com/spf13/cobra v0.0.6
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.2
 	github.com/stretchr/objx v0.2.0
