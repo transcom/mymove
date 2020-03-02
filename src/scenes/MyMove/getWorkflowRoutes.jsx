@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { every, some, get, findKey, pick, isNil } from 'lodash';
+import { every, some, get, findKey, pick } from 'lodash';
 import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
@@ -23,7 +23,6 @@ import UploadOrders from 'scenes/Orders/UploadOrders';
 
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
-import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
@@ -64,14 +63,6 @@ const always = () => true;
 const myFirstRodeo = props => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = props => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'PPM';
-const showProgearChanges = ({ context }) => {
-  if (isNil(context)) {
-    return null;
-  }
-  let { flags: { progearChanges } = { progearChanges: null } } = context;
-  return progearChanges;
-};
-const preProgearChanges = props => hasPPM(props) && !showProgearChanges(props);
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
@@ -169,11 +160,6 @@ const pages = {
       return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
     render: (key, pages) => ({ match }) => <PpmDateAndLocations pages={pages} pageKey={key} match={match} />,
-  },
-  '/moves/:moveId/ppm-size': {
-    isInFlow: preProgearChanges,
-    isComplete: ({ sm, orders, move, ppm }) => get(ppm, 'size', null),
-    render: (key, pages) => ({ match }) => <PpmSize pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/ppm-incentive': {
     isInFlow: hasPPM,

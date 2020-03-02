@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 
@@ -33,58 +34,36 @@ For help run: <program> -h
  *************************************************************************/
 
 func main() {
+	// Set up spreadsheet metadata and parameter configuration
 	xlsxDataSheets := pricing.InitDataSheetInfo()
-
 	params := pricing.ParamConfig{}
 	params.RunTime = time.Now()
 
+	// Set up parser's command line flags
 	flag := pflag.CommandLine
-	flag.StringVar(&params.XlsxFilename, "filename", "", "Filename including path of the XLSX to parse for Rate Engine GHC import")
-	flag.BoolVar(&params.ProcessAll, "all", true, "Parse entire Rate Engine GHC XLSX")
+	flag.StringVar(&params.XlsxFilename, "filename", "", "Filename (including path) of the XLSX to parse for the GHC rate engine data import")
+	flag.StringVar(&params.ContractCode, "contract-code", "", "Contract code to use for this import")
+	flag.StringVar(&params.ContractName, "contract-name", "", "Contract name to use for this import; if not provided, the contract-code value will be used")
+	flag.BoolVar(&params.ProcessAll, "all", true, "Parse entire GHC Rate Engine XLSX")
 	flag.StringSliceVar(&params.XlsxSheets, "xlsxSheets", []string{}, xlsxSheetsUsage(xlsxDataSheets))
 	flag.BoolVar(&params.ShowOutput, "display", false, "Display output of parsed info")
-	flag.BoolVar(&params.SaveToFile, "save-csv", false, "Save output to CSV file")
-	flag.BoolVar(&params.RunVerify, "verify", true, "Default is true, if false skip sheet format verification")
-	flag.BoolVar(&params.RunImport, "re-import", true, "Run GHC Rate Engine Import")
-	flag.BoolVar(&params.UseTempTables, "use-temp-tables", true, "Default is true, if false stage tables are NOT temp tables")
-	flag.BoolVar(&params.DropIfExists, "drop", false, "Default is false, if true stage tables will be dropped if they exist")
-	flag.StringVar(&params.ContractCode, "contract-code", "", "Contract code to use for this import")
-	flag.StringVar(&params.ContractName, "contract-name", "", "Contract name to use for this import")
+	flag.BoolVar(&params.SaveToFile, "save-csv", false, "Save output of XLSX sheets to CSV file")
+	flag.BoolVar(&params.RunVerify, "verify", true, "Perform sheet format verification -- but does not validate data")
+	flag.BoolVar(&params.RunImport, "re-import", true, "Perform the import from staging tables to GHC rate engine tables")
+	flag.BoolVar(&params.UseTempTables, "use-temp-tables", true, "Make the staging tables be temp tables that don't persist after import")
+	flag.BoolVar(&params.DropIfExists, "drop", false, "Drop any existing staging tables prior to creating them; useful when turning `--use-temp-tables` off")
 
-	// DB Config
+	// Set up DB flags
 	cli.InitDatabaseFlags(flag)
 
-	// Don't sort flags
+	// Parse flags
 	flag.SortFlags = false
-
 	err := flag.Parse(os.Args[1:])
 	if err != nil {
 		log.Fatalf("Could not parse flags: %v\n", err)
 	}
 
-	// option `xlsxSheets` will override `all` flag
-	if len(params.XlsxSheets) > 0 {
-		params.ProcessAll = false
-		log.Println("Setting --xlsxSheets disables --re-import so no data will be imported into the rate engine tables. Only stage table data will be updated.")
-		params.RunImport = false
-	}
-
-	if params.XlsxFilename == "" {
-		log.Fatalf("Did not receive an XLSX filename to parse; missing --filename\n")
-	}
-	log.Printf("Importing file %s\n", params.XlsxFilename)
-
-	if params.RunImport && params.ContractCode == "" {
-		log.Fatalf("Did not receive a contract code; missing --contract-code\n")
-	}
-
-	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
-	if err != nil {
-		log.Fatalf("Failed to open file %s with error %v\n", params.XlsxFilename, err)
-	}
-
-	// Connect to the database
-	// DB connection
+	// Bind flags
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
@@ -93,20 +72,18 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	dbEnv := v.GetString(cli.DbEnvFlag)
-
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	// Create logger
+	logger, err := logging.Config(v.GetString(cli.DbEnvFlag), v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
 
+	// Connect to the database
 	err = cli.CheckDatabase(v, logger)
 	if err != nil {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
-
-	// Create a connection to the DB
 	db, err := cli.InitDatabase(v, nil, logger)
 	if err != nil {
 		// No connection object means that the configuraton failed to validate and we should not startup
@@ -115,17 +92,41 @@ func main() {
 	}
 	defer func() {
 		if closeErr := db.Close(); closeErr != nil {
-			log.Fatalf("Could not close database: %v", closeErr)
+			logger.Fatal("Could not close database", zap.Error(closeErr))
 		}
 	}()
+
+	// Ensure we've been given a spreadsheet to parse
+	if params.XlsxFilename == "" {
+		logger.Fatal("Did not receive an XLSX filename to parse; missing --filename")
+	}
+
+	// Running with a subset of worksheets will turn off ProcessAll flag and the rate engine import
+	if len(params.XlsxSheets) > 0 {
+		params.ProcessAll = false
+		logger.Info("Setting --xlsxSheets disables --re-import so no data will be imported into the rate engine tables. Only stage table data will be updated.")
+		params.RunImport = false
+	}
+
+	// If we are importing into the rate engine tables, we need a contract code
+	if params.RunImport && params.ContractCode == "" {
+		logger.Fatal("Did not receive a contract code; missing --contract-code")
+	}
+
+	// Open the spreadsheet
+	logger.Info("Importing file", zap.String("XlsxFilename", params.XlsxFilename))
+	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
+	if err != nil {
+		logger.Fatal("Failed to open file", zap.String("XlsxFilename", params.XlsxFilename), zap.Error(err))
+	}
 
 	// Now kick off the parsing
 	err = pricing.Parse(xlsxDataSheets, params, db, logger)
 	if err != nil {
-		log.Fatalf("Failed to parse pricing template due to %v", err)
+		logger.Fatal("Failed to parse pricing template", zap.Error(err))
 	}
-	if err = summarizeXlsxStageParsing(db); err != nil {
-		log.Fatalf("Failed to summarize XLSX to stage table parsing: %v", err)
+	if err = summarizeXlsxStageParsing(db, logger); err != nil {
+		logger.Fatal("Failed to summarize XLSX to stage table parsing", zap.Error(err))
 	}
 
 	// If the parsing was successful, run GHC Rate Engine importer
@@ -137,614 +138,184 @@ func main() {
 		}
 		err = ghcREImporter.Import(db)
 		if err != nil {
-			log.Fatalf("GHC Rate Engine import failed due to %v", err)
+			logger.Fatal("GHC Rate Engine import failed", zap.Error(err))
 		}
-		// Summarize import for verification
-		if err := summarizeStageReImport(db, ghcREImporter.ContractID); err != nil {
-			log.Fatalf("Failed to summarize stage table to rate engine table import: %v", err)
+		if err := summarizeStageReImport(db, logger, ghcREImporter.ContractID); err != nil {
+			logger.Fatal("Failed to summarize stage table to rate engine table import", zap.Error(err))
 		}
 	}
 }
 
-func summarizeXlsxStageParsing(db *pop.Connection) error {
-	log.Println("XLSX to Stage Table Parsing Complete")
-	log.Println(" Summary:")
+func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
+	logger.Info("XLSX to stage table parsing complete. Summary follows:")
+	logger.Info("====")
 
-	// 1b Service Areas
-	stageDomServiceAreas := []models.StageDomesticServiceArea{}
-	err := db.Limit(2).All(&stageDomServiceAreas)
-	if err != nil {
-		return err
-	}
-	length, err := db.Count(models.StageDomesticServiceArea{})
-	if err != nil {
-		return err
-	}
-
-	log.Printf("   1b: Service Areas (StageDomesticServiceArea): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomServiceAreas[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomServiceAreas[1])
-	}
-	log.Println("   ---")
-
-	stageIntlServiceArea := []models.StageInternationalServiceArea{}
-	err = db.Limit(2).All(&stageIntlServiceArea)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageInternationalServiceArea{})
-	if err != nil {
-		return err
+	models := []struct {
+		header        string
+		modelInstance interface{}
+	}{
+		{"1b: Service Areas", models.StageDomesticServiceArea{}},
+		{"1b: Service Areas", models.StageInternationalServiceArea{}},
+		{"2a: Domestic Linehaul Prices", models.StageDomesticLinehaulPrice{}},
+		{"2b: Domestic Service Area Prices", models.StageDomesticServiceAreaPrice{}},
+		{"2c: Other Domestic Prices", models.StageDomesticOtherPackPrice{}},
+		{"2c: Other Domestic Prices", models.StageDomesticOtherSitPrice{}},
+		{"3a: OCONUS to OCONUS Prices", models.StageOconusToOconusPrice{}},
+		{"3b: CONUS to OCONUS Prices", models.StageConusToOconusPrice{}},
+		{"3c: OCONUS to CONUS Prices", models.StageOconusToConusPrice{}},
+		{"3d: Other International Prices", models.StageOtherIntlPrice{}},
+		{"3e: Non-Standard Location Prices", models.StageNonStandardLocnPrice{}},
+		{"4a: Management, Counseling, and Transition Prices", models.StageShipmentManagementServicesPrice{}},
+		{"4a: Management, Counseling, and Transition Prices", models.StageCounselingServicesPrice{}},
+		{"4a: Management, Counseling, and Transition Prices", models.StageTransitionPrice{}},
+		{"5a: Accessorial and Additional Prices", models.StageDomesticMoveAccessorialPrice{}},
+		{"5a: Accessorial and Additional Prices", models.StageInternationalMoveAccessorialPrice{}},
+		{"5a: Accessorial and Additional Prices", models.StageDomesticInternationalAdditionalPrice{}},
+		{"5b: Price Escalation Discount", models.StagePriceEscalationDiscount{}},
 	}
 
-	log.Printf("   1b: Service Areas (StageInternationalServiceArea): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageIntlServiceArea[0])
+	for index, model := range models {
+		if index != 0 {
+			logger.Info("----")
+		}
+		err := summarizeModel(db, logger, model.header, model.modelInstance, nil)
+		if err != nil {
+			return err
+		}
 	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageIntlServiceArea[1])
-	}
-	log.Println("   ---")
-
-	// 2a Domestic Linehaul Prices
-	stageDomLinePrice := []models.StageDomesticLinehaulPrice{}
-	err = db.Limit(2).All(&stageDomLinePrice)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageDomesticLinehaulPrice{})
-	if err != nil {
-		return err
-	}
-
-	log.Printf("   2a: Domestic Linehaul Prices (StageDomesticLinehaulPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomLinePrice[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomLinePrice[1])
-	}
-	log.Println("   ---")
-
-	// 2b Domestic Service Area Prices
-	stageDomSerAreaPrice := []models.StageDomesticServiceAreaPrice{}
-	err = db.Limit(2).All(&stageDomSerAreaPrice)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageDomesticServiceAreaPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   2b: Domestic Service Area Prices (StageDomesticServiceAreaPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomSerAreaPrice[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomSerAreaPrice[1])
-	}
-	log.Println("   ---")
-
-	// 2c Other Domestic Prices
-	stageDomOtherPackPrice := []models.StageDomesticOtherPackPrice{}
-	err = db.Limit(2).All(&stageDomOtherPackPrice)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageDomesticOtherPackPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   2c: Other Domestic Prices (StageDomesticOtherPackPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomOtherPackPrice[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomOtherPackPrice[1])
-	}
-	log.Println("   ---")
-
-	stageDomOtherSitPrice := []models.StageDomesticOtherSitPrice{}
-	err = db.Limit(2).All(&stageDomOtherSitPrice)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageDomesticOtherSitPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   2c: Other Domestic Prices (StageDomesticOtherSitPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomOtherSitPrice[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomOtherSitPrice[1])
-	}
-	log.Println("   ---")
-
-	// 3a OCONUS to OCONUS Prices
-	stageOconusToOconus := []models.StageOconusToOconusPrice{}
-	err = db.Limit(2).All(&stageOconusToOconus)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageOconusToOconusPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   3a: OCONUS to OCONUS Prices (StageOconusToOconusPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageOconusToOconus[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageOconusToOconus[1])
-	}
-	log.Println("   ---")
-
-	// 3b CONUS to OCONUS Prices
-	stageConusToOconus := []models.StageConusToOconusPrice{}
-	err = db.Limit(2).All(&stageConusToOconus)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageConusToOconusPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   3b: CONUS to OCONUS Prices (StageConusToOconusPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageConusToOconus[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageConusToOconus[1])
-	}
-	log.Println("   ---")
-
-	// 3c OCONUS to CONUS Prices
-	stageOconusToConus := []models.StageOconusToConusPrice{}
-	err = db.Limit(2).All(&stageOconusToConus)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageOconusToConusPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   3c: OCONUS to CONUS Prices (StageOconusToConusPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageOconusToConus[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageOconusToConus[1])
-	}
-	log.Println("   ---")
-
-	// 3d Other International Prices
-	stageOtherIntlPrices := []models.StageOtherIntlPrice{}
-	err = db.Limit(2).All(&stageOtherIntlPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageOtherIntlPrice{})
-	if err != nil {
-		return err
-	}
-
-	log.Printf("   3d: Other International Prices (StageOtherIntlPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageOtherIntlPrices[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageOtherIntlPrices[1])
-	}
-	log.Println("   ---")
-
-	// 3e Non-Standard Location Prices
-	stageNonStdLocaPrices := []models.StageNonStandardLocnPrice{}
-	err = db.Limit(2).All(&stageNonStdLocaPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageNonStandardLocnPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   3e: Non-Standard Location Prices (StageNonStandardLocnPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageNonStdLocaPrices[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageNonStdLocaPrices[1])
-	}
-	log.Println("   ---")
-
-	// 4a Management, Counseling, and Transition Prices
-	stageMgmt := []models.StageShipmentManagementServicesPrice{}
-	err = db.Limit(2).All(&stageMgmt)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageShipmentManagementServicesPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   4a: Management, Counseling, and Transition Prices (StageShipmentManagementServicesPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageMgmt[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageMgmt[1])
-	}
-	log.Println("   ---")
-
-	stageCounsel := []models.StageCounselingServicesPrice{}
-	err = db.Limit(2).All(&stageCounsel)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageCounselingServicesPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   4a: Management, Counseling, and Transition Prices (StageCounselingServicesPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageCounsel[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageCounsel[1])
-	}
-	log.Println("   ---")
-
-	stageTransition := []models.StageTransitionPrice{}
-	err = db.Limit(2).All(&stageTransition)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageTransitionPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   4a: Management, Counseling, and Transition Prices (StageTransitionPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageTransition[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageTransition[1])
-	}
-	log.Println("   ---")
-
-	// 5a Accessorial and Additional Prices
-	stageDomMoveAccess := []models.StageDomesticMoveAccessorialPrices{}
-	err = db.Limit(2).All(&stageDomMoveAccess)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageDomesticMoveAccessorialPrices{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   5a Accessorial and Additional Prices (StageDomesticMoveAccessorialPrices): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomMoveAccess[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomMoveAccess[1])
-	}
-	log.Println("   ---")
-
-	stageIntlMoveAccess := []models.StageInternationalMoveAccessorialPrices{}
-	err = db.Limit(2).All(&stageIntlMoveAccess)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageInternationalMoveAccessorialPrices{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   5a Accessorial and Additional Prices (StageInternationalMoveAccessorialPrices): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageIntlMoveAccess[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageIntlMoveAccess[1])
-	}
-	log.Println("   ---")
-
-	stageDomIntlAdd := []models.StageDomesticInternationalAdditionalPrices{}
-	err = db.Limit(2).All(&stageDomIntlAdd)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StageDomesticInternationalAdditionalPrices{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   5a Accessorial and Additional Prices (StageDomesticInternationalAdditionalPrices): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stageDomIntlAdd[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stageDomIntlAdd[1])
-	}
-	log.Println("   ---")
-
-	// 5b Price Escalation Discount
-	stagePriceEsc := []models.StagePriceEscalationDiscount{}
-	err = db.Limit(2).All(&stagePriceEsc)
-	if err != nil {
-		return err
-	}
-	length, err = db.Count(models.StagePriceEscalationDiscount{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   5b: Price Escalation Discount (StagePriceEscalationDiscount): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", stagePriceEsc[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", stagePriceEsc[1])
-	}
-	log.Println("   ---")
 
 	return nil
 }
 
-func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
-	log.Println("Stage Table import into Rate Engine Tables Complete")
-	log.Println(" Summary:")
+func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.UUID) error {
+	logger.Info("Stage table import into rate engine tables complete. Summary follows:")
+	logger.Info("====")
 
-	// re_contract
-	reContract := []models.ReContract{}
-	err := db.Where("id = ?", contractID).Limit(2).All(&reContract)
+	models := []struct {
+		header        string
+		modelInstance interface{}
+		filter        *pop.Query
+	}{
+		{
+			"re_contract",
+			models.ReContract{},
+			db.Where("id = ?", contractID),
+		},
+		{
+			"re_contract_years",
+			models.ReContractYear{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_domestic_service_areas",
+			models.ReDomesticServiceArea{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_zip3s",
+			models.ReZip3{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_rate_areas",
+			models.ReRateArea{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_domestic_linehaul_prices",
+			models.ReDomesticLinehaulPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_domestic_service_area_prices",
+			models.ReDomesticServiceAreaPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_domestic_other_prices",
+			models.ReDomesticOtherPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_intl_prices",
+			models.ReIntlPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_intl_other_prices",
+			models.ReIntlOtherPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_task_order_fees",
+			models.ReTaskOrderFee{},
+			db.Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id"),
+		},
+		{
+			"re_domestic_accessorial_prices",
+			models.ReDomesticAccessorialPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_intl_accessorial_prices",
+			models.ReIntlAccessorialPrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+		{
+			"re_shipment_type_prices",
+			models.ReShipmentTypePrice{},
+			db.Where("contract_id = ?", contractID),
+		},
+	}
+
+	for index, model := range models {
+		if index != 0 {
+			logger.Info("----")
+		}
+		err := summarizeModel(db, logger, model.header, model.modelInstance, model.filter)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func summarizeModel(db *pop.Connection, logger logger, header string, modelInstance interface{}, filter *pop.Query) error {
+	// Inspired by https://stackoverflow.com/a/25386460
+	modelType := reflect.TypeOf(modelInstance)
+	if modelType.Kind() != reflect.Struct {
+		return fmt.Errorf("model type under header [%s] should be a struct, but got %s instead", header, modelType.Kind())
+	}
+
+	modelName := modelType.Name()
+	modelSlice := reflect.MakeSlice(reflect.SliceOf(modelType), 0, 2)
+	modelPtrSlice := reflect.New(modelSlice.Type())
+	modelPtrSlice.Elem().Set(modelSlice)
+
+	if filter == nil {
+		filter = db.Q()
+	}
+
+	err := filter.Limit(2).All(modelPtrSlice.Interface())
 	if err != nil {
 		return err
 	}
-	length, err := db.Where("id = ?", contractID).Count(models.ReContract{})
+	length, err := filter.Count(modelInstance)
 	if err != nil {
 		return err
 	}
 
-	log.Printf("   re_contract (ReContract): %d\n", length)
+	modelSlice = modelPtrSlice.Elem()
+
+	headerMsg := fmt.Sprintf("%s (%s)", header, modelName)
+	logger.Info(headerMsg, zap.Int("row count", length))
 	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reContract[0])
+		logger.Info("first:", zap.Any(modelName, modelSlice.Index(0).Interface()))
 	}
 	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reContract[length-1])
+		logger.Info("second:", zap.Any(modelName, modelSlice.Index(1).Interface()))
 	}
-	log.Println("   ---")
-
-	// re_contract_years
-	reContractYears := []models.ReContractYear{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reContractYears)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReContractYear{})
-	if err != nil {
-		return err
-	}
-
-	log.Printf("   re_contract_years (ReContractYear): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reContractYears[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reContractYears[1])
-	}
-	log.Println("   ---")
-
-	// re_domestic_service_areas
-	reDomSerAreas := []models.ReDomesticServiceArea{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomSerAreas)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticServiceArea{})
-	if err != nil {
-		return err
-	}
-
-	log.Printf("   re_domestic_service_areas (ReDomesticServiceArea): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reDomSerAreas[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reDomSerAreas[1])
-	}
-	log.Println("   ---")
-
-	// re_rate_areas
-	reRateAreas := []models.ReRateArea{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reRateAreas)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReRateArea{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   re_rate_areas (ReRateArea): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reRateAreas[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reRateAreas[1])
-	}
-	log.Println("   ---")
-
-	// re_domestic_linehaul_prices
-	reDomLinePrices := []models.ReDomesticLinehaulPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomLinePrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticLinehaulPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   reDomLinePrices (ReDomesticLinehaulPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reDomLinePrices[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reDomLinePrices[1])
-	}
-	log.Println("   ---")
-
-	// re_domestic_service_area_prices
-	reDomSerAreaPrices := []models.ReDomesticServiceAreaPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomSerAreaPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticServiceAreaPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   re_domestic_service_area_prices (ReDomesticServiceAreaPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reDomSerAreaPrices[0])
-	}
-	log.Printf("\tsecond: %+v\n", reDomSerAreaPrices[1])
-	log.Println("   ---")
-
-	// re_domestic_other_prices
-	reDomOtherPrices := []models.ReDomesticOtherPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomOtherPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticOtherPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   re_domestic_other_prices (ReDomesticOtherPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reDomOtherPrices[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reDomOtherPrices[1])
-	}
-	log.Println("   ---")
-
-	// re_international_prices
-	reIntlPrices := []models.ReIntlPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reIntlPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReIntlPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   re_international_prices (ReIntlPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reIntlPrices[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reIntlPrices[1])
-	}
-	log.Println("   ---")
-
-	// re_international_other_prices
-	reIntlOtherPrices := []models.ReIntlOtherPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reIntlOtherPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReIntlOtherPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   re_international_other_prices (ReIntlOtherPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reIntlOtherPrices[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reIntlOtherPrices[1])
-	}
-	log.Println("   ---")
-
-	// re_task_order_fees
-	//possibly need a join where contract year id  = contract_year.contract_id
-	reTaskOrderFees := []models.ReTaskOrderFee{}
-	err = db.Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id").Limit(2).All(&reTaskOrderFees)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Join("re_contract_years", "re_contract_years.id = contract_year_id").Count(models.ReTaskOrderFee{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   re_task_order_fees (ReTaskOrderFee): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reTaskOrderFees[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reTaskOrderFees[1])
-	}
-	log.Println("   ---")
-
-	// re_domestic_accessorial_prices
-	reDomAccPrices := []models.ReDomesticAccessorialPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reDomAccPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReDomesticAccessorialPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   re_domestic_accessorial_prices (ReDomesticAccessorialPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reDomAccPrices[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reDomAccPrices[1])
-	}
-	log.Println("   ---")
-
-	// re_intl_accessorial_prices
-	reIntlAccPrices := []models.ReIntlAccessorialPrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reIntlAccPrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReIntlAccessorialPrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   re_intl_accessorial_prices (ReIntlAccessorialPrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reIntlAccPrices[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reIntlAccPrices[1])
-	}
-	log.Println("   ---")
-
-	// re_shipment_type_prices
-	reShipmentTypePrices := []models.ReShipmentTypePrice{}
-	err = db.Where("contract_id = ?", contractID).Limit(2).All(&reShipmentTypePrices)
-	if err != nil {
-		return err
-	}
-	length, err = db.Where("contract_id = ?", contractID).Count(models.ReShipmentTypePrice{})
-	if err != nil {
-		return err
-	}
-	log.Printf("   re_shipment_type_prices (ReShipmentTypePrice): %d\n", length)
-	if length > 0 {
-		log.Printf("\tfirst: %+v\n", reShipmentTypePrices[0])
-	}
-	if length > 1 {
-		log.Printf("\tsecond: %+v\n", reShipmentTypePrices[1])
-	}
-	log.Println("   ---")
 
 	return nil
 }
