@@ -1,10 +1,9 @@
 package payloads
 
 import (
-	"encoding/base64"
-	"time"
-
 	"github.com/go-openapi/strfmt"
+
+	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -205,7 +204,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
-		ETag:                     base64.StdEncoding.EncodeToString([]byte(mtoShipment.UpdatedAt.Format(time.RFC3339Nano))),
+		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
 	if mtoShipment.ApprovedDate != nil && !mtoShipment.ApprovedDate.IsZero() {
