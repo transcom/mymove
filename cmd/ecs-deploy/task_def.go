@@ -139,7 +139,7 @@ type ECRImage struct {
 }
 
 // NewECRImage returns a new ECR Image object
-func NewECRImage(imageURI string) (*ECRImage, error) {
+func NewECRImage(imageURI, imageDigest string) (*ECRImage, error) {
 	imageParts := strings.Split(imageURI, ":")
 	if len(imageParts) != 2 {
 		return nil, fmt.Errorf("Image URI requires ':'")
@@ -455,7 +455,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	serviceNameShort := serviceNameParts[0]
 
 	// Confirm the image exists
-	ecrImage, errECRImage := NewECRImage(imageURI)
+	ecrImage, errECRImage := NewECRImage(imageURI, recordedImageDigest)
 	if errECRImage != nil {
 		quit(logger, nil, fmt.Errorf("unable to recognize image URI %q: %w", imageURI, errECRImage))
 	}
@@ -469,7 +469,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	imageList, describeImageErr := serviceECR.DescribeImages(&ecr.DescribeImagesInput{
 		ImageIds: []*ecr.ImageIdentifier{
 			{
-				ImageTag: aws.String(ecrImage.ImageTag),
+				ImageDigest: aws.String(ecrImage.DigestURI),
 			},
 		},
 		RegistryId:     aws.String(ecrImage.RegistryID),
@@ -481,14 +481,6 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// We should find atleast one image with this criteria
 	if len(imageList.ImageDetails) < 1 {
 		quit(logger, nil, fmt.Errorf("no images found %q: %w", imageURI, err))
-	}
-	imageDigest := imageList.ImageDetails[0].ImageDigest
-	if imageDigest == nil {
-		quit(logger, nil, fmt.Errorf("image digest null for %q", imageURI))
-	}
-	// Compare registered image digest with newly pulled image, they should match
-	if recordedImageDigest != *imageDigest {
-		quit(logger, nil, fmt.Errorf("image disgest does not match expected: %q but got: %q", recordedImageDigest, *imageDigest))
 	}
 
 	// Entrypoint
@@ -569,7 +561,8 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 			{
 				Name: aws.String(containerDefName),
 
-				Image:       aws.String(ecrImage.DigestURI),
+				Image: aws.String(ecrImage.DigestURI),
+
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPointList),
 				Command:     []*string{},
