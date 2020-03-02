@@ -574,6 +574,7 @@ UIs
 dev_db
 5a
 base64
+Keychain
 LICENSE.txt
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md
