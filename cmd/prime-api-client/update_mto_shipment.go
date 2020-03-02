@@ -24,25 +24,31 @@ const (
 	FilenameFlag string = "filename"
 )
 
+func containsDash(args []string) bool {
+	for _, arg := range args {
+		if arg == "-" {
+			return true
+		}
+	}
+	return false
+}
+
 func initUpdateMTOShipmentFlags(flag *pflag.FlagSet) {
 	flag.String(FilenameFlag, "", "Name of the file being passed in")
 }
 
-func checkUpdateMTOShipmentConfig(v *viper.Viper, logger *log.Logger) error {
+func checkUpdateMTOShipmentConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	if v.GetString(FilenameFlag) == "" {
-		fileStats, err := os.Stdin.Stat()
-		if err != nil {
-			logger.Fatal(err)
-		}
+	if v.GetString(FilenameFlag) == "" && len(args) < 1 {
+		logger.Fatal(errors.New("update-mto-shipment expects a file to be passed in"))
+	}
 
-		if fileStats.Size() == 0 {
-			logger.Fatal(errors.New("update-mto-shipment expects a file to be passed in"))
-		}
+	if len(args) > 0 && !containsDash(args) {
+		logger.Fatal(errors.New("update-mto-shipment is expecting - as an argument"))
 	}
 
 	return nil
@@ -50,7 +56,6 @@ func checkUpdateMTOShipmentConfig(v *viper.Viper, logger *log.Logger) error {
 
 func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	v := viper.New()
-	fmt.Println(args)
 
 	//Create the logger
 	//Remove the prefix and any datetime data
@@ -65,7 +70,7 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	err = checkUpdateMTOShipmentConfig(v, logger)
+	err = checkUpdateMTOShipmentConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
