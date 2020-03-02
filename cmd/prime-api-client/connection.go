@@ -7,10 +7,9 @@ import (
 	"net/http"
 	"strings"
 
+	runtimeClient "github.com/go-openapi/runtime/client"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
-	runtimeClient "github.com/go-openapi/runtime/client"
 	"github.com/spf13/viper"
 	"pault.ag/go/pksigner"
 
