@@ -57,7 +57,7 @@ check_ecr_digest() {
 
   if [ "${ECR_DIGEST}" != "${image-sha}" ]
   then
-    echo "Recorded ECR digest sha did no match the tagged image sha. Expected ${ECR_DIGEST} but got ${image-sha}"
+    echo "Recorded ECR digest sha did not match the tagged image sha. Expected ${ECR_DIGEST} but got ${image-sha}"
     exit 1
   fi
 
@@ -81,6 +81,7 @@ task_definition_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --service "${name}" \
   --environment "${environment}" \
   --image "${image}" \
+  --ecr-digest "${ECR_DIGEST}" \
   --variables-file "${DIR}/../config/env/${environment}.migrations.env" \
   --entrypoint "/bin/milmove migrate" \
   --cpu "${RESERVATION_CPU}" \
