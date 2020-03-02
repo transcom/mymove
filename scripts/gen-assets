@@ -1,0 +1,28 @@
+#! /usr/bin/env bash
+
+#
+# generate assets from packages using go-bindata
+#
+
+set -eu -o pipefail
+
+package_name=assets
+assets_dir=./pkg/assets
+output_file="${assets_dir}/${package_name}.go"
+input_dirs=(pkg/paperwork/formtemplates/ pkg/notifications/templates/)
+# Fix the modtime to prevent diffs when generating on different machines
+modtime=1569961560
+
+# Clean out the old generated files
+rm -rf $assets_dir
+mkdir -p $assets_dir
+
+if [ -n "${CIRCLECI+x}" ]; then
+  echo "RUNNING IN CIRCLECI"
+  go-bindata -modtime "${modtime}" -o "${output_file}" -pkg "${package_name}" "${input_dirs[@]}"
+else
+  echo "RUNNING LOCALLY"
+  image=milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
+  docker pull "${image}"
+  docker run -it --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" go-bindata -modtime "${modtime}" -o "${output_file}" -pkg "${package_name}" "${input_dirs[@]}"
+fi

@@ -286,9 +286,8 @@ bin/send-to-gex: pkg/gen/
 bin/tls-checker:
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
-pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
-	# Fix the modtime to prevent diffs when generating on different machines
-	go-bindata -modtime 1569961560 -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/ pkg/notifications/templates/
+pkg/assets/assets.go:
+	gen-assets
 
 #
 # ----- END BIN TARGETS -----

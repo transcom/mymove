@@ -17,28 +17,28 @@ executors:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-de8cba2300204631e07fd90c4c43ea2e1a06d93a
+      - image: milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-de8cba2300204631e07fd90c4c43ea2e1a06d93a
+      - image: milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-de8cba2300204631e07fd90c4c43ea2e1a06d93a
+      - image: milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-de8cba2300204631e07fd90c4c43ea2e1a06d93a
+      - image: milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-de8cba2300204631e07fd90c4c43ea2e1a06d93a
+      - image: milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
       - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -48,7 +48,7 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-de8cba2300204631e07fd90c4c43ea2e1a06d93a
+      - image: milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
       - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -345,7 +345,6 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: echo 'export PATH=~/go/bin:~/transcom/mymove/bin:${PATH}' >> $BASH_ENV
-      - run: make bin/go-bindata
       - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code

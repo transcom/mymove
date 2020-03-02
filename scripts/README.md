@@ -111,6 +111,7 @@ This subset of development scripts is used primarily for building the app.
 | Script Name | Description |
 | --- | --- |
 | `copy-swagger-ui` |  Copies the assets (other than xxx.html) into the public directory |
+| `gen-assets` | generate assets from packages using go-bindata |
 | `gen-server` | generate swagger code from yaml files |
 
 ### Testing
