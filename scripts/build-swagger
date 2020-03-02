@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+
+#
+# Downloads release version of swagger at specific version
+#
+
+set -eu -o pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
+# When updating this version please update check-swagger-version script
+SWAGGER_VERSION=0.21.0
+
+if [ -n "${CIRCLECI+x}" ]; then
+  echo "Swagger pre-built into docker image in CircleCI"
+else
+	SWAGGER_SHA256SUM=744c328de18b9acff3f9e8bcc43683ce797166301c58c8971eb77477f4c5b847
+  tmp_file="${DIR}/../tmp/swagger_darwin_amd64"
+	curl -sSL -o "${tmp_file}" https://github.com/go-swagger/go-swagger/releases/download/v${SWAGGER_VERSION}/swagger_darwin_amd64
+  DOWNLOAD_SHA256SUM=$(shasum -a 256 "${tmp_file}" | cut -f1 -d' ')
+	if [ "${DOWNLOAD_SHA256SUM}" = ${SWAGGER_SHA256SUM} ]; then
+	  chmod 755 "${tmp_file}"
+	  mv "${tmp_file}" "${DIR}/../bin/swagger"
+    check-swagger-version
+  else
+    echo "Unable to verify swagger binary"
+    exit 1
+  fi
+fi
+

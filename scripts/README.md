@@ -13,6 +13,7 @@ environment.
 
 | Script Name | Description |
 | --- | --- |
+| `build-swagger` | Downloads release version of swagger at specific version |
 | `check-aws-cli-version` | checks the awscli version required for the project |
 | `check-aws-vault-version` | checks the aws-vault version required for the project |
 | `check-bash-version` | Script helps ensure that /etc/shells has all the correct entries in it |
@@ -23,6 +24,7 @@ environment.
 | `check-hosts-file` | Script helps ensure that /etc/hosts has all the correct entries in it |
 | `check-node-version` | checks the node version required for the project |
 | `check-opensc-version` | checks the opensc version required for the project |
+| `check-swagger-version` | checks the swagger version required for the project |
 | `kill-process-on-port` | asks to kill a process running on the specified port |
 | `prereqs` | validate if all prerequisite programs have been installed |
 

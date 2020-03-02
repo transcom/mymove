@@ -17,28 +17,28 @@ executors:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
+      - image: milmove/circleci-docker:milmove-app-ffd8979e13efa5cade8928d47d27947f3f582c25
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
+      - image: milmove/circleci-docker:milmove-app-ffd8979e13efa5cade8928d47d27947f3f582c25
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
+      - image: milmove/circleci-docker:milmove-app-ffd8979e13efa5cade8928d47d27947f3f582c25
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
+      - image: milmove/circleci-docker:milmove-app-ffd8979e13efa5cade8928d47d27947f3f582c25
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
+      - image: milmove/circleci-docker:milmove-app-ffd8979e13efa5cade8928d47d27947f3f582c25
       - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -48,7 +48,7 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
+      - image: milmove/circleci-docker:milmove-app-ffd8979e13efa5cade8928d47d27947f3f582c25
       - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword

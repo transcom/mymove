@@ -90,3 +90,4 @@ check-gopath
 check-hosts-file
 check-node-version
 check-opensc-version
+check-swagger-version

@@ -22,7 +22,7 @@ if [ -n "${CIRCLECI+x}" ]; then
   go-bindata -modtime "${modtime}" -o "${output_file}" -pkg "${package_name}" "${input_dirs[@]}"
 else
   echo "RUNNING LOCALLY"
-  image=milmove/circleci-docker:milmove-app-7abb8e90c13d0f5f391d282f5429fa9e7a3bfdb0
+  image=milmove/circleci-docker:milmove-app-ffd8979e13efa5cade8928d47d27947f3f582c25
   docker pull "${image}"
   docker run -it --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" go-bindata -modtime "${modtime}" -o "${output_file}" -pkg "${package_name}" "${input_dirs[@]}"
 fi
