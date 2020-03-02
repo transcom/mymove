@@ -43,12 +43,8 @@ func checkUpdateMTOShipmentConfig(v *viper.Viper, args []string, logger *log.Log
 		logger.Fatal(err)
 	}
 
-	if v.GetString(FilenameFlag) == "" && len(args) < 1 {
+	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
 		logger.Fatal(errors.New("update-mto-shipment expects a file to be passed in"))
-	}
-
-	if len(args) > 0 && !containsDash(args) {
-		logger.Fatal(errors.New("update-mto-shipment is expecting - as an argument"))
 	}
 
 	return nil
@@ -84,7 +80,9 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 			logger.Fatal(fileErr)
 		}
 		reader = bufio.NewReader(file)
-	} else {
+	}
+
+	if len(args) > 0 && containsDash(args) {
 		reader = bufio.NewReader(os.Stdin)
 	}
 
