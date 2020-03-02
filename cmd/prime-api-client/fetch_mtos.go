@@ -29,7 +29,10 @@ func fetchMTOs(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer cacStore.Close()
+
+	if cacStore != nil {
+		defer cacStore.Close()
+	}
 
 	var params mto.FetchMTOUpdatesParams
 	params.SetTimeout(time.Second * 30)

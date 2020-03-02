@@ -50,6 +50,7 @@ func checkUpdateMTOShipmentConfig(v *viper.Viper, logger *log.Logger) error {
 
 func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	v := viper.New()
+	fmt.Println(args)
 
 	//Create the logger
 	//Remove the prefix and any datetime data
@@ -59,7 +60,10 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer cacStore.Close()
+
+	if cacStore != nil {
+		defer cacStore.Close()
+	}
 
 	err = checkUpdateMTOShipmentConfig(v, logger)
 	if err != nil {
