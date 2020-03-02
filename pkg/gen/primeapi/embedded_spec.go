@@ -872,6 +872,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "eTag": {
+          "type": "string"
+        },
         "firstAvailableDeliveryDate": {
           "type": "string",
           "format": "date"
@@ -2174,6 +2177,9 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string"
         },
         "firstAvailableDeliveryDate": {
           "type": "string",

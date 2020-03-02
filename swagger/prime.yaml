@@ -711,6 +711,8 @@ definitions:
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         $ref: '#/definitions/Address'
+      eTag:
+        type: string
       status:
         type: string
         enum:
