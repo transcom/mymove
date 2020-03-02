@@ -23,7 +23,6 @@ const (
 	PortFlag string = "port"
 	// InsecureFlag indicates that TLS verification and validation can be skipped
 	InsecureFlag string = "insecure"
-	// TODO Add If-Match flag
 )
 
 // initRootFlags initializes flags relating to the prime api

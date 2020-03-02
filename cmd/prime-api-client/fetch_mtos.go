@@ -25,10 +25,11 @@ func fetchMTOs(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
-	primeGateway, err := CreateClient(cmd, v, args)
+	primeGateway, cacStore, err := CreateClient(cmd, v, args)
 	if err != nil {
 		return err
 	}
+	defer cacStore.Close()
 
 	var params mto.FetchMTOUpdatesParams
 	params.SetTimeout(time.Second * 30)

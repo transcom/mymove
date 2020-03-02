@@ -12,21 +12,22 @@ import (
 
 	runtimeClient "github.com/go-openapi/runtime/client"
 	"github.com/spf13/viper"
+	"pault.ag/go/pksigner"
 
 	"github.com/transcom/mymove/pkg/cli"
 	primeClient "github.com/transcom/mymove/pkg/gen/primeclient"
 )
 
 // CreateClient creates the prime api client
-func CreateClient(cmd *cobra.Command, v *viper.Viper, args []string) (*primeClient.Mymove, error) {
+func CreateClient(cmd *cobra.Command, v *viper.Viper, args []string) (*primeClient.Mymove, *pksigner.Store, error) {
 	err := cmd.ParseFlags(args)
 	if err != nil {
-		return nil, errors.Wrap(err, "Could not parse args")
+		return nil, nil, errors.Wrap(err, "Could not parse args")
 	}
 	flags := cmd.Flags()
 	err = v.BindPFlags(flags)
 	if err != nil {
-		return nil, errors.Wrap(err, "Could not bind flags")
+		return nil, nil, errors.Wrap(err, "Could not bind flags")
 	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
@@ -39,12 +40,12 @@ func CreateClient(cmd *cobra.Command, v *viper.Viper, args []string) (*primeClie
 	var httpClient *http.Client
 
 	// The client certificate comes from a smart card
+	var store *pksigner.Store
 	if v.GetBool(cli.CACFlag) {
-		store, errStore := cli.GetCACStore(v)
-		if errStore != nil {
-			log.Fatal(errStore)
+		store, err = cli.GetCACStore(v)
+		if err != nil {
+			log.Fatal(err)
 		}
-		defer store.Close()
 		cert, errTLSCert := store.TLSCertificate()
 		if errTLSCert != nil {
 			log.Fatal(errTLSCert)
@@ -86,5 +87,5 @@ func CreateClient(cmd *cobra.Command, v *viper.Viper, args []string) (*primeClie
 
 	primeGateway := primeClient.New(myRuntime, nil)
 
-	return primeGateway, nil
+	return primeGateway, store, nil
 }

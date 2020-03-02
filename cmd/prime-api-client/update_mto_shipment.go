@@ -55,10 +55,11 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	//Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	primeGateway, err := CreateClient(cmd, v, args)
+	primeGateway, cacStore, err := CreateClient(cmd, v, args)
 	if err != nil {
 		return err
 	}
+	defer cacStore.Close()
 
 	err = checkUpdateMTOShipmentConfig(v, logger)
 	if err != nil {
