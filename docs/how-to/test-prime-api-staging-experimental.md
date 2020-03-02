@@ -36,7 +36,7 @@ Download DoD certificates:
     go run ./cmd/prime-api-client --cac --hostname api.experimental.move.mil --port 443
     ```
 
-3. You will be prompted to enter your CAC pin. This will be the same six digit pin you created when picking up your CAC.
+3. You will be prompted to enter your CAC pin. This will be the same pin you created when picking up your CAC.
 
 4. If successful you should receive a response similar to:
 
