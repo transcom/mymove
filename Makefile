@@ -287,7 +287,7 @@ bin/tls-checker:
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
 pkg/assets/assets.go:
-	gen-assets
+	scripts/gen-assets
 
 #
 # ----- END BIN TARGETS -----
