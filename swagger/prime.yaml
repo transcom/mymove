@@ -716,6 +716,8 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+      eTag:
+        type: string
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
