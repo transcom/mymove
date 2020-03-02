@@ -1,13 +1,13 @@
 package mtoshipment
 
 import (
-	"encoding/base64"
 	"fmt"
 	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -50,14 +50,14 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	}
 
 	suite.T().Run("Etag is stale", func(t *testing.T) {
-		eTag := base64.StdEncoding.EncodeToString([]byte(time.Now().Format(time.RFC3339Nano)))
+		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment, eTag)
 		suite.Error(err)
 		suite.IsType(PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("If-Unmodified-Since is equal to the updated_at date", func(t *testing.T) {
-		eTag := base64.StdEncoding.EncodeToString([]byte(oldMTOShipment.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag := etag.GenerateEtag(oldMTOShipment.UpdatedAt)
 		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment, eTag)
 		suite.NoError(err)
 
@@ -81,7 +81,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	}
 
 	suite.T().Run("Updater can handle optional queries set as nil", func(t *testing.T) {
-		eTag := base64.StdEncoding.EncodeToString([]byte(oldMTOShipment2.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag := etag.GenerateEtag(oldMTOShipment2.UpdatedAt)
 
 		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment2, eTag)
 		suite.NoError(err)
@@ -105,7 +105,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				ApprovedDate:        &threeDaysBefore,
 			},
 		})
-		eTag := base64.StdEncoding.EncodeToString([]byte(oldShipment.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		updatedShipment := models.MTOShipment{
 			ID:                   oldShipment.ID,
 			PrimeEstimatedWeight: &primeEstimatedWeight,
@@ -124,7 +124,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				ApprovedDate:        &now,
 			},
 		})
-		eTag := base64.StdEncoding.EncodeToString([]byte(oldShipment.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		updatedShipment := models.MTOShipment{
 			ID:                   oldShipment.ID,
 			PrimeEstimatedWeight: &primeEstimatedWeight,
@@ -146,7 +146,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				ApprovedDate:        &twoDaysBefore,
 			},
 		})
-		eTag := base64.StdEncoding.EncodeToString([]byte(oldShipment.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		updatedShipment := models.MTOShipment{
 			ID:                   oldShipment.ID,
 			PrimeEstimatedWeight: &primeEstimatedWeight,
@@ -166,7 +166,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				ApprovedDate:        &twoDaysBefore,
 			},
 		})
-		eTag := base64.StdEncoding.EncodeToString([]byte(oldShipment.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		updatedShipment := models.MTOShipment{
 			ID:                   oldShipment.ID,
 			PrimeEstimatedWeight: &primeEstimatedWeight,
@@ -188,7 +188,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				ApprovedDate:        &oneDayBefore,
 			},
 		})
-		eTag := base64.StdEncoding.EncodeToString([]byte(oldShipment.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		updatedShipment := models.MTOShipment{
 			ID:                   oldShipment.ID,
 			PrimeEstimatedWeight: &primeEstimatedWeight,
@@ -207,7 +207,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				ApprovedDate:        &now,
 			},
 		})
-		eTag := base64.StdEncoding.EncodeToString([]byte(oldShipment.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		updatedShipment := models.MTOShipment{
 			ID:                   oldShipment.ID,
 			PrimeEstimatedWeight: &primeEstimatedWeight,
@@ -250,7 +250,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		},
 	})
 	shipment.Status = models.MTOShipmentStatusSubmitted
-	eTag := base64.StdEncoding.EncodeToString([]byte(shipment.UpdatedAt.Format(time.RFC3339Nano)))
+	eTag := etag.GenerateEtag(shipment.UpdatedAt)
 	status := models.MTOShipmentStatusApproved
 	//Need some values for reServices
 	reServiceNames := []models.ReServiceName{
@@ -287,7 +287,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.T().Run("Update MTO Shipment SUBMITTED status to REJECTED with a rejection reason should return no error", func(t *testing.T) {
-		eTag = base64.StdEncoding.EncodeToString([]byte(shipment2.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag = etag.GenerateEtag(shipment2.UpdatedAt)
 		rejectionReason := "Rejection reason"
 		returnedShipment, err := updater.UpdateMTOShipmentStatus(shipment2.ID, "REJECTED", &rejectionReason, eTag)
 		suite.NoError(err)
@@ -297,7 +297,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.T().Run("Update MTO Shipment status to REJECTED with no rejection reason should return error", func(t *testing.T) {
-		eTag = base64.StdEncoding.EncodeToString([]byte(shipment3.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag = etag.GenerateEtag(shipment3.UpdatedAt)
 		_, err := updater.UpdateMTOShipmentStatus(shipment3.ID, "REJECTED", nil, eTag)
 		suite.Error(err)
 		fmt.Printf("%#v", err)
@@ -316,7 +316,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.T().Run("Passing in a stale identifier", func(t *testing.T) {
-		staleETag := base64.StdEncoding.EncodeToString([]byte(time.Now().String()))
+		staleETag := etag.GenerateEtag(time.Now())
 
 		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "APPROVED", nil, staleETag)
 		suite.Error(err)
@@ -324,7 +324,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.T().Run("Passing in an invalid status", func(t *testing.T) {
-		eTag = base64.StdEncoding.EncodeToString([]byte(shipment4.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag = etag.GenerateEtag(shipment4.UpdatedAt)
 
 		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "invalid", nil, eTag)
 		suite.Error(err)
@@ -345,7 +345,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		shipment5 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MoveTaskOrder: mto,
 		})
-		eTag = base64.StdEncoding.EncodeToString([]byte(shipment5.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag = etag.GenerateEtag(shipment5.UpdatedAt)
 
 		suite.Nil(shipment5.ApprovedDate)
 		_, err := updater.UpdateMTOShipmentStatus(shipment5.ID, models.MTOShipmentStatusApproved, nil, eTag)
@@ -359,7 +359,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		shipment6 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MoveTaskOrder: mto,
 		})
-		eTag = base64.StdEncoding.EncodeToString([]byte(shipment6.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag = etag.GenerateEtag(shipment6.UpdatedAt)
 		rejectionReason := "reason"
 
 		suite.Nil(shipment6.ApprovedDate)

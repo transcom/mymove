@@ -1,11 +1,9 @@
 package ghcapi
 
 import (
-	"encoding/base64"
 	"fmt"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/gobuffalo/validate"
 
@@ -14,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -116,7 +115,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	})
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
-	eTag := base64.StdEncoding.EncodeToString([]byte(mtoShipment.UpdatedAt.Format(time.RFC3339Nano)))
+	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)

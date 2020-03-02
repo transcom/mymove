@@ -1,18 +1,17 @@
 package primeapi
 
 import (
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
@@ -33,7 +32,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	req := httptest.NewRequest("PUT", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
 
-	eTag := base64.StdEncoding.EncodeToString([]byte(mtoShipment.UpdatedAt.Format(time.RFC3339Nano)))
+	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 	params := mtoshipmentops.UpdateMTOShipmentParams{
 		HTTPRequest:     req,
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
@@ -133,7 +132,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	req2 := httptest.NewRequest("PUT", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto2.ID.String(), mtoShipment2.ID.String()), nil)
 
-	eTag = base64.StdEncoding.EncodeToString([]byte(mtoShipment2.UpdatedAt.Format(time.RFC3339Nano)))
+	eTag = etag.GenerateEtag(mtoShipment2.UpdatedAt)
 	params = mtoshipmentops.UpdateMTOShipmentParams{
 		HTTPRequest:     req2,
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment2.MoveTaskOrderID),
