@@ -195,9 +195,6 @@ bin/gin: .check_go_version.stamp .check_gopath.stamp
 bin/soda: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
 
-bin/swagger: .check_go_version.stamp .check_gopath.stamp
-	scripts/build-swagger
-
 # No static linking / $(LDFLAGS) because go-junit-report is only used for building the CirlceCi test report
 bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp
 	go build -o bin/go-junit-report github.com/jstemmer/go-junit-report
@@ -290,7 +287,7 @@ pkg/assets/assets.go:
 
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
-pkg/gen/: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.yaml)
+pkg/gen/: pkg/assets/assets.go $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 
 .PHONY: server_build
@@ -327,7 +324,6 @@ server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp
 
 .PHONY: build_tools
 build_tools: bin/gin \
-	bin/swagger \
 	bin/mockery \
 	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
@@ -824,7 +820,7 @@ gofmt:  ## Run go fmt over all Go files
 	go fmt $$(go list ./...) >> /dev/null
 
 .PHONY: pre_commit_tests
-pre_commit_tests: .client_deps.stamp bin/swagger ## Run pre-commit tests
+pre_commit_tests: .client_deps.stamp ## Run pre-commit tests
 	pre-commit run --all-files
 
 .PHONY: pretty
