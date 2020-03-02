@@ -18,7 +18,6 @@ environment.
 | `check-aws-vault-version` | checks the aws-vault version required for the project |
 | `check-bash-version` | Script helps ensure that /etc/shells has all the correct entries in it |
 | `check-chamber-version` | checks the chamber version required for the project |
-| `check-go-bindata-version` | checks the go-bindata version required for the project |
 | `check-go-version` | checks the go version required for the project |
 | `check-gopath` | checks the go path is correct for the project |
 | `check-hosts-file` | Script helps ensure that /etc/hosts has all the correct entries in it |

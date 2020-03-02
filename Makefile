@@ -111,12 +111,6 @@ check_node_version: .check_node_version.stamp ## Check that the correct Node ver
 	scripts/check-node-version
 	touch .check_node_version.stamp
 
-.PHONY: check_go_bindata_version
-check_go_bindata_version: .check_go_bindata_version.stamp ## Check that the correct go-bindata version is installed
-.check_go_bindata_version.stamp: scripts/check-go-bindata-version
-	scripts/check-go-bindata-version
-	touch .check_go_bindata_version.stamp
-
 .PHONY: check_docker_size
 check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
@@ -197,9 +191,6 @@ admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 
 bin/gin: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
-
-bin/go-bindata: .check_go_version.stamp .check_gopath.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/go-bindata github.com/kevinburke/go-bindata/go-bindata
 
 bin/soda: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda

@@ -7,7 +7,7 @@ NC='\033[0m' # No Color
 
 VERSION="v0.21"
 
-SWAGGER_VERSION=$(type -p swagger > /dev/null && swagger version | head -n1)
+SWAGGER_VERSION=$(type -p swagger > /dev/null && swagger version | head -n1 | cut -d' ' -f2)
 
 # Knocks off everything after the last decimal
 SHORT_VERSION=${SWAGGER_VERSION%.*}
