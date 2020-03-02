@@ -50,7 +50,7 @@ echo "Preparing ECS task definition for ${name}"
 
 echo
 echo "Registering ECS task definition for ${name}"
-
+set +e
 task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
   --aws-region "${AWS_DEFAULT_REGION}" \
@@ -62,6 +62,9 @@ task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --variables-file "${variables_file}" \
   --entrypoint "/bin/milmove-tasks ${name}" \
   --register)
+# shellcheck disable=SC2181
+if [ "$?" != "0" ]; then echo "$task_def_arn"; exit 1; fi
+set -e
 
 readonly task_def_arn
 echo
