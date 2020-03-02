@@ -11,11 +11,14 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -24,19 +27,22 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 	})
+	builder := query.NewQueryBuilder(suite.DB())
+	fetcher := fetch.NewFetcher(builder)
 
 	req := httptest.NewRequest("PUT", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
 
+	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 	params := mtoshipmentops.UpdateMTOShipmentParams{
-		HTTPRequest:       req,
-		MoveTaskOrderID:   *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		MtoShipmentID:     *handlers.FmtUUID(mtoShipment.ID),
-		Body:              payloads.MTOShipment(&mtoShipment),
-		IfUnmodifiedSince: strfmt.DateTime(mtoShipment.UpdatedAt),
+		HTTPRequest:     req,
+		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+		MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
+		Body:            payloads.MTOShipment(&mtoShipment),
+		IfMatch:         eTag,
 	}
 
 	suite.T().Run("Successful PUT - Integration Test", func(t *testing.T) {
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB())
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -76,7 +82,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipment",
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.NewErrInvalidInput(mtoShipment.ID, nil, nil, "invalid input"))
+		).Return(nil, mtoshipment.NewInvalidInputError(mtoShipment.ID, nil, nil, "invalid input"))
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentBadRequest{}, response)
@@ -92,7 +98,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipment",
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.ErrNotFound{})
+		).Return(nil, mtoshipment.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
@@ -108,7 +114,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipment",
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.ErrPreconditionFailed{})
+		).Return(nil, mtoshipment.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
@@ -126,16 +132,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	req2 := httptest.NewRequest("PUT", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto2.ID.String(), mtoShipment2.ID.String()), nil)
 
+	eTag = etag.GenerateEtag(mtoShipment2.UpdatedAt)
 	params = mtoshipmentops.UpdateMTOShipmentParams{
-		HTTPRequest:       req2,
-		MoveTaskOrderID:   *handlers.FmtUUID(mtoShipment2.MoveTaskOrderID),
-		MtoShipmentID:     *handlers.FmtUUID(mtoShipment2.ID),
-		Body:              &payload,
-		IfUnmodifiedSince: strfmt.DateTime(mtoShipment2.UpdatedAt),
+		HTTPRequest:     req2,
+		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment2.MoveTaskOrderID),
+		MtoShipmentID:   *handlers.FmtUUID(mtoShipment2.ID),
+		Body:            &payload,
+		IfMatch:         eTag,
 	}
 
 	suite.T().Run("Successful PUT - Integration Test with Only Required Fields in Payload", func(t *testing.T) {
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB())
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,

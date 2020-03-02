@@ -195,8 +195,7 @@ func init() {
           },
           {
             "type": "string",
-            "format": "datetime",
-            "name": "If-Unmodified-Since",
+            "name": "If-Match",
             "in": "header",
             "required": true
           }
@@ -1438,8 +1437,7 @@ func init() {
           },
           {
             "type": "string",
-            "format": "datetime",
-            "name": "If-Unmodified-Since",
+            "name": "If-Match",
             "in": "header",
             "required": true
           }
