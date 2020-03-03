@@ -469,7 +469,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	imageList, describeImageErr := serviceECR.DescribeImages(&ecr.DescribeImagesInput{
 		ImageIds: []*ecr.ImageIdentifier{
 			{
-				ImageDigest: aws.String("sha256:07704e31c0ab51ba5f642f1870e708f22dc292c7e88aafcd8be63b0f963dd9f3"),
+				ImageDigest: aws.String(recordedImageDigest),
 			},
 		},
 		RegistryId:     aws.String(ecrImage.RegistryID),
