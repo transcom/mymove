@@ -896,7 +896,7 @@ docker_compose_setup: .check_hosts.stamp ## Install requirements to use docker-c
 
 .PHONY: docker_compose_up
 docker_compose_up: ## Bring up docker-compose containers
-	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
+	aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 	scripts/update-docker-compose
 	docker-compose up
 
