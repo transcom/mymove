@@ -117,46 +117,68 @@ export class PpmWeight extends Component {
 
   chooseVehicleIcon(currentEstimate) {
     if (currentEstimate < 500) {
-      return <img className="icon" src={carGray} alt="car-gray" />;
+      return <img className="icon" src={carGray} alt="car-gray" data-cy="vehicleIcon" />;
     }
     if (currentEstimate >= 500 && currentEstimate < 1500) {
-      return <img className="icon" src={trailerGray} alt="trailer-gray" />;
+      return <img className="icon" src={trailerGray} alt="trailer-gray" data-cy="vehicleIcon" />;
     }
     if (currentEstimate >= 1500) {
-      return <img className="icon" src={truckGray} alt="truck-gray" />;
+      return <img className="icon" src={truckGray} alt="truck-gray" data-cy="vehicleIcon" />;
     }
   }
 
   chooseEstimateText(currentEstimate) {
     if (currentEstimate < 500) {
-      return <p>Just a few things. One trip in a car.</p>;
+      return <p data-cy="estimateText">Just a few things. One trip in a car.</p>;
     }
     if (currentEstimate >= 500 && currentEstimate < 1000) {
-      return <p>Studio apartment, minimal stuff. A large car, a pickup, a van, or a car with trailer.</p>;
+      return (
+        <p data-cy="estimateText">
+          Studio apartment, minimal stuff. A large car, a pickup, a van, or a car with trailer.
+        </p>
+      );
     }
     if (currentEstimate >= 1000 && currentEstimate < 2000) {
-      return <p>1-2 rooms, light furniture. A pickup, a van, or a car with a small or medium trailer.</p>;
+      return (
+        <p data-cy="estimateText">
+          1-2 rooms, light furniture. A pickup, a van, or a car with a small or medium trailer.
+        </p>
+      );
     }
     if (currentEstimate >= 2000 && currentEstimate < 3000) {
       return (
-        <p>2-3 rooms, some bulky items. Cargo van, small or medium moving truck, medium or large cargo trailer.</p>
+        <p data-cy="estimateText">
+          2-3 rooms, some bulky items. Cargo van, small or medium moving truck, medium or large cargo trailer.
+        </p>
       );
     }
     if (currentEstimate >= 3000 && currentEstimate < 4000) {
-      return <p>3-4 rooms. Small to medium moving truck, or a couple of trips.</p>;
+      return <p data-cy="estimateText">3-4 rooms. Small to medium moving truck, or a couple of trips.</p>;
     }
     if (currentEstimate >= 4000 && currentEstimate < 5000) {
-      return <p>4+ rooms, or just a lot of large, heavy things. Medium or large moving truck, or multiple trips.</p>;
+      return (
+        <p data-cy="estimateText">
+          4+ rooms, or just a lot of large, heavy things. Medium or large moving truck, or multiple trips.
+        </p>
+      );
     }
     if (currentEstimate >= 5000 && currentEstimate < 6000) {
-      return <p>Many rooms, many things, lots of them heavy. Medium or large moving truck, or multiple trips.</p>;
+      return (
+        <p data-cy="estimateText">
+          Many rooms, many things, lots of them heavy. Medium or large moving truck, or multiple trips.
+        </p>
+      );
     }
     if (currentEstimate >= 6000 && currentEstimate < 7000) {
-      return <p>Large house, a lot of things. The biggest rentable moving trucks, or multiple trips or vehicles.</p>;
+      return (
+        <p data-cy="estimateText">
+          Large house, a lot of things. The biggest rentable moving trucks, or multiple trips or vehicles.
+        </p>
+      );
     }
     if (currentEstimate >= 7000) {
       return (
-        <p>
+        <p data-cy="estimateText">
           A large house or small palace, many heavy or bulky items. Multiple trips using large vehicles, or hire
           professional movers.
         </p>
