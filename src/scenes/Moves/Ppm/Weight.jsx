@@ -240,7 +240,7 @@ export class PpmWeight extends Component {
             }}
             readyToSubmit={!hasShortHaulError(rateEngineError)}
           >
-            <h3>How much do you think you'll move?</h3>
+            <h3 data-cy="weight-page-title">How much do you think you'll move?</h3>
             <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
             <div>
               <RangeSlider
