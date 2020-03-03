@@ -25,7 +25,7 @@ func (f mtoShipmentFetcher) FetchMTOShipment(mtoShipmentID uuid.UUID) (*models.M
 	if err := f.db.Eager().Find(shipment, mtoShipmentID); err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.MTOShipment{}, ErrNotFound{mtoShipmentID}
+			return &models.MTOShipment{}, NotFoundError{mtoShipmentID}
 		default:
 			return &models.MTOShipment{}, err
 		}

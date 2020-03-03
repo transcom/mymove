@@ -2,7 +2,6 @@ package notifications
 
 import (
 	"context"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -28,33 +27,6 @@ type testNotification struct {
 
 func (n testNotification) emails() ([]emailContent, error) {
 	return []emailContent{n.email}, nil
-}
-
-func (suite *NotificationSuite) TestMoveApproved() {
-	ctx := context.Background()
-	t := suite.T()
-
-	approver := testdatagen.MakeDefaultUser(suite.DB())
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	notification := NewMoveApproved(suite.DB(), suite.logger, &auth.Session{
-		UserID:          approver.ID,
-		ApplicationName: auth.OfficeApp,
-	}, "milmovelocal", move.ID)
-
-	emails, err := notification.emails(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	suite.Equal(len(emails), 1)
-
-	email := emails[0]
-	sm := move.Orders.ServiceMember
-	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
-	suite.NotEmpty(email.subject)
-	suite.NotEmpty(email.htmlBody)
-	suite.NotEmpty(email.textBody)
-	suite.True(strings.Contains(email.textBody, notification.host))
 }
 
 func (suite *NotificationSuite) TestMoveSubmitted() {

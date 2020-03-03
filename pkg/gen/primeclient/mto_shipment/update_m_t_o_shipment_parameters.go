@@ -63,8 +63,8 @@ for the update m t o shipment operation typically these are written to a http.Re
 */
 type UpdateMTOShipmentParams struct {
 
-	/*IfUnmodifiedSince*/
-	IfUnmodifiedSince strfmt.DateTime
+	/*IfMatch*/
+	IfMatch string
 	/*Body*/
 	Body *primemessages.MTOShipment
 	/*MoveTaskOrderID*/
@@ -110,15 +110,15 @@ func (o *UpdateMTOShipmentParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithIfUnmodifiedSince adds the ifUnmodifiedSince to the update m t o shipment params
-func (o *UpdateMTOShipmentParams) WithIfUnmodifiedSince(ifUnmodifiedSince strfmt.DateTime) *UpdateMTOShipmentParams {
-	o.SetIfUnmodifiedSince(ifUnmodifiedSince)
+// WithIfMatch adds the ifMatch to the update m t o shipment params
+func (o *UpdateMTOShipmentParams) WithIfMatch(ifMatch string) *UpdateMTOShipmentParams {
+	o.SetIfMatch(ifMatch)
 	return o
 }
 
-// SetIfUnmodifiedSince adds the ifUnmodifiedSince to the update m t o shipment params
-func (o *UpdateMTOShipmentParams) SetIfUnmodifiedSince(ifUnmodifiedSince strfmt.DateTime) {
-	o.IfUnmodifiedSince = ifUnmodifiedSince
+// SetIfMatch adds the ifMatch to the update m t o shipment params
+func (o *UpdateMTOShipmentParams) SetIfMatch(ifMatch string) {
+	o.IfMatch = ifMatch
 }
 
 // WithBody adds the body to the update m t o shipment params
@@ -162,8 +162,8 @@ func (o *UpdateMTOShipmentParams) WriteToRequest(r runtime.ClientRequest, reg st
 	}
 	var res []error
 
-	// header param If-Unmodified-Since
-	if err := r.SetHeaderParam("If-Unmodified-Since", o.IfUnmodifiedSince.String()); err != nil {
+	// header param If-Match
+	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
 		return err
 	}
 

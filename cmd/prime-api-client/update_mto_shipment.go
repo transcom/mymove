@@ -22,6 +22,8 @@ import (
 const (
 	// FilenameFlag is the name of the file being passed in
 	FilenameFlag string = "filename"
+	// ETagFlag is the etag for the mto shipment being updated
+	ETagFlag string = "etag"
 )
 
 func containsDash(args []string) bool {
@@ -35,12 +37,19 @@ func containsDash(args []string) bool {
 
 func initUpdateMTOShipmentFlags(flag *pflag.FlagSet) {
 	flag.String(FilenameFlag, "", "Name of the file being passed in")
+	flag.String(ETagFlag, "", "ETag for the mto shipment being updated")
+
+	flag.SortFlags = false
 }
 
 func checkUpdateMTOShipmentConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
+	}
+
+	if v.GetString(ETagFlag) == "" {
+		logger.Fatal(errors.New("update-mto-shipment expects an etag"))
 	}
 
 	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
@@ -97,6 +106,7 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 		MoveTaskOrderID: shipment.MoveTaskOrderID,
 		MtoShipmentID:   shipment.ID,
 		Body:            &shipment,
+		IfMatch:         v.GetString(ETagFlag),
 	}
 	params.SetTimeout(time.Second * 30)
 
