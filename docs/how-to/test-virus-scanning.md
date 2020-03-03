@@ -3,7 +3,7 @@
 In experimental, staging, and production we run an anti-virus scan using [ClamAV](https://www.clamav.net) to ensure that files uploaded by users
 aren't infected with viruses or malware.
 
-If you want to test this functionality on any of the deployed environments, you will need access to a file that will be marked as infected. *Ideally* this can be done without dealing with any live viruses!  The most common
+If you want to test this functionality on any of the deployed environments, you will need access to a file that will be marked as infected. _Ideally_ this can be done without dealing with any live viruses! The most common
 way to test AV software is using [EICAR test files](https://en.wikipedia.org/wiki/EICAR_test_file), which are text files that begin with a specific string
 and are generally recognized by AV software as being "infected" with a fake virus. Unfortunately, EICAR files are plain text and
 as a result are rejected by the Milmove uploading code for not being one of the allowed content types (JPG, PNG, or PDF).
@@ -58,6 +58,7 @@ Data scanned: 0.03 MB
 Data read: 0.03 MB (ratio 1.00:1)
 Time: 49.708 sec (0 m 49 s)
 ```
+
 ## Running source code scan locally
 
 We scan our source code during builds for viruses. If you need to run that scan locally (for instance, to troubleshoot a failing build) run the following make task:
