@@ -1,9 +1,6 @@
 package payloads
 
 import (
-	"encoding/base64"
-	"time"
-
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/go-openapi/strfmt"
@@ -61,7 +58,7 @@ func MoveTaskOrderWithEtag(moveTaskOrder *models.MoveTaskOrder) *primemessages.M
 			MtoShipments:       *mtoShipments,
 			UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 		},
-		ETag: base64.StdEncoding.EncodeToString([]byte(moveTaskOrder.UpdatedAt.Format(time.RFC3339Nano))),
+		ETag: etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
 	return payload
