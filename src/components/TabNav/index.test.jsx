@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { TabPanel } from 'react-tabs';
 import { Tag } from '@trussworks/react-uswds';
+import TabNavPanel from '../TabNavPanel';
 import TabNav from '.';
 
 describe('TabNav', () => {
@@ -22,9 +22,9 @@ describe('TabNav', () => {
     ];
     const wrapper = shallow(
       <TabNav options={options}>
-        <TabPanel>Body Of Tab 1</TabPanel>
-        <TabPanel>Body Of Tab 2</TabPanel>
-        <TabPanel>Body Of Tab 3</TabPanel>
+        <TabNavPanel>Body Of Tab 1</TabNavPanel>
+        <TabNavPanel>Body Of Tab 2</TabNavPanel>
+        <TabNavPanel>Body Of Tab 3</TabNavPanel>
       </TabNav>,
     );
     expect(

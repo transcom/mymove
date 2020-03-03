@@ -38,8 +38,8 @@ TabNav.propTypes = {
     }
     React.Children.forEach(prop, el => {
       if (error) return;
-      if (el.type.name !== 'TabPanel') {
-        error = new Error(`\`${componentName}\` children must be \`TabPanel\`.`);
+      if (el.type.name !== 'TabNavPanel') {
+        error = new Error(`\`${componentName}\` children must be \`TabNavPanel\`.`);
       }
     });
 

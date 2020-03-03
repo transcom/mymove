@@ -3,8 +3,8 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, text } from '@storybook/addon-knobs';
 
-import { TabPanel } from 'react-tabs';
 import TabNav from '../components/TabNav';
+import TabNavPanel from '../components/TabNavPanel';
 
 storiesOf('components', module)
   .addDecorator(withKnobs)
@@ -25,17 +25,17 @@ storiesOf('components', module)
         },
       ]}
     >
-      <TabPanel>
+      <TabNavPanel>
         Body Of Tab
         {text('Option1.title', 'Option 1', 'First Tab')}
-      </TabPanel>
-      <TabPanel>
+      </TabNavPanel>
+      <TabNavPanel>
         Body Of Tab
         {text('Option2.title', 'Option 2', 'Second Tab')}
-      </TabPanel>
-      <TabPanel>
+      </TabNavPanel>
+      <TabNavPanel>
         Body Of Tab
         {text('Option3.title', 'Option 3', 'Third Tab')}
-      </TabPanel>
+      </TabNavPanel>
     </TabNav>
   ));
