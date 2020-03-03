@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/gobuffalo/validate"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -183,7 +185,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.NotFoundError{})
+		).Return(nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusNotFound{}, response)
@@ -203,7 +205,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusUnprocessableEntity{}, response)
@@ -223,7 +225,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.PreconditionFailedError{})
+		).Return(nil, services.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusPreconditionFailed{}, response)

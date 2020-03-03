@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -53,7 +55,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment, eTag)
 		suite.Error(err)
-		suite.IsType(PreconditionFailedError{}, err)
+		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("If-Unmodified-Since is equal to the updated_at date", func(t *testing.T) {
@@ -301,7 +303,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		_, err := updater.UpdateMTOShipmentStatus(shipment3.ID, "REJECTED", nil, eTag)
 		suite.Error(err)
 		fmt.Printf("%#v", err)
-		suite.IsType(InvalidInputError{}, err)
+		suite.IsType(services.InvalidInputError{}, err)
 	})
 
 	suite.T().Run("Update MTO Shipment in APPROVED status should return error", func(t *testing.T) {
@@ -320,7 +322,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "APPROVED", nil, staleETag)
 		suite.Error(err)
-		suite.IsType(PreconditionFailedError{}, err)
+		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Passing in an invalid status", func(t *testing.T) {
@@ -329,7 +331,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "invalid", nil, eTag)
 		suite.Error(err)
 		fmt.Printf("%#v", err)
-		suite.IsType(InvalidInputError{}, err)
+		suite.IsType(services.InvalidInputError{}, err)
 	})
 
 	suite.T().Run("Passing in a bad shipment id", func(t *testing.T) {
@@ -338,7 +340,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		_, err := updater.UpdateMTOShipmentStatus(badShipmentID, "APPROVED", nil, eTag)
 		suite.Error(err)
 		fmt.Printf("%#v", err)
-		suite.IsType(NotFoundError{}, err)
+		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Changing to APPROVED status records approved_date", func(t *testing.T) {
