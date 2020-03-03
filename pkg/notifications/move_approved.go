@@ -89,7 +89,7 @@ func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 		Path:   "downloads/ppm_info_sheet.pdf",
 	}
 
-	htmlBody, textBody, err := m.renderTemplates(MoveApprovedEmailData{
+	htmlBody, textBody, err := m.renderTemplates(moveApprovedEmailData{
 		Link:                       ppmInfoSheetURL.String(),
 		OriginDutyStation:          dsTransportInfo.Name,
 		DestinationDutyStation:     orders.NewDutyStation.Name,
@@ -117,7 +117,7 @@ func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 	return append(emails, smEmail), nil
 }
 
-func (m MoveApproved) renderTemplates(data MoveApprovedEmailData) (string, string, error) {
+func (m MoveApproved) renderTemplates(data moveApprovedEmailData) (string, string, error) {
 	htmlBody, err := m.RenderHTML(data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
@@ -129,8 +129,8 @@ func (m MoveApproved) renderTemplates(data MoveApprovedEmailData) (string, strin
 	return htmlBody, textBody, nil
 }
 
-// MoveApprovedEmailData has content for email template
-type MoveApprovedEmailData struct {
+// moveApprovedEmailData has content for email template
+type moveApprovedEmailData struct {
 	Link                       string
 	OriginDutyStation          string
 	DestinationDutyStation     string
@@ -139,7 +139,7 @@ type MoveApprovedEmailData struct {
 }
 
 // RenderHTML renders the html for the email
-func (m MoveApproved) RenderHTML(data MoveApprovedEmailData) (string, error) {
+func (m MoveApproved) RenderHTML(data moveApprovedEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
 	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		m.logger.Error("cant render html template ", zap.Error(err))
@@ -148,7 +148,7 @@ func (m MoveApproved) RenderHTML(data MoveApprovedEmailData) (string, error) {
 }
 
 // RenderText renders the text for the email
-func (m MoveApproved) RenderText(data MoveApprovedEmailData) (string, error) {
+func (m MoveApproved) RenderText(data moveApprovedEmailData) (string, error) {
 	var textBuffer bytes.Buffer
 	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
 		m.logger.Error("cant render text template ", zap.Error(err))

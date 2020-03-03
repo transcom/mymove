@@ -42,7 +42,7 @@ func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
 		ApplicationName: auth.OfficeApp,
 	}, "milmovelocal", move.ID)
 
-	s := MoveApprovedEmailData{
+	s := moveApprovedEmailData{
 		Link:                       "https://milmovelocal/downloads/ppm_info_sheet.pdf",
 		OriginDutyStation:          "origDutyStation",
 		DestinationDutyStation:     "destDutyStation",
@@ -89,7 +89,7 @@ func (suite *NotificationSuite) TestMoveApprovedTextTemplateRender() {
 		ApplicationName: auth.OfficeApp,
 	}, "milmovelocal", move.ID)
 
-	s := MoveApprovedEmailData{
+	s := moveApprovedEmailData{
 		Link:                       "https://milmovelocal/downloads/ppm_info_sheet.pdf",
 		OriginDutyStation:          "origDutyStation",
 		DestinationDutyStation:     "destDutyStation",
