@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
 	"github.com/go-openapi/strfmt"
@@ -82,7 +84,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipment",
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.NewInvalidInputError(mtoShipment.ID, nil, nil, "invalid input"))
+		).Return(nil, services.NewInvalidInputError(mtoShipment.ID, nil, nil, "invalid input"))
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentBadRequest{}, response)
@@ -98,7 +100,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipment",
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.NotFoundError{})
+		).Return(nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
@@ -114,7 +116,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockUpdater.On("UpdateMTOShipment",
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, mtoshipment.PreconditionFailedError{})
+		).Return(nil, services.PreconditionFailedError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
