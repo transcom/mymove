@@ -117,7 +117,7 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	}
 	var vehicleModel string
 	if docExtractor.VehicleModel != nil {
-		vehicleMake = *docExtractor.VehicleModel
+		vehicleModel = *docExtractor.VehicleModel
 	}
 	var weightTicketDate *strfmt.Date
 	if docExtractor.WeightTicketDate != nil {
