@@ -297,6 +297,7 @@ Here are the steps:
   echo "127.0.0.1 orderslocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
+  echo "127.0.0.1 engadminlocal" | sudo tee -a /etc/hosts
   ```
 
 Check that the file looks correct with `cat /etc/hosts`:
@@ -316,6 +317,7 @@ Check that the file looks correct with `cat /etc/hosts`:
   127.0.0.1   orderslocal
   127.0.0.1   adminlocal
   127.0.0.1   primelocal
+  127.0.0.1   engadminlocal
 ```
 
 You can also verify this by running `scripts/check-hosts-file`.
