@@ -149,7 +149,7 @@ func NewECRImage(imageURI, imageDigest string) (*ECRImage, error) {
 	repositoryName := repositoryURIParts[1]
 	repositoryDomainParts := strings.Split(repositoryURIParts[0], ".")
 	registryID, awsRegion := repositoryDomainParts[0], repositoryDomainParts[3]
-	digestURI := fmt.Sprintf("%q@%q", repositoryURI, imageDigest)
+	digestURI := fmt.Sprintf("%v@%v", repositoryURI, imageDigest)
 
 	return &ECRImage{
 		AWSRegion:      awsRegion,
