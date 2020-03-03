@@ -58,3 +58,9 @@ Data scanned: 0.03 MB
 Data read: 0.03 MB (ratio 1.00:1)
 Time: 49.708 sec (0 m 49 s)
 ```
+## Running source code scan locally
+We scan our source code during builds for viruses. If you need to run that scan locally (for instance, to troubleshoot a failing build) run the following make task:
+
+```
+$ make virus_scan
+```
