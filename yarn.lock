@@ -15671,10 +15671,10 @@ use@^3.1.0:
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
 
-uswds@2.5.0, uswds@^2.2.1:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.5.0.tgz#cc4c993f86db63ddb5109abf4ac0ab7e1ffff3b2"
-  integrity sha512-DQpFpLCqPxxgCUeLYEapvfeP/+E0a3vEzLMYVJJqTOjGWgqwrgeQxgw0U8ip091L67y70709CEE5rYny7kLzSA==
+uswds@2.5.1, uswds@^2.2.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.5.1.tgz#28cd0f07c1533dc94819ce9f94f423bd66ba600b"
+  integrity sha512-Ga4PFiscrLcKiluPQMlbxKKL/RQJnDh/zQEDxhUbWjUGRgvANeyulq+KUDaCHieuu4owFAFWDo+zdZzy5GPjrA==
   dependencies:
     "@types/node" "^13.5.0"
     classlist-polyfill "^1.0.3"
