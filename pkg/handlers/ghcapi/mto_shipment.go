@@ -93,8 +93,8 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 		switch e := err.(type) {
 		case mtoshipment.NotFoundError:
 			return mtoshipmentops.NewPatchMTOShipmentStatusNotFound()
-		case mtoshipment.ValidationError:
-			payload := payloadForValidationError("Validation errors", "UpdateShipmentMTOStatus", h.GetTraceID(), e.Verrs)
+		case mtoshipment.InvalidInputError:
+			payload := payloadForValidationError("Validation errors", "UpdateShipmentMTOStatus", h.GetTraceID(), e.ValidationErrors)
 			return mtoshipmentops.NewPatchMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
 		case mtoshipment.PreconditionFailedError:
 			return mtoshipmentops.NewPatchMTOShipmentStatusPreconditionFailed()
