@@ -21,6 +21,7 @@ set -u
 readonly name=$1
 readonly image=$2
 readonly environment=$3
+readonly ECR_DIGEST=$4
 
 readonly RESERVATION_CPU=256
 readonly RESERVATION_MEM=512
@@ -42,6 +43,7 @@ echo "Preparing ECS task definition for ${name}"
   --service app-tasks \
   --environment "${environment}" \
   --image "${image}" \
+  --ecr-digest "${ECR_DIGEST}" \
   --cpu "${RESERVATION_CPU}" \
   --memory "${RESERVATION_MEM}" \
   --variables-file "${variables_file}" \
@@ -57,6 +59,7 @@ task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --service app-tasks \
   --environment "${environment}" \
   --image "${image}" \
+  --ecr-digest "${ECR_DIGEST}" \
   --cpu "${RESERVATION_CPU}" \
   --memory "${RESERVATION_MEM}" \
   --variables-file "${variables_file}" \
