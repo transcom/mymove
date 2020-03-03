@@ -11,7 +11,7 @@ import (
 
 func (gre *GHCRateEngineImporter) importREIntlAccessorialPrices(dbTx *pop.Connection) error {
 	//tab 5a) Access. and Add. Prices
-	var intlAccessorialPrices []models.StageInternationalMoveAccessorialPrices
+	var intlAccessorialPrices []models.StageInternationalMoveAccessorialPrice
 	err := dbTx.All(&intlAccessorialPrices)
 	if err != nil {
 		return fmt.Errorf("could not read staged intl accessorial prices: %w", err)

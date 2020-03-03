@@ -195,8 +195,7 @@ func init() {
           },
           {
             "type": "string",
-            "format": "datetime",
-            "name": "If-Unmodified-Since",
+            "name": "If-Match",
             "in": "header",
             "required": true
           }
@@ -674,13 +673,41 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
+        "branch": {
+          "type": "string",
+          "example": "COAST_GUARD"
+        },
+        "currentAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "dodID": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "fake@example.com"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "Vanya"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Petrovna"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone"
         },
         "userID": {
           "type": "string",
@@ -824,6 +851,10 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
         "approvedDate": {
           "type": "string",
           "format": "date",
@@ -839,6 +870,9 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string"
         },
         "firstAvailableDeliveryDate": {
           "type": "string",
@@ -923,7 +957,19 @@ func init() {
     },
     "MoveOrder": {
       "type": "object",
+      "required": [
+        "orderNumber",
+        "rank",
+        "linesOfAccounting"
+      ],
       "properties": {
+        "confirmationNumber": {
+          "type": "string",
+          "example": "HYXFJF"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
         "customerID": {
           "type": "string",
           "format": "uuid",
@@ -940,13 +986,32 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "linesOfAccounting": {
+          "type": "string"
+        },
+        "orderNumber": {
+          "type": "string"
+        },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
+        },
+        "rank": {
+          "type": "string",
+          "example": "E_5"
+        },
+        "reportByDate": {
+          "type": "string",
+          "format": "date"
         }
       }
     },
     "MoveTaskOrder": {
       "type": "object",
+      "required": [
+        "mto_shipments",
+        "mto_service_items",
+        "payment_requests"
+      ],
       "properties": {
         "createdAt": {
           "type": "string",
@@ -965,25 +1030,22 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "moveOrder": {
+          "$ref": "#/definitions/MoveOrder"
+        },
         "moveOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "mto_service_items": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "mto_shipments": {
           "$ref": "#/definitions/MTOShipments"
         },
         "payment_requests": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/PaymentRequest"
-          }
+          "$ref": "#/definitions/PaymentRequests"
         },
         "referenceId": {
           "type": "string",
@@ -1378,8 +1440,7 @@ func init() {
           },
           {
             "type": "string",
-            "format": "datetime",
-            "name": "If-Unmodified-Since",
+            "name": "If-Match",
             "in": "header",
             "required": true
           }
@@ -1917,13 +1978,41 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
+        "branch": {
+          "type": "string",
+          "example": "COAST_GUARD"
+        },
+        "currentAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "dodID": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "example": "fake@example.com"
+        },
+        "firstName": {
+          "type": "string",
+          "example": "Vanya"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Petrovna"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone"
         },
         "userID": {
           "type": "string",
@@ -2067,6 +2156,10 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
         "approvedDate": {
           "type": "string",
           "format": "date",
@@ -2082,6 +2175,9 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string"
         },
         "firstAvailableDeliveryDate": {
           "type": "string",
@@ -2166,7 +2262,19 @@ func init() {
     },
     "MoveOrder": {
       "type": "object",
+      "required": [
+        "orderNumber",
+        "rank",
+        "linesOfAccounting"
+      ],
       "properties": {
+        "confirmationNumber": {
+          "type": "string",
+          "example": "HYXFJF"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
         "customerID": {
           "type": "string",
           "format": "uuid",
@@ -2183,13 +2291,32 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "linesOfAccounting": {
+          "type": "string"
+        },
+        "orderNumber": {
+          "type": "string"
+        },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
+        },
+        "rank": {
+          "type": "string",
+          "example": "E_5"
+        },
+        "reportByDate": {
+          "type": "string",
+          "format": "date"
         }
       }
     },
     "MoveTaskOrder": {
       "type": "object",
+      "required": [
+        "mto_shipments",
+        "mto_service_items",
+        "payment_requests"
+      ],
       "properties": {
         "createdAt": {
           "type": "string",
@@ -2208,25 +2335,22 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "moveOrder": {
+          "$ref": "#/definitions/MoveOrder"
+        },
         "moveOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "mto_service_items": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
+          "$ref": "#/definitions/MTOServiceItems"
         },
         "mto_shipments": {
           "$ref": "#/definitions/MTOShipments"
         },
         "payment_requests": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/PaymentRequest"
-          }
+          "$ref": "#/definitions/PaymentRequests"
         },
         "referenceId": {
           "type": "string",
