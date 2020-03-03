@@ -29,22 +29,22 @@ TabNav.propTypes = {
     }),
   ).isRequired,
   children: (props, propName, componentName) => {
-  // eslint-disable-next-line security/detect-object-injection
-  const prop = props[propName];
-  let error;
+    // eslint-disable-next-line security/detect-object-injection
+    const prop = props[propName];
+    let error;
 
-  if (React.Children.count(prop) === 0) {
-    error = new Error(`\`${componentName}\` requires Children.`);
-  }
-  React.Children.forEach(prop, el => {
-    if (error) return;
-    if (el.type.name !== 'TabPanel') {
-      error = new Error(`\`${componentName}\` children must be \`TabPanel\`.`);
+    if (React.Children.count(prop) === 0) {
+      error = new Error(`\`${componentName}\` requires Children.`);
     }
-  });
+    React.Children.forEach(prop, el => {
+      if (error) return;
+      if (el.type.name !== 'TabPanel') {
+        error = new Error(`\`${componentName}\` children must be \`TabPanel\`.`);
+      }
+    });
 
-  return error;
-};
+    return error;
+  },
 };
 
 export default TabNav;
