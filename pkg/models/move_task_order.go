@@ -27,7 +27,7 @@ type MoveTaskOrder struct {
 	IsAvailableToPrime bool            `db:"is_available_to_prime"`
 	IsCanceled         bool            `db:"is_canceled"`
 	PPMEstimatedWeight unit.Pound      `db:"ppm_estimated_weight"`
-	PPMType            string           `db:"ppm_type"`
+	PPMType            string          `db:"ppm_type"`
 	CreatedAt          time.Time       `db:"created_at"`
 	UpdatedAt          time.Time       `db:"updated_at"`
 }

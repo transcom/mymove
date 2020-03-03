@@ -28,7 +28,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		PaymentRequests:    *paymentRequests,
 		MtoServiceItems:    *mtoServiceItems,
 		PpmEstimatedWeight: int64(moveTaskOrder.PPMEstimatedWeight),
-		PpmType:			moveTaskOrder.PPMType,
+		PpmType:            moveTaskOrder.PPMType,
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}

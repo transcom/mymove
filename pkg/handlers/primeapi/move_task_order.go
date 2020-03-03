@@ -71,7 +71,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	eTag := params.IfMatch
 	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(mtoID, params.Body, eTag)
 	if err != nil {
-		logger.Error("primeapi.UpdateMTOPostCounselingInformation error YOOOOOOOOOOO", zap.Error(err))
+		logger.Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
 		switch err.(type) {
 		case movetaskorderservice.ErrNotFound:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound()

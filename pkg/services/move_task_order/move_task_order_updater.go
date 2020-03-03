@@ -55,7 +55,6 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", moveTaskOrderID),
 	}
-
 	err := o.builder.FetchOne(&moveTaskOrder, queryFilters)
 
 	if err != nil {
@@ -64,13 +63,24 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 
 	moveTaskOrder.PPMType = body.PpmType
 	moveTaskOrder.PPMEstimatedWeight = unit.Pound(body.PpmEstimatedWeight)
-
-	verrs, _ := o.builder.UpdateOne(&moveTaskOrder, &eTag)
+	verrs, err := o.builder.UpdateOne(&moveTaskOrder, &eTag)
 
 	if verrs != nil && verrs.HasAny() {
 		return nil, ValidationError{
 			id:    moveTaskOrder.ID,
 			Verrs: verrs,
+		}
+	}
+
+	if err != nil {
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return nil, PreconditionFailedError{
+				id:  moveTaskOrder.ID,
+				Err: err,
+			}
+		default:
+			return nil, err
 		}
 	}
 
