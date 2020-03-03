@@ -37,7 +37,7 @@ func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBui
 func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *models.MTOShipment) error {
 	if updatedShipment.RequestedPickupDate != nil {
 		requestedPickupDate := updatedShipment.RequestedPickupDate
-		// if requestedPickupDate isn't valid then return ErrInvalidInput
+		// if requestedPickupDate isn't valid then return InvalidInputError
 		if !requestedPickupDate.Equal(*oldShipment.RequestedPickupDate) {
 			return services.NewInvalidInputError(oldShipment.ID, nil, nil, "Requested pickup date must match what customer has requested.")
 		}
