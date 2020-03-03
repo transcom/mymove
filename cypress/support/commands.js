@@ -235,7 +235,7 @@ Cypress.Commands.add('nextPage', () => {
 });
 
 Cypress.Commands.add('nextPageAndCheckLocation', (dataCyValue, pageTitle, locationMatch) => {
-  const locationRegex = new RegExp(locationMatch);
+  const locationRegex = new RegExp(locationMatch); // eslint-disable-line security/detect-non-literal-regexp
 
   cy.nextPage();
   cy.get(`[data-cy="${dataCyValue}"]`).contains(pageTitle);
