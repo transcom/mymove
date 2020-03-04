@@ -11,35 +11,35 @@ import (
 
 // MoveDocumentExtractor is an object representing ANY move document, and thus has all the fields
 type MoveDocumentExtractor struct {
-	ID                       uuid.UUID          `json:"id" db:"id"`
-	DocumentID               uuid.UUID          `json:"document_id" db:"document_id"`
-	Document                 Document           `belongs_to:"documents"`
-	MoveID                   uuid.UUID          `json:"move_id" db:"move_id"`
-	Move                     Move               `belongs_to:"moves"`
-	Title                    string             `json:"title" db:"title"`
-	Status                   MoveDocumentStatus `json:"status" db:"status"`
-	PersonallyProcuredMoveID *uuid.UUID         `json:"personally_procured_move_id" db:"personally_procured_move_id"`
-	MoveDocumentType         MoveDocumentType   `json:"move_document_type" db:"move_document_type"`
-	MovingExpenseType        *MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
-	RequestedAmountCents     *unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`
-	ReceiptMissing           *bool              `json:"receipt_missing" db:"receipt_missing"`
-	EmptyWeight              *unit.Pound        `json:"empty_weight,omitempty" db:"empty_weight"`
-	EmptyWeightTicketMissing *bool              `json:"empty_weight_ticket_missing,omitempty" db:"empty_weight_ticket_missing"`
-	FullWeight               *unit.Pound        `json:"full_weight,omitempty" db:"full_weight"`
-	FullWeightTicketMissing  *bool              `json:"full_weight_ticket_missing,omitempty" db:"full_weight_ticket_missing"`
-	VehicleNickname          *string            `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
-	VehicleMake              *string            `json:"vehicle_make,omitempty" db:"vehicle_make"`
-	VehicleModel             *string            `json:"vehicle_model,omitempty" db:"vehicle_model"`
-	WeightTicketSetType      *string            `json:"weight_ticket_set_type,omitempty" db:"weight_ticket_set_type"`
-	WeightTicketDate         *time.Time         `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
-	TrailerOwnershipMissing  *bool              `json:"trailer_ownership_missing,omitempty" db:"trailer_ownership_missing"`
-	PaymentMethod            *string            `json:"payment_method" db:"payment_method"`
-	Notes                    *string            `json:"notes" db:"notes"`
-	CreatedAt                time.Time          `json:"created_at" db:"created_at"`
-	UpdatedAt                time.Time          `json:"updated_at" db:"updated_at"`
-	DeletedAt                *time.Time         `json:"deleted_at" db:"deleted_at"`
-	StorageStartDate         *time.Time         `json:"storage_start_date" db:"storage_start_date"`
-	StorageEndDate           *time.Time         `json:"storage_end_date" db:"storage_end_date"`
+	ID                       uuid.UUID            `json:"id" db:"id"`
+	DocumentID               uuid.UUID            `json:"document_id" db:"document_id"`
+	Document                 Document             `belongs_to:"documents"`
+	MoveID                   uuid.UUID            `json:"move_id" db:"move_id"`
+	Move                     Move                 `belongs_to:"moves"`
+	Title                    string               `json:"title" db:"title"`
+	Status                   MoveDocumentStatus   `json:"status" db:"status"`
+	PersonallyProcuredMoveID *uuid.UUID           `json:"personally_procured_move_id" db:"personally_procured_move_id"`
+	MoveDocumentType         MoveDocumentType     `json:"move_document_type" db:"move_document_type"`
+	MovingExpenseType        *MovingExpenseType   `json:"moving_expense_type" db:"moving_expense_type"`
+	RequestedAmountCents     *unit.Cents          `json:"requested_amount_cents" db:"requested_amount_cents"`
+	ReceiptMissing           *bool                `json:"receipt_missing" db:"receipt_missing"`
+	EmptyWeight              *unit.Pound          `json:"empty_weight,omitempty" db:"empty_weight"`
+	EmptyWeightTicketMissing *bool                `json:"empty_weight_ticket_missing,omitempty" db:"empty_weight_ticket_missing"`
+	FullWeight               *unit.Pound          `json:"full_weight,omitempty" db:"full_weight"`
+	FullWeightTicketMissing  *bool                `json:"full_weight_ticket_missing,omitempty" db:"full_weight_ticket_missing"`
+	VehicleNickname          *string              `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
+	VehicleMake              *string              `json:"vehicle_make,omitempty" db:"vehicle_make"`
+	VehicleModel             *string              `json:"vehicle_model,omitempty" db:"vehicle_model"`
+	WeightTicketSetType      *WeightTicketSetType `json:"weight_ticket_set_type,omitempty" db:"weight_ticket_set_type"`
+	WeightTicketDate         *time.Time           `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
+	TrailerOwnershipMissing  *bool                `json:"trailer_ownership_missing,omitempty" db:"trailer_ownership_missing"`
+	PaymentMethod            *string              `json:"payment_method" db:"payment_method"`
+	Notes                    *string              `json:"notes" db:"notes"`
+	CreatedAt                time.Time            `json:"created_at" db:"created_at"`
+	UpdatedAt                time.Time            `json:"updated_at" db:"updated_at"`
+	DeletedAt                *time.Time           `json:"deleted_at" db:"deleted_at"`
+	StorageStartDate         *time.Time           `json:"storage_start_date" db:"storage_start_date"`
+	StorageEndDate           *time.Time           `json:"storage_end_date" db:"storage_end_date"`
 }
 
 // MoveDocumentExtractors is not required by pop and may be deleted

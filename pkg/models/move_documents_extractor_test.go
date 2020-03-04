@@ -6,87 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-//func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove() {
-//	// When: there is a move and move document
-//	move := testdatagen.MakeDefaultMove(suite.DB())
-//	sm := move.Orders.ServiceMember
-//
-//	assertions := testdatagen.Assertions{
-//		MoveDocument: models.MoveDocument{
-//			MoveID: move.ID,
-//			Move:   move,
-//		},
-//		Document: models.Document{
-//			ServiceMemberID: sm.ID,
-//			ServiceMember:   sm,
-//		},
-//	}
-//
-//	testdatagen.MakeMoveDocument(suite.DB(), assertions)
-//	testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
-//
-//	moveDocument2 := testdatagen.MakeMoveDocument(suite.DB(), assertions)
-//	weightTicketCarAssertions := testdatagen.Assertions{
-//		WeightTicketSetDocument: models.WeightTicketSetDocument{
-//			VehicleMake:              models.StringPointer("Honda"),
-//			VehicleModel:             models.StringPointer("Civic"),
-//			WeightTicketSetType:      models.WeightTicketSetTypeCAR,
-//			MoveDocument: models.MoveDocument{
-//				ID: moveDocument2.ID,
-//				MoveID: move.ID,
-//				Move: move,
-//				MoveDocumentType: models.MoveDocumentTypeWEIGHTTICKET,
-//				Document: models.Document{
-//					ServiceMemberID: sm.ID,
-//					ServiceMember:   sm,
-//				},
-//			},
-//
-//		},
-//	}
-//	carWeightTicketSetDocument := testdatagen.MakeWeightTicketSetDocument(suite.DB(), weightTicketCarAssertions)
-//	moveDocument2.WeightTicketSetDocument = &carWeightTicketSetDocument
-//
-//	moveDocument3 := testdatagen.MakeMoveDocument(suite.DB(), assertions)
-//	weightTicketTruckAssertions := testdatagen.Assertions{
-//		WeightTicketSetDocument: models.WeightTicketSetDocument{
-//			MoveDocument: models.MoveDocument{
-//				ID:               moveDocument3.ID,
-//				MoveID: move.ID,
-//				Move: move,
-//				MoveDocumentType: models.MoveDocumentTypeWEIGHTTICKET,
-//				Document: models.Document{
-//					ServiceMemberID: sm.ID,
-//					ServiceMember:   sm,
-//				},
-//			},
-//		},
-//	}
-//	truckWeightTicketSetDocument := testdatagen.MakeWeightTicketSetDocument(suite.DB(), weightTicketTruckAssertions)
-//	moveDocument3.WeightTicketSetDocument = &truckWeightTicketSetDocument
-//
-//	deletedAt := time.Date(2019, 8, 7, 0, 0, 0, 0, time.UTC)
-//	deleteAssertions := testdatagen.Assertions{
-//		MoveDocument: models.MoveDocument{
-//			MoveID:    move.ID,
-//			Move:      move,
-//			DeletedAt: &deletedAt,
-//		},
-//		Document: models.Document{
-//			ServiceMemberID: sm.ID,
-//			ServiceMember:   sm,
-//			DeletedAt:       &deletedAt,
-//		},
-//	}
-//	testdatagen.MakeMoveDocument(suite.DB(), deleteAssertions)
-//
-//	docs, err := move.FetchAllMoveDocumentsForMove(suite.DB(), false)
-//	if suite.NoError(err) {
-//		suite.Len(docs, 3)
-//	}
-//}
-
-func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove2() {
+func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove() {
 	// Create move an SM on which to attach move docs
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	sm := move.Orders.ServiceMember
@@ -98,7 +18,7 @@ func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove2() {
 	carWeightTicketSetDocument := models.WeightTicketSetDocument{
 		VehicleMake:         models.StringPointer("Honda"),
 		VehicleModel:        models.StringPointer("Civic"),
-		WeightTicketSetType: models.WeightTicketSetTypeBOXTRUCK,
+		WeightTicketSetType: models.WeightTicketSetTypeCAR,
 		MoveDocumentID:      moveDoc1.ID,
 		MoveDocument:        moveDoc1,
 		EmptyWeight:         &emptyWeight,
@@ -139,11 +59,12 @@ func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove2() {
 
 	docs, err := move.FetchAllMoveDocumentsForMove(suite.DB(), false)
 	suite.NoError(err)
-	//suite.Len(docs, numDocsOnMove)
+	suite.Equal(3, len(docs))
 
 	// Check car weight ticket values
 	carDoc := docs[0]
 	suite.Equal(models.MoveDocumentTypeWEIGHTTICKETSET, carDoc.MoveDocumentType)
+	suite.Equal(carWeightTicketSetDocument.WeightTicketSetType, *carDoc.WeightTicketSetType)
 	suite.Equal(carWeightTicketSetDocument.VehicleMake, carDoc.VehicleMake)
 	suite.Equal(carWeightTicketSetDocument.VehicleModel, carDoc.VehicleModel)
 	suite.Equal(carWeightTicketSetDocument.EmptyWeight, carDoc.EmptyWeight)
@@ -152,6 +73,7 @@ func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove2() {
 	// Check car weight ticket values
 	truckDoc := docs[1]
 	suite.Equal(models.MoveDocumentTypeWEIGHTTICKETSET, truckDoc.MoveDocumentType)
+	suite.Equal(truckWeightTicketSetDocument.WeightTicketSetType, *truckDoc.WeightTicketSetType)
 	suite.Equal(truckWeightTicketSetDocument.VehicleNickname, truckDoc.VehicleNickname)
 
 	// check moving expense values
