@@ -28,4 +28,10 @@ storiesOf('Components/Button', module)
         <p>h5</p><h5>Public Sans 15/20</h5>
         <p>h6</p><h6>Public Sans 13/16</h6>
       </div>
+    )
+    .add('Text', () =>
+      <div>
+        <p>p</p><p>Public Sans 15/18</p>
+        <p>p small</p><small>Public Sans 13/16</small>
+      </div>
     );
