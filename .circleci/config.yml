@@ -166,6 +166,8 @@ commands:
         type: string
       health_check_hosts:
         type: string
+      repo:
+        type: string
     steps:
       - checkout
       - run:
@@ -177,6 +179,12 @@ commands:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>)' >> $BASH_ENV
+      - run:
+          name: Echo Digest
+          command: echo $ECR_DIGEST
       - deploy:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}" $ECR_DIGEST
@@ -709,6 +717,7 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
+          repo: app
 
   check_circle_against_staging_sha:
     executor: mymove_small
@@ -780,6 +789,7 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.staging.move.mil
           health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
+          repo: app
 
   # `deploy_prod_migrations` deploys migrations to the staging environment
   deploy_prod_migrations:
@@ -819,6 +829,7 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
+          repo: app
 
   deploy_prod_storybook:
     executor: mymove_small
