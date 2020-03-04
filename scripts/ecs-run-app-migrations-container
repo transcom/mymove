@@ -45,15 +45,19 @@ show_logs() {
 
 # Compare recorded sha with the ecr digest sha
 check_ecr_digest() {
-  IFS=":"
-  read -ar values <<< "${image}"
+  local image_name=$1
+  local repoName=$2
+  local ECRDIGEST=$3
 
-  image-sha = aws ecr describe-images --repository-name "${name}" --image-ids imageTag="${values[1]}" | jq ".imageDetails[0] .imageDigest" -r
+  IFS=":"
+  read -ar values <<< "${image_name}"
+
+  image-sha = aws ecr describe-images --repository-name "${repoName}" --image-ids imageTag="${values[1]}" | jq ".imageDetails[0] .imageDigest" -r
   echo "${image-sha}"
 
-  if [ "${ECR_DIGEST}" != "${image-sha}" ]
+  if [ "${ECRDIGEST}" != "${image-sha}" ]
   then
-    echo "Recorded ECR digest sha did not match the tagged image sha. Expected ${ECR_DIGEST} but got ${image-sha}"
+    echo "Recorded ECR digest sha did not match the tagged image sha. Expected ${ECRDIGEST} but got ${image-sha}"
     exit 1
   fi
 
@@ -69,7 +73,7 @@ put_metric() {
 }
 
 # compare ecr digest
-check_ecr_digest
+check_ecr_digest "${image}" "${name}" "${ECR_DIGEST}"
 
 # create new task definition with the given image
 echo "* Registering new task definition"
