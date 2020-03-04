@@ -3,7 +3,7 @@
 #   Generates the required task definitions for the ecs-deploy pipieline
 #   This does not handle the deployment itself, just prepares
 #
-set -eo pipefail
+set -xeo pipefail
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly DIR
