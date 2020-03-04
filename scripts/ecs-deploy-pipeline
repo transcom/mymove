@@ -58,6 +58,7 @@ readonly app_taskdef_arn
 check_arn "$app_taskdef_arn"
 
 
+echo "$migration_image"
 # ##############
 # # Migrations #
 # ##############
