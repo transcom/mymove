@@ -22,6 +22,7 @@ readonly name=$1
 readonly image=$2
 readonly environment=$3
 readonly ECR_DIGEST=$4
+readonly repo=$5
 
 readonly RESERVATION_CPU=512
 readonly RESERVATION_MEM=2048
@@ -92,7 +93,7 @@ put_metric() {
 
 echo
 echo "Comparing image digest with recorded image digest in a prior step"
-check_ecr_digest "${image}" "${name}" "${ECR_DIGEST}"
+check_ecr_digest "${image}" "${repo}" "${ECR_DIGEST}"
 
 # get current task definiton (for rollback)
 blue_task_def_arn=$(aws ecs describe-services --services "$name" --cluster "$cluster" --query 'services[0].taskDefinition' | jq -r .)
