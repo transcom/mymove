@@ -41,7 +41,10 @@ APP_ENVIRONMENT="${environment}"
 AWS_DEFAULT_REGION=us-west-2
 CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
 
+readonly repo_name="app-migrations"
+readonly ECR_DIGEST="$(aws ecr describe-images --repository-name "${repo_name}" --image-ids imageTag="${CIRCLE_SHA1}" | jq ".imageDetails[0] .imageDigest" -r)"
+
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
 
 readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}"
-scripts/ecs-run-app-migrations-container "${image}" "${APP_ENVIRONMENT}"
+scripts/ecs-run-app-migrations-container "${image}" "${APP_ENVIRONMENT}" "${ECR_DIGEST}"
