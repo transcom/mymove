@@ -2,8 +2,6 @@ package movetaskorder
 
 import (
 	"database/sql"
-	"fmt"
-	"strings"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"

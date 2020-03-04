@@ -3,6 +3,7 @@ package primeapi
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/transcom/mymove/pkg/services"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -187,10 +188,10 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, movetaskorder.ErrNotFound{})
+		).Return(nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
-		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationNotFound{}, response)
+		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationInternalServerError{}, response)
 	})
 
 	suite.T().Run("Patch failure - 422", func(t *testing.T) {

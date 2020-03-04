@@ -35,7 +35,7 @@ func (f moveTaskOrderFetcher) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*
 	mto.IsAvailableToPrime = true
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
-		return &models.MoveTaskOrder{}, ErrInvalidInput{}
+		return &models.MoveTaskOrder{}, services.InvalidInputError{}
 	}
 	if err != nil {
 		return &models.MoveTaskOrder{}, err

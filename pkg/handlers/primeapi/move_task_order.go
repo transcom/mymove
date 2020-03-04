@@ -73,7 +73,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
 		switch err.(type) {
-		case movetaskorderservice.ErrNotFound:
+		case movetaskorderservice.NotFoundError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound()
 		case movetaskorderservice.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed()
