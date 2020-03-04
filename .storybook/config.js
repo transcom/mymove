@@ -2,6 +2,7 @@ import { configure, addDecorator } from '@storybook/react';
 import { withInfo } from '@storybook/addon-info';
 import 'loki/configure-react';
 
+import './storybook.scss';
 import '../src/index.scss';
 
 function loadStories() {
