@@ -5,7 +5,7 @@
   //@include u-height('6');
   //@include u-padding('0'); changed how the spacing was implemented to use an after to do the underline instead of a border-bottom
   @include u-margin('0');
-  @include u-border('1px', 'gray-cool-10');
+  @include u-border-bottom('1px', 'gray-cool-10');
   @include u-line-height('body', 1);
   @include u-position('relative');
   @include u-bg('white');
