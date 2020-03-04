@@ -1,0 +1,16 @@
+version: '3.3'
+
+services:
+  storybook:
+    build:
+      context: .
+      dockerfile: Dockerfile.storybook
+    ports:
+      - '6006:6006'
+  storybook_tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.storybook
+    command: scripts/start-storybook-tests
+    depends_on:
+      - storybook

@@ -1,0 +1,17 @@
+FROM circleci/node:10.19-browsers
+
+EXPOSE 6006
+
+USER circleci
+
+RUN mkdir -p /home/circleci/project
+
+WORKDIR /home/circleci/project
+
+COPY --chown=circleci:circleci package.json /home/circleci/project/package.json
+
+RUN yarn install
+
+COPY --chown=circleci:circleci . /home/circleci/project/
+
+CMD yarn storybook --ci
