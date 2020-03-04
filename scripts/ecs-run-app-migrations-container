@@ -52,12 +52,12 @@ check_ecr_digest() {
  # assumes image_name like url_path:imagetag
   IFS=":"; read -ra imagetag <<< "${image_name}"; unset IFS;
 
-  image-sha="$(aws ecr describe-images --repository-name "${repoName}" --image-ids imageTag="${imagetag[1]}" | jq ".imageDetails[0] .imageDigest" -r)"
-  echo "${image-sha}"
+  imagesha="$(aws ecr describe-images --repository-name "${repoName}" --image-ids imageTag="${imagetag[1]}" | jq ".imageDetails[0] .imageDigest" -r)"
+  echo "${imagesha}"
 
-  if [ "${ECRDIGEST}" != "${image-sha}" ]
+  if [ "${ECRDIGEST}" != "${imagesha}" ]
   then
-    echo "Recorded ECR digest sha did not match the tagged image sha. Expected ${ECRDIGEST} but got ${image-sha}"
+    echo "Recorded ECR digest sha did not match the tagged image sha. Expected ${ECRDIGEST} but got ${imagesha}"
     exit 1
   fi
 
