@@ -22,6 +22,7 @@ readonly name=$1
 readonly image=$2
 readonly environment=$3
 readonly ECR_DIGEST=$4
+readonly repo=$5
 
 readonly RESERVATION_CPU=256
 readonly RESERVATION_MEM=512
@@ -56,7 +57,7 @@ fi
 
 echo
 echo "Comparing image digest with recorded image digest in a prior step"
-check_ecr_digest "${image}" "${name}" "${ECR_DIGEST}"
+check_ecr_digest "${image}" "${repo}" "${ECR_DIGEST}"
 
 echo
 echo "Preparing ECS task definition for ${name}"
