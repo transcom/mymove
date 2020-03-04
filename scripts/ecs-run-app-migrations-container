@@ -52,7 +52,7 @@ check_ecr_digest() {
  # assumes image_name like url_path:imagetag
   IFS=":"; read -ra imagetag <<< "${image_name}"; unset IFS;
 
-  image-sha = aws ecr describe-images --repository-name "${repoName}" --image-ids imageTag="${imagetag[1]}" | jq ".imageDetails[0] .imageDigest" -r
+  image-sha="$(aws ecr describe-images --repository-name "${repoName}" --image-ids imageTag="${imagetag[1]}" | jq ".imageDetails[0] .imageDigest" -r)"
   echo "${image-sha}"
 
   if [ "${ECRDIGEST}" != "${image-sha}" ]
