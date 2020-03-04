@@ -3,6 +3,7 @@ package models_test
 import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 //func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove() {
@@ -90,20 +91,26 @@ func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove2() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	sm := move.Orders.ServiceMember
 
-	moveDoc1 := suite.documentMakerHelper(move, sm, models.MoveDocumentTypeWEIGHTTICKET)
+	// make car weight ticket doc
+	moveDoc1 := suite.documentMakerHelper(move, sm, models.MoveDocumentTypeWEIGHTTICKETSET)
+	emptyWeight := unit.Pound(2000)
+	fullWeight := unit.Pound(3000)
 	carWeightTicketSetDocument := models.WeightTicketSetDocument{
 		VehicleMake:         models.StringPointer("Honda"),
 		VehicleModel:        models.StringPointer("Civic"),
 		WeightTicketSetType: models.WeightTicketSetTypeBOXTRUCK,
 		MoveDocumentID:      moveDoc1.ID,
 		MoveDocument:        moveDoc1,
+		EmptyWeight:         &emptyWeight,
+		FullWeight:          &fullWeight,
 	}
 
 	testdatagen.MakeWeightTicketSetDocument(suite.DB(), testdatagen.Assertions{
 		WeightTicketSetDocument: carWeightTicketSetDocument,
 	})
 
-	moveDoc2 := suite.documentMakerHelper(move, sm, models.MoveDocumentTypeWEIGHTTICKET)
+	// make truck weight ticket doc
+	moveDoc2 := suite.documentMakerHelper(move, sm, models.MoveDocumentTypeWEIGHTTICKETSET)
 	truckWeightTicketSetDocument := models.WeightTicketSetDocument{
 		VehicleNickname:     models.StringPointer("Hank the Tank"),
 		WeightTicketSetType: models.WeightTicketSetTypeBOXTRUCK,
@@ -115,21 +122,44 @@ func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove2() {
 		WeightTicketSetDocument: truckWeightTicketSetDocument,
 	})
 
+	// make moving expense doc
+	moveDoc3 := suite.documentMakerHelper(move, sm, models.MoveDocumentTypeEXPENSE)
+
+	movingExpenseDoc := models.MovingExpenseDocument{
+		MoveDocumentID:       moveDoc3.ID,
+		MoveDocument:         moveDoc3,
+		MovingExpenseType:    models.MovingExpenseTypeGAS,
+		RequestedAmountCents: 25555,
+		PaymentMethod:        "cash",
+	}
+
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), testdatagen.Assertions{
+		MovingExpenseDocument: movingExpenseDoc,
+	})
+
 	docs, err := move.FetchAllMoveDocumentsForMove(suite.DB(), false)
 	suite.NoError(err)
+	//suite.Len(docs, numDocsOnMove)
 
 	// Check car weight ticket values
 	carDoc := docs[0]
-	suite.Equal(models.MoveDocumentTypeWEIGHTTICKET, carDoc.MoveDocumentType)
+	suite.Equal(models.MoveDocumentTypeWEIGHTTICKETSET, carDoc.MoveDocumentType)
 	suite.Equal(carWeightTicketSetDocument.VehicleMake, carDoc.VehicleMake)
 	suite.Equal(carWeightTicketSetDocument.VehicleModel, carDoc.VehicleModel)
+	suite.Equal(carWeightTicketSetDocument.EmptyWeight, carDoc.EmptyWeight)
+	suite.Equal(carWeightTicketSetDocument.FullWeight, carDoc.FullWeight)
 
+	// Check car weight ticket values
 	truckDoc := docs[1]
-	suite.Equal(models.MoveDocumentTypeWEIGHTTICKET, truckDoc.MoveDocumentType)
+	suite.Equal(models.MoveDocumentTypeWEIGHTTICKETSET, truckDoc.MoveDocumentType)
 	suite.Equal(truckWeightTicketSetDocument.VehicleNickname, truckDoc.VehicleNickname)
 
-	// Create move documents with expense docs
-
+	// check moving expense values
+	expenseDoc := docs[2]
+	suite.Equal(models.MoveDocumentTypeEXPENSE, expenseDoc.MoveDocumentType)
+	suite.Equal(movingExpenseDoc.MovingExpenseType, *expenseDoc.MovingExpenseType)
+	suite.Equal(movingExpenseDoc.RequestedAmountCents, *expenseDoc.RequestedAmountCents)
+	suite.Equal(movingExpenseDoc.PaymentMethod, *expenseDoc.PaymentMethod)
 }
 
 func (suite *ModelSuite) documentMakerHelper(move models.Move, sm models.ServiceMember, moveDocumentType models.MoveDocumentType) models.MoveDocument {
@@ -138,7 +168,7 @@ func (suite *ModelSuite) documentMakerHelper(move models.Move, sm models.Service
 		MoveDocument: models.MoveDocument{
 			MoveID:           move.ID,
 			Move:             move,
-			MoveDocumentType: models.MoveDocumentTypeWEIGHTTICKET,
+			MoveDocumentType: moveDocumentType,
 		},
 		Document: models.Document{
 			ServiceMemberID: sm.ID,
