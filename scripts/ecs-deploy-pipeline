@@ -58,30 +58,30 @@ readonly app_taskdef_arn
 check_arn "$app_taskdef_arn"
 
 
-##############
-# Migrations #
-##############
-# create new migration task definition with the given image
-echo "* Registering new task definition"
-set +e
-migration_taskdef_arn=$("${DIR}/../bin/ecs-deploy" task-def \
-                                                 --aws-account-id "${AWS_ACCOUNT_ID}" \
-                                                 --aws-region us-west-2 \
-                                                 --service "${name}" \
-                                                 --environment "${environment}" \
-                                                 --image "${migration_image}" \
-                                                 --variables-file "${DIR}/../config/env/${environment}.migrations.env" \
-                                                 --entrypoint "/bin/milmove migrate" \
-                                                 --cpu "${RESERVATION_CPU}" \
-                                                 --memory "${RESERVATION_MEM}" \
-                                                 --register)
+# ##############
+# # Migrations #
+# ##############
+# # create new migration task definition with the given image
+# echo "* Registering new task definition"
+# set +e
+# migration_taskdef_arn=$("${DIR}/../bin/ecs-deploy" task-def \
+#                                                  --aws-account-id "${AWS_ACCOUNT_ID}" \
+#                                                  --aws-region us-west-2 \
+#                                                  --service "${name}" \
+#                                                  --environment "${environment}" \
+#                                                  --image "${migration_image}" \
+#                                                  --variables-file "${DIR}/../config/env/${environment}.migrations.env" \
+#                                                  --entrypoint "/bin/milmove migrate" \
+#                                                  --cpu "${RESERVATION_CPU}" \
+#                                                  --memory "${RESERVATION_MEM}" \
+#                                                  --register)
 
-# shellcheck disable=SC2181
-if [ "$?" != "0" ]; then echo "$migration_taskdef_arn"; exit 1; fi
-set -e
+# # shellcheck disable=SC2181
+# if [ "$?" != "0" ]; then echo "$migration_taskdef_arn"; exit 1; fi
+# set -e
 
-readonly migration_taskdef_arn
-check_arn "$migration_taskdef_arn"
+# readonly migration_taskdef_arn
+# check_arn "$migration_taskdef_arn"
 
 
 #########
