@@ -1,7 +1,6 @@
 package query
 
 import (
-	"encoding/base64"
 	"fmt"
 	"testing"
 	"time"
@@ -10,6 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -451,7 +451,7 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 			TransportationOffice:   transportationOffice,
 		}
 
-		eTag := base64.StdEncoding.EncodeToString([]byte(officeUser.UpdatedAt.Format(time.RFC3339Nano)))
+		eTag := etag.GenerateEtag(officeUser.UpdatedAt)
 		verrs, err := builder.UpdateOne(&updatedOfficeUserInfo, &eTag)
 		suite.Nil(verrs)
 		suite.Nil(err)
@@ -477,7 +477,7 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 			TransportationOffice:   transportationOffice,
 		}
 
-		staleETag := base64.StdEncoding.EncodeToString([]byte(time.Now().String()))
+		staleETag := etag.GenerateEtag(time.Now())
 		_, err := builder.UpdateOne(&updatedOfficeUserInfo, &staleETag)
 		suite.NotNil(err)
 	})

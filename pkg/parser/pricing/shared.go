@@ -2,7 +2,6 @@ package pricing
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -37,22 +36,23 @@ func getCell(cells []*xlsx.Cell, i int) string {
 	return ""
 }
 
-func getInt(from string) int {
+func getInt(from string) (int, error) {
 	i, err := strconv.Atoi(from)
 	if err != nil {
 		if strings.HasSuffix(err.Error(), ": invalid syntax") {
 			f, ferr := strconv.ParseFloat(from, 32)
 			if ferr != nil {
-				return 0
+				return 0, ferr
 			}
 			if f != 0.0 {
-				return int(f)
+				return int(f), nil
 			}
 		}
-		log.Fatalf("ERROR: getInt() Atoi & ParseFloat failed to convert <%s> error %s, returning 0\n", from, err.Error())
+
+		return 0, err
 	}
 
-	return i
+	return i, nil
 }
 
 func removeFirstDollarSign(s string) string {

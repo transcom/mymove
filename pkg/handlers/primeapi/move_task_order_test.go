@@ -60,6 +60,7 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandler() {
 	suite.Equal(1, len(moveTaskOrdersPayload[0].PaymentRequests))
 	suite.Equal(1, len(moveTaskOrdersPayload[0].MtoServiceItems))
 	suite.Equal(2, len(moveTaskOrdersPayload[0].MtoShipments))
+	suite.NotNil(moveTaskOrdersPayload[0].MtoShipments[0].ETag)
 }
 
 func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {

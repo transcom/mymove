@@ -3,8 +3,6 @@ package adminapi
 import (
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/services/upload"
-
 	"github.com/go-openapi/strfmt"
 
 	"github.com/gofrs/uuid"
@@ -53,7 +51,7 @@ func (h GetUploadHandler) Handle(params uploadop.GetUploadParams) middleware.Res
 	uploadInformation, err := h.FetchUploadInformation(uploadID)
 	if err != nil {
 		switch err.(type) {
-		case upload.ErrNotFound:
+		case services.NotFoundError:
 			logger.Error("adminapi.GetUploadHandler not found error:", zap.Error(err))
 			return uploadop.NewGetUploadNotFound()
 		default:

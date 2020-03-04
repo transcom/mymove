@@ -2,8 +2,6 @@ package movetaskorder
 
 import (
 	"database/sql"
-	"fmt"
-	"strings"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -11,55 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
-
-//ErrNotFound is returned when a given move task order is not found
-type ErrNotFound struct {
-	id uuid.UUID
-}
-
-// Error is the string representation of an error
-func (e ErrNotFound) Error() string {
-	return fmt.Sprintf("move task order id: %s not found", e.id.String())
-}
-
-type errInvalidInput struct {
-	id uuid.UUID
-	error
-	validationErrors map[string][]string
-}
-
-// ErrInvalidInput is returned when an update to a move task order fails a validation rule
-type ErrInvalidInput struct {
-	errInvalidInput
-}
-
-// NewErrInvalidInput returns a new error for invalid input
-func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string) ErrInvalidInput {
-	return ErrInvalidInput{
-		errInvalidInput{
-			id:               id,
-			error:            err,
-			validationErrors: validationErrors,
-		},
-	}
-}
-
-// Error is the string representation of an error
-func (e ErrInvalidInput) Error() string {
-	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.InvalidFields())
-}
-
-// InvalidFields returns invalid fields for invalid input
-func (e ErrInvalidInput) InvalidFields() map[string]string {
-	es := make(map[string]string)
-	if e.validationErrors == nil {
-		return es
-	}
-	for k, v := range e.validationErrors {
-		es[k] = strings.Join(v, " ")
-	}
-	return es
-}
 
 type moveTaskOrderFetcher struct {
 	db *pop.Connection
@@ -71,7 +20,7 @@ func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]model
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return []models.MoveTaskOrder{}, ErrNotFound{}
+			return []models.MoveTaskOrder{}, services.NotFoundError{}
 		default:
 			return []models.MoveTaskOrder{}, err
 		}
@@ -90,7 +39,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mo
 	if err := f.db.Eager().Find(mto, moveTaskOrderID); err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.MoveTaskOrder{}, ErrNotFound{moveTaskOrderID}
+			return &models.MoveTaskOrder{}, services.NewNotFoundError(moveTaskOrderID)
 		default:
 			return &models.MoveTaskOrder{}, err
 		}
@@ -156,7 +105,7 @@ func (f moveTaskOrderFetcher) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*
 	mto.IsAvailableToPrime = true
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
-		return &models.MoveTaskOrder{}, ErrInvalidInput{}
+		return &models.MoveTaskOrder{}, services.InvalidInputError{}
 	}
 	if err != nil {
 		return &models.MoveTaskOrder{}, err

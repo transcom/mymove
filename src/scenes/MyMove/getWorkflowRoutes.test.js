@@ -22,7 +22,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/upload',
           '/orders/transition',
           '/moves/:moveId/ppm-start',
-          '/moves/:moveId/ppm-size',
           '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
@@ -39,7 +38,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/upload',
           '/orders/transition',
           '/moves/:moveId/ppm-start',
-          '/moves/:moveId/ppm-size',
           '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
@@ -90,7 +88,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/upload',
           '/orders/transition',
           '/moves/:moveId/ppm-start',
-          '/moves/:moveId/ppm-size',
           '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
@@ -381,38 +378,6 @@ describe('when getting the next incomplete page', () => {
             original_move_date: '2018-10-10',
             pickup_postal_code: '22222',
             destination_postal_code: '22222',
-          },
-        });
-        expect(result).toEqual('/moves/bar/ppm-size');
-      });
-    });
-    describe('when ppm size is complete', () => {
-      it('returns the next page', () => {
-        const result = getNextIncompletePage({
-          selectedMoveType: 'PPM',
-          serviceMember: {
-            ...serviceMember,
-            is_profile_complete: true,
-          },
-          orders: {
-            orders_type: 'foo',
-            issue_date: '2019-01-01',
-            report_by_date: '2019-02-01',
-            new_duty_station: { id: 'something' },
-            uploaded_orders: {
-              uploads: [{}],
-            },
-          },
-          move: {
-            id: 'bar',
-            selected_move_type: 'PPM',
-          },
-          ppm: {
-            id: 'baz',
-            original_move_date: '2018-10-10',
-            pickup_postal_code: '22222',
-            destination_postal_code: '22222',
-            size: 'L',
           },
         });
         expect(result).toEqual('/moves/bar/ppm-incentive');

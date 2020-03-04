@@ -2,23 +2,12 @@ package upload
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services"
 )
-
-// ErrNotFound returns not found error
-type ErrNotFound struct {
-	id uuid.UUID
-}
-
-// Error is the string representation of not found error
-func (e ErrNotFound) Error() string {
-	return fmt.Sprintf("upload id: %s not found", e.id.String())
-}
 
 type uploadInformationFetcher struct {
 	db *pop.Connection
@@ -62,7 +51,7 @@ where uploads.id = $1`
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return services.UploadInformation{}, ErrNotFound{uploadID}
+			return services.UploadInformation{}, services.NewNotFoundError(uploadID)
 		default:
 			return services.UploadInformation{}, err
 		}
