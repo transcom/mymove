@@ -687,7 +687,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'lee'
     steps:
-      - deploy_migrations_steps
+      - deploy_pipeline
 
   check_circle_against_staging_sha:
     executor: mymove_small
