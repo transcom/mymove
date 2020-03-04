@@ -6,7 +6,7 @@
 
 set -eu -o pipefail
 
-if [ "${APPLICATION}" != "app" ] && [ "${APPLICATION}" != "ordres" ]; then
+if [ "${APPLICATION}" != "app" ] && [ "${APPLICATION}" != "orders" ]; then
   echo "Must provider the environment variable APPLICATION and set to 'app' or 'orders'"
   exit 1
 fi
