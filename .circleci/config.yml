@@ -74,11 +74,8 @@ commands:
           name: Snapshot database
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
       - run:
-          name: Build Taskdefs
-          command: echo "TODO build taskdefs for migration, app, and one off tasks"
-      - run:
-          name: Kickoff Pipeline
-          command: echo "TODO kick off pipeline"
+          name: Build Taskdefs and Kickoff Pipeline
+          command: scripts/ecs-deploy-pipeline app $APP_ENVIRONMENT scripts/ecs-deploy-pipeline ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}
   deploy_migrations_steps:
     steps:
       - checkout
