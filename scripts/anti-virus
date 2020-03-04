@@ -38,38 +38,50 @@ echo
 echo "Starting clamd service:"
 docker pull "${DOCKER_IMAGE}"
 
-# Mount the project directory inside for scanning later
-echo
-echo "Mounting the project directory for scanning:"
-docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
-if ! docker inspect -f '{{.State.Running}}' "${CONTAINER_NAME}"; then
+# Start rerun loop here
+for RETRY_COUNT in {1..5}; do
+
+  # Mount the project directory inside for scanning later
+  echo
+  echo "Mounting the project directory for scanning:"
+  docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
+  if ! docker inspect -f '{{.State.Running}}' "${CONTAINER_NAME}"; then
+    docker logs "${CONTAINER_NAME}"
+    echo "Container not running!"
+    exit 1
+  fi
+
+  if [[ -n "${CIRCLECI+x}" ]]; then
+    # Can't mount folders in CircleCI so copy this data in
+    # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
+    docker cp "${DIR}" "${CONTAINER_NAME}:${MOUNT_DIR}/.."
+  fi
+
+  # Create a whitelist of files to ignore
+  # See https://www.clamav.net/documents/whitelist-databases
+  # See https://owlbearconsulting.com/doku.php?id=linux_wiki:clamav#whitelist_a_file
+  echo
+  echo "Creating whitelist of files to ignore:"
+  touch "${WHITELIST}"
+  for file in ${IGNORE_FILES}; do
+    docker exec -it "${CONTAINER_NAME}" ls "${MOUNT_DIR}/${file}"
+    docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}" | tee -a "${WHITELIST}"
+  done
+
+  # Copy the ignore list into the container in the same directory as the virus database
+  echo
+  echo "Copying the ignore list into the container:"
+  docker cp "${WHITELIST}" "${CONTAINER_NAME}:/store/"
   docker logs "${CONTAINER_NAME}"
-  echo "Container not running!"
-  exit 1
-fi
-
-if [[ -n "${CIRCLECI+x}" ]]; then
-  # Can't mount folders in CircleCI so copy this data in
-  # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
-  docker cp "${DIR}" "${CONTAINER_NAME}:${MOUNT_DIR}/.."
-fi
-
-# Create a whitelist of files to ignore
-# See https://www.clamav.net/documents/whitelist-databases
-# See https://owlbearconsulting.com/doku.php?id=linux_wiki:clamav#whitelist_a_file
-echo
-echo "Creating whitelist of files to ignore:"
-touch "${WHITELIST}"
-for file in ${IGNORE_FILES}; do
-  docker exec -it "${CONTAINER_NAME}" ls "${MOUNT_DIR}/${file}"
-  docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}" | tee -a "${WHITELIST}"
+  # if the container isn't running at this point, rerun the script
+  if docker inspect -f '{{.State.Running}}' "${CONTAINER_NAME}"; then
+    break
+  else
+    docker logs "${CONTAINER_NAME}"
+    echo "Container not running! Retry number ${RETRY_COUNT}"
+  fi
 done
 
-# Copy the ignore list into the container in the same directory as the virus database
-echo
-echo "Copying the ignore list into the container:"
-docker cp "${WHITELIST}" "${CONTAINER_NAME}:/store/"
-docker logs "${CONTAINER_NAME}"
 docker exec -it "${CONTAINER_NAME}" chown clamav:clamav "/store/${WHITELIST}"
 
 echo
