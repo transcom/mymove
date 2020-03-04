@@ -118,3 +118,14 @@ echo "$task_image"
 
 # echo
 # echo "Successfully put new CloudWatch Event target for ${name} with ECS task definition ${task_def_arn}"
+
+
+###################
+# Submit pipeline #
+###################
+sed -i "s/TEMPLATE_COMMIT/${CIRCLE_SHA1}/" "${DIR}/../config/env/${environment}.deployment.env"
+sed -i "s/TEMPLATE_SUCCESS_MESSAGE/Successful Deployment/" "${DIR}/../config/env/${environment}.deployment.env"
+sed -i "s/TEMPLATE_MIGRATION_TASKDEF_ARN/${migration_taskdef_arn}/" "${DIR}/../config/env/${environment}.deployment.env"
+sed -i "s/TEMPLATE_APP_TASKDEF_ARN/${app_taskdef_arn}/" "${DIR}/../config/env/${environment}.deployment.env"
+
+echo "${DIR}/../config/env/${environment}.deployment.env"

@@ -1,0 +1,19 @@
+{
+    "parameters": {
+        "commit": "TEMPLATE_COMMIT",
+        "environment": "lee",
+        "success_message": "TEMPLATE_SUCCESS_MESSAGE",
+        "migrate": {
+            "migrate": false,
+            "task_def": "TEMPLATE_MIGRATION_TASKDEF_ARN"
+        },
+        "apps": [
+            {
+                "name": "app-lee",
+                "service_deploy": true,
+                "task_def": "TEMPLATE_APP_TASKDEF_ARN",
+                "deployment_group": "app-lee-deployment-group"
+            }
+        ]
+    }
+}
