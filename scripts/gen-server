@@ -58,7 +58,7 @@ function generate_client () {
   model_package=$2
   client_package=$3
 
-  swagger generate client -q -f "${swagger_file}" -t "${gendir}" --model-package "${model_package}" --client-package "${client_package}" -A mymove &
+  swagger_func generate client -q -f "${swagger_file}" -t "${gendir}" --model-package "${model_package}" --client-package "${client_package}" -A mymove &
   pids+=($!)
 }
 
