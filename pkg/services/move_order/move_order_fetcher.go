@@ -2,8 +2,6 @@ package moveorder
 
 import (
 	"database/sql"
-	"fmt"
-	"strings"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -11,55 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
-
-// ErrNotFound is returned when a given move task order is not found
-type ErrNotFound struct {
-	id uuid.UUID
-}
-
-// Error is the string representation of an error
-func (e ErrNotFound) Error() string {
-	return fmt.Sprintf("move task order id: %s not found", e.id.String())
-}
-
-type errInvalidInput struct {
-	id uuid.UUID
-	error
-	validationErrors map[string][]string
-}
-
-// ErrInvalidInput is returned when an update to a move task order fails a validation rule
-type ErrInvalidInput struct {
-	errInvalidInput
-}
-
-// NewErrInvalidInput creates a new error for invalid input
-func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string) ErrInvalidInput {
-	return ErrInvalidInput{
-		errInvalidInput{
-			id:               id,
-			error:            err,
-			validationErrors: validationErrors,
-		},
-	}
-}
-
-// Error is the string representation of an error
-func (e ErrInvalidInput) Error() string {
-	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.InvalidFields())
-}
-
-// InvalidFields returns invalid fields for invalid input
-func (e ErrInvalidInput) InvalidFields() map[string]string {
-	es := make(map[string]string)
-	if e.validationErrors == nil {
-		return es
-	}
-	for k, v := range e.validationErrors {
-		es[k] = strings.Join(v, " ")
-	}
-	return es
-}
 
 type moveOrderFetcher struct {
 	db *pop.Connection
@@ -71,7 +20,7 @@ func (f moveOrderFetcher) ListMoveOrders() ([]models.MoveOrder, error) {
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return []models.MoveOrder{}, ErrNotFound{}
+			return []models.MoveOrder{}, services.NotFoundError{}
 		default:
 			return []models.MoveOrder{}, err
 		}
@@ -106,7 +55,7 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.MoveOrd
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.MoveOrder{}, ErrNotFound{moveOrderID}
+			return &models.MoveOrder{}, services.NewNotFoundError(moveOrderID)
 		default:
 			return &models.MoveOrder{}, err
 		}

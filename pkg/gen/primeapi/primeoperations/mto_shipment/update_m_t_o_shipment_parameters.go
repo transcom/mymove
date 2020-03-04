@@ -38,7 +38,7 @@ type UpdateMTOShipmentParams struct {
 	  Required: true
 	  In: header
 	*/
-	IfUnmodifiedSince strfmt.DateTime
+	IfMatch string
 	/*
 	  In: body
 	*/
@@ -64,7 +64,7 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 
 	o.HTTPRequest = r
 
-	if err := o.bindIfUnmodifiedSince(r.Header[http.CanonicalHeaderKey("If-Unmodified-Since")], true, route.Formats); err != nil {
+	if err := o.bindIfMatch(r.Header[http.CanonicalHeaderKey("If-Match")], true, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -100,10 +100,10 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 	return nil
 }
 
-// bindIfUnmodifiedSince binds and validates parameter IfUnmodifiedSince from header.
-func (o *UpdateMTOShipmentParams) bindIfUnmodifiedSince(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindIfMatch binds and validates parameter IfMatch from header.
+func (o *UpdateMTOShipmentParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("If-Unmodified-Since", "header")
+		return errors.Required("If-Match", "header")
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -112,30 +112,12 @@ func (o *UpdateMTOShipmentParams) bindIfUnmodifiedSince(rawData []string, hasKey
 
 	// Required: true
 
-	if err := validate.RequiredString("If-Unmodified-Since", "header", raw); err != nil {
+	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
 
-	// Format: datetime
-	value, err := formats.Parse("datetime", raw)
-	if err != nil {
-		return errors.InvalidType("If-Unmodified-Since", "header", "strfmt.DateTime", raw)
-	}
-	o.IfUnmodifiedSince = *(value.(*strfmt.DateTime))
+	o.IfMatch = raw
 
-	if err := o.validateIfUnmodifiedSince(formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// validateIfUnmodifiedSince carries on validations for parameter IfUnmodifiedSince
-func (o *UpdateMTOShipmentParams) validateIfUnmodifiedSince(formats strfmt.Registry) error {
-
-	if err := validate.FormatOf("If-Unmodified-Since", "header", "datetime", o.IfUnmodifiedSince.String(), formats); err != nil {
-		return err
-	}
 	return nil
 }
 

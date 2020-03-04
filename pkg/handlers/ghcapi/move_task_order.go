@@ -6,8 +6,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 
-	movetaskorderservice "github.com/transcom/mymove/pkg/services/move_task_order"
-
 	"github.com/go-openapi/runtime/middleware"
 
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
@@ -31,9 +29,9 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 	if err != nil {
 		logger.Error("ghcapi.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
-		case movetaskorderservice.ErrNotFound:
+		case services.NotFoundError:
 			return movetaskorderops.NewGetMoveTaskOrderNotFound()
-		case movetaskorderservice.ErrInvalidInput:
+		case services.InvalidInputError:
 			return movetaskorderops.NewGetMoveTaskOrderBadRequest()
 		default:
 			return movetaskorderops.NewGetMoveTaskOrderInternalServerError()
@@ -62,9 +60,9 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	if err != nil {
 		logger.Error("ghciapi.MoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
-		case movetaskorderservice.ErrNotFound:
+		case services.NotFoundError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
-		case movetaskorderservice.ErrInvalidInput:
+		case services.InvalidInputError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusBadRequest()
 		default:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()

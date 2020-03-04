@@ -181,9 +181,8 @@ paths:
           schema:
             $ref: '#/definitions/MTOShipment'
         - in: header
-          name: If-Unmodified-Since
+          name: If-Match
           type: string
-          format: datetime
           required: true
       responses:
         '200':
@@ -711,6 +710,8 @@ definitions:
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         $ref: '#/definitions/Address'
+      eTag:
+        type: string
       status:
         type: string
         enum:

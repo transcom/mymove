@@ -60,7 +60,7 @@
     "reduce-reducers": "^1.0.4",
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.2",
-    "redux-form": "^8.3.0",
+    "redux-form": "^8.3.1",
     "redux-mock-store": "1.5.4",
     "redux-thunk": "^2.2.0",
     "regenerator-runtime": "^0.13.2",
@@ -68,7 +68,7 @@
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.10.0",
     "swagger-ui-dist": "^3.25.0",
-    "uswds": "2.5.0"
+    "uswds": "2.5.1"
   },
   "name": "client",
   "private": true,

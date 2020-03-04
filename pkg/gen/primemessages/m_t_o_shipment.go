@@ -37,6 +37,9 @@ type MTOShipment struct {
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// first available delivery date
 	// Format: date
 	FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
