@@ -73,6 +73,8 @@ put_metric() {
 }
 
 # compare ecr digest
+echo
+echo "Comparing image digest with recorded image digest in a prior step"
 check_ecr_digest "${image}" "${name}" "${ECR_DIGEST}"
 
 # create new task definition with the given image
