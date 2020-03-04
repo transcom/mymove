@@ -45,15 +45,11 @@ show_logs() {
 
 # Compare recorded sha with the ecr digest sha
 check_ecr_digest() {
-  local repo_name=app-migrations
-#  todo: use image tag to get the ecr digest value
-#  local image_tag=$1
-
   IFS=":"
-  read -ar values <<< "${image-tag}"
+  read -ar values <<< "${image}"
 
-
-  image-sha = aws ecr describe-images --repository-name "${repo_name}" --image-ids imageTag="${values[1]}" | jq ".imageDetails[0] .imageDigest"
+  image-sha = aws ecr describe-images --repository-name "${name}" --image-ids imageTag="${values[1]}" | jq ".imageDetails[0] .imageDigest" -r
+  echo "${image-sha}"
 
   if [ "${ECR_DIGEST}" != "${image-sha}" ]
   then
@@ -71,6 +67,9 @@ put_metric() {
     timestamp=$(date +"%Y-%m-%dT%H:%M:%SZ")
     aws cloudwatch put-metric-data --metric-name "${metric_name}" --namespace "${namespace}" --value 1 --timestamp "${timestamp}"
 }
+
+# compare ecr digest
+check_ecr_digest
 
 # create new task definition with the given image
 echo "* Registering new task definition"
