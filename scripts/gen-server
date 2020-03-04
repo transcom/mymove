@@ -2,31 +2,80 @@
 
 set -eu -o pipefail
 
+# Ensure the latest image is being used
+if [ -n "${CIRCLECI+x}" ]; then
+  # In CircleCI the docker image has the binary installed
+  echo "CircleCI has swagger built in"
+else
+  # Locally we need to download the docker image to get the binary
+  image=milmove/circleci-docker:milmove-app-ffd8979e13efa5cade8928d47d27947f3f582c25
+  docker pull -q "${image}"
+fi
+
+# Remove the generated code
 gendir=./pkg/gen
 
 # Clean out the old generated files
 rm -rf $gendir
 mkdir -p $gendir
 
-# Run each swagger process in the background and wait for them to finish
-./bin/swagger generate server -q -f swagger/internal.yaml -t $gendir --model-package internalmessages --server-package internalapi --api-package internaloperations --exclude-main -A mymove &
-pids[0]=$!
-./bin/swagger generate server -q -f swagger/api.yaml -t $gendir --model-package apimessages --server-package restapi --api-package apioperations --exclude-main -A mymove &
-pids[1]=$!
-./bin/swagger generate server -q -f swagger/orders.yaml -t $gendir --model-package ordersmessages --server-package ordersapi --api-package ordersoperations --exclude-main -A mymove &
-pids[2]=$!
-./bin/swagger generate server -q -f swagger/dps.yaml -t $gendir --model-package dpsmessages --server-package dpsapi --api-package dpsoperations --exclude-main -A mymove &
-pids[3]=$!
-./bin/swagger generate server -q -f swagger/admin.yaml -t $gendir --model-package adminmessages --server-package adminapi --api-package adminoperations --exclude-main -A mymove &
-pids[4]=$!
-./bin/swagger generate server -q -f swagger/ghc.yaml -t $gendir --model-package ghcmessages --server-package ghcapi --api-package ghcoperations --exclude-main -A mymove &
-pids[5]=$!
-./bin/swagger generate server -q -f swagger/prime.yaml -t $gendir --model-package primemessages --server-package primeapi --api-package primeoperations --exclude-main -A mymove &
-pids[6]=$!
-./bin/swagger generate client -q -f swagger/prime.yaml -t $gendir --model-package primemessages --client-package primeclient -A mymove &
-pids[7]=$!
+# Depending on environment use the built-in swagger (docker) or use the docker image directly
+swagger_func() {
+  if [ -n "${CIRCLECI+x}" ]; then
+    # In CircleCI the docker image has the binary installed
+    echo "RUNNING IN CIRCLECI"
+    /usr/local/bin/swagger "$@"
+  else
+    docker run --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" swagger "$@"
+  fi
+}
+
+# Capture all PIDs so we can do the work async
+pids=()
+
+# Generate server code
+function generate_server () {
+  if [ "$#" -ne 4 ]; then
+    echo "Illegal number of parameters to generate_server, got $#, expected 4"
+    exit 1
+  fi
+  swagger_file=$1
+  model_package=$2
+  server_package=$3
+  api_package=$4
+
+  swagger_func generate server -q -f "${swagger_file}" -t "${gendir}" --model-package "${model_package}" --server-package "${server_package}" --api-package "${api_package}" --exclude-main -A mymove &
+  pids+=($!)
+}
+
+# Generate client code
+function generate_client () {
+  if [ "$#" -ne 3 ]; then
+    echo "Illegal number of parameters to generate_client, got $#, expected 3"
+    exit 1
+  fi
+  swagger_file=$1
+  model_package=$2
+  client_package=$3
+
+  swagger_func generate client -q -f "${swagger_file}" -t "${gendir}" --model-package "${model_package}" --client-package "${client_package}" -A mymove &
+  pids+=($!)
+}
+
+# Generate Server Code
+# For readability they have been sorted and spaces added
+generate_server swagger/admin.yaml    adminmessages    adminapi    adminoperations
+generate_server swagger/api.yaml      apimessages      restapi     apioperations
+generate_server swagger/dps.yaml      dpsmessages      dpsapi      dpsoperations
+generate_server swagger/ghc.yaml      ghcmessages      ghcapi      ghcoperations
+generate_server swagger/internal.yaml internalmessages internalapi internaloperations
+generate_server swagger/orders.yaml   ordersmessages   ordersapi   ordersoperations
+generate_server swagger/prime.yaml    primemessages    primeapi    primeoperations
+
+# Generate Client Code
+generate_client swagger/prime.yaml primemessages primeclient
 
 # Wait for all processes to finish
 for pid in ${pids[*]}; do
-  wait $pid
+  wait "${pid}"
 done

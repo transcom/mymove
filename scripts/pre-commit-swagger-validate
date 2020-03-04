@@ -1,0 +1,20 @@
+#! /usr/bin/env bash
+
+#
+# Pre-commit hook to run `swagger validate` that is different based on environment
+#
+
+set -eu -o pipefail
+
+filename="$1"
+readonly filename
+
+UNAME_S=$(uname -s)
+if [ "$UNAME_S" == "Linux" ]; then
+  /usr/local/bin/swagger validate "${filename}"
+else
+  # Locally we need to download the docker image to get the binary
+  image=milmove/circleci-docker:milmove-app-ffd8979e13efa5cade8928d47d27947f3f582c25
+  docker pull -q "${image}"
+  docker run --rm=true -v "${PWD}:${PWD}" -w "${PWD}" "${image}" swagger validate "${filename}"
+fi

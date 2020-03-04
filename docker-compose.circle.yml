@@ -17,7 +17,7 @@ services:
   server_test:
     depends_on:
       - database
-    image: trussworks/circleci-docker-primary:c3a4d876a5681cceef9f927392732c259308d158
+    image: milmove/circleci-docker:milmove-app-ffd8979e13efa5cade8928d47d27947f3f582c25
     deploy:
       resources:
         limits:
