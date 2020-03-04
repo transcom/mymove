@@ -28,8 +28,6 @@ readonly task_image=$5
 readonly RESERVATION_CPU=512
 readonly RESERVATION_MEM=2048
 
-readonly cluster=app-${environment}
-
 check_arn() {
     local arn=$1
     [[ $arn = arn:* ]] || { echo "Error: Bad ARN: $arn"; exit 1; }
@@ -91,6 +89,7 @@ check_arn "$migration_taskdef_arn"
 #########
 
 # Note: currently on hold atm
+echo "$task_image"
 
 # tasks_taskdef_arn=$("${DIR}/../bin/ecs-deploy" task-def \
 #                                                --aws-account-id "${AWS_ACCOUNT_ID}" \
