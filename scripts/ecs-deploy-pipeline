@@ -67,7 +67,7 @@ set +e
 migration_taskdef_arn=$("${DIR}/../bin/ecs-deploy" task-def \
                                                  --aws-account-id "${AWS_ACCOUNT_ID}" \
                                                  --aws-region us-west-2 \
-                                                 --service "${name}-migration" \
+                                                 --service "${name}-migrations" \
                                                  --environment "${environment}" \
                                                  --image "${migration_image}" \
                                                  --variables-file "${DIR}/../config/env/${environment}.migrations.env" \
