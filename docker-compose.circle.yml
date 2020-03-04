@@ -17,7 +17,7 @@ services:
   server_test:
     depends_on:
       - database
-    image: milmove/circleci-docker:milmove-app-30170129c406317978908ab9bc0274dd57c5e95f
+    image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
     deploy:
       resources:
         limits:
