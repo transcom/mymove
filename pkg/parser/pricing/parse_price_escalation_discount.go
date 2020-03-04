@@ -2,12 +2,13 @@ package pricing
 
 import (
 	"fmt"
-	"log"
+
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var parsePriceEscalationDiscount processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parsePriceEscalationDiscount processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	const xlsxDataSheetNum int = 18
 	const discountsRowIndexStart int = 9
 	const contractYearColumn int = 7
@@ -19,7 +20,7 @@ var parsePriceEscalationDiscount processXlsxSheet = func(params ParamConfig, she
 		return nil, fmt.Errorf("parsePriceEscalationDiscount expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing price escalation discount")
+	logger.Info("Parsing price escalation discount")
 	var priceEscalationDiscounts []models.StagePriceEscalationDiscount
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[discountsRowIndexStart:]
 	for _, row := range dataRows {
@@ -35,7 +36,7 @@ var parsePriceEscalationDiscount processXlsxSheet = func(params ParamConfig, she
 		}
 
 		if params.ShowOutput {
-			log.Printf("%+v\n", priceEscalationDiscount)
+			logger.Info("", zap.Any("StagePriceEscalationDiscount", priceEscalationDiscount))
 		}
 		priceEscalationDiscounts = append(priceEscalationDiscounts, priceEscalationDiscount)
 	}

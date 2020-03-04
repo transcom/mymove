@@ -41,6 +41,7 @@ type Assertions struct {
 	MoveOrder                                models.MoveOrder
 	MoveTaskOrder                            models.MoveTaskOrder
 	MovingExpenseDocument                    models.MovingExpenseDocument
+	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem
 	MTOShipment                              models.MTOShipment
 	Notification                             models.Notification

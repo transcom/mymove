@@ -1,7 +1,6 @@
 package query
 
 import (
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"reflect"
@@ -14,6 +13,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/lib/pq"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -390,7 +390,7 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 			var updatedAt time.Time
 			tx.RawQuery(sqlString, id.String()).First(&updatedAt)
 
-			encodedUpdatedAt := base64.StdEncoding.EncodeToString([]byte(updatedAt.Format(time.RFC3339Nano)))
+			encodedUpdatedAt := etag.GenerateEtag(updatedAt)
 
 			if encodedUpdatedAt != *eTag {
 				return StaleIdentifierError{StaleIdentifier: *eTag}
