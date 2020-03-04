@@ -3,10 +3,11 @@ package primeapi
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/transcom/mymove/pkg/services"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
