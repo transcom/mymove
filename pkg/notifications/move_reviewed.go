@@ -58,12 +58,13 @@ type EmailInfo struct {
 	Email              *string   `db:"personal_email"`
 	DutyStationName    string    `db:"duty_station_name"`
 	NewDutyStationName string    `db:"new_duty_station_name"`
+	Locator            string    `db:"locator"`
 }
 
 // GetEmailInfo retreives email information
 func (m MoveReviewed) GetEmailInfo(date time.Time) (EmailInfos, error) {
 	dateString := date.Format("2006-01-02")
-	query := `SELECT sm.id, sm.personal_email, dsn.name AS new_duty_station_name, dso.name AS duty_station_name
+	query := `SELECT sm.id, sm.personal_email, dsn.name AS new_duty_station_name, dso.name AS duty_station_name, m.locator
 FROM personally_procured_moves p
          JOIN moves m ON p.move_id = m.id
          JOIN orders o ON m.orders_id = o.id
@@ -115,13 +116,15 @@ func (m MoveReviewed) formatEmails(emailInfos EmailInfos) ([]emailContent, error
 		}
 		smEmail := emailContent{
 			recipientEmail: *emailInfo.Email,
-			subject:        "[MilMove] Let us know how we did",
+			subject:        fmt.Sprintf("[MilMove] Tell us how we did with your move (%s)", emailInfo.Locator),
 			htmlBody:       htmlBody,
 			textBody:       textBody,
 			onSuccess:      m.OnSuccess(emailInfo),
 		}
 		m.logger.Info("generated move reviewed email to service member",
-			zap.String("service member uuid", emailInfo.ServiceMemberID.String()))
+			zap.String("moveLocator", emailInfo.Locator),
+			zap.String("service member uuid", emailInfo.ServiceMemberID.String()),
+		)
 		emails = append(emails, smEmail)
 	}
 	return emails, nil
