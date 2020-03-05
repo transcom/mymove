@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
@@ -26,6 +28,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		log.Fatalln(err)
 	}
 	primeAPI := primeops.NewMymoveAPI(primeSpec)
+	queryBuilder := query.NewQueryBuilder(context.DB())
 
 	primeAPI.MoveTaskOrderFetchMTOUpdatesHandler = FetchMTOUpdatesHandler{
 		context,
@@ -39,6 +42,12 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{
 		context,
 		paymentrequest.NewPaymentRequestCreator(context.DB()),
+	}
+
+	primeAPI.MoveTaskOrderUpdateMTOPostCounselingInformationHandler = UpdateMTOPostCounselingInformationHandler{
+		context,
+		fetch.NewFetcher(queryBuilder),
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
 	}
 
 	return primeAPI.Serve(nil)

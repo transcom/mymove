@@ -6,6 +6,8 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -50,6 +52,13 @@ type MoveTaskOrder struct {
 	// Required: true
 	PaymentRequests PaymentRequests `json:"payment_requests"`
 
+	// ppm estimated weight
+	PpmEstimatedWeight int64 `json:"ppm_estimated_weight,omitempty"`
+
+	// ppm type
+	// Enum: [FULL PARTIAL]
+	PpmType string `json:"ppm_type,omitempty"`
+
 	// reference Id
 	ReferenceID string `json:"referenceId,omitempty"`
 
@@ -87,6 +96,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePaymentRequests(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -199,6 +212,49 @@ func (m *MoveTaskOrder) validatePaymentRequests(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("payment_requests")
 		}
+		return err
+	}
+
+	return nil
+}
+
+var moveTaskOrderTypePpmTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["FULL","PARTIAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		moveTaskOrderTypePpmTypePropEnum = append(moveTaskOrderTypePpmTypePropEnum, v)
+	}
+}
+
+const (
+
+	// MoveTaskOrderPpmTypeFULL captures enum value "FULL"
+	MoveTaskOrderPpmTypeFULL string = "FULL"
+
+	// MoveTaskOrderPpmTypePARTIAL captures enum value "PARTIAL"
+	MoveTaskOrderPpmTypePARTIAL string = "PARTIAL"
+)
+
+// prop value enum
+func (m *MoveTaskOrder) validatePpmTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, moveTaskOrderTypePpmTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PpmType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validatePpmTypeEnum("ppm_type", "body", m.PpmType); err != nil {
 		return err
 	}
 

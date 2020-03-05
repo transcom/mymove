@@ -99,38 +99,38 @@ func (a *Client) GetMoveTaskOrderCustomer(params *GetMoveTaskOrderCustomerParams
 }
 
 /*
-UpdateMoveTaskOrderPostCounselingInformation updates move task order s post counseling information
+UpdateMTOPostCounselingInformation updates move task order s post counseling information
 
 Updates move task order's post counseling information
 */
-func (a *Client) UpdateMoveTaskOrderPostCounselingInformation(params *UpdateMoveTaskOrderPostCounselingInformationParams) (*UpdateMoveTaskOrderPostCounselingInformationOK, error) {
+func (a *Client) UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams) (*UpdateMTOPostCounselingInformationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUpdateMoveTaskOrderPostCounselingInformationParams()
+		params = NewUpdateMTOPostCounselingInformationParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "updateMoveTaskOrderPostCounselingInformation",
+		ID:                 "updateMTOPostCounselingInformation",
 		Method:             "PATCH",
 		PathPattern:        "/move-task-orders/{moveTaskOrderID}/post-counseling-info",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UpdateMoveTaskOrderPostCounselingInformationReader{formats: a.formats},
+		Reader:             &UpdateMTOPostCounselingInformationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*UpdateMoveTaskOrderPostCounselingInformationOK)
+	success, ok := result.(*UpdateMTOPostCounselingInformationOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for updateMoveTaskOrderPostCounselingInformation: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for updateMTOPostCounselingInformation: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

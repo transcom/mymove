@@ -54,7 +54,7 @@ paths:
       summary: Gets all move orders
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
-      - description: ID of move order to use
+      - description: ID of move task order to use
         in: path
         name: moveTaskOrderID
         required: true
@@ -71,21 +71,22 @@ paths:
           schema:
             type: object
             properties:
-              scheduled-move-date:
+              ppm_type:
                 type: string
-                format: date
-                example: '2018-04-26'
-              secondary-pickup-address:
-                $ref: '#/definitions/Address'
-              secondary-delivery-address:
-                $ref: '#/definitions/Address'
-              ppm-is-included:
-                type: boolean
+                enum:
+                  - FULL
+                  - PARTIAL
+              ppm_estimated_weight:
+                type: integer
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
           description: Successfully updated move task order post counseling information
           schema:
-            $ref: '#/definitions/MoveTaskOrder'
+            $ref: '#/definitions/MoveTaskOrderWithEtag'
         '401':
           description: The request was denied
           schema:
@@ -98,6 +99,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '412':
+          description: precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
         '422':
           description: The request payload is invalid
           schema:
@@ -110,7 +115,7 @@ paths:
         - moveTaskOrder
         - prime
       description: Updates move task order's post counseling information
-      operationId: updateMoveTaskOrderPostCounselingInformation
+      operationId: updateMTOPostCounselingInformation
       summary: Updates move task order's post counseling information
   '/move-task-orders/{moveTaskOrderID}/customer':
     parameters:
@@ -652,10 +657,25 @@ definitions:
         $ref: '#/definitions/MTOServiceItems'
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
+      ppm_type:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      ppm_estimated_weight:
+        type: integer
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
+
+  MoveTaskOrderWithEtag:
+    allOf:
+      - $ref: '#/definitions/MoveTaskOrder'
+      - type: object
+    properties:
+      eTag:
+        type: string
   MTOShipment:
     properties:
       moveTaskOrderID:
