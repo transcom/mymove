@@ -1,17 +1,19 @@
-package models_test
+package converthelper_test
 
 import (
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/services/converthelper"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ModelSuite) TestConvert() {
+func (suite *ConvertSuite) TestConvert() {
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	suite.NotNil(move)
 
-	moID, conversionErr := models.ConvertFromPPMToGHC(suite.DB(), move.ID)
+	moID, conversionErr := converthelper.ConvertFromPPMToGHC(suite.DB(), move.ID)
 	suite.FatalNoError(conversionErr)
 
 	var mo models.MoveOrder

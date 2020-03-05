@@ -47,20 +47,3 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mo
 
 	return mto, nil
 }
-
-//MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
-//func (f moveTaskOrderFetcher) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
-//	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
-//	if err != nil {
-//		return &models.MoveTaskOrder{}, err
-//	}
-//	mto.IsAvailableToPrime = true
-//	vErrors, err := f.db.ValidateAndUpdate(mto)
-//	if vErrors.HasAny() {
-//		return &models.MoveTaskOrder{}, services.InvalidInputError{}
-//	}
-//	if err != nil {
-//		return &models.MoveTaskOrder{}, err
-//	}
-//	return mto, nil
-//}

@@ -21,7 +21,7 @@ func GenerateReferenceID(db *pop.Connection) (string, error) {
 			return referenceID, nil
 		}
 	}
-	return "", errors.New("move_task_order: failed to generate reference id")
+	return "", fmt.Errorf("move_task_order: failed to generate reference id; %w", err)
 }
 
 // GenerateReferenceID creates a random ID for an MTO. Format (xxxx-xxxx) with X being a number 0-9 (ex. 0009-1234. 4321-4444)
