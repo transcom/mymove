@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MoveTaskOrderCreator is the service object interface for FetchMoveTaskOrder
+// MoveTaskOrderCreator is the service object interface for CreateMoveTaskOrder
 //go:generate mockery -name MoveTaskOrderCreator
 type MoveTaskOrderCreator interface {
 	CreateMoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) (*models.MoveTaskOrder, *validate.Errors, error)
