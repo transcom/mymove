@@ -1,4 +1,4 @@
-package movetaskorder_test
+package movetaskordershared_test
 
 import (
 	"testing"
@@ -8,16 +8,16 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type MoveTaskOrderServiceSuite struct {
+type MoveTaskOrderHelperSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *MoveTaskOrderServiceSuite) SetupTest() {
+func (suite *MoveTaskOrderHelperSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
 func TestMoveTaskOrderServiceSuite(t *testing.T) {
-	ts := &MoveTaskOrderServiceSuite{
+	ts := &MoveTaskOrderHelperSuite{
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)

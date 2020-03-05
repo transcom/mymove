@@ -1,4 +1,4 @@
-package movetaskorder_test
+package converthelper_test
 
 import (
 	"testing"
@@ -8,16 +8,16 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type MoveTaskOrderServiceSuite struct {
+type ConvertSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *MoveTaskOrderServiceSuite) SetupTest() {
+func (suite *ConvertSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestMoveTaskOrderServiceSuite(t *testing.T) {
-	ts := &MoveTaskOrderServiceSuite{
+func TestConvertHelperSuite(t *testing.T) {
+	ts := &ConvertSuite{
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)
