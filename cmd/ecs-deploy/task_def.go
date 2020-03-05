@@ -121,29 +121,63 @@ const (
 // ECRImage represents an ECR Image tag broken into its constituent parts
 type ECRImage struct {
 	AWSRegion      string
-	imageURI       string
-	ImageTag       string
+	ImageDigest    string
+	ImageURI       string
 	RegistryID     string
 	RepositoryURI  string
 	RepositoryName string
 }
 
 // NewECRImage returns a new ECR Image object
-func NewECRImage(imageURI string) (*ECRImage, error) {
-	imageParts := strings.Split(imageURI, "@")
-	if len(imageParts) != 2 {
-		return nil, fmt.Errorf("Image URI requires '@'")
+func NewECRImage(imageURI string, serviceECR *ecr.ECR) (*ECRImage, error) {
+	const digestSeparator = "@"
+	const tagSeparator = ":"
+	imageDigest := ""
+	var imageParts []string
+
+	// if the image uri contains digest sha then use it directly
+	// if it contains a tag sha then convert it into a digest uri
+	if strings.Contains(imageURI, digestSeparator) {
+		imageParts = strings.Split(imageURI, digestSeparator)
+		imageDigest = imageParts[1]
+	} else if strings.Contains(imageURI, tagSeparator) {
+		imageParts = strings.Split(imageURI, tagSeparator)
+		repoTag := imageParts[1]
+		repositoryURI := imageParts[0]
+		repositoryURIParts := strings.Split(repositoryURI, "/")
+		repositoryName := repositoryURIParts[1]
+		repositoryDomainParts := strings.Split(repositoryURIParts[0], ".")
+		registryID := repositoryDomainParts[0]
+		imageList, describeImageErr := serviceECR.DescribeImages(&ecr.DescribeImagesInput{
+			ImageIds: []*ecr.ImageIdentifier{
+				{
+					ImageTag: aws.String(repoTag),
+				},
+			},
+			RegistryId:     aws.String(registryID),
+			RepositoryName: aws.String(repositoryName),
+		})
+		if describeImageErr != nil {
+			return nil, fmt.Errorf("unable retrieving image from %q: %w", imageURI, describeImageErr)
+		}
+
+		imageDigest = *imageList.ImageDetails[0].ImageDigest
 	}
-	repositoryURI, imageTag := imageParts[0], imageParts[1]
+
+	if len(imageParts) != 2 {
+		return nil, fmt.Errorf("image URI requires either a @digest or a :tag in the URI %v", imageURI)
+	}
+	repositoryURI := imageParts[0]
 	repositoryURIParts := strings.Split(repositoryURI, "/")
 	repositoryName := repositoryURIParts[1]
 	repositoryDomainParts := strings.Split(repositoryURIParts[0], ".")
 	registryID, awsRegion := repositoryDomainParts[0], repositoryDomainParts[3]
+	digestURI := fmt.Sprintf("%v@%v", repositoryURI, imageDigest)
 
 	return &ECRImage{
 		AWSRegion:      awsRegion,
-		imageURI:       imageURI,
-		ImageTag:       imageTag,
+		ImageURI:       digestURI,
+		ImageDigest:    imageDigest,
 		RegistryID:     registryID,
 		RepositoryURI:  repositoryURI,
 		RepositoryName: repositoryName,
@@ -436,28 +470,28 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	serviceNameShort := serviceNameParts[0]
 
 	// Confirm the image exists
-	ecrImage, errECRImage := NewECRImage(imageURI)
+	ecrImage, errECRImage := NewECRImage(imageURI, serviceECR)
 	if errECRImage != nil {
 		quit(logger, nil, fmt.Errorf("unable to recognize image URI %q: %w", imageURI, errECRImage))
 	}
 	imageIdentifier := ecr.ImageIdentifier{}
-	imageIdentifier.SetImageTag(ecrImage.ImageTag)
+	imageIdentifier.SetImageDigest(ecrImage.ImageDigest)
 	errImageIdentifierValidate := imageIdentifier.Validate()
 	if errImageIdentifierValidate != nil {
-		quit(logger, nil, fmt.Errorf("image identifier tag invalid %q: %w", ecrImage.ImageTag, errImageIdentifierValidate))
+		quit(logger, nil, fmt.Errorf("image identifier digest invalid %q: %w", ecrImage.ImageDigest, errImageIdentifierValidate))
 	}
 
 	imageList, describeImageErr := serviceECR.DescribeImages(&ecr.DescribeImagesInput{
 		ImageIds: []*ecr.ImageIdentifier{
 			{
-				ImageDigest: aws.String(ecrImage.ImageTag),
+				ImageDigest: aws.String(ecrImage.ImageDigest),
 			},
 		},
 		RegistryId:     aws.String(ecrImage.RegistryID),
 		RepositoryName: aws.String(ecrImage.RepositoryName),
 	})
 	if describeImageErr != nil {
-		quit(logger, nil, fmt.Errorf("unable to retrieve image from %q: %w", ecrImage.imageURI, describeImageErr))
+		quit(logger, nil, fmt.Errorf("unable to retrieve image from %q: %w", ecrImage.ImageURI, describeImageErr))
 	}
 	// We should find atleast one image with this criteria
 	if len(imageList.ImageDetails) < 1 {
@@ -541,7 +575,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
 				Name:        aws.String(containerDefName),
-				Image:       aws.String(ecrImage.imageURI),
+				Image:       aws.String(ecrImage.ImageURI),
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPointList),
 				Command:     []*string{},
