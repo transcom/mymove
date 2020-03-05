@@ -38,9 +38,9 @@ storiesOf('Components/Button', module)
     .add('Links', () =>
       <div>
         <p>a</p><a href="#">USWDS blue-warm-60v</a>
-        <p>a:hover</p><a href="#">USWDS blue-warm-60v</a>
-        <p>a:visted</p><a href="#">USWDS bg-violet-warm-60</a>
-        <p>a:disabled</p><a href="#">This link is disabled</a>
+        <p>a:hover</p><a className="hover" href="#">USWDS blue-warm-60v</a>
+        <p>a:visted</p><a className="visited"  href="#">USWDS bg-violet-warm-60</a>
+        <p>a:disabled</p><a className="disabled"  href="#">This link is disabled</a>
         <p>a small</p><a href="#">USWDS blue-warm-60v 14/16</a>
       </div>
     );

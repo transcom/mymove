@@ -35,10 +35,10 @@ a {
     text-decoration: underline;
   }
   &:visited, .visted {
-
+    @include u-text('violet-warm-60');
   }
   &:disabled, .disabled {
-
+    @include u-text('gray-40');
   }
   &:focus, .focus {
 
