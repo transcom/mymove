@@ -31,16 +31,19 @@ small {
 }
 a {
   text-decoration: none;
-  &:hover , .hover {
+  &:hover , &.hover {
     text-decoration: underline;
   }
-  &:visited, .visted {
+  &:visited, &.visted {
     @include u-text('violet-warm-60');
   }
-  &:disabled, .disabled {
+  &:disabled, &.disabled {
     @include u-text('gray-40');
+    &:hover  {
+      text-decoration: none;
+    }
   }
-  &:focus, .focus {
+  &:focus, &.focus {
 
   }
   small &{
