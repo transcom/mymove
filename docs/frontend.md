@@ -8,7 +8,7 @@
   * [Test Runners and Libraries](#test-runners-and-libraries)
   * [Writing Tests](#writing-tests)
   * [Browser Testing](#browser-testing)
-* [Style](#style)
+* [Code Style](#code-style)
   * [Auto-formatting](#auto-formatting)
   * [Linting](#linting)
   * [File Layout & Naming](#file-layout--naming)
@@ -16,7 +16,7 @@
   * [Function Declarations](#function-declarations)
   * [Ordering imports](#ordering-imports)
   * [Using Redux](#using-redux)
-  * [Styling Standards](#styling-standards)
+  * [CSS Styling Standards](#css-styling-standards)
     * [Using Sass and CSS Modules](#using-sass-and-css-modules)
     * [Classnames](#classnames)
     * [rem vs. em](#rem-vs-em)
@@ -63,7 +63,7 @@ Regenerate with "pre-commit run -a markdown-toc"
 * We use the [Cypress framework](https://www.cypress.io/) for most browser testing, both with chrome and headless chrome
 * For testing on Windows 10 with IE 11 we have a [testing document](https://docs.google.com/document/d/1j04tGHTBpcdS8RSzlSB-dImLbIxsLpsFlCzZUWxUKxg/edit#)
 
-## Style
+## Code Style
 
 Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript) unless they conflict with the project’s Prettier or Lint rules.
 
@@ -128,7 +128,7 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
 * Connect higher level components to Redux, pass down props to less significant children. (Avoid connecting everything to Redux.)
 * Use [ducks](https://github.com/erikras/ducks-modular-redux) for organizing code.
 
-### Styling Standards
+### CSS Styling Standards
 
 MilMove is transitioning from anarchistic styling to more organized and standardized styling, so much of the existing code is not yet organized to the current standards.  You can find an example of refactored code styling of `InvoicePane.jsx` in `InvoicePanel.module.scss` and its child components and corresponding stylesheets.  All new components/styling should utilize the below standards. When we touch an existing component, we should try to adjust the styling to follow the standards.
 
