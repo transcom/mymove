@@ -1,0 +1,31 @@
+// Typography
+
+//using the uswds typeset mixin which does (font family, size tolken, line height tolken)
+
+h1 {
+  @include typeset('body', '2xl', 2);
+  @include u-text('normal');
+}
+h2 {
+  @include typeset('body', 11, 2);
+}
+h3 {
+  @include typeset('body', 9, 2);
+  @include u-text('normal');
+}
+h4 {
+  @include typeset('body', 6, 1);
+}
+h5 {
+  @include typeset('body', 4, 3);
+}
+h6 {
+  @include typeset('body',  2, 2);
+  @include u-text('normal');
+}
+p {
+  @include typeset('body',  4, 2);
+}
+small {
+  @include typeset('body',  2, 2);
+}
