@@ -29,3 +29,21 @@ p {
 small {
   @include typeset('body',  2, 2);
 }
+a {
+  text-decoration: none;
+  &:hover , .hover {
+    text-decoration: underline;
+  }
+  &:visited, .visted {
+
+  }
+  &:disabled, .disabled {
+
+  }
+  &:focus, .focus {
+
+  }
+  small &{
+
+  }
+}
