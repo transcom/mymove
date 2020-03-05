@@ -73,6 +73,18 @@ describe('Weight tickets page', () => {
       expect(vehicleModel.length).toEqual(0);
     });
   });
+  describe('Service member chooses PROGEAR as weight ticket type', () => {
+    it('renders vehicle nickname (progear type) field', () => {
+      const weightTicket = mountComponents('No', true, true, 'PRO_GEAR');
+      const vehicleNickname = weightTicket.find('[data-cy="vehicle_nickname"]');
+      const vehicleMake = weightTicket.find('[data-cy="vehicle_make"]');
+      const vehicleModel = weightTicket.find('[data-cy="vehicle_model"]');
+
+      expect(vehicleNickname.length).toEqual(1);
+      expect(vehicleMake.length).toEqual(0);
+      expect(vehicleModel.length).toEqual(0);
+    });
+  });
   describe('Service member has uploaded both a weight tickets', () => {
     it('renders both the Save buttons are enabled', () => {
       const weightTicket = mountComponents('No', false, false);

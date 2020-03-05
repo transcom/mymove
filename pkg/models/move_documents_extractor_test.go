@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -57,6 +59,21 @@ func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove() {
 		MovingExpenseDocument: movingExpenseDoc,
 	})
 
+	deletedAt := time.Date(2019, 8, 7, 0, 0, 0, 0, time.UTC)
+	deleteAssertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:    move.ID,
+			Move:      move,
+			DeletedAt: &deletedAt,
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+			DeletedAt:       &deletedAt,
+		},
+	}
+	testdatagen.MakeMoveDocument(suite.DB(), deleteAssertions)
+
 	docs, err := move.FetchAllMoveDocumentsForMove(suite.DB(), false)
 	suite.NoError(err)
 	suite.Equal(3, len(docs))
@@ -70,7 +87,7 @@ func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove() {
 	suite.Equal(carWeightTicketSetDocument.EmptyWeight, carDoc.EmptyWeight)
 	suite.Equal(carWeightTicketSetDocument.FullWeight, carDoc.FullWeight)
 
-	// Check car weight ticket values
+	// Check truck weight ticket values
 	truckDoc := docs[1]
 	suite.Equal(models.MoveDocumentTypeWEIGHTTICKETSET, truckDoc.MoveDocumentType)
 	suite.Equal(truckWeightTicketSetDocument.WeightTicketSetType, *truckDoc.WeightTicketSetType)
