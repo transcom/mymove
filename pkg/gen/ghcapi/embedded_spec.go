@@ -2282,6 +2282,11 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "paymentRequestNumber": {
+          "type": "string",
+          "readOnly": true,
+          "example": "1234-5678-1"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -5005,6 +5010,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequestNumber": {
+          "type": "string",
+          "readOnly": true,
+          "example": "1234-5678-1"
         },
         "rejectionReason": {
           "type": "string",
