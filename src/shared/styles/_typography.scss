@@ -43,10 +43,7 @@ a {
       text-decoration: none;
     }
   }
-  &:focus, &.focus {
-
-  }
-  small &{
-
+  &:focus , &.focus {
+    @include u-outline('05', 'blue-40v');
   }
 }

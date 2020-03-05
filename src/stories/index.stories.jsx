@@ -41,6 +41,7 @@ storiesOf('Components/Button', module)
         <p>a:hover</p><a className="hover" href="https://materializecss.com/sass.html">USWDS blue-warm-60v</a>
         <p>a:visted</p><a className="visited"  href="#">USWDS bg-violet-warm-60</a>
         <p>a:disabled</p><a className="disabled" >This link is disabled</a>
+        <p>a:focus</p><a className="focus" >This link is focused</a>
         <p>a small</p><small><a href="https://materializecss.com/sass.html">USWDS blue-warm-60v 14/16</a></small>
       </div>
     );
