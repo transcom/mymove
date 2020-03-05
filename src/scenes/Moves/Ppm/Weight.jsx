@@ -197,7 +197,11 @@ export class PpmWeight extends Component {
         </td>
       );
     } else {
-      return <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td>;
+      return (
+        <td data-cy="incentive-range-values" className="incentive">
+          {formatCentsRange(incentive_estimate_min, incentive_estimate_max)}
+        </td>
+      );
     }
   }
 
