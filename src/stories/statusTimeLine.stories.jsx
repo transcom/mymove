@@ -28,7 +28,7 @@ storiesOf('scenes/Landing', module)
           dates: [
             date(
               'StatusBlock1.Date1',
-              moment()
+              moment('2020-02-02')
                 .subtract(8, 'days')
                 .toDate(),
               'Block 1',
@@ -42,7 +42,7 @@ storiesOf('scenes/Landing', module)
           dates: [
             date(
               'StatusBlock2.Date1',
-              moment()
+              moment('2020-02-02')
                 .subtract(6, 'days')
                 .toDate(),
               'Block 2',
@@ -56,7 +56,7 @@ storiesOf('scenes/Landing', module)
           dates: [
             date(
               'StatusBlock3.Date1',
-              moment()
+              moment('2020-02-02')
                 .subtract(5, 'days')
                 .toDate(),
               'Block 3',
@@ -70,7 +70,7 @@ storiesOf('scenes/Landing', module)
           dates: [
             date(
               'StatusBlock4.Date1',
-              moment()
+              moment('2020-02-02')
                 .subtract(4, 'days')
                 .toDate(),
               'Block 4',
@@ -84,7 +84,7 @@ storiesOf('scenes/Landing', module)
           dates: [
             date(
               'StatusBlock5.Date1',
-              moment()
+              moment('2020-02-02')
                 .subtract(2, 'days')
                 .toDate(),
               'Block 5',
