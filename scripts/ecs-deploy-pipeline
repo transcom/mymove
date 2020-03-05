@@ -124,6 +124,13 @@ echo "$task_image"
 # Submit pipeline #
 ###################
 
-jq -n --argjson  COMMIT "${CIRCLE_SHA1}" MIGRATION_TASKDEF_ARN "${migration_taskdef_arn}" APP_TASKDEF_ARN "${app_taskdef_arn}" -f "${DIR}/../config/env/${environment}.deployment.json"
+# lets build the json to feed into the stepfunction
+pipeline_json=$(jq -n --arg  COMMIT "${CIRCLE_SHA1}" \
+                   --arg MIGRATION_TASKDEF_ARN "${migration_taskdef_arn}" \
+                   --arg APP_TASKDEF_ARN "${app_taskdef_arn}" \
+                   -f "${DIR}/../config/env/${environment}.deployment.jq")
 
-cat "${DIR}/../config/env/${environment}.deployment.json"
+echo "${pipeline_json}"
+
+aws stepfunctions start-execution --state-machine-arn "arn:aws:states:us-west-2:923914045601:stateMachine:app-lee-deploy" \
+    --name "${CIRCLE_SHA1}" --input "${pipeline_json}"
