@@ -427,7 +427,7 @@ DROP TABLE temp_tsp_discount_rates;
 
 You will have to create a secure migration for this data import. Two files will need to be created,
 the file that contains the real data and a local secure migration (dummy file for dev). Follow the
-[secure migration steps](../how-to/migrate-the-database.md#secure-migrations).
+[secure migration steps](../database/migrate-the-database.md#creating-secure-migrations).
 
 ### How to create the dummy file
 
@@ -443,5 +443,5 @@ data and scrubbing of key columns, output the results, then restore the original
 ./scripts/export-obfuscated-tspp-sample <filename>
 ```
 
-Complete the [secure migration steps](../how-to/migrate-the-database.md#secure-migrations) to
+Complete the [secure migration steps](../database/migrate-the-database.md#creating-secure-migrations) to
 submit both migration files.
