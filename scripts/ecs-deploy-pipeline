@@ -123,9 +123,7 @@ echo "$task_image"
 ###################
 # Submit pipeline #
 ###################
-sed -i "s/TEMPLATE_COMMIT/${CIRCLE_SHA1}/" "${DIR}/../config/env/${environment}.deployment.json"
-sed -i "s/template_success_message/successful deployment/" "${DIR}/../config/env/${environment}.deployment.json"
-sed -i "s/template_migration_taskdef_arn/${migration_taskdef_arn}/" "${DIR}/../config/env/${environment}.deployment.json"
-sed -i "s/template_app_taskdef_arn/${app_taskdef_arn}/" "${DIR}/../config/env/${environment}.deployment.json"
+
+jq -n --argjson  COMMIT "${CIRCLE_SHA1}" MIGRATION_TASKDEF_ARN "${migration_taskdef_arn}" APP_TASKDEF_ARN "${app_taskdef_arn}" -f "${DIR}/../config/env/${environment}.deployment.json"
 
 cat "${DIR}/../config/env/${environment}.deployment.json"
