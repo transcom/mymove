@@ -16,7 +16,7 @@ func (suite *ConvertSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestMoveTaskOrderServiceSuite(t *testing.T) {
+func TestConvertHelperSuite(t *testing.T) {
 	ts := &ConvertSuite{
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
