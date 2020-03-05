@@ -78,8 +78,7 @@ class WeightTicketListItem extends Component {
             <h4>
               {isWeightTicketSet && (
                 <>
-                  {vehicle_nickname}
-                  {formatToOrdinal(num + 1)} set
+                  {vehicle_nickname} {formatToOrdinal(num + 1)} set
                 </>
               )}
             </h4>
