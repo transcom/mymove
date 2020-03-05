@@ -23,7 +23,7 @@ type moveTaskOrderCreator struct {
 	db      *pop.Connection
 }
 
-// CreateMoveTaskOrder creates an MTO Service Item
+// CreateMoveTaskOrder creates a move task order
 func (o *moveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) (*models.MoveTaskOrder, *validate.Errors, error) {
 	// generate reference id if empty
 	if strings.TrimSpace(moveTaskOrder.ReferenceID) == "" {
@@ -43,7 +43,7 @@ func (o *moveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.MoveTas
 		return nil, verrs, err
 	}
 
-	// create default server items as well
+	// create default service items as well
 	err = o.createDefaultServiceItems(moveTaskOrder)
 	if err != nil {
 		return nil, nil, err
@@ -52,7 +52,7 @@ func (o *moveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.MoveTas
 	return moveTaskOrder, nil, nil
 }
 
-// NewMoveTaskOrderCreator returns a new MTO service item creator
+// NewMoveTaskOrderCreator returns an new creator
 func NewMoveTaskOrderCreator(builder createMoveTaskOrderQueryBuilder, db *pop.Connection) services.MoveTaskOrderCreator {
 	return &moveTaskOrderCreator{builder, db}
 }
