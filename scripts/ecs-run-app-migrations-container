@@ -18,7 +18,6 @@ set -u
 readonly name=app-migrations
 readonly image=$1
 readonly environment=$2
-readonly ECR_DIGEST=$3
 
 readonly RESERVATION_CPU=256
 readonly RESERVATION_MEM=512
@@ -43,26 +42,6 @@ show_logs() {
     echo
 }
 
-# Compare recorded sha with the ecr digest sha
-check_ecr_digest() {
-  local image_name=$1
-  local repoName=$2
-  local ECRDIGEST=$3
-
- # assumes image_name like url_path:imagetag
-  IFS=":"; read -ra imagetag <<< "${image_name}"; unset IFS;
-
-  imagesha="$(aws ecr describe-images --repository-name "${repoName}" --image-ids imageTag="${imagetag[1]}" | jq ".imageDetails[0] .imageDigest" -r)"
-  echo "${imagesha}"
-
-  if [ "${ECRDIGEST}" != "${imagesha}" ]
-  then
-    echo "Recorded ECR digest sha did not match the tagged image sha. Expected ${ECRDIGEST} but got ${imagesha}"
-    exit 1
-  fi
-
-}
-
 # Put a dimensionless metric into cloudwatch
 put_metric() {
     local metric_name="$1"
@@ -71,11 +50,6 @@ put_metric() {
     timestamp=$(date +"%Y-%m-%dT%H:%M:%SZ")
     aws cloudwatch put-metric-data --metric-name "${metric_name}" --namespace "${namespace}" --value 1 --timestamp "${timestamp}"
 }
-
-# compare ecr digest
-echo
-echo "Comparing image digest with recorded image digest in a prior step"
-check_ecr_digest "${image}" "${name}" "${ECR_DIGEST}"
 
 # create new task definition with the given image
 echo "* Registering new task definition"
@@ -86,7 +60,6 @@ task_definition_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --service "${name}" \
   --environment "${environment}" \
   --image "${image}" \
-  --ecr-digest "${ECR_DIGEST}" \
   --variables-file "${DIR}/../config/env/${environment}.migrations.env" \
   --entrypoint "/bin/milmove migrate" \
   --cpu "${RESERVATION_CPU}" \

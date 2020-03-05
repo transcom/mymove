@@ -84,7 +84,7 @@ commands:
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
       - run:
           name: Run migrations
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT $ECR_DIGEST
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations@${ECR_DIGEST} $APP_ENVIRONMENT
           no_output_timeout: 60m
           environment:
             CHAMBER_RETRIES: 20
@@ -108,17 +108,17 @@ commands:
           command: echo $ECR_DIGEST
       - deploy:
           name: Deploy fuel price data task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}" $ECR_DIGEST << parameters.repo >>
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy post move email survey task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}" $ECR_DIGEST << parameters.repo >>
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy payment reminder email task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}" $ECR_DIGEST << parameters.repo >>
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
@@ -148,7 +148,7 @@ commands:
           command: echo $ECR_DIGEST
       - deploy:
           name: Deploy app service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}" $ECR_DIGEST << parameters.repo >>
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - run:
           name: Health Check
@@ -187,7 +187,7 @@ commands:
           command: echo $ECR_DIGEST
       - deploy:
           name: Deploy app-client-tls service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}" $ECR_DIGEST << parameters.repo >>
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - run:
           name: Health Check

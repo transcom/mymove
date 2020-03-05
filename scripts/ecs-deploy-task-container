@@ -21,31 +21,10 @@ set -u
 readonly name=$1
 readonly image=$2
 readonly environment=$3
-readonly ECR_DIGEST=$4
-readonly repo=$5
 
 readonly RESERVATION_CPU=256
 readonly RESERVATION_MEM=512
 
-# Compare recorded sha with the ecr digest sha
-check_ecr_digest() {
-  local image_name=$1
-  local repoName=$2
-  local ECRDIGEST=$3
-
- # assumes image_name like url_path:imagetag
-  IFS=":"; read -ra imagetag <<< "${image_name}"; unset IFS;
-
-  imagesha="$(aws ecr describe-images --repository-name "${repoName}" --image-ids imageTag="${imagetag[1]}" | jq ".imageDetails[0] .imageDigest" -r)"
-  echo "${imagesha}"
-
-  if [ "${ECRDIGEST}" != "${imagesha}" ]
-  then
-    echo "Recorded ECR digest sha did not match the tagged image sha. Expected ${ECRDIGEST} but got ${imagesha}"
-    exit 1
-  fi
-
-}
 
 echo "Checking for existence of variables file"
 
@@ -56,10 +35,6 @@ if [ ! -f "${variables_file}" ]; then
 fi
 
 echo
-echo "Comparing image digest with recorded image digest in a prior step"
-check_ecr_digest "${image}" "${repo}" "${ECR_DIGEST}"
-
-echo
 echo "Preparing ECS task definition for ${name}"
 
 "${DIR}/../bin/ecs-deploy" task-def \
@@ -68,7 +43,6 @@ echo "Preparing ECS task definition for ${name}"
   --service app-tasks \
   --environment "${environment}" \
   --image "${image}" \
-  --ecr-digest "${ECR_DIGEST}" \
   --cpu "${RESERVATION_CPU}" \
   --memory "${RESERVATION_MEM}" \
   --variables-file "${variables_file}" \
@@ -84,7 +58,6 @@ task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --service app-tasks \
   --environment "${environment}" \
   --image "${image}" \
-  --ecr-digest "${ECR_DIGEST}" \
   --cpu "${RESERVATION_CPU}" \
   --memory "${RESERVATION_MEM}" \
   --variables-file "${variables_file}" \

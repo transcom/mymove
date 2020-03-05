@@ -92,14 +92,6 @@ func (e *errInvalidImage) Error() string {
 	return fmt.Sprintf("invalid AWS ECR image tag %q", e.Image)
 }
 
-type errInvalidEcrDigest struct {
-	ECRDigest string
-}
-
-func (e *errInvalidEcrDigest) Error() string {
-	return fmt.Sprintf("invalid AWS ECR image tag %q", e.ECRDigest)
-}
-
 type errInvalidEntryPoint struct {
 	EntryPoint string
 }
@@ -124,13 +116,11 @@ const (
 	cpuFlag           string = "cpu"
 	memFlag           string = "memory"
 	registerFlag      string = "register"
-	ecrDigestFlag     string = "ecr-digest"
 )
 
 // ECRImage represents an ECR Image tag broken into its constituent parts
 type ECRImage struct {
 	AWSRegion      string
-	DigestURI      string
 	imageURI       string
 	ImageTag       string
 	RegistryID     string
@@ -139,17 +129,16 @@ type ECRImage struct {
 }
 
 // NewECRImage returns a new ECR Image object
-func NewECRImage(imageURI, imageDigest string) (*ECRImage, error) {
-	imageParts := strings.Split(imageURI, ":")
+func NewECRImage(imageURI string) (*ECRImage, error) {
+	imageParts := strings.Split(imageURI, "@")
 	if len(imageParts) != 2 {
-		return nil, fmt.Errorf("Image URI requires ':'")
+		return nil, fmt.Errorf("Image URI requires '@'")
 	}
 	repositoryURI, imageTag := imageParts[0], imageParts[1]
 	repositoryURIParts := strings.Split(repositoryURI, "/")
 	repositoryName := repositoryURIParts[1]
 	repositoryDomainParts := strings.Split(repositoryURIParts[0], ".")
 	registryID, awsRegion := repositoryDomainParts[0], repositoryDomainParts[3]
-	digestURI := fmt.Sprintf("%v@%v", repositoryURI, imageDigest)
 
 	return &ECRImage{
 		AWSRegion:      awsRegion,
@@ -158,7 +147,6 @@ func NewECRImage(imageURI, imageDigest string) (*ECRImage, error) {
 		RegistryID:     registryID,
 		RepositoryURI:  repositoryURI,
 		RepositoryName: repositoryName,
-		DigestURI:      digestURI,
 	}, nil
 }
 
@@ -177,7 +165,6 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	flag.String(serviceFlag, "app", fmt.Sprintf("The service name (choose %q)", services))
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
 	flag.String(imageURIFlag, "", "The URI of the container image to use in the task definition")
-	flag.String(ecrDigestFlag, "", "The sha256 value of a registered ecr image")
 	flag.String(variablesFileFlag, "", "A file containing variables for the task definiton")
 	flag.String(entryPointFlag, fmt.Sprintf("%s serve", binMilMove), "The entryPoint for the container")
 	flag.Int(cpuFlag, int(512), "The CPU reservation")
@@ -263,11 +250,6 @@ func checkTaskDefConfig(v *viper.Viper) error {
 	image := v.GetString(imageURIFlag)
 	if len(image) == 0 {
 		return fmt.Errorf("%q is invalid: %w", imageURIFlag, &errInvalidImage{Image: image})
-	}
-
-	ecrDigest := v.GetString(ecrDigestFlag)
-	if len(ecrDigest) == 0 {
-		return fmt.Errorf("%q is invalid: %w", ecrDigestFlag, &errInvalidEcrDigest{ECRDigest: ecrDigest})
 	}
 
 	if variablesFile := v.GetString(variablesFileFlag); len(variablesFile) > 0 {
@@ -448,14 +430,13 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	serviceName := v.GetString(serviceFlag)
 	imageURI := v.GetString(imageURIFlag)
 	variablesFile := v.GetString(variablesFileFlag)
-	recordedImageDigest := v.GetString(ecrDigestFlag)
 
 	// Short service name needed for RDS, CloudWatch Logs, and SSM
 	serviceNameParts := strings.Split(serviceName, "-")
 	serviceNameShort := serviceNameParts[0]
 
 	// Confirm the image exists
-	ecrImage, errECRImage := NewECRImage(imageURI, recordedImageDigest)
+	ecrImage, errECRImage := NewECRImage(imageURI)
 	if errECRImage != nil {
 		quit(logger, nil, fmt.Errorf("unable to recognize image URI %q: %w", imageURI, errECRImage))
 	}
@@ -469,14 +450,14 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	imageList, describeImageErr := serviceECR.DescribeImages(&ecr.DescribeImagesInput{
 		ImageIds: []*ecr.ImageIdentifier{
 			{
-				ImageDigest: aws.String(recordedImageDigest),
+				ImageDigest: aws.String(ecrImage.imageURI),
 			},
 		},
 		RegistryId:     aws.String(ecrImage.RegistryID),
 		RepositoryName: aws.String(ecrImage.RepositoryName),
 	})
 	if describeImageErr != nil {
-		quit(logger, nil, fmt.Errorf("unable to retrieve image from %q: %w", recordedImageDigest, describeImageErr))
+		quit(logger, nil, fmt.Errorf("unable to retrieve image from %q: %w", ecrImage.imageURI, describeImageErr))
 	}
 	// We should find atleast one image with this criteria
 	if len(imageList.ImageDetails) < 1 {
@@ -559,10 +540,8 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
-				Name: aws.String(containerDefName),
-
-				Image: aws.String(ecrImage.DigestURI),
-
+				Name:        aws.String(containerDefName),
+				Image:       aws.String(ecrImage.imageURI),
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPointList),
 				Command:     []*string{},
