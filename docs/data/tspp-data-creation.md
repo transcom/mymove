@@ -443,5 +443,5 @@ data and scrubbing of key columns, output the results, then restore the original
 ./scripts/export-obfuscated-tspp-sample <filename>
 ```
 
-Complete the [secure migration steps](../how-to/migrate-the-database.md#secure-migrations) to
+Complete the [secure migration steps](../database/migrate-the-database.md#creating-secure-migrations) to
 submit both migration files.
