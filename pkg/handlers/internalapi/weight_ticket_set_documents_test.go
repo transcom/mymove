@@ -186,36 +186,36 @@ func (suite *HandlerSuite) TestCreaterWeightTicketSetDocumentHandlerFailure() {
 		suite.CheckErrorResponse(response, 422, "weight ticket set for type CAR must have values for vehicle make and model")
 	})
 
-	//suite.T().Run("box truck without nickname fails", func(t *testing.T){
-	//	request := httptest.NewRequest("POST", "/fake/path", nil)
-	//	request = suite.AuthenticateRequest(request, sm)
-	//
-	//	weightTicketSetType := internalmessages.WeightTicketSetType("BOX_TRUCK")
-	//	newWeightTicketSetDocumentPayload := internalmessages.CreateWeightTicketDocumentsPayload{
-	//		UploadIds:                uploadIds,
-	//		EmptyWeight:              handlers.FmtInt64(1000),
-	//		FullWeight:               handlers.FmtInt64(2000),
-	//		EmptyWeightTicketMissing: handlers.FmtBool(false),
-	//		FullWeightTicketMissing:  handlers.FmtBool(false),
-	//		PersonallyProcuredMoveID: handlers.FmtUUID(ppm.ID),
-	//		VehicleMake:         	  handlers.FmtString("Radio Flyer"),
-	//		VehicleModel:          	  handlers.FmtString("Wagon"),
-	//		WeightTicketSetType:      &weightTicketSetType,
-	//		WeightTicketDate:         handlers.FmtDate(testdatagen.NextValidMoveDate),
-	//		TrailerOwnershipMissing:  handlers.FmtBool(false),
-	//	}
-	//
-	//	newWeightTicketSetDocParams := movedocop.CreateWeightTicketDocumentParams{
-	//		HTTPRequest:                request,
-	//		CreateWeightTicketDocument: &newWeightTicketSetDocumentPayload,
-	//		MoveID:                     strfmt.UUID(ppm.MoveID.String()),
-	//	}
-	//
-	//	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	//	fakeS3 := storageTest.NewFakeS3Storage(true)
-	//	context.SetFileStorer(fakeS3)
-	//	handler := CreateWeightTicketSetDocumentHandler{context}
-	//	response := handler.Handle(newWeightTicketSetDocParams)
-	//	suite.CheckErrorResponse(response, 422, "weight ticket set for type BOX_TRUCK must have a value for vehicle nickname")
-	//})
+	suite.T().Run("box truck without nickname fails", func(t *testing.T) {
+		request := httptest.NewRequest("POST", "/fake/path", nil)
+		request = suite.AuthenticateRequest(request, sm)
+
+		weightTicketSetType := internalmessages.WeightTicketSetType("BOX_TRUCK")
+		newWeightTicketSetDocumentPayload := internalmessages.CreateWeightTicketDocumentsPayload{
+			UploadIds:                uploadIds,
+			EmptyWeight:              handlers.FmtInt64(1000),
+			FullWeight:               handlers.FmtInt64(2000),
+			EmptyWeightTicketMissing: handlers.FmtBool(false),
+			FullWeightTicketMissing:  handlers.FmtBool(false),
+			PersonallyProcuredMoveID: handlers.FmtUUID(ppm.ID),
+			VehicleMake:              handlers.FmtString("Radio Flyer"),
+			VehicleModel:             handlers.FmtString("Wagon"),
+			WeightTicketSetType:      &weightTicketSetType,
+			WeightTicketDate:         handlers.FmtDate(testdatagen.NextValidMoveDate),
+			TrailerOwnershipMissing:  handlers.FmtBool(false),
+		}
+
+		newWeightTicketSetDocParams := movedocop.CreateWeightTicketDocumentParams{
+			HTTPRequest:                request,
+			CreateWeightTicketDocument: &newWeightTicketSetDocumentPayload,
+			MoveID:                     strfmt.UUID(ppm.MoveID.String()),
+		}
+
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		context.SetFileStorer(fakeS3)
+		handler := CreateWeightTicketSetDocumentHandler{context}
+		response := handler.Handle(newWeightTicketSetDocParams)
+		suite.CheckErrorResponse(response, 422, "weight ticket set for type BOX_TRUCK must have a value for vehicle nickname")
+	})
 }
