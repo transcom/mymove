@@ -46,5 +46,5 @@ readonly ECR_DIGEST="$(aws ecr describe-images --repository-name "${repo_name}" 
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
 
-readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}"
-scripts/ecs-run-app-migrations-container "${image}" "${APP_ENVIRONMENT}" "${ECR_DIGEST}"
+readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations@${ECR_DIGEST}"
+scripts/ecs-run-app-migrations-container "${image}" "${APP_ENVIRONMENT}"

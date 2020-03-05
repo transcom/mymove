@@ -44,9 +44,9 @@ readonly repo_name="app-tasks"
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
 
-readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}"
 readonly ECR_DIGEST="$(aws ecr describe-images --repository-name "${repo_name}" --image-ids imageTag="${CIRCLE_SHA1}" | jq ".imageDetails[0] .imageDigest" -r)"
+readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}"
 
-scripts/ecs-deploy-task-container save-fuel-price-data "${image}" "${APP_ENVIRONMENT}" "${ECR_DIGEST}" "${repo_name}"
-scripts/ecs-deploy-task-container send-post-move-survey "${image}" "${APP_ENVIRONMENT}" "${ECR_DIGEST}" "${repo_name}"
-scripts/ecs-deploy-task-container send-payment-reminder "${image}" "${APP_ENVIRONMENT}" "${ECR_DIGEST}" "${repo_name}"
+scripts/ecs-deploy-task-container save-fuel-price-data "${image}" "${APP_ENVIRONMENT}"
+scripts/ecs-deploy-task-container send-post-move-survey "${image}" "${APP_ENVIRONMENT}"
+scripts/ecs-deploy-task-container send-payment-reminder "${image}" "${APP_ENVIRONMENT}"
