@@ -1,9 +1,23 @@
 package primeapi
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http/httptest"
+	"testing"
 	"time"
+
+	"github.com/transcom/mymove/pkg/services"
+
+	"github.com/gobuffalo/validate"
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/services/mocks"
+
+	"github.com/transcom/mymove/pkg/services/fetch"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/models"
 
@@ -100,4 +114,103 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 
 	suite.Equal(1, len(moveTaskOrdersPayload))
 	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrdersPayload[0].ID.String())
+}
+
+func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
+	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	eTag := base64.StdEncoding.EncodeToString([]byte(mto.UpdatedAt.Format(time.RFC3339Nano)))
+
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
+	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	ppmType := "FULL"
+	params := movetaskorderops.UpdateMTOPostCounselingInformationParams{
+		HTTPRequest:     req,
+		MoveTaskOrderID: mto.ID.String(),
+		Body: movetaskorderops.UpdateMTOPostCounselingInformationBody{
+			PpmType:            ppmType,
+			PpmEstimatedWeight: 3000,
+		},
+		IfMatch: eTag,
+	}
+
+	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		fetcher := fetch.NewFetcher(queryBuilder)
+		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder)
+		handler := UpdateMTOPostCounselingInformationHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationOK{}, response)
+
+		okResponse := response.(*movetaskorderops.UpdateMTOPostCounselingInformationOK)
+		suite.Equal(mto.ID.String(), okResponse.Payload.ID.String())
+		suite.NotNil(okResponse.Payload.ETag)
+		suite.Equal(okResponse.Payload.PpmType, "FULL")
+		suite.Equal(okResponse.Payload.PpmEstimatedWeight, int64(3000))
+	})
+	suite.T().Run("Patch failure - 500", func(t *testing.T) {
+		mockFetcher := mocks.Fetcher{}
+		mockUpdater := mocks.MoveTaskOrderUpdater{}
+		handler := UpdateMTOPostCounselingInformationHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockFetcher,
+			&mockUpdater,
+		}
+
+		internalServerErr := errors.New("ServerError")
+
+		mockUpdater.On("UpdatePostCounselingInfo",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, internalServerErr)
+
+		response := handler.Handle(params)
+		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationInternalServerError{}, response)
+	})
+
+	suite.T().Run("Patch failure - 404", func(t *testing.T) {
+		mockFetcher := mocks.Fetcher{}
+		mockUpdater := mocks.MoveTaskOrderUpdater{}
+		handler := UpdateMTOPostCounselingInformationHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockFetcher,
+			&mockUpdater,
+		}
+
+		mockUpdater.On("UpdatePostCounselingInfo",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, services.NotFoundError{})
+
+		response := handler.Handle(params)
+		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationInternalServerError{}, response)
+	})
+
+	suite.T().Run("Patch failure - 422", func(t *testing.T) {
+		mockFetcher := mocks.Fetcher{}
+		mockUpdater := mocks.MoveTaskOrderUpdater{}
+		handler := UpdateMTOPostCounselingInformationHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockFetcher,
+			&mockUpdater,
+		}
+
+		mockUpdater.On("UpdatePostCounselingInfo",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, movetaskorder.ValidationError{Verrs: validate.NewErrors()})
+
+		response := handler.Handle(params)
+		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationUnprocessableEntity{}, response)
+	})
 }

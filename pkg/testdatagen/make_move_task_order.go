@@ -18,12 +18,18 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 		referenceID, _ = models.GenerateReferenceID(db)
 	}
 
+	var ppmType string
+	if assertions.MoveTaskOrder.PPMType == "" {
+		ppmType = "PARTIAL"
+	}
+
 	moveTaskOrder := models.MoveTaskOrder{
 		MoveOrder:          moveOrder,
 		MoveOrderID:        moveOrder.ID,
 		ReferenceID:        referenceID,
 		IsAvailableToPrime: false,
 		IsCanceled:         false,
+		PPMType:            ppmType,
 	}
 
 	// Overwrite values with those from assertions

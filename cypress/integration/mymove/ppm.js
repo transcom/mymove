@@ -94,7 +94,7 @@ function SMSubmitsMove() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('#incentive-estimation-slider').click();
 
-  cy.get('[data-cy="incentive-range-text"]').contains('$');
+  cy.get('[data-cy="incentive-range-values"]').contains('$');
 
   cy.nextPage();
 

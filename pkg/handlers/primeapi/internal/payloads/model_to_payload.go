@@ -1,9 +1,9 @@
 package payloads
 
 import (
-	"github.com/go-openapi/strfmt"
-
 	"github.com/transcom/mymove/pkg/etag"
+
+	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -27,9 +27,40 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		PaymentRequests:    *paymentRequests,
 		MtoServiceItems:    *mtoServiceItems,
+		PpmEstimatedWeight: int64(moveTaskOrder.PPMEstimatedWeight),
+		PpmType:            moveTaskOrder.PPMType,
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
+	return payload
+}
+
+// MoveTaskOrderWithEtag payload
+func MoveTaskOrderWithEtag(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskOrderWithEtag {
+	if moveTaskOrder == nil {
+		return nil
+	}
+	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
+	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
+	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
+	payload := &primemessages.MoveTaskOrderWithEtag{
+		MoveTaskOrder: primemessages.MoveTaskOrder{
+			ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
+			CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
+			IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
+			IsCanceled:         &moveTaskOrder.IsCanceled,
+			MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
+			ReferenceID:        moveTaskOrder.ReferenceID,
+			PaymentRequests:    *paymentRequests,
+			PpmEstimatedWeight: moveTaskOrder.PPMEstimatedWeight.Int64(),
+			PpmType:            moveTaskOrder.PPMType,
+			MtoServiceItems:    *mtoServiceItems,
+			MtoShipments:       *mtoShipments,
+			UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
+		},
+		ETag: etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+	}
+
 	return payload
 }
 
@@ -170,11 +201,12 @@ func Address(address *models.Address) *primemessages.Address {
 // PaymentRequest payload
 func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.PaymentRequest {
 	return &primemessages.PaymentRequest{
-		ID:              strfmt.UUID(paymentRequest.ID.String()),
-		Status:          primemessages.PaymentRequestStatus(paymentRequest.Status),
-		IsFinal:         &paymentRequest.IsFinal,
-		MoveTaskOrderID: strfmt.UUID(paymentRequest.MoveTaskOrderID.String()),
-		RejectionReason: paymentRequest.RejectionReason,
+		ID:                   strfmt.UUID(paymentRequest.ID.String()),
+		IsFinal:              &paymentRequest.IsFinal,
+		MoveTaskOrderID:      strfmt.UUID(paymentRequest.MoveTaskOrderID.String()),
+		PaymentRequestNumber: paymentRequest.PaymentRequestNumber,
+		RejectionReason:      paymentRequest.RejectionReason,
+		Status:               primemessages.PaymentRequestStatus(paymentRequest.Status),
 	}
 }
 
