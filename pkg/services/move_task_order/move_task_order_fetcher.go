@@ -45,43 +45,22 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mo
 		}
 	}
 
-	f.createDefaultServiceItems(mto)
-
 	return mto, nil
 }
 
-func (f moveTaskOrderFetcher) createDefaultServiceItems(mto *models.MoveTaskOrder) error {
-	var reServices []models.ReService
-	err := f.db.Where("code in (?)", []string{"MS", "CS"}).All(&reServices)
-
-	if err != nil {
-		return err
-	}
-
-	defaultServiceItems := make(map[uuid.UUID]models.MTOServiceItem)
-	for _, reService := range reServices {
-		defaultServiceItems[reService.ID] = models.MTOServiceItem{
-			ReServiceID:     reService.ID,
-			MoveTaskOrderID: mto.ID,
-		}
-	}
-
-	// Remove the ones that exist on the mto
-	for _, item := range mto.MTOServiceItems {
-		for _, reService := range reServices {
-			if item.ReServiceID == reService.ID {
-				delete(defaultServiceItems, reService.ID)
-			}
-		}
-	}
-
-	for _, serviceItem := range defaultServiceItems {
-		_, err := f.db.ValidateAndCreate(&serviceItem)
-
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
+//MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
+//func (f moveTaskOrderFetcher) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
+//	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
+//	if err != nil {
+//		return &models.MoveTaskOrder{}, err
+//	}
+//	mto.IsAvailableToPrime = true
+//	vErrors, err := f.db.ValidateAndUpdate(mto)
+//	if vErrors.HasAny() {
+//		return &models.MoveTaskOrder{}, services.InvalidInputError{}
+//	}
+//	if err != nil {
+//		return &models.MoveTaskOrder{}, err
+//	}
+//	return mto, nil
+//}
