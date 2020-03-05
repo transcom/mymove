@@ -169,8 +169,9 @@ Understand the [difference between rem and em](https://zellwk.com/blog/rem-vs-em
 
 #### USWDS
 
-* Check the [USWDS Design Standards](https://standards.usa.gov/components/) for a component that matches your needs. Maximize the code view to see what classes to use to replicate the component styles.
-* USWDS has a [Slack chat](https://chat.18f.gov/) you can go to for help. Get invited to it by filling out this form.
+* Check the [Truss USWDS React package](https://github.com/trussworks/react-uswds) for a component that matches your needs. Maximize the code view to see what classes to use to replicate the component styles.
+* If there isn't a component there already Check the [Truss USWDS React package](https://standards.usa.gov/components/) for a component that matches your needs. Please add it to the USWDS React code and then import the new version for use in MilMove.
+* USWDS has a [Slack chat](https://chat.18f.gov/) you can go to for help. Get invited to it by filling out [this form](https://chat.18f.gov/).
 
 ## Tooling
 
