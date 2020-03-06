@@ -24,7 +24,7 @@ h6 {
   @include u-text('normal');
 }
 p {
-  @include typeset('body',  4, 4);
+  @include typeset('body',  4, 3);
 }
 small {
   @include typeset('body',  2, 3);
