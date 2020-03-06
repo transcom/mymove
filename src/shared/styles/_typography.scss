@@ -30,9 +30,9 @@ small {
   @include typeset('body',  2, 2);
 }
 a {
-  text-decoration: none;
+  @include u-text('none');
   &:hover , &.hover {
-    text-decoration: underline;
+    @include u-text('underline');
   }
   &:visited, &.visited {
     @include u-text('violet-warm-60');
@@ -40,7 +40,7 @@ a {
   &:disabled, &.disabled {
     @include u-text('gray-40');
     &:hover  {
-      text-decoration: none;
+      @include u-text('none');
     }
   }
   &:focus , &.focus {
