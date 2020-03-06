@@ -613,7 +613,6 @@ jobs:
             DB_NAME_TEST: test_db
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
-
       - run:
           name: make db_test_migrate for milmove_admin
           command: make db_test_migrate
@@ -629,11 +628,8 @@ jobs:
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
       - run:
-          name: add github fingerprint
-          command: mkdir -p ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
-      - run:
           name: clone mymove_admin repo
-          command: cd ..; git clone git@github.com:transcom/milmove_admin.git
+          command: cd ..; git clone https://github.com/transcom/milmove_admin.git
       - run:
           name: generate models and migrate
           command: cd ..;cd milmove_admin; make generate_models
