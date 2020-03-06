@@ -6,13 +6,17 @@ import store from 'shared/store';
 import { HashRouter as Router } from 'react-router-dom';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 
-function mountComponents(moreWeightTickets = 'Yes', formInvalid, uploderWithInvalidState) {
+function mountComponents(
+  moreWeightTickets = 'Yes',
+  formInvalid,
+  uploaderWithInvalidState,
+  weightTicketSetType = 'CAR',
+) {
   const initialValues = {
-    empty_weight: 1100,
-    full_weight: 2000,
-    vehicle_nickname: 'KIRBY',
-    weight_ticket_set_type: 'CAR',
-    weight_ticket_date: '2019-05-22',
+    emptyWeight: 1100,
+    fullWeight: 2000,
+    weightTicketSetType: weightTicketSetType,
+    weightTicketDate: '2019-05-22',
   };
   const match = { params: { moveId: 'someID' } };
   const wrapper = mount(
@@ -25,9 +29,9 @@ function mountComponents(moreWeightTickets = 'Yes', formInvalid, uploderWithInva
   const wt = wrapper.find('WeightTicket');
   if (formInvalid !== undefined) {
     wt.instance().invalid = jest.fn().mockReturnValue(formInvalid);
-    wt.instance().uploaderWithInvalidState = jest.fn().mockReturnValue(uploderWithInvalidState);
+    wt.instance().uploaderWithInvalidState = jest.fn().mockReturnValue(uploaderWithInvalidState);
   }
-  wt.setState({ additionalWeightTickets: moreWeightTickets, initialValues: initialValues });
+  wt.setState({ additionalWeightTickets: moreWeightTickets, ...initialValues });
   wt.update();
   return wrapper.find('WeightTicket');
 }
@@ -43,6 +47,42 @@ describe('Weight tickets page', () => {
       expect(buttonGroup.length).toEqual(1);
       expect(saveAndAdd.props().disabled).toEqual(true);
       expect(finishLater.props().disabled).not.toEqual(true);
+    });
+  });
+  describe('Service member chooses CAR as weight ticket type', () => {
+    it('renders vehicle make and model fields', () => {
+      const weightTicket = mountComponents('No', true, true, 'CAR');
+      const vehicleNickname = weightTicket.find('[data-cy="vehicle_nickname"]');
+      const vehicleMake = weightTicket.find('[data-cy="vehicle_make"]');
+      const vehicleModel = weightTicket.find('[data-cy="vehicle_model"]');
+
+      expect(vehicleNickname.length).toEqual(0);
+      expect(vehicleMake.length).toEqual(1);
+      expect(vehicleModel.length).toEqual(1);
+    });
+  });
+  describe('Service member chooses BOX TRUCK as weight ticket type', () => {
+    it('renders vehicle nickname field', () => {
+      const weightTicket = mountComponents('No', true, true, 'BOX_TRUCK');
+      const vehicleNickname = weightTicket.find('[data-cy="vehicle_nickname"]');
+      const vehicleMake = weightTicket.find('[data-cy="vehicle_make"]');
+      const vehicleModel = weightTicket.find('[data-cy="vehicle_model"]');
+
+      expect(vehicleNickname.length).toEqual(1);
+      expect(vehicleMake.length).toEqual(0);
+      expect(vehicleModel.length).toEqual(0);
+    });
+  });
+  describe('Service member chooses PROGEAR as weight ticket type', () => {
+    it('renders vehicle nickname (progear type) field', () => {
+      const weightTicket = mountComponents('No', true, true, 'PRO_GEAR');
+      const vehicleNickname = weightTicket.find('[data-cy="vehicle_nickname"]');
+      const vehicleMake = weightTicket.find('[data-cy="vehicle_make"]');
+      const vehicleModel = weightTicket.find('[data-cy="vehicle_model"]');
+
+      expect(vehicleNickname.length).toEqual(1);
+      expect(vehicleMake.length).toEqual(0);
+      expect(vehicleModel.length).toEqual(0);
     });
   });
   describe('Service member has uploaded both a weight tickets', () => {

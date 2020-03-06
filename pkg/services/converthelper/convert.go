@@ -1,8 +1,12 @@
-package models
+package converthelper
 
 import (
 	"fmt"
 	"time"
+
+	"github.com/transcom/mymove/pkg/models"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -10,14 +14,14 @@ import (
 
 // ConvertFromPPMToGHC creates models in the new GHC data model from data in a PPM move
 func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error) {
-	var move Move
+	var move models.Move
 	if err := db.Eager("Orders.ServiceMember.DutyStation.Address", "Orders.NewDutyStation.Address").Find(&move, moveID); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not fetch move with id %s, %w", moveID, err)
 	}
 
 	// service member -> customer
 	sm := move.Orders.ServiceMember
-	var customer Customer
+	var customer models.Customer
 	customer.CreatedAt = sm.CreatedAt
 	customer.UpdatedAt = sm.UpdatedAt
 	customer.DODID = *sm.Edipi
@@ -34,13 +38,13 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	}
 
 	// create entitlement (required by move order)
-	weight, entitlementErr := GetEntitlement(*sm.Rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
+	weight, entitlementErr := models.GetEntitlement(*sm.Rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
 	if entitlementErr != nil {
 		return uuid.Nil, entitlementErr
 	}
-	entitlement := Entitlement{
+	entitlement := models.Entitlement{
 		DependentsAuthorized: &move.Orders.HasDependents,
-		DBAuthorizedWeight:   IntPointer(weight),
+		DBAuthorizedWeight:   models.IntPointer(weight),
 	}
 
 	if err := db.Save(&entitlement); err != nil {
@@ -49,7 +53,7 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 
 	// orders -> move order
 	orders := move.Orders
-	var mo MoveOrder
+	var mo models.MoveOrder
 	mo.CreatedAt = orders.CreatedAt
 	mo.UpdatedAt = orders.UpdatedAt
 	mo.Customer = &customer
@@ -76,26 +80,29 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	}
 
 	// create mto -> move task order
-	var mto MoveTaskOrder = MoveTaskOrder{
+	var mto models.MoveTaskOrder = models.MoveTaskOrder{
 		MoveOrderID: mo.ID,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
 
-	if err := db.Save(&mto); err != nil {
-		return uuid.Nil, fmt.Errorf("Could not save move task order, %w", err)
+	builder := query.NewQueryBuilder(db)
+	mtoCreator := movetaskorder.NewMoveTaskOrderCreator(builder, db)
+
+	if _, verrs, err := mtoCreator.CreateMoveTaskOrder(&mto); err != nil || (verrs != nil && verrs.HasAny()) {
+		return uuid.Nil, fmt.Errorf("Could not save move task order, %w, %v", err, verrs)
 	}
 
 	// create HHG -> house hold goods
 	// mto shipment of type HHG
 	requestedPickupDate := time.Now()
-	hhg := MTOShipment{
+	hhg := models.MTOShipment{
 		MoveTaskOrderID:      mto.ID,
 		RequestedPickupDate:  &requestedPickupDate,
 		PickupAddressID:      sm.DutyStation.AddressID,
 		DestinationAddressID: orders.NewDutyStation.AddressID,
-		ShipmentType:         MTOShipmentTypeHHG,
-		Status:               MTOShipmentStatusSubmitted,
+		ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+		Status:               models.MTOShipmentStatusSubmitted,
 		CreatedAt:            time.Now(),
 		UpdatedAt:            time.Now(),
 	}

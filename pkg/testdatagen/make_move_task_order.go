@@ -3,6 +3,8 @@ package testdatagen
 import (
 	"github.com/gobuffalo/pop"
 
+	mtoservicehelper "github.com/transcom/mymove/pkg/services/move_task_order/shared"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -15,7 +17,7 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 
 	var referenceID string
 	if assertions.MoveTaskOrder.ReferenceID == "" {
-		referenceID, _ = models.GenerateReferenceID(db)
+		referenceID, _ = mtoservicehelper.GenerateReferenceID(db)
 	}
 
 	var ppmType string

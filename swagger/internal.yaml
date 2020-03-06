@@ -1053,7 +1053,7 @@ definitions:
         $ref: '#/definitions/WeightTicketSetType'
       vehicle_nickname:
         type: string
-        title: Vehicle nickname (ex. 'My car')
+        title: Vehicle nickname (ex. 'Large box truck')
         x-nullable: true
       vehicle_make:
         type: string
@@ -1089,7 +1089,6 @@ definitions:
     required:
       - personally_procured_move_id
       - weight_ticket_set_type
-      - vehicle_nickname
       - full_weight_ticket_missing
       - empty_weight_ticket_missing
       - trailer_ownership_missing

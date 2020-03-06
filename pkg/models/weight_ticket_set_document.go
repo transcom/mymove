@@ -23,11 +23,11 @@ const (
 	// WeightTicketSetTypeCARTRAILER captures enum value "CAR_TRAILER"
 	WeightTicketSetTypeCARTRAILER WeightTicketSetType = "CAR_TRAILER"
 
-	// WeightTicketSetTypeBOXTRUCK captures enum value "BOXTRUCK"
-	WeightTicketSetTypeBOXTRUCK WeightTicketSetType = "BOXTRUCK"
+	// WeightTicketSetTypeBOXTRUCK captures enum value "BOX_TRUCK"
+	WeightTicketSetTypeBOXTRUCK WeightTicketSetType = "BOX_TRUCK"
 
-	// WeightTicketSetTypePROGEAR captures enum value "PROGEAR"
-	WeightTicketSetTypePROGEAR WeightTicketSetType = "PROGEAR"
+	// WeightTicketSetTypePROGEAR captures enum value "PRO_GEAR"
+	WeightTicketSetTypePROGEAR WeightTicketSetType = "PRO_GEAR"
 )
 
 // WeightTicketSetDocument weight ticket documents payload

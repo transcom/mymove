@@ -34,6 +34,10 @@ type PaymentRequest struct {
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
+	// payment request number
+	// Read Only: true
+	PaymentRequestNumber string `json:"paymentRequestNumber,omitempty"`
+
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 

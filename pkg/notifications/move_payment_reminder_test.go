@@ -262,13 +262,13 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 
 <p>If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.</p>
 
-<p>If you’re missing certified weight tickets, your PPPO will have to help. Call TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move ID: abc123.</p>
+<p>If you’re missing certified weight tickets, your PPPO will have to help. Call TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move locator code: abc123.</p>
 
 <p>Log in to MilMove to complete your request and get paid.</p>
 
 <p>Request payment within 45 days of your move date or you might not be able to get paid.</p>
 
-<p>If you have any questions or concerns, you can talk to a human! Call your local PPPO at TEST PPPO at 555-555-5555. Reference your move ID: abc123.</p>
+<p>If you have any questions or concerns, you can talk to a human! Call your local PPPO at TEST PPPO at 555-555-5555. Reference your move locator code: abc123.</p>
 `
 
 	htmlContent, err := pr.RenderHTML(s)
@@ -320,13 +320,13 @@ What if you’re missing documents?
 
 If you’re missing receipts, you can still request payment. You might not get reimbursement or a tax credit for those expenses.
 
-If you’re missing certified weight tickets, your PPPO will have to help. Call TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move ID: abc123.
+If you’re missing certified weight tickets, your PPPO will have to help. Call TEST PPPO at 555-555-5555 to have them walk you through it. Reference your move locator code: abc123.
 
 Log in to MilMove to complete your request and get paid.
 
 Request payment within 45 days of your move date or you might not be able to get paid.
 
-If you have any questions or concerns, you can talk to a human! Call your local PPPO at TEST PPPO at 555-555-5555. Reference your move ID: abc123.
+If you have any questions or concerns, you can talk to a human! Call your local PPPO at TEST PPPO at 555-555-5555. Reference your move locator code: abc123.
 `
 
 	textContent, err := pr.RenderText(s)
@@ -426,7 +426,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 		suite.NoError(err)
 		expectedEmailContent := emailContent{
 			recipientEmail: *emailInfo.Email,
-			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (%s)", emailInfo.NewDutyStationName, emailInfo.Locator),
+			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (move %s)", emailInfo.NewDutyStationName, emailInfo.Locator),
 			htmlBody:       htmlBody,
 			textBody:       textBody,
 		}

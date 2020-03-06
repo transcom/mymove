@@ -40,18 +40,20 @@ var validPaymentRequestStatus = []string{
 
 // PaymentRequest is an object representing a payment request on a move task order
 type PaymentRequest struct {
-	ID              uuid.UUID            `json:"id" db:"id"`
-	MoveTaskOrderID uuid.UUID            `db:"move_task_order_id"`
-	IsFinal         bool                 `json:"is_final" db:"is_final"`
-	Status          PaymentRequestStatus `json:"status" db:"status"`
-	RejectionReason *string              `json:"rejection_reason" db:"rejection_reason"`
-	RequestedAt     time.Time            `json:"requested_at" db:"requested_at"`
-	ReviewedAt      *time.Time           `json:"reviewed_at" db:"reviewed_at"`
-	SentToGexAt     *time.Time           `json:"sent_to_gex_at" db:"sent_to_gex_at"`
-	ReceivedByGexAt *time.Time           `json:"received_by_gex_at" db:"received_by_gex_at"`
-	PaidAt          *time.Time           `json:"paid_at" db:"paid_at"`
-	CreatedAt       time.Time            `db:"created_at"`
-	UpdatedAt       time.Time            `db:"updated_at"`
+	ID                   uuid.UUID            `json:"id" db:"id"`
+	MoveTaskOrderID      uuid.UUID            `db:"move_task_order_id"`
+	IsFinal              bool                 `json:"is_final" db:"is_final"`
+	Status               PaymentRequestStatus `json:"status" db:"status"`
+	RejectionReason      *string              `json:"rejection_reason" db:"rejection_reason"`
+	PaymentRequestNumber string               `json:"payment_request_number" db:"payment_request_number"`
+	SequenceNumber       int                  `json:"sequence_number" db:"sequence_number"`
+	RequestedAt          time.Time            `json:"requested_at" db:"requested_at"`
+	ReviewedAt           *time.Time           `json:"reviewed_at" db:"reviewed_at"`
+	SentToGexAt          *time.Time           `json:"sent_to_gex_at" db:"sent_to_gex_at"`
+	ReceivedByGexAt      *time.Time           `json:"received_by_gex_at" db:"received_by_gex_at"`
+	PaidAt               *time.Time           `json:"paid_at" db:"paid_at"`
+	CreatedAt            time.Time            `db:"created_at"`
+	UpdatedAt            time.Time            `db:"updated_at"`
 
 	// Associations
 	MoveTaskOrder       MoveTaskOrder       `belongs_to:"move_task_orders"`
@@ -67,5 +69,7 @@ func (p *PaymentRequest) Validate(tx *pop.Connection) (*validate.Errors, error) 
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.MoveTaskOrderID, Name: "MoveTaskOrderID"},
 		&validators.StringInclusion{Field: p.Status.String(), Name: "Status", List: validPaymentRequestStatus},
+		&validators.StringIsPresent{Field: p.PaymentRequestNumber, Name: "PaymentRequestNumber"},
+		&validators.IntIsGreaterThan{Field: p.SequenceNumber, Name: "SequenceNumber", Compared: 0},
 	), nil
 }
