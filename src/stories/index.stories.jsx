@@ -26,13 +26,13 @@ storiesOf('Global Styles/Typography', module)
       <p>h2</p>
       <h2>Public Sans 28/34</h2>
       <p>h3</p>
-      <h3>Public Sans 21/23</h3>
+      <h3>Public Sans 22/26</h3>
       <p>h4</p>
-      <h4>Public Sans 17/23</h4>
+      <h4>Public Sans 17/20</h4>
       <p>h5</p>
-      <h5>Public Sans 15/20</h5>
+      <h5>Public Sans 15/21</h5>
       <p>h6</p>
-      <h6>Public Sans 13/16</h6>
+      <h6>Public Sans 13/18</h6>
     </div>
   ))
   .add('Text', () => (
