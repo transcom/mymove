@@ -122,7 +122,7 @@ fi
 echo
 echo "Creating whitelist of files to ignore:"
 touch "${WHITELIST_FILES}"
-for file in ${IGNORE_FILES}; do
+for file in "${IGNORE_FILES[@]}"; do
   # This step verifies the ignore file exists and also details some info for debugging
   docker exec -it "${CONTAINER_NAME}" ls -alh "${MOUNT_DIR}/${file}"
   # Sigtool format is "MD5sum:Filesize:Comment"
@@ -131,7 +131,7 @@ done
 echo
 echo "Creating whitelist of signatures to ignore:"
 touch "${WHITELIST_SIGS}"
-for sig in ${IGNORE_SIGS}; do
+for sig in "${IGNORE_SIGS[@]}"; do
   echo "${sig}" | tee -a "${WHITELIST_SIGS}"
 done
 
