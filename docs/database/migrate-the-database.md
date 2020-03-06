@@ -4,6 +4,21 @@ If you need to change the database schema, you'll need to write a migration.
 
 <!-- markdownlint-disable MD029 MD038 -->
 
+## Setup
+
+Before running any of the commands listed here locally, make sure the DB is up
+and running:
+
+```console
+make db_dev_run
+```
+
+and/or
+
+```console
+make db_test_run
+```
+
 ## Running Migrations
 
 To run a migration you should use the `milmove migrate` command. This allows us to leverage different authentication
@@ -132,6 +147,10 @@ For more details see this [slack thread](https://ustcdp3.slack.com/archives/CP6P
 ## Zero-Downtime Migrations
 
 As a good practice, all of our migrations should create a database state that works both with the current version of the application code _and_ the new version of the application code. This allows us to run migrations before the new app code is live without creating downtime for our users. More in-depth list of migrations that might cause issues are outlined in our [google drive](https://docs.google.com/document/d/1q-Ho5NINRPpsHQI-DjmLrDlzHsBh-hUc).
+
+[strong-migrations](https://github.com/ankane/strong_migrations) is another great resource with
+detailed documentation and an exhaustive list of dangerous operations. The code examples are for
+Rails, but the same principles apply.
 
 Eg: If we need to rename a column, doing a traditional rename would cause the app to fail if the database changes went live before the new application code (pointing to the new column name) went live. Instead, this should be done in a two-stage process.
 
