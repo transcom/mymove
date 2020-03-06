@@ -66,16 +66,13 @@ commands:
             scripts/circleci-announce-broken-branch
           when: on_fail
   deploy_migrations_steps:
-    parameters:
-      repo:
-        type: string
     steps:
       - checkout
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>)' >> $BASH_ENV
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-migrations)' >> $BASH_ENV
       - run:
           name: Echo Digest
           command: echo $ECR_DIGEST
@@ -90,9 +87,6 @@ commands:
             CHAMBER_RETRIES: 20
       - announce_failure
   deploy_tasks_steps:
-    parameters:
-      repo:
-        type: string
     steps:
       - checkout
       - restore_cache:
@@ -102,7 +96,7 @@ commands:
           at: /home/circleci/transcom/mymove/bin
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>)' >> $BASH_ENV
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-tasks)' >> $BASH_ENV
       - run:
           name: Echo Digest
           command: echo $ECR_DIGEST
@@ -127,8 +121,6 @@ commands:
         type: string
       health_check_hosts:
         type: string
-      repo:
-        type: string
     steps:
       - checkout
       - run:
@@ -142,7 +134,7 @@ commands:
           at: /home/circleci/transcom/mymove/bin
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>)' >> $BASH_ENV
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app)' >> $BASH_ENV
       - run:
           name: Echo Digest
           command: echo $ECR_DIGEST
@@ -166,8 +158,6 @@ commands:
         type: string
       health_check_hosts:
         type: string
-      repo:
-        type: string
     steps:
       - checkout
       - run:
@@ -181,7 +171,7 @@ commands:
           at: /home/circleci/transcom/mymove/bin
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>)' >> $BASH_ENV
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app)' >> $BASH_ENV
       - run:
           name: Echo Digest
           command: echo $ECR_DIGEST
@@ -684,8 +674,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'experimental'
     steps:
-      - deploy_migrations_steps:
-          repo: app-migrations
+      - deploy_migrations_steps
 
   # `deploy_experimental_tasks` deploys scheduled tasks to the experimental environment
   deploy_experimental_tasks:
@@ -693,8 +682,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'experimental'
     steps:
-      - deploy_tasks_steps:
-          repo: app-tasks
+      - deploy_tasks_steps
 
   # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
   deploy_experimental_app:
@@ -705,8 +693,6 @@ jobs:
       - deploy_app_steps:
           compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,admin.experimental.move.mil
-          repo: app
-
 
   # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
   deploy_experimental_app_client_tls:
@@ -717,7 +703,6 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
-          repo: app
 
   check_circle_against_staging_sha:
     executor: mymove_small
@@ -757,8 +742,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'staging'
     steps:
-      - deploy_migrations_steps:
-          repo: app-migrations
+      - deploy_migrations_steps
 
   # `deploy_staging_tasks` deploys scheduled tasks to the staging environment
   deploy_staging_tasks:
@@ -766,8 +750,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'staging'
     steps:
-      - deploy_tasks_steps:
-          repo: app-tasks
+      - deploy_tasks_steps
 
   # `deploy_staging_app` updates the server-TLS app service in staging environment
   deploy_staging_app:
@@ -778,7 +761,6 @@ jobs:
       - deploy_app_steps:
           compare_host: my.staging.move.mil
           health_check_hosts: my.staging.move.mil,office.staging.move.mil,admin.staging.move.mil
-          repo: app
 
   # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
   deploy_staging_app_client_tls:
@@ -789,7 +771,6 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.staging.move.mil
           health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
-          repo: app
 
   # `deploy_prod_migrations` deploys migrations to the staging environment
   deploy_prod_migrations:
@@ -797,8 +778,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prod'
     steps:
-      - deploy_migrations_steps:
-          repo: app-migrations
+      - deploy_migrations_steps
 
   # `deploy_prod_tasks` deploys scheduled tasks to the prod environment
   deploy_prod_tasks:
@@ -806,8 +786,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prod'
     steps:
-      - deploy_tasks_steps:
-          repo: app-tasks
+      - deploy_tasks_steps
 
   # `deploy_prod_app` updates the server-TLS app service in the prod environment
   deploy_prod_app:
@@ -818,7 +797,6 @@ jobs:
       - deploy_app_steps:
           compare_host: my.move.mil
           health_check_hosts: my.move.mil,office.move.mil,admin.move.mil
-          repo: app
 
   # `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
   deploy_prod_app_client_tls:
@@ -829,7 +807,6 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
-          repo: app
 
   deploy_prod_storybook:
     executor: mymove_small
