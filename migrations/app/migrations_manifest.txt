@@ -471,5 +471,4 @@
 20200226211945_jacquelinemckinney_cac.up.sql
 20200302161838_ryan_cac.up.sql
 20200302220909_donald_cac.up.sql
-20200306151939_add_last_sign_in_at_to_users.up.sql
-20200306152600_add_last_sign_out_at_to_users.up.sql
+20200306190028_add_last_sign_in_at_and_last_sign_out_at_to_users.up.sql
