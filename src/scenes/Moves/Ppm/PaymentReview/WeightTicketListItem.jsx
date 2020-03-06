@@ -74,7 +74,6 @@ class WeightTicketListItem extends Component {
               src={WEIGHT_TICKET_IMAGES[weight_ticket_set_type]}
               alt={weight_ticket_set_type}
             />
-            /* eslint-disable security/detect-object-injection */
           )}
         </div>
         <div style={{ flex: 1 }}>
