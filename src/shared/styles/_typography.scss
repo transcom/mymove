@@ -34,7 +34,7 @@ a {
   &:hover , &.hover {
     text-decoration: underline;
   }
-  &:visited, &.visted {
+  &:visited, &.visited {
     @include u-text('violet-warm-60');
   }
   &:disabled, &.disabled {
