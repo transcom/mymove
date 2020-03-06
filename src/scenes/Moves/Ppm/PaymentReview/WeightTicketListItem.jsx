@@ -62,16 +62,20 @@ class WeightTicketListItem extends Component {
     } = this.props;
     const { showDeleteConfirmation } = this.state;
     const isInfected = this.areUploadsInfected(uploads);
+    const showWeightTicketIcon = weight_ticket_set_type !== 'PRO_GEAR';
     return (
       <div className="ticket-item" style={{ display: 'flex' }}>
         {/* size of largest of the images */}
         <div style={{ minWidth: 95 }}>
-          {/*eslint-disable security/detect-object-injection*/}
-          <img
-            className="weight-ticket-image"
-            src={WEIGHT_TICKET_IMAGES[weight_ticket_set_type]}
-            alt={weight_ticket_set_type}
-          />
+          {showWeightTicketIcon && (
+            /* eslint-disable security/detect-object-injection */
+            <img
+              className="weight-ticket-image"
+              src={WEIGHT_TICKET_IMAGES[weight_ticket_set_type]}
+              alt={weight_ticket_set_type}
+            />
+            /* eslint-disable security/detect-object-injection */
+          )}
         </div>
         <div style={{ flex: 1 }}>
           <div className="weight-li-item-container">
