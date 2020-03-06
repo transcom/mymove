@@ -14,20 +14,20 @@ h3 {
   @include u-text('normal');
 }
 h4 {
-  @include typeset('body', 6, 1);
+  @include typeset('body', 6, 2);
 }
 h5 {
   @include typeset('body', 4, 3);
 }
 h6 {
-  @include typeset('body',  2, 2);
+  @include typeset('body',  2, 3);
   @include u-text('normal');
 }
 p {
-  @include typeset('body',  4, 2);
+  @include typeset('body',  4, 4);
 }
 small {
-  @include typeset('body',  2, 2);
+  @include typeset('body',  2, 3);
 }
 a {
   @include u-text('no-underline')
