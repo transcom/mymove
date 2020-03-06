@@ -38,9 +38,9 @@ storiesOf('Global Styles/Typography', module)
   .add('Text', () => (
     <div>
       <p>p</p>
-      <p>Public Sans 15/18</p>
+      <p>Public Sans 15/23</p>
       <p>p small</p>
-      <small>Public Sans 13/16</small>
+      <small>Public Sans 13/18</small>
     </div>
   ))
   .add('Links', () => (
