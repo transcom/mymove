@@ -555,6 +555,31 @@ jobs:
           repo: app
       - announce_failure
 
+  # `storybook_tests` runs the loki test suite against the current storybook code
+  storybook_tests:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - restore_cache:
+          keys:
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: make storybook_tests
+      - store_artifacts:
+          path: .loki/current
+          destination: current
+      - store_artifacts:
+          path: .loki/difference
+          destination: difference
+      - store_artifacts:
+          path: .loki/reference
+          destination: reference
+      - announce_failure
+
   # `build_storybook_app` builds the storybook application container and pushes to the container repository
   build_storybook_app:
     executor: mymove_medium
@@ -856,6 +881,7 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_yarn
+            - storybook_tests
 
       - build_tools:
           requires:
@@ -995,6 +1021,11 @@ workflows:
               only: master
               # Uncomment below if pushing a test branch. Also comment out approve_prod_deploy few lines above.
               #only: placeholder_branch_name
+
+      - storybook_tests:
+          requires:
+            - anti_virus
+            - pre_deps_yarn
 
 experimental:
   notify:
