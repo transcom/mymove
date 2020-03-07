@@ -39,3 +39,11 @@ Storybook Addon Actions can be used to display data received by event handlers i
 #### Knobs
 
 Storybook Addon Knobs allow you to edit props dynamically using the Storybook UI. You can also use Knobs as a dynamic variable inside stories in Storybook. See [the documentation](https://github.com/storybookjs/storybook/tree/master/addons/knobs) for more details.
+
+### Testing Stories
+
+We use [Loki](https://loki.js.org/) for testing our storybook stories. You will need to approve any changes to the reference images before a build will pass. Read [How to Run Loki tests against Storybook](run-loki-tests-against-storybook.md) for details.
+
+### Story changes require approval of Design
+
+As part of the new process of Design and Engineering collaboration, the design team has been made code owners of the code in `src/stories`. So if you are adding a new story or modifying an existing one you will be required to have a designer give their approval on the GitHub PR.
