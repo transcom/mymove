@@ -957,18 +957,9 @@ func init() {
               "type": "object",
               "required": [
                 "reServiceID",
-                "mtoShipmentID",
-                "metaID",
-                "metaType"
+                "mtoShipmentID"
               ],
               "properties": {
-                "metaID": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "metaType": {
-                  "type": "string"
-                },
                 "mtoShipmentID": {
                   "type": "string",
                   "format": "uuid"
@@ -1877,9 +1868,7 @@ func init() {
         "reServiceID",
         "reServiceCode",
         "reServiceName",
-        "mtoShipmentID",
-        "metaID",
-        "metaType"
+        "mtoShipmentID"
       ],
       "properties": {
         "approvedAt": {
@@ -1910,15 +1899,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "metaID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "metaType": {
-          "type": "string",
-          "example": "TBD"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -3614,18 +3594,9 @@ func init() {
               "type": "object",
               "required": [
                 "reServiceID",
-                "mtoShipmentID",
-                "metaID",
-                "metaType"
+                "mtoShipmentID"
               ],
               "properties": {
-                "metaID": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "metaType": {
-                  "type": "string"
-                },
                 "mtoShipmentID": {
                   "type": "string",
                   "format": "uuid"
@@ -4606,9 +4577,7 @@ func init() {
         "reServiceID",
         "reServiceCode",
         "reServiceName",
-        "mtoShipmentID",
-        "metaID",
-        "metaType"
+        "mtoShipmentID"
       ],
       "properties": {
         "approvedAt": {
@@ -4639,15 +4608,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "metaID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "metaType": {
-          "type": "string",
-          "example": "TBD"
         },
         "moveTaskOrderID": {
           "type": "string",

@@ -18,8 +18,6 @@ type MTOServiceItem struct {
 	MTOShipmentID   *uuid.UUID    `db:"mto_shipment_id"`
 	ReService       ReService     `belongs_to:"re_services"`
 	ReServiceID     uuid.UUID     `db:"re_service_id"`
-	MetaID          *uuid.UUID    `db:"meta_id"`
-	MetaType        *string       `db:"meta_type"`
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
 }
