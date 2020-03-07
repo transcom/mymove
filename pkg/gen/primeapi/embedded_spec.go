@@ -838,6 +838,33 @@ func init() {
         }
       }
     },
+    "MTOServiceItemDomOriginDaySIT": {
+      "description": "MTO Service Item - Dom. Origin 1st Day SIT (DOFSIT)",
+      "required": [
+        "reason",
+        "pickupPostalCode"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "pickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": 90210
+        },
+        "reason": {
+          "type": "string",
+          "example": "Storage items need to be picked up"
+        }
+      }
+    },
     "MTOServiceItems": {
       "type": "array",
       "items": {
@@ -2181,6 +2208,33 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
+        }
+      }
+    },
+    "MTOServiceItemDomOriginDaySIT": {
+      "description": "MTO Service Item - Dom. Origin 1st Day SIT (DOFSIT)",
+      "required": [
+        "reason",
+        "pickupPostalCode"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "pickupPostalCode": {
+          "type": "string",
+          "format": "zip",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": 90210
+        },
+        "reason": {
+          "type": "string",
+          "example": "Storage items need to be picked up"
         }
       }
     },

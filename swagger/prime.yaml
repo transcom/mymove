@@ -787,6 +787,23 @@ definitions:
           - REJECTED
         type: string
     type: object
+  MTOServiceItemDomOriginDaySIT:
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+    properties:
+      reason:
+        type: string
+        example: Storage items need to be picked up
+      pickupPostalCode:
+        type: string
+        format: zip
+        example: 90210
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+    required:
+      - reason
+      - pickupPostalCode
+    description: MTO Service Item - Dom. Origin 1st Day SIT (DOFSIT)
   ProofOfServiceDocs:
     properties:
       uploads:
