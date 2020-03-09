@@ -120,7 +120,7 @@ ColorGroup.propTypes = {
   group: PropTypes.arrayOf.isRequired,
 };
 
-storiesOf('Global Styles/Typography', module)
+storiesOf('Global|Typography', module)
   .add('Headers', () => (
     <div style={{ padding: '20px' }}>
       <p>h1</p>
