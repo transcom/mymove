@@ -49,7 +49,7 @@ storiesOf('Global|Colors', module).add('all', () => (
 // Convert the color key to the color variable name.
 const colorVariable = color => {
   const array = color.split('-')[1].split(/(?=[A-Z])/);
-  return `$color-${array.join('-').toLowerCase()}`;
+  return `$${array.join('-').toLowerCase()}`;
 };
 
 // Convert the color key to the color proper name.
