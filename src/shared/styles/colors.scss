@@ -3,8 +3,39 @@
 
 
 // Defining color variables.
+//Group 1: Brand Colors
+$mm-blue: #252F3E;
+$mm-gold: #FFBE2E;
+$mm-periwinkle: #8CAFEA;
 
-//Group 1: these were here when I got here
+//Group 2: Background Colors
+$bg-white: #fff ;
+$bg-gray: #f9f9f9;
+
+//Group 3: Base colors
+$base-lightest: #f0f0f0;
+$base-lighter: #dcdee0;
+$base-light: #a9aeb1;
+$base: #71767a;
+$base-dark: #565c65;
+$base-darker: #3d4551;
+$base-darkest: #171717;
+
+//Group 4: Form State colors
+$error: #d63e04;
+$error-light: #f4e3db;
+$warning: #ffbe2e;
+$warning-light: #faf3d1;
+$success: #0ca900;
+$success-light: #ecf3ec;
+
+//Group 5 Accents
+$link: #0050d8;
+$link-light: #d9e8f6;
+$accent-blue: #0096f4;
+$accent-yellow: #face00;
+
+//Last Group: these were here when I got here
 $color-gold: #fdb81e;
 $color-icon-gray: #ababab;
 $color-gray-lightest: #f1f1f1;
@@ -12,13 +43,6 @@ $color-gray-medium: #a2a2a2;
 $color-gray-light: #b2b2b2;
 $color-red: #cd3504;
 $color-blue: #005ea2;
-
-//Group 2: Brand Colors
-$mm-blue: #252F3E;
-$mm-gold: #FFBE2E;
-$mm-periwinkle: #8CAFEA;
-
-
 
 // Export color variables for use in Webpack.
 :export {
