@@ -124,84 +124,34 @@ const (
 type ECRImage struct {
 	AWSRegion        string
 	Digest           string
-	ImageURIByDigest string
-	ImageURIByTag    string
+	ImageURIByDigest *string
+	ImageURIByTag    *string
 	RegistryID       string
 	RepositoryURI    string
 	RepositoryName   string
 	Tag              string
-	IsTagBased       bool
-	IsDigestBased    bool
 }
 
 // NewECRImage returns a new ECR Image object
 func NewECRImage(imageURI string, serviceECR *ecr.ECR) (*ECRImage, error) {
-	digestURI, digest, tagURI, tag := "", "", "", ""
-	isTaggedImage, isDigestImage := false, false
+	var digestURI, tagURI *string
+	digest, tag := "", ""
 	var imageParts []string
 
 	if strings.Contains(imageURI, digestSeparator) {
-		isDigestImage = true
-		isTaggedImage = false
-		digestURI = imageURI
+		digestURI = &imageURI
 		imageParts = strings.Split(imageURI, digestSeparator)
 		digest = imageParts[1]
-
-		// check for image by looking it up by digest
-		repositoryURI := imageParts[0]
-		repositoryURIParts := strings.Split(repositoryURI, "/")
-		repositoryName := repositoryURIParts[1]
-		repositoryDomainParts := strings.Split(repositoryURIParts[0], ".")
-		registryID := repositoryDomainParts[0]
-		imageList, describeImageErr := serviceECR.DescribeImages(&ecr.DescribeImagesInput{
-			ImageIds: []*ecr.ImageIdentifier{
-				{
-					ImageDigest: aws.String(digest),
-				},
-			},
-			RegistryId:     aws.String(registryID),
-			RepositoryName: aws.String(repositoryName),
-		})
-		if describeImageErr != nil {
-			return nil, fmt.Errorf("unable to retrieve image: %q: Error: %w", imageURI, describeImageErr)
-		}
-		if len(imageList.ImageDetails) < 1 {
-			return nil, fmt.Errorf("no images found %q", imageURI)
-		}
-
 	} else if strings.Contains(imageURI, tagSeparator) {
-		isTaggedImage = true
-		isDigestImage = false
-		tagURI = imageURI
+		tagURI = &imageURI
 		imageParts = strings.Split(imageURI, tagSeparator)
 		tag = imageParts[1]
-
-		// check for image by looking it up by tag
-		repositoryURI := imageParts[0]
-		repositoryURIParts := strings.Split(repositoryURI, "/")
-		repositoryName := repositoryURIParts[1]
-		repositoryDomainParts := strings.Split(repositoryURIParts[0], ".")
-		registryID := repositoryDomainParts[0]
-		imageList, describeImageErr := serviceECR.DescribeImages(&ecr.DescribeImagesInput{
-			ImageIds: []*ecr.ImageIdentifier{
-				{
-					ImageTag: aws.String(tag),
-				},
-			},
-			RegistryId:     aws.String(registryID),
-			RepositoryName: aws.String(repositoryName),
-		})
-		if describeImageErr != nil {
-			return nil, fmt.Errorf("unable to retrieve image: %q: Error: %w", imageURI, describeImageErr)
-		}
-
-		if len(imageList.ImageDetails) < 1 {
-			return nil, fmt.Errorf("no images found %q", imageURI)
-		}
+	} else {
+		return nil, fmt.Errorf("invalid URI, requires either a @digest or a :tag in the URI %v", imageURI)
 	}
 
 	if len(imageParts) != 2 {
-		return nil, fmt.Errorf("image URI requires either a @digest or a :tag in the URI %v", imageURI)
+		return nil, fmt.Errorf("image URI, url parsing failed: %v", imageURI)
 	}
 	repositoryURI := imageParts[0]
 	repositoryURIParts := strings.Split(repositoryURI, "/")
@@ -214,13 +164,45 @@ func NewECRImage(imageURI string, serviceECR *ecr.ECR) (*ECRImage, error) {
 		Digest:           digest,
 		ImageURIByTag:    tagURI,
 		ImageURIByDigest: digestURI,
-		IsDigestBased:    isDigestImage,
-		IsTagBased:       isTaggedImage,
 		RegistryID:       registryID,
 		RepositoryURI:    repositoryURI,
 		RepositoryName:   repositoryName,
 		Tag:              tag,
 	}, nil
+}
+
+// Validate checks ecr image struct values by running validate method and making a request to aws service
+func (ecrImage ECRImage) Validate(serviceECR *ecr.ECR) error {
+	imageIdentifier := ecr.ImageIdentifier{}
+	if ecrImage.ImageURIByDigest != nil {
+		imageIdentifier.SetImageDigest(ecrImage.Digest)
+	} else if ecrImage.ImageURIByTag != nil {
+		imageIdentifier.SetImageTag(ecrImage.Tag)
+	} else {
+		return fmt.Errorf("no valid imageuri, ImageURIByTag and ImageURIByDigest are null in ecrImage: %v", ecrImage)
+	}
+
+	//check to make sure image can validate
+	errImageIdentifierValidate := imageIdentifier.Validate()
+	if errImageIdentifierValidate != nil {
+		return fmt.Errorf("image identifier invalid %w", errImageIdentifierValidate)
+	}
+
+	//check to make sure image exists
+	imageList, describeImageErr := serviceECR.DescribeImages(&ecr.DescribeImagesInput{
+		ImageIds:       append([]*ecr.ImageIdentifier{}, &imageIdentifier),
+		RegistryId:     aws.String(ecrImage.RegistryID),
+		RepositoryName: aws.String(ecrImage.RepositoryName),
+	})
+
+	if describeImageErr != nil {
+		return fmt.Errorf("unable to retrieve image: %v: Error: %w", ecrImage, describeImageErr)
+	}
+	if len(imageList.ImageDetails) < 1 {
+		return fmt.Errorf("no images found %v", ecrImage)
+	}
+	return nil
+
 }
 
 func initTaskDefFlags(flag *pflag.FlagSet) {
@@ -513,16 +495,10 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	if errECRImage != nil {
 		quit(logger, nil, fmt.Errorf("unable to recognize image URI %q: %w", imageURI, errECRImage))
 	}
-	imageIdentifier := ecr.ImageIdentifier{}
-	if ecrImage.IsDigestBased {
-		imageIdentifier.SetImageDigest(ecrImage.Digest)
-	}
-	if ecrImage.IsTagBased {
-		imageIdentifier.SetImageTag(ecrImage.Tag)
-	}
-	errImageIdentifierValidate := imageIdentifier.Validate()
-	if errImageIdentifierValidate != nil {
-		quit(logger, nil, fmt.Errorf("image identifier invalid %w", errImageIdentifierValidate))
+
+	errValidateImage := ecrImage.Validate(serviceECR)
+	if errValidateImage != nil {
+		quit(logger, nil, fmt.Errorf("unable to validate image %v", ecrImage))
 	}
 
 	// Entrypoint
@@ -598,11 +574,14 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	cpu := strconv.Itoa(v.GetInt(cpuFlag))
 	mem := strconv.Itoa(v.GetInt(memFlag))
 
+	// decide if task will be generated from ecr digest sha or a tagged value
 	taskImage := ""
-	if ecrImage.IsDigestBased {
-		taskImage = ecrImage.ImageURIByDigest
+	if ecrImage.ImageURIByDigest != nil {
+		taskImage = *ecrImage.ImageURIByDigest
+	} else if ecrImage.ImageURIByTag != nil {
+		taskImage = *ecrImage.ImageURIByTag
 	} else {
-		taskImage = ecrImage.ImageURIByTag
+		quit(logger, nil, fmt.Errorf("error ImageURIByDigest and ImageURIByTag both cannot be nil %v", ecrImage))
 	}
 
 	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
