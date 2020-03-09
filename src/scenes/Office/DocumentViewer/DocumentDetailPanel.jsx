@@ -165,20 +165,15 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
                 <SwaggerField fieldName="weight_ticket_set_type" swagger={moveDocSchema} required />
               </div>
               {isWeightTicketTypeBoxTruck && (
-                <div className="field-with-units">
-                  <SwaggerField className="short-field" fieldName="vehicle_nickname" swagger={moveDocSchema} required />
-                </div>
+                <SwaggerField fieldName="vehicle_nickname" swagger={moveDocSchema} required />
               )}
               {isWeightTicketTypeProGear && (
-                <div className="field-with-units">
-                  <SwaggerField
-                    className="short-field"
-                    fieldName="vehicle_nickname"
-                    title="Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
-                    swagger={moveDocSchema}
-                    required
-                  />
-                </div>
+                <SwaggerField
+                  fieldName="vehicle_nickname"
+                  title="Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
+                  swagger={moveDocSchema}
+                  required
+                />
               )}
               {isWeightTicketTypeCarOrTrailer && (
                 <>
@@ -186,7 +181,6 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
                   <SwaggerField fieldName="vehicle_model" swagger={moveDocSchema} required />
                 </>
               )}
-              <SwaggerField fieldName="vehicle_nickname" swagger={moveDocSchema} required />
               <SwaggerField className="short-field" fieldName="empty_weight" swagger={moveDocSchema} required />{' '}
               <span className="field-with-units">lbs</span>
               <SwaggerField className="short-field" fieldName="full_weight" swagger={moveDocSchema} required />{' '}
