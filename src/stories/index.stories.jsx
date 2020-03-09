@@ -8,6 +8,9 @@ import colors from './_colors.scss';
 
 import { Button, Welcome } from '@storybook/react/demo';
 
+const filterGroup = (filter) =>
+  Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
+
 storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
 
 storiesOf('Button', module)
