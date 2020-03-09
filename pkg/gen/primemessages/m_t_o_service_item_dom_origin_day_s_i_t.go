@@ -18,8 +18,6 @@ import (
 type MTOServiceItemDomOriginDaySIT struct {
 	MTOServiceItem
 
-	MTOServiceItemDomOriginDaySITAllOf1
-
 	// pickup postal code
 	// Required: true
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
@@ -40,24 +38,18 @@ func (m *MTOServiceItemDomOriginDaySIT) UnmarshalJSON(raw []byte) error {
 	m.MTOServiceItem = aO0
 
 	// AO1
-	var aO1 MTOServiceItemDomOriginDaySITAllOf1
-	if err := swag.ReadJSON(raw, &aO1); err != nil {
-		return err
-	}
-	m.MTOServiceItemDomOriginDaySITAllOf1 = aO1
-
-	// now for regular properties
-	var propsMTOServiceItemDomOriginDaySIT struct {
+	var dataAO1 struct {
 		PickupPostalCode *string `json:"pickupPostalCode"`
 
 		Reason *string `json:"reason"`
 	}
-	if err := swag.ReadJSON(raw, &propsMTOServiceItemDomOriginDaySIT); err != nil {
+	if err := swag.ReadJSON(raw, &dataAO1); err != nil {
 		return err
 	}
-	m.PickupPostalCode = propsMTOServiceItemDomOriginDaySIT.PickupPostalCode
 
-	m.Reason = propsMTOServiceItemDomOriginDaySIT.Reason
+	m.PickupPostalCode = dataAO1.PickupPostalCode
+
+	m.Reason = dataAO1.Reason
 
 	return nil
 }
@@ -72,27 +64,22 @@ func (m MTOServiceItemDomOriginDaySIT) MarshalJSON() ([]byte, error) {
 	}
 	_parts = append(_parts, aO0)
 
-	aO1, err := swag.WriteJSON(m.MTOServiceItemDomOriginDaySITAllOf1)
-	if err != nil {
-		return nil, err
-	}
-	_parts = append(_parts, aO1)
-
-	// now for regular properties
-	var propsMTOServiceItemDomOriginDaySIT struct {
+	var dataAO1 struct {
 		PickupPostalCode *string `json:"pickupPostalCode"`
 
 		Reason *string `json:"reason"`
 	}
-	propsMTOServiceItemDomOriginDaySIT.PickupPostalCode = m.PickupPostalCode
 
-	propsMTOServiceItemDomOriginDaySIT.Reason = m.Reason
+	dataAO1.PickupPostalCode = m.PickupPostalCode
 
-	jsonDataPropsMTOServiceItemDomOriginDaySIT, errMTOServiceItemDomOriginDaySIT := swag.WriteJSON(propsMTOServiceItemDomOriginDaySIT)
-	if errMTOServiceItemDomOriginDaySIT != nil {
-		return nil, errMTOServiceItemDomOriginDaySIT
+	dataAO1.Reason = m.Reason
+
+	jsonDataAO1, errAO1 := swag.WriteJSON(dataAO1)
+	if errAO1 != nil {
+		return nil, errAO1
 	}
-	_parts = append(_parts, jsonDataPropsMTOServiceItemDomOriginDaySIT)
+	_parts = append(_parts, jsonDataAO1)
+
 	return swag.ConcatJSON(_parts...), nil
 }
 
@@ -104,7 +91,6 @@ func (m *MTOServiceItemDomOriginDaySIT) Validate(formats strfmt.Registry) error 
 	if err := m.MTOServiceItem.Validate(formats); err != nil {
 		res = append(res, err)
 	}
-	// validation for a type composition with MTOServiceItemDomOriginDaySITAllOf1
 
 	if err := m.validatePickupPostalCode(formats); err != nil {
 		res = append(res, err)
@@ -159,7 +145,3 @@ func (m *MTOServiceItemDomOriginDaySIT) UnmarshalBinary(b []byte) error {
 	*m = res
 	return nil
 }
-
-// MTOServiceItemDomOriginDaySITAllOf1 m t o service item dom origin day s i t all of1
-// swagger:model MTOServiceItemDomOriginDaySITAllOf1
-type MTOServiceItemDomOriginDaySITAllOf1 interface{}

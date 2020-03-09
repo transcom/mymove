@@ -755,6 +755,7 @@ definitions:
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
   MTOServiceItem:
+    type: object
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -773,7 +774,6 @@ definitions:
         type: string
       reServiceName:
         type: string
-    type: object
   MTOServiceItems:
     type: array
     items:
@@ -788,22 +788,22 @@ definitions:
         type: string
     type: object
   MTOServiceItemDomOriginDaySIT:
+    description: MTO Service Item - Dom. Origin 1st Day SIT (DOFSIT)
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
-    properties:
-      reason:
-        type: string
-        example: Storage items need to be picked up
-      pickupPostalCode:
-        type: string
-        format: zip
-        example: 90210
-        pattern: '^(\d{5}([\-]\d{4})?)$'
-    required:
-      - reason
-      - pickupPostalCode
-    description: MTO Service Item - Dom. Origin 1st Day SIT (DOFSIT)
+        properties:
+          reason:
+            type: string
+            example: Storage items need to be picked up
+          pickupPostalCode:
+            type: string
+            format: zip
+            example: 90210
+            pattern: '^(\d{5}([\-]\d{4})?)$'
+        required:
+          - reason
+          - pickupPostalCode
   ProofOfServiceDocs:
     properties:
       uploads:
