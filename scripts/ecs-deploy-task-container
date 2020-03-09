@@ -25,7 +25,6 @@ readonly environment=$3
 readonly RESERVATION_CPU=256
 readonly RESERVATION_MEM=512
 
-
 echo "Checking for existence of variables file"
 
 variables_file="${DIR}/../config/env/${environment}.${name}.env"
