@@ -883,6 +883,63 @@ func init() {
         }
       }
     },
+    "MTOAgent": {
+      "type": "object",
+      "properties": {
+        "agentType": {
+          "type": "string",
+          "enum": [
+            "RELEASING_AGENT",
+            "RECEIVING_AGENT"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "MTOAgents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOAgent"
+      }
+    },
     "MTOServiceItem": {
       "description": "Polymorphic type. MTOServiceItem describes a base type of a service item",
       "type": "object",
@@ -994,6 +1051,9 @@ func init() {
         "actualPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
           "type": "string",
@@ -2426,6 +2486,63 @@ func init() {
         }
       }
     },
+    "MTOAgent": {
+      "type": "object",
+      "properties": {
+        "agentType": {
+          "type": "string",
+          "enum": [
+            "RELEASING_AGENT",
+            "RECEIVING_AGENT"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "MTOAgents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOAgent"
+      }
+    },
     "MTOServiceItem": {
       "description": "Polymorphic type. MTOServiceItem describes a base type of a service item",
       "type": "object",
@@ -2537,6 +2654,9 @@ func init() {
         "actualPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
           "type": "string",
