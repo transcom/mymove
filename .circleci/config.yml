@@ -215,9 +215,7 @@ commands:
           command: |
             mkdir -p /home/circleci/transcom/mymove/bin/sha
             echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
-      - run:
-          name: Get Digest
-          command: cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
+            cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
       - run:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
