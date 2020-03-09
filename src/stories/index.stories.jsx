@@ -21,7 +21,6 @@ storiesOf('Components/Button', module)
     </Button>
   ));
 
-
 storiesOf('Global|Colors', module).add('all', () => (
   <div style={{ padding: '20px' }}>
     <>
@@ -120,11 +119,10 @@ const ColorGroup = ({ group }) => (
 ColorGroup.propTypes = {
   group: PropTypes.arrayOf.isRequired,
 };
- 
-  
+
 storiesOf('Global Styles/Typography', module)
   .add('Headers', () => (
-    <div>
+    <div style={{ padding: '20px' }}>
       <p>h1</p>
       <h1>Public Sans 40/48</h1>
       <p>h2</p>
@@ -140,7 +138,7 @@ storiesOf('Global Styles/Typography', module)
     </div>
   ))
   .add('Text', () => (
-    <div>
+    <div style={{ padding: '20px' }}>
       <p>p</p>
       <p>
         Public Sans 15/23 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
@@ -162,7 +160,7 @@ storiesOf('Global Styles/Typography', module)
     </div>
   ))
   .add('Links', () => (
-    <div>
+    <div style={{ padding: '20px' }}>
       <p>a</p>
       <a href="https://materializecss.com/sass.html">USWDS blue-warm-60v</a>
       <p>a:hover</p>
@@ -183,4 +181,3 @@ storiesOf('Global Styles/Typography', module)
       </small>
     </div>
   ));
-
