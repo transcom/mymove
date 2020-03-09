@@ -28,6 +28,14 @@ const DocumentDetailDisplay = ({
     values: moveDocument,
     schema: moveDocSchema,
   };
+  const isWeightTicketTypeCarOrTrailer =
+    isWeightTicketDocument &&
+    (moveDocument.weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.CAR ||
+      moveDocument.weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.CAR_TRAILER);
+  const isWeightTicketTypeBoxTruck =
+    isWeightTicketDocument && moveDocument.weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.BOX_TRUCK;
+  const isWeightTicketTypeProGear =
+    isWeightTicketDocument && moveDocument.weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.PRO_GEAR;
   return (
     <Fragment>
       <div>
@@ -56,7 +64,24 @@ const DocumentDetailDisplay = ({
               required
               {...moveDocFieldProps}
             />
-            <PanelSwaggerField title="Vehicle Nickname" fieldName="vehicle_nickname" required {...moveDocFieldProps} />
+
+            {isWeightTicketTypeBoxTruck && (
+              <PanelSwaggerField
+                title="Vehicle Nickname"
+                fieldName="vehicle_nickname"
+                required
+                {...moveDocFieldProps}
+              />
+            )}
+            {isWeightTicketTypeProGear && (
+              <PanelSwaggerField title="Pro-gear type" fieldName="vehicle_nickname" required {...moveDocFieldProps} />
+            )}
+            {isWeightTicketTypeCarOrTrailer && (
+              <>
+                <PanelSwaggerField title="Vehicle make" fieldName="vehicle_make" required {...moveDocFieldProps} />
+                <PanelSwaggerField title="Vehicle model" fieldName="vehicle_model" required {...moveDocFieldProps} />
+              </>
+            )}
             <PanelSwaggerField title="Empty Weight" fieldName="empty_weight" required {...moveDocFieldProps} />
             <PanelSwaggerField title="Full Weight" fieldName="full_weight" required {...moveDocFieldProps} />
           </>
