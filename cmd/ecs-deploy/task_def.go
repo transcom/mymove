@@ -514,8 +514,8 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		quit(logger, nil, fmt.Errorf("unable to recognize image URI %q: %w", imageURI, errECRImage))
 	}
 	imageIdentifier := ecr.ImageIdentifier{}
-	imageIdentifier.SetImageDigest(ecrImage.ImageURIByDigest)
-	imageIdentifier.SetImageTag(ecrImage.ImageURIByTag)
+	imageIdentifier.SetImageDigest(ecrImage.Digest)
+	imageIdentifier.SetImageTag(ecrImage.Tag)
 	errImageIdentifierValidate := imageIdentifier.Validate()
 	if errImageIdentifierValidate != nil {
 		quit(logger, nil, fmt.Errorf("image identifier invalid %w", errImageIdentifierValidate))
