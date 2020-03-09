@@ -276,7 +276,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 	weight := unit.Pound(2000)
 	engine := NewRateEngine(suite.DB(), logger, move)
 
-	suite.Run("TestComputeLowestCostPPMMove when pickup zip results in lower GCC", func() {
+	suite.Run("TestComputeLowestCostPPMMove with origin zip results in lower GCC", func() {
 		ppmCostWithPickupZip, err := suite.computePPMIncludingLHRates(
 			originZip,
 			destinationZip,
@@ -314,7 +314,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 		suite.Equal(cost, ppmCostWithPickupZip)
 	})
 
-	suite.Run("TestComputeLowestCostPPMMove when duty station results in lower GCC", func() {
+	suite.Run("TestComputeLowestCostPPMMove when origin duty station results in lower GCC", func() {
 		originZip := "50309"
 		originDutyStationZip := "39574"
 		distanceMilesFromOriginPickupZip := 3300
