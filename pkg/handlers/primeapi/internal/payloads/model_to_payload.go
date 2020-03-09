@@ -2,6 +2,7 @@ package payloads
 
 import (
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/handlers"
 
 	"github.com/go-openapi/strfmt"
 
@@ -274,9 +275,9 @@ func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments
 func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *primemessages.MTOServiceItem {
 	return &primemessages.MTOServiceItem{
 		ID:              strfmt.UUID(mtoServiceItem.ID.String()),
-		MoveTaskOrderID: strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()),
+		MoveTaskOrderID: handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID),
 		ReServiceID:     strfmt.UUID(mtoServiceItem.ReServiceID.String()),
-		ReServiceCode:   mtoServiceItem.ReService.Code,
+		ReServiceCode:   primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
 		ReServiceName:   mtoServiceItem.ReService.Name,
 	}
 }

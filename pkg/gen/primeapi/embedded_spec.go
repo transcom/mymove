@@ -813,6 +813,10 @@ func init() {
     },
     "MTOServiceItem": {
       "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "reServiceCode"
+      ],
       "properties": {
         "eTag": {
           "type": "string"
@@ -829,11 +833,12 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceCode": {
-          "type": "string"
+          "$ref": "#/definitions/ReServiceCode"
         },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
@@ -1189,6 +1194,60 @@ func init() {
           }
         }
       }
+    },
+    "ReServiceCode": {
+      "type": "string",
+      "enum": [
+        "CS",
+        "DBHF",
+        "DBTF",
+        "DCRT",
+        "DDASIT",
+        "DDDSIT",
+        "DDFSIT",
+        "DDP",
+        "DDSHUT",
+        "DLH",
+        "DMHF",
+        "DNPKF",
+        "DOASIT",
+        "DOFSIT",
+        "DOP",
+        "DOPSIT",
+        "DOSHUT",
+        "DPK",
+        "DSH",
+        "DUCRT",
+        "DUPK",
+        "FSC",
+        "IBHF",
+        "IBTF",
+        "ICOLH",
+        "ICOUB",
+        "ICRT",
+        "IDASIT",
+        "IDDSIT",
+        "IDFSIT",
+        "IDSHUT",
+        "IHPK",
+        "IHUPK",
+        "INPKF",
+        "IOASIT",
+        "IOCLH",
+        "IOCUB",
+        "IOFSIT",
+        "IOOLH",
+        "IOOUB",
+        "IOPSIT",
+        "IOSHUT",
+        "IUBPK",
+        "IUBUPK",
+        "IUCRT",
+        "MS",
+        "NSTH",
+        "NSTUB",
+        "STEST"
+      ]
     },
     "ServiceItem": {
       "type": "object",
@@ -2189,6 +2248,10 @@ func init() {
     },
     "MTOServiceItem": {
       "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "reServiceCode"
+      ],
       "properties": {
         "eTag": {
           "type": "string"
@@ -2205,11 +2268,12 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceCode": {
-          "type": "string"
+          "$ref": "#/definitions/ReServiceCode"
         },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
@@ -2565,6 +2629,60 @@ func init() {
           }
         }
       }
+    },
+    "ReServiceCode": {
+      "type": "string",
+      "enum": [
+        "CS",
+        "DBHF",
+        "DBTF",
+        "DCRT",
+        "DDASIT",
+        "DDDSIT",
+        "DDFSIT",
+        "DDP",
+        "DDSHUT",
+        "DLH",
+        "DMHF",
+        "DNPKF",
+        "DOASIT",
+        "DOFSIT",
+        "DOP",
+        "DOPSIT",
+        "DOSHUT",
+        "DPK",
+        "DSH",
+        "DUCRT",
+        "DUPK",
+        "FSC",
+        "IBHF",
+        "IBTF",
+        "ICOLH",
+        "ICOUB",
+        "ICRT",
+        "IDASIT",
+        "IDDSIT",
+        "IDFSIT",
+        "IDSHUT",
+        "IHPK",
+        "IHUPK",
+        "INPKF",
+        "IOASIT",
+        "IOCLH",
+        "IOCUB",
+        "IOFSIT",
+        "IOOLH",
+        "IOOUB",
+        "IOPSIT",
+        "IOSHUT",
+        "IUBPK",
+        "IUBUPK",
+        "IUCRT",
+        "MS",
+        "NSTH",
+        "NSTUB",
+        "STEST"
+      ]
     },
     "ServiceItem": {
       "type": "object",

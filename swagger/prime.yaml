@@ -771,11 +771,15 @@ definitions:
       reServiceID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
+        readOnly: true
         type: string
       reServiceCode:
-        type: string
+        $ref: '#/definitions/ReServiceCode'
       reServiceName:
         type: string
+    required:
+      - moveTaskOrderID
+      - reServiceCode
   MTOServiceItems:
     type: array
     items:
@@ -871,6 +875,58 @@ definitions:
               example: Service Item Parameter Value
           type: object
     type: object
+  ReServiceCode:
+    type: string
+    enum:
+      - CS
+      - DBHF
+      - DBTF
+      - DCRT
+      - DDASIT
+      - DDDSIT
+      - DDFSIT
+      - DDP
+      - DDSHUT
+      - DLH
+      - DMHF
+      - DNPKF
+      - DOASIT
+      - DOFSIT
+      - DOP
+      - DOPSIT
+      - DOSHUT
+      - DPK
+      - DSH
+      - DUCRT
+      - DUPK
+      - FSC
+      - IBHF
+      - IBTF
+      - ICOLH
+      - ICOUB
+      - ICRT
+      - IDASIT
+      - IDDSIT
+      - IDFSIT
+      - IDSHUT
+      - IHPK
+      - IHUPK
+      - INPKF
+      - IOASIT
+      - IOCLH
+      - IOCUB
+      - IOFSIT
+      - IOOLH
+      - IOOUB
+      - IOPSIT
+      - IOSHUT
+      - IUBPK
+      - IUBUPK
+      - IUCRT
+      - MS
+      - NSTH
+      - NSTUB
+      - STEST
   Upload:
     type: object
     properties:

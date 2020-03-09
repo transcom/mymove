@@ -26,13 +26,16 @@ type MTOServiceItem struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// move task order ID
+	// Required: true
 	// Format: uuid
-	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 	// re service code
-	ReServiceCode string `json:"reServiceCode,omitempty"`
+	// Required: true
+	ReServiceCode ReServiceCode `json:"reServiceCode"`
 
 	// re service ID
+	// Read Only: true
 	// Format: uuid
 	ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
@@ -49,6 +52,10 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReServiceCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -77,11 +84,23 @@ func (m *MTOServiceItem) validateID(formats strfmt.Registry) error {
 
 func (m *MTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MoveTaskOrderID) { // not required
-		return nil
+	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateReServiceCode(formats strfmt.Registry) error {
+
+	if err := m.ReServiceCode.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("reServiceCode")
+		}
 		return err
 	}
 
