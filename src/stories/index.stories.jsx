@@ -77,12 +77,20 @@ const Color = ({ color }) => (
         border: '1px solid lightgray',
       }}
     />
-    <span>{colorName(color)}</span>
-    <br />
-    <span>{colorVariable(color)}</span>
-    <br />
-    <span>{colors[color]}</span>
-    <br />
+    <p
+      style={{
+        fontSize: '13px',
+      }}
+    >
+      <span>
+        <b>{colorName(color)}</b>
+      </span>
+      <br />
+      <code>{colorVariable(color)}</code>
+      <br />
+      <code>{colors[color]}</code>
+      <br />
+    </p>
   </li>
 );
 
