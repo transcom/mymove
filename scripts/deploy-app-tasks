@@ -40,13 +40,10 @@ fi
 APP_ENVIRONMENT="${environment}"
 AWS_DEFAULT_REGION=us-west-2
 CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
-readonly repo_name="app-tasks"
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
 
-readonly ECR_DIGEST="$(aws ecr describe-images --repository-name "${repo_name}" --image-ids imageTag="${CIRCLE_SHA1}" | jq ".imageDetails[0] .imageDigest" -r)"
-readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}"
-
+readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}"
 scripts/ecs-deploy-task-container save-fuel-price-data "${image}" "${APP_ENVIRONMENT}"
 scripts/ecs-deploy-task-container send-post-move-survey "${image}" "${APP_ENVIRONMENT}"
 scripts/ecs-deploy-task-container send-payment-reminder "${image}" "${APP_ENVIRONMENT}"

@@ -45,9 +45,8 @@ AWS_DEFAULT_REGION=us-west-2
 CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
-readonly repo_name="app"
-readonly ECR_DIGEST="$(aws ecr describe-images --repository-name "${repo_name}" --image-ids imageTag="${CIRCLE_SHA1}" | jq ".imageDetails[0] .imageDigest" -r)"
-readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}"
+
+readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}"
 scripts/ecs-deploy-service-container app "${image}" "${APP_ENVIRONMENT}"
 
 bin/health-checker --schemes http,https --hosts "${health_check_hosts}" --tries 10 --backoff 3 --log-level info --timeout 15m

@@ -48,11 +48,10 @@ CERT=$(chamber read app-experimental move_mil_dod_tls_cert -q | base64 -i -)
 CA=$(chamber read app-experimental move_mil_dod_ca_cert -q | base64 -i -)
 
 CIRCLE_SHA1=$(curl -sk --key <(echo "${KEY}" | base64 --decode) --cert <(echo "${CERT}" | base64 --decode) --cacert <(echo "${CA}" | base64 --decode) "https://${compare_host}/health"  | jq -r .gitCommit)
-readonly repo_name="app"
-readonly ECR_DIGEST="$(aws ecr describe-images --repository-name "${repo_name}" --image-ids imageTag="${CIRCLE_SHA1}" | jq ".imageDetails[0] .imageDigest" -r)"
+
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}" "${KEY}" "${CERT}" "${CA}"
 
-readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}"
+readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}"
 scripts/ecs-deploy-service-container app-client-tls "${image}" "${APP_ENVIRONMENT}"
 
 # NOTE: The health checker in all environments ought to work with the values from experimental for the key, cert, and ca.
