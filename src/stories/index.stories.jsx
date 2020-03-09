@@ -22,3 +22,26 @@ storiesOf('Button', module)
       </span>
     </Button>
   ));
+
+  const colors = () => {
+    return (
+      <ul>
+        {Object.keys(colors).map((color) => (
+          <li>
+            <span
+              style={
+                backgroundColor: colors[color],
+                display: 'block',
+                height: '4em',
+                marginBottom: '0.3em',
+                borderRadius: '5px',
+                border: '1px solid lightgray'
+              }
+            />
+          <span>{color}</span><br /> // color name
+          <span>{colors[color]}</span> <br /> // hex value
+        </li>
+        )
+      )
+    )
+  }

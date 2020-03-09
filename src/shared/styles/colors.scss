@@ -43,23 +43,36 @@ $color-blue: #005ea2;
 
 // This section is for Storybook purposes only. It exports color variables for use in Webpack. the name in front is going to print as our color name in storybook, and the color variable we refernce will get inserted into the color swatch.
 :export {
-  bgWhite: $bg-white;
-  bgGray: $bg-gray;
-  baseLightest: $base-lightest;
-  baseLighter: $base-lighter;
-  baseLight: $base-light;
-  base: $base;
-  baseDark:$base-dark;
-  baseDarker:$base-darker;
-  baseDarkest:$base-darkest;
-  error:$error;
-  errorLight:$error-light;
-  warning:$warning;
-  warningLight:$warning-light;
-  success:$success;
-  successLight:$success-light;
-  link: $link;
-  linkLight:$link-light;
-  accentBlue:$accent-blue;
-  accentYellow:$accent-yellow;
+  brand: {
+    mmBlue: $mm-blue;
+    mmGold: $mm-gold;
+    mmPeriwinkle: $mm-periwinkle;
+  };
+  background: {
+    bgWhite: $bg-white;
+    bgGray: $bg-gray;
+  };
+  base: {
+    baseLightest: $base-lightest;
+    baseLighter: $base-lighter;
+    baseLight: $base-light;
+    base: $base;
+    baseDark:$base-dark;
+    baseDarker:$base-darker;
+    baseDarkest:$base-darkest;
+  };
+  formColors: {
+    error:$error;
+    errorLight:$error-light;
+    warning:$warning;
+    warningLight:$warning-light;
+    success:$success;
+    successLight:$success-light;
+  };
+  accent: {
+    link: $link;
+    linkLight:$link-light;
+    accentBlue:$accent-blue;
+    accentYellow:$accent-yellow;
+  };
 }
