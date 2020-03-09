@@ -51,7 +51,7 @@ describe('DocumentDetailPanelView', () => {
       const title = 'My Title';
       const documentPanel = renderDocumentPanel({ schema, title });
       const swaggerField = documentPanel.find({ fieldName: 'title' });
-      expect(swaggerField.prop('title')).toEqual('Document Title');
+      expect(swaggerField.prop('title')).toEqual('Document title');
       expect(swaggerField.prop('required')).toEqual(true);
       expect(swaggerField.prop('values')).toEqual({ title });
       expect(swaggerField.prop('schema')).toEqual(schema);
@@ -63,7 +63,7 @@ describe('DocumentDetailPanelView', () => {
       const swaggerField = documentPanel.find({
         fieldName: 'move_document_type',
       });
-      expect(swaggerField.prop('title')).toEqual('Document Type');
+      expect(swaggerField.prop('title')).toEqual('Document type');
       expect(swaggerField.prop('required')).toEqual(true);
       expect(swaggerField.prop('values')).toEqual({ move_document_type: type });
       expect(swaggerField.prop('schema')).toEqual(schema);
@@ -73,7 +73,7 @@ describe('DocumentDetailPanelView', () => {
       const status = 'SUBMITTED';
       const documentPanel = renderDocumentPanel({ schema, status });
       const swaggerField = documentPanel.find({ fieldName: 'status' });
-      expect(swaggerField.prop('title')).toEqual('Document Status');
+      expect(swaggerField.prop('title')).toEqual('Document status');
       expect(swaggerField.prop('required')).toEqual(true);
       expect(swaggerField.prop('values')).toEqual({ status });
       expect(swaggerField.prop('schema')).toEqual(schema);
