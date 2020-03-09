@@ -4,9 +4,8 @@ import PropTypes from 'prop-types';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
-import colors from '../shared/styles/colors.scss';
-
 import { Button, Welcome } from '@storybook/react/demo';
+import colors from '../shared/styles/colors.scss';
 
 const filterGroup = filter => Object.keys(colors).filter(color => color.indexOf(filter) === 0);
 
@@ -78,9 +77,12 @@ const Color = ({ color }) => (
         border: '1px solid lightgray',
       }}
     />
-    <span>{colorName(color)}</span> <br />
-    <span>{colorVariable(color)}</span> <br />
-    <span>{colors[color]}</span> <br />
+    <span>{colorName(color)}</span>
+    <br />
+    <span>{colorVariable(color)}</span>
+    <br />
+    <span>{colors[color]}</span>
+    <br />
   </li>
 );
 
@@ -107,5 +109,5 @@ const ColorGroup = ({ group }) => (
 );
 
 ColorGroup.propTypes = {
-  group: PropTypes.array.isRequired,
+  group: PropTypes.arrayOf.isRequired,
 };
