@@ -1,6 +1,7 @@
 package paymentrequest
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -102,7 +103,11 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		paymentRequestReturn, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
 
+		expectedSequenceNumber := 1
+		expectedPaymentRequestNumber := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber)
 		// Verify some of the data that came back
+		suite.Equal(expectedPaymentRequestNumber, paymentRequestReturn.PaymentRequestNumber)
+		suite.Equal(expectedSequenceNumber, paymentRequestReturn.SequenceNumber)
 		suite.NotEqual(paymentRequestReturn.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequestReturn.PaymentServiceItems), "PaymentServiceItems expect 2")
 		if suite.Len(paymentRequestReturn.PaymentServiceItems, 2) {
@@ -277,5 +282,62 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+	})
+
+	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {
+		// Determine the max sequence number we already have for this MTO ID
+		var max int
+		err := suite.DB().RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_task_order_id = $1", moveTaskOrder.ID).First(&max)
+		suite.FatalNoError(err)
+
+		// Create two new ones
+		paymentRequest1 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							ServiceItemParamKeyID: serviceItemParamKey1.ID,
+							Value:                 "3254",
+						},
+					},
+				},
+			},
+		}
+		_, err = creator.CreatePaymentRequest(&paymentRequest1)
+		suite.FatalNoError(err)
+
+		paymentRequest2 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							ServiceItemParamKeyID: serviceItemParamKey1.ID,
+							Value:                 "3254",
+						},
+					},
+				},
+			},
+		}
+		_, err = creator.CreatePaymentRequest(&paymentRequest2)
+		suite.FatalNoError(err)
+
+		// Verify expected payment request numbers
+		expectedSequenceNumber1 := max + 1
+		expectedPaymentRequestNumber1 := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber1)
+		suite.Equal(expectedPaymentRequestNumber1, paymentRequest1.PaymentRequestNumber)
+		suite.Equal(expectedSequenceNumber1, paymentRequest1.SequenceNumber)
+
+		expectedSequenceNumber2 := max + 2
+		expectedPaymentRequestNumber2 := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber2)
+		suite.Equal(expectedPaymentRequestNumber2, paymentRequest2.PaymentRequestNumber)
+		suite.Equal(expectedSequenceNumber2, paymentRequest2.SequenceNumber)
 	})
 }

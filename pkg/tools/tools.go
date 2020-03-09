@@ -9,8 +9,6 @@ package tools
 import (
 	// Install for hot reloading server
 	_ "github.com/codegangsta/gin"
-	// Install for generating swagger code
-	_ "github.com/go-swagger/go-swagger/cmd/swagger"
 	// Install for managing the database
 	_ "github.com/gobuffalo/pop/soda"
 

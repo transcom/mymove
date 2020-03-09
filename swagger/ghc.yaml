@@ -1486,6 +1486,10 @@ definitions:
         type: array
       status:
         $ref: '#/definitions/PaymentRequestStatus'
+      paymentRequestNumber:
+        example: 1234-5678-1
+        readOnly: true
+        type: string
     type: object
   PaymentRequests:
     items:

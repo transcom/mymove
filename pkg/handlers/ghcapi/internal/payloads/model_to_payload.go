@@ -195,17 +195,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 // MTOShipmentWithEtag payload
 func MTOShipmentWithEtag(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipmentWithEtag {
 	return &ghcmessages.MTOShipmentWithEtag{
-		MTOShipment: ghcmessages.MTOShipment{
-			ID:                  strfmt.UUID(mtoShipment.ID.String()),
-			MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-			ShipmentType:        "HHG",
-			Status:              string(mtoShipment.Status),
-			CustomerRemarks:     mtoShipment.CustomerRemarks,
-			RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
-			CreatedAt:           strfmt.DateTime(mtoShipment.CreatedAt),
-			UpdatedAt:           strfmt.DateTime(mtoShipment.UpdatedAt),
-		},
-		ETag: etag.GenerateEtag(mtoShipment.UpdatedAt),
+		MTOShipment: *MTOShipment(mtoShipment),
+		ETag:        etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 }
 

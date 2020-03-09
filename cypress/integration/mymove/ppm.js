@@ -94,7 +94,7 @@ function SMSubmitsMove() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('#incentive-estimation-slider').click();
 
-  cy.get('[data-cy="incentive-range-text"]').contains('$');
+  cy.get('[data-cy="incentive-range-values"]').contains('$');
 
   cy.nextPage();
 
@@ -369,7 +369,12 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
 
   cy.get('select[name="weight_ticket_set_type"]').select(vehicleType);
 
-  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+  if (vehicleType === 'BOX_TRUCK' || vehicleType === 'PRO_GEAR') {
+    cy.get('input[name="vehicle_nickname"]').type('Nickname');
+  } else if (vehicleType === 'CAR' || vehicleType === 'CAR_TRAILER') {
+    cy.get('input[name="vehicle_make"]').type('Make');
+    cy.get('input[name="vehicle_model"]').type('Model');
+  }
 
   cy.get('input[name="empty_weight"]').type('1000');
 
