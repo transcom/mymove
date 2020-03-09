@@ -161,13 +161,8 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
           {isExpenseDocument && <ExpenseDocumentForm moveDocSchema={moveDocSchema} />}
           {isWeightTicketDocument && (
             <>
-              <div className="field-with-units">
-                <SwaggerField
-                  className="short-field"
-                  fieldName="weight_ticket_set_type"
-                  swagger={moveDocSchema}
-                  required
-                />
+              <div>
+                <SwaggerField fieldName="weight_ticket_set_type" swagger={moveDocSchema} required />
               </div>
               {isWeightTicketTypeBoxTruck && (
                 <div className="field-with-units">
@@ -187,21 +182,15 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
               )}
               {isWeightTicketTypeCarOrTrailer && (
                 <>
-                  <div className="field-with-units">
-                    <SwaggerField className="short-field" fieldName="vehicle_make" swagger={moveDocSchema} required />
-                  </div>
-                  <div className="field-with-units">
-                    <SwaggerField className="short-field" fieldName="vehicle_model" swagger={moveDocSchema} required />
-                  </div>
+                  <SwaggerField fieldName="vehicle_make" swagger={moveDocSchema} required />
+                  <SwaggerField fieldName="vehicle_model" swagger={moveDocSchema} required />
                 </>
               )}
-
-              <div className="field-with-units">
-                <SwaggerField className="short-field" fieldName="empty_weight" swagger={moveDocSchema} required /> lbs
-              </div>
-              <div className="field-with-units">
-                <SwaggerField className="short-field" fieldName="full_weight" swagger={moveDocSchema} required /> lbs
-              </div>
+              <SwaggerField fieldName="vehicle_nickname" swagger={moveDocSchema} required />
+              <SwaggerField className="short-field" fieldName="empty_weight" swagger={moveDocSchema} required />{' '}
+              <span className="field-with-units">lbs</span>
+              <SwaggerField className="short-field" fieldName="full_weight" swagger={moveDocSchema} required />{' '}
+              <span className="field-with-units">lbs</span>
             </>
           )}
           {isStorageExpenseDocument && (
