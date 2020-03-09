@@ -706,10 +706,7 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         x-nullable: true
       agentType:
-        type: string
-        enum:
-          - RELEASING_AGENT
-          - RECEIVING_AGENT
+        $ref: '#/definitions/MTOAgentType'
     type: object
   MoveTaskOrderWithEtag:
     allOf:
@@ -798,6 +795,13 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
+  MTOAgentType:
+    type: string
+    title: MTO Agent Type
+    example: RELEASING_AGENT
+    enum: &MTOAGENTTYPE
+      - RELEASING_AGENT
+      - RECEIVING_AGENT
   MTOServiceItem:
     properties:
       id:

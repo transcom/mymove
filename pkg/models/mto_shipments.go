@@ -64,6 +64,7 @@ type MTOShipment struct {
 	PickupAddressID                  uuid.UUID         `db:"pickup_address_id"`
 	DestinationAddress               Address           `belongs_to:"addresses"`
 	DestinationAddressID             uuid.UUID         `db:"destination_address_id"`
+	MTOAgents                        MTOAgents         `has_many:"mto_agents"`
 	SecondaryPickupAddress           *Address          `belongs_to:"addresses"`
 	SecondaryPickupAddressID         *uuid.UUID        `db:"secondary_pickup_address_id"`
 	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses"`

@@ -815,11 +815,7 @@ func init() {
       "type": "object",
       "properties": {
         "agentType": {
-          "type": "string",
-          "enum": [
-            "RELEASING_AGENT",
-            "RECEIVING_AGENT"
-          ]
+          "$ref": "#/definitions/MTOAgentType"
         },
         "createdAt": {
           "type": "string",
@@ -861,6 +857,15 @@ func init() {
           "format": "date"
         }
       }
+    },
+    "MTOAgentType": {
+      "type": "string",
+      "title": "MTO Agent Type",
+      "enum": [
+        "RELEASING_AGENT",
+        "RECEIVING_AGENT"
+      ],
+      "example": "RELEASING_AGENT"
     },
     "MTOAgents": {
       "type": "array",
@@ -2221,11 +2226,7 @@ func init() {
       "type": "object",
       "properties": {
         "agentType": {
-          "type": "string",
-          "enum": [
-            "RELEASING_AGENT",
-            "RECEIVING_AGENT"
-          ]
+          "$ref": "#/definitions/MTOAgentType"
         },
         "createdAt": {
           "type": "string",
@@ -2267,6 +2268,15 @@ func init() {
           "format": "date"
         }
       }
+    },
+    "MTOAgentType": {
+      "type": "string",
+      "title": "MTO Agent Type",
+      "enum": [
+        "RELEASING_AGENT",
+        "RECEIVING_AGENT"
+      ],
+      "example": "RELEASING_AGENT"
     },
     "MTOAgents": {
       "type": "array",
