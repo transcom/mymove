@@ -1,8 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
+import colors from './_colors.scss';
 
 import { Button, Welcome } from '@storybook/react/demo';
 
