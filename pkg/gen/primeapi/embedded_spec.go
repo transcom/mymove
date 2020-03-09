@@ -814,6 +814,9 @@ func init() {
     "MTOServiceItem": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2187,6 +2190,9 @@ func init() {
     "MTOServiceItem": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",

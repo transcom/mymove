@@ -17,6 +17,9 @@ import (
 // swagger:model MTOServiceItem
 type MTOServiceItem struct {
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Read Only: true
 	// Format: uuid

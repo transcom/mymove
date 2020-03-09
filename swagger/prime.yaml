@@ -757,6 +757,8 @@ definitions:
   MTOServiceItem:
     type: object
     properties:
+      eTag:
+        type: string
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
