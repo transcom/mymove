@@ -79,7 +79,7 @@ describe('DocumentDetailPanelView', () => {
       expect(swaggerField.prop('schema')).toEqual(schema);
     });
 
-    it('includes document status', () => {
+    it('includes document notes', () => {
       const notes = 'More info about this doc';
       const documentPanel = renderDocumentPanel({ schema, notes });
       const swaggerField = documentPanel.find({ fieldName: 'notes' });

@@ -44,9 +44,9 @@ const DocumentDetailDisplay = ({
           {moveDocument.title}
         </h3>
         <p className="uploaded-at">Uploaded {formatDate(get(moveDocument, 'document.uploads.0.created_at'))}</p>
-        <PanelSwaggerField title="Document Title" fieldName="title" required {...moveDocFieldProps} />
+        <PanelSwaggerField title="Document title" fieldName="title" required {...moveDocFieldProps} />
 
-        <PanelSwaggerField title="Document Type" fieldName="move_document_type" required {...moveDocFieldProps} />
+        <PanelSwaggerField title="Document type" fieldName="move_document_type" required {...moveDocFieldProps} />
         {isExpenseDocument && moveDocument.moving_expense_type && (
           <PanelSwaggerField fieldName="moving_expense_type" {...moveDocFieldProps} />
         )}
@@ -59,7 +59,7 @@ const DocumentDetailDisplay = ({
         {isWeightTicketDocument && (
           <>
             <PanelSwaggerField
-              title="Weight Ticket Set Type"
+              title="Weight ticket set type"
               fieldName="weight_ticket_set_type"
               required
               {...moveDocFieldProps}
@@ -67,7 +67,7 @@ const DocumentDetailDisplay = ({
 
             {isWeightTicketTypeBoxTruck && (
               <PanelSwaggerField
-                title="Vehicle Nickname"
+                title="Vehicle nickname"
                 fieldName="vehicle_nickname"
                 required
                 {...moveDocFieldProps}
@@ -82,17 +82,17 @@ const DocumentDetailDisplay = ({
                 <PanelSwaggerField title="Vehicle model" fieldName="vehicle_model" required {...moveDocFieldProps} />
               </>
             )}
-            <PanelSwaggerField title="Empty Weight" fieldName="empty_weight" required {...moveDocFieldProps} />
-            <PanelSwaggerField title="Full Weight" fieldName="full_weight" required {...moveDocFieldProps} />
+            <PanelSwaggerField title="Empty weight" fieldName="empty_weight" required {...moveDocFieldProps} />
+            <PanelSwaggerField title="Full weight" fieldName="full_weight" required {...moveDocFieldProps} />
           </>
         )}
         {isStorageExpenseDocument && (
           <>
-            <PanelSwaggerField title="Start Date" fieldName="storage_start_date" required {...moveDocFieldProps} />
-            <PanelSwaggerField title="End Date" fieldName="storage_end_date" required {...moveDocFieldProps} />
+            <PanelSwaggerField title="Start date" fieldName="storage_start_date" required {...moveDocFieldProps} />
+            <PanelSwaggerField title="End date" fieldName="storage_end_date" required {...moveDocFieldProps} />
           </>
         )}
-        <PanelSwaggerField title="Document Status" fieldName="status" required {...moveDocFieldProps} />
+        <PanelSwaggerField title="Document status" fieldName="status" required {...moveDocFieldProps} />
         <PanelSwaggerField title="Notes" fieldName="notes" {...moveDocFieldProps} />
       </div>
     </Fragment>
@@ -206,8 +206,8 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
           )}
           {isStorageExpenseDocument && (
             <>
-              <SwaggerField title="Start Date" fieldName="storage_start_date" required swagger={moveDocSchema} />
-              <SwaggerField title="End Date" fieldName="storage_end_date" required swagger={moveDocSchema} />
+              <SwaggerField title="Start date" fieldName="storage_start_date" required swagger={moveDocSchema} />
+              <SwaggerField title="End date" fieldName="storage_end_date" required swagger={moveDocSchema} />
             </>
           )}
           <SwaggerField fieldName="status" swagger={moveDocSchema} required />
