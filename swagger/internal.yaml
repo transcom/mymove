@@ -833,7 +833,7 @@ definitions:
         $ref: '#/definitions/WeightTicketSetType'
       vehicle_nickname:
         type: string
-        title: Vehicle nickname (ex. 'My car')
+        title: Nickname (ex. "15-foot truck")
         x-nullable: true
       vehicle_make:
         type: string

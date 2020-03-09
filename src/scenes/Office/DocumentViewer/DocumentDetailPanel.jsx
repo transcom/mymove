@@ -12,7 +12,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { selectMoveDocument, updateMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 import { isMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
-import { MOVE_DOC_TYPE } from 'shared/constants';
+import { MOVE_DOC_TYPE, WEIGHT_TICKET_SET_TYPE } from 'shared/constants';
 
 import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -57,7 +57,6 @@ const DocumentDetailDisplay = ({
               {...moveDocFieldProps}
             />
             <PanelSwaggerField title="Vehicle Nickname" fieldName="vehicle_nickname" required {...moveDocFieldProps} />
-
             <PanelSwaggerField title="Empty Weight" fieldName="empty_weight" required {...moveDocFieldProps} />
             <PanelSwaggerField title="Full Weight" fieldName="full_weight" required {...moveDocFieldProps} />
           </>
@@ -117,6 +116,14 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
   const isStorageExpenseDocument =
     get(formValues.moveDocument, 'move_document_type') === 'EXPENSE' &&
     get(formValues.moveDocument, 'moving_expense_type') === 'STORAGE';
+  const isWeightTicketTypeCarOrTrailer =
+    isWeightTicketDocument &&
+    (formValues.moveDocument.weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.CAR ||
+      formValues.moveDocument.weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.CAR_TRAILER);
+  const isWeightTicketTypeBoxTruck =
+    isWeightTicketDocument && formValues.moveDocument.weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.BOX_TRUCK;
+  const isWeightTicketTypeProGear =
+    isWeightTicketDocument && formValues.moveDocument.weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.PRO_GEAR;
 
   return isEmpty(formValues.moveDocument) ? (
     <LoadingPlaceholder />
@@ -137,9 +144,32 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
                   required
                 />
               </div>
-              <div className="field-with-units">
-                <SwaggerField className="short-field" fieldName="vehicle_nickname" swagger={moveDocSchema} required />
-              </div>
+              {isWeightTicketTypeBoxTruck && (
+                <div className="field-with-units">
+                  <SwaggerField className="short-field" fieldName="vehicle_nickname" swagger={moveDocSchema} required />
+                </div>
+              )}
+              {isWeightTicketTypeProGear && (
+                <div className="field-with-units">
+                  <SwaggerField
+                    className="short-field"
+                    fieldName="vehicle_nickname"
+                    title="Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
+                    swagger={moveDocSchema}
+                    required
+                  />
+                </div>
+              )}
+              {isWeightTicketTypeCarOrTrailer && (
+                <>
+                  <div className="field-with-units">
+                    <SwaggerField className="short-field" fieldName="vehicle_make" swagger={moveDocSchema} required />
+                  </div>
+                  <div className="field-with-units">
+                    <SwaggerField className="short-field" fieldName="vehicle_model" swagger={moveDocSchema} required />
+                  </div>
+                </>
+              )}
 
               <div className="field-with-units">
                 <SwaggerField className="short-field" fieldName="empty_weight" swagger={moveDocSchema} required /> lbs

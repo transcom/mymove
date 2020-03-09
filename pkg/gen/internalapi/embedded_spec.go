@@ -4440,7 +4440,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. 'My car')",
+          "title": "Nickname (ex. \"15-foot truck\")",
           "x-nullable": true
         },
         "weight_ticket_date": {
@@ -10647,7 +10647,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. 'My car')",
+          "title": "Nickname (ex. \"15-foot truck\")",
           "x-nullable": true
         },
         "weight_ticket_date": {

@@ -99,7 +99,7 @@ type MoveDocumentPayload struct {
 	// Vehicle model
 	VehicleModel *string `json:"vehicle_model,omitempty"`
 
-	// Vehicle nickname (ex. 'My car')
+	// Nickname (ex. "15-foot truck")
 	VehicleNickname *string `json:"vehicle_nickname,omitempty"`
 
 	// Weight ticket date
