@@ -388,6 +388,11 @@ func (m Move) CreateWeightTicketSetDocument(
 	weightTicketSetDocument *WeightTicketSetDocument,
 	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
 
+	weightTicketSetTitle := "weight_ticket_set"
+	if weightTicketSetDocument.WeightTicketSetType == "PRO_GEAR" {
+		weightTicketSetTitle = "pro_gear_weight"
+	}
+
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
@@ -400,7 +405,7 @@ func (m Move) CreateWeightTicketSetDocument(
 			uploads,
 			personallyProcuredMoveID,
 			MoveDocumentTypeWEIGHTTICKETSET,
-			"weight_ticket_set",
+			weightTicketSetTitle,
 			weightTicketSetDocument.VehicleNickname,
 			moveType)
 		if responseVErrors.HasAny() || responseError != nil {

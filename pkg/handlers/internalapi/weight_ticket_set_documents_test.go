@@ -91,56 +91,34 @@ func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandler() {
 
 }
 
-func (suite *HandlerSuite) TestCreateCarWeightTicketSetDocumentHandler() {
-
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	sm := ppm.Move.Orders.ServiceMember
-
-	upload := testdatagen.MakeUpload(suite.DB(), testdatagen.Assertions{
-		Upload: models.Upload{
-			UploaderID: sm.UserID,
-		},
-	})
-	upload.DocumentID = nil
-	suite.MustSave(&upload)
-	uploadIds := []strfmt.UUID{*handlers.FmtUUID(upload.ID)}
-
-	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.AuthenticateRequest(request, sm)
-
-	weightTicketSetType := internalmessages.WeightTicketSetType("CAR")
-	newWeightTicketSetDocumentPayload := internalmessages.CreateWeightTicketDocumentsPayload{
-		UploadIds:                uploadIds,
-		EmptyWeight:              handlers.FmtInt64(1000),
-		FullWeight:               handlers.FmtInt64(2000),
-		EmptyWeightTicketMissing: handlers.FmtBool(false),
-		FullWeightTicketMissing:  handlers.FmtBool(false),
-		PersonallyProcuredMoveID: handlers.FmtUUID(ppm.ID),
-		VehicleMake:              handlers.FmtString("Radio Flyer"),
-		VehicleModel:             handlers.FmtString("Wagon"),
-		WeightTicketSetType:      &weightTicketSetType,
-		WeightTicketDate:         handlers.FmtDate(testdatagen.NextValidMoveDate),
-		TrailerOwnershipMissing:  handlers.FmtBool(false),
+func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentCarHandler() {
+	tests := []struct {
+		weightTicketSetType string
+		resultTitle         string
+	}{
+		{weightTicketSetType: "CAR", resultTitle: "weight_ticket_set"},
+		{weightTicketSetType: "CAR_TRAILER", resultTitle: "weight_ticket_set"},
+		{weightTicketSetType: "BOX_TRUCK", resultTitle: "weight_ticket_set"},
+		{weightTicketSetType: "PRO_GEAR", resultTitle: "pro_gear_weight"},
 	}
 
-	newWeightTicketSetDocParams := movedocop.CreateWeightTicketDocumentParams{
-		HTTPRequest:                request,
-		CreateWeightTicketDocument: &newWeightTicketSetDocumentPayload,
-		MoveID:                     strfmt.UUID(ppm.MoveID.String()),
-	}
+	for _, t := range tests {
+		newWeightTicketSetDocParams := createWeightTicketSetDocument(suite, t.weightTicketSetType)
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
-	handler := CreateWeightTicketSetDocumentHandler{context}
-	response := handler.Handle(newWeightTicketSetDocParams)
-	suite.IsNotErrResponse(response)
-	createdResponse := response.(*movedocop.CreateWeightTicketDocumentOK)
-	createdPayload := createdResponse.Payload
-	suite.NotNil(createdPayload.ID)
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		context.SetFileStorer(fakeS3)
+		handler := CreateWeightTicketSetDocumentHandler{context}
+		response := handler.Handle(newWeightTicketSetDocParams)
+		suite.IsNotErrResponse(response)
+		createdResponse := response.(*movedocop.CreateWeightTicketDocumentOK)
+		createdPayload := createdResponse.Payload
+		suite.NotNil(createdPayload.ID)
+		suite.Equal(*createdPayload.Title, t.resultTitle)
+	}
 }
 
-func (suite *HandlerSuite) TestCreaterWeightTicketSetDocumentHandlerFailure() {
+func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandlerFailure() {
 
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	sm := ppm.Move.Orders.ServiceMember
@@ -218,4 +196,46 @@ func (suite *HandlerSuite) TestCreaterWeightTicketSetDocumentHandlerFailure() {
 		response := handler.Handle(newWeightTicketSetDocParams)
 		suite.CheckErrorResponse(response, 422, "weight ticket set for type BOX_TRUCK must have a value for vehicle nickname")
 	})
+}
+
+func createWeightTicketSetDocument(suite *HandlerSuite, weightTicketSetType string) movedocop.CreateWeightTicketDocumentParams {
+
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	sm := ppm.Move.Orders.ServiceMember
+
+	upload := testdatagen.MakeUpload(suite.DB(), testdatagen.Assertions{
+		Upload: models.Upload{
+			UploaderID: sm.UserID,
+		},
+	})
+	upload.DocumentID = nil
+	suite.MustSave(&upload)
+	uploadIds := []strfmt.UUID{*handlers.FmtUUID(upload.ID)}
+
+	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request = suite.AuthenticateRequest(request, sm)
+
+	wtst := internalmessages.WeightTicketSetType(weightTicketSetType)
+	newWeightTicketSetDocumentPayload := internalmessages.CreateWeightTicketDocumentsPayload{
+		UploadIds:                uploadIds,
+		EmptyWeight:              handlers.FmtInt64(1000),
+		FullWeight:               handlers.FmtInt64(2000),
+		EmptyWeightTicketMissing: handlers.FmtBool(false),
+		FullWeightTicketMissing:  handlers.FmtBool(false),
+		PersonallyProcuredMoveID: handlers.FmtUUID(ppm.ID),
+		VehicleNickname:          handlers.FmtString("My red wagon"),
+		VehicleMake:              handlers.FmtString("Radio Flyer"),
+		VehicleModel:             handlers.FmtString("Wagon"),
+		WeightTicketSetType:      &wtst,
+		WeightTicketDate:         handlers.FmtDate(testdatagen.NextValidMoveDate),
+		TrailerOwnershipMissing:  handlers.FmtBool(false),
+	}
+
+	newWeightTicketSetDocParams := movedocop.CreateWeightTicketDocumentParams{
+		HTTPRequest:                request,
+		CreateWeightTicketDocument: &newWeightTicketSetDocumentPayload,
+		MoveID:                     strfmt.UUID(ppm.MoveID.String()),
+	}
+
+	return newWeightTicketSetDocParams
 }
