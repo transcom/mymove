@@ -15,7 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandler() {
+func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerValidate() {
 
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	sm := ppm.Move.Orders.ServiceMember
@@ -91,7 +91,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandler() {
 
 }
 
-func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentCarHandler() {
+func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreate() {
 	tests := []struct {
 		weightTicketSetType string
 		resultTitle         string
@@ -118,7 +118,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentCarHandler() {
 	}
 }
 
-func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandlerFailure() {
+func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreateFailure() {
 
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	sm := ppm.Move.Orders.ServiceMember

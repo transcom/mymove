@@ -11,6 +11,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 )
 
 // WeightTicketSetType represents types of weight ticket sets
@@ -98,4 +99,54 @@ func SumWeightTicketSetsForPPM(db *pop.Connection, session *auth.Session, ppmID 
 		}
 	}
 	return &totalWeight, nil
+}
+
+// CreateWeightTicketSetDocument creates a moving weight ticket document associated to a move and move document
+func (m Move) CreateWeightTicketSetDocument(
+	db *pop.Connection,
+	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
+	weightTicketSetDocument *WeightTicketSetDocument,
+	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
+
+	weightTicketSetTitle := "weight_ticket_set"
+	if weightTicketSetDocument.WeightTicketSetType == "PRO_GEAR" {
+		weightTicketSetTitle = "pro_gear_weight"
+	}
+
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		var newMoveDocument *MoveDocument
+		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
+			db,
+			uploads,
+			personallyProcuredMoveID,
+			MoveDocumentTypeWEIGHTTICKETSET,
+			weightTicketSetTitle,
+			weightTicketSetDocument.VehicleNickname,
+			moveType)
+		if responseVErrors.HasAny() || responseError != nil {
+			return transactionError
+		}
+
+		weightTicketSetDocument.MoveDocument = *newMoveDocument
+		weightTicketSetDocument.MoveDocumentID = newMoveDocument.ID
+
+		verrs, err := db.ValidateAndCreate(weightTicketSetDocument)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating moving expense document")
+			weightTicketSetDocument = nil
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return weightTicketSetDocument, responseVErrors, responseError
 }
