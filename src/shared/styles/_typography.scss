@@ -27,7 +27,7 @@ p {
   @include typeset('body',  4, 3);
 }
 small {
-  @include typeset('body',  2, 3);
+  @include typeset('body',  2, 2);
 }
 a {
   @include u-text('no-underline')
