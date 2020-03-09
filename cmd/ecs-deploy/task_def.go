@@ -142,6 +142,7 @@ func NewECRImage(imageURI string, serviceECR *ecr.ECR) (*ECRImage, error) {
 
 	if strings.Contains(imageURI, digestSeparator) {
 		isDigestImage = true
+		isTaggedImage = false
 		digestURI = imageURI
 		imageParts = strings.Split(imageURI, digestSeparator)
 		digest = imageParts[1]
@@ -169,6 +170,8 @@ func NewECRImage(imageURI string, serviceECR *ecr.ECR) (*ECRImage, error) {
 		}
 
 	} else if strings.Contains(imageURI, tagSeparator) {
+		isTaggedImage = true
+		isDigestImage = false
 		tagURI = imageURI
 		imageParts = strings.Split(imageURI, tagSeparator)
 		tag = imageParts[1]
@@ -209,8 +212,8 @@ func NewECRImage(imageURI string, serviceECR *ecr.ECR) (*ECRImage, error) {
 	return &ECRImage{
 		AWSRegion:        awsRegion,
 		Digest:           digest,
-		ImageURIByTag:    digestURI,
-		ImageURIByDigest: tagURI,
+		ImageURIByTag:    tagURI,
+		ImageURIByDigest: digestURI,
 		IsDigestBased:    isDigestImage,
 		IsTagBased:       isTaggedImage,
 		RegistryID:       registryID,
