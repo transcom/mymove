@@ -9,18 +9,45 @@ import { Button, Welcome } from '@storybook/react/demo';
 storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
 
 storiesOf('Components/Button', module)
-  .add('with text', () => <Button onClick={action('clicked')}>Hello Button</Button>)
-  .add('with some emoji', () => (
-    <Button onClick={action('clicked')}>
-      <span role="img" aria-label="so cool">
-        😀 😎 👍 💯
-      </span>
-    </Button>
+  .add('default', () => (
+    <div style={{ padding: '20px' }}>
+      <Button className="usa-button" onClick={action('clicked')}>
+        Button
+      </Button>
+    </div>
+  ))
+  .add('hover', () => (
+    <div style={{ padding: '20px' }}>
+      <Button className="usa-button  usa-button--hover" onClick={action('clicked')}>
+        Button
+      </Button>
+    </div>
+  ))
+  .add('focus', () => (
+    <div style={{ padding: '20px' }}>
+      <Button className="usa-button  usa-focus" onClick={action('clicked')}>
+        Button
+      </Button>
+    </div>
+  ))
+  .add('active', () => (
+    <div style={{ padding: '20px' }}>
+      <Button className="usa-button  usa-button--active" onClick={action('clicked')}>
+        Button
+      </Button>
+    </div>
+  ))
+  .add('disabled', () => (
+    <div style={{ padding: '20px' }}>
+      <Button className="usa-button" disabled="" onClick={action('clicked')}>
+        Button
+      </Button>
+    </div>
   ));
 
 storiesOf('Global Styles/Typography', module)
   .add('Headers', () => (
-    <div>
+    <div style={{ padding: '20px' }}>
       <p>h1</p>
       <h1>Public Sans 40/48</h1>
       <p>h2</p>
@@ -36,7 +63,7 @@ storiesOf('Global Styles/Typography', module)
     </div>
   ))
   .add('Text', () => (
-    <div>
+    <div style={{ padding: '20px' }}>
       <p>p</p>
       <p>
         Public Sans 15/23 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
@@ -58,7 +85,7 @@ storiesOf('Global Styles/Typography', module)
     </div>
   ))
   .add('Links', () => (
-    <div>
+    <div style={{ padding: '20px' }}>
       <p>a</p>
       <a href="https://materializecss.com/sass.html">USWDS blue-warm-60v</a>
       <p>a:hover</p>
