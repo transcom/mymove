@@ -99,6 +99,11 @@ func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *mode
 	if updatedShipment.ShipmentType != "" {
 		oldShipment.ShipmentType = updatedShipment.ShipmentType
 	}
+
+	if updatedShipment.MTOAgents != nil {
+		oldShipment.MTOAgents = updatedShipment.MTOAgents
+	}
+
 	return nil
 }
 

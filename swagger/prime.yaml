@@ -756,10 +756,7 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         x-nullable: true
       agentType:
-        type: string
-        enum:
-          - RELEASING_AGENT
-          - RECEIVING_AGENT
+        $ref: '#/definitions/MTOAgentType'
     type: object
   MoveTaskOrderWithEtag:
     allOf:
@@ -863,6 +860,13 @@ definitions:
     enum:
       - MTOServiceItemBasic
       - MTOServiceItemDOFSIT
+  MTOAgentType:
+    type: string
+    title: MTO Agent Type
+    example: RELEASING_AGENT
+    enum: &MTOAGENTTYPE
+      - RELEASING_AGENT
+      - RECEIVING_AGENT
   MTOServiceItem:
     description: Polymorphic type. MTOServiceItem describes a base type of a service item
     type: object
