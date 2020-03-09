@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
-import colors from './shared/styles/colors.scss';
+import colors from '../shared/styles/colors.scss';
 
 import { Button, Welcome } from '@storybook/react/demo';
 

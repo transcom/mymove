@@ -1,5 +1,10 @@
 //colors should primarily come from https://designsystem.digital.gov/components/colors/
 
+
+
+// Defining color variables.
+
+//Group 1: these were here when I got here
 $color-gold: #fdb81e;
 $color-icon-gray: #ababab;
 $color-gray-lightest: #f1f1f1;
@@ -7,3 +12,18 @@ $color-gray-medium: #a2a2a2;
 $color-gray-light: #b2b2b2;
 $color-red: #cd3504;
 $color-blue: #005ea2;
+
+//Group 2: Brand Colors
+$mm-blue: #252F3E;
+$mm-gold: #FFBE2E;
+$mm-periwinkle: #8CAFEA;
+
+
+
+// Export color variables for use in Webpack.
+:export {
+  dimGray: $color-dim-gray;
+  zorba: $color-zorba;
+  whiteSand: $color-white-sand;
+  // ... other colors
+}
