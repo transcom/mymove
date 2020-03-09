@@ -85,3 +85,6 @@ storybook-static
 
 # Certs
 *.srl
+
+# anti-virus
+whitelist*.*

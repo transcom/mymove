@@ -79,6 +79,10 @@ class WeightTicket extends Component {
     return this.state.weightTicketSetType === WEIGHT_TICKET_SET_TYPE.CAR_TRAILER;
   }
 
+  get isCar() {
+    return this.state.weightTicketSetType === WEIGHT_TICKET_SET_TYPE.CAR;
+  }
+
   get isProGear() {
     return this.state.weightTicketSetType === WEIGHT_TICKET_SET_TYPE.PRO_GEAR;
   }
@@ -173,6 +177,8 @@ class WeightTicket extends Component {
       upload_ids: uploadIds,
       weight_ticket_set_type: formValues.weight_ticket_set_type,
       vehicle_nickname: formValues.vehicle_nickname,
+      vehicle_make: formValues.vehicle_make,
+      vehicle_model: formValues.vehicle_model,
       empty_weight_ticket_missing: this.state.missingEmptyWeightTicket,
       empty_weight: formValues.empty_weight,
       full_weight_ticket_missing: this.state.missingFullWeightTicket,
@@ -267,16 +273,37 @@ class WeightTicket extends Component {
                   value={weightTicketSetType}
                   required
                 />
-                <SwaggerField
-                  fieldName="vehicle_nickname"
-                  title={
-                    this.isProGear
-                      ? "Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
-                      : "Vehicle nickname (ex. 'My car')"
-                  }
-                  swagger={schema}
-                  required
-                />
+                {weightTicketSetType &&
+                  (this.isCarTrailer || this.isCar ? (
+                    <>
+                      <SwaggerField
+                        fieldName="vehicle_make"
+                        data-cy="vehicle_make"
+                        title="Vehicle make"
+                        swagger={schema}
+                        required={this.isCarTrailer || this.isCar}
+                      />
+                      <SwaggerField
+                        fieldName="vehicle_model"
+                        data-cy="vehicle_model"
+                        title="Vehicle model"
+                        swagger={schema}
+                        required={this.isCarTrailer || this.isCar}
+                      />
+                    </>
+                  ) : (
+                    <SwaggerField
+                      fieldName="vehicle_nickname"
+                      data-cy="vehicle_nickname"
+                      title={
+                        this.isProGear
+                          ? "Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
+                          : "Vehicle nickname (ex. 'Large box truck')"
+                      }
+                      swagger={schema}
+                      required={!this.isCarTrailer && !this.isCar}
+                    />
+                  ))}
                 {weightTicketSetType && this.isCarTrailer && (
                   <>
                     <div className="radio-group-wrapper normalize-margins">

@@ -201,11 +201,12 @@ func Address(address *models.Address) *primemessages.Address {
 // PaymentRequest payload
 func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.PaymentRequest {
 	return &primemessages.PaymentRequest{
-		ID:              strfmt.UUID(paymentRequest.ID.String()),
-		Status:          primemessages.PaymentRequestStatus(paymentRequest.Status),
-		IsFinal:         &paymentRequest.IsFinal,
-		MoveTaskOrderID: strfmt.UUID(paymentRequest.MoveTaskOrderID.String()),
-		RejectionReason: paymentRequest.RejectionReason,
+		ID:                   strfmt.UUID(paymentRequest.ID.String()),
+		IsFinal:              &paymentRequest.IsFinal,
+		MoveTaskOrderID:      strfmt.UUID(paymentRequest.MoveTaskOrderID.String()),
+		PaymentRequestNumber: paymentRequest.PaymentRequestNumber,
+		RejectionReason:      paymentRequest.RejectionReason,
+		Status:               primemessages.PaymentRequestStatus(paymentRequest.Status),
 	}
 }
 
