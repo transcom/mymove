@@ -1,6 +1,3 @@
-//colors should primarily come from https://designsystem.digital.gov/components/colors/
-
-
 
 // Defining color variables.
 //Group 1: Brand Colors
@@ -35,7 +32,7 @@ $link-light: #d9e8f6;
 $accent-blue: #0096f4;
 $accent-yellow: #face00;
 
-//Last Group: these were here when I got here
+//Last Group: these were here when I got here.
 $color-gold: #fdb81e;
 $color-icon-gray: #ababab;
 $color-gray-lightest: #f1f1f1;
@@ -44,10 +41,25 @@ $color-gray-light: #b2b2b2;
 $color-red: #cd3504;
 $color-blue: #005ea2;
 
-// Export color variables for use in Webpack.
+// This section is for Storybook purposes only. It exports color variables for use in Webpack. the name in front is going to print as our color name in storybook, and the color variable we refernce will get inserted into the color swatch.
 :export {
-  dimGray: $color-dim-gray;
-  zorba: $color-zorba;
-  whiteSand: $color-white-sand;
-  // ... other colors
+  bgWhite: $bg-white;
+  bgGray: $bg-gray;
+  baseLightest: $base-lightest;
+  baseLighter: $base-lighter;
+  baseLight: $base-light;
+  base: $base;
+  baseDark:$base-dark;
+  baseDarker:$base-darker;
+  baseDarkest:$base-darkest;
+  error:$error;
+  errorLight:$error-light;
+  warning:$warning;
+  warningLight:$warning-light;
+  success:$success;
+  successLight:$success-light;
+  link: $link;
+  linkLight:$link-light;
+  accentBlue:$accent-blue;
+  accentYellow:$accent-yellow;
 }
