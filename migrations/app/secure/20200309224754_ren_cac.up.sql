@@ -27,7 +27,7 @@ INSERT INTO public.client_certs (
 VALUES (
 	'a79c0313-df2e-475a-905e-61dcb55a6aaf',
 	'1bd56ab913eeaf56fc85067cc0d126a400e9513d222551ee8bc1cfb000749934',
-	'CN=RALREN,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US',
+	'CN=ralren,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US',
 	false,
 	true,
 	now(),
