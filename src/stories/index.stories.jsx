@@ -48,6 +48,17 @@ const colorName = color => {
   return `${array.join(' ').toLowerCase()}`;
 };
 
+const colorsHelper = color => {
+  if (Object.keys(colors).includes(color)) {
+    // The use of colors[color] triggers a security warning from our eslint security plugin.
+    // However, since we verify inputs against imported colors and this function is not used where
+    // users input color we are diabling the warning.
+    // eslint-disable-next-line security/detect-object-injection
+    return colors[color];
+  }
+  return colors.base;
+};
+
 // A component for displaying individual color swatches.
 const Color = ({ color }) => (
   <li
@@ -59,7 +70,7 @@ const Color = ({ color }) => (
   >
     <span
       style={{
-        backgroundColor: colors[color],
+        backgroundColor: colorsHelper(color),
         display: 'block',
         height: '4em',
         marginBottom: '0.3em',
@@ -78,7 +89,7 @@ const Color = ({ color }) => (
       <br />
       <code>{colorVariable(color)}</code>
       <br />
-      <code>{colors[color]}</code>
+      <code>{colorsHelper(color)}</code>
       <br />
     </p>
   </li>
