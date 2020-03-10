@@ -170,7 +170,7 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
               {isWeightTicketTypeProGear && (
                 <SwaggerField
                   fieldName="vehicle_nickname"
-                  title="Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-gear', 'Both')"
+                  title="Pro-gear type (ex. 'My pro-gear', 'Spouse pro-gear', 'Both')"
                   swagger={moveDocSchema}
                   required
                 />
