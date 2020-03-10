@@ -3982,9 +3982,9 @@ func init() {
         "ARMY"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 - US Air Force",
-        "ARMY": "21 - US Army",
-        "NAVY_AND_MARINES": "17 - US Navy and Marine Corps"
+        "AIR_FORCE": "57 (Air Force)",
+        "ARMY": "21 (Army)",
+        "NAVY_AND_MARINES": "17 (Navy and Marine Corps)"
       },
       "x-nullable": true
     },
@@ -10187,9 +10187,9 @@ func init() {
         "ARMY"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 - US Air Force",
-        "ARMY": "21 - US Army",
-        "NAVY_AND_MARINES": "17 - US Navy and Marine Corps"
+        "AIR_FORCE": "57 (Air Force)",
+        "ARMY": "21 (Army)",
+        "NAVY_AND_MARINES": "17 (Navy and Marine Corps)"
       },
       "x-nullable": true
     },
