@@ -6,52 +6,251 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
+	"io/ioutil"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItem m t o service item
-// swagger:model MTOServiceItem
-type MTOServiceItem struct {
+// MTOServiceItem Polymorphic type. MTOServiceItem describes a base type of a service item
+// swagger:discriminator MTOServiceItem serviceItemType
+type MTOServiceItem interface {
+	runtime.Validatable
 
 	// e tag
-	ETag string `json:"eTag,omitempty"`
+	// Required: true
+	ETag() *string
+	SetETag(*string)
 
 	// id
-	// Read Only: true
 	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
+	ID() strfmt.UUID
+	SetID(strfmt.UUID)
 
 	// move task order ID
-	// Required: true
 	// Format: uuid
-	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
+	MoveTaskOrderID() strfmt.UUID
+	SetMoveTaskOrderID(strfmt.UUID)
+
+	// mto shipment ID
+	// Format: uuid
+	MtoShipmentID() strfmt.UUID
+	SetMtoShipmentID(strfmt.UUID)
 
 	// re service code
 	// Required: true
-	ReServiceCode ReServiceCode `json:"reServiceCode"`
+	ReServiceCode() ReServiceCode
+	SetReServiceCode(ReServiceCode)
 
 	// re service ID
-	// Read Only: true
 	// Format: uuid
-	ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
+	ReServiceID() strfmt.UUID
+	SetReServiceID(strfmt.UUID)
 
 	// re service name
-	ReServiceName string `json:"reServiceName,omitempty"`
+	ReServiceName() string
+	SetReServiceName(string)
+
+	// service item type
+	// Required: true
+	ServiceItemType() string
+	SetServiceItemType(string)
+}
+
+type mTOServiceItem struct {
+	eTagField *string
+
+	idField strfmt.UUID
+
+	moveTaskOrderIdField strfmt.UUID
+
+	mtoShipmentIdField strfmt.UUID
+
+	reServiceCodeField ReServiceCode
+
+	reServiceIdField strfmt.UUID
+
+	reServiceNameField string
+
+	serviceItemTypeField string
+}
+
+// ETag gets the e tag of this polymorphic type
+func (m *mTOServiceItem) ETag() *string {
+	return m.eTagField
+}
+
+// SetETag sets the e tag of this polymorphic type
+func (m *mTOServiceItem) SetETag(val *string) {
+	m.eTagField = val
+}
+
+// ID gets the id of this polymorphic type
+func (m *mTOServiceItem) ID() strfmt.UUID {
+	return m.idField
+}
+
+// SetID sets the id of this polymorphic type
+func (m *mTOServiceItem) SetID(val strfmt.UUID) {
+	m.idField = val
+}
+
+// MoveTaskOrderID gets the move task order ID of this polymorphic type
+func (m *mTOServiceItem) MoveTaskOrderID() strfmt.UUID {
+	return m.moveTaskOrderIdField
+}
+
+// SetMoveTaskOrderID sets the move task order ID of this polymorphic type
+func (m *mTOServiceItem) SetMoveTaskOrderID(val strfmt.UUID) {
+	m.moveTaskOrderIdField = val
+}
+
+// MtoShipmentID gets the mto shipment ID of this polymorphic type
+func (m *mTOServiceItem) MtoShipmentID() strfmt.UUID {
+	return m.mtoShipmentIdField
+}
+
+// SetMtoShipmentID sets the mto shipment ID of this polymorphic type
+func (m *mTOServiceItem) SetMtoShipmentID(val strfmt.UUID) {
+	m.mtoShipmentIdField = val
+}
+
+// ReServiceCode gets the re service code of this polymorphic type
+func (m *mTOServiceItem) ReServiceCode() ReServiceCode {
+	return m.reServiceCodeField
+}
+
+// SetReServiceCode sets the re service code of this polymorphic type
+func (m *mTOServiceItem) SetReServiceCode(val ReServiceCode) {
+	m.reServiceCodeField = val
+}
+
+// ReServiceID gets the re service ID of this polymorphic type
+func (m *mTOServiceItem) ReServiceID() strfmt.UUID {
+	return m.reServiceIdField
+}
+
+// SetReServiceID sets the re service ID of this polymorphic type
+func (m *mTOServiceItem) SetReServiceID(val strfmt.UUID) {
+	m.reServiceIdField = val
+}
+
+// ReServiceName gets the re service name of this polymorphic type
+func (m *mTOServiceItem) ReServiceName() string {
+	return m.reServiceNameField
+}
+
+// SetReServiceName sets the re service name of this polymorphic type
+func (m *mTOServiceItem) SetReServiceName(val string) {
+	m.reServiceNameField = val
+}
+
+// ServiceItemType gets the service item type of this polymorphic type
+func (m *mTOServiceItem) ServiceItemType() string {
+	return "MTOServiceItem"
+}
+
+// SetServiceItemType sets the service item type of this polymorphic type
+func (m *mTOServiceItem) SetServiceItemType(val string) {
+
+}
+
+// UnmarshalMTOServiceItemSlice unmarshals polymorphic slices of MTOServiceItem
+func UnmarshalMTOServiceItemSlice(reader io.Reader, consumer runtime.Consumer) ([]MTOServiceItem, error) {
+	var elements []json.RawMessage
+	if err := consumer.Consume(reader, &elements); err != nil {
+		return nil, err
+	}
+
+	var result []MTOServiceItem
+	for _, element := range elements {
+		obj, err := unmarshalMTOServiceItem(element, consumer)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, obj)
+	}
+	return result, nil
+}
+
+// UnmarshalMTOServiceItem unmarshals polymorphic MTOServiceItem
+func UnmarshalMTOServiceItem(reader io.Reader, consumer runtime.Consumer) (MTOServiceItem, error) {
+	// we need to read this twice, so first into a buffer
+	data, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+	return unmarshalMTOServiceItem(data, consumer)
+}
+
+func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOServiceItem, error) {
+	buf := bytes.NewBuffer(data)
+	buf2 := bytes.NewBuffer(data)
+
+	// the first time this is read is to fetch the value of the serviceItemType property.
+	var getType struct {
+		ServiceItemType string `json:"serviceItemType"`
+	}
+	if err := consumer.Consume(buf, &getType); err != nil {
+		return nil, err
+	}
+
+	if err := validate.RequiredString("serviceItemType", "body", getType.ServiceItemType); err != nil {
+		return nil, err
+	}
+
+	// The value of serviceItemType is used to determine which type to create and unmarshal the data into
+	switch getType.ServiceItemType {
+	case "MTOServiceItem":
+		var result mTOServiceItem
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
+	case "MTOServiceItemBasic":
+		var result MTOServiceItemBasic
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
+	case "MTOServiceItemDOFSIT":
+		var result MTOServiceItemDOFSIT
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
+	}
+	return nil, errors.New(422, "invalid serviceItemType value: %q", getType.ServiceItemType)
+
 }
 
 // Validate validates this m t o service item
-func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
+func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateETag(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMtoShipmentID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -69,35 +268,57 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItem) validateID(formats strfmt.Registry) error {
+func (m *mTOServiceItem) validateETag(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ID) { // not required
+	if err := validate.Required("eTag", "body", m.ETag()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) validateID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ID()) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+	if err := validate.FormatOf("id", "body", "uuid", m.ID().String(), formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *MTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error {
+func (m *mTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
-	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID); err != nil {
-		return err
+	if swag.IsZero(m.MoveTaskOrderID()) { // not required
+		return nil
 	}
 
-	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
+	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID().String(), formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *MTOServiceItem) validateReServiceCode(formats strfmt.Registry) error {
+func (m *mTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
 
-	if err := m.ReServiceCode.Validate(formats); err != nil {
+	if swag.IsZero(m.MtoShipmentID()) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) validateReServiceCode(formats strfmt.Registry) error {
+
+	if err := m.ReServiceCode().Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("reServiceCode")
 		}
@@ -107,33 +328,15 @@ func (m *MTOServiceItem) validateReServiceCode(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
+func (m *mTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ReServiceID) { // not required
+	if swag.IsZero(m.ReServiceID()) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID.String(), formats); err != nil {
+	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
 		return err
 	}
 
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *MTOServiceItem) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *MTOServiceItem) UnmarshalBinary(b []byte) error {
-	var res MTOServiceItem
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
 	return nil
 }

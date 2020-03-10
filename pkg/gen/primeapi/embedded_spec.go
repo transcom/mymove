@@ -246,6 +246,96 @@ func init() {
         }
       }
     },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem",
+          "prime"
+        ],
+        "summary": "creates mto service items",
+        "operationId": "createMTOServiceItem",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "description": "This may be a normal MTOServiceItem, MTOServiceItemDomOriginDaySIT or etc.",
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "created instance of a mto service item",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "precondition failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
         "description": "Updates move task order's post counseling information",
@@ -812,10 +902,12 @@ func init() {
       }
     },
     "MTOServiceItem": {
+      "description": "Polymorphic type. MTOServiceItem describes a base type of a service item",
       "type": "object",
       "required": [
-        "moveTaskOrderID",
-        "reServiceCode"
+        "eTag",
+        "reServiceCode",
+        "serviceItemType"
       ],
       "properties": {
         "eTag": {
@@ -824,10 +916,14 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -838,16 +934,30 @@ func init() {
         "reServiceID": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
           "type": "string"
+        },
+        "serviceItemType": {
+          "type": "string"
         }
-      }
+      },
+      "discriminator": "serviceItemType"
     },
-    "MTOServiceItemDomOriginDaySIT": {
-      "description": "MTO Service Item - Dom. Origin 1st Day SIT (DOFSIT)",
+    "MTOServiceItemBasic": {
+      "description": "Describes a basic service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "MTOServiceItemDOFSIT": {
+      "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -873,13 +983,7 @@ func init() {
         }
       ]
     },
-    "MTOServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOServiceItem"
-      }
-    },
-    "MTOServiceItemstatus": {
+    "MTOServiceItemStatus": {
       "type": "object",
       "properties": {
         "status": {
@@ -1082,7 +1186,10 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "mto_service_items": {
-          "$ref": "#/definitions/MTOServiceItems"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
         "mto_shipments": {
           "$ref": "#/definitions/MTOShipments"
@@ -1577,6 +1684,114 @@ func init() {
             "description": "updated instance of mto shipment",
             "schema": {
               "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "precondition failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem",
+          "prime"
+        ],
+        "summary": "creates mto service items",
+        "operationId": "createMTOServiceItem",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "description": "This may be a normal MTOServiceItem, MTOServiceItemDomOriginDaySIT or etc.",
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "created instance of a mto service item",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
             }
           },
           "400": {
@@ -2247,10 +2462,12 @@ func init() {
       }
     },
     "MTOServiceItem": {
+      "description": "Polymorphic type. MTOServiceItem describes a base type of a service item",
       "type": "object",
       "required": [
-        "moveTaskOrderID",
-        "reServiceCode"
+        "eTag",
+        "reServiceCode",
+        "serviceItemType"
       ],
       "properties": {
         "eTag": {
@@ -2259,10 +2476,14 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -2273,16 +2494,30 @@ func init() {
         "reServiceID": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
           "type": "string"
+        },
+        "serviceItemType": {
+          "type": "string"
         }
-      }
+      },
+      "discriminator": "serviceItemType"
     },
-    "MTOServiceItemDomOriginDaySIT": {
-      "description": "MTO Service Item - Dom. Origin 1st Day SIT (DOFSIT)",
+    "MTOServiceItemBasic": {
+      "description": "Describes a basic service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "MTOServiceItemDOFSIT": {
+      "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -2308,13 +2543,7 @@ func init() {
         }
       ]
     },
-    "MTOServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOServiceItem"
-      }
-    },
-    "MTOServiceItemstatus": {
+    "MTOServiceItemStatus": {
       "type": "object",
       "properties": {
         "status": {
@@ -2517,7 +2746,10 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "mto_service_items": {
-          "$ref": "#/definitions/MTOServiceItems"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
         "mto_shipments": {
           "$ref": "#/definitions/MTOShipments"

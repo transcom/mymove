@@ -1,10 +1,10 @@
 package payloads
 
 import (
+	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/handlers"
-
-	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -27,12 +27,14 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		PaymentRequests:    *paymentRequests,
-		MtoServiceItems:    *mtoServiceItems,
 		PpmEstimatedWeight: int64(moveTaskOrder.PPMEstimatedWeight),
 		PpmType:            moveTaskOrder.PPMType,
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
+	// mto service item references a polymorphic type which auto-generates an interface and getters and setters
+	payload.SetMtoServiceItems(*mtoServiceItems)
+
 	return payload
 }
 
@@ -55,12 +57,13 @@ func MoveTaskOrderWithEtag(moveTaskOrder *models.MoveTaskOrder) *primemessages.M
 			PaymentRequests:    *paymentRequests,
 			PpmEstimatedWeight: moveTaskOrder.PPMEstimatedWeight.Int64(),
 			PpmType:            moveTaskOrder.PPMType,
-			MtoServiceItems:    *mtoServiceItems,
 			MtoShipments:       *mtoShipments,
 			UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 		},
 		ETag: etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
+	// mto service item references a polymorphic type which auto-generates an interface and getters and setters
+	payload.SetMtoServiceItems(*mtoServiceItems)
 
 	return payload
 }
@@ -272,22 +275,29 @@ func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments
 }
 
 // MTOServiceItem payload
-func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *primemessages.MTOServiceItem {
-	return &primemessages.MTOServiceItem{
-		ID:              strfmt.UUID(mtoServiceItem.ID.String()),
-		MoveTaskOrderID: handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID),
-		ReServiceID:     strfmt.UUID(mtoServiceItem.ReServiceID.String()),
-		ReServiceCode:   primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
-		ReServiceName:   mtoServiceItem.ReService.Name,
+func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServiceItem {
+	//TODO: need to refactor this to accept different "service item types"
+	domSit := primemessages.MTOServiceItemDOFSIT{
+		PickupPostalCode: nil,
+		Reason:           nil,
 	}
+
+	domSit.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
+	domSit.SetMoveTaskOrderID(strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()))
+	domSit.SetReServiceID(strfmt.UUID(mtoServiceItem.ReServiceID.String()))
+	domSit.SetReServiceCode(primemessages.ReServiceCode(mtoServiceItem.ReService.Code))
+	domSit.SetReServiceName(mtoServiceItem.ReService.Name)
+	domSit.SetETag(handlers.FmtString(etag.GenerateEtag(mtoServiceItem.UpdatedAt)))
+
+	return &domSit
 }
 
 // MTOServiceItems payload
-func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *primemessages.MTOServiceItems {
-	payload := make(primemessages.MTOServiceItems, len(*mtoServiceItems))
+func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.MTOServiceItem {
+	var payload []primemessages.MTOServiceItem
 
-	for i, p := range *mtoServiceItems {
-		payload[i] = MTOServiceItem(&p)
+	for _, p := range *mtoServiceItems {
+		payload = append(payload, MTOServiceItem(&p))
 	}
 	return &payload
 }
