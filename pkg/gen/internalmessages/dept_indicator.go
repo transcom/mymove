@@ -20,14 +20,17 @@ type DeptIndicator string
 
 const (
 
-	// DeptIndicatorAIRFORCE captures enum value "AIR_FORCE"
-	DeptIndicatorAIRFORCE DeptIndicator = "AIR_FORCE"
-
 	// DeptIndicatorNAVYANDMARINES captures enum value "NAVY_AND_MARINES"
 	DeptIndicatorNAVYANDMARINES DeptIndicator = "NAVY_AND_MARINES"
 
 	// DeptIndicatorARMY captures enum value "ARMY"
 	DeptIndicatorARMY DeptIndicator = "ARMY"
+
+	// DeptIndicatorAIRFORCE captures enum value "AIR_FORCE"
+	DeptIndicatorAIRFORCE DeptIndicator = "AIR_FORCE"
+
+	// DeptIndicatorCOASTGUARD captures enum value "COAST_GUARD"
+	DeptIndicatorCOASTGUARD DeptIndicator = "COAST_GUARD"
 )
 
 // for schema
@@ -35,7 +38,7 @@ var deptIndicatorEnum []interface{}
 
 func init() {
 	var res []DeptIndicator
-	if err := json.Unmarshal([]byte(`["AIR_FORCE","NAVY_AND_MARINES","ARMY"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NAVY_AND_MARINES","ARMY","AIR_FORCE","COAST_GUARD"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

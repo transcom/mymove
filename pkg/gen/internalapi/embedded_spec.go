@@ -3977,13 +3977,15 @@ func init() {
       "type": "string",
       "title": "Dept. indicator",
       "enum": [
-        "AIR_FORCE",
         "NAVY_AND_MARINES",
-        "ARMY"
+        "ARMY",
+        "AIR_FORCE",
+        "COAST_GUARD"
       ],
       "x-display-value": {
         "AIR_FORCE": "57 (Air Force)",
         "ARMY": "21 (Army)",
+        "COAST_GUARD": "70 (Coast Guard)",
         "NAVY_AND_MARINES": "17 (Navy and Marine Corps)"
       },
       "x-nullable": true
@@ -10182,13 +10184,15 @@ func init() {
       "type": "string",
       "title": "Dept. indicator",
       "enum": [
-        "AIR_FORCE",
         "NAVY_AND_MARINES",
-        "ARMY"
+        "ARMY",
+        "AIR_FORCE",
+        "COAST_GUARD"
       ],
       "x-display-value": {
         "AIR_FORCE": "57 (Air Force)",
         "ARMY": "21 (Army)",
+        "COAST_GUARD": "70 (Coast Guard)",
         "NAVY_AND_MARINES": "17 (Navy and Marine Corps)"
       },
       "x-nullable": true
