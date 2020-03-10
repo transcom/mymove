@@ -4420,7 +4420,7 @@ func init() {
         },
         "title": {
           "type": "string",
-          "title": "Document Title",
+          "title": "Document title",
           "example": "very_useful_document.pdf"
         },
         "trailer_ownership_missing": {
@@ -4473,7 +4473,7 @@ func init() {
     },
     "MoveDocumentType": {
       "type": "string",
-      "title": "Document Type",
+      "title": "Document type",
       "enum": [
         "OTHER",
         "WEIGHT_TICKET",
@@ -10627,7 +10627,7 @@ func init() {
         },
         "title": {
           "type": "string",
-          "title": "Document Title",
+          "title": "Document title",
           "example": "very_useful_document.pdf"
         },
         "trailer_ownership_missing": {
@@ -10680,7 +10680,7 @@ func init() {
     },
     "MoveDocumentType": {
       "type": "string",
-      "title": "Document Type",
+      "title": "Document type",
       "enum": [
         "OTHER",
         "WEIGHT_TICKET",

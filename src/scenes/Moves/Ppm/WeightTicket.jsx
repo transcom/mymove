@@ -297,7 +297,7 @@ class WeightTicket extends Component {
                       data-cy="vehicle_nickname"
                       title={
                         this.isProGear
-                          ? "Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
+                          ? "Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-gear', 'Both')"
                           : "Vehicle nickname (ex. 'Large box truck')"
                       }
                       swagger={schema}

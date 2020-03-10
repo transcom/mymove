@@ -86,7 +86,7 @@ type MoveDocumentPayload struct {
 	// Format: date
 	StorageStartDate *strfmt.Date `json:"storage_start_date,omitempty"`
 
-	// Document Title
+	// Document title
 	// Required: true
 	Title *string `json:"title"`
 
