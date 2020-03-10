@@ -32,6 +32,7 @@ import (
 const (
 	binMilMove      string = "/bin/milmove"
 	binMilMoveTasks string = "/bin/milmove-tasks"
+	binOrders       string = "/bin/orders"
 )
 
 // Valid services names
@@ -40,6 +41,8 @@ var services = []string{
 	"app-client-tls",
 	"app-migrations",
 	"app-tasks",
+	"orders",
+	"orders-migrations",
 }
 
 // Services mapped to Entry Points
@@ -53,6 +56,8 @@ var servicesToEntryPoints = map[string][]string{
 		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
 		fmt.Sprintf("%s send-payment-reminder", binMilMoveTasks),
 	},
+	"orders":            {fmt.Sprintf("%s serve", binOrders)},
+	"orders-migrations": {fmt.Sprintf("%s migrate", binOrders)},
 }
 
 // Services mapped to App Ports
@@ -60,6 +65,7 @@ var servicesToEntryPoints = map[string][]string{
 var servicesToAppPorts = map[string]int64{
 	"app":            int64(8443),
 	"app-client-tls": int64(9443),
+	"orders":         int64(9443),
 }
 
 type errInvalidService struct {
