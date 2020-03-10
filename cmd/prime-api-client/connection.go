@@ -49,7 +49,10 @@ func CreateClient(cmd *cobra.Command, v *viper.Viper, args []string) (*primeClie
 		if errTLSCert != nil {
 			log.Fatal(errTLSCert)
 		}
+
+		// must explicitly state what signature algorithms we allow as of Go 1.14
 		cert.SupportedSignatureAlgorithms = []tls.SignatureScheme{tls.PKCS1WithSHA256}
+
 		// #nosec b/c gosec triggers on InsecureSkipVerify
 		tlsConfig := &tls.Config{
 			Certificates:       []tls.Certificate{*cert},
