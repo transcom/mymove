@@ -83,7 +83,7 @@ const Color = ({ color }) => (
         fontSize: '13px',
       }}
     >
-      <span>
+      <span style={{ 'text-transform': 'capitalize' }}>
         <b>{colorName(color)}</b>
       </span>
       <br />
