@@ -4,10 +4,15 @@
 
 <!-- toc -->
 
+* [Design + Engineering Process for new components](#design--engineering-process-for-new-components)
+  * [Design delivers component design](#design-delivers-component-design)
+  * [Engineering](#engineering)
+  * [Update Loki tests accordingly](#update-loki-tests-accordingly)
 * [Testing](#testing)
   * [Test Runners and Libraries](#test-runners-and-libraries)
   * [Writing Tests](#writing-tests)
   * [Browser Testing](#browser-testing)
+  * [Storybook Testing](#storybook-testing)
 * [Code Style](#code-style)
   * [Auto-formatting](#auto-formatting)
   * [Linting](#linting)
@@ -36,6 +41,24 @@ Regenerate with "pre-commit run -a markdown-toc"
 
 <!-- tocstop -->
 
+## Design + Engineering Process for new components
+
+MilMove has defined a process for taking a new component from concept to design to implementation. This section of the doc will describe this process. We use [Storybook](https://storybook.js.org/) for showing the finished components and you can view all current ones on master by going to our [public storybook site](https://storybook.move.mil/). If you want to see things locally please check out the [How To Run Storybook](how-to/run-storybook.md) document.
+
+### Design delivers component design
+
+After the research and initial prototypes are made a designer will create a full design for a new component, card, or page. Once the design has passed the design team's review process the designer will deliver a link to the [Abstract](https://www.abstract.com/) design. Since engineers are not likely to have an Abstract account the designers will ensure that this link is a publicly viewable version. For example here is the link we used for the [TabNav](https://app.abstract.com/share/39907fe2-a5c6-4063-ac68-71bae522e296?mode=build&selected=3210965808-139C6AE4-167B-4B24-B583-C1F45CC3493D) component.
+
+We have added the github `@transcom/truss-design` as code owners of `src/stories` thus requiring their approval for these changes in addition to normal engineering review.
+
+### Engineering
+
+Once an engineer has the Abstract design for a new component they can begin to implement it. The new process requires that all components have a [Storybook](https://storybook.js.org/) story created or updated for it. Storybook stories require approval from someone on the design team before they can be merged, preferable the designer who created the original Abstract design. We are following the [USWDS](#uswds) standard for design and implementation, so please review that section of this document. Be sure to use [USWDS mixins](https://designsystem.digital.gov/utilities/) and any components that are available in `react-uswds`. If there is a USWDS component not already in `react-uswds` please add it to that package and then make use of it.
+
+### Update Loki tests accordingly
+
+We currently use [Loki](https://loki.js.org/) for ensuring our storybook components do not regress as the project goes on. Please ensure you run the tests and add or update new reference images as you create or update components. See [How to Run Loki tests against Storybook](how-to/run-loki-tests-against-storybook.md) document for more details.
+
 ## Testing
 
 ### Test Runners and Libraries
@@ -62,6 +85,11 @@ Regenerate with "pre-commit run -a markdown-toc"
 
 * We use the [Cypress framework](https://www.cypress.io/) for most browser testing, both with chrome and headless chrome
 * For testing on Windows 10 with IE 11 we have a [testing document](https://docs.google.com/document/d/1j04tGHTBpcdS8RSzlSB-dImLbIxsLpsFlCzZUWxUKxg/edit#)
+
+### Storybook Testing
+
+* We use the [Loki](https://loki.js.org/) package for visually testing storybook.
+* For details on how to run, add, or update these tests see [How to Run Loki tests against Storybook](how-to/run-loki-tests-against-storybook.md)
 
 ## Code Style
 

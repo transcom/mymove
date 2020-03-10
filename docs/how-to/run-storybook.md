@@ -8,15 +8,19 @@ Storybook is a user interface development environment and playground for UI comp
 
 Storybook expects _stories_ to be defined for each component to be showcased. These stories are defined in the stories directory `src/stories`
 
-### Dependencies
+### Running with tooling installed locally
+
+This is the flow that most engineers will likely take since they probably have all the dependencies installed already.
+
+#### Dependencies
 
 If this is your first time running storybook you should run `make client_deps` first to ensure storybook packages are installed
 
-### How to run storybook server locally
+#### How to run storybook server locally
 
 To see the components locally simply run `make storybook` and the server will start and automatically open a browser window. If not open [http://localhost:6006](http://localhost:6006)
 
-### How to generate static storybook site files
+#### How to generate static storybook site files
 
 If you wish to generate the static version of storybook run `make build_storybook` and the command will generate the files in `storybook-static`
 
