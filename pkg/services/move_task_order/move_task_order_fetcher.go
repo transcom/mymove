@@ -2,8 +2,6 @@ package movetaskorder
 
 import (
 	"database/sql"
-	"fmt"
-	"strings"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -11,55 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
-
-//ErrNotFound is returned when a given move task order is not found
-type ErrNotFound struct {
-	id uuid.UUID
-}
-
-// Error is the string representation of an error
-func (e ErrNotFound) Error() string {
-	return fmt.Sprintf("move task order id: %s not found", e.id.String())
-}
-
-type errInvalidInput struct {
-	id uuid.UUID
-	error
-	validationErrors map[string][]string
-}
-
-// ErrInvalidInput is returned when an update to a move task order fails a validation rule
-type ErrInvalidInput struct {
-	errInvalidInput
-}
-
-// NewErrInvalidInput returns a new error for invalid input
-func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string) ErrInvalidInput {
-	return ErrInvalidInput{
-		errInvalidInput{
-			id:               id,
-			error:            err,
-			validationErrors: validationErrors,
-		},
-	}
-}
-
-// Error is the string representation of an error
-func (e ErrInvalidInput) Error() string {
-	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.InvalidFields())
-}
-
-// InvalidFields returns invalid fields for invalid input
-func (e ErrInvalidInput) InvalidFields() map[string]string {
-	es := make(map[string]string)
-	if e.validationErrors == nil {
-		return es
-	}
-	for k, v := range e.validationErrors {
-		es[k] = strings.Join(v, " ")
-	}
-	return es
-}
 
 type moveTaskOrderFetcher struct {
 	db *pop.Connection
@@ -71,7 +20,7 @@ func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]model
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return []models.MoveTaskOrder{}, ErrNotFound{}
+			return []models.MoveTaskOrder{}, services.NotFoundError{}
 		default:
 			return []models.MoveTaskOrder{}, err
 		}
@@ -90,76 +39,11 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mo
 	if err := f.db.Eager().Find(mto, moveTaskOrderID); err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.MoveTaskOrder{}, ErrNotFound{moveTaskOrderID}
+			return &models.MoveTaskOrder{}, services.NewNotFoundError(moveTaskOrderID)
 		default:
 			return &models.MoveTaskOrder{}, err
 		}
 	}
 
-	f.createDefaultServiceItems(mto)
-
-	return mto, nil
-}
-
-func (f moveTaskOrderFetcher) createDefaultServiceItems(mto *models.MoveTaskOrder) error {
-	var reServices []models.ReService
-	err := f.db.Where("code in (?)", []string{"MS", "CS"}).All(&reServices)
-
-	if err != nil {
-		return err
-	}
-
-	defaultServiceItems := make(map[uuid.UUID]models.MTOServiceItem)
-	for _, reService := range reServices {
-		defaultServiceItems[reService.ID] = models.MTOServiceItem{
-			ReServiceID:     reService.ID,
-			MoveTaskOrderID: mto.ID,
-		}
-	}
-
-	// Remove the ones that exist on the mto
-	for _, item := range mto.MTOServiceItems {
-		for _, reService := range reServices {
-			if item.ReServiceID == reService.ID {
-				delete(defaultServiceItems, reService.ID)
-			}
-		}
-	}
-
-	for _, serviceItem := range defaultServiceItems {
-		_, err := f.db.ValidateAndCreate(&serviceItem)
-
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-type moveTaskOrderStatusUpdater struct {
-	db *pop.Connection
-	moveTaskOrderFetcher
-}
-
-// NewMoveTaskOrderStatusUpdater creates a new struct with the service dependencies
-func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderStatusUpdater {
-	return &moveTaskOrderStatusUpdater{db, moveTaskOrderFetcher{db}}
-}
-
-//MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
-func (f moveTaskOrderFetcher) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
-	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
-	if err != nil {
-		return &models.MoveTaskOrder{}, err
-	}
-	mto.IsAvailableToPrime = true
-	vErrors, err := f.db.ValidateAndUpdate(mto)
-	if vErrors.HasAny() {
-		return &models.MoveTaskOrder{}, ErrInvalidInput{}
-	}
-	if err != nil {
-		return &models.MoveTaskOrder{}, err
-	}
 	return mto, nil
 }

@@ -1,11 +1,9 @@
 package payloads
 
 import (
-	"encoding/base64"
-	"time"
-
 	"github.com/go-openapi/strfmt"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -197,17 +195,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 // MTOShipmentWithEtag payload
 func MTOShipmentWithEtag(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipmentWithEtag {
 	return &ghcmessages.MTOShipmentWithEtag{
-		MTOShipment: ghcmessages.MTOShipment{
-			ID:                  strfmt.UUID(mtoShipment.ID.String()),
-			MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-			ShipmentType:        "HHG",
-			Status:              string(mtoShipment.Status),
-			CustomerRemarks:     mtoShipment.CustomerRemarks,
-			RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
-			CreatedAt:           strfmt.DateTime(mtoShipment.CreatedAt),
-			UpdatedAt:           strfmt.DateTime(mtoShipment.UpdatedAt),
-		},
-		ETag: base64.StdEncoding.EncodeToString([]byte(mtoShipment.UpdatedAt.Format(time.RFC3339Nano))),
+		MTOShipment: *MTOShipment(mtoShipment),
+		ETag:        etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 }
 
@@ -217,6 +206,31 @@ func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 
 	for i, m := range *mtoShipments {
 		payload[i] = MTOShipmentWithEtag(&m)
+	}
+	return &payload
+}
+
+// MTOAgent payload
+func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
+	payload := &ghcmessages.MTOAgent{
+		ID:            strfmt.UUID(mtoAgent.ID.String()),
+		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
+		CreatedAt:     strfmt.Date(mtoAgent.CreatedAt),
+		UpdatedAt:     strfmt.Date(mtoAgent.UpdatedAt),
+		FirstName:     mtoAgent.FirstName,
+		LastName:      mtoAgent.LastName,
+		AgentType:     string(mtoAgent.MTOAgentType),
+		Email:         mtoAgent.Email,
+		Phone:         mtoAgent.Phone,
+	}
+	return payload
+}
+
+// MTOAgents payload
+func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
+	payload := make(ghcmessages.MTOAgents, len(*mtoAgents))
+	for i, m := range *mtoAgents {
+		payload[i] = MTOAgent(&m)
 	}
 	return &payload
 }

@@ -15,7 +15,7 @@ export function patchMTOShipmentStatus(
   moveTaskOrderID,
   shipmentID,
   shipmentStatus,
-  ifUnmodifiedSince,
+  ifMatchETag,
   rejectionReason,
   label = patchMTOShipmentStatusOperation,
   schemaKey = mtoShipmentSchemaKey,
@@ -26,7 +26,7 @@ export function patchMTOShipmentStatus(
     {
       moveTaskOrderID,
       shipmentID,
-      'If-Unmodified-Since': ifUnmodifiedSince,
+      'If-Match': ifMatchETag,
       body: { status: shipmentStatus, rejectionReason },
     },
     { label, schemaKey },

@@ -25,11 +25,11 @@ func (suite *PricingParserSuite) Test_parseDomesticMoveAccessorialPrices() {
 	}
 
 	suite.T().Run("parse sheet and check csv", func(t *testing.T) {
-		slice, err := parseDomesticMoveAccessorialPrices(params, sheetIndex)
+		slice, err := parseDomesticMoveAccessorialPrices(params, sheetIndex, suite.logger)
 		suite.NoError(err, "parseDomesticMoveAccessorialPrices function failed")
 
 		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("domestic"))
-		err = createCSV(outputFilename, slice)
+		err = createCSV(outputFilename, slice, suite.logger)
 		suite.NoError(err, "could not create CSV")
 
 		const goldenFilename string = "17_5a_access_and_add_prices_domestic_golden.csv"
@@ -37,7 +37,7 @@ func (suite *PricingParserSuite) Test_parseDomesticMoveAccessorialPrices() {
 	})
 
 	suite.T().Run("try parse wrong sheet index", func(t *testing.T) {
-		_, err := parseDomesticMoveAccessorialPrices(params, sheetIndex-1)
+		_, err := parseDomesticMoveAccessorialPrices(params, sheetIndex-1, suite.logger)
 		if suite.Error(err, "parseDomesticMoveAccessorialPrices function failed") {
 			suite.Equal("parseDomesticMoveAccessorialPrices expected to process sheet 17, but received sheetIndex 16", err.Error())
 		}
@@ -61,11 +61,11 @@ func (suite *PricingParserSuite) Test_parseInternationalMoveAccessorialPrices() 
 	}
 
 	suite.T().Run("parse sheet and check csv", func(t *testing.T) {
-		slice, err := parseInternationalMoveAccessorialPrices(params, sheetIndex)
+		slice, err := parseInternationalMoveAccessorialPrices(params, sheetIndex, suite.logger)
 		suite.NoError(err, "parseInternationalMoveAccessorialPrices function failed")
 
 		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("international"))
-		err = createCSV(outputFilename, slice)
+		err = createCSV(outputFilename, slice, suite.logger)
 		suite.NoError(err, "could not create CSV")
 
 		const goldenFilename string = "17_5a_access_and_add_prices_international_golden.csv"
@@ -73,7 +73,7 @@ func (suite *PricingParserSuite) Test_parseInternationalMoveAccessorialPrices() 
 	})
 
 	suite.T().Run("try parse wrong sheet index", func(t *testing.T) {
-		_, err := parseInternationalMoveAccessorialPrices(params, sheetIndex-1)
+		_, err := parseInternationalMoveAccessorialPrices(params, sheetIndex-1, suite.logger)
 		if suite.Error(err, "parseInternationalMoveAccessorialPrices function failed") {
 			suite.Equal("parseInternationalMoveAccessorialPrices expected to process sheet 17, but received sheetIndex 16", err.Error())
 		}
@@ -97,11 +97,11 @@ func (suite *PricingParserSuite) Test_parseDomesticInternationalAdditionalPrices
 	}
 
 	suite.T().Run("parse sheet and check csv", func(t *testing.T) {
-		slice, err := parseDomesticInternationalAdditionalPrices(params, sheetIndex)
+		slice, err := parseDomesticInternationalAdditionalPrices(params, sheetIndex, suite.logger)
 		suite.NoError(err, "parseDomesticInternationalAdditionalPrices function failed")
 
 		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("additional"))
-		err = createCSV(outputFilename, slice)
+		err = createCSV(outputFilename, slice, suite.logger)
 		suite.NoError(err, "could not create CSV")
 
 		const goldenFilename string = "17_5a_access_and_add_prices_additional_golden.csv"
@@ -109,7 +109,7 @@ func (suite *PricingParserSuite) Test_parseDomesticInternationalAdditionalPrices
 	})
 
 	suite.T().Run("try parse wrong sheet index", func(t *testing.T) {
-		_, err := parseDomesticInternationalAdditionalPrices(params, sheetIndex-1)
+		_, err := parseDomesticInternationalAdditionalPrices(params, sheetIndex-1, suite.logger)
 		if suite.Error(err, "parseDomesticInternationalAdditionalPrices function failed") {
 			suite.Equal("parseDomesticInternationalAdditionalPrices expected to process sheet 17, but received sheetIndex 16", err.Error())
 		}

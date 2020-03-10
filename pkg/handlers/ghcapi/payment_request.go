@@ -23,12 +23,13 @@ import (
 )
 
 func payloadForPaymentRequestModel(pr models.PaymentRequest) *ghcmessages.PaymentRequest {
-
 	return &ghcmessages.PaymentRequest{
-		ID:              *handlers.FmtUUID(pr.ID),
-		IsFinal:         &pr.IsFinal,
-		RejectionReason: pr.RejectionReason,
-		Status:          ghcmessages.PaymentRequestStatus(pr.Status),
+		ID:                   *handlers.FmtUUID(pr.ID),
+		IsFinal:              &pr.IsFinal,
+		MoveTaskOrderID:      *handlers.FmtUUID(pr.MoveTaskOrderID),
+		PaymentRequestNumber: pr.PaymentRequestNumber,
+		RejectionReason:      pr.RejectionReason,
+		Status:               ghcmessages.PaymentRequestStatus(pr.Status),
 	}
 }
 

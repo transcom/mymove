@@ -54,7 +54,7 @@ paths:
       summary: Gets all move orders
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
-      - description: ID of move order to use
+      - description: ID of move task order to use
         in: path
         name: moveTaskOrderID
         required: true
@@ -71,21 +71,22 @@ paths:
           schema:
             type: object
             properties:
-              scheduled-move-date:
+              ppm_type:
                 type: string
-                format: date
-                example: '2018-04-26'
-              secondary-pickup-address:
-                $ref: '#/definitions/Address'
-              secondary-delivery-address:
-                $ref: '#/definitions/Address'
-              ppm-is-included:
-                type: boolean
+                enum:
+                  - FULL
+                  - PARTIAL
+              ppm_estimated_weight:
+                type: integer
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
           description: Successfully updated move task order post counseling information
           schema:
-            $ref: '#/definitions/MoveTaskOrder'
+            $ref: '#/definitions/MoveTaskOrderWithEtag'
         '401':
           description: The request was denied
           schema:
@@ -98,6 +99,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '412':
+          description: precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
         '422':
           description: The request payload is invalid
           schema:
@@ -110,7 +115,7 @@ paths:
         - moveTaskOrder
         - prime
       description: Updates move task order's post counseling information
-      operationId: updateMoveTaskOrderPostCounselingInformation
+      operationId: updateMTOPostCounselingInformation
       summary: Updates move task order's post counseling information
   '/move-task-orders/{moveTaskOrderID}/customer':
     parameters:
@@ -181,9 +186,8 @@ paths:
           schema:
             $ref: '#/definitions/MTOShipment'
         - in: header
-          name: If-Unmodified-Since
+          name: If-Match
           type: string
-          format: datetime
           required: true
       responses:
         '200':
@@ -493,6 +497,27 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      currentAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      firstName:
+        type: string
+        example: Vanya
+      lastName:
+        type: string
+        example: Petrovna
+      branch:
+        type: string
+        example: "COAST_GUARD"
+      phone:
+        type: string
+        format: telephone
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: fake@example.com
   DutyStation:
     type: object
     properties:
@@ -559,11 +584,17 @@ definitions:
       - message
     type: object
   MoveOrder:
+    required:
+      - orderNumber
+      - rank
+      - linesOfAccounting
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      customer:
+        $ref: '#/definitions/Customer'
       customerID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -574,9 +605,26 @@ definitions:
         $ref: '#/definitions/DutyStation'
       originDutyStation:
         $ref: '#/definitions/DutyStation'
+      rank:
+        type: string
+        example: "E_5"
+      reportByDate:
+        type: string
+        format: date
+      confirmationNumber:
+        type: string
+        example: "HYXFJF"
+      orderNumber:
+        type: string
+      linesOfAccounting:
+        type: string
     type: object
   MoveTaskOrder:
     type: object
+    required:
+      - mto_shipments
+      - mto_service_items
+      - payment_requests
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -589,6 +637,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      moveOrder:
+        $ref: '#/definitions/MoveOrder'
       referenceId:
         example: 1001-3456
         type: string
@@ -602,19 +652,30 @@ definitions:
         format: date
         type: string
       payment_requests:
-        type: array
-        items:
-          $ref: '#/definitions/PaymentRequest'
+        $ref: '#/definitions/PaymentRequests'
       mto_service_items:
-        type: array
-        items:
-          $ref: '#/definitions/MTOServiceItem'
+        $ref: '#/definitions/MTOServiceItems'
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
+      ppm_type:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      ppm_estimated_weight:
+        type: integer
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
+
+  MoveTaskOrderWithEtag:
+    allOf:
+      - $ref: '#/definitions/MoveTaskOrder'
+      - type: object
+    properties:
+      eTag:
+        type: string
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -653,6 +714,9 @@ definitions:
       primeEstimatedWeightRecordedDate:
         format: date
         type: string
+      actualPickupDate:
+        format: date
+        type: string
       customerRemarks:
         type: string
         example: handle with care
@@ -666,6 +730,8 @@ definitions:
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         $ref: '#/definitions/Address'
+      eTag:
+        type: string
       status:
         type: string
         enum:
@@ -750,6 +816,10 @@ definitions:
         x-nullable: true
       status:
         $ref: '#/definitions/PaymentRequestStatus'
+      paymentRequestNumber:
+        example: 1234-5678-1
+        readOnly: true
+        type: string
     type: object
   PaymentRequestStatus:
     enum:

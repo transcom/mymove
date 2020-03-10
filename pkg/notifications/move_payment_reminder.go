@@ -153,7 +153,7 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 		}
 		smEmail := emailContent{
 			recipientEmail: *PaymentReminderEmailInfo.Email,
-			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (%s)", PaymentReminderEmailInfo.NewDutyStationName, PaymentReminderEmailInfo.Locator),
+			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s (move %s)", PaymentReminderEmailInfo.NewDutyStationName, PaymentReminderEmailInfo.Locator),
 			htmlBody:       htmlBody,
 			textBody:       textBody,
 			onSuccess:      m.OnSuccess(PaymentReminderEmailInfo),
