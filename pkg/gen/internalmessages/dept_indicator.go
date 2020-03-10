@@ -23,8 +23,8 @@ const (
 	// DeptIndicatorAIRFORCE captures enum value "AIR_FORCE"
 	DeptIndicatorAIRFORCE DeptIndicator = "AIR_FORCE"
 
-	// DeptIndicatorMARINES captures enum value "MARINES"
-	DeptIndicatorMARINES DeptIndicator = "MARINES"
+	// DeptIndicatorNAVYANDMARINES captures enum value "NAVY_AND_MARINES"
+	DeptIndicatorNAVYANDMARINES DeptIndicator = "NAVY_AND_MARINES"
 
 	// DeptIndicatorARMY captures enum value "ARMY"
 	DeptIndicatorARMY DeptIndicator = "ARMY"
@@ -35,7 +35,7 @@ var deptIndicatorEnum []interface{}
 
 func init() {
 	var res []DeptIndicator
-	if err := json.Unmarshal([]byte(`["AIR_FORCE","MARINES","ARMY"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AIR_FORCE","NAVY_AND_MARINES","ARMY"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

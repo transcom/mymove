@@ -3978,13 +3978,13 @@ func init() {
       "title": "Dept. indicator",
       "enum": [
         "AIR_FORCE",
-        "MARINES",
+        "NAVY_AND_MARINES",
         "ARMY"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 - United States Air Force",
-        "ARMY": "21 - United States Army",
-        "MARINES": "17 - United States Marines"
+        "AIR_FORCE": "57 - US Air Force",
+        "ARMY": "21 - US Army",
+        "NAVY_AND_MARINES": "17 - US Navy and Marine Corps"
       },
       "x-nullable": true
     },
@@ -10183,13 +10183,13 @@ func init() {
       "title": "Dept. indicator",
       "enum": [
         "AIR_FORCE",
-        "MARINES",
+        "NAVY_AND_MARINES",
         "ARMY"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 - United States Air Force",
-        "ARMY": "21 - United States Army",
-        "MARINES": "17 - United States Marines"
+        "AIR_FORCE": "57 - US Air Force",
+        "ARMY": "21 - US Army",
+        "NAVY_AND_MARINES": "17 - US Navy and Marine Corps"
       },
       "x-nullable": true
     },

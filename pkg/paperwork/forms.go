@@ -55,8 +55,8 @@ var affiliationDisplayValue = map[internalmessages.Affiliation]string{
 }
 
 var deptIndDisplayValue = map[internalmessages.DeptIndicator]string{
-	internalmessages.DeptIndicatorAIRFORCE: "Air Force",
-	internalmessages.DeptIndicatorMARINES:  "Marines",
+	internalmessages.DeptIndicatorAIRFORCE:       "US Air Force",
+	internalmessages.DeptIndicatorNAVYANDMARINES: "US Navy and Marine Corps",
 }
 
 // These are hardcoded for now

@@ -1756,12 +1756,12 @@ definitions:
     title: Dept. indicator
     enum:
       - AIR_FORCE
-      - MARINES
+      - NAVY_AND_MARINES
       - ARMY
     x-display-value:
-      AIR_FORCE: 57 - United States Air Force
-      MARINES: 17 - United States Marines
-      ARMY: 21 - United States Army
+      AIR_FORCE: 57 - US Air Force
+      NAVY_AND_MARINES: 17 - US Navy and Marine Corps
+      ARMY: 21 - US Army
   Address:
     type: object
     properties:
