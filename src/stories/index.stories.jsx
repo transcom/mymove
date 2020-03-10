@@ -23,26 +23,16 @@ storiesOf('Components/Button', module)
 
 storiesOf('Global|Colors', module).add('all', () => (
   <div style={{ padding: '20px' }}>
-    <>
-      <h3>Brand Colors</h3>
-      <ColorGroup group={filterGroup('brand')} />
-    </>
-    <>
-      <h3>Background Colors</h3>
-      <ColorGroup group={filterGroup('background')} />
-    </>
-    <>
-      <h3>Base Colors</h3>
-      <ColorGroup group={filterGroup('base')} />
-    </>
-    <>
-      <h3>Alert Colors</h3>
-      <ColorGroup group={filterGroup('alert')} />
-    </>
-    <>
-      <h3>Accent Colors</h3>
-      <ColorGroup group={filterGroup('accent')} />
-    </>
+    <h3>Brand Colors</h3>
+    <ColorGroup group={filterGroup('brand')} />
+    <h3>Background Colors</h3>
+    <ColorGroup group={filterGroup('background')} />
+    <h3>Base Colors</h3>
+    <ColorGroup group={filterGroup('base')} />
+    <h3>Alert Colors</h3>
+    <ColorGroup group={filterGroup('alert')} />
+    <h3>Accent Colors</h3>
+    <ColorGroup group={filterGroup('accent')} />
   </div>
 ));
 
