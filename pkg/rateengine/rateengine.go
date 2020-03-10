@@ -260,7 +260,7 @@ func (re *RateEngine) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 st
 		zap.String("originZipLocation", originZipLocation),
 		zap.String("originZipCode", originZipCode),
 	)
-	return cost, nil
+	return costDetails, nil
 }
 
 // NewRateEngine creates a new RateEngine
