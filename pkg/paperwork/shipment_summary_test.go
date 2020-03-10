@@ -71,7 +71,7 @@ func (suite *PaperworkSuite) TestComputeObligationsParams() {
 	suite.NotNil(err3)
 }
 
-func (suite *PaperworkSuite) TestTestComputeObligations() {
+func (suite *PaperworkSuite) TestComputeObligations() {
 	miles := 100
 	totalWeightEntitlement := unit.Pound(1000)
 	ppmRemainingEntitlement := unit.Pound(2000)
