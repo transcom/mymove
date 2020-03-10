@@ -629,10 +629,12 @@ jobs:
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
       - run:
           name: clone mymove_admin repo
-          command: cd ..; git clone https://github.com/transcom/milmove_admin.git
+          command: git clone https://github.com/transcom/milmove_admin.git
+          working_directory: ~/transcom
       - run:
           name: generate models and migrate
-          command: cd ..;cd milmove_admin; make generate_models
+          command: make generate_models
+          working_directory: ~/transcom/milmove_admin
           environment:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
