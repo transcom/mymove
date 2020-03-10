@@ -46,4 +46,4 @@ We use [Loki](https://loki.js.org/) for testing our storybook stories. You will 
 
 ### Story changes require approval of Design
 
-As part of the new process of Design and Engineering collaboration, the design team has been made code owners of the code in `src/stories`. So if you are adding a new story or modifying an existing one you will be required to have a designer give their approval on the GitHub PR.
+As part of the new process of Design and Engineering collaboration, the design team has been made code owners of the code in `src/stories` and the reference, ie approved, images in `.loki/reference`. So if you are adding a new story, modifying an existing one, or updating Loki reference images you will be required to have a designer give their approval on the GitHub PR.
