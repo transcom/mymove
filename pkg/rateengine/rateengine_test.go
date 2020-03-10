@@ -261,7 +261,7 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 	suite.Equal(ppmCost, cost)
 }
 
-func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
+func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 	move := models.Move{
 		Locator: "ABC123",
 	}
@@ -276,7 +276,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 	weight := unit.Pound(2000)
 	engine := NewRateEngine(suite.DB(), logger, move)
 
-	suite.Run("TestComputeLowestCostPPMMove with origin zip results in lower GCC", func() {
+	suite.Run("TestComputePPMMoveCosts with origin zip results in lower GCC", func() {
 		ppmCostWithPickupZip, err := suite.computePPMIncludingLHRates(
 			originZip,
 			destinationZip,
@@ -295,7 +295,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 		)
 		suite.NoError(err)
 
-		cost, err := engine.ComputeLowestCostPPMMove(
+		cost, err := engine.ComputePPMMoveCosts(
 			weight,
 			originZip,
 			originDutyStationZip,
@@ -307,14 +307,17 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 		)
 		suite.NoError(err)
 
-		suite.True(cost.GCC > 0)
+		suite.True(cost["pickupLocation"].IsLowest)
+		suite.False(cost["originDutyStation"].IsLowest)
+		suite.True(cost["pickupLocation"].Cost.GCC > 0)
+		suite.True(cost["originDutyStation"].Cost.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC > 0)
 		suite.True(ppmCostWithDutyStationZip.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC < ppmCostWithDutyStationZip.GCC)
-		suite.Equal(cost, ppmCostWithPickupZip)
+		suite.Equal(cost["pickupLocation"].Cost, ppmCostWithPickupZip)
 	})
 
-	suite.Run("TestComputeLowestCostPPMMove when origin duty station results in lower GCC", func() {
+	suite.Run("TestComputePPMMoveCosts when origin duty station results in lower GCC", func() {
 		originZip := "50309"
 		originDutyStationZip := "39574"
 		distanceMilesFromOriginPickupZip := 3300
@@ -338,7 +341,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 		)
 		suite.NoError(err)
 
-		cost, err := engine.ComputeLowestCostPPMMove(
+		cost, err := engine.ComputePPMMoveCosts(
 			weight,
 			originZip,
 			originDutyStationZip,
@@ -350,11 +353,14 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 		)
 		suite.NoError(err)
 
-		suite.True(cost.GCC > 0)
+		suite.False(cost["pickupLocation"].IsLowest)
+		suite.True(cost["originDutyStation"].IsLowest)
+		suite.True(cost["pickupLocation"].Cost.GCC > 0)
+		suite.True(cost["originDutyStation"].Cost.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC > 0)
 		suite.True(ppmCostWithDutyStationZip.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC > ppmCostWithDutyStationZip.GCC)
-		suite.Equal(cost, ppmCostWithDutyStationZip)
+		suite.Equal(cost["originDutyStation"].Cost, ppmCostWithDutyStationZip)
 	})
 }
 

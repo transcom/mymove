@@ -35,6 +35,14 @@ type CostComputation struct {
 	Weight      unit.Pound
 }
 
+// CostComputation represents the results of a computation.
+type CostDetail struct {
+	Cost     CostComputation
+	IsLowest bool
+}
+
+type CostDetails map[string]*CostDetail
+
 // Scale scales a cost computation by a multiplicative factor
 func (c *CostComputation) Scale(factor float64) {
 	c.LinehaulCostComputation.Scale(factor)
@@ -199,8 +207,8 @@ func (re *RateEngine) computePPMIncludingLHDiscount(weight unit.Pound, originZip
 	return cost, nil
 }
 
-// ComputeLowestCostPPMMove uses zip codes to make two calculations for the price of a PPM move - once with the pickup zip and once with the current duty station zip - and returns the lowest cost move.
-func (re *RateEngine) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost CostComputation, err error) {
+// ComputePPMMoveCosts uses zip codes to make two calculations for the price of a PPM move - once with the pickup zip and once with the current duty station zip - and returns both calcs.
+func (re *RateEngine) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (costDetails CostDetails, err error) {
 	costFromOriginPickupZip, err := re.computePPMIncludingLHDiscount(
 		weight,
 		originPickupZip5,
@@ -212,6 +220,12 @@ func (re *RateEngine) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZi
 	if err != nil {
 		re.logger.Error("Failed to compute PPM cost", zap.Error(err))
 		return
+	}
+
+	costDetails = make(CostDetails)
+	costDetails["pickupLocation"] = &CostDetail{
+		costFromOriginPickupZip,
+		false,
 	}
 
 	costFromOriginDutyStationZip, err := re.computePPMIncludingLHDiscount(
@@ -226,14 +240,19 @@ func (re *RateEngine) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZi
 		re.logger.Error("Failed to compute PPM cost", zap.Error(err))
 		return
 	}
+	costDetails["originDutyStation"] = &CostDetail{
+		costFromOriginDutyStationZip,
+		false,
+	}
 
-	cost = costFromOriginPickupZip
 	originZipCode := originPickupZip5
 	originZipLocation := "Pickup location"
 	if costFromOriginPickupZip.GCC > costFromOriginDutyStationZip.GCC {
-		cost = costFromOriginDutyStationZip
+		costDetails["originDutyStation"].IsLowest = true
 		originZipCode = originDutyStationZip5
-		originZipLocation = "Current duty station"
+		originZipLocation = "Origin duty station"
+	} else {
+		costDetails["pickupLocation"].IsLowest = true
 	}
 
 	re.logger.Info("Origin zip code information",
