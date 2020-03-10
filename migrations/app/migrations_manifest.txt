@@ -471,3 +471,4 @@
 20200226211945_jacquelinemckinney_cac.up.sql
 20200302161838_ryan_cac.up.sql
 20200302220909_donald_cac.up.sql
+20200309150447_create_audit_recordings.up.sql

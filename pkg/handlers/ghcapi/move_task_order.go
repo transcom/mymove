@@ -72,7 +72,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
 
 	// Audit attempt to make MTO available to prime
-	_, err = audit.Capture(mto, moveTaskOrderPayload, logger, session, params.HTTPRequest)
+	_, err = audit.Capture(mto, moveTaskOrderPayload, logger, session, params.HTTPRequest, h.DB())
 	if err != nil {
 		logger.Error("Auditing service error for making MTO available to Prime.", zap.Error(err))
 		return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()

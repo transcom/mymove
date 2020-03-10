@@ -11,14 +11,25 @@ import (
 	"time"
 
 	"github.com/gobuffalo/flect"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/slices"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
+// event name constants
+
+// Capture (name, slice, logger, session, request) (models.AuditRecording, error)
 // Capture captures an audit record
-func Capture(model interface{}, payload interface{}, logger Logger, session *auth.Session, request *http.Request) ([]zap.Field, error) {
+func Capture(model interface{}, payload interface{}, logger Logger, session *auth.Session, request *http.Request, db *pop.Connection) ([]zap.Field, error) {
+	// metadataColumns := map[string]map[string]string{
+	// 	"Customer requested shipments + pick up dates": { meta: "requested_pickup_date", identifier: "pretty_shipment_id" },
+	// }
+
 	var logItems []zap.Field
 	eventType := extractEventType(request)
 	msg := flect.Titleize(eventType)
@@ -39,6 +50,63 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 	if err == nil && reflect.ValueOf(model).IsValid() == true && reflect.ValueOf(model).IsNil() == false && reflect.ValueOf(model).IsZero() == false {
 		recordType := parseRecordType(t.String())
 		elem := reflect.ValueOf(model).Elem()
+		modelMap := slices.Map{}
+		payloadMap := slices.Map{}
+		metadata := slices.Map{
+			"weight": 90,
+		}
+
+		modelValue := elem
+		for i := 0; i < modelValue.NumField(); i++ {
+			fieldFromType := modelValue.Type().Field(i)
+			fieldFromValue := modelValue.Field(i)
+			fieldName := flect.Underscore(fieldFromType.Name)
+
+			if !fieldFromValue.IsZero() {
+				modelMap[fieldName] = fieldFromValue.Interface()
+			}
+		}
+
+		if payload != nil {
+			payloadVal := reflect.ValueOf(payload).Elem()
+			for i := 0; i < payloadVal.NumField(); i++ {
+				fieldFromType := payloadVal.Type().Field(i)
+				fieldFromValue := payloadVal.Field(i)
+				fieldName := flect.Underscore(fieldFromType.Name)
+
+				if !fieldFromValue.IsZero() {
+					payloadMap[fieldName] = fieldFromValue.Interface()
+				}
+			}
+
+		}
+
+		fmt.Println("=============================")
+		fmt.Println("=============================")
+		fmt.Println("=============================")
+		fmt.Println("=============================")
+		fmt.Printf("%#v\n", modelMap)
+		fmt.Printf("%#v\n", payloadMap)
+		fmt.Println("=============================")
+		fmt.Println("=============================")
+		fmt.Println("=============================")
+		fmt.Println("=============================")
+
+		auditRecording := models.AuditRecording{
+			Name:       "MYNAME",
+			RecordType: "type",
+			RecordData: modelMap,
+			Payload:    payloadMap,
+			Metadata:   metadata,
+			UserID:     &session.UserID,
+		}
+
+		builder := query.NewQueryBuilder(db)
+		_, err := builder.CreateOne(&auditRecording)
+
+		if err != nil {
+			panic(err)
+		}
 
 		var createdAt string
 		if elem.FieldByName("CreatedAt").IsValid() == true {
