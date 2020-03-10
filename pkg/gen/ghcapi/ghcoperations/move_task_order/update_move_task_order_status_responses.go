@@ -225,6 +225,48 @@ func (o *UpdateMoveTaskOrderStatusNotFound) WriteResponse(rw http.ResponseWriter
 	}
 }
 
+// UpdateMoveTaskOrderStatusPreconditionFailedCode is the HTTP code returned for type UpdateMoveTaskOrderStatusPreconditionFailed
+const UpdateMoveTaskOrderStatusPreconditionFailedCode int = 412
+
+/*UpdateMoveTaskOrderStatusPreconditionFailed Precondition Failed
+
+swagger:response updateMoveTaskOrderStatusPreconditionFailed
+*/
+type UpdateMoveTaskOrderStatusPreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewUpdateMoveTaskOrderStatusPreconditionFailed creates UpdateMoveTaskOrderStatusPreconditionFailed with default headers values
+func NewUpdateMoveTaskOrderStatusPreconditionFailed() *UpdateMoveTaskOrderStatusPreconditionFailed {
+
+	return &UpdateMoveTaskOrderStatusPreconditionFailed{}
+}
+
+// WithPayload adds the payload to the update move task order status precondition failed response
+func (o *UpdateMoveTaskOrderStatusPreconditionFailed) WithPayload(payload interface{}) *UpdateMoveTaskOrderStatusPreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update move task order status precondition failed response
+func (o *UpdateMoveTaskOrderStatusPreconditionFailed) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMoveTaskOrderStatusPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(412)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // UpdateMoveTaskOrderStatusInternalServerErrorCode is the HTTP code returned for type UpdateMoveTaskOrderStatusInternalServerError
 const UpdateMoveTaskOrderStatusInternalServerErrorCode int = 500
 
