@@ -610,6 +610,67 @@ jobs:
           repo: app-migrations
       - announce_failure
 
+  # `build_django_app` builds the django app container and pushes to container repository
+  build_milmove_admin_app:
+    executor: mymove_and_postgres_medium
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: sudo apt-get update && sudo apt-get install -yy postgresql-client
+      - run:
+          name: make db_test_reset for milmove_admin
+          command: make db_test_reset
+          environment:
+            APPLICATION: app
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+      - run:
+          name: make db_test_migrate for milmove_admin
+          command: make db_test_migrate
+          environment:
+            APPLICATION: app
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+      - run:
+          name: clone mymove_admin repo
+          command: git clone https://github.com/transcom/milmove_admin.git
+          working_directory: ~/transcom
+      - run:
+          name: generate models file for migrations
+          command: make generate_models_standalone
+          working_directory: ~/transcom/milmove_admin
+          environment:
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DJANGO_ALLOWED_HOSTS: 'localhost 127.0.0.1 [::1]'
+            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
+            LOGIN_GOV_CALLBACK_PROTOCOL: http
+            LOGIN_GOV_ENGADMIN_CLIENT_ID: 'urn:gov:gsa:openidconnect.profiles:sp:sso:dod:engadminmovemillocal'
+            LOCAL_HOST_NAME: engadminlocal
+            LOGIN_GOV_CALLBACK_PORT: 3000
+            LOGIN_GOV_KID_JWK: milmove_admin
+            LOGIN_GOV_JWK_SET_FILENAME: keyset.jwk
+
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
     executor: mymove_medium
@@ -808,6 +869,10 @@ workflows:
       - pre_deps_golang
 
       - pre_deps_yarn
+
+      - build_milmove_admin_app:
+          requires:
+            - pre_deps_golang
 
       - check_generated_code:
           requires:
