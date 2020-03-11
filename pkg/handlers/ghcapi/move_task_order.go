@@ -45,11 +45,13 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 type UpdateMoveTaskOrderStatusHandlerFunc struct {
 	handlers.HandlerContext
 	moveTaskOrderStatusUpdater services.MoveTaskOrderUpdater
+	auditor                    *audit.Auditor
 }
 
 // Handle updates the status of a MoveTaskOrder
 func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	h.auditor.SetRequestContext(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
 	// TODO to revisit?
@@ -72,7 +74,8 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
 
 	// Audit attempt to make MTO available to prime
-	_, err = audit.Capture(mto, moveTaskOrderPayload, logger, session, params.HTTPRequest, h.DB())
+	_, err = h.auditor.Record("Make MTO Available to Prime", mto, nil)
+
 	if err != nil {
 		logger.Error("Auditing service error for making MTO available to Prime.", zap.Error(err))
 		return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()

@@ -54,7 +54,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	suite.T().Run("Etag is stale", func(t *testing.T) {
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment, eTag)
-		suite.NoError(err)
+		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 

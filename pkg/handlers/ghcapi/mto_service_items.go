@@ -111,7 +111,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 	}
 
 	// Capture creation attempt in audit log
-	_, err = audit.Capture(&serviceItem, nil, logger, session, params.HTTPRequest, h.DB())
+	_, err = audit.Capture(&serviceItem, nil, logger, session, params.HTTPRequest)
 	if err != nil {
 		logger.Error("Auditing service error for service item creation.", zap.Error(err))
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()

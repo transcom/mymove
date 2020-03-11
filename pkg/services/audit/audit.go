@@ -11,21 +11,74 @@ import (
 	"time"
 
 	"github.com/gobuffalo/flect"
-	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/pop/slices"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-// event name constants
+// Auditor holds on to contextual information we need to create an AuditRecording
+type Auditor struct {
+	builder *query.Builder
+	hctx    handlers.HandlerContext
+	logger  Logger
+	session *auth.Session
+	request *http.Request
+}
 
-// Capture (name, slice, logger, session, request) (models.AuditRecording, error)
+// NewAuditor instantiates a new Auditor
+func NewAuditor(builder *query.Builder, hctx handlers.HandlerContext) Auditor {
+	return Auditor{
+		builder: builder,
+		hctx:    hctx,
+	}
+}
+
+// SetRequestContext adds the request to the Auditor struct for later use
+func (a *Auditor) SetRequestContext(request *http.Request) {
+	a.request = request
+	a.session, a.logger = a.hctx.SessionAndLoggerFromRequest(request)
+}
+
+// Record creates an audit recording
+func (a *Auditor) Record(name string, model, payload interface{}) (*models.AuditRecording, error) {
+	modelMap := slices.Map{}   // Will flesh out with some good ol' reflection
+	payloadMap := slices.Map{} // Will flesh out with some good ol' reflection
+	metadata := slices.Map{}   // Will be based upon some rules for specific events
+
+	// Tie to MTO if there is a MTO ID on the model
+	// Add friendly shipment identifier if model is shipment
+
+	auditRecording := models.AuditRecording{
+		EventName:  "MYNAME",
+		RecordType: "type",
+		RecordData: modelMap,
+		Payload:    payloadMap,
+		Metadata:   metadata,
+		UserID:     &a.session.UserID,
+		FirstName:  &a.session.FirstName,
+		LastName:   &a.session.LastName,
+		Email:      &a.session.Email,
+	}
+
+	_, err := a.builder.CreateOne(&auditRecording)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// if this is a security event
+	//   log to cloudwatch with the logic from the Capture function below
+
+	return &auditRecording, nil
+}
+
 // Capture captures an audit record
-func Capture(model interface{}, payload interface{}, logger Logger, session *auth.Session, request *http.Request, db *pop.Connection) ([]zap.Field, error) {
+func Capture(model interface{}, payload interface{}, logger Logger, session *auth.Session, request *http.Request) ([]zap.Field, error) {
 	// metadataColumns := map[string]map[string]string{
 	// 	"Customer requested shipments + pick up dates": { meta: "requested_pickup_date", identifier: "pretty_shipment_id" },
 	// }
@@ -50,63 +103,33 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 	if err == nil && reflect.ValueOf(model).IsValid() == true && reflect.ValueOf(model).IsNil() == false && reflect.ValueOf(model).IsZero() == false {
 		recordType := parseRecordType(t.String())
 		elem := reflect.ValueOf(model).Elem()
-		modelMap := slices.Map{}
-		payloadMap := slices.Map{}
-		metadata := slices.Map{
-			"weight": 90,
-		}
+		// modelMap := slices.Map{}
+		// payloadMap := slices.Map{}
 
-		modelValue := elem
-		for i := 0; i < modelValue.NumField(); i++ {
-			fieldFromType := modelValue.Type().Field(i)
-			fieldFromValue := modelValue.Field(i)
-			fieldName := flect.Underscore(fieldFromType.Name)
-
-			if !fieldFromValue.IsZero() {
-				modelMap[fieldName] = fieldFromValue.Interface()
-			}
-		}
-
-		if payload != nil {
-			payloadVal := reflect.ValueOf(payload).Elem()
-			for i := 0; i < payloadVal.NumField(); i++ {
-				fieldFromType := payloadVal.Type().Field(i)
-				fieldFromValue := payloadVal.Field(i)
-				fieldName := flect.Underscore(fieldFromType.Name)
-
-				if !fieldFromValue.IsZero() {
-					payloadMap[fieldName] = fieldFromValue.Interface()
-				}
-			}
-
-		}
-
-		fmt.Println("=============================")
-		fmt.Println("=============================")
-		fmt.Println("=============================")
-		fmt.Println("=============================")
-		fmt.Printf("%#v\n", modelMap)
-		fmt.Printf("%#v\n", payloadMap)
-		fmt.Println("=============================")
-		fmt.Println("=============================")
-		fmt.Println("=============================")
-		fmt.Println("=============================")
-
-		auditRecording := models.AuditRecording{
-			Name:       "MYNAME",
-			RecordType: "type",
-			RecordData: modelMap,
-			Payload:    payloadMap,
-			Metadata:   metadata,
-			UserID:     &session.UserID,
-		}
-
-		builder := query.NewQueryBuilder(db)
-		_, err := builder.CreateOne(&auditRecording)
-
-		if err != nil {
-			panic(err)
-		}
+		// modelValue := elem
+		// for i := 0; i < modelValue.NumField(); i++ {
+		// 	fieldFromType := modelValue.Type().Field(i)
+		// 	fieldFromValue := modelValue.Field(i)
+		// 	fieldName := flect.Underscore(fieldFromType.Name)
+		//
+		// 	if !fieldFromValue.IsZero() {
+		// 		modelMap[fieldName] = fieldFromValue.Interface()
+		// 	}
+		// }
+		//
+		// if payload != nil {
+		// 	payloadVal := reflect.ValueOf(payload).Elem()
+		// 	for i := 0; i < payloadVal.NumField(); i++ {
+		// 		fieldFromType := payloadVal.Type().Field(i)
+		// 		fieldFromValue := payloadVal.Field(i)
+		// 		fieldName := flect.Underscore(fieldFromType.Name)
+		//
+		// 		if !fieldFromValue.IsZero() {
+		// 			payloadMap[fieldName] = fieldFromValue.Interface()
+		// 		}
+		// 	}
+		//
+		// }
 
 		var createdAt string
 		if elem.FieldByName("CreatedAt").IsValid() == true {

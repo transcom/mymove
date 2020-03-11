@@ -177,7 +177,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// Capture update attempt in audit log
-	_, err = audit.Capture(&paymentRequestForUpdate, nil, logger, session, params.HTTPRequest, h.DB())
+	_, err = audit.Capture(&paymentRequestForUpdate, nil, logger, session, params.HTTPRequest)
 	if err != nil {
 		logger.Error("Auditing service error for payment request update.", zap.Error(err))
 		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()

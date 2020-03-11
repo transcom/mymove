@@ -53,7 +53,7 @@ func TestCapture(t *testing.T) {
 		}
 
 		if assert.NotEmpty(t, zapFields) {
-			assert.NotEqual(t, "event_type", zapFields[0].Key)
+			// assert.NotEqual(t, "event_type", zapFields[0].Key)
 			assert.Equal(t, "audit_post_admin_users", eventType)
 		}
 	})

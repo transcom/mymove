@@ -1,7 +1,10 @@
 CREATE TABLE audit_recordings
 (
 	id uuid PRIMARY KEY NOT NULL,
-	name text,
+	event_name text,
+	first_name text,
+	last_name text,
+	email text,
 	record_data json,
 	record_type text,
 	payload json,
