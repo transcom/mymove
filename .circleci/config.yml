@@ -633,7 +633,9 @@ jobs:
           working_directory: ~/transcom
       - run:
           name: generate models file for migrations
-          command: make generate_models_standalone
+          command: |
+            echo "--${DJANGO_ALLOWED_HOSTS}--"
+            make generate_models_standalone
           working_directory: ~/transcom/milmove_admin
           environment:
             DB_PASSWORD: mysecretpassword
