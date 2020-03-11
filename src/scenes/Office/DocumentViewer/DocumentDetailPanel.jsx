@@ -17,7 +17,7 @@ import { MOVE_DOC_TYPE, WEIGHT_TICKET_SET_TYPE } from 'shared/constants';
 import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
-const DocumentDetailDisplay = ({
+export const DocumentDetailDisplay = ({
   isExpenseDocument,
   isWeightTicketDocument,
   moveDocument,
@@ -39,14 +39,21 @@ const DocumentDetailDisplay = ({
   return (
     <Fragment>
       <div>
-        <h3>
+        <h3 data-cy="panel-subhead">
           {renderStatusIcon(moveDocument.status)}
           {moveDocument.title}
         </h3>
-        <p className="uploaded-at">Uploaded {formatDate(get(moveDocument, 'document.uploads.0.created_at'))}</p>
-        <PanelSwaggerField title="Document title" fieldName="title" required {...moveDocFieldProps} />
-
-        <PanelSwaggerField title="Document type" fieldName="move_document_type" required {...moveDocFieldProps} />
+        <p className="uploaded-at" data-cy="uploaded-at">
+          Uploaded {formatDate(get(moveDocument, 'document.uploads.0.created_at'))}
+        </p>
+        <PanelSwaggerField data-cy="title" title="Document title" fieldName="title" required {...moveDocFieldProps} />
+        <PanelSwaggerField
+          data-cy="move-document-type"
+          title="move-document-type"
+          fieldName="move_document_type"
+          required
+          {...moveDocFieldProps}
+        />
         {isExpenseDocument && moveDocument.moving_expense_type && (
           <PanelSwaggerField fieldName="moving_expense_type" {...moveDocFieldProps} />
         )}
@@ -78,8 +85,20 @@ const DocumentDetailDisplay = ({
             )}
             {isWeightTicketTypeCarOrTrailer && (
               <>
-                <PanelSwaggerField title="Vehicle make" fieldName="vehicle_make" required {...moveDocFieldProps} />
-                <PanelSwaggerField title="Vehicle model" fieldName="vehicle_model" required {...moveDocFieldProps} />
+                <PanelSwaggerField
+                  data-cy="vehicle-make"
+                  title="Vehicle make"
+                  fieldName="vehicle_make"
+                  required
+                  {...moveDocFieldProps}
+                />
+                <PanelSwaggerField
+                  data-cy="vehicle-model"
+                  title="Vehicle model"
+                  fieldName="vehicle_model"
+                  required
+                  {...moveDocFieldProps}
+                />
               </>
             )}
             <PanelSwaggerField title="Empty weight" fieldName="empty_weight" required {...moveDocFieldProps} />
@@ -93,7 +112,7 @@ const DocumentDetailDisplay = ({
           </>
         )}
         <PanelSwaggerField title="Document status" fieldName="status" required {...moveDocFieldProps} />
-        <PanelSwaggerField title="Notes" fieldName="notes" {...moveDocFieldProps} />
+        <PanelSwaggerField data-cy="notes" title="Notes" fieldName="notes" {...moveDocFieldProps} />
       </div>
     </Fragment>
   );
@@ -157,7 +176,7 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
       <div>
         <FormSection name="moveDocument">
           <SwaggerField fieldName="title" swagger={moveDocSchema} required />
-          <SwaggerField fieldName="move_document_type" swagger={moveDocSchema} required />
+          <SwaggerField data-cy="move-document-type" fieldName="move_document_type" swagger={moveDocSchema} required />
           {isExpenseDocument && <ExpenseDocumentForm moveDocSchema={moveDocSchema} />}
           {isWeightTicketDocument && (
             <>
