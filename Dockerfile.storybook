@@ -22,6 +22,7 @@ COPY --chown=circleci:circleci [ \
   "/home/circleci/project/" \
 ]
 
+# ENTRYPOINT is set by parent docker image, this is intentionally not overridden to allow support for running chrome in the container for loki tests.
 CMD yarn storybook --ci
 
 COPY --chown=circleci:circleci scripts/start-storybook-tests /home/circleci/project/scripts/

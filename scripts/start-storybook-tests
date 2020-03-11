@@ -1,6 +1,8 @@
 #! /usr/bin/env bash
 
-# This script is intended to run inside the storybook container
+#
+# Intended to run inside a docker container, will wait for a 'storybook' container to have started before running the tests.
+#
 
 set -eu -o pipefail
 

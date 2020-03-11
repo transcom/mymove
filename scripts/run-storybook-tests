@@ -1,5 +1,9 @@
 #! /usr/bin/env bash
 
+#
+# Runs the storybook tests in docker containers for CircleCI testing.
+#
+
 set -eu -o pipefail
 
 docker-compose -f docker-compose.storybook.yml build --pull
