@@ -32,6 +32,9 @@ import (
 const (
 	binMilMove      string = "/bin/milmove"
 	binMilMoveTasks string = "/bin/milmove-tasks"
+	binOrders       string = "/bin/orders"
+	digestSeparator string = "@"
+	tagSeparator    string = ":"
 )
 
 // Valid services names
@@ -40,6 +43,8 @@ var services = []string{
 	"app-client-tls",
 	"app-migrations",
 	"app-tasks",
+	"orders",
+	"orders-migrations",
 }
 
 // Services mapped to Entry Points
@@ -53,6 +58,8 @@ var servicesToEntryPoints = map[string][]string{
 		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
 		fmt.Sprintf("%s send-payment-reminder", binMilMoveTasks),
 	},
+	"orders":            {fmt.Sprintf("%s serve", binOrders)},
+	"orders-migrations": {fmt.Sprintf("%s migrate", binOrders)},
 }
 
 // Services mapped to App Ports
@@ -60,6 +67,7 @@ var servicesToEntryPoints = map[string][]string{
 var servicesToAppPorts = map[string]int64{
 	"app":            int64(8443),
 	"app-client-tls": int64(9443),
+	"orders":         int64(9443),
 }
 
 type errInvalidService struct {
@@ -114,34 +122,89 @@ const (
 
 // ECRImage represents an ECR Image tag broken into its constituent parts
 type ECRImage struct {
-	AWSRegion      string
-	imageURI       string
-	ImageTag       string
-	RegistryID     string
-	RepositoryURI  string
-	RepositoryName string
+	AWSRegion        string
+	Digest           string
+	ImageURIByDigest *string
+	ImageURIByTag    *string
+	ImageURI         string
+	RegistryID       string
+	RepositoryURI    string
+	RepositoryName   string
+	Tag              string
 }
 
 // NewECRImage returns a new ECR Image object
 func NewECRImage(imageURI string) (*ECRImage, error) {
-	imageParts := strings.Split(imageURI, ":")
-	if len(imageParts) != 2 {
-		return nil, fmt.Errorf("Image URI requires ':'")
+	var digestURI, tagURI *string
+	digest, tag := "", ""
+	var imageParts []string
+
+	if strings.Contains(imageURI, digestSeparator) {
+		digestURI = &imageURI
+		imageParts = strings.Split(imageURI, digestSeparator)
+		digest = imageParts[1]
+	} else if strings.Contains(imageURI, tagSeparator) {
+		tagURI = &imageURI
+		imageParts = strings.Split(imageURI, tagSeparator)
+		tag = imageParts[1]
+	} else {
+		return nil, fmt.Errorf("invalid URI, requires either a @digest or a :tag in the URI %v", imageURI)
 	}
-	repositoryURI, imageTag := imageParts[0], imageParts[1]
+
+	if len(imageParts) != 2 {
+		return nil, fmt.Errorf("image URI, url parsing failed: %v", imageURI)
+	}
+	repositoryURI := imageParts[0]
 	repositoryURIParts := strings.Split(repositoryURI, "/")
 	repositoryName := repositoryURIParts[1]
 	repositoryDomainParts := strings.Split(repositoryURIParts[0], ".")
 	registryID, awsRegion := repositoryDomainParts[0], repositoryDomainParts[3]
 
 	return &ECRImage{
-		AWSRegion:      awsRegion,
-		imageURI:       imageURI,
-		ImageTag:       imageTag,
-		RegistryID:     registryID,
-		RepositoryURI:  repositoryURI,
-		RepositoryName: repositoryName,
+		AWSRegion:        awsRegion,
+		Digest:           digest,
+		ImageURI:         imageURI,
+		ImageURIByTag:    tagURI,
+		ImageURIByDigest: digestURI,
+		RegistryID:       registryID,
+		RepositoryURI:    repositoryURI,
+		RepositoryName:   repositoryName,
+		Tag:              tag,
 	}, nil
+}
+
+// Validate checks ecr image struct values by running validate method and making a request to aws service
+func (ecrImage ECRImage) Validate(serviceECR *ecr.ECR) error {
+	imageIdentifier := ecr.ImageIdentifier{}
+	if ecrImage.ImageURIByDigest != nil {
+		imageIdentifier.SetImageDigest(ecrImage.Digest)
+	} else if ecrImage.ImageURIByTag != nil {
+		imageIdentifier.SetImageTag(ecrImage.Tag)
+	} else {
+		return fmt.Errorf("no valid imageuri, ImageURIByTag and ImageURIByDigest are null in ecrImage: %v", ecrImage)
+	}
+
+	//check to make sure image can validate
+	errImageIdentifierValidate := imageIdentifier.Validate()
+	if errImageIdentifierValidate != nil {
+		return fmt.Errorf("image identifier invalid %w", errImageIdentifierValidate)
+	}
+
+	//check to make sure image exists
+	imageList, describeImageErr := serviceECR.DescribeImages(&ecr.DescribeImagesInput{
+		ImageIds:       append([]*ecr.ImageIdentifier{}, &imageIdentifier),
+		RegistryId:     aws.String(ecrImage.RegistryID),
+		RepositoryName: aws.String(ecrImage.RepositoryName),
+	})
+
+	if describeImageErr != nil {
+		return fmt.Errorf("unable to retrieve image: %v: Error: %w", ecrImage, describeImageErr)
+	}
+	if len(imageList.ImageDetails) < 1 {
+		return fmt.Errorf("no images found %v", ecrImage)
+	}
+	return nil
+
 }
 
 func initTaskDefFlags(flag *pflag.FlagSet) {
@@ -434,24 +497,10 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	if errECRImage != nil {
 		quit(logger, nil, fmt.Errorf("unable to recognize image URI %q: %w", imageURI, errECRImage))
 	}
-	imageIdentifier := ecr.ImageIdentifier{}
-	imageIdentifier.SetImageTag(ecrImage.ImageTag)
-	errImageIdentifierValidate := imageIdentifier.Validate()
-	if errImageIdentifierValidate != nil {
-		quit(logger, nil, fmt.Errorf("image identifier tag invalid %q: %w", ecrImage.ImageTag, errImageIdentifierValidate))
-	}
 
-	_, err = serviceECR.DescribeImages(&ecr.DescribeImagesInput{
-		ImageIds: []*ecr.ImageIdentifier{
-			{
-				ImageTag: aws.String(ecrImage.ImageTag),
-			},
-		},
-		RegistryId:     aws.String(ecrImage.RegistryID),
-		RepositoryName: aws.String(ecrImage.RepositoryName),
-	})
-	if err != nil {
-		quit(logger, nil, fmt.Errorf("unable retrieving image from %q: %w", imageURI, err))
+	errValidateImage := ecrImage.Validate(serviceECR)
+	if errValidateImage != nil {
+		quit(logger, nil, fmt.Errorf("unable to validate image %v", ecrImage))
 	}
 
 	// Entrypoint
@@ -531,7 +580,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
 				Name:        aws.String(containerDefName),
-				Image:       aws.String(ecrImage.imageURI),
+				Image:       aws.String(ecrImage.ImageURI),
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPointList),
 				Command:     []*string{},

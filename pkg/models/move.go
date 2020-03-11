@@ -380,51 +380,6 @@ func (m Move) CreateMovingExpenseDocument(
 	return newMovingExpenseDocument, responseVErrors, responseError
 }
 
-// CreateWeightTicketSetDocument creates a moving weight ticket document associated to a move and move document
-func (m Move) CreateWeightTicketSetDocument(
-	db *pop.Connection,
-	uploads Uploads,
-	personallyProcuredMoveID *uuid.UUID,
-	weightTicketSetDocument *WeightTicketSetDocument,
-	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
-
-	var responseError error
-	responseVErrors := validate.NewErrors()
-
-	db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("Rollback The transaction")
-
-		var newMoveDocument *MoveDocument
-		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
-			db,
-			uploads,
-			personallyProcuredMoveID,
-			MoveDocumentTypeWEIGHTTICKETSET,
-			"weight_ticket_set",
-			weightTicketSetDocument.VehicleNickname,
-			moveType)
-		if responseVErrors.HasAny() || responseError != nil {
-			return transactionError
-		}
-
-		weightTicketSetDocument.MoveDocument = *newMoveDocument
-		weightTicketSetDocument.MoveDocumentID = newMoveDocument.ID
-
-		verrs, err := db.ValidateAndCreate(weightTicketSetDocument)
-		if err != nil || verrs.HasAny() {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error creating moving expense document")
-			weightTicketSetDocument = nil
-			return transactionError
-		}
-
-		return nil
-
-	})
-
-	return weightTicketSetDocument, responseVErrors, responseError
-}
-
 // CreatePPM creates a new PPM associated with this move
 func (m Move) CreatePPM(db *pop.Connection,
 	size *internalmessages.TShirtSize,
