@@ -632,8 +632,8 @@ jobs:
           command: git clone https://github.com/transcom/milmove_admin.git
           working_directory: ~/transcom
       - run:
-          name: generate models and migrate
-          command: make generate_models
+          name: generate models file for migrations
+          command: make generate_models_standalone
           working_directory: ~/transcom/milmove_admin
           environment:
             DB_PASSWORD: mysecretpassword
@@ -649,7 +649,7 @@ jobs:
             LOGIN_GOV_CALLBACK_PORT: 3000
             LOGIN_GOV_KID_JWK: milmove_admin
             LOGIN_GOV_JWK_SET_FILENAME: keyset.jwk
-            DJANGO_SECRET_KEY: '9k#x@9w3zh+2w0)g=zk4#p%-h4f3r@^q&2rwp#phjicfb-#f@*'
+            DJANGO_SECRET_KEY: $MILMOVE_ADMIN_DJANGO_SECRET_KEY
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
