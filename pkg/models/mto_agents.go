@@ -22,7 +22,7 @@ const (
 type MTOAgent struct {
 	ID            uuid.UUID    `db:"id"`
 	MTOShipment   MTOShipment  `belongs_to:"move_task_orders"`
-	MTOShipmentID uuid.UUID    `db:"mto_shipment_id"`
+	MTOShipmentID uuid.UUID    `db:"mtoshipment_id"`
 	FirstName     *string      `db:"first_name"`
 	LastName      *string      `db:"last_name"`
 	Email         *string      `db:"email"`
