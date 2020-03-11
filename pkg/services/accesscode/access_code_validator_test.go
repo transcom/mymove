@@ -11,7 +11,7 @@ func (suite *AccessCodeServiceSuite) TestValidateAccessCode_ValidAccessCode() {
 	code := "CODE12"
 	accessCode := models.AccessCode{
 		Code:     code,
-		MoveType: &selectedMoveType,
+		MoveType: selectedMoveType,
 	}
 	suite.MustSave(&accessCode)
 	validateAccessCode := NewAccessCodeValidator(suite.DB())
@@ -28,7 +28,7 @@ func (suite *AccessCodeServiceSuite) TestValidateAccessCode_InvalidAccessCode() 
 	code := "CODE12"
 	usedAccessCode := models.AccessCode{
 		Code:            code,
-		MoveType:        &selectedMoveType,
+		MoveType:        selectedMoveType,
 		ServiceMemberID: &user.ID,
 	}
 	suite.MustSave(&usedAccessCode)

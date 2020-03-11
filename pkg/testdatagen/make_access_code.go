@@ -10,15 +10,9 @@ import (
 
 // MakeAccessCode creates a single AccessCode
 func MakeAccessCode(db *pop.Connection, assertions Assertions) models.AccessCode {
-	defaultMoveType := models.SelectedMoveTypePPM
-	selectedMoveType := assertions.AccessCode.MoveType
-	if selectedMoveType == nil {
-		selectedMoveType = &defaultMoveType
-	}
-
 	accessCode := models.AccessCode{
 		Code:      models.GenerateLocator(),
-		MoveType:  selectedMoveType,
+		MoveType:  models.SelectedMoveTypePPM,
 		CreatedAt: time.Now(),
 	}
 
