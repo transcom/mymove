@@ -8,35 +8,27 @@ import { Button } from '@trussworks/react-uswds';
 storiesOf('Components/Button', module)
   .add('default', () => (
     <div style={{ padding: '20px' }}>
-      <Button className="usa-button" onClick={action('clicked')}>
-        Button
-      </Button>
+      <Button onClick={action('clicked')}>Button</Button>
     </div>
   ))
   .add('hover', () => (
     <div style={{ padding: '20px' }}>
-      <Button className="usa-button  usa-button--hover" onClick={action('clicked')}>
-        Button
-      </Button>
+      <Button onClick={action('clicked')}>Button</Button>
     </div>
   ))
   .add('focus', () => (
     <div style={{ padding: '20px' }}>
-      <Button className="usa-button  usa-focus" onClick={action('clicked')}>
-        Button
-      </Button>
+      <Button onClick={action('clicked')}>Button</Button>
     </div>
   ))
   .add('active', () => (
     <div style={{ padding: '20px' }}>
-      <Button className="usa-button  usa-button--active" onClick={action('clicked')}>
-        Button
-      </Button>
+      <Button onClick={action('clicked')}>Button</Button>
     </div>
   ))
   .add('disabled', () => (
     <div style={{ padding: '20px' }}>
-      <Button className="usa-button" disabled="" onClick={action('clicked')}>
+      <Button disabled={true} onClick={action('clicked')}>
         Button
       </Button>
     </div>
