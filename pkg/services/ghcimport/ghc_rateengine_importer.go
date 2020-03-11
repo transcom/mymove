@@ -47,6 +47,12 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 		return fmt.Errorf("failed to import re_rate_area: %w", err)
 	}
 
+	gre.Logger.Info("Mapping zip codes to rate areas")
+	err = gre.mapZipsToRateAreas(dbTx)
+	if err != nil {
+		return fmt.Errorf("failed to map zip codes to rate areas: %w", err)
+	}
+
 	gre.Logger.Info("Loading service map")
 	err = gre.loadServiceMap(dbTx) // Populates gre.serviceToIDMap
 	if err != nil {
