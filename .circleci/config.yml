@@ -649,7 +649,6 @@ jobs:
             LOGIN_GOV_CALLBACK_PORT: 3000
             LOGIN_GOV_KID_JWK: milmove_admin
             LOGIN_GOV_JWK_SET_FILENAME: keyset.jwk
-            DJANGO_SECRET_KEY: $MILMOVE_ADMIN_DJANGO_SECRET_KEY
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
