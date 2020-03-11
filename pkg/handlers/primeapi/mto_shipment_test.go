@@ -6,6 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-openapi/swag"
+
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -29,6 +33,29 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 	})
+
+	testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment,
+			MTOShipmentID: mtoShipment.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
+	})
+
+	testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment,
+			MTOShipmentID: mtoShipment.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
 	builder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(builder)
 
@@ -127,6 +154,28 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		MoveTaskOrder: mto,
 	})
 
+	testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment2,
+			MTOShipmentID: mtoShipment2.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
+	})
+
+	testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment2,
+			MTOShipmentID: mtoShipment2.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
 	payload := primemessages.MTOShipment{
 		ID:              strfmt.UUID(mtoShipment2.ID.String()),
 		MoveTaskOrderID: strfmt.UUID(mtoShipment2.MoveTaskOrderID.String()),
@@ -155,5 +204,39 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		suite.Equal(mtoShipment2.ID.String(), okResponse.Payload.ID.String())
+	})
+
+	suite.T().Run("Successful PUT - Integration Test with updating the releasing/receiving agents", func(t *testing.T) {
+		mtoAgents := make(primemessages.MTOAgents, 2)
+		newFirstName := "NewTestName"
+		newLastName := "NewLastName"
+		mtoAgents[0].FirstName = &newFirstName
+		mtoAgents[1].LastName = &newLastName
+
+		agentPayload := primemessages.MTOShipment{
+			ID:              strfmt.UUID(mtoShipment2.ID.String()),
+			MoveTaskOrderID: strfmt.UUID(mtoShipment2.MoveTaskOrderID.String()),
+			Agents:          mtoAgents,
+		}
+		agentParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:     req2,
+			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment2.MoveTaskOrderID),
+			MtoShipmentID:   *handlers.FmtUUID(mtoShipment2.ID),
+			Body:            &agentPayload,
+			IfMatch:         eTag,
+		}
+
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher)
+		handler := UpdateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			updater,
+		}
+
+		response := handler.Handle(agentParams)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.Equal(newFirstName, okResponse.Payload.Agents[0].FirstName)
+		suite.Equal(newLastName, okResponse.Payload.Agents[1].LastName)
 	})
 }
