@@ -36,6 +36,7 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.SecondaryPickupAddress",
+		"MTOShipments.MTOAgents",
 		"MoveOrder",
 		"MoveOrder.Customer",
 		"MoveOrder.Entitlement")

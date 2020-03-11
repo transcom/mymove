@@ -509,7 +509,7 @@ definitions:
         example: Petrovna
       branch:
         type: string
-        example: "COAST_GUARD"
+        example: 'COAST_GUARD'
       phone:
         type: string
         format: telephone
@@ -607,13 +607,13 @@ definitions:
         $ref: '#/definitions/DutyStation'
       rank:
         type: string
-        example: "E_5"
+        example: 'E_5'
       reportByDate:
         type: string
         format: date
       confirmationNumber:
         type: string
-        example: "HYXFJF"
+        example: 'HYXFJF'
       orderNumber:
         type: string
       linesOfAccounting:
