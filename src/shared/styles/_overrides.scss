@@ -1,0 +1,6 @@
+//USWDS Overrides
+//many of the components in our system use the USWDS cpmonents as a starting point, but divert a little. Here we will store any ovverrriding scss.
+
+.usa-button {
+  @include u-bg('primary-vivid');
+}
