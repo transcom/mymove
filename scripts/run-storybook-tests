@@ -2,9 +2,10 @@
 
 set -eu -o pipefail
 
-docker-compose -f docker-compose.storybook.yml up --build storybook_tests
-container=$(docker-compose -f docker-compose.storybook.yml ps | grep storybook_tests | awk '{print $1}')
-return_code=$(docker-compose -f docker-compose.storybook.yml ps | grep storybook_tests | awk '{print $6}')
+docker-compose -f docker-compose.storybook.yml build --pull
+docker-compose -f docker-compose.storybook.yml up storybook_tests
+container=$(docker-compose -f docker-compose.storybook.yml ps --filter=name=storybook_tests | awk 'END{print $1}')
+return_code=$(docker-compose -f docker-compose.storybook.yml ps --filter=name=storybook_tests | awk 'END{print $6}')
 
 echo "Clean .loki directory"
 rm -rf .loki

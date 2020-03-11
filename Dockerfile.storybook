@@ -1,17 +1,33 @@
-FROM circleci/node:10.19-browsers
+FROM milmove/circleci-docker:milmove-app-browsers-1e723736cfecba51dd49393fcecad1451fcd8f02
 
 EXPOSE 6006
 
-USER circleci
+RUN mkdir -p /home/circleci/project /home/circleci/project/src /home/circleci/project/.loki
 
-RUN mkdir -p /home/circleci/project
+COPY --chown=circleci:circleci [ \
+  "package.json", \
+  "yarn.lock", \
+  "/home/circleci/project/" \
+]
 
-WORKDIR /home/circleci/project
+RUN cd /home/circleci/project && yarn install
 
-COPY --chown=circleci:circleci package.json /home/circleci/project/package.json
-
-RUN yarn install
-
-COPY --chown=circleci:circleci . /home/circleci/project/
+COPY --chown=circleci:circleci [ \
+  ".eslintrc", ".eslintignore", \
+  ".prettierrc", ".prettierignore", \
+  ".yarnrc", \
+  "config-overrides.js", \
+  "jsconfig.json", \
+  "wallaby.js", \
+  "/home/circleci/project/" \
+]
 
 CMD yarn storybook --ci
+
+COPY --chown=circleci:circleci scripts/start-storybook-tests /home/circleci/project/scripts/
+
+COPY --chown=circleci:circleci .storybook/ /home/circleci/project/.storybook/
+
+COPY --chown=circleci:circleci .loki/ /home/circleci/project/.loki/
+
+COPY --chown=circleci:circleci src/ /home/circleci/project/src/
