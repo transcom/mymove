@@ -147,7 +147,10 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 
 	// Doing this before cloning should pre-clean the DB for all tests
 	log.Printf("attempting to truncate the database %s", dbNameTest)
-	primaryConn.TruncateAll()
+	errTruncateAll := primaryConn.TruncateAll()
+	if errTruncateAll != nil {
+		log.Panicf("failed to truncate database '%s': %#v", dbNameTest, errTruncateAll)
+	}
 
 	uniq := StringWithCharset(6, charset)
 	dbNamePackage := fmt.Sprintf("%s_%s_%s", dbNameTest, strings.Replace(packageName.String(), "/", "_", -1), uniq)
