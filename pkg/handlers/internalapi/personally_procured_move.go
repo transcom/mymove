@@ -395,7 +395,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 		return err
 	}
 
-	cost, err := re.ComputeLowestCostPPMMove(
+	costDetails, err := re.ComputePPMMoveCosts(
 		unit.Pound(*ppm.WeightEstimate),
 		*ppm.PickupPostalCode,
 		originDutyStationZip,
@@ -408,6 +408,8 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 	if err != nil {
 		return err
 	}
+
+	cost := costDetails["pickupLocation"].Cost
 
 	// Update SIT estimate
 	if ppm.HasSit != nil && *ppm.HasSit {

@@ -54,7 +54,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 
-	cost, err := engine.ComputeLowestCostPPMMove(
+	costDetails, err := engine.ComputePPMMoveCosts(
 		unit.Pound(params.Weight),
 		params.OriginZip,
 		params.OriginDutyStationZip,
@@ -67,6 +67,8 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+
+	cost := costDetails["pickupLocation"].Cost
 
 	gcc := cost.GCC
 	incentivePercentage := cost.GCC.MultiplyFloat64(0.95)

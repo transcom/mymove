@@ -1,6 +1,7 @@
 package paperwork
 
 import (
+	"fmt"
 	"errors"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 )
 
 type ppmComputer interface {
-	ComputeLowestCostPPMMove(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostComputation, err error)
+	ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error)
 }
 
 //SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
@@ -50,7 +51,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
 
-	actualCost, err := sswPpmComputer.ComputeLowestCostPPMMove(
+	actualCost, err := sswPpmComputer.ComputePPMMoveCosts(
 		ssfd.PPMRemainingEntitlement,
 		*firstPPM.PickupPostalCode,
 		originDutyStationZip,
@@ -64,9 +65,9 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating PPM actual obligations")
 	}
 
-	mileageWon := unit.Miles(actualCost.Mileage)
+	// mileageWon := unit.Miles(actualCost.Mileage)
 
-	maxCost, err := sswPpmComputer.ComputeLowestCostPPMMove(
+	maxCost, err := sswPpmComputer.ComputePPMMoveCosts(
 		ssfd.WeightAllotment.TotalWeight,
 		*firstPPM.PickupPostalCode,
 		originDutyStationZip,
@@ -84,13 +85,32 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 	if firstPPM.TotalSITCost != nil {
 		actualSIT = *firstPPM.TotalSITCost
 	}
-	if actualSIT > maxCost.SITMax {
-		actualSIT = maxCost.SITMax
+	// This logic needs to be put back in!!
+	// if actualSIT > maxCost.SITMax {
+	// 	actualSIT = maxCost.SITMax
+	// }
+
+	var lowestActualObligation models.Obligation
+	var actualObligation models.Obligation
+	var maxObligation models.Obligation
+	var lowestMaxObligation models.Obligation
+	if actualCost["pickupLocation"].IsLowest {
+		lowestActualObligation = models.Obligation{Gcc: actualCost["pickupLocation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost["pickupLocation"].Cost.Mileage)}
+		actualObligation = models.Obligation{Gcc: actualCost["originDutyStation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost["originDutyStation"].Cost.Mileage)}
+	} else {
+		actualObligation = models.Obligation{Gcc: actualCost["pickupLocation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost["pickupLocation"].Cost.Mileage)}
+		lowestActualObligation = models.Obligation{Gcc: actualCost["originDutyStation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost["originDutyStation"].Cost.Mileage)}
 	}
 
-	maxObligation := models.Obligation{Gcc: maxCost.GCC, SIT: maxCost.SITMax}
-	actualObligation := models.Obligation{Gcc: actualCost.GCC, SIT: actualSIT, Miles: mileageWon}
-	obligations := models.Obligations{MaxObligation: maxObligation, ActualObligation: actualObligation}
+	if maxCost["pickupLocation"].IsLowest {
+		lowestMaxObligation = models.Obligation{Gcc: maxCost["pickupLocation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(maxCost["pickupLocation"].Cost.Mileage)}
+		maxObligation = models.Obligation{Gcc: maxCost["originDutyStation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(maxCost["originDutyStation"].Cost.Mileage)}
+	} else {
+		maxObligation = models.Obligation{Gcc: maxCost["pickupLocation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(maxCost["pickupLocation"].Cost.Mileage)}
+		lowestMaxObligation = models.Obligation{Gcc: maxCost["originDutyStation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(maxCost["originDutyStation"].Cost.Mileage)}
+	}
+
+	obligations := models.Obligations{LowestMaxObligation: lowestMaxObligation, LowestActualObligation: lowestActualObligation, MaxObligation: maxObligation, ActualObligation: actualObligation}
 	return obligations, nil
 }
 
