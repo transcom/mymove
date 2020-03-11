@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/route"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -26,15 +28,16 @@ type mtoShipmentUpdater struct {
 	db      *pop.Connection
 	builder UpdateMTOShipmentQueryBuilder
 	services.Fetcher
+	planner route.Planner
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher) services.MTOShipmentUpdater {
-	return &mtoShipmentUpdater{db, builder, fetch.NewFetcher(builder)}
+func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner) services.MTOShipmentUpdater {
+	return &mtoShipmentUpdater{db, builder, fetch.NewFetcher(builder), planner}
 }
 
 // setNewShipmentFields validates the updated shipment
-func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *models.MTOShipment) error {
+func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment *models.MTOShipment, updatedShipment *models.MTOShipment) error {
 	if updatedShipment.RequestedPickupDate != nil {
 		requestedPickupDate := updatedShipment.RequestedPickupDate
 		// if requestedPickupDate isn't valid then return InvalidInputError
@@ -60,6 +63,12 @@ func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *mode
 	if updatedShipment.ScheduledPickupDate != nil {
 		scheduledPickupTime = *updatedShipment.ScheduledPickupDate
 		oldShipment.ScheduledPickupDate = &scheduledPickupTime
+		requiredDeliveryDate, err := calculateRequiredDeliveryDate(planner, db, oldShipment.PickupAddress,
+			oldShipment.DestinationAddress, *updatedShipment.ScheduledPickupDate, updatedShipment.PrimeEstimatedWeight.Int())
+		if err != nil {
+			return err
+		}
+		oldShipment.RequiredDeliveryDate = requiredDeliveryDate
 	}
 
 	if updatedShipment.PrimeEstimatedWeight != nil {
@@ -67,10 +76,12 @@ func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *mode
 			return services.InvalidInputError{}
 		}
 		now := time.Now()
-		err := validatePrimeEstimatedWeightRecordedDate(now, scheduledPickupTime, *oldShipment.ApprovedDate)
-		if err != nil {
-			errorMessage := "The time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight."
-			return services.NewInvalidInputError(oldShipment.ID, err, nil, errorMessage)
+		if oldShipment.ApprovedDate != nil {
+			err := validatePrimeEstimatedWeightRecordedDate(now, scheduledPickupTime, *oldShipment.ApprovedDate)
+			if err != nil {
+				errorMessage := "The time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight."
+				return services.NewInvalidInputError(oldShipment.ID, err, nil, errorMessage)
+			}
 		}
 		oldShipment.PrimeEstimatedWeight = updatedShipment.PrimeEstimatedWeight
 		oldShipment.PrimeEstimatedWeightRecordedDate = &now
@@ -131,8 +142,7 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
-
-	err = setNewShipmentFields(&oldShipment, mtoShipment)
+	err = setNewShipmentFields(f.planner, f.db, &oldShipment, mtoShipment)
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
@@ -341,6 +351,32 @@ func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServ
 		serviceItems[i] = serviceItem
 	}
 	return serviceItems
+}
+
+// This private function is used to get a distance calculation using the pickup and destination addresses. It then uses
+// the value returned to make a fetch on the ghc_domestic_transit_times table and returns a required delivery date
+// based on the max_days_transit_time.
+func calculateRequiredDeliveryDate(planner route.Planner, db *pop.Connection, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int) (*time.Time, error) {
+	// Get a distance calculation between pickup and destination addresses.
+	distance, err := planner.TransitDistance(&pickupAddress, &destinationAddress)
+	if err != nil {
+		return nil, err
+	}
+	// Query the ghc_domestic_transit_times table for the max transit time
+	var ghcDomesticTransitTime models.GHCDomesticTransitTime
+	err = db.Where("distance_miles_lower <= ? "+
+		"AND distance_miles_upper >= ? "+
+		"AND weight_lbs_lower <= ? "+
+		"AND weight_lbs_upper >= ?",
+		distance, distance, weight, weight).First(&ghcDomesticTransitTime)
+
+	if err != nil {
+		return nil, err
+	}
+	// Add the max transit time to the pickup date to get the new required delivery date
+	requiredDeliveryDate := pickupDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
+	// return the value
+	return &requiredDeliveryDate, nil
 }
 
 // NewMTOShipmentStatusUpdater creates a new MTO Shipment Status Updater

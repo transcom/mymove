@@ -59,6 +59,7 @@ type MTOShipment struct {
 	ApprovedDate                     *time.Time        `db:"approved_date"`
 	FirstAvailableDeliveryDate       *time.Time        `db:"first_available_delivery_date"`
 	ActualPickupDate                 *time.Time        `db:"actual_pickup_date"`
+	RequiredDeliveryDate             *time.Time        `db:"required_delivery_date"`
 	CustomerRemarks                  *string           `db:"customer_remarks"`
 	PickupAddress                    Address           `belongs_to:"addresses"`
 	PickupAddressID                  uuid.UUID         `db:"pickup_address_id"`

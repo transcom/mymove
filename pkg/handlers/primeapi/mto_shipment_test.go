@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/route"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -44,7 +46,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	}
 
 	suite.T().Run("Successful PUT - Integration Test", func(t *testing.T) {
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, route.NewTestingPlanner(500))
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -144,7 +146,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	}
 
 	suite.T().Run("Successful PUT - Integration Test with Only Required Fields in Payload", func(t *testing.T) {
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, route.NewTestingPlanner(500))
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,

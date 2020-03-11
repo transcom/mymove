@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/route"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
@@ -22,7 +24,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	oldMTOShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
 	builder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(builder)
-	mtoShipmentUpdater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher)
+	mtoShipmentUpdater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, route.NewTestingPlanner(500))
 
 	requestedPickupDate := *oldMTOShipment.RequestedPickupDate
 	scheduledPickupDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
@@ -32,6 +34,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	secondaryPickupAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
 	secondaryDeliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
 	primeActualWeight := unit.Pound(1234)
+	primeEstimatedWeight := unit.Pound(1234)
 
 	mtoShipment := models.MTOShipment{
 		ID:                         oldMTOShipment.ID,
@@ -46,10 +49,21 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		SecondaryPickupAddress:     &secondaryPickupAddress,
 		SecondaryDeliveryAddress:   &secondaryDeliveryAddress,
 		PrimeActualWeight:          &primeActualWeight,
+		PrimeEstimatedWeight:       &primeEstimatedWeight,
 		FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
 		Status:                     oldMTOShipment.Status,
 		ActualPickupDate:           &actualPickupDate,
+		ApprovedDate:               &firstAvailableDeliveryDate,
 	}
+
+	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+		MaxDaysTransitTime: 12,
+		WeightLbsLower:     1000,
+		WeightLbsUpper:     1999,
+		DistanceMilesLower: 251,
+		DistanceMilesUpper: 500,
+	}
+	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
 	suite.T().Run("Etag is stale", func(t *testing.T) {
 		eTag := etag.GenerateEtag(time.Now())
@@ -95,7 +109,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 
 	now := time.Now()
-	primeEstimatedWeight := unit.Pound(4500)
+	primeEstimatedWeight = unit.Pound(4500)
 
 	suite.T().Run("Failed case if not both approved date and estimated weight recorded date is more than ten days prior to scheduled move date", func(t *testing.T) {
 		eightDaysFromNow := now.AddDate(0, 0, 8)
