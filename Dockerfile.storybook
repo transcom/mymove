@@ -7,6 +7,7 @@ RUN mkdir -p /home/circleci/project /home/circleci/project/src /home/circleci/pr
 COPY --chown=circleci:circleci [ \
   "package.json", \
   "yarn.lock", \
+  ".yarnrc", \
   "/home/circleci/project/" \
 ]
 
@@ -15,7 +16,6 @@ RUN cd /home/circleci/project && yarn install
 COPY --chown=circleci:circleci [ \
   ".eslintrc", ".eslintignore", \
   ".prettierrc", ".prettierignore", \
-  ".yarnrc", \
   "config-overrides.js", \
   "jsconfig.json", \
   "wallaby.js", \
