@@ -110,22 +110,18 @@ func main() {
 	}
 	// go run cmd/generate_access_codes/main.go -ppm 2000 -hhg 500
 	for i := 0; i < hhg; i++ {
-		selectedMoveType := models.SelectedMoveTypeHHG
-
 		accessCode := models.AccessCode{
 			Code:     models.GenerateLocator(),
-			MoveType: &selectedMoveType,
+			MoveType: models.SelectedMoveTypeHHG,
 		}
 
 		mustSave(dbConnection, &accessCode)
 	}
 
 	for i := 0; i < ppm; i++ {
-		selectedMoveType := models.SelectedMoveTypePPM
-
 		accessCode := models.AccessCode{
 			Code:     models.GenerateLocator(),
-			MoveType: &selectedMoveType,
+			MoveType: models.SelectedMoveTypePPM,
 		}
 
 		mustSave(dbConnection, &accessCode)

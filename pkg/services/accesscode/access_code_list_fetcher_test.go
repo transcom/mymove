@@ -21,18 +21,16 @@ func defaultOrdering() services.QueryOrder {
 }
 
 func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListNoFilterNoAssociation() {
-	ppmMove := models.SelectedMoveTypePPM
 	code1 := "CODE12"
 	accessCode1 := models.AccessCode{
 		Code:     code1,
-		MoveType: &ppmMove,
+		MoveType: models.SelectedMoveTypePPM,
 	}
 	suite.MustSave(&accessCode1)
-	hhgMove := models.SelectedMoveTypeHHG
 	code2 := "12CODE"
 	accessCode2 := models.AccessCode{
 		Code:     code2,
-		MoveType: &hhgMove,
+		MoveType: models.SelectedMoveTypeHHG,
 	}
 	suite.MustSave(&accessCode2)
 	var queryFilters []services.QueryFilter
@@ -54,18 +52,16 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListNoFilterNoAssociatio
 }
 
 func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithFilter() {
-	ppmMove := models.SelectedMoveTypePPM
 	code1 := "CODE12"
 	accessCode1 := models.AccessCode{
 		Code:     code1,
-		MoveType: &ppmMove,
+		MoveType: models.SelectedMoveTypePPM,
 	}
 	suite.MustSave(&accessCode1)
-	hhgMove := models.SelectedMoveTypeHHG
 	code2 := "12CODE"
 	accessCode2 := models.AccessCode{
 		Code:     code2,
-		MoveType: &hhgMove,
+		MoveType: models.SelectedMoveTypeHHG,
 	}
 	suite.MustSave(&accessCode2)
 	var queryFilters []services.QueryFilter
@@ -91,7 +87,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithAssociation() {
 		ServiceMemberID: &sm.ID,
 		ServiceMember:   sm,
 		Code:            "ABCXYZ",
-		MoveType:        m.SelectedMoveType,
+		MoveType:        *m.SelectedMoveType,
 	}
 	assertions := testdatagen.Assertions{
 		AccessCode: ac,
