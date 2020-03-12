@@ -4,10 +4,17 @@
 .usa-button {
   @include u-bg('primary-vivid');
   &:hover,
-  &:focus {
+  &:focus,
+  .hover &,
+  .focus & {
     @include u-bg('primary-dark');
   }
-  &:active {
+  .focus & {
+    outline: 0.26667rem solid #2491ff;
+    outline-offset: 0.26667rem;
+  }
+  &:active,
+  .active & {
     @include u-bg('primary-darker');
   }
   &--secondary {
@@ -17,13 +24,16 @@
     @include u-border(2px);
     @include u-bg('transparent');
     &:hover,
-    &:focus {
+    &:focus,
+    .hover &,
+    .focus & {
       @include u-border('primary-dark');
       @include u-text('primary-dark');
       @include u-bg('transparent');
       @include u-border(2px);
     }
-    &:active {
+    &:active,
+    .active & {
       @include u-border('primary-darker');
       @include u-text('primary-darker');
       @include u-bg('transparent');

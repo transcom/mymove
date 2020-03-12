@@ -19,7 +19,7 @@ storiesOf('Components/Button', module)
     </div>
   ))
   .add('hover', () => (
-    <div style={{ padding: '20px' }}>
+    <div className="hover" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button secondary={true} onClick={action('clicked')}>
         Button
@@ -27,7 +27,7 @@ storiesOf('Components/Button', module)
     </div>
   ))
   .add('focus', () => (
-    <div style={{ padding: '20px' }}>
+    <div className="focus" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button secondary={true} onClick={action('clicked')}>
         Button
@@ -35,7 +35,7 @@ storiesOf('Components/Button', module)
     </div>
   ))
   .add('active', () => (
-    <div style={{ padding: '20px' }}>
+    <div className="active" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button secondary={true} onClick={action('clicked')}>
         Button
