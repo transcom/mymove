@@ -287,6 +287,24 @@ describe('DocumentDetailDisplay', () => {
       });
       expect(
         documentDisplay
+          .find('[data-cy="title"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.title);
+      expect(
+        documentDisplay
+          .find('[data-cy="move-document-type"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.move_document_type);
+      expect(
+        documentDisplay
           .find('[data-cy="moving-expense-type"]')
           .dive()
           .dive()
@@ -294,6 +312,42 @@ describe('DocumentDetailDisplay', () => {
           .dive()
           .text(),
       ).toEqual(moveDocument.moving_expense_type);
+      expect(
+        documentDisplay
+          .find('[data-cy="requested-amount-cents"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.requested_amount_cents);
+      expect(
+        documentDisplay
+          .find('[data-cy="payment-method"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.payment_method);
+      expect(
+        documentDisplay
+          .find('[data-cy="status"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.status);
+      expect(
+        documentDisplay
+          .find('[data-cy="notes"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.notes);
     });
   });
 });
