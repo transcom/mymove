@@ -105,6 +105,6 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 		}
 	}
 
-	payload := payloads.MTOShipmentWithEtag(shipment)
+	payload := payloads.MTOShipment(shipment)
 	return mtoshipmentops.NewPatchMTOShipmentStatusOK().WithPayload(payload)
 }

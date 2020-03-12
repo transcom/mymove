@@ -183,7 +183,7 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision_Amendment() {
 		HasDependents:     true,
 	}
 
-	models.CreateElectronicOrdersRevision(ctx, suite.DB(), &rev0)
+	verrs, err = models.CreateElectronicOrdersRevision(ctx, suite.DB(), &rev0)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
@@ -204,7 +204,7 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision_Amendment() {
 		HasDependents:     true,
 	}
 
-	models.CreateElectronicOrdersRevision(ctx, suite.DB(), &rev1)
+	verrs, err = models.CreateElectronicOrdersRevision(ctx, suite.DB(), &rev1)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
