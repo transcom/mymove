@@ -5,6 +5,9 @@
   @include u-bg('primary-vivid');
   &:hover,
   &:focus {
+    @include u-bg('primary-dark');
+  }
+  &:active {
     @include u-bg('primary-darker');
   }
   &--secondary {
@@ -19,6 +22,16 @@
       @include u-text('primary-dark');
       @include u-bg('transparent');
       @include u-border(2px);
+    }
+    &:active {
+      @include u-border('primary-darker');
+      @include u-text('primary-darker');
+      @include u-bg('transparent');
+    }
+    &:disabled {
+      @include u-border('base-light');
+      @include u-text('base-light');
+      @include u-bg('transparent');
     }
   } //close &--secondary
 } //close usa-button
