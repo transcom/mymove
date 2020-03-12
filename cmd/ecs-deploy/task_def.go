@@ -500,7 +500,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 
 	errValidateImage := ecrImage.Validate(serviceECR)
 	if errValidateImage != nil {
-		quit(logger, nil, fmt.Errorf("unable to validate image %v", ecrImage))
+		quit(logger, nil, fmt.Errorf("unable to validate image %v: %w", ecrImage, errValidateImage))
 	}
 
 	// Entrypoint
