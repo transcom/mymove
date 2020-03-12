@@ -1,5 +1,3 @@
-*.swp
-
 # direnv
 .envrc.local
 .envrc.chamber
@@ -8,10 +6,6 @@
 /vendor
 /node_modules
 /.vendor-new
-
-/pkg/gen
-/pkg/assets
-**/mocks
 
 # testing
 /coverage
@@ -22,10 +16,10 @@ __snapshots__
 # development
 /mnt
 /tmp
+/log
 
 # Ignore
 /docs/packages.txt
-
 
 #debugging
 /cmd/milmove/debug
@@ -39,6 +33,8 @@ __snapshots__
 .env.production.local
 .idea
 .vscode
+*.swp
+*.sublime-*
 
 # In case somebody accidentally runs npm install instead of using yarn
 package-lock.json
@@ -47,11 +43,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-*.swp
-*.sublime-*
-
-**/migrations/schema.sql
-**/local_migrations/schema.sql
+schema.sql
 
 *.stamp
 
@@ -65,3 +57,12 @@ cypress/results
 
 # SQLEditor
 *.sqs
+
+# Anti-Virus
+*.fp
+*.sfp
+*.ign
+*.ign2
+
+# Certs
+*.srl
