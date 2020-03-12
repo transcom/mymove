@@ -544,8 +544,9 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		// This needs to be fixed in terraform
 		executionRoleArn = fmt.Sprintf("ecs-task-execution-role-%s-%s", serviceNameShort, environmentName)
 		// TODO: The task role is missing an (s) so we can't use service name
-		// This needs to be fixed in terraform
-		taskRoleArn = fmt.Sprintf("ecs-task-role-app-migration-%s", environmentName)
+		// This is `ecs-task-role-app-migration-experimental` vs `ecs-task-role-app-migration(s)-experimental`
+		// This needs to be fixed in terraform and then rolled out
+		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-migration-%s", serviceNameShort, environmentName)
 	} else {
 		awsLogsStreamPrefix = serviceNameShort
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
