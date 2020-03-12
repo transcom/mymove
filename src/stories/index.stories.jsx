@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { linkTo } from '@storybook/addon-links';
 import { Button } from '@trussworks/react-uswds';
 import colors from '../shared/styles/colors.scss';
 
@@ -13,7 +12,7 @@ storiesOf('Components/Button', module)
   .add('default', () => (
     <div style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
-      <Button secondary={true} onClick={action('clicked')}>
+      <Button secondary onClick={action('clicked')}>
         Button
       </Button>
     </div>
@@ -21,7 +20,7 @@ storiesOf('Components/Button', module)
   .add('hover', () => (
     <div className="hover" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
-      <Button secondary={true} onClick={action('clicked')}>
+      <Button secondary onClick={action('clicked')}>
         Button
       </Button>
     </div>
@@ -29,7 +28,7 @@ storiesOf('Components/Button', module)
   .add('focus', () => (
     <div className="focus" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
-      <Button secondary={true} onClick={action('clicked')}>
+      <Button secondary onClick={action('clicked')}>
         Button
       </Button>
     </div>
@@ -37,17 +36,17 @@ storiesOf('Components/Button', module)
   .add('active', () => (
     <div className="active" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
-      <Button secondary={true} onClick={action('clicked')}>
+      <Button secondary onClick={action('clicked')}>
         Button
       </Button>
     </div>
   ))
   .add('disabled', () => (
     <div style={{ padding: '20px' }}>
-      <Button disabled={true} onClick={action('clicked')}>
+      <Button disabled onClick={action('clicked')}>
         Button
       </Button>
-      <Button secondary={true} disabled={true} onClick={action('clicked')}>
+      <Button secondary disabled onClick={action('clicked')}>
         Button
       </Button>
     </div>
