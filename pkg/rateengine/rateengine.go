@@ -263,6 +263,22 @@ func (re *RateEngine) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 st
 	return costDetails, nil
 }
 
+func GetWinningCostMove(costDetails CostDetails) CostComputation {
+	if costDetails["pickupLocation"].IsLowest {
+		return costDetails["pickupLocation"].Cost
+	} else {
+		return costDetails["originDutyStation"].Cost
+	}
+}
+
+func GetNonWinningCostMove(costDetails CostDetails) CostComputation {
+	if costDetails["pickupLocation"].IsLowest {
+		return costDetails["originDutyStation"].Cost
+	} else {
+		return costDetails["pickupLocation"].Cost
+	}
+}
+
 // NewRateEngine creates a new RateEngine
 func NewRateEngine(db *pop.Connection, logger Logger, move models.Move) *RateEngine {
 	return &RateEngine{db: db, logger: logger, move: move}
