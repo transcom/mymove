@@ -3977,14 +3977,16 @@ func init() {
       "type": "string",
       "title": "Dept. indicator",
       "enum": [
+        "NAVY_AND_MARINES",
+        "ARMY",
         "AIR_FORCE",
-        "MARINES",
-        "ARMY"
+        "COAST_GUARD"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 - United States Air Force",
-        "ARMY": "21 - United States Army",
-        "MARINES": "17 - United States Marines"
+        "AIR_FORCE": "57 (Air Force)",
+        "ARMY": "21 (Army)",
+        "COAST_GUARD": "70 (Coast Guard)",
+        "NAVY_AND_MARINES": "17 (Navy and Marine Corps)"
       },
       "x-nullable": true
     },
@@ -10182,14 +10184,16 @@ func init() {
       "type": "string",
       "title": "Dept. indicator",
       "enum": [
+        "NAVY_AND_MARINES",
+        "ARMY",
         "AIR_FORCE",
-        "MARINES",
-        "ARMY"
+        "COAST_GUARD"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 - United States Air Force",
-        "ARMY": "21 - United States Army",
-        "MARINES": "17 - United States Marines"
+        "AIR_FORCE": "57 (Air Force)",
+        "ARMY": "21 (Army)",
+        "COAST_GUARD": "70 (Coast Guard)",
+        "NAVY_AND_MARINES": "17 (Navy and Marine Corps)"
       },
       "x-nullable": true
     },

@@ -227,7 +227,7 @@ function officeUserVerifiesAccounting() {
   cy.get('.combo-button').click();
 
   cy.get('span').contains('6789');
-  cy.get('span').contains('57 - United States Air Force');
+  cy.get('span').contains('57 (Air Force)');
   cy.get('span').contains('N002214CSW32Y9');
 }
 
