@@ -4422,7 +4422,7 @@ func init() {
         },
         "title": {
           "type": "string",
-          "title": "Document Title",
+          "title": "Document title",
           "example": "very_useful_document.pdf"
         },
         "trailer_ownership_missing": {
@@ -4442,7 +4442,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. 'My car')",
+          "title": "Nickname (ex. \"15-foot truck\")",
           "x-nullable": true
         },
         "weight_ticket_date": {
@@ -4475,7 +4475,7 @@ func init() {
     },
     "MoveDocumentType": {
       "type": "string",
-      "title": "Document Type",
+      "title": "Document type",
       "enum": [
         "OTHER",
         "WEIGHT_TICKET",
@@ -10631,7 +10631,7 @@ func init() {
         },
         "title": {
           "type": "string",
-          "title": "Document Title",
+          "title": "Document title",
           "example": "very_useful_document.pdf"
         },
         "trailer_ownership_missing": {
@@ -10651,7 +10651,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. 'My car')",
+          "title": "Nickname (ex. \"15-foot truck\")",
           "x-nullable": true
         },
         "weight_ticket_date": {
@@ -10684,7 +10684,7 @@ func init() {
     },
     "MoveDocumentType": {
       "type": "string",
-      "title": "Document Type",
+      "title": "Document type",
       "enum": [
         "OTHER",
         "WEIGHT_TICKET",
