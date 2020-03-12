@@ -1755,13 +1755,15 @@ definitions:
     x-nullable: true
     title: Dept. indicator
     enum:
-      - AIR_FORCE
-      - MARINES
+      - NAVY_AND_MARINES
       - ARMY
+      - AIR_FORCE
+      - COAST_GUARD
     x-display-value:
-      AIR_FORCE: 57 - United States Air Force
-      MARINES: 17 - United States Marines
-      ARMY: 21 - United States Army
+      NAVY_AND_MARINES: 17 (Navy and Marine Corps)
+      ARMY: 21 (Army)
+      AIR_FORCE: 57 (Air Force)
+      COAST_GUARD: 70 (Coast Guard)
   Address:
     type: object
     properties:
