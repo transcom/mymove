@@ -8,7 +8,7 @@ import colors from '../shared/styles/colors.scss';
 
 const filterGroup = filter => Object.keys(colors).filter(color => color.indexOf(filter) === 0);
 
-storiesOf('Components/Button', module)
+storiesOf('Components|Button', module)
   .add('default', () => (
     <div style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
