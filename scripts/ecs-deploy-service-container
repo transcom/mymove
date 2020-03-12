@@ -26,7 +26,7 @@ readonly environment=$3
 readonly RESERVATION_CPU=512
 readonly RESERVATION_MEM=2048
 
-readonly cluster="${name}-${environment}"
+readonly cluster="app-${environment}"
 
 check_arn() {
     local arn=$1
