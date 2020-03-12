@@ -23,6 +23,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
+		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 	return payload
 }
@@ -179,6 +180,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
 	if mtoShipment.RequestedPickupDate != nil {
@@ -192,20 +194,12 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	return payload
 }
 
-// MTOShipmentWithEtag payload
-func MTOShipmentWithEtag(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipmentWithEtag {
-	return &ghcmessages.MTOShipmentWithEtag{
-		MTOShipment: *MTOShipment(mtoShipment),
-		ETag:        etag.GenerateEtag(mtoShipment.UpdatedAt),
-	}
-}
-
 // MTOShipments payload
 func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
-		payload[i] = MTOShipmentWithEtag(&m)
+		payload[i] = MTOShipment(&m)
 	}
 	return &payload
 }

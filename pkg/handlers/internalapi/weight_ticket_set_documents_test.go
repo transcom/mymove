@@ -96,9 +96,9 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreate() {
 		weightTicketSetType string
 		resultTitle         string
 	}{
-		{weightTicketSetType: "CAR", resultTitle: "weight_ticket_set"},
-		{weightTicketSetType: "CAR_TRAILER", resultTitle: "weight_ticket_set"},
-		{weightTicketSetType: "BOX_TRUCK", resultTitle: "weight_ticket_set"},
+		{weightTicketSetType: "CAR", resultTitle: "vehicle_weight"},
+		{weightTicketSetType: "CAR_TRAILER", resultTitle: "vehicle_weight"},
+		{weightTicketSetType: "BOX_TRUCK", resultTitle: "vehicle_weight"},
 		{weightTicketSetType: "PRO_GEAR", resultTitle: "pro_gear_weight"},
 	}
 

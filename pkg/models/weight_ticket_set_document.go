@@ -109,8 +109,8 @@ func (m Move) CreateWeightTicketSetDocument(
 	weightTicketSetDocument *WeightTicketSetDocument,
 	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
 
-	weightTicketSetTitle := "weight_ticket_set"
-	if weightTicketSetDocument.WeightTicketSetType == "PRO_GEAR" {
+	weightTicketSetTitle := "vehicle_weight"
+	if weightTicketSetDocument.WeightTicketSetType == WeightTicketSetTypePROGEAR {
 		weightTicketSetTitle = "pro_gear_weight"
 	}
 
