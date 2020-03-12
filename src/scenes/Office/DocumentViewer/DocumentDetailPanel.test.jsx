@@ -350,4 +350,110 @@ describe('DocumentDetailDisplay', () => {
       ).toEqual(moveDocument.notes);
     });
   });
+  describe('storage expense document display view', () => {
+    const requiredMoveDocumentFields = {
+      id: 'id',
+      move_id: 'id',
+      move_document_type: MOVE_DOC_TYPE.EXPENSE,
+      document: {
+        id: 'an id',
+        move_document_id: 'another id',
+        service_member_id: 'another id2',
+        uploads: [
+          {
+            id: 'id',
+            url: 'url',
+            filename: 'file here',
+            content_type: 'json',
+            created_at: '2018-09-27 08:14:38.702434',
+          },
+        ],
+      },
+    };
+    it('has all expected fields', () => {
+      const moveDocument = Object.assign(requiredMoveDocumentFields, {
+        title: 'My Title',
+        move_document_type: 'STORAGE_EXPENSE',
+        storage_start_date: '2018-09-27 08:14:38.702434',
+        storage_end_date: '2018-10-25 08:14:38.702434',
+        notes: 'This is a note',
+        status: 'AWAITING_REVIEW',
+      });
+
+      const moveDocSchema = {
+        properties: {
+          title: { enum: false },
+          move_document_type: { enum: false },
+          storage_start_date: { enum: false },
+          storage_end_date: { enum: false },
+          status: { enum: false },
+          notes: { enum: false },
+        },
+        required: [],
+        type: 'string type',
+      };
+
+      const documentDisplay = renderDocumentDetailDisplay({
+        isExpenseDocument: false,
+        isWeightTicketDocument: false,
+        isStorageExpenseDocument: true,
+        moveDocument,
+        moveDocSchema,
+      });
+      expect(
+        documentDisplay
+          .find('[data-cy="title"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.title);
+      expect(
+        documentDisplay
+          .find('[data-cy="move-document-type"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.move_document_type);
+      expect(
+        documentDisplay
+          .find('[data-cy="storage-start-date"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.storage_start_date);
+      expect(
+        documentDisplay
+          .find('[data-cy="storage-end-date"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.storage_end_date);
+      expect(
+        documentDisplay
+          .find('[data-cy="status"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.status);
+      expect(
+        documentDisplay
+          .find('[data-cy="notes"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.notes);
+    });
+  });
 });
