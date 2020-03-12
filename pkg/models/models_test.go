@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"log"
 	"reflect"
 	"sort"
 	"testing"
@@ -16,7 +17,10 @@ type ModelSuite struct {
 }
 
 func (suite *ModelSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	errTruncateAll := suite.DB().TruncateAll()
+	if errTruncateAll != nil {
+		log.Panicf("failed to truncate database: %#v", errTruncateAll)
+	}
 }
 
 func (suite *ModelSuite) verifyValidationErrors(model models.ValidateableModel, exp map[string][]string) {

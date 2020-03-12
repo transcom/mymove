@@ -28,7 +28,7 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Success() {
 	code := "TEST0"
 	accessCode := models.AccessCode{
 		Code:            code,
-		MoveType:        &selectedMoveType,
+		MoveType:        selectedMoveType,
 		ServiceMemberID: &serviceMember.ID,
 	}
 
@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 	code := "TEST1"
 	accessCode := models.AccessCode{
 		Code:     code,
-		MoveType: &selectedMoveType,
+		MoveType: selectedMoveType,
 	}
 	fullCode := fmt.Sprintf("%s-%s", selectedMoveType, code)
 	// makes request
@@ -108,7 +108,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 	claimedTime := time.Now()
 	invalidAccessCode := models.AccessCode{
 		Code:            code,
-		MoveType:        &selectedMoveType,
+		MoveType:        selectedMoveType,
 		ServiceMemberID: &smID,
 		ClaimedAt:       &claimedTime,
 	}
@@ -166,7 +166,7 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 
 	claimedAccessCode := models.AccessCode{
 		Code:            code,
-		MoveType:        &selectedMoveType,
+		MoveType:        selectedMoveType,
 		ClaimedAt:       &claimedAt,
 		ServiceMemberID: &serviceMember.ID,
 	}

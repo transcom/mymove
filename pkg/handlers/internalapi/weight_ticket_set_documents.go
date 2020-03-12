@@ -133,7 +133,7 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 	if (string(*payload.WeightTicketSetType) == string(models.WeightTicketSetTypeBOXTRUCK)) ||
 		(string(*payload.WeightTicketSetType) == string(models.WeightTicketSetTypePROGEAR)) {
 		if payload.VehicleNickname == nil {
-			wtTypeErr := fmt.Errorf("weight ticket set for type %s must have values for vehicle make and model", string(*payload.WeightTicketSetType))
+			wtTypeErr := fmt.Errorf("weight ticket set for type %s must have value for vehicle nickname", string(*payload.WeightTicketSetType))
 			return handlers.ResponseForCustomErrors(logger, wtTypeErr, 422)
 		}
 	}
