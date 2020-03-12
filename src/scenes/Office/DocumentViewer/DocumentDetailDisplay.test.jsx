@@ -1,5 +1,5 @@
 import { shallow } from 'enzyme';
-import { DocumentDetailDisplay } from './DocumentDetailPanel';
+import DocumentDetailDisplay from './DocumentDetailDisplay';
 import React from 'react';
 import { MOVE_DOC_TYPE, WEIGHT_TICKET_SET_TYPE } from '../../../shared/constants';
 
