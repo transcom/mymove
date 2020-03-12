@@ -3,6 +3,8 @@
 
 .usa-button {
   @include u-bg('primary-vivid');
+  @include u-padding-x('3');
+  @include u-padding-y('105');
   &:hover,
   &:focus,
   .hover &,
@@ -44,4 +46,8 @@
       @include u-bg('transparent');
     }
   } //close &--secondary
+  &--icon {
+  }
+  &--small {
+  }
 } //close usa-button

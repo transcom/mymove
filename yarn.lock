@@ -2896,16 +2896,6 @@
     "@babel/runtime" "^7.5.5"
     "@testing-library/dom" "^5.6.1"
 
-"@trussworks/react-uswds@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-1.0.0.tgz#1eb61657a4b79ceab68b0abc63105a59296d111a"
-  integrity sha512-tBxbUzIEU4dzNZojKZFuoSj5Tb84OgHeImX/cAhe1dstkmXxvSQdkZRXE+RGQqp4o9VjN0BjNpDiKywsLb8b9w==
-  dependencies:
-    classnames "^2.2.6"
-    react "^16.10.0"
-    react-dom "^16.10.0"
-    uswds "^2.2.1"
-
 "@trussworks/react-uswds@https://github.com/trussworks/react-uswds.git#gdjn_support_customClassName_for_button":
   version "1.0.0"
   resolved "https://github.com/trussworks/react-uswds.git#047a22ac765c29de40d9c6b8fd6c9e0fe5758ccd"
