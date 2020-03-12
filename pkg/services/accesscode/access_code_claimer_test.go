@@ -8,12 +8,10 @@ import (
 func (suite *AccessCodeServiceSuite) TestClaimAccessCode_Success() {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	selectedMoveType := models.SelectedMoveTypePPM
-
 	code := "CODE12"
 	accessCode := models.AccessCode{
 		Code:     code,
-		MoveType: &selectedMoveType,
+		MoveType: models.SelectedMoveTypePPM,
 	}
 
 	suite.MustSave(&accessCode)
@@ -29,12 +27,10 @@ func (suite *AccessCodeServiceSuite) TestClaimAccessCode_Success() {
 func (suite *AccessCodeServiceSuite) TestClaimAccessCode_Failed() {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	selectedMoveType := models.SelectedMoveTypePPM
-
 	code := "CODE12"
 	accessCode := models.AccessCode{
 		Code:     code,
-		MoveType: &selectedMoveType,
+		MoveType: models.SelectedMoveTypePPM,
 	}
 
 	suite.MustSave(&accessCode)
