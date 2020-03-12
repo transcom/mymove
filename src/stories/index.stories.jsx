@@ -13,26 +13,41 @@ storiesOf('Components/Button', module)
   .add('default', () => (
     <div style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
+      <Button secondary={true} onClick={action('clicked')}>
+        Button
+      </Button>
     </div>
   ))
   .add('hover', () => (
     <div style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
+      <Button secondary={true} onClick={action('clicked')}>
+        Button
+      </Button>
     </div>
   ))
   .add('focus', () => (
     <div style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
+      <Button secondary={true} onClick={action('clicked')}>
+        Button
+      </Button>
     </div>
   ))
   .add('active', () => (
     <div style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
+      <Button secondary={true} onClick={action('clicked')}>
+        Button
+      </Button>
     </div>
   ))
   .add('disabled', () => (
     <div style={{ padding: '20px' }}>
       <Button disabled={true} onClick={action('clicked')}>
+        Button
+      </Button>
+      <Button secondary={true} disabled={true} onClick={action('clicked')}>
         Button
       </Button>
     </div>
