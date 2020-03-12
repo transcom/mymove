@@ -55,17 +55,22 @@ export const DocumentDetailDisplay = ({
           {...moveDocFieldProps}
         />
         {isExpenseDocument && moveDocument.moving_expense_type && (
-          <PanelSwaggerField fieldName="moving_expense_type" {...moveDocFieldProps} />
+          <PanelSwaggerField data-cy="moving-expense-type" fieldName="moving_expense_type" {...moveDocFieldProps} />
         )}
         {isExpenseDocument && get(moveDocument, 'requested_amount_cents') && (
-          <PanelSwaggerField fieldName="requested_amount_cents" {...moveDocFieldProps} />
+          <PanelSwaggerField
+            data-cy="requested-amount-cents"
+            fieldName="requested_amount_cents"
+            {...moveDocFieldProps}
+          />
         )}
         {isExpenseDocument && get(moveDocument, 'payment_method') && (
-          <PanelSwaggerField fieldName="payment_method" {...moveDocFieldProps} />
+          <PanelSwaggerField data-cy="payment-method" fieldName="payment_method" {...moveDocFieldProps} />
         )}
         {isWeightTicketDocument && (
           <>
             <PanelSwaggerField
+              data-cy="weight-ticket-set-type"
               title="Weight ticket set type"
               fieldName="weight_ticket_set_type"
               required
@@ -74,6 +79,7 @@ export const DocumentDetailDisplay = ({
 
             {isWeightTicketTypeBoxTruck && (
               <PanelSwaggerField
+                data-cy="vehicle-nickname"
                 title="Vehicle nickname"
                 fieldName="vehicle_nickname"
                 required
@@ -101,17 +107,47 @@ export const DocumentDetailDisplay = ({
                 />
               </>
             )}
-            <PanelSwaggerField title="Empty weight" fieldName="empty_weight" required {...moveDocFieldProps} />
-            <PanelSwaggerField title="Full weight" fieldName="full_weight" required {...moveDocFieldProps} />
+            <PanelSwaggerField
+              data-cy="empty-weight"
+              title="Empty weight"
+              fieldName="empty_weight"
+              required
+              {...moveDocFieldProps}
+            />
+            <PanelSwaggerField
+              data-cy="full-weight"
+              title="Full weight"
+              fieldName="full_weight"
+              required
+              {...moveDocFieldProps}
+            />
           </>
         )}
         {isStorageExpenseDocument && (
           <>
-            <PanelSwaggerField title="Start date" fieldName="storage_start_date" required {...moveDocFieldProps} />
-            <PanelSwaggerField title="End date" fieldName="storage_end_date" required {...moveDocFieldProps} />
+            <PanelSwaggerField
+              data-cy="storage-start-date"
+              title="Start date"
+              fieldName="storage_start_date"
+              required
+              {...moveDocFieldProps}
+            />
+            <PanelSwaggerField
+              data-cy="storage-end-date"
+              title="End date"
+              fieldName="storage_end_date"
+              required
+              {...moveDocFieldProps}
+            />
           </>
         )}
-        <PanelSwaggerField title="Document status" fieldName="status" required {...moveDocFieldProps} />
+        <PanelSwaggerField
+          data-cy="status"
+          title="Document status"
+          fieldName="status"
+          required
+          {...moveDocFieldProps}
+        />
         <PanelSwaggerField data-cy="notes" title="Notes" fieldName="notes" {...moveDocFieldProps} />
       </div>
     </Fragment>
@@ -212,8 +248,8 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
               <SwaggerField title="End date" fieldName="storage_end_date" required swagger={moveDocSchema} />
             </>
           )}
-          <SwaggerField fieldName="status" swagger={moveDocSchema} required />
-          <SwaggerField fieldName="notes" swagger={moveDocSchema} />
+          <SwaggerField data-cy="status" fieldName="status" swagger={moveDocSchema} required />
+          <SwaggerField data-cy="notes" fieldName="notes" swagger={moveDocSchema} />
         </FormSection>
       </div>
     </Fragment>

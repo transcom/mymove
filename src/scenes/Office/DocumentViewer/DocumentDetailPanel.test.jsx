@@ -1,18 +1,14 @@
 import { shallow } from 'enzyme';
 import { DocumentDetailDisplay } from './DocumentDetailPanel';
 import React from 'react';
-import { WEIGHT_TICKET_SET_TYPE } from '../../../shared/constants';
+import { MOVE_DOC_TYPE, WEIGHT_TICKET_SET_TYPE } from '../../../shared/constants';
 
 describe('DocumentDetailDisplay', () => {
   const renderDocumentDetailDisplay = ({
-    isExpenseDocument = true,
+    isExpenseDocument = false,
     isWeightTicketDocument = true,
     moveDocument = {},
-    moveDocSchema = {
-      properties: { title: { enum: false }, move_document_type: false },
-      required: [],
-      type: 'string type',
-    },
+    moveDocSchema = {},
     isStorageExpenseDocument = false,
   }) =>
     shallow(
@@ -26,34 +22,47 @@ describe('DocumentDetailDisplay', () => {
     );
 
   describe('weight ticket document display view', () => {
+    const requiredMoveDocumentFields = {
+      id: 'id',
+      move_id: 'id',
+      move_document_type: MOVE_DOC_TYPE.WEIGHT_TICKET_SET,
+      document: {
+        id: 'an id',
+        move_document_id: 'another id',
+        service_member_id: 'another id2',
+        uploads: [
+          {
+            id: 'id',
+            url: 'url',
+            filename: 'file here',
+            content_type: 'json',
+            created_at: '2018-09-27 08:14:38.702434',
+          },
+        ],
+      },
+    };
     it('includes common document info', () => {
-      const moveDocument = {
-        id: 'id',
-        move_id: 'id',
+      const moveDocument = Object.assign(requiredMoveDocumentFields, {
         title: 'My Title',
-        move_document_type: 'WEIGHT_TICKET_SET',
         notes: 'This is a note',
         status: 'AWAITING_REVIEW',
-        document: {
-          id: 'an id',
-          move_document_id: 'another id',
-          service_member_id: 'another id2',
-          uploads: [
-            {
-              id: 'id',
-              url: 'url',
-              filename: 'file here',
-              content_type: 'json',
-              created_at: '2018-09-27 08:14:38.702434',
-            },
-          ],
+      });
+
+      const moveDocSchema = {
+        properties: {
+          title: { enum: false },
+          move_document_type: { enum: false },
+          status: { enum: false },
+          notes: { enum: false },
         },
+        required: [],
+        type: 'string type',
       };
 
-      const documentDisplay = renderDocumentDetailDisplay({ moveDocument });
+      const documentDisplay = renderDocumentDetailDisplay({ moveDocument, moveDocSchema });
       console.log(
         documentDisplay
-          .find('[data-cy="title"]')
+          .find('[data-cy="move-document-type"]')
           .dive()
           .dive()
           .debug(),
@@ -78,41 +87,213 @@ describe('DocumentDetailDisplay', () => {
           .dive()
           .text(),
       ).toEqual(moveDocument.move_document_type);
-      expect(documentDisplay.find('[data-cy="status"]').text()).toEqual(moveDocument.notes);
-      expect(documentDisplay.find('[data-cy="notes"]').text()).toEqual(moveDocument.notes);
+      expect(
+        documentDisplay
+          .find('[data-cy="status"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.status);
+      expect(
+        documentDisplay
+          .find('[data-cy="notes"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.notes);
     });
+
     it('includes weight ticket-specific fields', () => {
-      const moveDocument = {
-        emptyWeight: 2200,
-        fullWeight: 3500,
+      const documentFieldsToTest = {
+        empty_weight: '2200',
+        full_weight: '3500',
       };
-      const documentDisplay = renderDocumentDetailDisplay({ moveDocument });
-      expect(documentDisplay.find('[data-cy="empty-weight"]').text()).toEqual(moveDocument.emptyWeight);
-      expect(documentDisplay.find('[data-cy="full-weight"]').text()).toEqual(moveDocument.fullWeight);
+
+      const moveDocSchema = {
+        properties: {
+          empty_weight: { enum: false },
+          full_weight: { enum: false },
+        },
+        required: [],
+        type: 'string type',
+      };
+
+      const moveDocument = Object.assign(requiredMoveDocumentFields, documentFieldsToTest);
+      const documentDisplay = renderDocumentDetailDisplay({ moveDocument, moveDocSchema });
+
+      expect(
+        documentDisplay
+          .find('[data-cy="empty-weight"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.empty_weight);
+      expect(
+        documentDisplay
+          .find('[data-cy="full-weight"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.full_weight);
     });
 
     describe('is car or car and trailer', () => {
       it('includes the make and model fields ', () => {
-        const moveDocument = {
-          vehicleMake: 'Honda',
-          vehicleModel: 'Civic',
-          weightTicketSetType: WEIGHT_TICKET_SET_TYPE.CAR,
+        const documentFieldsToTest = {
+          vehicle_make: 'Honda',
+          vehicle_model: 'Civic',
+          weight_ticket_set_type: WEIGHT_TICKET_SET_TYPE.CAR,
         };
-        const documentDisplay = renderDocumentDetailDisplay({ moveDocument });
-        expect(documentDisplay.find('[data-cy="vehicle-make"]').text()).toEqual(moveDocument.vehicleMake);
-        expect(documentDisplay.find('[data-cy="vehicle-model"]').text()).toEqual(moveDocument.vehicleModel);
+
+        const moveDocSchema = {
+          properties: {
+            weight_ticket_set_type: { enum: false },
+            vehicle_make: { enum: false },
+            vehicle_model: { enum: false },
+          },
+          required: [],
+          type: 'string type',
+        };
+
+        const moveDocument = Object.assign(requiredMoveDocumentFields, documentFieldsToTest);
+        const documentDisplay = renderDocumentDetailDisplay({ moveDocument, moveDocSchema });
+        expect(
+          documentDisplay
+            .find('[data-cy="weight-ticket-set-type"]')
+            .dive()
+            .dive()
+            .find('SwaggerValue')
+            .dive()
+            .text(),
+        ).toEqual(moveDocument.weight_ticket_set_type);
+        expect(
+          documentDisplay
+            .find('[data-cy="vehicle-make"]')
+            .dive()
+            .dive()
+            .find('SwaggerValue')
+            .dive()
+            .text(),
+        ).toEqual(moveDocument.vehicle_make);
+        expect(
+          documentDisplay
+            .find('[data-cy="vehicle-model"]')
+            .dive()
+            .dive()
+            .find('SwaggerValue')
+            .dive()
+            .text(),
+        ).toEqual(moveDocument.vehicle_model);
       });
     });
 
     describe('a box truck type weight ticket', () => {
       it('includes vehicle nickname', () => {
-        const moveDocument = {
-          vehicleNickname: 'Civic',
-          weightTicketSetType: WEIGHT_TICKET_SET_TYPE.BOX_TRUCK,
+        const documentFieldsToTest = {
+          vehicle_nickname: '15 foot box truck',
+          weight_ticket_set_type: WEIGHT_TICKET_SET_TYPE.BOX_TRUCK,
         };
-        const documentDisplay = renderDocumentDetailDisplay({ moveDocument });
-        expect(documentDisplay.find('[data-cy="vehicle-nickname"]').text()).toEqual(moveDocument.vehicleNickname);
+
+        const moveDocSchema = {
+          properties: {
+            weight_ticket_set_type: { enum: false },
+            vehicle_nickname: { enum: false },
+          },
+          required: [],
+          type: 'string type',
+        };
+
+        const moveDocument = Object.assign(requiredMoveDocumentFields, documentFieldsToTest);
+        const documentDisplay = renderDocumentDetailDisplay({ moveDocument, moveDocSchema });
+        expect(
+          documentDisplay
+            .find('[data-cy="weight-ticket-set-type"]')
+            .dive()
+            .dive()
+            .find('SwaggerValue')
+            .dive()
+            .text(),
+        ).toEqual(moveDocument.weight_ticket_set_type);
+        expect(
+          documentDisplay
+            .find('[data-cy="vehicle-nickname"]')
+            .dive()
+            .dive()
+            .find('SwaggerValue')
+            .dive()
+            .text(),
+        ).toEqual(moveDocument.vehicle_nickname);
       });
+    });
+  });
+  describe('expense document display view', () => {
+    const requiredMoveDocumentFields = {
+      id: 'id',
+      move_id: 'id',
+      move_document_type: MOVE_DOC_TYPE.EXPENSE,
+      document: {
+        id: 'an id',
+        move_document_id: 'another id',
+        service_member_id: 'another id2',
+        uploads: [
+          {
+            id: 'id',
+            url: 'url',
+            filename: 'file here',
+            content_type: 'json',
+            created_at: '2018-09-27 08:14:38.702434',
+          },
+        ],
+      },
+    };
+    it('has all expected fields', () => {
+      const moveDocument = Object.assign(requiredMoveDocumentFields, {
+        title: 'My Title',
+        move_document_type: MOVE_DOC_TYPE.EXPENSE,
+        moving_expense_type: 'RENTAL_EQUIPMENT',
+        requested_amount_cents: '45000',
+        payment_method: 'GCCC',
+        notes: 'This is a note',
+        status: 'AWAITING_REVIEW',
+      });
+
+      const moveDocSchema = {
+        properties: {
+          title: { enum: false },
+          move_document_type: { enum: false },
+          moving_expense_type: { enum: false },
+          requested_amount_cents: { enum: false },
+          payment_method: { enum: false },
+          status: { enum: false },
+          notes: { enum: false },
+        },
+        required: [],
+        type: 'string type',
+      };
+
+      const documentDisplay = renderDocumentDetailDisplay({
+        isExpenseDocument: true,
+        isWeightTicketDocument: false,
+        moveDocument,
+        moveDocSchema,
+      });
+      expect(
+        documentDisplay
+          .find('[data-cy="moving-expense-type"]')
+          .dive()
+          .dive()
+          .find('SwaggerValue')
+          .dive()
+          .text(),
+      ).toEqual(moveDocument.moving_expense_type);
     });
   });
 });
