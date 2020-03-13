@@ -3,16 +3,15 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
 
-	"github.com/spf13/pflag"
-
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	mtoShipment "github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
@@ -62,22 +61,29 @@ func checkUpdateMTOShipmentConfig(v *viper.Viper, args []string, logger *log.Log
 func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
-	//Create the logger
-	//Remove the prefix and any datetime data
+	//  Create the logger
+	//  Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	primeGateway, cacStore, err := CreateClient(cmd, v, args)
-	if err != nil {
-		return err
+	errParseFlags := ParseFlags(cmd, v, args)
+	if errParseFlags != nil {
+		return errParseFlags
 	}
 
-	if cacStore != nil {
-		defer cacStore.Close()
-	}
-
-	err = checkUpdateMTOShipmentConfig(v, args, logger)
+	// Check the config before talking to the CAC
+	err := checkUpdateMTOShipmentConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal(err)
+	}
+
+	primeGateway, cacStore, errCreateClient := CreateClient(v)
+	if errCreateClient != nil {
+		return errCreateClient
+	}
+
+	// Defer closing the store until after the API call has completed
+	if cacStore != nil {
+		defer cacStore.Close()
 	}
 
 	// Decode json from file that was passed into MTOShipment
@@ -99,7 +105,7 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	var shipment primemessages.MTOShipment
 	err = jsonDecoder.Decode(&shipment)
 	if err != nil {
-		return errors.Wrap(err, "decoding data failed")
+		return fmt.Errorf("decoding data failed: %w", err)
 	}
 
 	params := mtoShipment.UpdateMTOShipmentParams{

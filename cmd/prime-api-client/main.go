@@ -71,6 +71,7 @@ func main() {
 		RunE:         fetchMTOs,
 		SilenceUsage: true,
 	}
+	initFetchMTOsFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
 
 	updateMTOShipmentCommand := &cobra.Command{
