@@ -7,7 +7,7 @@
     "@trussworks/react-uswds": "^1.0.0",
     "bytes": "^3.0.0",
     "classnames": "^2.2.5",
-    "connected-react-router": "^6.6.1",
+    "connected-react-router": "^6.7.0",
     "core-js": "^3.6.4",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
