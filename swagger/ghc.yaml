@@ -304,6 +304,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
         '500':
           description: A server error occurred
           schema:
@@ -667,6 +671,10 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/MTOServiceItem'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
           description: Successfully updated move task order status
@@ -688,6 +696,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
         '500':
           description: A server error occurred
           schema:
@@ -724,7 +736,11 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MTOServiceItemstatus'
+            $ref: '#/definitions/MTOServiceItem'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
           description: >-
@@ -748,6 +764,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition Failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
         '500':
           description: A server error occurred
           schema:
@@ -760,7 +780,7 @@ paths:
         - transportation_ordering_officer
         - contracting_officer
         - ppm_office_users
-      operationId: updateMTOServiceItemstatus
+      operationId: updateMTOServiceItemStatus
       summary: Change the status of a line item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/status':
     patch:
@@ -945,6 +965,10 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/UpdatePaymentRequestPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
           description: updated payment request
@@ -966,6 +990,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
         '500':
           description: A server error occurred
           schema:
@@ -998,6 +1026,10 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/UpdatePaymentRequestStatusPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
           description: updated payment request
@@ -1019,6 +1051,14 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition Failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
@@ -1504,6 +1544,8 @@ definitions:
         example: 1234-5678-1
         readOnly: true
         type: string
+      eTag:
+        type: string
     type: object
   PaymentRequests:
     items:
@@ -1672,6 +1714,8 @@ definitions:
       updatedAt:
         format: datetime
         type: string
+      eTag:
+        type: string
     required:
       - id
       - moveTaskOrderID
@@ -1705,6 +1749,8 @@ definitions:
           format: uuid
           type: string
         type: array
+      eTag:
+        type: string
     type: object
   UpdatePaymentRequestStatusPayload:
     properties:
@@ -1714,6 +1760,8 @@ definitions:
         x-nullable: true
       status:
         $ref: '#/definitions/PaymentRequestStatus'
+      eTag:
+        type: string
     type: object
   Upload:
     properties:

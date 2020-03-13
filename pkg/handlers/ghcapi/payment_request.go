@@ -5,9 +5,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services/audit"
-
-	"github.com/pkg/errors"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -21,17 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
-
-func payloadForPaymentRequestModel(pr models.PaymentRequest) *ghcmessages.PaymentRequest {
-	return &ghcmessages.PaymentRequest{
-		ID:                   *handlers.FmtUUID(pr.ID),
-		IsFinal:              &pr.IsFinal,
-		MoveTaskOrderID:      *handlers.FmtUUID(pr.MoveTaskOrderID),
-		PaymentRequestNumber: pr.PaymentRequestNumber,
-		RejectionReason:      pr.RejectionReason,
-		Status:               ghcmessages.PaymentRequestStatus(pr.Status),
-	}
-}
 
 // ListPaymentRequestsHandler lists payments requests
 type ListPaymentRequestsHandler struct {
@@ -52,7 +40,7 @@ func (h ListPaymentRequestsHandler) Handle(params paymentrequestop.ListPaymentRe
 
 	paymentRequestsList := make(ghcmessages.PaymentRequests, len(*paymentRequests))
 	for i, paymentRequest := range *paymentRequests {
-		paymentRequestsList[i] = payloadForPaymentRequestModel(paymentRequest)
+		paymentRequestsList[i] = payloads.PaymentRequest(&paymentRequest)
 	}
 
 	return paymentrequestop.NewListPaymentRequestsOK().WithPayload(paymentRequestsList)
@@ -88,7 +76,7 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
-	returnPayload := payloadForPaymentRequestModel(paymentRequest)
+	returnPayload := payloads.PaymentRequest(&paymentRequest)
 	response := paymentrequestop.NewGetPaymentRequestOK().WithPayload(returnPayload)
 
 	return response
@@ -164,17 +152,19 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	paymentRequestForUpdate := models.PaymentRequest{
-		ID:              existingPaymentRequest.ID,
-		MoveTaskOrder:   existingPaymentRequest.MoveTaskOrder,
-		MoveTaskOrderID: existingPaymentRequest.MoveTaskOrderID,
-		IsFinal:         existingPaymentRequest.IsFinal,
-		Status:          status,
-		RejectionReason: rejectionReason,
-		RequestedAt:     existingPaymentRequest.RequestedAt,
-		ReviewedAt:      &reviewedDate,
-		SentToGexAt:     &sentGexDate,
-		ReceivedByGexAt: &recGexDate,
-		PaidAt:          &paidAtDate,
+		ID:                   existingPaymentRequest.ID,
+		MoveTaskOrder:        existingPaymentRequest.MoveTaskOrder,
+		MoveTaskOrderID:      existingPaymentRequest.MoveTaskOrderID,
+		IsFinal:              existingPaymentRequest.IsFinal,
+		Status:               status,
+		RejectionReason:      rejectionReason,
+		RequestedAt:          existingPaymentRequest.RequestedAt,
+		ReviewedAt:           &reviewedDate,
+		SentToGexAt:          &sentGexDate,
+		ReceivedByGexAt:      &recGexDate,
+		PaidAt:               &paidAtDate,
+		PaymentRequestNumber: existingPaymentRequest.PaymentRequestNumber,
+		SequenceNumber:       existingPaymentRequest.SequenceNumber,
 	}
 
 	// Capture update attempt in audit log
@@ -185,20 +175,21 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
-	verrs, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate)
+	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate, params.IfMatch)
+
 	if err != nil {
-		if errors.Cause(err).Error() == "sql: no rows in result set" {
+		switch err.(type) {
+		case services.NotFoundError:
 			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a payment request ", h.GetTraceID())
 			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed()
+		default:
+			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
+			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
 		}
-		logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s", paymentRequestID))
-		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
-	}
-	if verrs != nil {
-		logger.Error(fmt.Sprintf("Validation error saving payment request status for ID: %s", paymentRequestID))
-		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
 	}
 
-	returnPayload := payloadForPaymentRequestModel(paymentRequestForUpdate)
+	returnPayload := payloads.PaymentRequest(updatedPaymentRequest)
 	return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload)
 }

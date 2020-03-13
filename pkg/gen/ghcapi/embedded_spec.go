@@ -453,6 +453,12 @@ func init() {
               "$ref": "#/responses/NotFound"
             }
           },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -669,6 +675,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/MTOServiceItem"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -700,6 +712,12 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
             }
           },
           "500": {
@@ -746,15 +764,21 @@ func init() {
           "mtoServiceItem"
         ],
         "summary": "Change the status of a line item for a move order by ID",
-        "operationId": "updateMTOServiceItemstatus",
+        "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOServiceItemstatus"
+              "$ref": "#/definitions/MTOServiceItem"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -786,6 +810,12 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
             }
           },
           "500": {
@@ -1372,6 +1402,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/UpdatePaymentRequestPayload"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -1403,6 +1439,12 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
             }
           },
           "500": {
@@ -1461,6 +1503,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -1492,6 +1540,18 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -1915,6 +1975,9 @@ func init() {
         "description": {
           "type": "string"
         },
+        "eTag": {
+          "type": "string"
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -2276,6 +2339,9 @@ func init() {
         "documentPackage": {
           "$ref": "#/definitions/ProofOfServicePackage"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2350,6 +2416,9 @@ func init() {
     "UpdatePaymentRequestPayload": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "proofOfServicePackage": {
           "$ref": "#/definitions/ProofOfServicePackage"
         },
@@ -2366,6 +2435,9 @@ func init() {
     "UpdatePaymentRequestStatusPayload": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -3020,6 +3092,15 @@ func init() {
               }
             }
           },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -3284,6 +3365,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/MTOServiceItem"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -3324,6 +3411,15 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "description": "Precondition failed",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -3376,15 +3472,21 @@ func init() {
           "mtoServiceItem"
         ],
         "summary": "Change the status of a line item for a move order by ID",
-        "operationId": "updateMTOServiceItemstatus",
+        "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOServiceItemstatus"
+              "$ref": "#/definitions/MTOServiceItem"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -3425,6 +3527,15 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "description": "Precondition failed",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -4083,6 +4194,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/UpdatePaymentRequestPayload"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -4123,6 +4240,15 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "description": "Precondition failed",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -4187,6 +4313,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -4230,6 +4362,21 @@ func init() {
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -4656,6 +4803,9 @@ func init() {
         "description": {
           "type": "string"
         },
+        "eTag": {
+          "type": "string"
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -5017,6 +5167,9 @@ func init() {
         "documentPackage": {
           "$ref": "#/definitions/ProofOfServicePackage"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -5091,6 +5244,9 @@ func init() {
     "UpdatePaymentRequestPayload": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "proofOfServicePackage": {
           "$ref": "#/definitions/ProofOfServicePackage"
         },
@@ -5107,6 +5263,9 @@ func init() {
     "UpdatePaymentRequestStatusPayload": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,

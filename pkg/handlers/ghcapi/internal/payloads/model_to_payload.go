@@ -228,3 +228,16 @@ func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 	}
 	return &payload
 }
+
+// PaymentRequest payload
+func PaymentRequest(pr *models.PaymentRequest) *ghcmessages.PaymentRequest {
+	return &ghcmessages.PaymentRequest{
+		ID:                   *handlers.FmtUUID(pr.ID),
+		IsFinal:              &pr.IsFinal,
+		MoveTaskOrderID:      *handlers.FmtUUID(pr.MoveTaskOrderID),
+		PaymentRequestNumber: pr.PaymentRequestNumber,
+		RejectionReason:      pr.RejectionReason,
+		Status:               ghcmessages.PaymentRequestStatus(pr.Status),
+		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
+	}
+}

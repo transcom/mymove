@@ -37,6 +37,11 @@ type UpdatePaymentRequestStatusParams struct {
 
 	/*
 	  Required: true
+	  In: header
+	*/
+	IfMatch string
+	/*
+	  Required: true
 	  In: body
 	*/
 	Body *ghcmessages.UpdatePaymentRequestStatusPayload
@@ -55,6 +60,10 @@ func (o *UpdatePaymentRequestStatusParams) BindRequest(r *http.Request, route *m
 	var res []error
 
 	o.HTTPRequest = r
+
+	if err := o.bindIfMatch(r.Header[http.CanonicalHeaderKey("If-Match")], true, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
@@ -86,6 +95,27 @@ func (o *UpdatePaymentRequestStatusParams) BindRequest(r *http.Request, route *m
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindIfMatch binds and validates parameter IfMatch from header.
+func (o *UpdatePaymentRequestStatusParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("If-Match", "header")
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+
+	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
+		return err
+	}
+
+	o.IfMatch = raw
+
 	return nil
 }
 
