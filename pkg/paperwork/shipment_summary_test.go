@@ -27,12 +27,12 @@ type ppmComputerParams struct {
 }
 
 type mockPPMComputer struct {
-	costComputation   rateengine.CostComputation
+	costDetails       rateengine.CostDetails
 	err               error
 	ppmComputerParams []ppmComputerParams
 }
 
-func (mppmc *mockPPMComputer) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostComputation, err error) {
+func (mppmc *mockPPMComputer) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error) {
 	mppmc.ppmComputerParams = append(mppmc.ppmComputerParams, ppmComputerParams{
 		Weight:                                weight,
 		OriginPickupZip5:                      originPickupZip5,
@@ -43,7 +43,7 @@ func (mppmc *mockPPMComputer) ComputePPMMoveCosts(weight unit.Pound, originPicku
 		Date:                                  date,
 		DaysInSIT:                             daysInSit,
 	})
-	return mppmc.costComputation, mppmc.err
+	return mppmc.costDetails, mppmc.err
 }
 
 func (mppmc *mockPPMComputer) CalledWith() []ppmComputerParams {
@@ -126,8 +126,18 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		Order:                   order,
 	}
 	suite.Run("TestComputeObligations", func() {
+		var costDetails = make(rateengine.CostDetails)
+		costDetails["pickupLocation"] = &rateengine.CostDetail{
+			rateengine.CostComputation{GCC: 100, SITMax: 20000},
+			true,
+		}
+		costDetails["originDutyStation"] = &rateengine.CostDetail{
+			rateengine.CostComputation{GCC: 200, SITMax: 30000},
+			true,
+		}
+
 		mockComputer := mockPPMComputer{
-			costComputation: rateengine.CostComputation{GCC: 100, SITMax: 20000},
+			costDetails: costDetails,
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		expectMaxObligationParams := ppmComputerParams{
@@ -160,8 +170,17 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	})
 
 	suite.Run("TestComputeObligations when actual PPM SIT exceeds MaxSIT", func() {
+		var costDetails = make(rateengine.CostDetails)
+		costDetails["pickupLocation"] = &rateengine.CostDetail{
+			rateengine.CostComputation{SITMax: unit.Cents(500)},
+			true,
+		}
+		costDetails["originDutyStation"] = &rateengine.CostDetail{
+			rateengine.CostComputation{SITMax: unit.Cents(600)},
+			false,
+		}
 		mockComputer := mockPPMComputer{
-			costComputation: rateengine.CostComputation{SITMax: unit.Cents(500)},
+			costDetails: costDetails,
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		obligations, err := ppmComputer.ComputeObligations(params, planner)
@@ -171,6 +190,19 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	})
 
 	suite.Run("TestComputeObligations when there is no actual PPM SIT", func() {
+		var costDetails = make(rateengine.CostDetails)
+		costDetails["pickupLocation"] = &rateengine.CostDetail{
+			rateengine.CostComputation{SITMax: unit.Cents(500)},
+			true,
+		}
+		costDetails["originDutyStation"] = &rateengine.CostDetail{
+			rateengine.CostComputation{SITMax: unit.Cents(600)},
+			false,
+		}
+		mockComputer := mockPPMComputer{
+			costDetails: costDetails,
+		}
+
 		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{
 				OriginalMoveDate:      &origMoveDate,
@@ -185,9 +217,6 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			CurrentDutyStation:      currentDutyStation,
 			Order:                   order,
-		}
-		mockComputer := mockPPMComputer{
-			costComputation: rateengine.CostComputation{SITMax: unit.Cents(500)},
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		obligations, err := ppmComputer.ComputeObligations(shipmentSummaryFormParams, planner)
