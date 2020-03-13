@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/cli"
-
-	"github.com/spf13/cobra"
 )
 
 const (
@@ -71,6 +70,7 @@ func main() {
 		RunE:         fetchMTOs,
 		SilenceUsage: true,
 	}
+	initFetchMTOsFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
 
 	updateMTOShipmentCommand := &cobra.Command{
