@@ -14,3 +14,9 @@
 
 # Migrations are where database schema changes are made and we want them reviewed by people working on our database guidelines
 /migrations/ @transcom/truss-db
+
+# Storybook Stories are stored in this directory and should be reviewed by desgin
+/src/stories/ @transcom/truss-design
+
+# The reference, ie approved, images for Loki tests of Storybook Stories are stored in this directory and should be reviewed by desgin
+/.loki/reference/ @transcom/truss-design
