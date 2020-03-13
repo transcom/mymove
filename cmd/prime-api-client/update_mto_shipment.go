@@ -122,18 +122,18 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
 		// Likely this is because the API doesn't return JSON response for BadRequest OR
 		// The response type is not being set to text
-		log.Fatal(errUpdateMTOShipment.Error())
+		logger.Fatal(errUpdateMTOShipment.Error())
 	}
 
 	payload := resp.GetPayload()
 	if payload != nil {
 		payload, errJSONMarshall := json.Marshal(payload)
 		if errJSONMarshall != nil {
-			log.Fatal(errJSONMarshall)
+			logger.Fatal(errJSONMarshall)
 		}
 		fmt.Println(string(payload))
 	} else {
-		log.Fatal(resp.Error())
+		logger.Fatal(resp.Error())
 	}
 
 	return nil
