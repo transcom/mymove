@@ -409,7 +409,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 		return err
 	}
 
-	cost := costDetails["pickupLocation"].Cost
+	cost := rateengine.GetWinningCostMove(costDetails)
 
 	// Update SIT estimate
 	if ppm.HasSit != nil && *ppm.HasSit {

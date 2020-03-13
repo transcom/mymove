@@ -68,7 +68,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 
-	cost := costDetails["pickupLocation"].Cost
+	cost := rateengine.GetWinningCostMove(costDetails)
 
 	gcc := cost.GCC
 	incentivePercentage := cost.GCC.MultiplyFloat64(0.95)

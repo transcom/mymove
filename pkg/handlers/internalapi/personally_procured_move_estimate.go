@@ -65,7 +65,7 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		return handlers.ResponseForError(logger, err)
 	}
 
-	cost := costDetails["pickupLocation"].Cost
+	cost := rateengine.GetWinningCostMove(costDetails)
 
 	min := cost.GCC.MultiplyFloat64(0.95)
 	max := cost.GCC.MultiplyFloat64(1.05)
