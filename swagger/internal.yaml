@@ -844,7 +844,7 @@ definitions:
         title: Vehicle model
         x-nullable: true
       empty_weight:
-        title: Empty Weight
+        title: Empty weight
         type: integer
         minimum: 0
         x-nullable: true
@@ -854,7 +854,7 @@ definitions:
         type: boolean
         x-nullable: true
       full_weight:
-        title: Full Weight
+        title: Full weight
         type: integer
         minimum: 0
         x-nullable: true
@@ -1025,7 +1025,7 @@ definitions:
       WEIGHING_FEES: Weighing fees
   MoveDocumentStatus:
     type: string
-    title: Document Status
+    title: Document status
     enum:
       - AWAITING_REVIEW
       - OK
