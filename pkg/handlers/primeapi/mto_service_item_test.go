@@ -32,7 +32,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			ID:   uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"),
-			Code: "CS",
+			Code: "DOFSIT",
 		},
 	})
 	builder := query.NewQueryBuilder(suite.DB())
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID:  mto.ID,
 		MTOShipmentID:    &mtoShipment.ID,
-		ReService:        models.ReService{Code: models.ReServiceCodeCS},
+		ReService:        models.ReService{Code: models.ReServiceCodeDOFSIT},
 		Reason:           nil,
 		PickupPostalCode: nil,
 		CreatedAt:        time.Now(),
@@ -115,5 +115,36 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+	})
+
+	suite.T().Run("POST failure - 422 - modelType() not supported", func(t *testing.T) {
+		mockCreator := mocks.MTOServiceItemCreator{}
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockCreator,
+		}
+		err := services.NotFoundError{}
+
+		mockCreator.On("CreateMTOServiceItem",
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		mtoServiceItem := models.MTOServiceItem{
+			MoveTaskOrderID:  mto.ID,
+			MTOShipmentID:    &mtoShipment.ID,
+			ReService:        models.ReService{Code: models.ReServiceCodeMS},
+			Reason:           nil,
+			PickupPostalCode: nil,
+			CreatedAt:        time.Now(),
+			UpdatedAt:        time.Now(),
+		}
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+			MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
+			Body:            payloads.MTOServiceItem(&mtoServiceItem),
+		}
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
 	})
 }

@@ -141,6 +141,50 @@ func (o *CreateMTOServiceItemNotFound) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
+// CreateMTOServiceItemUnprocessableEntityCode is the HTTP code returned for type CreateMTOServiceItemUnprocessableEntity
+const CreateMTOServiceItemUnprocessableEntityCode int = 422
+
+/*CreateMTOServiceItemUnprocessableEntity The request payload is invalid
+
+swagger:response createMTOServiceItemUnprocessableEntity
+*/
+type CreateMTOServiceItemUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewCreateMTOServiceItemUnprocessableEntity creates CreateMTOServiceItemUnprocessableEntity with default headers values
+func NewCreateMTOServiceItemUnprocessableEntity() *CreateMTOServiceItemUnprocessableEntity {
+
+	return &CreateMTOServiceItemUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the create m t o service item unprocessable entity response
+func (o *CreateMTOServiceItemUnprocessableEntity) WithPayload(payload *primemessages.ValidationError) *CreateMTOServiceItemUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create m t o service item unprocessable entity response
+func (o *CreateMTOServiceItemUnprocessableEntity) SetPayload(payload *primemessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateMTOServiceItemUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreateMTOServiceItemInternalServerErrorCode is the HTTP code returned for type CreateMTOServiceItemInternalServerError
 const CreateMTOServiceItemInternalServerErrorCode int = 500
 

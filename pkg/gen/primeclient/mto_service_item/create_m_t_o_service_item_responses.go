@@ -42,6 +42,12 @@ func (o *CreateMTOServiceItemReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return nil, result
+	case 422:
+		result := NewCreateMTOServiceItemUnprocessableEntity()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewCreateMTOServiceItemInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -143,6 +149,39 @@ func (o *CreateMTOServiceItemNotFound) readResponse(response runtime.ClientRespo
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCreateMTOServiceItemUnprocessableEntity creates a CreateMTOServiceItemUnprocessableEntity with default headers values
+func NewCreateMTOServiceItemUnprocessableEntity() *CreateMTOServiceItemUnprocessableEntity {
+	return &CreateMTOServiceItemUnprocessableEntity{}
+}
+
+/*CreateMTOServiceItemUnprocessableEntity handles this case with default header values.
+
+The request payload is invalid
+*/
+type CreateMTOServiceItemUnprocessableEntity struct {
+	Payload *primemessages.ValidationError
+}
+
+func (o *CreateMTOServiceItemUnprocessableEntity) Error() string {
+	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemUnprocessableEntity  %+v", 422, o.Payload)
+}
+
+func (o *CreateMTOServiceItemUnprocessableEntity) GetPayload() *primemessages.ValidationError {
+	return o.Payload
+}
+
+func (o *CreateMTOServiceItemUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ValidationError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
