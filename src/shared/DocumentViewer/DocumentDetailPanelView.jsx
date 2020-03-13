@@ -11,15 +11,15 @@ const DocumentDetailPanelView = ({ createdAt, notes, schema, status, title, type
       {title}
     </span>
     <p className="uploaded-at">{`Uploaded ${formatDate(createdAt)}`}</p>
-    <PanelSwaggerField title="Document Title" fieldName="title" required schema={schema} values={{ title }} />
+    <PanelSwaggerField title="Document title" fieldName="title" required schema={schema} values={{ title }} />
     <PanelSwaggerField
-      title="Document Type"
+      title="Document type"
       fieldName="move_document_type"
       required
       schema={schema}
       values={{ move_document_type: type }}
     />
-    <PanelSwaggerField title="Document Status" fieldName="status" required schema={schema} values={{ status }} />
+    <PanelSwaggerField title="Document status" fieldName="status" required schema={schema} values={{ status }} />
     <PanelSwaggerField title="Notes" fieldName="notes" schema={schema} values={{ notes }} />
   </div>
 );

@@ -192,7 +192,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		).Return(nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
-		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationInternalServerError{}, response)
+		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationNotFound{}, response)
 	})
 
 	suite.T().Run("Patch failure - 422", func(t *testing.T) {
@@ -208,7 +208,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, movetaskorder.ValidationError{Verrs: validate.NewErrors()})
+		).Return(nil, services.NewInvalidInputError(mto.ID, nil, validate.NewErrors(), ""))
 
 		response := handler.Handle(params)
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationUnprocessableEntity{}, response)

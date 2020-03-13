@@ -10,8 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/unit"
 
-	"fmt"
-
 	"github.com/gofrs/uuid"
 )
 
@@ -27,18 +25,23 @@ func NewMoveTaskOrderUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQuer
 }
 
 //MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
-func (f moveTaskOrderFetcher) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
-	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
+func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string) (*models.MoveTaskOrder, error) {
+	mto, err := o.FetchMoveTaskOrder(moveTaskOrderID)
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
 	}
 	mto.IsAvailableToPrime = true
-	vErrors, err := f.db.ValidateAndUpdate(mto)
-	if vErrors.HasAny() {
+	verrs, err := o.builder.UpdateOne(mto, &eTag)
+	if verrs != nil && verrs.HasAny() {
 		return &models.MoveTaskOrder{}, services.InvalidInputError{}
 	}
 	if err != nil {
-		return &models.MoveTaskOrder{}, err
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return nil, services.NewPreconditionFailedError(mto.ID, err)
+		default:
+			return &models.MoveTaskOrder{}, err
+		}
 	}
 	return mto, nil
 }
@@ -58,7 +61,7 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 	err := o.builder.FetchOne(&moveTaskOrder, queryFilters)
 
 	if err != nil {
-		return nil, NotFoundError{id: moveTaskOrderID}
+		return nil, services.NewNotFoundError(moveTaskOrder.ID, "")
 	}
 
 	moveTaskOrder.PPMType = body.PpmType
@@ -66,54 +69,17 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 	verrs, err := o.builder.UpdateOne(&moveTaskOrder, &eTag)
 
 	if verrs != nil && verrs.HasAny() {
-		return nil, ValidationError{
-			id:    moveTaskOrder.ID,
-			Verrs: verrs,
-		}
+		return nil, services.NewInvalidInputError(moveTaskOrder.ID, err, verrs, "")
 	}
 
 	if err != nil {
 		switch err.(type) {
 		case query.StaleIdentifierError:
-			return nil, PreconditionFailedError{
-				id:  moveTaskOrder.ID,
-				Err: err,
-			}
+			return nil, services.NewPreconditionFailedError(moveTaskOrder.ID, err)
 		default:
 			return nil, err
 		}
 	}
 
 	return &moveTaskOrder, nil
-}
-
-// NotFoundError is the not found error
-type NotFoundError struct {
-	id uuid.UUID
-}
-
-// Error is the string representation of the error
-func (e NotFoundError) Error() string {
-	return fmt.Sprintf("move_task_order with id '%s' not found", e.id.String())
-}
-
-// ValidationError is the validation error
-type ValidationError struct {
-	id    uuid.UUID
-	Verrs *validate.Errors
-}
-
-func (e ValidationError) Error() string {
-	return fmt.Sprintf("move_task_order with id: '#{e.id.String()} could not be updated due to a validation error")
-}
-
-// PreconditionFailedError is the precondition failed error
-type PreconditionFailedError struct {
-	id  uuid.UUID
-	Err error
-}
-
-// Error is the string representation of the precondition failed error
-func (e PreconditionFailedError) Error() string {
-	return fmt.Sprintf("move_task_order with id: '%s' could not be updated due to the record being stale", e.id.String())
 }
