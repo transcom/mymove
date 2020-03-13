@@ -7,7 +7,7 @@
 set -eu -o pipefail
 
 retries=0
-timeout="${STORYBOOK_SERVER_TIMEOUT:-40}"
+timeout="${STORYBOOK_SERVER_TIMEOUT:-80}"
 
 # wait for the storybook server to start
 echo "Wait for storybook server to start"
