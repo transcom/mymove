@@ -8,11 +8,22 @@ import colors from '../shared/styles/colors.scss';
 
 const filterGroup = filter => Object.keys(colors).filter(color => color.indexOf(filter) === 0);
 
+// Buttons
+
 storiesOf('Components|Button', module)
   .add('default', () => (
     <div style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
+      <Button className="usa-button--icon" onClick={action('clicked')}>
+        <i class="fas fa-copy"></i> Button
+      </Button>
       <Button secondary onClick={action('clicked')}>
+        Button
+      </Button>
+      <Button className="usa-button--small" onClick={action('clicked')}>
+        Button
+      </Button>
+      <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
     </div>
@@ -23,6 +34,12 @@ storiesOf('Components|Button', module)
       <Button secondary onClick={action('clicked')}>
         Button
       </Button>
+      <Button className="usa-button--small" onClick={action('clicked')}>
+        Button
+      </Button>
+      <Button secondary className="usa-button--small" onClick={action('clicked')}>
+        Button
+      </Button>
     </div>
   ))
   .add('focus', () => (
@@ -31,12 +48,24 @@ storiesOf('Components|Button', module)
       <Button secondary onClick={action('clicked')}>
         Button
       </Button>
+      <Button className="usa-button--small" onClick={action('clicked')}>
+        Button
+      </Button>
+      <Button secondary className="usa-button--small" onClick={action('clicked')}>
+        Button
+      </Button>
     </div>
   ))
   .add('active', () => (
     <div className="active" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button secondary onClick={action('clicked')}>
+        Button
+      </Button>
+      <Button className="usa-button--small" onClick={action('clicked')}>
+        Button
+      </Button>
+      <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
     </div>
@@ -49,9 +78,16 @@ storiesOf('Components|Button', module)
       <Button secondary disabled onClick={action('clicked')}>
         Button
       </Button>
+      <Button disabled className="usa-button--small" onClick={action('clicked')}>
+        Button
+      </Button>
+      <Button secondary disabled className="usa-button--small" onClick={action('clicked')}>
+        Button
+      </Button>
     </div>
   ));
 
+//Colors
 storiesOf('Global|Colors', module).add('all', () => (
   <div style={{ padding: '20px' }}>
     <h3>Brand Colors</h3>
@@ -152,6 +188,7 @@ ColorGroup.propTypes = {
   group: PropTypes.arrayOf.isRequired,
 };
 
+//Typography
 storiesOf('Global|Typography', module)
   .add('Headers', () => (
     <div style={{ padding: '20px' }}>

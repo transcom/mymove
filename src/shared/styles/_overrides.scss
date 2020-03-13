@@ -49,5 +49,7 @@
   &--icon {
   }
   &--small {
+    @include u-padding-x('105');
+    @include u-padding-y('1');
   }
 } //close usa-button
