@@ -31,7 +31,7 @@ func NewCreateMTOServiceItem(ctx *middleware.Context, handler CreateMTOServiceIt
 
 /*CreateMTOServiceItem swagger:route POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items mtoServiceItem prime createMTOServiceItem
 
-creates mto service items
+Creates mto service items
 
 */
 type CreateMTOServiceItem struct {

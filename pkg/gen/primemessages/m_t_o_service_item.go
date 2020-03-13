@@ -20,19 +20,19 @@ import (
 )
 
 // MTOServiceItem Polymorphic type. MTOServiceItem describes a base type of a service item
-// swagger:discriminator MTOServiceItem serviceItemType
+// swagger:discriminator MTOServiceItem modelType
 type MTOServiceItem interface {
 	runtime.Validatable
-
-	// e tag
-	// Required: true
-	ETag() *string
-	SetETag(*string)
 
 	// id
 	// Format: uuid
 	ID() strfmt.UUID
 	SetID(strfmt.UUID)
+
+	// model type
+	// Required: true
+	ModelType() MTOServiceItemModelType
+	SetModelType(MTOServiceItemModelType)
 
 	// move task order ID
 	// Format: uuid
@@ -57,17 +57,12 @@ type MTOServiceItem interface {
 	// re service name
 	ReServiceName() string
 	SetReServiceName(string)
-
-	// service item type
-	// Required: true
-	ServiceItemType() string
-	SetServiceItemType(string)
 }
 
 type mTOServiceItem struct {
-	eTagField *string
-
 	idField strfmt.UUID
+
+	modelTypeField MTOServiceItemModelType
 
 	moveTaskOrderIdField strfmt.UUID
 
@@ -78,18 +73,6 @@ type mTOServiceItem struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
-
-	serviceItemTypeField string
-}
-
-// ETag gets the e tag of this polymorphic type
-func (m *mTOServiceItem) ETag() *string {
-	return m.eTagField
-}
-
-// SetETag sets the e tag of this polymorphic type
-func (m *mTOServiceItem) SetETag(val *string) {
-	m.eTagField = val
 }
 
 // ID gets the id of this polymorphic type
@@ -100,6 +83,16 @@ func (m *mTOServiceItem) ID() strfmt.UUID {
 // SetID sets the id of this polymorphic type
 func (m *mTOServiceItem) SetID(val strfmt.UUID) {
 	m.idField = val
+}
+
+// ModelType gets the model type of this polymorphic type
+func (m *mTOServiceItem) ModelType() MTOServiceItemModelType {
+	return "MTOServiceItem"
+}
+
+// SetModelType sets the model type of this polymorphic type
+func (m *mTOServiceItem) SetModelType(val MTOServiceItemModelType) {
+
 }
 
 // MoveTaskOrderID gets the move task order ID of this polymorphic type
@@ -152,16 +145,6 @@ func (m *mTOServiceItem) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
-// ServiceItemType gets the service item type of this polymorphic type
-func (m *mTOServiceItem) ServiceItemType() string {
-	return "MTOServiceItem"
-}
-
-// SetServiceItemType sets the service item type of this polymorphic type
-func (m *mTOServiceItem) SetServiceItemType(val string) {
-
-}
-
 // UnmarshalMTOServiceItemSlice unmarshals polymorphic slices of MTOServiceItem
 func UnmarshalMTOServiceItemSlice(reader io.Reader, consumer runtime.Consumer) ([]MTOServiceItem, error) {
 	var elements []json.RawMessage
@@ -194,20 +177,20 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 	buf := bytes.NewBuffer(data)
 	buf2 := bytes.NewBuffer(data)
 
-	// the first time this is read is to fetch the value of the serviceItemType property.
+	// the first time this is read is to fetch the value of the modelType property.
 	var getType struct {
-		ServiceItemType string `json:"serviceItemType"`
+		ModelType string `json:"modelType"`
 	}
 	if err := consumer.Consume(buf, &getType); err != nil {
 		return nil, err
 	}
 
-	if err := validate.RequiredString("serviceItemType", "body", getType.ServiceItemType); err != nil {
+	if err := validate.RequiredString("modelType", "body", getType.ModelType); err != nil {
 		return nil, err
 	}
 
-	// The value of serviceItemType is used to determine which type to create and unmarshal the data into
-	switch getType.ServiceItemType {
+	// The value of modelType is used to determine which type to create and unmarshal the data into
+	switch getType.ModelType {
 	case "MTOServiceItem":
 		var result mTOServiceItem
 		if err := consumer.Consume(buf2, &result); err != nil {
@@ -230,17 +213,13 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 		return &result, nil
 
 	}
-	return nil, errors.New(422, "invalid serviceItemType value: %q", getType.ServiceItemType)
+	return nil, errors.New(422, "invalid modelType value: %q", getType.ModelType)
 
 }
 
 // Validate validates this m t o service item
 func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateETag(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
@@ -265,15 +244,6 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *mTOServiceItem) validateETag(formats strfmt.Registry) error {
-
-	if err := validate.Required("eTag", "body", m.ETag()); err != nil {
-		return err
-	}
-
 	return nil
 }
 

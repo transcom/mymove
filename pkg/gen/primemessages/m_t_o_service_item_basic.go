@@ -19,8 +19,6 @@ import (
 // MTOServiceItemBasic Describes a basic service item subtype of a MTOServiceItem
 // swagger:model MTOServiceItemBasic
 type MTOServiceItemBasic struct {
-	eTagField *string
-
 	idField strfmt.UUID
 
 	moveTaskOrderIdField strfmt.UUID
@@ -32,18 +30,6 @@ type MTOServiceItemBasic struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
-
-	MTOServiceItemBasicAllOf1
-}
-
-// ETag gets the e tag of this subtype
-func (m *MTOServiceItemBasic) ETag() *string {
-	return m.eTagField
-}
-
-// SetETag sets the e tag of this subtype
-func (m *MTOServiceItemBasic) SetETag(val *string) {
-	m.eTagField = val
 }
 
 // ID gets the id of this subtype
@@ -54,6 +40,16 @@ func (m *MTOServiceItemBasic) ID() strfmt.UUID {
 // SetID sets the id of this subtype
 func (m *MTOServiceItemBasic) SetID(val strfmt.UUID) {
 	m.idField = val
+}
+
+// ModelType gets the model type of this subtype
+func (m *MTOServiceItemBasic) ModelType() MTOServiceItemModelType {
+	return "MTOServiceItemBasic"
+}
+
+// SetModelType sets the model type of this subtype
+func (m *MTOServiceItemBasic) SetModelType(val MTOServiceItemModelType) {
+
 }
 
 // MoveTaskOrderID gets the move task order ID of this subtype
@@ -106,20 +102,9 @@ func (m *MTOServiceItemBasic) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
-// ServiceItemType gets the service item type of this subtype
-func (m *MTOServiceItemBasic) ServiceItemType() string {
-	return "MTOServiceItemBasic"
-}
-
-// SetServiceItemType sets the service item type of this subtype
-func (m *MTOServiceItemBasic) SetServiceItemType(val string) {
-
-}
-
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 	var data struct {
-		MTOServiceItemBasicAllOf1
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -132,9 +117,9 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 	var base struct {
 		/* Just the base type fields. Used for unmashalling polymorphic types.*/
 
-		ETag *string `json:"eTag"`
-
 		ID strfmt.UUID `json:"id,omitempty"`
+
+		ModelType MTOServiceItemModelType `json:"modelType"`
 
 		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
@@ -145,8 +130,6 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
-
-		ServiceItemType string `json:"serviceItemType"`
 	}
 	buf = bytes.NewBuffer(raw)
 	dec = json.NewDecoder(buf)
@@ -158,9 +141,12 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 
 	var result MTOServiceItemBasic
 
-	result.eTagField = base.ETag
-
 	result.idField = base.ID
+
+	if base.ModelType != result.ModelType() {
+		/* Not the type we're looking for. */
+		return errors.New(422, "invalid modelType value: %q", base.ModelType)
+	}
 
 	result.moveTaskOrderIdField = base.MoveTaskOrderID
 
@@ -172,13 +158,6 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 
 	result.reServiceNameField = base.ReServiceName
 
-	if base.ServiceItemType != result.ServiceItemType() {
-		/* Not the type we're looking for. */
-		return errors.New(422, "invalid serviceItemType value: %q", base.ServiceItemType)
-	}
-
-	result.MTOServiceItemBasicAllOf1 = data.MTOServiceItemBasicAllOf1
-
 	*m = result
 
 	return nil
@@ -189,19 +168,15 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
-		MTOServiceItemBasicAllOf1
-	}{
-
-		MTOServiceItemBasicAllOf1: m.MTOServiceItemBasicAllOf1,
-	},
+	}{},
 	)
 	if err != nil {
 		return nil, err
 	}
 	b2, err = json.Marshal(struct {
-		ETag *string `json:"eTag"`
-
 		ID strfmt.UUID `json:"id,omitempty"`
+
+		ModelType MTOServiceItemModelType `json:"modelType"`
 
 		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
@@ -212,13 +187,11 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
-
-		ServiceItemType string `json:"serviceItemType"`
 	}{
 
-		ETag: m.ETag(),
-
 		ID: m.ID(),
+
+		ModelType: m.ModelType(),
 
 		MoveTaskOrderID: m.MoveTaskOrderID(),
 
@@ -229,8 +202,6 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
-
-		ServiceItemType: m.ServiceItemType(),
 	},
 	)
 	if err != nil {
@@ -243,10 +214,6 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 // Validate validates this m t o service item basic
 func (m *MTOServiceItemBasic) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateETag(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
@@ -268,20 +235,9 @@ func (m *MTOServiceItemBasic) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	// validation for a type composition with MTOServiceItemBasicAllOf1
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *MTOServiceItemBasic) validateETag(formats strfmt.Registry) error {
-
-	if err := validate.Required("eTag", "body", m.ETag()); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -370,7 +326,3 @@ func (m *MTOServiceItemBasic) UnmarshalBinary(b []byte) error {
 	*m = res
 	return nil
 }
-
-// MTOServiceItemBasicAllOf1 m t o service item basic all of1
-// swagger:model MTOServiceItemBasicAllOf1
-type MTOServiceItemBasicAllOf1 interface{}

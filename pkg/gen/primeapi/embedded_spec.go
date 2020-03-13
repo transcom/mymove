@@ -258,7 +258,7 @@ func init() {
           "mtoServiceItem",
           "prime"
         ],
-        "summary": "creates mto service items",
+        "summary": "Creates mto service items",
         "operationId": "createMTOServiceItem",
         "parameters": [
           {
@@ -279,7 +279,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "description": "This may be a normal MTOServiceItem, MTOServiceItemDomOriginDaySIT or etc.",
+              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
               "$ref": "#/definitions/MTOServiceItem"
             }
           },
@@ -905,18 +905,17 @@ func init() {
       "description": "Polymorphic type. MTOServiceItem describes a base type of a service item",
       "type": "object",
       "required": [
-        "eTag",
-        "reServiceCode",
-        "serviceItemType"
+        "modelType",
+        "reServiceCode"
       ],
       "properties": {
-        "eTag": {
-          "type": "string"
-        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "modelType": {
+          "$ref": "#/definitions/MTOServiceItemModelType"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -938,21 +937,15 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
-        },
-        "serviceItemType": {
-          "type": "string"
         }
       },
-      "discriminator": "serviceItemType"
+      "discriminator": "modelType"
     },
     "MTOServiceItemBasic": {
       "description": "Describes a basic service item subtype of a MTOServiceItem",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
-        },
-        {
-          "type": "object"
         }
       ]
     },
@@ -981,6 +974,14 @@ func init() {
             }
           }
         }
+      ]
+    },
+    "MTOServiceItemModelType": {
+      "description": "Describes all model sub-types for a MTOServiceItem model",
+      "type": "string",
+      "enum": [
+        "MTOServiceItemBasic",
+        "MTOServiceItemDOFSIT"
       ]
     },
     "MTOServiceItemStatus": {
@@ -1352,8 +1353,7 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB",
-        "STEST"
+        "NSTUB"
       ]
     },
     "ServiceItem": {
@@ -1755,7 +1755,7 @@ func init() {
           "mtoServiceItem",
           "prime"
         ],
-        "summary": "creates mto service items",
+        "summary": "Creates mto service items",
         "operationId": "createMTOServiceItem",
         "parameters": [
           {
@@ -1776,7 +1776,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "description": "This may be a normal MTOServiceItem, MTOServiceItemDomOriginDaySIT or etc.",
+              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
               "$ref": "#/definitions/MTOServiceItem"
             }
           },
@@ -2465,18 +2465,17 @@ func init() {
       "description": "Polymorphic type. MTOServiceItem describes a base type of a service item",
       "type": "object",
       "required": [
-        "eTag",
-        "reServiceCode",
-        "serviceItemType"
+        "modelType",
+        "reServiceCode"
       ],
       "properties": {
-        "eTag": {
-          "type": "string"
-        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "modelType": {
+          "$ref": "#/definitions/MTOServiceItemModelType"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -2498,21 +2497,15 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
-        },
-        "serviceItemType": {
-          "type": "string"
         }
       },
-      "discriminator": "serviceItemType"
+      "discriminator": "modelType"
     },
     "MTOServiceItemBasic": {
       "description": "Describes a basic service item subtype of a MTOServiceItem",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
-        },
-        {
-          "type": "object"
         }
       ]
     },
@@ -2541,6 +2534,14 @@ func init() {
             }
           }
         }
+      ]
+    },
+    "MTOServiceItemModelType": {
+      "description": "Describes all model sub-types for a MTOServiceItem model",
+      "type": "string",
+      "enum": [
+        "MTOServiceItemBasic",
+        "MTOServiceItemDOFSIT"
       ]
     },
     "MTOServiceItemStatus": {
@@ -2912,8 +2913,7 @@ func init() {
         "IUCRT",
         "MS",
         "NSTH",
-        "NSTUB",
-        "STEST"
+        "NSTUB"
       ]
     },
     "ServiceItem": {

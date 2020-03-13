@@ -4,8 +4,6 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/handlers"
-
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -277,19 +275,27 @@ func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments
 // MTOServiceItem payload
 func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServiceItem {
 	//TODO: need to refactor this to accept different "service item types"
-	domSit := primemessages.MTOServiceItemDOFSIT{
-		PickupPostalCode: nil,
-		Reason:           nil,
+
+	var payload primemessages.MTOServiceItem
+
+	if mtoServiceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+		payload = &primemessages.MTOServiceItemDOFSIT{
+			PickupPostalCode: mtoServiceItem.PickupPostalCode,
+			Reason:           mtoServiceItem.Reason,
+		}
+	} else {
+		// otherwise, basic service item
+		payload = &primemessages.MTOServiceItemBasic{}
 	}
 
-	domSit.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
-	domSit.SetMoveTaskOrderID(strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()))
-	domSit.SetReServiceID(strfmt.UUID(mtoServiceItem.ReServiceID.String()))
-	domSit.SetReServiceCode(primemessages.ReServiceCode(mtoServiceItem.ReService.Code))
-	domSit.SetReServiceName(mtoServiceItem.ReService.Name)
-	domSit.SetETag(handlers.FmtString(etag.GenerateEtag(mtoServiceItem.UpdatedAt)))
+	// set all relevant fields that apply to all service items
+	payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
+	payload.SetMoveTaskOrderID(strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()))
+	payload.SetReServiceID(strfmt.UUID(mtoServiceItem.ReServiceID.String()))
+	payload.SetReServiceCode(primemessages.ReServiceCode(mtoServiceItem.ReService.Code))
+	payload.SetReServiceName(mtoServiceItem.ReService.Name)
 
-	return &domSit
+	return payload
 }
 
 // MTOServiceItems payload

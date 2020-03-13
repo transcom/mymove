@@ -19,8 +19,6 @@ import (
 // MTOServiceItemDOFSIT Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem
 // swagger:model MTOServiceItemDOFSIT
 type MTOServiceItemDOFSIT struct {
-	eTagField *string
-
 	idField strfmt.UUID
 
 	moveTaskOrderIdField strfmt.UUID
@@ -43,16 +41,6 @@ type MTOServiceItemDOFSIT struct {
 	Reason *string `json:"reason"`
 }
 
-// ETag gets the e tag of this subtype
-func (m *MTOServiceItemDOFSIT) ETag() *string {
-	return m.eTagField
-}
-
-// SetETag sets the e tag of this subtype
-func (m *MTOServiceItemDOFSIT) SetETag(val *string) {
-	m.eTagField = val
-}
-
 // ID gets the id of this subtype
 func (m *MTOServiceItemDOFSIT) ID() strfmt.UUID {
 	return m.idField
@@ -61,6 +49,16 @@ func (m *MTOServiceItemDOFSIT) ID() strfmt.UUID {
 // SetID sets the id of this subtype
 func (m *MTOServiceItemDOFSIT) SetID(val strfmt.UUID) {
 	m.idField = val
+}
+
+// ModelType gets the model type of this subtype
+func (m *MTOServiceItemDOFSIT) ModelType() MTOServiceItemModelType {
+	return "MTOServiceItemDOFSIT"
+}
+
+// SetModelType sets the model type of this subtype
+func (m *MTOServiceItemDOFSIT) SetModelType(val MTOServiceItemModelType) {
+
 }
 
 // MoveTaskOrderID gets the move task order ID of this subtype
@@ -113,16 +111,6 @@ func (m *MTOServiceItemDOFSIT) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
-// ServiceItemType gets the service item type of this subtype
-func (m *MTOServiceItemDOFSIT) ServiceItemType() string {
-	return "MTOServiceItemDOFSIT"
-}
-
-// SetServiceItemType sets the service item type of this subtype
-func (m *MTOServiceItemDOFSIT) SetServiceItemType(val string) {
-
-}
-
 // PickupPostalCode gets the pickup postal code of this subtype
 
 // Reason gets the reason of this subtype
@@ -151,9 +139,9 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 	var base struct {
 		/* Just the base type fields. Used for unmashalling polymorphic types.*/
 
-		ETag *string `json:"eTag"`
-
 		ID strfmt.UUID `json:"id,omitempty"`
+
+		ModelType MTOServiceItemModelType `json:"modelType"`
 
 		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
@@ -164,8 +152,6 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
-
-		ServiceItemType string `json:"serviceItemType"`
 	}
 	buf = bytes.NewBuffer(raw)
 	dec = json.NewDecoder(buf)
@@ -177,9 +163,12 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 
 	var result MTOServiceItemDOFSIT
 
-	result.eTagField = base.ETag
-
 	result.idField = base.ID
+
+	if base.ModelType != result.ModelType() {
+		/* Not the type we're looking for. */
+		return errors.New(422, "invalid modelType value: %q", base.ModelType)
+	}
 
 	result.moveTaskOrderIdField = base.MoveTaskOrderID
 
@@ -190,11 +179,6 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
-
-	if base.ServiceItemType != result.ServiceItemType() {
-		/* Not the type we're looking for. */
-		return errors.New(422, "invalid serviceItemType value: %q", base.ServiceItemType)
-	}
 
 	result.PickupPostalCode = data.PickupPostalCode
 
@@ -230,9 +214,9 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	b2, err = json.Marshal(struct {
-		ETag *string `json:"eTag"`
-
 		ID strfmt.UUID `json:"id,omitempty"`
+
+		ModelType MTOServiceItemModelType `json:"modelType"`
 
 		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
@@ -243,13 +227,11 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
-
-		ServiceItemType string `json:"serviceItemType"`
 	}{
 
-		ETag: m.ETag(),
-
 		ID: m.ID(),
+
+		ModelType: m.ModelType(),
 
 		MoveTaskOrderID: m.MoveTaskOrderID(),
 
@@ -260,8 +242,6 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
-
-		ServiceItemType: m.ServiceItemType(),
 	},
 	)
 	if err != nil {
@@ -274,10 +254,6 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 // Validate validates this m t o service item d o f s i t
 func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateETag(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
@@ -310,15 +286,6 @@ func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *MTOServiceItemDOFSIT) validateETag(formats strfmt.Registry) error {
-
-	if err := validate.Required("eTag", "body", m.ETag()); err != nil {
-		return err
-	}
-
 	return nil
 }
 

@@ -224,7 +224,7 @@ paths:
         - application/json
       produces:
         - application/json
-      summary: creates mto service items
+      summary: Creates mto service items
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
@@ -825,13 +825,17 @@ definitions:
           - REJECTED
         type: string
     type: object
+  MTOServiceItemModelType:
+    description: Describes all model sub-types for a MTOServiceItem model
+    type: string
+    enum:
+      - MTOServiceItemBasic
+      - MTOServiceItemDOFSIT
   MTOServiceItem:
     description: Polymorphic type. MTOServiceItem describes a base type of a service item
     type: object
-    discriminator: serviceItemType
+    discriminator: modelType
     properties:
-      eTag:
-        type: string
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
@@ -852,17 +856,15 @@ definitions:
         $ref: '#/definitions/ReServiceCode'
       reServiceName:
         type: string
-      serviceItemType:
-        type: string
+      modelType: # Base type and sub-types of MTOServiceItem
+        $ref: '#/definitions/MTOServiceItemModelType'
     required:
-      - eTag
+      - modelType
       - reServiceCode
-      - serviceItemType
   MTOServiceItemBasic:
     description: Describes a basic service item subtype of a MTOServiceItem
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
-      - type: object
   MTOServiceItemDOFSIT:
     description: Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem
     allOf:
@@ -996,7 +998,6 @@ definitions:
       - MS
       - NSTH
       - NSTUB
-      - STEST
   Upload:
     type: object
     properties:
