@@ -63,8 +63,6 @@ for the create m t o service item operation typically these are written to a htt
 */
 type CreateMTOServiceItemParams struct {
 
-	/*IfMatch*/
-	IfMatch string
 	/*Body*/
 	Body primemessages.MTOServiceItem
 	/*MoveTaskOrderID*/
@@ -110,17 +108,6 @@ func (o *CreateMTOServiceItemParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithIfMatch adds the ifMatch to the create m t o service item params
-func (o *CreateMTOServiceItemParams) WithIfMatch(ifMatch string) *CreateMTOServiceItemParams {
-	o.SetIfMatch(ifMatch)
-	return o
-}
-
-// SetIfMatch adds the ifMatch to the create m t o service item params
-func (o *CreateMTOServiceItemParams) SetIfMatch(ifMatch string) {
-	o.IfMatch = ifMatch
-}
-
 // WithBody adds the body to the create m t o service item params
 func (o *CreateMTOServiceItemParams) WithBody(body primemessages.MTOServiceItem) *CreateMTOServiceItemParams {
 	o.SetBody(body)
@@ -161,11 +148,6 @@ func (o *CreateMTOServiceItemParams) WriteToRequest(r runtime.ClientRequest, reg
 		return err
 	}
 	var res []error
-
-	// header param If-Match
-	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
-		return err
-	}
 
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err

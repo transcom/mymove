@@ -25,11 +25,13 @@ type MTOServiceItemBasic struct {
 
 	mtoShipmentIdField strfmt.UUID
 
-	reServiceCodeField ReServiceCode
-
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
+
+	// re service code
+	// Required: true
+	ReServiceCode ReServiceCode `json:"reServiceCode"`
 }
 
 // ID gets the id of this subtype
@@ -72,16 +74,6 @@ func (m *MTOServiceItemBasic) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
 }
 
-// ReServiceCode gets the re service code of this subtype
-func (m *MTOServiceItemBasic) ReServiceCode() ReServiceCode {
-	return m.reServiceCodeField
-}
-
-// SetReServiceCode sets the re service code of this subtype
-func (m *MTOServiceItemBasic) SetReServiceCode(val ReServiceCode) {
-	m.reServiceCodeField = val
-}
-
 // ReServiceID gets the re service ID of this subtype
 func (m *MTOServiceItemBasic) ReServiceID() strfmt.UUID {
 	return m.reServiceIdField
@@ -102,9 +94,15 @@ func (m *MTOServiceItemBasic) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// ReServiceCode gets the re service code of this subtype
+
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 	var data struct {
+
+		// re service code
+		// Required: true
+		ReServiceCode ReServiceCode `json:"reServiceCode"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -124,8 +122,6 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
-
-		ReServiceCode ReServiceCode `json:"reServiceCode"`
 
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
@@ -152,11 +148,11 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 
 	result.mtoShipmentIdField = base.MtoShipmentID
 
-	result.reServiceCodeField = base.ReServiceCode
-
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
+
+	result.ReServiceCode = data.ReServiceCode
 
 	*m = result
 
@@ -168,7 +164,14 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
-	}{},
+
+		// re service code
+		// Required: true
+		ReServiceCode ReServiceCode `json:"reServiceCode"`
+	}{
+
+		ReServiceCode: m.ReServiceCode,
+	},
 	)
 	if err != nil {
 		return nil, err
@@ -182,8 +185,6 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
-		ReServiceCode ReServiceCode `json:"reServiceCode"`
-
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
@@ -196,8 +197,6 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 		MoveTaskOrderID: m.MoveTaskOrderID(),
 
 		MtoShipmentID: m.MtoShipmentID(),
-
-		ReServiceCode: m.ReServiceCode(),
 
 		ReServiceID: m.ReServiceID(),
 
@@ -227,11 +226,11 @@ func (m *MTOServiceItemBasic) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateReServiceCode(formats); err != nil {
+	if err := m.validateReServiceID(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateReServiceID(formats); err != nil {
+	if err := m.validateReServiceCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -280,22 +279,6 @@ func (m *MTOServiceItemBasic) validateMtoShipmentID(formats strfmt.Registry) err
 	return nil
 }
 
-func (m *MTOServiceItemBasic) validateReServiceCode(formats strfmt.Registry) error {
-
-	if err := validate.Required("reServiceCode", "body", m.ReServiceCode()); err != nil {
-		return err
-	}
-
-	if err := m.ReServiceCode().Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("reServiceCode")
-		}
-		return err
-	}
-
-	return nil
-}
-
 func (m *MTOServiceItemBasic) validateReServiceID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ReServiceID()) { // not required
@@ -303,6 +286,18 @@ func (m *MTOServiceItemBasic) validateReServiceID(formats strfmt.Registry) error
 	}
 
 	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemBasic) validateReServiceCode(formats strfmt.Registry) error {
+
+	if err := m.ReServiceCode.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("reServiceCode")
+		}
 		return err
 	}
 

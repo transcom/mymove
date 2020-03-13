@@ -44,11 +44,6 @@ type MTOServiceItem interface {
 	MtoShipmentID() strfmt.UUID
 	SetMtoShipmentID(strfmt.UUID)
 
-	// re service code
-	// Required: true
-	ReServiceCode() ReServiceCode
-	SetReServiceCode(ReServiceCode)
-
 	// re service ID
 	// Format: uuid
 	ReServiceID() strfmt.UUID
@@ -67,8 +62,6 @@ type mTOServiceItem struct {
 	moveTaskOrderIdField strfmt.UUID
 
 	mtoShipmentIdField strfmt.UUID
-
-	reServiceCodeField ReServiceCode
 
 	reServiceIdField strfmt.UUID
 
@@ -113,16 +106,6 @@ func (m *mTOServiceItem) MtoShipmentID() strfmt.UUID {
 // SetMtoShipmentID sets the mto shipment ID of this polymorphic type
 func (m *mTOServiceItem) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
-}
-
-// ReServiceCode gets the re service code of this polymorphic type
-func (m *mTOServiceItem) ReServiceCode() ReServiceCode {
-	return m.reServiceCodeField
-}
-
-// SetReServiceCode sets the re service code of this polymorphic type
-func (m *mTOServiceItem) SetReServiceCode(val ReServiceCode) {
-	m.reServiceCodeField = val
 }
 
 // ReServiceID gets the re service ID of this polymorphic type
@@ -233,10 +216,6 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateReServiceCode(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateReServiceID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -280,18 +259,6 @@ func (m *mTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *mTOServiceItem) validateReServiceCode(formats strfmt.Registry) error {
-
-	if err := m.ReServiceCode().Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("reServiceCode")
-		}
 		return err
 	}
 

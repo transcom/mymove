@@ -1,10 +1,16 @@
 package primeapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"github.com/gofrs/uuid"
 
@@ -63,103 +69,51 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		suite.NotZero(okResponse.Payload.ID())
 	})
 
-	//suite.T().Run("PUT failure - 500", func(t *testing.T) {
-	//	mockUpdater := mocks.MTOShipmentUpdater{}
-	//	handler := UpdateMTOShipmentHandler{
-	//		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	//		&mockUpdater,
-	//	}
-	//	internalServerErr := errors.New("ServerError")
-	//
-	//	mockUpdater.On("UpdateMTOShipment",
-	//		mock.Anything,
-	//		mock.Anything,
-	//	).Return(nil, internalServerErr)
-	//
-	//	response := handler.Handle(params)
-	//	suite.IsType(&mtoserviceitemops.UpdateMTOShipmentInternalServerError{}, response)
-	//})
-	//
-	//suite.T().Run("PUT failure - 400", func(t *testing.T) {
-	//	mockUpdater := mocks.MTOShipmentUpdater{}
-	//	handler := UpdateMTOShipmentHandler{
-	//		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	//		&mockUpdater,
-	//	}
-	//
-	//	mockUpdater.On("UpdateMTOShipment",
-	//		mock.Anything,
-	//		mock.Anything,
-	//	).Return(nil, services.NewInvalidInputError(mtoShipment.ID, nil, nil, "invalid input"))
-	//
-	//	response := handler.Handle(params)
-	//	suite.IsType(&mtoserviceitemops.UpdateMTOShipmentBadRequest{}, response)
-	//})
-	//
-	//suite.T().Run("PUT failure - 404", func(t *testing.T) {
-	//	mockUpdater := mocks.MTOShipmentUpdater{}
-	//	handler := UpdateMTOShipmentHandler{
-	//		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	//		&mockUpdater,
-	//	}
-	//
-	//	mockUpdater.On("UpdateMTOShipment",
-	//		mock.Anything,
-	//		mock.Anything,
-	//	).Return(nil, services.NotFoundError{})
-	//
-	//	response := handler.Handle(params)
-	//	suite.IsType(&mtoserviceitemops.UpdateMTOShipmentNotFound{}, response)
-	//})
-	//
-	//suite.T().Run("PUT failure - 412", func(t *testing.T) {
-	//	mockUpdater := mocks.MTOShipmentUpdater{}
-	//	handler := UpdateMTOShipmentHandler{
-	//		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	//		&mockUpdater,
-	//	}
-	//
-	//	mockUpdater.On("UpdateMTOShipment",
-	//		mock.Anything,
-	//		mock.Anything,
-	//	).Return(nil, services.PreconditionFailedError{})
-	//
-	//	response := handler.Handle(params)
-	//	suite.IsType(&mtoserviceitemops.UpdateMTOShipmentPreconditionFailed{}, response)
-	//})
-	//
-	//mto2 := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
-	//mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-	//	MoveTaskOrder: mto,
-	//})
-	//
-	//payload := primemessages.MTOShipment{
-	//	ID:              strfmt.UUID(mtoShipment2.ID.String()),
-	//	MoveTaskOrderID: strfmt.UUID(mtoShipment2.MoveTaskOrderID.String()),
-	//}
-	//
-	//req2 := httptest.NewRequest("PUT", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto2.ID.String(), mtoShipment2.ID.String()), nil)
-	//
-	//eTag = etag.GenerateEtag(mtoShipment2.UpdatedAt)
-	//params = mtoserviceitemops.UpdateMTOShipmentParams{
-	//	HTTPRequest:     req2,
-	//	MoveTaskOrderID: *handlers.FmtUUID(mtoShipment2.MoveTaskOrderID),
-	//	MtoShipmentID:   *handlers.FmtUUID(mtoShipment2.ID),
-	//	Body:            &payload,
-	//	IfMatch:         eTag,
-	//}
-	//
-	//suite.T().Run("Successful PUT - Integration Test with Only Required Fields in Payload", func(t *testing.T) {
-	//	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher)
-	//	handler := UpdateMTOShipmentHandler{
-	//		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	//		updater,
-	//	}
-	//
-	//	response := handler.Handle(params)
-	//	suite.IsType(&mtoserviceitemops.UpdateMTOShipmentOK{}, response)
-	//
-	//	okResponse := response.(*mtoserviceitemops.UpdateMTOShipmentOK)
-	//	suite.Equal(mtoShipment2.ID.String(), okResponse.Payload.ID.String())
-	//})
+	suite.T().Run("POST failure - 500", func(t *testing.T) {
+		mockCreator := mocks.MTOServiceItemCreator{}
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockCreator,
+		}
+		err := errors.New("ServerError")
+
+		mockCreator.On("CreateMTOServiceItem",
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemInternalServerError{}, response)
+	})
+
+	suite.T().Run("POST failure - 400", func(t *testing.T) {
+		mockCreator := mocks.MTOServiceItemCreator{}
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockCreator,
+		}
+		err := services.InvalidInputError{}
+
+		mockCreator.On("CreateMTOServiceItem",
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemBadRequest{}, response)
+	})
+
+	suite.T().Run("POST failure - 404", func(t *testing.T) {
+		mockCreator := mocks.MTOServiceItemCreator{}
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockCreator,
+		}
+		err := services.NotFoundError{}
+
+		mockCreator.On("CreateMTOServiceItem",
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+	})
 }

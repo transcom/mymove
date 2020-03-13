@@ -104,19 +104,21 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) *models.MT
 		ID:              uuid.FromStringOrNil(mtoServiceItem.ID().String()),
 		MoveTaskOrderID: uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID().String()),
 		MTOShipmentID:   &shipmentID,
-		ReService:       models.ReService{Code: models.ReServiceCode(mtoServiceItem.ReServiceCode())},
 		CreatedAt:       time.Now(),
 		UpdatedAt:       time.Now(),
 	}
 
-	// TODO: Maybe want to refactor this into private function
-	// initialize more fields below for other service items. Eg. DOFSIT
-	switch mtoServiceItem.ReServiceCode() {
-	case primemessages.ReServiceCodeDOFSIT:
+	// here we initialize more fields below for other service item types. Eg. MTOServiceItemDOFSIT
+	switch mtoServiceItem.ModelType() {
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:
 		dofsit := mtoServiceItem.(*primemessages.MTOServiceItemDOFSIT)
+		model.ReService.Code = models.ReServiceCodeDOFSIT
 		model.Reason = dofsit.Reason
 		model.PickupPostalCode = dofsit.PickupPostalCode
-		break
+	default:
+		// assume basic service item, take in provided re service code
+		basic := mtoServiceItem.(*primemessages.MTOServiceItemBasic)
+		model.ReService.Code = models.ReServiceCode(basic.ReServiceCode)
 	}
 
 	return model

@@ -274,25 +274,27 @@ func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments
 
 // MTOServiceItem payload
 func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServiceItem {
-	//TODO: need to refactor this to accept different "service item types"
-
 	var payload primemessages.MTOServiceItem
 
-	if mtoServiceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+	// here we determine which payload model to use based on the re service code
+	switch mtoServiceItem.ReService.Code {
+	case models.ReServiceCodeDOFSIT:
 		payload = &primemessages.MTOServiceItemDOFSIT{
+			ReServiceCode:    primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
 			PickupPostalCode: mtoServiceItem.PickupPostalCode,
 			Reason:           mtoServiceItem.Reason,
 		}
-	} else {
+	default:
 		// otherwise, basic service item
-		payload = &primemessages.MTOServiceItemBasic{}
+		payload = &primemessages.MTOServiceItemBasic{
+			ReServiceCode: primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
+		}
 	}
 
 	// set all relevant fields that apply to all service items
 	payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
 	payload.SetMoveTaskOrderID(strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()))
 	payload.SetReServiceID(strfmt.UUID(mtoServiceItem.ReServiceID.String()))
-	payload.SetReServiceCode(primemessages.ReServiceCode(mtoServiceItem.ReService.Code))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)
 
 	return payload

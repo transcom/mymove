@@ -25,8 +25,6 @@ type MTOServiceItemDOFSIT struct {
 
 	mtoShipmentIdField strfmt.UUID
 
-	reServiceCodeField ReServiceCode
-
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
@@ -35,6 +33,9 @@ type MTOServiceItemDOFSIT struct {
 	// Required: true
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	PickupPostalCode *string `json:"pickupPostalCode"`
+
+	// re service code
+	ReServiceCode ReServiceCode `json:"reServiceCode,omitempty"`
 
 	// reason
 	// Required: true
@@ -81,16 +82,6 @@ func (m *MTOServiceItemDOFSIT) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
 }
 
-// ReServiceCode gets the re service code of this subtype
-func (m *MTOServiceItemDOFSIT) ReServiceCode() ReServiceCode {
-	return m.reServiceCodeField
-}
-
-// SetReServiceCode sets the re service code of this subtype
-func (m *MTOServiceItemDOFSIT) SetReServiceCode(val ReServiceCode) {
-	m.reServiceCodeField = val
-}
-
 // ReServiceID gets the re service ID of this subtype
 func (m *MTOServiceItemDOFSIT) ReServiceID() strfmt.UUID {
 	return m.reServiceIdField
@@ -113,6 +104,8 @@ func (m *MTOServiceItemDOFSIT) SetReServiceName(val string) {
 
 // PickupPostalCode gets the pickup postal code of this subtype
 
+// ReServiceCode gets the re service code of this subtype
+
 // Reason gets the reason of this subtype
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
@@ -123,6 +116,9 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		// Pattern: ^(\d{5}([\-]\d{4})?)$
 		PickupPostalCode *string `json:"pickupPostalCode"`
+
+		// re service code
+		ReServiceCode ReServiceCode `json:"reServiceCode,omitempty"`
 
 		// reason
 		// Required: true
@@ -146,8 +142,6 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
-
-		ReServiceCode ReServiceCode `json:"reServiceCode"`
 
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
@@ -174,13 +168,13 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 
 	result.mtoShipmentIdField = base.MtoShipmentID
 
-	result.reServiceCodeField = base.ReServiceCode
-
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
 
 	result.PickupPostalCode = data.PickupPostalCode
+
+	result.ReServiceCode = data.ReServiceCode
 
 	result.Reason = data.Reason
 
@@ -200,12 +194,17 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		// Pattern: ^(\d{5}([\-]\d{4})?)$
 		PickupPostalCode *string `json:"pickupPostalCode"`
 
+		// re service code
+		ReServiceCode ReServiceCode `json:"reServiceCode,omitempty"`
+
 		// reason
 		// Required: true
 		Reason *string `json:"reason"`
 	}{
 
 		PickupPostalCode: m.PickupPostalCode,
+
+		ReServiceCode: m.ReServiceCode,
 
 		Reason: m.Reason,
 	},
@@ -222,8 +221,6 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
-		ReServiceCode ReServiceCode `json:"reServiceCode"`
-
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
@@ -236,8 +233,6 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		MoveTaskOrderID: m.MoveTaskOrderID(),
 
 		MtoShipmentID: m.MtoShipmentID(),
-
-		ReServiceCode: m.ReServiceCode(),
 
 		ReServiceID: m.ReServiceID(),
 
@@ -267,15 +262,15 @@ func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateReServiceCode(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateReServiceID(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validatePickupPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReServiceCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -328,22 +323,6 @@ func (m *MTOServiceItemDOFSIT) validateMtoShipmentID(formats strfmt.Registry) er
 	return nil
 }
 
-func (m *MTOServiceItemDOFSIT) validateReServiceCode(formats strfmt.Registry) error {
-
-	if err := validate.Required("reServiceCode", "body", m.ReServiceCode()); err != nil {
-		return err
-	}
-
-	if err := m.ReServiceCode().Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("reServiceCode")
-		}
-		return err
-	}
-
-	return nil
-}
-
 func (m *MTOServiceItemDOFSIT) validateReServiceID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ReServiceID()) { // not required
@@ -364,6 +343,22 @@ func (m *MTOServiceItemDOFSIT) validatePickupPostalCode(formats strfmt.Registry)
 	}
 
 	if err := validate.Pattern("pickupPostalCode", "body", string(*m.PickupPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDOFSIT) validateReServiceCode(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ReServiceCode) { // not required
+		return nil
+	}
+
+	if err := m.ReServiceCode.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("reServiceCode")
+		}
 		return err
 	}
 

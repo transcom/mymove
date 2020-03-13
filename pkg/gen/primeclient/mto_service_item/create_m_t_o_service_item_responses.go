@@ -36,26 +36,8 @@ func (o *CreateMTOServiceItemReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return nil, result
-	case 401:
-		result := NewCreateMTOServiceItemUnauthorized()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-	case 403:
-		result := NewCreateMTOServiceItemForbidden()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
 	case 404:
 		result := NewCreateMTOServiceItemNotFound()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-	case 412:
-		result := NewCreateMTOServiceItemPreconditionFailed()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -136,68 +118,6 @@ func (o *CreateMTOServiceItemBadRequest) readResponse(response runtime.ClientRes
 	return nil
 }
 
-// NewCreateMTOServiceItemUnauthorized creates a CreateMTOServiceItemUnauthorized with default headers values
-func NewCreateMTOServiceItemUnauthorized() *CreateMTOServiceItemUnauthorized {
-	return &CreateMTOServiceItemUnauthorized{}
-}
-
-/*CreateMTOServiceItemUnauthorized handles this case with default header values.
-
-The request was denied
-*/
-type CreateMTOServiceItemUnauthorized struct {
-	Payload interface{}
-}
-
-func (o *CreateMTOServiceItemUnauthorized) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemUnauthorized  %+v", 401, o.Payload)
-}
-
-func (o *CreateMTOServiceItemUnauthorized) GetPayload() interface{} {
-	return o.Payload
-}
-
-func (o *CreateMTOServiceItemUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewCreateMTOServiceItemForbidden creates a CreateMTOServiceItemForbidden with default headers values
-func NewCreateMTOServiceItemForbidden() *CreateMTOServiceItemForbidden {
-	return &CreateMTOServiceItemForbidden{}
-}
-
-/*CreateMTOServiceItemForbidden handles this case with default header values.
-
-The request was denied
-*/
-type CreateMTOServiceItemForbidden struct {
-	Payload interface{}
-}
-
-func (o *CreateMTOServiceItemForbidden) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemForbidden  %+v", 403, o.Payload)
-}
-
-func (o *CreateMTOServiceItemForbidden) GetPayload() interface{} {
-	return o.Payload
-}
-
-func (o *CreateMTOServiceItemForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
 // NewCreateMTOServiceItemNotFound creates a CreateMTOServiceItemNotFound with default headers values
 func NewCreateMTOServiceItemNotFound() *CreateMTOServiceItemNotFound {
 	return &CreateMTOServiceItemNotFound{}
@@ -220,37 +140,6 @@ func (o *CreateMTOServiceItemNotFound) GetPayload() interface{} {
 }
 
 func (o *CreateMTOServiceItemNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewCreateMTOServiceItemPreconditionFailed creates a CreateMTOServiceItemPreconditionFailed with default headers values
-func NewCreateMTOServiceItemPreconditionFailed() *CreateMTOServiceItemPreconditionFailed {
-	return &CreateMTOServiceItemPreconditionFailed{}
-}
-
-/*CreateMTOServiceItemPreconditionFailed handles this case with default header values.
-
-precondition failed
-*/
-type CreateMTOServiceItemPreconditionFailed struct {
-	Payload interface{}
-}
-
-func (o *CreateMTOServiceItemPreconditionFailed) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemPreconditionFailed  %+v", 412, o.Payload)
-}
-
-func (o *CreateMTOServiceItemPreconditionFailed) GetPayload() interface{} {
-	return o.Payload
-}
-
-func (o *CreateMTOServiceItemPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {

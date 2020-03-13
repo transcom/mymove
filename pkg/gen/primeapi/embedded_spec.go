@@ -282,12 +282,6 @@ func init() {
               "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
               "$ref": "#/definitions/MTOServiceItem"
             }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -303,28 +297,10 @@ func init() {
               "$ref": "#/responses/InvalidRequest"
             }
           },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/responses/NotFound"
-            }
-          },
-          "412": {
-            "description": "precondition failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
             }
           },
           "500": {
@@ -905,8 +881,7 @@ func init() {
       "description": "Polymorphic type. MTOServiceItem describes a base type of a service item",
       "type": "object",
       "required": [
-        "modelType",
-        "reServiceCode"
+        "modelType"
       ],
       "properties": {
         "id": {
@@ -927,9 +902,6 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "reServiceCode": {
-          "$ref": "#/definitions/ReServiceCode"
-        },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
@@ -946,6 +918,17 @@ func init() {
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            }
+          }
         }
       ]
     },
@@ -967,6 +950,9 @@ func init() {
               "format": "zip",
               "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
               "example": 90210
+            },
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
             },
             "reason": {
               "type": "string",
@@ -1779,12 +1765,6 @@ func init() {
               "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
               "$ref": "#/definitions/MTOServiceItem"
             }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -1803,37 +1783,10 @@ func init() {
               }
             }
           },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
               "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "412": {
-            "description": "precondition failed",
-            "schema": {
-              "description": "Precondition failed",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2465,8 +2418,7 @@ func init() {
       "description": "Polymorphic type. MTOServiceItem describes a base type of a service item",
       "type": "object",
       "required": [
-        "modelType",
-        "reServiceCode"
+        "modelType"
       ],
       "properties": {
         "id": {
@@ -2487,9 +2439,6 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "reServiceCode": {
-          "$ref": "#/definitions/ReServiceCode"
-        },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
@@ -2506,6 +2455,17 @@ func init() {
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            }
+          }
         }
       ]
     },
@@ -2527,6 +2487,9 @@ func init() {
               "format": "zip",
               "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
               "example": 90210
+            },
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
             },
             "reason": {
               "type": "string",

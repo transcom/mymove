@@ -99,90 +99,6 @@ func (o *CreateMTOServiceItemBadRequest) WriteResponse(rw http.ResponseWriter, p
 	}
 }
 
-// CreateMTOServiceItemUnauthorizedCode is the HTTP code returned for type CreateMTOServiceItemUnauthorized
-const CreateMTOServiceItemUnauthorizedCode int = 401
-
-/*CreateMTOServiceItemUnauthorized The request was denied
-
-swagger:response createMTOServiceItemUnauthorized
-*/
-type CreateMTOServiceItemUnauthorized struct {
-
-	/*
-	  In: Body
-	*/
-	Payload interface{} `json:"body,omitempty"`
-}
-
-// NewCreateMTOServiceItemUnauthorized creates CreateMTOServiceItemUnauthorized with default headers values
-func NewCreateMTOServiceItemUnauthorized() *CreateMTOServiceItemUnauthorized {
-
-	return &CreateMTOServiceItemUnauthorized{}
-}
-
-// WithPayload adds the payload to the create m t o service item unauthorized response
-func (o *CreateMTOServiceItemUnauthorized) WithPayload(payload interface{}) *CreateMTOServiceItemUnauthorized {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the create m t o service item unauthorized response
-func (o *CreateMTOServiceItemUnauthorized) SetPayload(payload interface{}) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *CreateMTOServiceItemUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-}
-
-// CreateMTOServiceItemForbiddenCode is the HTTP code returned for type CreateMTOServiceItemForbidden
-const CreateMTOServiceItemForbiddenCode int = 403
-
-/*CreateMTOServiceItemForbidden The request was denied
-
-swagger:response createMTOServiceItemForbidden
-*/
-type CreateMTOServiceItemForbidden struct {
-
-	/*
-	  In: Body
-	*/
-	Payload interface{} `json:"body,omitempty"`
-}
-
-// NewCreateMTOServiceItemForbidden creates CreateMTOServiceItemForbidden with default headers values
-func NewCreateMTOServiceItemForbidden() *CreateMTOServiceItemForbidden {
-
-	return &CreateMTOServiceItemForbidden{}
-}
-
-// WithPayload adds the payload to the create m t o service item forbidden response
-func (o *CreateMTOServiceItemForbidden) WithPayload(payload interface{}) *CreateMTOServiceItemForbidden {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the create m t o service item forbidden response
-func (o *CreateMTOServiceItemForbidden) SetPayload(payload interface{}) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *CreateMTOServiceItemForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-}
-
 // CreateMTOServiceItemNotFoundCode is the HTTP code returned for type CreateMTOServiceItemNotFound
 const CreateMTOServiceItemNotFoundCode int = 404
 
@@ -219,48 +135,6 @@ func (o *CreateMTOServiceItemNotFound) SetPayload(payload interface{}) {
 func (o *CreateMTOServiceItemNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-}
-
-// CreateMTOServiceItemPreconditionFailedCode is the HTTP code returned for type CreateMTOServiceItemPreconditionFailed
-const CreateMTOServiceItemPreconditionFailedCode int = 412
-
-/*CreateMTOServiceItemPreconditionFailed precondition failed
-
-swagger:response createMTOServiceItemPreconditionFailed
-*/
-type CreateMTOServiceItemPreconditionFailed struct {
-
-	/*
-	  In: Body
-	*/
-	Payload interface{} `json:"body,omitempty"`
-}
-
-// NewCreateMTOServiceItemPreconditionFailed creates CreateMTOServiceItemPreconditionFailed with default headers values
-func NewCreateMTOServiceItemPreconditionFailed() *CreateMTOServiceItemPreconditionFailed {
-
-	return &CreateMTOServiceItemPreconditionFailed{}
-}
-
-// WithPayload adds the payload to the create m t o service item precondition failed response
-func (o *CreateMTOServiceItemPreconditionFailed) WithPayload(payload interface{}) *CreateMTOServiceItemPreconditionFailed {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the create m t o service item precondition failed response
-func (o *CreateMTOServiceItemPreconditionFailed) SetPayload(payload interface{}) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *CreateMTOServiceItemPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(412)
 	payload := o.Payload
 	if err := producer.Produce(rw, payload); err != nil {
 		panic(err) // let the recovery middleware deal with this
