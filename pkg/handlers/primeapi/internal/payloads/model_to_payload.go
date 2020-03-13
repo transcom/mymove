@@ -1,6 +1,8 @@
 package payloads
 
 import (
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/go-openapi/strfmt"
@@ -80,14 +82,14 @@ func Customer(customer *models.Customer) *primemessages.Customer {
 		return nil
 	}
 	payload := primemessages.Customer{
-		FirstName:          customer.FirstName,
-		LastName:           customer.LastName,
-		DodID:              customer.DODID,
+		FirstName:          swag.StringValue(customer.FirstName),
+		LastName:           swag.StringValue(customer.LastName),
+		DodID:              swag.StringValue(customer.DODID),
 		ID:                 strfmt.UUID(customer.ID.String()),
 		UserID:             strfmt.UUID(customer.UserID.String()),
 		CurrentAddress:     Address(&customer.CurrentAddress),
 		DestinationAddress: Address(&customer.DestinationAddress),
-		Branch:             customer.Agency,
+		Branch:             swag.StringValue(customer.Agency),
 	}
 
 	if customer.PhoneNumber != nil {
