@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/etag"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -141,13 +143,8 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
-	verrs, err := f.builder.UpdateOne(&oldShipment, &eTag)
 
-	if verrs != nil && verrs.HasAny() {
-		invalidInputError := services.NewInvalidInputError(oldShipment.ID, nil, verrs, "There was an issue with validating the updates")
-
-		return &models.MTOShipment{}, invalidInputError
-	}
+	err = updateMTOShipment(f.db, mtoShipment, oldShipment.UpdatedAt, eTag)
 
 	if err != nil {
 		switch err.(type) {
@@ -166,6 +163,99 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	}
 
 	return &updatedShipment, nil
+}
+
+// StaleIdentifierError is used when optimistic locking determines that the identifier refers to stale data
+type StaleIdentifierError struct {
+	StaleIdentifier string
+}
+
+func (e StaleIdentifierError) Error() string {
+	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
+}
+
+// updateMTOShipment updates the mto shipment with a raw query
+func updateMTOShipment(db *pop.Connection, updatedShipment *models.MTOShipment, unmodifiedSince time.Time, eTag string) error {
+	encodedUpdatedAt := etag.GenerateEtag(unmodifiedSince)
+
+	if eTag != encodedUpdatedAt {
+		return StaleIdentifierError{StaleIdentifier: eTag}
+	}
+
+	baseQuery := `UPDATE mto_shipments
+		SET updated_at = NOW()`
+
+	var params []interface{}
+	if updatedShipment.PrimeEstimatedWeight != nil {
+		estimatedWeightQuery := `,
+			prime_estimated_weight = ?,
+			prime_estimated_weight_recorded_date = NOW()`
+		baseQuery = baseQuery + estimatedWeightQuery
+		params = append(params, updatedShipment.PrimeEstimatedWeight)
+	}
+
+	if updatedShipment.DestinationAddressID != uuid.Nil {
+		baseQuery = baseQuery + ", \ndestination_address_id = ?"
+		params = append(params, updatedShipment.DestinationAddress.ID)
+	}
+
+	if updatedShipment.PickupAddressID != uuid.Nil {
+		baseQuery = baseQuery + ", \npickup_address_id = ?"
+		params = append(params, updatedShipment.PickupAddress.ID)
+	}
+
+	if updatedShipment.SecondaryPickupAddress != nil {
+		baseQuery = baseQuery + ", \nsecondary_pickup_address_id = ?"
+		params = append(params, updatedShipment.SecondaryPickupAddress.ID)
+	}
+
+	if updatedShipment.SecondaryDeliveryAddress != nil {
+		baseQuery = baseQuery + ", \nsecondary_delivery_address_id = ?"
+		params = append(params, updatedShipment.SecondaryDeliveryAddress.ID)
+	}
+
+	if updatedShipment.ScheduledPickupDate != nil {
+		baseQuery = baseQuery + ", \nscheduled_pickup_date = ?"
+		params = append(params, updatedShipment.ScheduledPickupDate)
+	}
+
+	if updatedShipment.RequestedPickupDate != nil {
+		baseQuery = baseQuery + ", \nrequested_pickup_date = ?"
+		params = append(params, updatedShipment.RequestedPickupDate)
+	}
+
+	if updatedShipment.FirstAvailableDeliveryDate != nil {
+		baseQuery = baseQuery + ", \nfirst_available_delivery_date = ?"
+		params = append(params, updatedShipment.FirstAvailableDeliveryDate)
+	}
+
+	if updatedShipment.ShipmentType != "" {
+		baseQuery = baseQuery + ", \nshipment_type = ?"
+		params = append(params, updatedShipment.ShipmentType)
+	}
+
+	if updatedShipment.PrimeActualWeight != nil {
+		baseQuery = baseQuery + ", \nprime_actual_weight = ?"
+		params = append(params, updatedShipment.PrimeActualWeight)
+	}
+
+	finishedQuery := baseQuery + `
+		WHERE
+			id = ?;
+	`
+
+	params = append(params,
+		updatedShipment.ID,
+	)
+
+	// do the updating in a raw query
+	err := db.RawQuery(finishedQuery, params...).Exec()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type mtoShipmentStatusUpdater struct {
