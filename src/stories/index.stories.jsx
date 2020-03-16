@@ -15,7 +15,8 @@ storiesOf('Components|Button', module)
     <div style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
       <Button secondary onClick={action('clicked')}>
         Button
@@ -24,13 +25,15 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
     </div>
   ))
@@ -38,7 +41,8 @@ storiesOf('Components|Button', module)
     <div className="hover" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
       <Button secondary onClick={action('clicked')}>
         Button
@@ -47,13 +51,15 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
     </div>
   ))
@@ -61,7 +67,8 @@ storiesOf('Components|Button', module)
     <div className="focus" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
       <Button secondary onClick={action('clicked')}>
         Button
@@ -70,13 +77,15 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
     </div>
   ))
@@ -84,7 +93,8 @@ storiesOf('Components|Button', module)
     <div className="active" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
       <Button secondary onClick={action('clicked')}>
         Button
@@ -93,13 +103,15 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
     </div>
   ))
@@ -109,7 +121,8 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button disabled className="usa-button--icon" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
       <Button secondary disabled onClick={action('clicked')}>
         Button
@@ -118,18 +131,20 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button disabled className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
       <Button secondary disabled className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
       <Button secondary disabled className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-        <span class="icon">★</span>Button
+        <span className="icon">★</span>
+        Button
       </Button>
     </div>
   ));
 
-//Colors
+// Colors
 storiesOf('Global|Colors', module).add('all', () => (
   <div style={{ padding: '20px' }}>
     <h3>Brand Colors</h3>
@@ -230,7 +245,7 @@ ColorGroup.propTypes = {
   group: PropTypes.arrayOf.isRequired,
 };
 
-//Typography
+// Typography
 storiesOf('Global|Typography', module)
   .add('Headers', () => (
     <div style={{ padding: '20px' }}>
