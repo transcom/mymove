@@ -86,7 +86,7 @@ type MoveDocumentPayload struct {
 	// Format: date
 	StorageStartDate *strfmt.Date `json:"storage_start_date,omitempty"`
 
-	// Document Title
+	// Document title
 	// Required: true
 	Title *string `json:"title"`
 
@@ -99,7 +99,7 @@ type MoveDocumentPayload struct {
 	// Vehicle model
 	VehicleModel *string `json:"vehicle_model,omitempty"`
 
-	// Vehicle nickname (ex. 'My car')
+	// Nickname (ex. "15-foot truck")
 	VehicleNickname *string `json:"vehicle_nickname,omitempty"`
 
 	// Weight ticket date

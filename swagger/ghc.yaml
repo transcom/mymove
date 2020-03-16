@@ -279,6 +279,10 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/MoveTaskOrder'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
           description: Successfully retrieved move task order
@@ -487,7 +491,7 @@ paths:
         '200':
           description: Successfully updated shipment
           schema:
-            $ref: '#/definitions/MTOShipmentWithEtag'
+            $ref: '#/definitions/MTOShipment'
         '404':
           description: The requested resource wasn't found
           schema:
@@ -770,6 +774,10 @@ paths:
           name: moveTaskOrderID
           required: true
           type: string
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
           description: Successfully updated move task order status
@@ -791,6 +799,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition Failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
         '500':
           description: A server error occurred
           schema:
@@ -1401,6 +1413,8 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+      eTag:
+        type: string
     type: object
   MoveTaskOrderStatus:
     properties:
@@ -1571,16 +1585,11 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
-  MTOShipmentWithEtag:
-    allOf:
-      - $ref: '#/definitions/MTOShipment'
-      - type: object
-    properties:
       eTag:
         type: string
   MTOShipments:
     items:
-      $ref: '#/definitions/MTOShipmentWithEtag'
+      $ref: '#/definitions/MTOShipment'
     type: array
   PatchMTOShipmentStatusPayload:
     properties:

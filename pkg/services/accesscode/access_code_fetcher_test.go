@@ -7,13 +7,12 @@ import (
 
 func (suite *AccessCodeServiceSuite) TestFetchAccessCode_FetchAccessCode() {
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
-	selectedMoveType := models.SelectedMoveTypePPM
 
 	code := "CODE12"
 	serviceMemberID := &user.ID
 	accessCode := models.AccessCode{
 		Code:            code,
-		MoveType:        &selectedMoveType,
+		MoveType:        models.SelectedMoveTypePPM,
 		ServiceMemberID: serviceMemberID,
 	}
 	suite.MustSave(&accessCode)
