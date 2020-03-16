@@ -23,6 +23,9 @@ storiesOf('Components|Button', module)
       <Button className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
+      <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
+      </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
@@ -39,6 +42,9 @@ storiesOf('Components|Button', module)
       </Button>
       <Button className="usa-button--small" onClick={action('clicked')}>
         Button
+      </Button>
+      <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
@@ -57,6 +63,9 @@ storiesOf('Components|Button', module)
       <Button className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
+      <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
+      </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
@@ -73,6 +82,9 @@ storiesOf('Components|Button', module)
       </Button>
       <Button className="usa-button--small" onClick={action('clicked')}>
         Button
+      </Button>
+      <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
@@ -92,6 +104,9 @@ storiesOf('Components|Button', module)
       </Button>
       <Button disabled className="usa-button--small" onClick={action('clicked')}>
         Button
+      </Button>
+      <Button disabled className="usa-button--icon usa-button--small" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
       </Button>
       <Button secondary disabled className="usa-button--small" onClick={action('clicked')}>
         Button
