@@ -52,7 +52,7 @@ describe('DocumentDetailEdit', () => {
       };
 
       const documentForm = renderDocumentDetailEdit({ formValues, moveDocSchema });
-      const title = documentForm.find('[data-cy="document-title-field"]');
+      const title = documentForm.find('[data-cy="title"]');
       const moveDocumentType = documentForm.find('[data-cy="move-document-type"]');
       const weightTicketSetType = documentForm.find('[data-cy="weight-ticket-set-type"]');
       const make = documentForm.find('[data-cy="vehicle-make"]');
@@ -83,7 +83,7 @@ describe('DocumentDetailEdit', () => {
       };
 
       const documentForm = renderDocumentDetailEdit({ formValues, moveDocSchema });
-      const title = documentForm.find('[data-cy="document-title-field"]');
+      const title = documentForm.find('[data-cy="title"]');
       const moveDocumentType = documentForm.find('[data-cy="move-document-type"]');
       const weightTicketSetType = documentForm.find('[data-cy="weight-ticket-set-type"]');
       const make = documentForm.find('[data-cy="vehicle-make"]');
@@ -117,7 +117,7 @@ describe('DocumentDetailEdit', () => {
 
       const documentForm = renderDocumentDetailEdit({ formValues, moveDocSchema });
       console.log(documentForm.find('ExpenseDocumentForm').debug());
-      const title = documentForm.find('[data-cy="document-title-field"]');
+      const title = documentForm.find('[data-cy="title"]');
       const moveDocumentType = documentForm.find('[data-cy="move-document-type"]');
       const storageStartDate = documentForm.find('[data-cy="storage-start-date"]');
       const storageEndDate = documentForm.find('[data-cy="storage-end-date"]');

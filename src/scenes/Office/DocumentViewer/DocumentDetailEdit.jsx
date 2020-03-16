@@ -30,7 +30,7 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
     <Fragment>
       <div>
         <FormSection name="moveDocument">
-          <SwaggerField data-cy="document-title-field" fieldName="title" swagger={moveDocSchema} required />
+          <SwaggerField data-cy="title" fieldName="title" swagger={moveDocSchema} required />
           <SwaggerField data-cy="move-document-type" fieldName="move_document_type" swagger={moveDocSchema} required />
           {isExpenseDocument && <ExpenseDocumentForm moveDocSchema={moveDocSchema} />}
           {isWeightTicketDocument && (
