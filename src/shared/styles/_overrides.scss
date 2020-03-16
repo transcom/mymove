@@ -5,6 +5,7 @@
   @include u-bg('primary-vivid');
   @include u-padding-x('3');
   @include u-padding-y('105');
+  @include u-font-size('body', 'xs');
   &:hover,
   &:focus,
   .hover &,
@@ -54,5 +55,6 @@
   &--small {
     @include u-padding-x('105');
     @include u-padding-y('1');
+    @include u-font-size('body', '2xs');
   }
 } //close usa-button
