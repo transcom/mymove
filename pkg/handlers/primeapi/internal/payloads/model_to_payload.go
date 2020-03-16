@@ -27,11 +27,15 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		PaymentRequests:    *paymentRequests,
 		MtoServiceItems:    *mtoServiceItems,
-		PpmEstimatedWeight: int64(moveTaskOrder.PPMEstimatedWeight),
-		PpmType:            moveTaskOrder.PPMType,
+		PpmType:            *moveTaskOrder.PPMType,
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
+
+	if moveTaskOrder.PPMEstimatedWeight != nil {
+		payload.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
+	}
+
 	return payload
 }
 
@@ -52,13 +56,17 @@ func MoveTaskOrderWithEtag(moveTaskOrder *models.MoveTaskOrder) *primemessages.M
 			MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 			ReferenceID:        moveTaskOrder.ReferenceID,
 			PaymentRequests:    *paymentRequests,
-			PpmEstimatedWeight: moveTaskOrder.PPMEstimatedWeight.Int64(),
-			PpmType:            moveTaskOrder.PPMType,
+			PpmEstimatedWeight: int64(*moveTaskOrder.PPMEstimatedWeight),
+			PpmType:            *moveTaskOrder.PPMType,
 			MtoServiceItems:    *mtoServiceItems,
 			MtoShipments:       *mtoShipments,
 			UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 		},
 		ETag: etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+	}
+
+	if moveTaskOrder.PPMEstimatedWeight != nil {
+		payload.MoveTaskOrder.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
 	}
 
 	return payload
