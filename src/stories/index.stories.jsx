@@ -29,6 +29,9 @@ storiesOf('Components|Button', module)
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
+      <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
+      </Button>
     </div>
   ))
   .add('hover', () => (
@@ -48,6 +51,9 @@ storiesOf('Components|Button', module)
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
+      </Button>
+      <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
       </Button>
     </div>
   ))
@@ -69,6 +75,9 @@ storiesOf('Components|Button', module)
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
+      <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
+      </Button>
     </div>
   ))
   .add('active', () => (
@@ -88,6 +97,9 @@ storiesOf('Components|Button', module)
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
+      </Button>
+      <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
       </Button>
     </div>
   ))
@@ -110,6 +122,9 @@ storiesOf('Components|Button', module)
       </Button>
       <Button secondary disabled className="usa-button--small" onClick={action('clicked')}>
         Button
+      </Button>
+      <Button secondary disabled className="usa-button--small usa-button--icon" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
       </Button>
     </div>
   ));
