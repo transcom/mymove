@@ -187,6 +187,7 @@ paths:
           type: string
         - in: body
           name: body
+          required: true
           schema:
             $ref: '#/definitions/MTOShipment'
         - in: header
@@ -732,7 +733,7 @@ definitions:
         type: integer
   MoveTaskOrders:
     items:
-      $ref: '#/definitions/MoveTaskOrder'
+      $ref: '#/definitions/MoveTaskOrderWithEtag'
     type: array
 
   MoveTaskOrderWithEtag:

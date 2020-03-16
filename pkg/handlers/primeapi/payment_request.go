@@ -33,7 +33,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
-	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
+	logger.Info("primeapi.CreatePaymentRequestHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 
 	moveTaskOrderIDString := payload.MoveTaskOrderID.String()
 	mtoID, err := uuid.FromString(moveTaskOrderIDString)

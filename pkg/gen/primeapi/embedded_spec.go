@@ -189,6 +189,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -1240,7 +1241,7 @@ func init() {
     "MoveTaskOrders": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
+        "$ref": "#/definitions/MoveTaskOrderWithEtag"
       }
     },
     "PaymentRequest": {
@@ -1672,6 +1673,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -2795,7 +2797,7 @@ func init() {
     "MoveTaskOrders": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
+        "$ref": "#/definitions/MoveTaskOrderWithEtag"
       }
     },
     "PaymentRequest": {

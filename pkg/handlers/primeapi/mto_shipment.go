@@ -22,16 +22,11 @@ type UpdateMTOShipmentHandler struct {
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	if params.Body == nil {
-		logger.Error("primeapi.UpdateMTOShipmentHandler error: Error in request. Body was nil")
-		return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(&primemessages.Error{Message: handlers.FmtString("Error in request. Body was nil.")})
-	}
-
 	mtoShipment := payloads.MTOShipmentModel(params.Body)
 	eTag := params.IfMatch
 	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
 
+	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 		switch err.(type) {
