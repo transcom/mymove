@@ -47,6 +47,9 @@
     }
   } //close &--secondary
   &--icon {
+    .icon {
+      padding-right: 8px;
+    }
   }
   &--small {
     @include u-padding-x('105');

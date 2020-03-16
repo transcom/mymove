@@ -15,7 +15,7 @@ storiesOf('Components|Button', module)
     <div style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
-        <i class="fas fa-copy"></i> Button
+        <span class="icon">★</span>Button
       </Button>
       <Button secondary onClick={action('clicked')}>
         Button
@@ -31,6 +31,9 @@ storiesOf('Components|Button', module)
   .add('hover', () => (
     <div className="hover" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
+      <Button className="usa-button--icon" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
+      </Button>
       <Button secondary onClick={action('clicked')}>
         Button
       </Button>
@@ -45,6 +48,9 @@ storiesOf('Components|Button', module)
   .add('focus', () => (
     <div className="focus" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
+      <Button className="usa-button--icon" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
+      </Button>
       <Button secondary onClick={action('clicked')}>
         Button
       </Button>
@@ -59,6 +65,9 @@ storiesOf('Components|Button', module)
   .add('active', () => (
     <div className="active" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
+      <Button className="usa-button--icon" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
+      </Button>
       <Button secondary onClick={action('clicked')}>
         Button
       </Button>
@@ -74,6 +83,9 @@ storiesOf('Components|Button', module)
     <div style={{ padding: '20px' }}>
       <Button disabled onClick={action('clicked')}>
         Button
+      </Button>
+      <Button disabled className="usa-button--icon" onClick={action('clicked')}>
+        <span class="icon">★</span>Button
       </Button>
       <Button secondary disabled onClick={action('clicked')}>
         Button
