@@ -129,6 +129,7 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	err := f.FetchRecord(&oldShipment, queryFilters)
 
 	if err != nil {
+		fmt.Println("\n\ngot here 1")
 		return &models.MTOShipment{}, err
 	}
 

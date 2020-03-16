@@ -24,7 +24,6 @@ type CreatePaymentRequestHandler struct {
 // Handle creates the payment request
 func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymentRequestParams) middleware.Responder {
 	// TODO: authorization to create payment request
-
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	payload := params.Body
@@ -33,6 +32,8 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		logger.Error("Invalid payment request: params Body is nil")
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
+
+	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 
 	moveTaskOrderIDString := payload.MoveTaskOrderID.String()
 	mtoID, err := uuid.FromString(moveTaskOrderIDString)
