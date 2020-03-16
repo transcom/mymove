@@ -35,12 +35,13 @@ type CostComputation struct {
 	Weight      unit.Pound
 }
 
-// CostComputation represents the results of a computation.
+// CostDetail holds the costComputation and a bool that signifies if the calcuation is the lowest cost computation
 type CostDetail struct {
 	Cost     CostComputation
 	IsLowest bool
 }
 
+// CostDetails is a map of CostDetail
 type CostDetails map[string]*CostDetail
 
 // Scale scales a cost computation by a multiplicative factor
@@ -263,20 +264,20 @@ func (re *RateEngine) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 st
 	return costDetails, nil
 }
 
+// GetWinningCostMove returns a costComputation of the winning calculation
 func GetWinningCostMove(costDetails CostDetails) CostComputation {
 	if costDetails["pickupLocation"].IsLowest {
 		return costDetails["pickupLocation"].Cost
-	} else {
-		return costDetails["originDutyStation"].Cost
 	}
+	return costDetails["originDutyStation"].Cost
 }
 
+// GetNonWinningCostMove returns a costComputation of the non-winning calculation
 func GetNonWinningCostMove(costDetails CostDetails) CostComputation {
 	if costDetails["pickupLocation"].IsLowest {
 		return costDetails["originDutyStation"].Cost
-	} else {
-		return costDetails["pickupLocation"].Cost
 	}
+	return costDetails["pickupLocation"].Cost
 }
 
 // NewRateEngine creates a new RateEngine

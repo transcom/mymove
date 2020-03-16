@@ -164,8 +164,8 @@ type ShipmentSummaryFormData struct {
 
 // Obligations an object representing the Max Obligation and Actual Obligation sections of the shipment summary worksheet
 type Obligations struct {
-	MaxObligation    Obligation
-	ActualObligation Obligation
+	MaxObligation              Obligation
+	ActualObligation           Obligation
 	NonWinningMaxObligation    Obligation
 	NonWinningActualObligation Obligation
 }
