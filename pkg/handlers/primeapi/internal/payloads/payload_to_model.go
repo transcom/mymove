@@ -91,11 +91,11 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 	}
 
 	if mtoShipment.PickupAddress != nil {
-		model.PickupAddress = *AddressModel(mtoShipment.PickupAddress)
+		model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
 	}
 
 	if mtoShipment.DestinationAddress != nil {
-		model.DestinationAddress = *AddressModel(mtoShipment.DestinationAddress)
+		model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
 	}
 
 	if mtoShipment.PrimeActualWeight > 0 {

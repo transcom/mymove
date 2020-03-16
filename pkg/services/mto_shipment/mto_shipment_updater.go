@@ -76,12 +76,12 @@ func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *mode
 		oldShipment.PrimeEstimatedWeightRecordedDate = &now
 	}
 
-	if updatedShipment.PickupAddressID != uuid.Nil {
+	if updatedShipment.PickupAddress != nil {
 		pickupAddress := updatedShipment.PickupAddress
 		oldShipment.PickupAddress = pickupAddress
 	}
 
-	if updatedShipment.DestinationAddressID != uuid.Nil {
+	if updatedShipment.DestinationAddress != nil {
 		destinationAddress := updatedShipment.DestinationAddress
 		oldShipment.DestinationAddress = destinationAddress
 	}
@@ -141,7 +141,67 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
-	verrs, err := f.builder.UpdateOne(&oldShipment, &eTag)
+
+	var verrs *validate.Errors
+
+	err = f.db.Transaction(func(tx *pop.Connection) error {
+		// does initial optimistic locking for any fields that are updated on the mto_shipment table itself
+		verrs, err = f.builder.UpdateOne(&oldShipment, &eTag)
+
+		if err != nil {
+			return err
+		}
+
+		if mtoShipment.DestinationAddress != nil || mtoShipment.PickupAddress != nil || mtoShipment.SecondaryPickupAddress != nil || mtoShipment.SecondaryDeliveryAddress != nil {
+			var baseQuery string
+
+			baseQuery = `UPDATE addresses
+				SET
+			`
+
+			if mtoShipment.DestinationAddress != nil {
+				destinationAddressQuery := generateAddressQuery()
+				params := generateAddressParams(mtoShipment.DestinationAddress)
+				err = f.db.RawQuery(baseQuery+destinationAddressQuery, params...).Exec()
+			}
+
+			if err != nil {
+				return err
+			}
+
+			if mtoShipment.PickupAddress != nil {
+				pickupAddressQuery := generateAddressQuery()
+				params := generateAddressParams(mtoShipment.PickupAddress)
+				err = f.db.RawQuery(baseQuery+pickupAddressQuery, params...).Exec()
+			}
+
+			if err != nil {
+				return err
+			}
+
+			if mtoShipment.SecondaryDeliveryAddress != nil {
+				secondaryDeliveryAddressQuery := generateAddressQuery()
+				params := generateAddressParams(mtoShipment.SecondaryDeliveryAddress)
+				err = f.db.RawQuery(baseQuery+secondaryDeliveryAddressQuery, params...).Exec()
+			}
+
+			if err != nil {
+				return err
+			}
+
+			if mtoShipment.SecondaryPickupAddress != nil {
+				secondaryPickupAddressQuery := generateAddressQuery()
+				params := generateAddressParams(mtoShipment.SecondaryPickupAddress)
+				err = f.db.RawQuery(baseQuery+secondaryPickupAddressQuery, params...).Exec()
+			}
+
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
 
 	if verrs != nil && verrs.HasAny() {
 		invalidInputError := services.NewInvalidInputError(oldShipment.ID, nil, verrs, "There was an issue with validating the updates")
@@ -166,6 +226,71 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	}
 
 	return &updatedShipment, nil
+}
+
+func generateAddressQuery() string {
+	return `
+		updated_at =
+			CASE
+			   WHEN id = ? THEN NOW() ELSE updated_at
+			END,
+		city =
+			CASE
+			   WHEN id = ? THEN ? ELSE city
+			END,
+		country =
+			CASE
+			   WHEN id = ? THEN ? ELSE country
+			END,
+		postal_code =
+			CASE
+			   WHEN id = ? THEN ? ELSE postal_code
+			END,
+		state =
+			CASE
+			   WHEN id = ? THEN ? ELSE state
+			END,
+		street_address_1 =
+			CASE
+			   WHEN id = ? THEN ? ELSE street_address_1
+			END,
+		street_address_2 =
+			CASE
+			   WHEN id = ? THEN ? ELSE street_address_2
+			END,
+		street_address_3 =
+			CASE
+			   WHEN id = ? THEN ? ELSE street_address_3
+			END;
+	`
+}
+
+func generateAddressParams(address *models.Address) []interface{} {
+	destinationAddressID := address.ID
+	city := address.City
+	country := address.Country
+	postalCode := address.PostalCode
+	state := address.State
+	streetAddress1 := address.StreetAddress1
+	streetAddress2 := address.StreetAddress2
+	streetAddress3 := address.StreetAddress3
+	paramArr := []interface{}{
+		destinationAddressID,
+		destinationAddressID,
+		city,
+		destinationAddressID,
+		country,
+		destinationAddressID,
+		postalCode,
+		destinationAddressID,
+		state,
+		destinationAddressID,
+		streetAddress1,
+		destinationAddressID,
+		streetAddress2,
+		destinationAddressID,
+		streetAddress3}
+	return paramArr
 }
 
 type mtoShipmentStatusUpdater struct {

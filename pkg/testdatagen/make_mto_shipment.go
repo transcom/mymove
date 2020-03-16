@@ -15,11 +15,12 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}
-	pickupAddress := assertions.MTOShipment.PickupAddress
+	pickupAddress := *assertions.MTOShipment.PickupAddress
 	if isZeroUUID(pickupAddress.ID) {
+
 		pickupAddress = MakeAddress(db, assertions)
 	}
-	destinationAddress := assertions.MTOShipment.DestinationAddress
+	destinationAddress := *assertions.MTOShipment.DestinationAddress
 	if isZeroUUID(destinationAddress.ID) {
 		destinationAddress = MakeAddress2(db, assertions)
 	}
@@ -46,10 +47,10 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		ScheduledPickupDate:      &scheduledPickupDate,
 		RequestedPickupDate:      &requestedPickupDate,
 		CustomerRemarks:          &remarks,
-		PickupAddress:            pickupAddress,
-		PickupAddressID:          pickupAddress.ID,
-		DestinationAddress:       destinationAddress,
-		DestinationAddressID:     destinationAddress.ID,
+		PickupAddress:            &pickupAddress,
+		PickupAddressID:          &pickupAddress.ID,
+		DestinationAddress:       &destinationAddress,
+		DestinationAddressID:     &destinationAddress.ID,
 		PrimeActualWeight:        &actualWeight,
 		SecondaryPickupAddress:   &pickupAddress,
 		SecondaryDeliveryAddress: &destinationAddress,
