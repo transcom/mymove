@@ -220,6 +220,40 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
 		suite.NotNil(updatedMTOShipment.PrimeEstimatedWeightRecordedDate)
 	})
+
+	suite.T().Run("Successfully update MTO Agents", func(t *testing.T) {
+		mtoAgent1 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{})
+		mtoAgent2 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{})
+		var mtoAgents models.MTOAgents
+
+		mtoAgents[0] = mtoAgent1
+		mtoAgents[1] = mtoAgent2
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				MTOAgents: mtoAgents,
+			},
+		})
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		var updatedAgents models.MTOAgents
+		updatedAgents[0] = mtoAgent1
+		updatedAgents[1] = mtoAgent2
+		newFirstName := "hey this is new"
+		newLastName := "new thing"
+		updatedAgents[0].FirstName = &newFirstName
+		updatedAgents[1].LastName = &newLastName
+		updatedShipment := models.MTOShipment{
+			ID:        shipment.ID,
+			MTOAgents: updatedAgents,
+		}
+
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
+
+		suite.NoError(err)
+
+		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.Equal(updatedMTOShipment.MTOAgents[0].FirstName, newFirstName)
+		suite.Equal(updatedMTOShipment.MTOAgents[1].LastName, newLastName)
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
