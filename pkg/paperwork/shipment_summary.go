@@ -88,16 +88,15 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		actualSIT = *firstPPM.TotalSITCost
 	}
 
-	// This logic needs to be put back in!!
-	// if actualSIT > maxCost.SITMax {
-	// 	actualSIT = maxCost.SITMax
-	// }
+	if actualSIT > maxCost.SITMax {
+		actualSIT = maxCost.SITMax
+	}
 
 	obligations := models.Obligations{
-		ActualObligation: models.Obligation{Gcc: actualCost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost.Mileage)},
-		MaxObligation: models.Obligation{Gcc: maxCost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost.Mileage)},
+		ActualObligation:           models.Obligation{Gcc: actualCost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost.Mileage)},
+		MaxObligation:              models.Obligation{Gcc: maxCost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost.Mileage)},
 		NonWinningActualObligation: models.Obligation{Gcc: nonWinningActualCost.GCC, SIT: actualSIT, Miles: unit.Miles(nonWinningActualCost.Mileage)},
-		NonWinningMaxObligation: models.Obligation{Gcc: nonWinningMaxCost.GCC, SIT: actualSIT, Miles: unit.Miles(nonWinningActualCost.Mileage)},
+		NonWinningMaxObligation:    models.Obligation{Gcc: nonWinningMaxCost.GCC, SIT: actualSIT, Miles: unit.Miles(nonWinningActualCost.Mileage)},
 	}
 	return obligations, nil
 }

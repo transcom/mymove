@@ -169,25 +169,25 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 		suite.Equal(expectMaxObligationParams, calledWith[1])
 	})
 
-	// suite.Run("TestComputeObligations when actual PPM SIT exceeds MaxSIT", func() {
-	// 	var costDetails = make(rateengine.CostDetails)
-	// 	costDetails["pickupLocation"] = &rateengine.CostDetail{
-	// 		rateengine.CostComputation{SITMax: unit.Cents(500)},
-	// 		true,
-	// 	}
-	// 	costDetails["originDutyStation"] = &rateengine.CostDetail{
-	// 		rateengine.CostComputation{SITMax: unit.Cents(600)},
-	// 		false,
-	// 	}
-	// 	mockComputer := mockPPMComputer{
-	// 		costDetails: costDetails,
-	// 	}
-	// 	ppmComputer := NewSSWPPMComputer(&mockComputer)
-	// 	obligations, err := ppmComputer.ComputeObligations(params, planner)
+	suite.Run("TestComputeObligations when actual PPM SIT exceeds MaxSIT", func() {
+		var costDetails = make(rateengine.CostDetails)
+		costDetails["pickupLocation"] = &rateengine.CostDetail{
+			rateengine.CostComputation{SITMax: unit.Cents(500)},
+			true,
+		}
+		costDetails["originDutyStation"] = &rateengine.CostDetail{
+			rateengine.CostComputation{SITMax: unit.Cents(600)},
+			false,
+		}
+		mockComputer := mockPPMComputer{
+			costDetails: costDetails,
+		}
+		ppmComputer := NewSSWPPMComputer(&mockComputer)
+		obligations, err := ppmComputer.ComputeObligations(params, planner)
 
-	// 	suite.NoError(err)
-	// 	suite.Equal(unit.Cents(500), obligations.ActualObligation.SIT)
-	// })
+		suite.NoError(err)
+		suite.Equal(unit.Cents(500), obligations.ActualObligation.SIT)
+	})
 
 	suite.Run("TestComputeObligations when there is no actual PPM SIT", func() {
 		var costDetails = make(rateengine.CostDetails)
