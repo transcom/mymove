@@ -23,7 +23,8 @@ describe('DocumentDetailEdit', () => {
       };
 
       const documentForm = renderDocumentDetailEdit({ formValues, moveDocSchema });
-      const title = documentForm.find('[data-cy="document-title-field"]');
+
+      const title = documentForm.find('[data-cy="title"]');
       const moveDocumentType = documentForm.find('[data-cy="move-document-type"]');
       const weightTicketSetType = documentForm.find('[data-cy="weight-ticket-set-type"]');
       const make = documentForm.find('[data-cy="vehicle-make"]');
@@ -32,15 +33,14 @@ describe('DocumentDetailEdit', () => {
       const status = documentForm.find('[data-cy="status"]');
       const notes = documentForm.find('[data-cy="notes"]');
 
-      expect(title.length).toEqual(1);
-      expect(moveDocumentType.length).toEqual(1);
-      expect(weightTicketSetType.length).toEqual(1);
-      expect(weightTicketSetType.length).toEqual(1);
-      expect(make.length).toEqual(1);
-      expect(model.length).toEqual(1);
-      expect(vehicleNickname.length).toEqual(0);
-      expect(status.length).toEqual(1);
-      expect(notes.length).toEqual(1);
+      expect(title.props()).toHaveProperty('fieldName', 'title');
+      expect(moveDocumentType.props()).toHaveProperty('fieldName', 'move_document_type');
+      expect(weightTicketSetType.props()).toHaveProperty('fieldName', 'weight_ticket_set_type');
+      expect(make.props()).toHaveProperty('fieldName', 'vehicle_make');
+      expect(model.props()).toHaveProperty('fieldName', 'vehicle_model');
+      expect(vehicleNickname.length).toBeFalsy();
+      expect(status.props()).toHaveProperty('fieldName', 'status');
+      expect(notes.props()).toHaveProperty('fieldName', 'notes');
     });
 
     it('shows all form fields for a boxtruck', () => {
@@ -63,16 +63,16 @@ describe('DocumentDetailEdit', () => {
       const status = documentForm.find('[data-cy="status"]');
       const notes = documentForm.find('[data-cy="notes"]');
 
-      expect(title.length).toEqual(1);
-      expect(moveDocumentType.length).toEqual(1);
-      expect(weightTicketSetType.length).toEqual(1);
-      expect(make.length).toEqual(0);
-      expect(model.length).toEqual(0);
-      expect(vehicleNickname.length).toEqual(1);
-      expect(emptyWeight.length).toEqual(1);
-      expect(fullWeight.length).toEqual(1);
-      expect(status.length).toEqual(1);
-      expect(notes.length).toEqual(1);
+      expect(title.props()).toHaveProperty('fieldName', 'title');
+      expect(moveDocumentType.props()).toHaveProperty('fieldName', 'move_document_type');
+      expect(weightTicketSetType.props()).toHaveProperty('fieldName', 'weight_ticket_set_type');
+      expect(make.length).toBeFalsy();
+      expect(model.length).toBeFalsy();
+      expect(vehicleNickname.props()).toHaveProperty('fieldName', 'vehicle_nickname');
+      expect(emptyWeight.props()).toHaveProperty('fieldName', 'empty_weight');
+      expect(fullWeight.props()).toHaveProperty('fieldName', 'full_weight');
+      expect(status.props()).toHaveProperty('fieldName', 'status');
+      expect(notes.props()).toHaveProperty('fieldName', 'notes');
     });
     it('shows all form fields for progear', () => {
       const formValues = {
@@ -94,16 +94,16 @@ describe('DocumentDetailEdit', () => {
       const status = documentForm.find('[data-cy="status"]');
       const notes = documentForm.find('[data-cy="notes"]');
 
-      expect(title.length).toEqual(1);
-      expect(moveDocumentType.length).toEqual(1);
-      expect(weightTicketSetType.length).toEqual(1);
-      expect(make.length).toEqual(0);
-      expect(model.length).toEqual(0);
-      expect(progearType.length).toEqual(1);
-      expect(emptyWeight.length).toEqual(1);
-      expect(fullWeight.length).toEqual(1);
-      expect(status.length).toEqual(1);
-      expect(notes.length).toEqual(1);
+      expect(title.props()).toHaveProperty('fieldName', 'title');
+      expect(moveDocumentType.props()).toHaveProperty('fieldName', 'move_document_type');
+      expect(weightTicketSetType.props()).toHaveProperty('fieldName', 'weight_ticket_set_type');
+      expect(make.length).toBeFalsy();
+      expect(model.length).toBeFalsy();
+      expect(progearType.props()).toHaveProperty('fieldName', 'vehicle_nickname');
+      expect(emptyWeight.props()).toHaveProperty('fieldName', 'empty_weight');
+      expect(fullWeight.props()).toHaveProperty('fieldName', 'full_weight');
+      expect(status.props()).toHaveProperty('fieldName', 'status');
+      expect(notes.props()).toHaveProperty('fieldName', 'notes');
     });
   });
   describe('expense document type', () => {
@@ -116,7 +116,6 @@ describe('DocumentDetailEdit', () => {
       };
 
       const documentForm = renderDocumentDetailEdit({ formValues, moveDocSchema });
-      console.log(documentForm.find('ExpenseDocumentForm').debug());
       const title = documentForm.find('[data-cy="title"]');
       const moveDocumentType = documentForm.find('[data-cy="move-document-type"]');
       const storageStartDate = documentForm.find('[data-cy="storage-start-date"]');
@@ -125,13 +124,13 @@ describe('DocumentDetailEdit', () => {
       const notes = documentForm.find('[data-cy="notes"]');
       const expenseDocumentForm = documentForm.find('ExpenseDocumentForm');
 
-      expect(title.length).toEqual(1);
-      expect(moveDocumentType.length).toEqual(1);
-      expect(storageStartDate.length).toEqual(1);
-      expect(storageEndDate.length).toEqual(1);
-      expect(status.length).toEqual(1);
-      expect(notes.length).toEqual(1);
-      expect(expenseDocumentForm.length).toEqual(1);
+      expect(title.props()).toHaveProperty('fieldName', 'title');
+      expect(moveDocumentType.props()).toHaveProperty('fieldName', 'move_document_type');
+      expect(storageStartDate.props()).toHaveProperty('fieldName', 'storage_start_date');
+      expect(storageEndDate.props()).toHaveProperty('fieldName', 'storage_end_date');
+      expect(status.props()).toHaveProperty('fieldName', 'status');
+      expect(notes.props()).toHaveProperty('fieldName', 'notes');
+      expect(expenseDocumentForm.props()).toBeTruthy();
     });
   });
 });
