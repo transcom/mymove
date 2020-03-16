@@ -50,7 +50,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
 
-	actualCost, err := sswPpmComputer.ComputePPMMoveCosts(
+	actualCosts, err := sswPpmComputer.ComputePPMMoveCosts(
 		ssfd.PPMRemainingEntitlement,
 		*firstPPM.PickupPostalCode,
 		originDutyStationZip,
@@ -64,9 +64,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating PPM actual obligations")
 	}
 
-	// mileageWon := unit.Miles(actualCost.Mileage)
-
-	maxCost, err := sswPpmComputer.ComputePPMMoveCosts(
+	maxCosts, err := sswPpmComputer.ComputePPMMoveCosts(
 		ssfd.WeightAllotment.TotalWeight,
 		*firstPPM.PickupPostalCode,
 		originDutyStationZip,
@@ -80,37 +78,27 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating PPM max obligations")
 	}
 
+	actualCost := rateengine.GetWinningCostMove(actualCosts)
+	maxCost := rateengine.GetWinningCostMove(maxCosts)
+	nonWinningActualCost := rateengine.GetNonWinningCostMove(actualCosts)
+	nonWinningMaxCost := rateengine.GetNonWinningCostMove(maxCosts)
+
 	var actualSIT unit.Cents
 	if firstPPM.TotalSITCost != nil {
 		actualSIT = *firstPPM.TotalSITCost
 	}
+
 	// This logic needs to be put back in!!
 	// if actualSIT > maxCost.SITMax {
 	// 	actualSIT = maxCost.SITMax
 	// }
 
-	var actualObligation models.Obligation
-	var maxObligation models.Obligation
-	var nonWinningActualObligation models.Obligation
-	var nonWinningMaxObligation models.Obligation
-
-	if actualCost["pickupLocation"].IsLowest {
-		actualObligation = models.Obligation{Gcc: actualCost["pickupLocation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost["pickupLocation"].Cost.Mileage)}
-		nonWinningActualObligation = models.Obligation{Gcc: actualCost["originDutyStation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost["originDutyStation"].Cost.Mileage)}
-	} else {
-		nonWinningActualObligation = models.Obligation{Gcc: actualCost["pickupLocation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost["pickupLocation"].Cost.Mileage)}
-		actualObligation = models.Obligation{Gcc: actualCost["originDutyStation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost["originDutyStation"].Cost.Mileage)}
+	obligations := models.Obligations{
+		ActualObligation: models.Obligation{Gcc: actualCost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost.Mileage)},
+		MaxObligation: models.Obligation{Gcc: maxCost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost.Mileage)},
+		NonWinningActualObligation: models.Obligation{Gcc: nonWinningActualCost.GCC, SIT: actualSIT, Miles: unit.Miles(nonWinningActualCost.Mileage)},
+		NonWinningMaxObligation: models.Obligation{Gcc: nonWinningMaxCost.GCC, SIT: actualSIT, Miles: unit.Miles(nonWinningActualCost.Mileage)},
 	}
-
-	if maxCost["pickupLocation"].IsLowest {
-		maxObligation = models.Obligation{Gcc: maxCost["pickupLocation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(maxCost["pickupLocation"].Cost.Mileage)}
-		nonWinningMaxObligation = models.Obligation{Gcc: maxCost["originDutyStation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(maxCost["originDutyStation"].Cost.Mileage)}
-	} else {
-		nonWinningMaxObligation = models.Obligation{Gcc: maxCost["pickupLocation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(maxCost["pickupLocation"].Cost.Mileage)}
-		maxObligation = models.Obligation{Gcc: maxCost["originDutyStation"].Cost.GCC, SIT: actualSIT, Miles: unit.Miles(maxCost["originDutyStation"].Cost.Mileage)}
-	}
-
-	obligations := models.Obligations{MaxObligation: maxObligation, ActualObligation: actualObligation, NonWinningMaxObligation: nonWinningMaxObligation, NonWinningActualObligation: nonWinningActualObligation}
 	return obligations, nil
 }
 
