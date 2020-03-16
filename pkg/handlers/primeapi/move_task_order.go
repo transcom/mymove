@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/audit"
 	movetaskorderservice "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -20,11 +21,13 @@ import (
 // FetchMTOUpdatesHandler lists move task orders with the option to filter since a particular date
 type FetchMTOUpdatesHandler struct {
 	handlers.HandlerContext
+	auditor *audit.Auditor
 }
 
 // Handle fetches all move task orders with the option to filter since a particular date
 func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	h.auditor.SetRequestContext(params.HTTPRequest)
 
 	var mtos models.MoveTaskOrders
 
@@ -53,6 +56,8 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 	}
 
 	payload := payloads.MoveTaskOrders(&mtos)
+
+	h.auditor.Record("Testing for the Prime", nil, nil)
 
 	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
 }

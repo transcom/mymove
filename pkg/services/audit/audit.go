@@ -16,6 +16,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -23,11 +24,12 @@ import (
 
 // Auditor holds on to contextual information we need to create an AuditRecording
 type Auditor struct {
-	builder *query.Builder
-	hctx    handlers.HandlerContext
-	logger  Logger
-	session *auth.Session
-	request *http.Request
+	builder    *query.Builder
+	hctx       handlers.HandlerContext
+	logger     Logger
+	session    *auth.Session
+	clientCert *models.ClientCert
+	request    *http.Request
 }
 
 // NewAuditor instantiates a new Auditor
@@ -41,7 +43,17 @@ func NewAuditor(builder *query.Builder, hctx handlers.HandlerContext) Auditor {
 // SetRequestContext adds the request to the Auditor struct for later use
 func (a *Auditor) SetRequestContext(request *http.Request) {
 	a.request = request
-	a.session, a.logger = a.hctx.SessionAndLoggerFromRequest(request)
+
+	clientCert := authentication.ClientCertFromRequestContext(request)
+
+	// Request is coming from the Prime
+	if clientCert != nil {
+		a.clientCert = clientCert
+		a.logger = a.hctx.LoggerFromRequest(request)
+	} else {
+		a.session, a.logger = a.hctx.SessionAndLoggerFromRequest(request)
+	}
+
 }
 
 // Record creates an audit recording
@@ -59,10 +71,16 @@ func (a *Auditor) Record(name string, model, payload interface{}) (*models.Audit
 		RecordData: modelMap,
 		Payload:    payloadMap,
 		Metadata:   metadata,
-		UserID:     &a.session.UserID,
-		FirstName:  &a.session.FirstName,
-		LastName:   &a.session.LastName,
-		Email:      &a.session.Email,
+	}
+
+	if a.session == nil {
+		auditRecording.ClientCertID = &a.clientCert.ID
+	} else {
+		auditRecording.UserID = &a.session.UserID
+		auditRecording.FirstName = &a.session.FirstName
+		auditRecording.LastName = &a.session.LastName
+		auditRecording.Email = &a.session.Email
+
 	}
 
 	_, err := a.builder.CreateOne(&auditRecording)

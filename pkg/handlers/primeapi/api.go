@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/transcom/mymove/pkg/services/audit"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -22,6 +23,7 @@ import (
 func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 	builder := query.NewQueryBuilder(context.DB())
 	fetcher := fetch.NewFetcher(builder)
+	auditor := audit.NewAuditor(builder, context)
 
 	primeSpec, err := loads.Analyzed(primeapi.SwaggerJSON, "")
 	if err != nil {
@@ -32,6 +34,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	primeAPI.MoveTaskOrderFetchMTOUpdatesHandler = FetchMTOUpdatesHandler{
 		context,
+		&auditor,
 	}
 
 	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
