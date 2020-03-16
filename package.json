@@ -90,7 +90,7 @@
     "@rescripts/cli": "^0.0.13",
     "@rescripts/rescript-env": "^0.0.11",
     "@storybook/addon-actions": "^5.3.17",
-    "@storybook/addon-info": "^5.3.14",
+    "@storybook/addon-info": "^5.3.17",
     "@storybook/addon-knobs": "^5.3.17",
     "@storybook/addon-links": "^5.3.17",
     "@storybook/addons": "^5.3.17",
