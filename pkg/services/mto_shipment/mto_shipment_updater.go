@@ -153,16 +153,15 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 		}
 
 		if mtoShipment.DestinationAddress != nil || mtoShipment.PickupAddress != nil || mtoShipment.SecondaryPickupAddress != nil || mtoShipment.SecondaryDeliveryAddress != nil {
-			var baseQuery string
 
-			baseQuery = `UPDATE addresses
+			addressBaseQuery := `UPDATE addresses
 				SET
 			`
 
 			if mtoShipment.DestinationAddress != nil {
 				destinationAddressQuery := generateAddressQuery()
 				params := generateAddressParams(mtoShipment.DestinationAddress)
-				err = f.db.RawQuery(baseQuery+destinationAddressQuery, params...).Exec()
+				err = f.db.RawQuery(addressBaseQuery+destinationAddressQuery, params...).Exec()
 			}
 
 			if err != nil {
@@ -172,7 +171,7 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 			if mtoShipment.PickupAddress != nil {
 				pickupAddressQuery := generateAddressQuery()
 				params := generateAddressParams(mtoShipment.PickupAddress)
-				err = f.db.RawQuery(baseQuery+pickupAddressQuery, params...).Exec()
+				err = f.db.RawQuery(addressBaseQuery+pickupAddressQuery, params...).Exec()
 			}
 
 			if err != nil {
@@ -182,7 +181,7 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 			if mtoShipment.SecondaryDeliveryAddress != nil {
 				secondaryDeliveryAddressQuery := generateAddressQuery()
 				params := generateAddressParams(mtoShipment.SecondaryDeliveryAddress)
-				err = f.db.RawQuery(baseQuery+secondaryDeliveryAddressQuery, params...).Exec()
+				err = f.db.RawQuery(addressBaseQuery+secondaryDeliveryAddressQuery, params...).Exec()
 			}
 
 			if err != nil {
@@ -192,11 +191,25 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 			if mtoShipment.SecondaryPickupAddress != nil {
 				secondaryPickupAddressQuery := generateAddressQuery()
 				params := generateAddressParams(mtoShipment.SecondaryPickupAddress)
-				err = f.db.RawQuery(baseQuery+secondaryPickupAddressQuery, params...).Exec()
+				err = f.db.RawQuery(addressBaseQuery+secondaryPickupAddressQuery, params...).Exec()
 			}
 
 			if err != nil {
 				return err
+			}
+		}
+
+		if mtoShipment.MTOAgents != nil {
+			agentQuery := `UPDATE mto_agents
+					SET
+				`
+			for _, agent := range mtoShipment.MTOAgents {
+				updateAgentQuery := generateAgentQuery()
+				params := generateMTOAgentsParams(agent)
+				err = f.db.RawQuery(agentQuery+updateAgentQuery, params...).Exec()
+				if err != nil {
+					return err
+				}
 			}
 		}
 
@@ -226,6 +239,60 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	}
 
 	return &updatedShipment, nil
+}
+
+func generateMTOAgentsParams(agent models.MTOAgent) []interface{} {
+	agentID := agent.ID
+	agentType := agent.MTOAgentType
+	firstName := agent.FirstName
+	lastName := agent.LastName
+	email := agent.Email
+	phoneNo := agent.Phone
+
+	paramsArr := []interface{}{
+		agentID,
+		agentID,
+		agentType,
+		agentID,
+		firstName,
+		agentID,
+		lastName,
+		agentID,
+		email,
+		agentID,
+		phoneNo,
+	}
+
+	return paramsArr
+}
+
+func generateAgentQuery() string {
+	return `
+		updated_at =
+			CASE
+			   WHEN id = ? THEN NOW() ELSE updated_at
+			END,
+		agent_type =
+			CASE
+			   WHEN id = ? THEN ? ELSE agent_type
+			END,
+		first_name =
+			CASE
+			   WHEN id = ? THEN ? ELSE first_name
+			END,
+		last_name =
+			CASE
+			   WHEN id = ? THEN ? ELSE last_name
+			END,
+		email =
+			CASE
+			   WHEN id = ? THEN ? ELSE email
+			END,
+		phone =
+			CASE
+			   WHEN id = ? THEN ? ELSE phone
+			END;
+	`
 }
 
 func generateAddressQuery() string {
