@@ -49,12 +49,22 @@
   } //close &--secondary
   &--icon {
     .icon {
-      padding-right: 8px;
+      @include u-padding-right('1');
     }
   }
   &--small {
     @include u-padding-x('105');
     @include u-padding-y('1');
     @include u-font-size('body', '2xs');
+  }
+  &.usa-button--unstyled {
+    @include u-bg('transparent');
+    @include u-text('primary-vivid');
+    @include u-text('no-underline') .icon {
+      @include u-padding-right('1');
+    }
+    &:hover {
+      @include u-text('primary-dark');
+    }
   }
 } //close usa-button

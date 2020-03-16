@@ -35,6 +35,13 @@ storiesOf('Components|Button', module)
         <span className="icon">★</span>
         Button
       </Button>
+      <Button className="usa-button--unstyled" onClick={action('clicked')}>
+        Button
+      </Button>
+      <Button className="usa-button--unstyled" onClick={action('clicked')}>
+        <span className="icon">★</span>
+        Button
+      </Button>
     </div>
   ))
   .add('hover', () => (
@@ -61,6 +68,9 @@ storiesOf('Components|Button', module)
         <span className="icon">★</span>
         Button
       </Button>
+      <Button className="usa-button--unstyled" onClick={action('clicked')}>
+        Button
+      </Button>
     </div>
   ))
   .add('focus', () => (
@@ -84,6 +94,13 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
+        <span className="icon">★</span>
+        Button
+      </Button>
+      <Button className="usa-button--unstyled" onClick={action('clicked')}>
+        Button
+      </Button>
+      <Button className="usa-button--unstyled" onClick={action('clicked')}>
         <span className="icon">★</span>
         Button
       </Button>
@@ -113,6 +130,13 @@ storiesOf('Components|Button', module)
         <span className="icon">★</span>
         Button
       </Button>
+      <Button className="usa-button--unstyled" onClick={action('clicked')}>
+        Button
+      </Button>
+      <Button className="usa-button--unstyled" onClick={action('clicked')}>
+        <span className="icon">★</span>
+        Button
+      </Button>
     </div>
   ))
   .add('disabled', () => (
@@ -138,6 +162,13 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button secondary disabled className="usa-button--small usa-button--icon" onClick={action('clicked')}>
+        <span className="icon">★</span>
+        Button
+      </Button>
+      <Button className="usa-button--unstyled" onClick={action('clicked')}>
+        Button
+      </Button>
+      <Button className="usa-button--unstyled" onClick={action('clicked')}>
         <span className="icon">★</span>
         Button
       </Button>
