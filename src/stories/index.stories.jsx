@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { Button } from '@trussworks/react-uswds';
+import editIcon from '../shared/images/edit-24px.svg';
 import colors from '../shared/styles/colors.scss';
 
 const filterGroup = filter => Object.keys(colors).filter(color => color.indexOf(filter) === 0);
@@ -15,7 +16,9 @@ storiesOf('Components|Button', module)
     <div style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button secondary onClick={action('clicked')}>
@@ -25,21 +28,27 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
         Button
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
     </div>
@@ -48,7 +57,9 @@ storiesOf('Components|Button', module)
     <div className="hover" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button secondary onClick={action('clicked')}>
@@ -58,21 +69,27 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
         Button
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
     </div>
@@ -81,7 +98,9 @@ storiesOf('Components|Button', module)
     <div className="focus" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button secondary onClick={action('clicked')}>
@@ -91,21 +110,27 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
         Button
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
     </div>
@@ -114,7 +139,9 @@ storiesOf('Components|Button', module)
     <div className="active" style={{ padding: '20px' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button secondary onClick={action('clicked')}>
@@ -124,21 +151,27 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
         Button
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
     </div>
@@ -149,7 +182,9 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button disabled className="usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button secondary disabled onClick={action('clicked')}>
@@ -159,21 +194,27 @@ storiesOf('Components|Button', module)
         Button
       </Button>
       <Button disabled className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button secondary disabled className="usa-button--small" onClick={action('clicked')}>
         Button
       </Button>
       <Button secondary disabled className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
       <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
         Button
       </Button>
       <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
-        <span className="icon">★</span>
+        <span className="icon">
+          <img src="{editIcon}" alt=" " />
+        </span>
         Button
       </Button>
     </div>
