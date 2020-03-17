@@ -32,7 +32,7 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest 
 
 	if err != nil {
 		if errors.Cause(err).Error() == "sql: no rows in result set" {
-			return nil, services.NewNotFoundError(id)
+			return nil, services.NewNotFoundError(id, "")
 		}
 
 		switch err.(type) {

@@ -44,6 +44,7 @@ func Customer(customer *models.Customer) *ghcmessages.Customer {
 		LastName:           customer.LastName,
 		Phone:              customer.PhoneNumber,
 		UserID:             strfmt.UUID(customer.UserID.String()),
+		ETag:               etag.GenerateEtag(customer.UpdatedAt),
 	}
 	return &payload
 }
@@ -66,6 +67,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 		OrderTypeDetail:        moveOrder.OrderTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
+		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
 	}
 
 	if moveOrder.Customer != nil {
@@ -128,6 +130,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		StorageInTransit:      sit,
 		TotalDependents:       totalDependents,
 		TotalWeight:           totalWeight,
+		ETag:                  etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -142,6 +145,7 @@ func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
 		AddressID: address.ID,
 		ID:        strfmt.UUID(dutyStation.ID.String()),
 		Name:      dutyStation.Name,
+		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
 	}
 	return &payload
 }
@@ -160,6 +164,7 @@ func Address(address *models.Address) *ghcmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
 
@@ -216,6 +221,7 @@ func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
 		AgentType:     string(mtoAgent.MTOAgentType),
 		Email:         mtoAgent.Email,
 		Phone:         mtoAgent.Phone,
+		ETag:          etag.GenerateEtag(mtoAgent.UpdatedAt),
 	}
 	return payload
 }

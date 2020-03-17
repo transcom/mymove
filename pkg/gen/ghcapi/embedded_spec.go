@@ -1583,6 +1583,9 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1762,6 +1765,9 @@ func init() {
         "dodID": {
           "type": "string"
         },
+        "eTag": {
+          "type": "string"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -1805,6 +1811,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1829,6 +1838,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -1894,6 +1906,9 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date"
+        },
+        "eTag": {
+          "type": "string"
         },
         "email": {
           "type": "string",
@@ -2160,6 +2175,9 @@ func init() {
         },
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
+        },
+        "eTag": {
+          "type": "string"
         },
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
@@ -4391,6 +4409,9 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -4570,6 +4591,9 @@ func init() {
         "dodID": {
           "type": "string"
         },
+        "eTag": {
+          "type": "string"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -4613,6 +4637,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -4637,6 +4664,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -4702,6 +4732,9 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date"
+        },
+        "eTag": {
+          "type": "string"
         },
         "email": {
           "type": "string",
@@ -4968,6 +5001,9 @@ func init() {
         },
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
+        },
+        "eTag": {
+          "type": "string"
         },
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
