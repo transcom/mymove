@@ -61,7 +61,7 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 	err := o.builder.FetchOne(&moveTaskOrder, queryFilters)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(moveTaskOrder.ID)
+		return nil, services.NewNotFoundError(moveTaskOrder.ID, "")
 	}
 
 	moveTaskOrder.PPMType = body.PpmType
