@@ -12,46 +12,6 @@ basePath: /ghc/v1
 schemes:
   - http
 paths:
-  '/customer':
-    get:
-      tags:
-        - Customer
-      operationId: getAllCustomerMoves
-      description: Gets all customers
-      summary: Gets all customers
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: Successfully retrieved information on all customer
-          schema:
-            $ref: '#/definitions/CustomerMoveItems'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
   '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
@@ -319,6 +279,10 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/MoveTaskOrder'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
           description: Successfully retrieved move task order
@@ -414,19 +378,12 @@ paths:
             required:
               - reServiceID
               - mtoShipmentID
-              - metaID
-              - metaType
             properties:
               reServiceID:
                 format: uuid
                 type: string
               mtoShipmentID:
                 format: uuid
-                type: string
-              metaID:
-                format: uuid
-                type: string
-              metaType:
                 type: string
       responses:
         '201':
@@ -518,11 +475,10 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: '#/definitions/PatchMTOShipmentStatusPayload'
         - in: header
-          name: If-Unmodified-Since
+          name: If-Match
           type: string
-          format: datetime
           required: true
       responses:
         '200':
@@ -558,6 +514,51 @@ paths:
         - contracting_officer
       operationId: patchMTOShipmentStatus
       summary: Updates a shipment's status
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
+    parameters:
+      - description: ID of move task order
+        in: path
+        name: moveTaskOrderID
+        required: true
+        format: uuid
+        type: string
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all agents for a move task order
+          schema:
+            $ref: '#/definitions/MTOAgents'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - mtoAgent
+      description: Fetches a list of agents associated with a move task order.
+      x-swagger-roles:
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
+      operationId: fetchMTOAgentList
+      summary: Fetch move task order agents.
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
     parameters:
       - description: ID of move order to use
@@ -766,6 +767,10 @@ paths:
           name: moveTaskOrderID
           required: true
           type: string
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
           description: Successfully updated move task order status
@@ -787,6 +792,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition Failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
         '500':
           description: A server error occurred
           schema:
@@ -1193,48 +1202,6 @@ definitions:
       - city
       - state
       - postal_code
-  CustomerMoveItem:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      reference_id:
-        type: string
-        x-nullable: true
-        example: 1234-5678
-      customer_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      created_at:
-        type: string
-        format: datetime
-        example: 2018-04-12T23:20:50.52Z
-        description: when the access code was created
-      customer_name:
-        type: string
-        example: Mickey Mouse
-        x-nullable: true
-        title: Customer Name
-      branch_of_service:
-        type: string
-        example: Agency
-        x-nullable:
-        title: Branch of service / Agency
-      confirmation_number:
-        type: string
-        example: '12432'
-      origin_duty_station_name:
-        type: string
-        example: Fort Knox
-        title: Origin Duty Station Name
-        x-nullable: true
-  CustomerMoveItems:
-    type: array
-    items:
-      $ref: '#/definitions/CustomerMoveItem'
   Customer:
     type: object
     properties:
@@ -1258,10 +1225,10 @@ definitions:
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
       current_address:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       destination_address:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       id:
         type: string
@@ -1413,7 +1380,6 @@ definitions:
       referenceId:
         example: 1001-3456
         type: string
-        x-nullable: true
       isAvailableToPrime:
         type: boolean
         x-nullable: true
@@ -1440,6 +1406,8 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+      eTag:
+        type: string
     type: object
   MoveTaskOrderStatus:
     properties:
@@ -1454,6 +1422,49 @@ definitions:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
+  MTOAgents:
+    items:
+      $ref: '#/definitions/MTOAgent'
+    type: array
+  MTOAgent:
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        readOnly: true
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date
+        type: string
+      updatedAt:
+        format: date
+        type: string
+      firstName:
+        type: string
+        x-nullable: true
+      lastName:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      agentType:
+        type: string
+        enum:
+          - RELEASING_AGENT
+          - RECEIVING_AGENT
+    type: object
   PaymentRequest:
     properties:
       documentPackage:
@@ -1482,6 +1493,10 @@ definitions:
         type: array
       status:
         $ref: '#/definitions/PaymentRequestStatus'
+      paymentRequestNumber:
+        example: 1234-5678-1
+        readOnly: true
+        type: string
     type: object
   PaymentRequests:
     items:
@@ -1563,10 +1578,24 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+      eTag:
+        type: string
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
+  PatchMTOShipmentStatusPayload:
+    properties:
+      status:
+        type: string
+        enum:
+          - REJECTED
+          - APPROVED
+          - SUBMITTED
+      rejectionReason:
+        type: string
+        example: MTO Shipment not good enough
+        x-nullable: true
   MTOServiceItem:
     properties:
       moveTaskOrderID:
@@ -1576,13 +1605,6 @@ definitions:
       mtoShipmentID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
-        type: string
-      metaID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      metaType:
-        example: TBD
         type: string
       reServiceID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -1643,8 +1665,6 @@ definitions:
       - reServiceCode
       - reServiceName
       - mtoShipmentID
-      - metaID
-      - metaType
     type: object
   MTOServiceItems:
     type: array

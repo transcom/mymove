@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// TransportationOrderingOfficer is the ordering officer for transportation
 type TransportationOrderingOfficer struct {
 	ID        uuid.UUID  `json:"id" db:"id"`
 	CreatedAt time.Time  `json:"created_at" db:"created_at"`

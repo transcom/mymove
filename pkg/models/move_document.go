@@ -38,8 +38,9 @@ const (
 	MoveDocumentTypeOTHER MoveDocumentType = "OTHER"
 	// MoveDocumentTypeWEIGHTTICKET captures enum value "WEIGHT_TICKET"
 	MoveDocumentTypeWEIGHTTICKET MoveDocumentType = "WEIGHT_TICKET"
+
 	// MoveDocumentTypeWEIGHTTICKETREWEIGH captures enum value "WEIGHT_TICKET_REWEIGH"
-	MoveDocumentTypeWEIGHTTICKETREWEIGH = "WEIGHT_TICKET_REWEIGH"
+	MoveDocumentTypeWEIGHTTICKETREWEIGH = "WEIGHT_TICKET_REWEIGH" // TODO: remove reweigh type?
 
 	// PPM Doc Types
 
@@ -52,6 +53,7 @@ const (
 	// MoveDocumentTypeWEIGHTTICKETSET captures enum value "WEIGHT_TICKET_SET"
 	MoveDocumentTypeWEIGHTTICKETSET MoveDocumentType = "WEIGHT_TICKET_SET"
 
+	// TODO: remove HHG doc types
 	// HHG Doc Types
 
 	// MoveDocumentTypeGOVBILLOFLADING captures enum value "GOV_BILL_OF_LADING"

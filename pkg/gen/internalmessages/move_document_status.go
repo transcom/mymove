@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MoveDocumentStatus Document Status
+// MoveDocumentStatus Document status
 // swagger:model MoveDocumentStatus
 type MoveDocumentStatus string
 

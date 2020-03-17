@@ -31,9 +31,11 @@ endif
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
 GC_FLAGS=-trimpath=$(GOPATH)
 DB_PORT_DEV=5432
+DB_PORT_TEST=5433
 DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 ifdef CIRCLECI
+	DB_PORT_DEV=5432
 	DB_PORT_TEST=5432
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
@@ -111,12 +113,6 @@ check_node_version: .check_node_version.stamp ## Check that the correct Node ver
 	scripts/check-node-version
 	touch .check_node_version.stamp
 
-.PHONY: check_go_bindata_version
-check_go_bindata_version: .check_go_bindata_version.stamp ## Check that the correct go-bindata version is installed
-.check_go_bindata_version.stamp: scripts/check-go-bindata-version
-	scripts/check-go-bindata-version
-	touch .check_go_bindata_version.stamp
-
 .PHONY: check_docker_size
 check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
@@ -131,10 +127,9 @@ test: client_test server_test e2e_test ## Run all tests
 diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on environment
 
 .PHONY: check_log_dir
-check_log_dir:
+check_log_dir: ## Make sure we have a log directory
 	mkdir -p log
 
-# Make sure we have a log directory
 #
 # ----- END CHECK TARGETS -----
 #
@@ -200,9 +195,6 @@ bin/gin: .check_go_version.stamp .check_gopath.stamp
 
 bin/soda: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
-
-bin/swagger: .check_go_version.stamp .check_gopath.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
 # No static linking / $(LDFLAGS) because go-junit-report is only used for building the CirlceCi test report
 bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp
@@ -283,9 +275,8 @@ bin/send-to-gex: pkg/gen/
 bin/tls-checker:
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
-pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
-	# Fix the modtime to prevent diffs when generating on different machines
-	go-bindata -modtime 1569961560 -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/ pkg/notifications/templates/
+pkg/assets/assets.go:
+	scripts/gen-assets
 
 #
 # ----- END BIN TARGETS -----
@@ -297,7 +288,7 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
-pkg/gen/: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.yaml)
+pkg/gen/: pkg/assets/assets.go $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 
 .PHONY: server_build
@@ -313,13 +304,13 @@ server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
-# Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port 8080.
+# Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
 server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
 		--bin /bin/milmove_gin \
-		--laddr 127.0.0.1 --port 9001 \
+		--laddr 127.0.0.1 --port "$(GIN_PORT)" \
 		--excludeDir node_modules \
 		--immediate \
 		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
@@ -334,7 +325,6 @@ server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp
 
 .PHONY: build_tools
 build_tools: bin/gin \
-	bin/swagger \
 	bin/mockery \
 	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
@@ -831,12 +821,17 @@ gofmt:  ## Run go fmt over all Go files
 	go fmt $$(go list ./...) >> /dev/null
 
 .PHONY: pre_commit_tests
-pre_commit_tests: .client_deps.stamp bin/swagger ## Run pre-commit tests
+pre_commit_tests: .client_deps.stamp ## Run pre-commit tests
 	pre-commit run --all-files
 
 .PHONY: pretty
 pretty: gofmt ## Run code through JS and Golang formatters
 	npx prettier --write --loglevel warn "src/**/*.{js,jsx}"
+
+.PHONY: docker_circleci
+docker_circleci: ## Run CircleCI container locally with project mounted
+	docker pull milmove/circleci-docker:milmove-app
+	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images
@@ -887,6 +882,14 @@ storybook: ## Start the storybook server
 storybook_build: ## Build static storybook site
 	yarn run build-storybook
 
+.PHONY: storybook_tests
+storybook_tests: ## Run the Loki storybook tests to ensure no breaking changes
+	yarn run loki test
+
+.PHONY: loki_approve_changes
+loki_approve_changes: ## Approves differences in Loki test results
+	yarn run loki approve
+
 #
 # ----- END RANDOM TARGETS -----
 #
@@ -902,7 +905,7 @@ docker_compose_setup: .check_hosts.stamp ## Install requirements to use docker-c
 
 .PHONY: docker_compose_up
 docker_compose_up: ## Bring up docker-compose containers
-	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
+	aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 	scripts/update-docker-compose
 	docker-compose up
 

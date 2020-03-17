@@ -15,25 +15,38 @@ import (
 type MTOShipmentType string
 
 const (
-	MTOShipmentTypeHHG              MTOShipmentType = "HHG"
+	// MTOShipmentTypeHHG is an HHG Shipment Type default
+	MTOShipmentTypeHHG MTOShipmentType = "HHG"
+	// MTOShipmentTypeInternationalHHG is a Shipment Type for International HHG
 	MTOShipmentTypeInternationalHHG MTOShipmentType = "INTERNATIONAL_HHG"
-	MTOShipmentTypeInternationalUB  MTOShipmentType = "INTERNATIONAL_UB"
-	MTOShipmentTypeHHGLongHaulDom   MTOShipmentType = "HHG_LONGHAUL_DOMESTIC"
-	MTOShipmentTypeHHGShortHaulDom  MTOShipmentType = "HHG_SHORTHAUL_DOMESTIC"
-	MTOShipmentTypeHHGIntoNTSDom    MTOShipmentType = "HHG_INTO_NTS_DOMESTIC"
-	MTOShipmentTypeHHGOutOfNTSDom   MTOShipmentType = "HHG_OUTOF_NTS_DOMESTIC"
-	MTOShipmentTypeMotorhome        MTOShipmentType = "MOTORHOME"
-	MTOShipmentTypeBoatHaulAway     MTOShipmentType = "BOAT_HAUL_AWAY"
-	MTOShipmentTypeBoatTowAway      MTOShipmentType = "BOAT_TOW_AWAY"
+	// MTOShipmentTypeInternationalUB is a Shipment Type for International UB
+	MTOShipmentTypeInternationalUB MTOShipmentType = "INTERNATIONAL_UB"
+	// MTOShipmentTypeHHGLongHaulDom is an HHG Shipment Type for Longhaul Domestic
+	MTOShipmentTypeHHGLongHaulDom MTOShipmentType = "HHG_LONGHAUL_DOMESTIC"
+	// MTOShipmentTypeHHGShortHaulDom is an HHG Shipment Type for Shothaul Domestic
+	MTOShipmentTypeHHGShortHaulDom MTOShipmentType = "HHG_SHORTHAUL_DOMESTIC"
+	// MTOShipmentTypeHHGIntoNTSDom is an HHG Shipment Type for going into NTS Domestic
+	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = "HHG_INTO_NTS_DOMESTIC"
+	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
+	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = "HHG_OUTOF_NTS_DOMESTIC"
+	// MTOShipmentTypeMotorhome is a Shipment Type for Motorhome
+	MTOShipmentTypeMotorhome MTOShipmentType = "MOTORHOME"
+	// MTOShipmentTypeBoatHaulAway is a Shipment Type for Boat Haul Away
+	MTOShipmentTypeBoatHaulAway MTOShipmentType = "BOAT_HAUL_AWAY"
+	// MTOShipmentTypeBoatTowAway is a Shipment Type for Boat Tow Away
+	MTOShipmentTypeBoatTowAway MTOShipmentType = "BOAT_TOW_AWAY"
 )
 
 // MTOShipmentStatus represents the possible statuses for a mto shipment
 type MTOShipmentStatus string
 
 const (
+	// MTOShipmentStatusSubmitted is the submitted status type for MTO Shipments
 	MTOShipmentStatusSubmitted MTOShipmentStatus = "SUBMITTED"
-	MTOShipmentStatusApproved  MTOShipmentStatus = "APPROVED"
-	MTOShipmentStatusRejected  MTOShipmentStatus = "REJECTED"
+	// MTOShipmentStatusApproved is the approved status type for MTO Shipments
+	MTOShipmentStatusApproved MTOShipmentStatus = "APPROVED"
+	// MTOShipmentStatusRejected is the rejected status type for MTO Shipments
+	MTOShipmentStatusRejected MTOShipmentStatus = "REJECTED"
 )
 
 // MTOShipment is an object representing data for a move task order shipment
@@ -45,6 +58,7 @@ type MTOShipment struct {
 	RequestedPickupDate              *time.Time        `db:"requested_pickup_date"`
 	ApprovedDate                     *time.Time        `db:"approved_date"`
 	FirstAvailableDeliveryDate       *time.Time        `db:"first_available_delivery_date"`
+	ActualPickupDate                 *time.Time        `db:"actual_pickup_date"`
 	CustomerRemarks                  *string           `db:"customer_remarks"`
 	PickupAddress                    Address           `belongs_to:"addresses"`
 	PickupAddressID                  uuid.UUID         `db:"pickup_address_id"`

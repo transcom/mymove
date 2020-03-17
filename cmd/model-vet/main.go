@@ -57,18 +57,21 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
+// Field represents a field in a DB
 type Field struct {
 	name    string
 	dbName  string
 	pointer bool
 }
 
+// Model represents a model in the code corresponding to a DB table
 type Model struct {
 	name   string
 	dbName string
 	fields []Field
 }
 
+// Column represents a column in a table in the DB
 // The fields in this struct have to be public so that they
 // can be set by Pop.
 type Column struct {

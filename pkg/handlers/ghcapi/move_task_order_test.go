@@ -2,6 +2,10 @@ package ghcapi
 
 import (
 	"net/http/httptest"
+	"time"
+
+	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -53,10 +57,10 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	suite.False(*moveTaskOrderPayload.IsAvailableToPrime)
 	suite.False(*moveTaskOrderPayload.IsCanceled)
 	suite.Equal(strfmt.UUID(moveTaskOrder.MoveOrderID.String()), moveTaskOrderPayload.MoveOrderID)
-	suite.Nil(moveTaskOrderPayload.ReferenceID)
+	suite.NotNil(moveTaskOrderPayload.ReferenceID)
 }
 
-func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
+func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
@@ -65,12 +69,14 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
+		IfMatch:         etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder(suite.DB())
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderStatusUpdater(suite.DB()),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder),
 	}
 	response := handler.Handle(params)
 
@@ -81,4 +87,26 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
 	suite.Equal(*moveTaskOrdersPayload.IsAvailableToPrime, true)
+}
+
+func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEtag() {
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+
+	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	request = suite.AuthenticateUserRequest(request, requestUser)
+	params := move_task_order.UpdateMoveTaskOrderStatusParams{
+		HTTPRequest:     request,
+		MoveTaskOrderID: moveTaskOrder.ID.String(),
+		IfMatch:         etag.GenerateEtag(time.Now()),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+
+	// make the request
+	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder),
+	}
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusPreconditionFailed{}, response)
 }

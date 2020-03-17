@@ -209,7 +209,7 @@ function serviceMemberAddsWeightTicketSetWithMissingDocuments(hasAnother = false
     .should('exist')
     .click();
 
-  cy.get('select[name="weight_ticket_set_type"]').select('CAR');
+  cy.get('select[name="weight_ticket_set_type"]').select('BOX_TRUCK');
 
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 
@@ -324,7 +324,8 @@ function serviceMemberUploadsExpenses(hasAnother = true, expenseNumber = null) {
 function serviceMemberSubmitsCarTrailerWeightTicket() {
   cy.get('select[name="weight_ticket_set_type"]').select('CAR_TRAILER');
 
-  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+  cy.get('input[name="vehicle_make"]').type('Make');
+  cy.get('input[name="vehicle_model"]').type('Model');
 
   cy.contains('Do you own this trailer')
     .children('a')
@@ -357,7 +358,12 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
 function serviceMemberCanFinishWeightTicketLater(vehicleType) {
   cy.get('select[name="weight_ticket_set_type"]').select(vehicleType);
 
-  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+  if (vehicleType === 'BOX_TRUCK' || vehicleType === 'PRO_GEAR') {
+    cy.get('input[name="vehicle_nickname"]').type('Nickname');
+  } else if (vehicleType === 'CAR' || vehicleType === 'CAR_TRAILER') {
+    cy.get('input[name="vehicle_make"]').type('Make');
+    cy.get('input[name="vehicle_model"]').type('Model');
+  }
 
   cy.get('input[name="empty_weight"]').type('1000');
   cy.upload_file('[data-cy=empty-weight-upload] .filepond--root', 'top-secret.png');
@@ -399,7 +405,8 @@ function serviceMemberCanFinishWeightTicketLater(vehicleType) {
 
 function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
   cy.get('select[name="weight_ticket_set_type"]').select('CAR_TRAILER');
-  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+  cy.get('input[name="vehicle_make"]').type('Make');
+  cy.get('input[name="vehicle_model"]').type('Model');
   cy.get('input[name="empty_weight"]').type('1000');
   cy.get('input[name="full_weight"]').type('2000');
   cy.upload_file('[data-cy=full-weight-upload] .filepond--root', 'top-secret.png');
@@ -448,7 +455,12 @@ function serviceMemberChecksNumberOfWeightTickets(ordinal) {
 function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
   cy.get('select[name="weight_ticket_set_type"]').select(vehicleType);
 
-  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+  if (vehicleType === 'BOX_TRUCK' || vehicleType === 'PRO_GEAR') {
+    cy.get('input[name="vehicle_nickname"]').type('Nickname');
+  } else if (vehicleType === 'CAR' || vehicleType === 'CAR_TRAILER') {
+    cy.get('input[name="vehicle_make"]').type('Make');
+    cy.get('input[name="vehicle_model"]').type('Model');
+  }
 
   cy.get('input[name="empty_weight"]').type('1000');
 

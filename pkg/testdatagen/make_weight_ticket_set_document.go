@@ -22,8 +22,10 @@ func MakeWeightTicketSetDocument(db *pop.Connection, assertions Assertions) mode
 		MoveDocument:        moveDoc,
 		EmptyWeight:         &emptyWeight,
 		FullWeight:          &fullWeight,
-		VehicleNickname:     "My Car",
-		WeightTicketSetType: "CAR",
+		VehicleNickname:     stringPointer("My Box Truck"),
+		VehicleMake:         stringPointer("Radio Flyer"),
+		VehicleModel:        stringPointer("Wagon"),
+		WeightTicketSetType: models.WeightTicketSetTypeBOXTRUCK,
 		WeightTicketDate:    &NextValidMoveDate,
 	}
 

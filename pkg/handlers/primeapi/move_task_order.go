@@ -3,7 +3,10 @@ package primeapi
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
@@ -24,7 +27,18 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 	var mtos models.MoveTaskOrders
 
-	query := h.DB().Where("is_available_to_prime = ?", true).Eager("PaymentRequests", "MTOServiceItems", "MTOServiceItems.ReService", "MTOShipments", "MTOShipments.DestinationAddress", "MTOShipments.PickupAddress", "MTOShipments.SecondaryDeliveryAddress", "MTOShipments.SecondaryPickupAddress")
+	query := h.DB().Where("is_available_to_prime = ?", true).Eager(
+		"PaymentRequests",
+		"MTOServiceItems",
+		"MTOServiceItems.ReService",
+		"MTOShipments",
+		"MTOShipments.DestinationAddress",
+		"MTOShipments.PickupAddress",
+		"MTOShipments.SecondaryDeliveryAddress",
+		"MTOShipments.SecondaryPickupAddress",
+		"MoveOrder",
+		"MoveOrder.Customer",
+		"MoveOrder.Entitlement")
 	if params.Since != nil {
 		since := time.Unix(*params.Since, 0)
 		query = query.Where("updated_at > ?", since)
@@ -40,4 +54,34 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 	payload := payloads.MoveTaskOrders(&mtos)
 
 	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
+}
+
+// UpdateMTOPostCounselingInformationHandler updates the move task order with post-counseling information
+type UpdateMTOPostCounselingInformationHandler struct {
+	handlers.HandlerContext
+	services.Fetcher
+	services.MoveTaskOrderUpdater
+}
+
+// Handle updates to move task order post-counseling
+func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderops.UpdateMTOPostCounselingInformationParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	mtoID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	eTag := params.IfMatch
+	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(mtoID, params.Body, eTag)
+	if err != nil {
+		logger.Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
+		switch err.(type) {
+		case services.NotFoundError:
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound()
+		case services.PreconditionFailedError:
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed()
+		case services.InvalidInputError:
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity()
+		default:
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError()
+		}
+	}
+	mtoPayload := payloads.MoveTaskOrderWithEtag(mto)
+	return movetaskorderops.NewUpdateMTOPostCounselingInformationOK().WithPayload(mtoPayload)
 }

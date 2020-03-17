@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -26,6 +27,18 @@ func payloadForWeightTicketSetMoveDocumentModel(storer storage.FileStorer, weigh
 	if weightTicketSet.MoveDocument.PersonallyProcuredMoveID != nil {
 		ppmID = handlers.FmtUUID(*weightTicketSet.MoveDocument.PersonallyProcuredMoveID)
 	}
+	var vehicleNickname *string
+	if weightTicketSet.VehicleNickname != nil {
+		vehicleNickname = weightTicketSet.VehicleNickname
+	}
+	var vehicleMake *string
+	if weightTicketSet.VehicleMake != nil {
+		vehicleMake = weightTicketSet.VehicleMake
+	}
+	var vehicleModel *string
+	if weightTicketSet.VehicleModel != nil {
+		vehicleModel = weightTicketSet.VehicleModel
+	}
 	var emptyWeight *int64
 	if weightTicketSet.EmptyWeight != nil {
 		ew := int64(*weightTicketSet.EmptyWeight)
@@ -47,7 +60,9 @@ func payloadForWeightTicketSetMoveDocumentModel(storer storage.FileStorer, weigh
 		Document:                 documentPayload,
 		Title:                    &weightTicketSet.MoveDocument.Title,
 		MoveDocumentType:         internalmessages.MoveDocumentType(weightTicketSet.MoveDocument.MoveDocumentType),
-		VehicleNickname:          weightTicketSet.VehicleNickname,
+		VehicleNickname:          vehicleNickname,
+		VehicleMake:              vehicleMake,
+		VehicleModel:             vehicleModel,
 		WeightTicketSetType:      &weightTicketSetType,
 		PersonallyProcuredMoveID: ppmID,
 		EmptyWeight:              emptyWeight,
@@ -106,6 +121,23 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 	if ppm.MoveID != moveID {
 		return movedocop.NewCreateWeightTicketDocumentBadRequest()
 	}
+
+	if (string(*payload.WeightTicketSetType) == string(models.WeightTicketSetTypeCAR)) ||
+		(string(*payload.WeightTicketSetType) == string(models.WeightTicketSetTypeCARTRAILER)) {
+		if payload.VehicleMake == nil || payload.VehicleModel == nil {
+			wtTypeErr := fmt.Errorf("weight ticket set for type %s must have values for vehicle make and model", string(*payload.WeightTicketSetType))
+			return handlers.ResponseForCustomErrors(logger, wtTypeErr, 422)
+		}
+	}
+
+	if (string(*payload.WeightTicketSetType) == string(models.WeightTicketSetTypeBOXTRUCK)) ||
+		(string(*payload.WeightTicketSetType) == string(models.WeightTicketSetTypePROGEAR)) {
+		if payload.VehicleNickname == nil {
+			wtTypeErr := fmt.Errorf("weight ticket set for type %s must have value for vehicle nickname", string(*payload.WeightTicketSetType))
+			return handlers.ResponseForCustomErrors(logger, wtTypeErr, 422)
+		}
+	}
+
 	var emptyWeight *unit.Pound
 	if payload.EmptyWeight != nil {
 		pound := unit.Pound(*payload.EmptyWeight)
@@ -126,7 +158,9 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 		EmptyWeightTicketMissing: *payload.EmptyWeightTicketMissing,
 		FullWeight:               fullWeight,
 		FullWeightTicketMissing:  *payload.FullWeightTicketMissing,
-		VehicleNickname:          *payload.VehicleNickname,
+		VehicleNickname:          payload.VehicleNickname,
+		VehicleMake:              payload.VehicleMake,
+		VehicleModel:             payload.VehicleModel,
 		WeightTicketSetType:      models.WeightTicketSetType(*payload.WeightTicketSetType),
 		WeightTicketDate:         weighTicketDate,
 		TrailerOwnershipMissing:  *payload.TrailerOwnershipMissing,

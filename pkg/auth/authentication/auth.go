@@ -114,6 +114,7 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
+// APIContext is the api context interface
 type APIContext interface {
 	RouteInfo(r *http.Request) (*middleware.MatchedRoute, *http.Request, bool)
 }
@@ -165,6 +166,7 @@ func RoleAuthMiddleware(logger Logger) func(context APIContext) func(handler htt
 
 }
 
+// AdminAuthMiddleware is middleware for admin authentication
 func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
@@ -182,6 +184,7 @@ func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
+// PrimeAuthorizationMiddleware is the prime authorization middleware
 func PrimeAuthorizationMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
@@ -211,6 +214,7 @@ func (context Context) verificationInProgressURL(session *auth.Session) string {
 	return fmt.Sprintf(context.callbackTemplate, session.Hostname) + "verification-in-progress"
 }
 
+// SetFeatureFlag sets a feature flag in the context
 func (context *Context) SetFeatureFlag(flag FeatureFlag) {
 	if context.featureFlags == nil {
 		context.featureFlags = make(map[string]bool)
@@ -219,6 +223,7 @@ func (context *Context) SetFeatureFlag(flag FeatureFlag) {
 	context.featureFlags[flag.Name] = flag.Active
 }
 
+// GetFeatureFlag gets a feature flag from the context
 func (context *Context) GetFeatureFlag(flag string) bool {
 	if value, ok := context.featureFlags[flag]; ok {
 		return value
@@ -234,6 +239,7 @@ type Context struct {
 	featureFlags     map[string]bool
 }
 
+// FeatureFlag holds the name of a feature flag and if it is enabled
 type FeatureFlag struct {
 	Name   string
 	Active bool

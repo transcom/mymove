@@ -24,10 +24,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	serviceItemID, _ := uuid.NewV4()
 	reServiceID, _ := uuid.NewV4()
 	mtoShipmentID, _ := uuid.NewV4()
-	metaID, _ := uuid.NewV4()
-	metaType := "unknown"
+
 	serviceItem := models.MTOServiceItem{
-		ID: serviceItemID, MoveTaskOrderID: moveTaskOrderID, ReServiceID: reServiceID, MTOShipmentID: &mtoShipmentID, MetaID: &metaID, MetaType: &metaType,
+		ID: serviceItemID, MoveTaskOrderID: moveTaskOrderID, ReServiceID: reServiceID, MTOShipmentID: &mtoShipmentID,
 	}
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_service_items", moveTaskOrderID.String()), nil)
@@ -40,8 +39,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		CreateMTOServiceItemBody: mtoserviceitemop.CreateMTOServiceItemBody{
 			ReServiceID:   handlers.FmtUUID(serviceItem.ReServiceID),
 			MtoShipmentID: handlers.FmtUUIDPtr(serviceItem.MTOShipmentID),
-			MetaID:        handlers.FmtUUIDPtr(serviceItem.MetaID),
-			MetaType:      handlers.FmtStringPtr(serviceItem.MetaType),
 		},
 	}
 
@@ -104,8 +101,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			CreateMTOServiceItemBody: mtoserviceitemop.CreateMTOServiceItemBody{
 				ReServiceID:   handlers.FmtUUID(serviceItem.ReServiceID),
 				MtoShipmentID: handlers.FmtUUIDPtr(serviceItem.MTOShipmentID),
-				MetaID:        handlers.FmtUUIDPtr(serviceItem.MetaID),
-				MetaType:      handlers.FmtStringPtr(serviceItem.MetaType),
 			},
 		}
 		newParams.MoveTaskOrderID = "blah"
@@ -133,7 +128,6 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	reServiceID, _ := uuid.NewV4()
 	serviceItemID, _ := uuid.NewV4()
 	mtoShipmentID, _ := uuid.NewV4()
-	metaID, _ := uuid.NewV4()
 
 	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
@@ -148,7 +142,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: serviceItemID, MoveTaskOrderID: mto.ID, ReServiceID: reService.ID, MTOShipmentID: &mtoShipment.ID, MetaID: &metaID, MetaType: handlers.FmtString("unknown"),
+			ID: serviceItemID, MoveTaskOrderID: mto.ID, ReServiceID: reService.ID, MTOShipmentID: &mtoShipment.ID,
 		},
 	})
 	serviceItems := models.MTOServiceItems{serviceItem}

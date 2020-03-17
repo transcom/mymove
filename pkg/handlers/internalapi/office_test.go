@@ -23,7 +23,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 			OrdersTypeDetail:    &hhgPermitted,
 			TAC:                 handlers.FmtString("1234"),
 			SAC:                 handlers.FmtString("sac"),
-			DepartmentIndicator: handlers.FmtString("17 - United States Marines"),
+			DepartmentIndicator: handlers.FmtString("17 Navy and Marine Corps"),
 		},
 	}
 	move := testdatagen.MakeMove(suite.DB(), assertions)

@@ -47,7 +47,7 @@ func TestPricingParserSuite(t *testing.T) {
 
 	hs.xlsxFile, err = xlsx.OpenFile(hs.xlsxFilename)
 	if err != nil {
-		log.Panic(err)
+		logger.Panic("could not open XLSX file", zap.Error(err))
 	}
 
 	suite.Run(t, hs)
@@ -149,27 +149,27 @@ var testVerifyFunc4 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) e
 	return nil
 }
 
-var testProcessFunc1 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc1 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	return []TestStruct1{}, nil
 }
 
-var testProcessFunc2 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc2 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	return []TestStruct2{}, nil
 }
 
-var testProcessFunc3 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc3 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	return nil, fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
 }
 
-var testProcessFunc4 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc4 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	return []TestStruct4{}, nil
 }
 
-var testProcessFunc5 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc5 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	return []TestStruct5{}, nil
 }
 
-var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	return []TestStruct6{}, nil
 }
 
@@ -289,7 +289,7 @@ func (suite *PricingParserSuite) Test_process() {
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			if err := process(xlsxDataSheets, tt.args.params, tt.args.sheetIndex, suite.tableFromSliceCreator); (err != nil) != tt.wantErr {
+			if err := process(xlsxDataSheets, tt.args.params, tt.args.sheetIndex, suite.tableFromSliceCreator, suite.logger); (err != nil) != tt.wantErr {
 				t.Errorf("process() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -301,43 +301,52 @@ func (suite *PricingParserSuite) Test_getInt() {
 		from string
 	}
 	tests := []struct {
-		name string
-		args args
-		want int
+		name     string
+		args     args
+		want     int
+		hasError bool
 	}{
 		{
 			name: "TC 1: convert string 1",
 			args: args{
 				from: "1",
 			},
-			want: 1,
+			want:     1,
+			hasError: false,
 		},
 		{
 			name: "TC 2: convert string 1.0",
 			args: args{
 				from: "1.0",
 			},
-			want: 1,
+			want:     1,
+			hasError: false,
 		},
 		{
 			name: "TC 3: convert string 1sldkjf",
 			args: args{
 				from: "1sldkjf",
 			},
-			want: 0,
+			want:     0,
+			hasError: true,
 		},
 		{
 			name: "TC 4: convert string 10.sldk",
 			args: args{
 				from: "10.sldk",
 			},
-			want: 0,
+			want:     0,
+			hasError: true,
 		},
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			if got := getInt(tt.args.from); got != tt.want {
-				t.Errorf("getInt() = %v, want %v", got, tt.want)
+			got, gotErr := getInt(tt.args.from)
+			suite.Equal(tt.want, got)
+			if tt.hasError {
+				suite.Error(gotErr)
+			} else {
+				suite.NoError(gotErr)
 			}
 		})
 	}
@@ -386,10 +395,10 @@ func (suite *PricingParserSuite) Test_removeFirstDollarSign() {
 
 func (suite *PricingParserSuite) helperTestExpectedFileOutput(goldenFilename string, currentOutputFilename string) {
 	expected := filepath.Join("fixtures", goldenFilename) // relative path
-	expectedBytes, err := ioutil.ReadFile(expected)
+	expectedBytes, err := ioutil.ReadFile(filepath.Clean(expected))
 	suite.NoErrorf(err, "error loading expected CSV file output fixture <%s>", expected)
 
-	currentBytes, err := ioutil.ReadFile(currentOutputFilename) // relative path
+	currentBytes, err := ioutil.ReadFile(filepath.Clean(currentOutputFilename)) // relative path
 	suite.NoErrorf(err, "error loading current/new output file <%s>", currentOutputFilename)
 
 	suite.Equal(string(expectedBytes), string(currentBytes))

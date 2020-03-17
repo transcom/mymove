@@ -23,11 +23,11 @@ func (suite *PricingParserSuite) Test_OconusToOconusPrices() {
 		RunVerify:    true,
 	}
 	suite.T().Run("parse oconusToOconus prices", func(t *testing.T) {
-		slice, err := parseOconusToOconusPrices(params, sheetIndex)
+		slice, err := parseOconusToOconusPrices(params, sheetIndex, suite.logger)
 		suite.NoError(err, "parseOconusToOconusPrices function failed")
 
 		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
-		err = createCSV(outputFilename, slice)
+		err = createCSV(outputFilename, slice, suite.logger)
 		suite.NoError(err, "could not create CSV")
 
 		const goldenFilename string = "10_3a_oconus_to_oconus_prices_golden.csv"
@@ -35,7 +35,7 @@ func (suite *PricingParserSuite) Test_OconusToOconusPrices() {
 	})
 
 	suite.T().Run("attempt to parse oconusToOconus prices with incorrect sheet index", func(t *testing.T) {
-		_, err := parseOconusToOconusPrices(params, 7)
+		_, err := parseOconusToOconusPrices(params, 7, suite.logger)
 		if suite.Error(err) {
 			suite.Equal("parseOconusToOconusPrices expected to process sheet 10, but received sheetIndex 7", err.Error())
 		}
@@ -71,11 +71,11 @@ func (suite *PricingParserSuite) Test_ConusToOconusPrices() {
 		RunVerify:    true,
 	}
 	suite.T().Run("parse conusToOconus prices", func(t *testing.T) {
-		slice, err := parseConusToOconusPrices(params, sheetIndex)
+		slice, err := parseConusToOconusPrices(params, sheetIndex, suite.logger)
 		suite.NoError(err, "parseConusToOconusPrices function failed")
 
 		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
-		err = createCSV(outputFilename, slice)
+		err = createCSV(outputFilename, slice, suite.logger)
 		suite.NoError(err, "could not create CSV")
 
 		const goldenFilename string = "11_3b_conus_to_oconus_prices_golden.csv"
@@ -83,7 +83,7 @@ func (suite *PricingParserSuite) Test_ConusToOconusPrices() {
 	})
 
 	suite.T().Run("attempt to parse conusToOconus prices with incorrect sheet index", func(t *testing.T) {
-		_, err := parseConusToOconusPrices(params, 7)
+		_, err := parseConusToOconusPrices(params, 7, suite.logger)
 		if suite.Error(err) {
 			suite.Equal("parseConusToOconusPrices expected to process sheet 11, but received sheetIndex 7", err.Error())
 		}
@@ -119,11 +119,11 @@ func (suite *PricingParserSuite) Test_OconusToConusPrices() {
 		RunVerify:    true,
 	}
 	suite.T().Run("parse oconusToConus prices", func(t *testing.T) {
-		slice, err := parseOconusToConusPrices(params, sheetIndex)
+		slice, err := parseOconusToConusPrices(params, sheetIndex, suite.logger)
 		suite.NoError(err, "parseOconusToConusPrices function failed")
 
 		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
-		err = createCSV(outputFilename, slice)
+		err = createCSV(outputFilename, slice, suite.logger)
 		suite.NoError(err, "could not create CSV")
 
 		const goldenFilename string = "12_3c_oconus_to_conus_prices_golden.csv"
@@ -131,7 +131,7 @@ func (suite *PricingParserSuite) Test_OconusToConusPrices() {
 	})
 
 	suite.T().Run("attempt to parse oconusToConus prices with incorrect sheet index", func(t *testing.T) {
-		_, err := parseOconusToConusPrices(params, 7)
+		_, err := parseOconusToConusPrices(params, 7, suite.logger)
 		if suite.Error(err) {
 			suite.Equal("parseOconusToConusPrices expected to process sheet 12, but received sheetIndex 7", err.Error())
 		}

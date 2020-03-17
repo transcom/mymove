@@ -11,7 +11,7 @@ import (
 
 func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(dbTx *pop.Connection) error {
 	//tab 5a) Access. and Add. Prices
-	var domesticAccessorialPrices []models.StageDomesticMoveAccessorialPrices
+	var domesticAccessorialPrices []models.StageDomesticMoveAccessorialPrice
 	err := dbTx.All(&domesticAccessorialPrices)
 	if err != nil {
 		return fmt.Errorf("could not read staged domestic accessorial prices: %w", err)
@@ -53,7 +53,7 @@ func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(dbTx *pop.Co
 				}
 
 				domesticAccessorial := models.ReDomesticAccessorialPrice{
-					ContractID:       gre.contractID,
+					ContractID:       gre.ContractID,
 					ServicesSchedule: servicesSchedule,
 					ServiceID:        serviceID,
 					PerUnitCents:     unit.Cents(perUnitCentsService),

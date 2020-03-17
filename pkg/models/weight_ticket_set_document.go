@@ -11,6 +11,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 )
 
 // WeightTicketSetType represents types of weight ticket sets
@@ -20,14 +21,14 @@ const (
 	// WeightTicketSetTypeCAR captures enum value "CAR"
 	WeightTicketSetTypeCAR WeightTicketSetType = "CAR"
 
-	// WeightTicketSetTypeCAR captures enum value "CAR_TRAILER"
+	// WeightTicketSetTypeCARTRAILER captures enum value "CAR_TRAILER"
 	WeightTicketSetTypeCARTRAILER WeightTicketSetType = "CAR_TRAILER"
 
-	// WeightTicketSetTypeBOXTRUCK captures enum value "BOXTRUCK"
-	WeightTicketSetTypeBOXTRUCK WeightTicketSetType = "BOXTRUCK"
+	// WeightTicketSetTypeBOXTRUCK captures enum value "BOX_TRUCK"
+	WeightTicketSetTypeBOXTRUCK WeightTicketSetType = "BOX_TRUCK"
 
-	// WeightTicketSetTypePROGEAR captures enum value "PROGEAR"
-	WeightTicketSetTypePROGEAR WeightTicketSetType = "PROGEAR"
+	// WeightTicketSetTypePROGEAR captures enum value "PRO_GEAR"
+	WeightTicketSetTypePROGEAR WeightTicketSetType = "PRO_GEAR"
 )
 
 // WeightTicketSetDocument weight ticket documents payload
@@ -39,7 +40,9 @@ type WeightTicketSetDocument struct {
 	EmptyWeightTicketMissing bool                `json:"empty_weight_ticket_missing,omitempty" db:"empty_weight_ticket_missing"`
 	FullWeight               *unit.Pound         `json:"full_weight,omitempty" db:"full_weight"`
 	FullWeightTicketMissing  bool                `json:"full_weight_ticket_missing,omitempty" db:"full_weight_ticket_missing"`
-	VehicleNickname          string              `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
+	VehicleNickname          *string             `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
+	VehicleMake              *string             `json:"vehicle_make,omitempty" db:"vehicle_make"`
+	VehicleModel             *string             `json:"vehicle_model,omitempty" db:"vehicle_model"`
 	WeightTicketSetType      WeightTicketSetType `json:"weight_ticket_set_type,omitempty" db:"weight_ticket_set_type"`
 	WeightTicketDate         *time.Time          `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
 	TrailerOwnershipMissing  bool                `json:"trailer_ownership_missing,omitempty" db:"trailer_ownership_missing"`
@@ -56,8 +59,13 @@ type WeightTicketSetDocuments []WeightTicketSetDocuments
 func (m *WeightTicketSetDocument) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.MoveDocumentID, Name: "MoveDocumentID"},
-		&validators.StringIsPresent{Field: string(m.VehicleNickname), Name: "VehicleNickname"},
 		&validators.StringIsPresent{Field: string(m.WeightTicketSetType), Name: "WeightTicketSetType"},
+		&MustBeBothNilOrBothHaveValue{
+			FieldName1:  "VehicleMake",
+			FieldValue1: m.VehicleMake,
+			FieldName2:  "VehicleModel",
+			FieldValue2: m.VehicleModel,
+		},
 	), nil
 }
 
@@ -91,4 +99,54 @@ func SumWeightTicketSetsForPPM(db *pop.Connection, session *auth.Session, ppmID 
 		}
 	}
 	return &totalWeight, nil
+}
+
+// CreateWeightTicketSetDocument creates a moving weight ticket document associated to a move and move document
+func (m Move) CreateWeightTicketSetDocument(
+	db *pop.Connection,
+	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
+	weightTicketSetDocument *WeightTicketSetDocument,
+	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
+
+	weightTicketSetTitle := "vehicle_weight"
+	if weightTicketSetDocument.WeightTicketSetType == WeightTicketSetTypePROGEAR {
+		weightTicketSetTitle = "pro_gear_weight"
+	}
+
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		var newMoveDocument *MoveDocument
+		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
+			db,
+			uploads,
+			personallyProcuredMoveID,
+			MoveDocumentTypeWEIGHTTICKETSET,
+			weightTicketSetTitle,
+			weightTicketSetDocument.VehicleNickname,
+			moveType)
+		if responseVErrors.HasAny() || responseError != nil {
+			return transactionError
+		}
+
+		weightTicketSetDocument.MoveDocument = *newMoveDocument
+		weightTicketSetDocument.MoveDocumentID = newMoveDocument.ID
+
+		verrs, err := db.ValidateAndCreate(weightTicketSetDocument)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating moving expense document")
+			weightTicketSetDocument = nil
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return weightTicketSetDocument, responseVErrors, responseError
 }

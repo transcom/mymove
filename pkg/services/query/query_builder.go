@@ -5,10 +5,15 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
+	"github.com/gobuffalo/flect"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -300,6 +305,7 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, a
 	return nil
 }
 
+// Count returns a count from a filter
 func (p *Builder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
@@ -326,6 +332,7 @@ func (p *Builder) Count(model interface{}, filters []services.QueryFilter) (int,
 	return count, nil
 }
 
+// CreateOne creates exactly one model
 func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
@@ -339,20 +346,76 @@ func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 	return nil, nil
 }
 
-func (p *Builder) UpdateOne(model interface{}) (*validate.Errors, error) {
+// StaleIdentifierError is used when optimistic locking determines that the identifier refers to stale data
+type StaleIdentifierError struct {
+	StaleIdentifier string
+}
+
+func (e StaleIdentifierError) Error() string {
+	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
+}
+
+// UpdateOne updates exactly one model
+func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return nil, errors.New(FetchOneReflectionMessage)
 	}
 
-	verrs, err := p.db.ValidateAndUpdate(model)
-	if err != nil || verrs.HasAny() {
-		return verrs, err
+	var verrs *validate.Errors
+	var err error
+
+	if eTag != nil {
+		err = p.db.Transaction(func(tx *pop.Connection) error {
+			t = t.Elem()
+			v := reflect.ValueOf(model).Elem()
+			var id uuid.UUID
+			for i := 0; i < t.NumField(); i++ {
+				if t.Field(i).Name == "ID" {
+					id = v.Field(i).Interface().(uuid.UUID)
+					break
+				}
+			}
+
+			var tableName string
+			tableNameable, ok := model.(pop.TableNameAble)
+
+			if ok {
+				tableName = tableNameable.TableName()
+			} else {
+				tableName = flect.Underscore(flect.Pluralize(t.Name()))
+			}
+
+			sqlString := fmt.Sprintf("SELECT updated_at from %s WHERE id = $1 FOR UPDATE", pq.QuoteIdentifier(tableName))
+			var updatedAt time.Time
+			tx.RawQuery(sqlString, id.String()).First(&updatedAt)
+
+			encodedUpdatedAt := etag.GenerateEtag(updatedAt)
+
+			if encodedUpdatedAt != *eTag {
+				return StaleIdentifierError{StaleIdentifier: *eTag}
+			}
+
+			verrs, err = tx.ValidateAndUpdate(model)
+
+			return nil
+		})
+	} else {
+		verrs, err = p.db.ValidateAndUpdate(model)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	if verrs != nil && verrs.HasAny() {
+		return verrs, nil
 	}
 
 	return nil, nil
 }
 
+// FetchCategoricalCountsFromOneModel returns categorical counts from exactly one model
 func (p *Builder) FetchCategoricalCountsFromOneModel(model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
 	conn := p.db
 	t := reflect.TypeOf(model)
@@ -363,6 +426,7 @@ func (p *Builder) FetchCategoricalCountsFromOneModel(model interface{}, filters 
 	return categoricalCounts, nil
 }
 
+// QueryForAssociations builds a query for associations
 func (p *Builder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {

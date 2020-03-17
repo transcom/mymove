@@ -20,21 +20,23 @@ import (
 )
 
 const (
-	// filename containing the details for new duty stations
+	// DutyStationsFilenameFlag filename containing the details for new duty stations
 	DutyStationsFilenameFlag string = "duty-stations-filename"
 )
 
+// MigrationInfo carries the filename of the migration
 type MigrationInfo struct {
 	Filename string
 }
 
 const (
+	// DutyStationMigration is the duty station migration template
 	DutyStationMigration string = `
 -- Migration generated using: cmd/milmove/gen_duty_stations_migration.go
 -- Duty stations file: {{.Filename}}`
 )
 
-// DutyStationsFilenameFlag initializes add_duty_stations command line flags
+// InitAddDutyStationsFlags initializes add_duty_stations command line flags
 func InitAddDutyStationsFlags(flag *pflag.FlagSet) {
 	flag.StringP(DutyStationsFilenameFlag, "f", "", "File name of csv file containing the new duty stations users")
 }

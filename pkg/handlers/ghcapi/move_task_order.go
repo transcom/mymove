@@ -6,8 +6,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 
-	movetaskorderservice "github.com/transcom/mymove/pkg/services/move_task_order"
-
 	"github.com/go-openapi/runtime/middleware"
 
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
@@ -22,7 +20,7 @@ type GetMoveTaskOrderHandler struct {
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
-// GetMoveTaskOrderHandler updates the status of a MoveTaskOrder
+// Handle updates the status of a MoveTaskOrder
 func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -31,9 +29,9 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 	if err != nil {
 		logger.Error("ghcapi.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
-		case movetaskorderservice.ErrNotFound:
+		case services.NotFoundError:
 			return movetaskorderops.NewGetMoveTaskOrderNotFound()
-		case movetaskorderservice.ErrInvalidInput:
+		case services.InvalidInputError:
 			return movetaskorderops.NewGetMoveTaskOrderBadRequest()
 		default:
 			return movetaskorderops.NewGetMoveTaskOrderInternalServerError()
@@ -46,26 +44,29 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 // UpdateMoveTaskOrderStatusHandlerFunc updates the status of a Move Task Order
 type UpdateMoveTaskOrderStatusHandlerFunc struct {
 	handlers.HandlerContext
-	moveTaskOrderStatusUpdater services.MoveTaskOrderStatusUpdater
+	moveTaskOrderStatusUpdater services.MoveTaskOrderUpdater
 }
 
-// UpdateMoveTaskOrderStatusHandlerFunc updates the status of a MoveTaskOrder
+// Handle updates the status of a MoveTaskOrder
 func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	eTag := params.IfMatch
 
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
 	// TODO to revisit?
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-	mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(moveTaskOrderID)
+	mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag)
 
 	if err != nil {
-		logger.Error("ghciapi.MoveTaskOrderHandler error", zap.Error(err))
+		logger.Error("ghcapi.MoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
-		case movetaskorderservice.ErrNotFound:
+		case services.NotFoundError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
-		case movetaskorderservice.ErrInvalidInput:
+		case services.InvalidInputError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusBadRequest()
+		case services.PreconditionFailedError:
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed()
 		default:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
 		}

@@ -4,11 +4,16 @@
 
 <!-- toc -->
 
+* [Design + Engineering Process for new components](#design--engineering-process-for-new-components)
+  * [Design delivers component design](#design-delivers-component-design)
+  * [Engineering](#engineering)
+  * [Update Loki tests accordingly](#update-loki-tests-accordingly)
 * [Testing](#testing)
   * [Test Runners and Libraries](#test-runners-and-libraries)
   * [Writing Tests](#writing-tests)
   * [Browser Testing](#browser-testing)
-* [Style](#style)
+  * [Storybook Testing](#storybook-testing)
+* [Code Style](#code-style)
   * [Auto-formatting](#auto-formatting)
   * [Linting](#linting)
   * [File Layout & Naming](#file-layout--naming)
@@ -16,7 +21,7 @@
   * [Function Declarations](#function-declarations)
   * [Ordering imports](#ordering-imports)
   * [Using Redux](#using-redux)
-  * [Styling Standards](#styling-standards)
+  * [CSS Styling Standards](#css-styling-standards)
     * [Using Sass and CSS Modules](#using-sass-and-css-modules)
     * [Classnames](#classnames)
     * [rem vs. em](#rem-vs-em)
@@ -35,6 +40,24 @@
 Regenerate with "pre-commit run -a markdown-toc"
 
 <!-- tocstop -->
+
+## Design + Engineering Process for new components
+
+MilMove has defined a process for taking a new component from concept to design to implementation. This section of the doc will describe this process. We use [Storybook](https://storybook.js.org/) for showing the finished components and you can view all current ones on master by going to our [public storybook site](https://storybook.move.mil/). If you want to see things locally please check out the [How To Run Storybook](how-to/run-storybook.md) document.
+
+### Design delivers component design
+
+After the research and initial prototypes are made a designer will create a full design for a new component, card, or page. Once the design has passed the design team's review process the designer will deliver a link to the [Abstract](https://www.abstract.com/) design. Since engineers are not likely to have an Abstract account the designers will ensure that this link is a publicly viewable version. For example here is the link we used for the [TabNav](https://app.abstract.com/share/39907fe2-a5c6-4063-ac68-71bae522e296?mode=build&selected=3210965808-139C6AE4-167B-4B24-B583-C1F45CC3493D) component.
+
+We have added the github `@transcom/truss-design` as code owners of `src/stories` thus requiring their approval for these changes in addition to normal engineering review.
+
+### Engineering
+
+Once an engineer has the Abstract design for a new component they can begin to implement it. The new process requires that all components have a [Storybook](https://storybook.js.org/) story created or updated for it. Storybook stories require approval from someone on the design team before they can be merged, preferable the designer who created the original Abstract design. We are following the [USWDS](#uswds) standard for design and implementation, so please review that section of this document. Be sure to use [USWDS mixins](https://designsystem.digital.gov/utilities/) and any components that are available in `react-uswds`. If there is a USWDS component not already in `react-uswds` please add it to that package and then make use of it.
+
+### Update Loki tests accordingly
+
+We currently use [Loki](https://loki.js.org/) for ensuring our storybook components do not regress as the project goes on. Please ensure you run the tests and add or update new reference images as you create or update components. See [How to Run Loki tests against Storybook](how-to/run-loki-tests-against-storybook.md) document for more details.
 
 ## Testing
 
@@ -63,7 +86,12 @@ Regenerate with "pre-commit run -a markdown-toc"
 * We use the [Cypress framework](https://www.cypress.io/) for most browser testing, both with chrome and headless chrome
 * For testing on Windows 10 with IE 11 we have a [testing document](https://docs.google.com/document/d/1j04tGHTBpcdS8RSzlSB-dImLbIxsLpsFlCzZUWxUKxg/edit#)
 
-## Style
+### Storybook Testing
+
+* We use the [Loki](https://loki.js.org/) package for visually testing storybook.
+* For details on how to run, add, or update these tests see [How to Run Loki tests against Storybook](how-to/run-loki-tests-against-storybook.md)
+
+## Code Style
 
 Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript) unless they conflict with the project’s Prettier or Lint rules.
 
@@ -128,7 +156,7 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
 * Connect higher level components to Redux, pass down props to less significant children. (Avoid connecting everything to Redux.)
 * Use [ducks](https://github.com/erikras/ducks-modular-redux) for organizing code.
 
-### Styling Standards
+### CSS Styling Standards
 
 MilMove is transitioning from anarchistic styling to more organized and standardized styling, so much of the existing code is not yet organized to the current standards.  You can find an example of refactored code styling of `InvoicePane.jsx` in `InvoicePanel.module.scss` and its child components and corresponding stylesheets.  All new components/styling should utilize the below standards. When we touch an existing component, we should try to adjust the styling to follow the standards.
 
@@ -169,8 +197,9 @@ Understand the [difference between rem and em](https://zellwk.com/blog/rem-vs-em
 
 #### USWDS
 
-* Check the [USWDS Design Standards](https://standards.usa.gov/components/) for a component that matches your needs. Maximize the code view to see what classes to use to replicate the component styles.
-* USWDS has a [Slack chat](https://chat.18f.gov/) you can go to for help. Get invited to it by filling out this form.
+* Check the [Truss USWDS React package](https://github.com/trussworks/react-uswds) for a component that matches your needs. Maximize the code view to see what classes to use to replicate the component styles.
+* If there isn't a component there already Check the [Truss USWDS React package](https://standards.usa.gov/components/) for a component that matches your needs. Please add it to the USWDS React code and then import the new version for use in MilMove.
+* USWDS has a [Slack chat](https://chat.18f.gov/) you can go to for help. Get invited to it by filling out [this form](https://chat.18f.gov/).
 
 ## Tooling
 
@@ -237,6 +266,7 @@ Important JS patterns and features to understand.
 Various resources on React, Redux, etc, for a variety of learning styles.
 
 * _Read_: [React Tutorial](https://reactjs.org/tutorial/tutorial.html) - Official tutorial from React. I (Alexi) personally found this cumbersome. If you stick with it you’ll learn the basics.
+* _Read_: [Modern JavaScript Tutorial](https://javascript.info/) - A site with tutorials covering many modern javascript concepts
 * _Watch_: [Getting Started with Redux](https://egghead.io/courses/getting-started-with-redux) - Free 30 video series by the author of Redux.
 * _Watch_: [ReactJS / Redux Tutorial](https://www.youtube.com/playlist?list=PL55RiY5tL51rrC3sh8qLiYHqUV3twEYU_) - ~60 minutes of YouTube videos that will get you up and running with React and Redux. The content is useful, the guy’s voice can be a bit of a challenge.
 * _Watch_: [This video](https://www.youtube.com/watch?list=PLb0IAmt7-GS188xDYE-u1ShQmFFGbrk0v&v=nYkdrAPrdcw) from the introduction of Flux can be useful for some high-level background about the pattern (the MVC bashing is overdone, but otherwise this video is useful.)

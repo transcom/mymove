@@ -23,14 +23,14 @@ type MoveDocumentPayload struct {
 	// Required: true
 	Document *DocumentPayload `json:"document"`
 
-	// Empty Weight
+	// Empty weight
 	// Minimum: 0
 	EmptyWeight *int64 `json:"empty_weight,omitempty"`
 
 	// missing empty weight ticket
 	EmptyWeightTicketMissing *bool `json:"empty_weight_ticket_missing,omitempty"`
 
-	// Full Weight
+	// Full weight
 	// Minimum: 0
 	FullWeight *int64 `json:"full_weight,omitempty"`
 
@@ -86,15 +86,21 @@ type MoveDocumentPayload struct {
 	// Format: date
 	StorageStartDate *strfmt.Date `json:"storage_start_date,omitempty"`
 
-	// Document Title
+	// Document title
 	// Required: true
 	Title *string `json:"title"`
 
 	// missing trailer ownership documentation
 	TrailerOwnershipMissing *bool `json:"trailer_ownership_missing,omitempty"`
 
-	// Vehicle nickname (ex. 'My car')
-	VehicleNickname string `json:"vehicle_nickname,omitempty"`
+	// Vehicle make
+	VehicleMake *string `json:"vehicle_make,omitempty"`
+
+	// Vehicle model
+	VehicleModel *string `json:"vehicle_model,omitempty"`
+
+	// Nickname (ex. "15-foot truck")
+	VehicleNickname *string `json:"vehicle_nickname,omitempty"`
 
 	// Weight ticket date
 	// Format: date

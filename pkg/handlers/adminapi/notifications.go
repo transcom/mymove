@@ -26,6 +26,7 @@ func payloadForNotificationModel(n models.Notification) *adminmessages.Notificat
 	}
 }
 
+// IndexNotificationsHandler is the index notification handler
 type IndexNotificationsHandler struct {
 	handlers.HandlerContext
 	services.ListFetcher
@@ -33,6 +34,7 @@ type IndexNotificationsHandler struct {
 	services.NewPagination
 }
 
+// Handle does the index notification
 func (h IndexNotificationsHandler) Handle(params notificationsop.IndexNotificationsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	queryFilters := h.generateQueryFilters(params.Filter, logger)

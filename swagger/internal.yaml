@@ -798,7 +798,7 @@ definitions:
       title:
         type: string
         example: very_useful_document.pdf
-        title: Document Title
+        title: Document title
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
       status:
@@ -833,9 +833,18 @@ definitions:
         $ref: '#/definitions/WeightTicketSetType'
       vehicle_nickname:
         type: string
-        title: Vehicle nickname (ex. 'My car')
+        title: Nickname (ex. "15-foot truck")
+        x-nullable: true
+      vehicle_make:
+        type: string
+        title: Vehicle make
+        x-nullable: true
+      vehicle_model:
+        type: string
+        title: Vehicle model
+        x-nullable: true
       empty_weight:
-        title: Empty Weight
+        title: Empty weight
         type: integer
         minimum: 0
         x-nullable: true
@@ -845,7 +854,7 @@ definitions:
         type: boolean
         x-nullable: true
       full_weight:
-        title: Full Weight
+        title: Full weight
         type: integer
         minimum: 0
         x-nullable: true
@@ -913,7 +922,7 @@ definitions:
       - move_document_type
   MoveDocumentType:
     type: string
-    title: Document Type
+    title: Document type
     example: EXPENSE
     enum: &MOVEDOCUMENTTYPE
       - OTHER
@@ -1016,7 +1025,7 @@ definitions:
       WEIGHING_FEES: Weighing fees
   MoveDocumentStatus:
     type: string
-    title: Document Status
+    title: Document status
     enum:
       - AWAITING_REVIEW
       - OK
@@ -1044,7 +1053,16 @@ definitions:
         $ref: '#/definitions/WeightTicketSetType'
       vehicle_nickname:
         type: string
-        title: Vehicle nickname (ex. 'My car')
+        title: Vehicle nickname (ex. 'Large box truck')
+        x-nullable: true
+      vehicle_make:
+        type: string
+        title: Vehicle make
+        x-nullable: true
+      vehicle_model:
+        type: string
+        title: Vehicle model
+        x-nullable: true
       empty_weight_ticket_missing:
         title: missing empty weight ticket
         type: boolean
@@ -1071,7 +1089,6 @@ definitions:
     required:
       - personally_procured_move_id
       - weight_ticket_set_type
-      - vehicle_nickname
       - full_weight_ticket_missing
       - empty_weight_ticket_missing
       - trailer_ownership_missing
@@ -1738,13 +1755,15 @@ definitions:
     x-nullable: true
     title: Dept. indicator
     enum:
-      - AIR_FORCE
-      - MARINES
+      - NAVY_AND_MARINES
       - ARMY
+      - AIR_FORCE
+      - COAST_GUARD
     x-display-value:
-      AIR_FORCE: 57 - United States Air Force
-      MARINES: 17 - United States Marines
-      ARMY: 21 - United States Army
+      NAVY_AND_MARINES: 17 Navy and Marine Corps
+      ARMY: 21 Army
+      AIR_FORCE: 57 Air Force
+      COAST_GUARD: 70 Coast Guard
   Address:
     type: object
     properties:

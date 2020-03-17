@@ -47,9 +47,14 @@ type CreateWeightTicketDocumentsPayload struct {
 	// upload ids
 	UploadIds []strfmt.UUID `json:"upload_ids"`
 
-	// Vehicle nickname (ex. 'My car')
-	// Required: true
-	VehicleNickname *string `json:"vehicle_nickname"`
+	// Vehicle make
+	VehicleMake *string `json:"vehicle_make,omitempty"`
+
+	// Vehicle model
+	VehicleModel *string `json:"vehicle_model,omitempty"`
+
+	// Vehicle nickname (ex. 'Large box truck')
+	VehicleNickname *string `json:"vehicle_nickname,omitempty"`
 
 	// Full Weight Ticket Date
 	// Format: date
@@ -89,10 +94,6 @@ func (m *CreateWeightTicketDocumentsPayload) Validate(formats strfmt.Registry) e
 	}
 
 	if err := m.validateUploadIds(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateVehicleNickname(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -188,15 +189,6 @@ func (m *CreateWeightTicketDocumentsPayload) validateUploadIds(formats strfmt.Re
 			return err
 		}
 
-	}
-
-	return nil
-}
-
-func (m *CreateWeightTicketDocumentsPayload) validateVehicleNickname(formats strfmt.Registry) error {
-
-	if err := validate.Required("vehicle_nickname", "body", m.VehicleNickname); err != nil {
-		return err
 	}
 
 	return nil
