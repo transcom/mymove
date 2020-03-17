@@ -414,6 +414,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -834,6 +840,12 @@ func init() {
             "name": "moveTaskOrderID",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -865,6 +877,12 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
             }
           },
           "500": {
@@ -957,18 +975,9 @@ func init() {
               "type": "object",
               "required": [
                 "reServiceID",
-                "mtoShipmentID",
-                "metaID",
-                "metaType"
+                "mtoShipmentID"
               ],
               "properties": {
-                "metaID": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "metaType": {
-                  "type": "string"
-                },
                 "mtoShipmentID": {
                   "type": "string",
                   "format": "uuid"
@@ -1177,7 +1186,7 @@ func init() {
           "200": {
             "description": "Successfully updated shipment",
             "schema": {
-              "$ref": "#/definitions/MTOShipmentWithEtag"
+              "$ref": "#/definitions/MTOShipment"
             }
           },
           "404": {
@@ -1877,9 +1886,7 @@ func init() {
         "reServiceID",
         "reServiceCode",
         "reServiceName",
-        "mtoShipmentID",
-        "metaID",
-        "metaType"
+        "mtoShipmentID"
       ],
       "properties": {
         "approvedAt": {
@@ -1910,15 +1917,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "metaID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "metaType": {
-          "type": "string",
-          "example": "TBD"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -2011,6 +2009,9 @@ func init() {
           "x-nullabe": true,
           "$ref": "#/definitions/Address"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2067,25 +2068,10 @@ func init() {
         }
       }
     },
-    "MTOShipmentWithEtag": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/MTOShipment"
-        },
-        {
-          "type": "object"
-        }
-      ],
-      "properties": {
-        "eTag": {
-          "type": "string"
-        }
-      }
-    },
     "MTOShipments": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/MTOShipmentWithEtag"
+        "$ref": "#/definitions/MTOShipment"
       }
     },
     "MoveOrder": {
@@ -2186,6 +2172,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "eTag": {
+          "type": "string"
         },
         "entitlements": {
           "$ref": "#/definitions/Entitlements"
@@ -2960,6 +2949,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -3470,6 +3465,12 @@ func init() {
             "name": "moveTaskOrderID",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -3510,6 +3511,15 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "description": "Precondition failed",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -3614,18 +3624,9 @@ func init() {
               "type": "object",
               "required": [
                 "reServiceID",
-                "mtoShipmentID",
-                "metaID",
-                "metaType"
+                "mtoShipmentID"
               ],
               "properties": {
-                "metaID": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "metaType": {
-                  "type": "string"
-                },
                 "mtoShipmentID": {
                   "type": "string",
                   "format": "uuid"
@@ -3849,7 +3850,7 @@ func init() {
           "200": {
             "description": "Successfully updated shipment",
             "schema": {
-              "$ref": "#/definitions/MTOShipmentWithEtag"
+              "$ref": "#/definitions/MTOShipment"
             }
           },
           "404": {
@@ -4606,9 +4607,7 @@ func init() {
         "reServiceID",
         "reServiceCode",
         "reServiceName",
-        "mtoShipmentID",
-        "metaID",
-        "metaType"
+        "mtoShipmentID"
       ],
       "properties": {
         "approvedAt": {
@@ -4639,15 +4638,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "metaID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "metaType": {
-          "type": "string",
-          "example": "TBD"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -4740,6 +4730,9 @@ func init() {
           "x-nullabe": true,
           "$ref": "#/definitions/Address"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -4796,25 +4789,10 @@ func init() {
         }
       }
     },
-    "MTOShipmentWithEtag": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/MTOShipment"
-        },
-        {
-          "type": "object"
-        }
-      ],
-      "properties": {
-        "eTag": {
-          "type": "string"
-        }
-      }
-    },
     "MTOShipments": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/MTOShipmentWithEtag"
+        "$ref": "#/definitions/MTOShipment"
       }
     },
     "MoveOrder": {
@@ -4915,6 +4893,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "eTag": {
+          "type": "string"
         },
         "entitlements": {
           "$ref": "#/definitions/Entitlements"

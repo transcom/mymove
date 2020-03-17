@@ -3977,14 +3977,16 @@ func init() {
       "type": "string",
       "title": "Dept. indicator",
       "enum": [
+        "NAVY_AND_MARINES",
+        "ARMY",
         "AIR_FORCE",
-        "MARINES",
-        "ARMY"
+        "COAST_GUARD"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 - United States Air Force",
-        "ARMY": "21 - United States Army",
-        "MARINES": "17 - United States Marines"
+        "AIR_FORCE": "57 Air Force",
+        "ARMY": "21 Army",
+        "COAST_GUARD": "70 Coast Guard",
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps"
       },
       "x-nullable": true
     },
@@ -4329,7 +4331,7 @@ func init() {
         },
         "empty_weight": {
           "type": "integer",
-          "title": "Empty Weight",
+          "title": "Empty weight",
           "x-formatting": "weight",
           "x-nullable": true
         },
@@ -4340,7 +4342,7 @@ func init() {
         },
         "full_weight": {
           "type": "integer",
-          "title": "Full Weight",
+          "title": "Full weight",
           "x-formatting": "weight",
           "x-nullable": true
         },
@@ -4420,7 +4422,7 @@ func init() {
         },
         "title": {
           "type": "string",
-          "title": "Document Title",
+          "title": "Document title",
           "example": "very_useful_document.pdf"
         },
         "trailer_ownership_missing": {
@@ -4440,7 +4442,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. 'My car')",
+          "title": "Nickname (ex. \"15-foot truck\")",
           "x-nullable": true
         },
         "weight_ticket_date": {
@@ -4457,7 +4459,7 @@ func init() {
     },
     "MoveDocumentStatus": {
       "type": "string",
-      "title": "Document Status",
+      "title": "Document status",
       "enum": [
         "AWAITING_REVIEW",
         "OK",
@@ -4473,7 +4475,7 @@ func init() {
     },
     "MoveDocumentType": {
       "type": "string",
-      "title": "Document Type",
+      "title": "Document type",
       "enum": [
         "OTHER",
         "WEIGHT_TICKET",
@@ -10182,14 +10184,16 @@ func init() {
       "type": "string",
       "title": "Dept. indicator",
       "enum": [
+        "NAVY_AND_MARINES",
+        "ARMY",
         "AIR_FORCE",
-        "MARINES",
-        "ARMY"
+        "COAST_GUARD"
       ],
       "x-display-value": {
-        "AIR_FORCE": "57 - United States Air Force",
-        "ARMY": "21 - United States Army",
-        "MARINES": "17 - United States Marines"
+        "AIR_FORCE": "57 Air Force",
+        "ARMY": "21 Army",
+        "COAST_GUARD": "70 Coast Guard",
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps"
       },
       "x-nullable": true
     },
@@ -10534,7 +10538,7 @@ func init() {
         },
         "empty_weight": {
           "type": "integer",
-          "title": "Empty Weight",
+          "title": "Empty weight",
           "minimum": 0,
           "x-formatting": "weight",
           "x-nullable": true
@@ -10546,7 +10550,7 @@ func init() {
         },
         "full_weight": {
           "type": "integer",
-          "title": "Full Weight",
+          "title": "Full weight",
           "minimum": 0,
           "x-formatting": "weight",
           "x-nullable": true
@@ -10627,7 +10631,7 @@ func init() {
         },
         "title": {
           "type": "string",
-          "title": "Document Title",
+          "title": "Document title",
           "example": "very_useful_document.pdf"
         },
         "trailer_ownership_missing": {
@@ -10647,7 +10651,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. 'My car')",
+          "title": "Nickname (ex. \"15-foot truck\")",
           "x-nullable": true
         },
         "weight_ticket_date": {
@@ -10664,7 +10668,7 @@ func init() {
     },
     "MoveDocumentStatus": {
       "type": "string",
-      "title": "Document Status",
+      "title": "Document status",
       "enum": [
         "AWAITING_REVIEW",
         "OK",
@@ -10680,7 +10684,7 @@ func init() {
     },
     "MoveDocumentType": {
       "type": "string",
-      "title": "Document Type",
+      "title": "Document type",
       "enum": [
         "OTHER",
         "WEIGHT_TICKET",

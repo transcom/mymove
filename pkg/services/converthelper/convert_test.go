@@ -38,7 +38,7 @@ func (suite *ConvertSuite) TestConvert() {
 	suite.Equal(7000, *mo.Entitlement.DBAuthorizedWeight)
 
 	customer := mo.Customer
-	suite.Equal(*move.Orders.ServiceMember.Edipi, customer.DODID)
+	suite.Equal(*move.Orders.ServiceMember.Edipi, *customer.DODID)
 	suite.NotEqual(uuid.Nil, customer.UserID)
 	suite.Equal(move.Orders.ServiceMember.UserID, customer.UserID)
 

@@ -25,7 +25,7 @@ func (f fetchCustomer) FetchCustomer(customerID uuid.UUID) (*models.Customer, er
 	if err := f.db.Eager().Find(customer, customerID); err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.Customer{}, services.NewNotFoundError(customerID)
+			return &models.Customer{}, services.NewNotFoundError(customerID, "")
 		default:
 			return &models.Customer{}, err
 		}

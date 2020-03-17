@@ -297,20 +297,25 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	eTag := etag.GenerateEtag(shipment.UpdatedAt)
 	status := models.MTOShipmentStatusApproved
 	//Need some values for reServices
-	reServiceNames := []models.ReServiceName{
-		models.DomesticLinehaul,
-		models.FuelSurcharge,
-		models.DomesticOriginPrice,
-		models.DomesticDestinationPrice,
-		models.DomesticPacking,
-		models.DomesticUnpacking,
+	reServiceCodes := []models.ReServiceCode{
+		models.ReServiceCodeDSH,
+		models.ReServiceCodeDLH,
+		models.ReServiceCodeFSC,
+		models.ReServiceCodeDOP,
+		models.ReServiceCodeDDP,
+		models.ReServiceCodeDPK,
+		models.ReServiceCodeDUPK,
+		models.ReServiceCodeDNPKF,
+		models.ReServiceCodeDMHF,
+		models.ReServiceCodeDBHF,
+		models.ReServiceCodeDBTF,
 	}
 
-	for i, serviceName := range reServiceNames {
+	for _, serviceCode := range reServiceCodes {
 		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
-				Code:      fmt.Sprintf("code%d", i),
-				Name:      string(serviceName),
+				Code:      serviceCode,
+				Name:      "test",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},

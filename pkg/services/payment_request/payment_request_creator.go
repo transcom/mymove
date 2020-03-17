@@ -205,7 +205,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			// Gather message information for logging
 			mtoServiceItemString := " MTO Service item ID <" + paymentServiceItem.MTOServiceItemID.String() + ">"
 			reServiceItem := paymentServiceItem.MTOServiceItem.ReService
-			serviceItemMessageString := " RE Service Item Code: <" + reServiceItem.Code + "> Name: <" + reServiceItem.Name + ">"
+			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
 			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
 
 			// Check for error from creating payment service item

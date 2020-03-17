@@ -51,7 +51,7 @@ where uploads.id = $1`
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return services.UploadInformation{}, services.NewNotFoundError(uploadID)
+			return services.UploadInformation{}, services.NewNotFoundError(uploadID, "")
 		default:
 			return services.UploadInformation{}, err
 		}

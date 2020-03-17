@@ -118,7 +118,7 @@ This will prevent your name and EDIPI from getting checked into git.
 
     ```sh
     make db_dev_e2e_populate server_run
-    go run ./cmd/prime-api-client  --cac --insecure
+    go run ./cmd/prime-api-client  fetch-mtos --cac --insecure
     ```
 
     If the secure migration worked you should receive a response similar to

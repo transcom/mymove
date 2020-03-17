@@ -24,13 +24,16 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	var customer models.Customer
 	customer.CreatedAt = sm.CreatedAt
 	customer.UpdatedAt = sm.UpdatedAt
-	customer.DODID = *sm.Edipi
+	customer.DODID = sm.Edipi
 	customer.UserID = sm.UserID
-	customer.FirstName = *sm.FirstName
-	customer.LastName = *sm.LastName
+	customer.FirstName = sm.FirstName
+	customer.LastName = sm.LastName
 	customer.Email = sm.PersonalEmail
 	customer.PhoneNumber = sm.Telephone
-	customer.Agency = string(*sm.Affiliation)
+	if sm.Affiliation != nil {
+		affiliationValue := string(*sm.Affiliation)
+		customer.Agency = &affiliationValue
+	}
 	customer.CurrentAddressID = sm.ResidentialAddressID
 
 	if err := db.Save(&customer); err != nil {
