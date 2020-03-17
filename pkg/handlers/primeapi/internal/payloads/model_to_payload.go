@@ -33,36 +33,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		PpmType:            moveTaskOrder.PPMType,
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
-	}
-	// mto service item references a polymorphic type which auto-generates an interface and getters and setters
-	payload.SetMtoServiceItems(*mtoServiceItems)
-
-	return payload
-}
-
-// MoveTaskOrderWithEtag payload
-func MoveTaskOrderWithEtag(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskOrderWithEtag {
-	if moveTaskOrder == nil {
-		return nil
-	}
-	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
-	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
-	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
-	payload := &primemessages.MoveTaskOrderWithEtag{
-		MoveTaskOrder: primemessages.MoveTaskOrder{
-			ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
-			CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
-			IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
-			IsCanceled:         &moveTaskOrder.IsCanceled,
-			MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
-			ReferenceID:        moveTaskOrder.ReferenceID,
-			PaymentRequests:    *paymentRequests,
-			PpmEstimatedWeight: moveTaskOrder.PPMEstimatedWeight.Int64(),
-			PpmType:            moveTaskOrder.PPMType,
-			MtoShipments:       *mtoShipments,
-			UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
-		},
-		ETag: etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 	// mto service item references a polymorphic type which auto-generates an interface and getters and setters
 	payload.SetMtoServiceItems(*mtoServiceItems)
@@ -94,6 +65,7 @@ func Customer(customer *models.Customer) *primemessages.Customer {
 		CurrentAddress:     Address(&customer.CurrentAddress),
 		DestinationAddress: Address(&customer.DestinationAddress),
 		Branch:             customer.Agency,
+		ETag:               etag.GenerateEtag(customer.UpdatedAt),
 	}
 
 	if customer.PhoneNumber != nil {
@@ -113,7 +85,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 	}
 	destinationDutyStation := DutyStation(moveOrder.DestinationDutyStation)
 	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
-	if moveOrder.Grade != nil {
+	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
 	reportByDate := strfmt.Date(*moveOrder.ReportByDate)
@@ -130,6 +102,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 		Rank:                   moveOrder.Grade,
 		ConfirmationNumber:     *moveOrder.ConfirmationNumber,
 		ReportByDate:           reportByDate,
+		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
 	}
 	return &payload
 }
@@ -169,6 +142,7 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 		StorageInTransit:      sit,
 		TotalDependents:       totalDependents,
 		TotalWeight:           totalWeight,
+		ETag:                  etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -201,6 +175,7 @@ func Address(address *models.Address) *primemessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
 
@@ -213,6 +188,7 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 		PaymentRequestNumber: paymentRequest.PaymentRequestNumber,
 		RejectionReason:      paymentRequest.RejectionReason,
 		Status:               primemessages.PaymentRequestStatus(paymentRequest.Status),
+		ETag:                 etag.GenerateEtag(paymentRequest.UpdatedAt),
 	}
 }
 
@@ -300,6 +276,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	payload.SetMoveTaskOrderID(strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()))
 	payload.SetReServiceID(strfmt.UUID(mtoServiceItem.ReServiceID.String()))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)
+	payload.SetETag(etag.GenerateEtag(mtoServiceItem.UpdatedAt))
 
 	return payload
 }

@@ -365,7 +365,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order post counseling information",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrderWithEtag"
+              "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "401": {
@@ -569,6 +569,9 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -766,6 +769,9 @@ func init() {
         "dodID": {
           "type": "string"
         },
+        "eTag": {
+          "type": "string"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -807,6 +813,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -831,6 +840,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -890,6 +902,9 @@ func init() {
         "modelType"
       ],
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1118,6 +1133,9 @@ func init() {
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
+        "eTag": {
+          "type": "string"
+        },
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
         },
@@ -1156,6 +1174,9 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -1210,21 +1231,6 @@ func init() {
         }
       }
     },
-    "MoveTaskOrderWithEtag": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/MoveTaskOrder"
-        },
-        {
-          "type": "object"
-        }
-      ],
-      "properties": {
-        "eTag": {
-          "type": "string"
-        }
-      }
-    },
     "MoveTaskOrders": {
       "type": "array",
       "items": {
@@ -1234,6 +1240,9 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1351,6 +1360,9 @@ func init() {
     "ServiceItem": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1863,7 +1875,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order post counseling information",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrderWithEtag"
+              "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "401": {
@@ -2112,6 +2124,9 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2309,6 +2324,9 @@ func init() {
         "dodID": {
           "type": "string"
         },
+        "eTag": {
+          "type": "string"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -2350,6 +2368,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2374,6 +2395,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -2433,6 +2457,9 @@ func init() {
         "modelType"
       ],
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2661,6 +2688,9 @@ func init() {
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
+        "eTag": {
+          "type": "string"
+        },
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
         },
@@ -2699,6 +2729,9 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -2753,21 +2786,6 @@ func init() {
         }
       }
     },
-    "MoveTaskOrderWithEtag": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/MoveTaskOrder"
-        },
-        {
-          "type": "object"
-        }
-      ],
-      "properties": {
-        "eTag": {
-          "type": "string"
-        }
-      }
-    },
     "MoveTaskOrders": {
       "type": "array",
       "items": {
@@ -2777,6 +2795,9 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2894,6 +2915,9 @@ func init() {
     "ServiceItem": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
