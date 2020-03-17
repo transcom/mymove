@@ -39,7 +39,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mo
 	if err := f.db.Eager().Find(mto, moveTaskOrderID); err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.MoveTaskOrder{}, services.NewNotFoundError(moveTaskOrderID)
+			return &models.MoveTaskOrder{}, services.NewNotFoundError(moveTaskOrderID, "")
 		default:
 			return &models.MoveTaskOrder{}, err
 		}

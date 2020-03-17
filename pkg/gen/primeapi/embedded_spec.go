@@ -246,6 +246,78 @@ func init() {
         }
       }
     },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem",
+          "prime"
+        ],
+        "summary": "Creates mto service items",
+        "operationId": "createMTOServiceItem",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "created instance of a mto service item",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
         "description": "Updates move task order's post counseling information",
@@ -812,21 +884,29 @@ func init() {
       }
     },
     "MTOServiceItem": {
+      "description": "Polymorphic type. MTOServiceItem describes a base type of a service item",
       "type": "object",
+      "required": [
+        "modelType"
+      ],
       "properties": {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "modelType": {
+          "$ref": "#/definitions/MTOServiceItemModelType"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "reServiceCode": {
-          "type": "string"
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceID": {
           "type": "string",
@@ -836,15 +916,67 @@ func init() {
         "reServiceName": {
           "type": "string"
         }
-      }
+      },
+      "discriminator": "modelType"
     },
-    "MTOServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOServiceItem"
-      }
+    "MTOServiceItemBasic": {
+      "description": "Describes a basic service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            }
+          }
+        }
+      ]
     },
-    "MTOServiceItemstatus": {
+    "MTOServiceItemDOFSIT": {
+      "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "pickupPostalCode"
+          ],
+          "properties": {
+            "pickupPostalCode": {
+              "type": "string",
+              "format": "zip",
+              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+              "example": 90210
+            },
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            },
+            "reason": {
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemModelType": {
+      "description": "Describes all model sub-types for a MTOServiceItem model",
+      "type": "string",
+      "enum": [
+        "MTOServiceItemBasic",
+        "MTOServiceItemDOFSIT"
+      ]
+    },
+    "MTOServiceItemStatus": {
       "type": "object",
       "properties": {
         "status": {
@@ -1047,7 +1179,10 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "mto_service_items": {
-          "$ref": "#/definitions/MTOServiceItems"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
         "mto_shipments": {
           "$ref": "#/definitions/MTOShipments"
@@ -1159,6 +1294,59 @@ func init() {
           }
         }
       }
+    },
+    "ReServiceCode": {
+      "type": "string",
+      "enum": [
+        "CS",
+        "DBHF",
+        "DBTF",
+        "DCRT",
+        "DDASIT",
+        "DDDSIT",
+        "DDFSIT",
+        "DDP",
+        "DDSHUT",
+        "DLH",
+        "DMHF",
+        "DNPKF",
+        "DOASIT",
+        "DOFSIT",
+        "DOP",
+        "DOPSIT",
+        "DOSHUT",
+        "DPK",
+        "DSH",
+        "DUCRT",
+        "DUPK",
+        "FSC",
+        "IBHF",
+        "IBTF",
+        "ICOLH",
+        "ICOUB",
+        "ICRT",
+        "IDASIT",
+        "IDDSIT",
+        "IDFSIT",
+        "IDSHUT",
+        "IHPK",
+        "IHUPK",
+        "INPKF",
+        "IOASIT",
+        "IOCLH",
+        "IOCUB",
+        "IOFSIT",
+        "IOOLH",
+        "IOOUB",
+        "IOPSIT",
+        "IOSHUT",
+        "IUBPK",
+        "IUBUPK",
+        "IUCRT",
+        "MS",
+        "NSTH",
+        "NSTUB"
+      ]
     },
     "ServiceItem": {
       "type": "object",
@@ -1533,6 +1721,87 @@ func init() {
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem",
+          "prime"
+        ],
+        "summary": "Creates mto service items",
+        "operationId": "createMTOServiceItem",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "created instance of a mto service item",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -2158,21 +2427,29 @@ func init() {
       }
     },
     "MTOServiceItem": {
+      "description": "Polymorphic type. MTOServiceItem describes a base type of a service item",
       "type": "object",
+      "required": [
+        "modelType"
+      ],
       "properties": {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "modelType": {
+          "$ref": "#/definitions/MTOServiceItemModelType"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "reServiceCode": {
-          "type": "string"
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceID": {
           "type": "string",
@@ -2182,15 +2459,67 @@ func init() {
         "reServiceName": {
           "type": "string"
         }
-      }
+      },
+      "discriminator": "modelType"
     },
-    "MTOServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOServiceItem"
-      }
+    "MTOServiceItemBasic": {
+      "description": "Describes a basic service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            }
+          }
+        }
+      ]
     },
-    "MTOServiceItemstatus": {
+    "MTOServiceItemDOFSIT": {
+      "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "pickupPostalCode"
+          ],
+          "properties": {
+            "pickupPostalCode": {
+              "type": "string",
+              "format": "zip",
+              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+              "example": 90210
+            },
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            },
+            "reason": {
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemModelType": {
+      "description": "Describes all model sub-types for a MTOServiceItem model",
+      "type": "string",
+      "enum": [
+        "MTOServiceItemBasic",
+        "MTOServiceItemDOFSIT"
+      ]
+    },
+    "MTOServiceItemStatus": {
       "type": "object",
       "properties": {
         "status": {
@@ -2393,7 +2722,10 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "mto_service_items": {
-          "$ref": "#/definitions/MTOServiceItems"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
         "mto_shipments": {
           "$ref": "#/definitions/MTOShipments"
@@ -2505,6 +2837,59 @@ func init() {
           }
         }
       }
+    },
+    "ReServiceCode": {
+      "type": "string",
+      "enum": [
+        "CS",
+        "DBHF",
+        "DBTF",
+        "DCRT",
+        "DDASIT",
+        "DDDSIT",
+        "DDFSIT",
+        "DDP",
+        "DDSHUT",
+        "DLH",
+        "DMHF",
+        "DNPKF",
+        "DOASIT",
+        "DOFSIT",
+        "DOP",
+        "DOPSIT",
+        "DOSHUT",
+        "DPK",
+        "DSH",
+        "DUCRT",
+        "DUPK",
+        "FSC",
+        "IBHF",
+        "IBTF",
+        "ICOLH",
+        "ICOUB",
+        "ICRT",
+        "IDASIT",
+        "IDDSIT",
+        "IDFSIT",
+        "IDSHUT",
+        "IHPK",
+        "IHUPK",
+        "INPKF",
+        "IOASIT",
+        "IOCLH",
+        "IOCUB",
+        "IOFSIT",
+        "IOOLH",
+        "IOOUB",
+        "IOPSIT",
+        "IOSHUT",
+        "IUBPK",
+        "IUBUPK",
+        "IUCRT",
+        "MS",
+        "NSTH",
+        "NSTUB"
+      ]
     },
     "ServiceItem": {
       "type": "object",
