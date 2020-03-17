@@ -43,6 +43,35 @@ describe('DocumentDetailEdit', () => {
       expect(notes.props()).toHaveProperty('fieldName', 'notes');
     });
 
+    it('shows all form fields for a car+trailer', () => {
+      const formValues = {
+        moveDocument: {
+          move_document_type: MOVE_DOC_TYPE.WEIGHT_TICKET_SET,
+          weight_ticket_set_type: WEIGHT_TICKET_SET_TYPE.CAR_TRAILER,
+        },
+      };
+
+      const documentForm = renderDocumentDetailEdit({ formValues, moveDocSchema });
+
+      const title = documentForm.find('[data-cy="title"]');
+      const moveDocumentType = documentForm.find('[data-cy="move-document-type"]');
+      const weightTicketSetType = documentForm.find('[data-cy="weight-ticket-set-type"]');
+      const make = documentForm.find('[data-cy="vehicle-make"]');
+      const model = documentForm.find('[data-cy="vehicle-model"]');
+      const vehicleNickname = documentForm.find('[data-cy="vehicle-nickname"]');
+      const status = documentForm.find('[data-cy="status"]');
+      const notes = documentForm.find('[data-cy="notes"]');
+
+      expect(title.props()).toHaveProperty('fieldName', 'title');
+      expect(moveDocumentType.props()).toHaveProperty('fieldName', 'move_document_type');
+      expect(weightTicketSetType.props()).toHaveProperty('fieldName', 'weight_ticket_set_type');
+      expect(make.props()).toHaveProperty('fieldName', 'vehicle_make');
+      expect(model.props()).toHaveProperty('fieldName', 'vehicle_model');
+      expect(vehicleNickname.length).toBeFalsy();
+      expect(status.props()).toHaveProperty('fieldName', 'status');
+      expect(notes.props()).toHaveProperty('fieldName', 'notes');
+    });
+
     it('shows all form fields for a boxtruck', () => {
       const formValues = {
         moveDocument: {
