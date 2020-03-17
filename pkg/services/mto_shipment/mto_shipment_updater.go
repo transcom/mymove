@@ -179,7 +179,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	err := o.builder.FetchOne(&shipment, queryFilters)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(shipment.ID)
+		return nil, services.NewNotFoundError(shipment.ID, "")
 	}
 
 	if shipment.Status != models.MTOShipmentStatusSubmitted {
@@ -214,23 +214,6 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	}
 
 	if shipment.Status == models.MTOShipmentStatusApproved {
-		reServices := models.ReServices{}
-
-		queryFilters := []services.QueryFilter{}
-		queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{})
-		listFetcher := fetch.NewListFetcher(o.builder)
-		err := listFetcher.FetchRecordList(&reServices, queryFilters, queryAssociations, nil, nil)
-
-		if err != nil {
-			// need to do the error handling here
-		}
-
-		// Let's build a map of the services for convenience
-		servicesMap := map[string]models.ReService{}
-		for _, service := range reServices {
-			servicesMap[service.Name] = service
-		}
-
 		// We will detect the type of shipment we're working with and then call a helper with the correct
 		// default service items that we want created as a side effect.
 		// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
@@ -238,77 +221,77 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		switch shipment.ShipmentType {
 		case models.MTOShipmentTypeHHGLongHaulDom:
 			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
-			reServiceNames := []models.ReServiceName{
-				models.DomesticLinehaul,
-				models.FuelSurcharge,
-				models.DomesticOriginPrice,
-				models.DomesticDestinationPrice,
-				models.DomesticPacking,
-				models.DomesticUnpacking,
+			reServiceCodes := []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDPK,
+				models.ReServiceCodeDUPK,
 			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceNames, servicesMap)
+			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		case models.MTOShipmentTypeHHGShortHaulDom:
 			//Need to create: Dom Shorthaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom Unpacking
-			reServiceNames := []models.ReServiceName{
-				models.DomesticShorthaul,
-				models.FuelSurcharge,
-				models.DomesticOriginPrice,
-				models.DomesticDestinationPrice,
-				models.DomesticPacking,
-				models.DomesticUnpacking,
+			reServiceCodes := []models.ReServiceCode{
+				models.ReServiceCodeDSH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDPK,
+				models.ReServiceCodeDUPK,
 			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceNames, servicesMap)
+			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		case models.MTOShipmentTypeHHGIntoNTSDom:
 			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, Dom NTS Packing Factor
-			reServiceNames := []models.ReServiceName{
-				models.DomesticLinehaul,
-				models.FuelSurcharge,
-				models.DomesticOriginPrice,
-				models.DomesticDestinationPrice,
-				models.DomesticPacking,
-				models.DomesticNTSPackingFactor,
+			reServiceCodes := []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDPK,
+				models.ReServiceCodeDNPKF,
 			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceNames, servicesMap)
+			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		case models.MTOShipmentTypeHHGOutOfNTSDom:
 			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking
-			reServiceNames := []models.ReServiceName{
-				models.DomesticLinehaul,
-				models.FuelSurcharge,
-				models.DomesticOriginPrice,
-				models.DomesticDestinationPrice,
-				models.DomesticUnpacking,
+			reServiceCodes := []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDUPK,
 			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceNames, servicesMap)
+			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		case models.MTOShipmentTypeMotorhome:
 			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
-			reServiceNames := []models.ReServiceName{
-				models.DomesticLinehaul,
-				models.FuelSurcharge,
-				models.DomesticOriginPrice,
-				models.DomesticDestinationPrice,
-				models.DomesticMobileHomeFactor,
+			reServiceCodes := []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDMHF,
 			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceNames, servicesMap)
+			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		case models.MTOShipmentTypeBoatHaulAway:
 			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
-			reServiceNames := []models.ReServiceName{
-				models.DomesticLinehaul,
-				models.FuelSurcharge,
-				models.DomesticOriginPrice,
-				models.DomesticDestinationPrice,
-				models.DomesticHaulAwayBoatFactor,
+			reServiceCodes := []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDBHF,
 			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceNames, servicesMap)
+			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		case models.MTOShipmentTypeBoatTowAway:
 			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Tow Away Boat Factor
-			reServiceNames := []models.ReServiceName{
-				models.DomesticLinehaul,
-				models.FuelSurcharge,
-				models.DomesticOriginPrice,
-				models.DomesticDestinationPrice,
-				models.DomesticTowAwayBoatFactor,
+			reServiceCodes := []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDBTF,
 			}
-			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceNames, servicesMap)
+			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		}
 		for _, serviceItem := range serviceItemsToCreate {
 			_, verrs, err := o.siCreator.CreateMTOServiceItem(&serviceItem)
@@ -329,14 +312,14 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 }
 
 // This private function is used to generically construct service items when shipments are approved.
-func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServiceNames []models.ReServiceName, servicesMap map[string]models.ReService) models.MTOServiceItems {
-	serviceItems := make(models.MTOServiceItems, len(reServiceNames))
+func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServiceCodes []models.ReServiceCode) models.MTOServiceItems {
+	serviceItems := make(models.MTOServiceItems, len(reServiceCodes))
 
-	for i, reServiceName := range reServiceNames {
+	for i, reServiceCode := range reServiceCodes {
 		serviceItem := models.MTOServiceItem{
 			MoveTaskOrderID: mtoID,
 			MTOShipmentID:   &shipmentID,
-			ReServiceID:     servicesMap[string(reServiceName)].ID,
+			ReService:       models.ReService{Code: reServiceCode},
 		}
 		serviceItems[i] = serviceItem
 	}

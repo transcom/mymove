@@ -1,12 +1,14 @@
 package payloads
 
 import (
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/handlers"
 
 	"github.com/transcom/mymove/pkg/etag"
-
-	"github.com/go-openapi/strfmt"
-
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -28,12 +30,14 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		PaymentRequests:    *paymentRequests,
-		MtoServiceItems:    *mtoServiceItems,
 		PpmEstimatedWeight: int64(moveTaskOrder.PPMEstimatedWeight),
 		PpmType:            moveTaskOrder.PPMType,
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
+	// mto service item references a polymorphic type which auto-generates an interface and getters and setters
+	payload.SetMtoServiceItems(*mtoServiceItems)
+
 	return payload
 }
 
@@ -56,12 +60,13 @@ func MoveTaskOrderWithEtag(moveTaskOrder *models.MoveTaskOrder) *primemessages.M
 			PaymentRequests:    *paymentRequests,
 			PpmEstimatedWeight: moveTaskOrder.PPMEstimatedWeight.Int64(),
 			PpmType:            moveTaskOrder.PPMType,
-			MtoServiceItems:    *mtoServiceItems,
 			MtoShipments:       *mtoShipments,
 			UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 		},
 		ETag: etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
+	// mto service item references a polymorphic type which auto-generates an interface and getters and setters
+	payload.SetMtoServiceItems(*mtoServiceItems)
 
 	return payload
 }
@@ -273,22 +278,55 @@ func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments
 }
 
 // MTOServiceItem payload
-func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *primemessages.MTOServiceItem {
-	return &primemessages.MTOServiceItem{
-		ID:              strfmt.UUID(mtoServiceItem.ID.String()),
-		MoveTaskOrderID: strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()),
-		ReServiceID:     strfmt.UUID(mtoServiceItem.ReServiceID.String()),
-		ReServiceCode:   mtoServiceItem.ReService.Code,
-		ReServiceName:   mtoServiceItem.ReService.Name,
+func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServiceItem {
+	var payload primemessages.MTOServiceItem
+
+	// here we determine which payload model to use based on the re service code
+	switch mtoServiceItem.ReService.Code {
+	case models.ReServiceCodeDOFSIT:
+		payload = &primemessages.MTOServiceItemDOFSIT{
+			ReServiceCode:    primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
+			PickupPostalCode: mtoServiceItem.PickupPostalCode,
+			Reason:           mtoServiceItem.Reason,
+		}
+	default:
+		// otherwise, basic service item
+		payload = &primemessages.MTOServiceItemBasic{
+			ReServiceCode: primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
+		}
 	}
+
+	// set all relevant fields that apply to all service items
+	payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
+	payload.SetMoveTaskOrderID(strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()))
+	payload.SetReServiceID(strfmt.UUID(mtoServiceItem.ReServiceID.String()))
+	payload.SetReServiceName(mtoServiceItem.ReService.Name)
+
+	return payload
 }
 
 // MTOServiceItems payload
-func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *primemessages.MTOServiceItems {
-	payload := make(primemessages.MTOServiceItems, len(*mtoServiceItems))
+func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.MTOServiceItem {
+	var payload []primemessages.MTOServiceItem
 
-	for i, p := range *mtoServiceItems {
-		payload[i] = MTOServiceItem(&p)
+	for _, p := range *mtoServiceItems {
+		payload = append(payload, MTOServiceItem(&p))
 	}
 	return &payload
+}
+
+// ValidationError describes validation errors from the model or properties
+func ValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
+	return &primemessages.ValidationError{
+		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
+		ClientError:   *clientError(title, detail, instance),
+	}
+}
+
+func clientError(title string, detail string, instance uuid.UUID) *primemessages.ClientError {
+	return &primemessages.ClientError{
+		Title:    handlers.FmtString(title),
+		Detail:   handlers.FmtString(detail),
+		Instance: handlers.FmtUUID(instance),
+	}
 }

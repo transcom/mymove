@@ -18,7 +18,7 @@ func (gre *GHCRateEngineImporter) loadServiceMap(dbTx *pop.Connection) error {
 
 	gre.serviceToIDMap = make(map[string]uuid.UUID)
 	for _, service := range services {
-		gre.serviceToIDMap[service.Code] = service.ID
+		gre.serviceToIDMap[string(service.Code)] = service.ID
 	}
 
 	return nil
