@@ -1,13 +1,12 @@
 package cli
 
 import (
+	"fmt"
 	"net"
 	"time"
 
-	"github.com/pkg/errors"
-	"github.com/spf13/viper"
-
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -33,16 +32,16 @@ func InitWebserverFlags(flag *pflag.FlagSet) {
 // CheckWebserver validates the webserver command line flags
 func CheckWebserver(v *viper.Viper) error {
 	if str := v.GetString(InterfaceFlag); len(str) > 0 && str != "localhost" {
-		addr, err := net.ResolveIPAddr("tcp", str)
+		addr, err := net.ResolveIPAddr("ip4", str)
 		if err != nil {
-			return errors.Errorf("Unable to resolve IP address %q", str)
+			return fmt.Errorf("Unable to resolve IP address %q: %w", str, err)
 		}
 		if addr.IP.To4() == nil {
-			return errors.Errorf("Expected IPv4 address, got %q", str)
+			return fmt.Errorf("Expected IPv4 address, got %q", str)
 		}
 	}
 	if d := v.GetDuration(GracefulShutdownTimeoutFlag); d < MinimumGracefulShutdownDuration {
-		return errors.Errorf("Graceful Shutdown Duration should not be less than 5 Seconds. Provided duration %q", d)
+		return fmt.Errorf("Graceful Shutdown Duration should not be less than 5 Seconds. Provided duration %q", d)
 	}
 	return nil
 }
