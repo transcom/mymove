@@ -62,7 +62,6 @@ committing.
 | `gen-docs-index` | generate index for documents |
 | `pre-commit-go-mod` | modify `go.mod` and `go.sum` to match whats in the project |
 | `pre-commit-model-vet` | Run model-vet check to verify DB against Golang models |
-| `pre-commit-go-vet` | analyze code with `go vet` |
 | `pre-commit-swagger-validate` | Pre-commit hook to run `swagger validate` that is different based on environment |
 
 ## CircleCI Scripts
