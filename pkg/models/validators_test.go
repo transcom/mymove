@@ -322,25 +322,33 @@ func Test_OptionalUUIDIsPresent(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	v := models.OptionalUUIDIsPresent{Name: "Name", Field: &id}
+	// positive tests
 
+	// test with filled id
+	v := models.OptionalUUIDIsPresent{Name: "Name", Field: &id}
 	errors := validate.NewErrors()
 	v.IsValid(errors)
-	if errors.Count() != 0 {
+	if errors.Count() > 0 {
 		t.Fatalf("got errors when should be valid: %v", errors)
 	}
+	// test with nil pointer
+	v = models.OptionalUUIDIsPresent{Name: "Name", Field: nil}
+	errors = validate.NewErrors()
+	v.IsValid(errors)
+	if errors.Count() > 0 {
+		t.Fatalf("got wrong number of errors: %v", errors)
 
+		if errors.Get("name")[0] != "Name can not be blank." {
+			t.Fatalf("wrong error; expected %s, got %s", "Name can not be blank.", errors.Get("name")[0])
+		}
+	}
+
+	// negative test
+
+	// test with empty id
 	emptyUUID := uuid.UUID{}
 	v = models.OptionalUUIDIsPresent{Name: "Name", Field: &emptyUUID}
-	v.IsValid(errors)
-	if errors.Count() != 1 {
-		t.Fatalf("got wrong number of errors: %v", errors)
-	}
-	if errors.Get("name")[0] != "Name can not be blank." {
-		t.Fatalf("wrong error; expected %s, got %s", "Name can not be blank.", errors.Get("name")[0])
-	}
-
-	v = models.OptionalUUIDIsPresent{Name: "Name", Field: nil}
+	errors = validate.NewErrors()
 	v.IsValid(errors)
 	if errors.Count() != 1 {
 		t.Fatalf("got wrong number of errors: %v", errors)
