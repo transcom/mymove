@@ -71,6 +71,10 @@ storiesOf('Components|Button', module)
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
         Button
       </Button>
+      <Button className="usa-button--unstyled" onClick={action('clicked')}>
+        <span className="icon">★</span>
+        Button
+      </Button>
     </div>
   ))
   .add('focus', () => (
