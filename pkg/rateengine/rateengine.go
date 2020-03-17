@@ -35,10 +35,10 @@ type CostComputation struct {
 	Weight      unit.Pound
 }
 
-// CostDetail holds the costComputation and a bool that signifies if the calcuation is the lowest cost computation
+// CostDetail holds the costComputation and a bool that signifies if the calcuation is the winning (lowest cost) computation
 type CostDetail struct {
-	Cost     CostComputation
-	IsLowest bool
+	Cost      CostComputation
+	IsWinning bool
 }
 
 // CostDetails is a map of CostDetail
@@ -249,11 +249,11 @@ func (re *RateEngine) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 st
 	originZipCode := originPickupZip5
 	originZipLocation := "Pickup location"
 	if costFromOriginPickupZip.GCC > costFromOriginDutyStationZip.GCC {
-		costDetails["originDutyStation"].IsLowest = true
+		costDetails["originDutyStation"].IsWinning = true
 		originZipCode = originDutyStationZip5
 		originZipLocation = "Origin duty station"
 	} else {
-		costDetails["pickupLocation"].IsLowest = true
+		costDetails["pickupLocation"].IsWinning = true
 	}
 
 	re.logger.Info("Origin zip code information",
@@ -266,7 +266,7 @@ func (re *RateEngine) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 st
 
 // GetWinningCostMove returns a costComputation of the winning calculation
 func GetWinningCostMove(costDetails CostDetails) CostComputation {
-	if costDetails["pickupLocation"].IsLowest {
+	if costDetails["pickupLocation"].IsWinning {
 		return costDetails["pickupLocation"].Cost
 	}
 	return costDetails["originDutyStation"].Cost
@@ -274,7 +274,7 @@ func GetWinningCostMove(costDetails CostDetails) CostComputation {
 
 // GetNonWinningCostMove returns a costComputation of the non-winning calculation
 func GetNonWinningCostMove(costDetails CostDetails) CostComputation {
-	if costDetails["pickupLocation"].IsLowest {
+	if costDetails["pickupLocation"].IsWinning {
 		return costDetails["originDutyStation"].Cost
 	}
 	return costDetails["pickupLocation"].Cost

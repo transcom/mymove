@@ -310,8 +310,8 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 		)
 		suite.NoError(err)
 
-		suite.True(costs["pickupLocation"].IsLowest)
-		suite.False(costs["originDutyStation"].IsLowest)
+		suite.True(costs["pickupLocation"].IsWinning)
+		suite.False(costs["originDutyStation"].IsWinning)
 		suite.True(costs["pickupLocation"].Cost.GCC > 0)
 		suite.True(costs["originDutyStation"].Cost.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC > 0)
@@ -363,8 +363,8 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 		)
 		suite.NoError(err)
 
-		suite.False(costs["pickupLocation"].IsLowest)
-		suite.True(costs["originDutyStation"].IsLowest)
+		suite.False(costs["pickupLocation"].IsWinning)
+		suite.True(costs["originDutyStation"].IsWinning)
 		suite.True(costs["pickupLocation"].Cost.GCC > 0)
 		suite.True(costs["originDutyStation"].Cost.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC > 0)

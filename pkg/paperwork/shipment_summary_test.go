@@ -128,12 +128,12 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	suite.Run("TestComputeObligations", func() {
 		var costDetails = make(rateengine.CostDetails)
 		costDetails["pickupLocation"] = &rateengine.CostDetail{
-			Cost:     rateengine.CostComputation{GCC: 100, SITMax: 20000},
-			IsLowest: true,
+			Cost:      rateengine.CostComputation{GCC: 100, SITMax: 20000},
+			IsWinning: true,
 		}
 		costDetails["originDutyStation"] = &rateengine.CostDetail{
-			Cost:     rateengine.CostComputation{GCC: 200, SITMax: 30000},
-			IsLowest: true,
+			Cost:      rateengine.CostComputation{GCC: 200, SITMax: 30000},
+			IsWinning: true,
 		}
 
 		mockComputer := mockPPMComputer{
@@ -172,12 +172,12 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	suite.Run("TestComputeObligations when actual PPM SIT exceeds MaxSIT", func() {
 		var costDetails = make(rateengine.CostDetails)
 		costDetails["pickupLocation"] = &rateengine.CostDetail{
-			Cost:     rateengine.CostComputation{SITMax: unit.Cents(500)},
-			IsLowest: true,
+			Cost:      rateengine.CostComputation{SITMax: unit.Cents(500)},
+			IsWinning: true,
 		}
 		costDetails["originDutyStation"] = &rateengine.CostDetail{
-			Cost:     rateengine.CostComputation{SITMax: unit.Cents(600)},
-			IsLowest: false,
+			Cost:      rateengine.CostComputation{SITMax: unit.Cents(600)},
+			IsWinning: false,
 		}
 		mockComputer := mockPPMComputer{
 			costDetails: costDetails,
@@ -192,12 +192,12 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	suite.Run("TestComputeObligations when there is no actual PPM SIT", func() {
 		var costDetails = make(rateengine.CostDetails)
 		costDetails["pickupLocation"] = &rateengine.CostDetail{
-			Cost:     rateengine.CostComputation{SITMax: unit.Cents(500)},
-			IsLowest: true,
+			Cost:      rateengine.CostComputation{SITMax: unit.Cents(500)},
+			IsWinning: true,
 		}
 		costDetails["originDutyStation"] = &rateengine.CostDetail{
-			Cost:     rateengine.CostComputation{SITMax: unit.Cents(600)},
-			IsLowest: false,
+			Cost:      rateengine.CostComputation{SITMax: unit.Cents(600)},
+			IsWinning: false,
 		}
 		mockComputer := mockPPMComputer{
 			costDetails: costDetails,
