@@ -4331,7 +4331,7 @@ func init() {
         },
         "empty_weight": {
           "type": "integer",
-          "title": "Empty Weight",
+          "title": "Empty weight",
           "x-formatting": "weight",
           "x-nullable": true
         },
@@ -4342,7 +4342,7 @@ func init() {
         },
         "full_weight": {
           "type": "integer",
-          "title": "Full Weight",
+          "title": "Full weight",
           "x-formatting": "weight",
           "x-nullable": true
         },
@@ -4459,7 +4459,7 @@ func init() {
     },
     "MoveDocumentStatus": {
       "type": "string",
-      "title": "Document Status",
+      "title": "Document status",
       "enum": [
         "AWAITING_REVIEW",
         "OK",
@@ -10538,7 +10538,7 @@ func init() {
         },
         "empty_weight": {
           "type": "integer",
-          "title": "Empty Weight",
+          "title": "Empty weight",
           "minimum": 0,
           "x-formatting": "weight",
           "x-nullable": true
@@ -10550,7 +10550,7 @@ func init() {
         },
         "full_weight": {
           "type": "integer",
-          "title": "Full Weight",
+          "title": "Full weight",
           "minimum": 0,
           "x-formatting": "weight",
           "x-nullable": true
@@ -10668,7 +10668,7 @@ func init() {
     },
     "MoveDocumentStatus": {
       "type": "string",
-      "title": "Document Status",
+      "title": "Document status",
       "enum": [
         "AWAITING_REVIEW",
         "OK",
