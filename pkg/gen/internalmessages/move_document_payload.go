@@ -23,14 +23,14 @@ type MoveDocumentPayload struct {
 	// Required: true
 	Document *DocumentPayload `json:"document"`
 
-	// Empty Weight
+	// Empty weight
 	// Minimum: 0
 	EmptyWeight *int64 `json:"empty_weight,omitempty"`
 
 	// missing empty weight ticket
 	EmptyWeightTicketMissing *bool `json:"empty_weight_ticket_missing,omitempty"`
 
-	// Full Weight
+	// Full weight
 	// Minimum: 0
 	FullWeight *int64 `json:"full_weight,omitempty"`
 

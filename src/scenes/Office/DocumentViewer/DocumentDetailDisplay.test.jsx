@@ -60,18 +60,11 @@ describe('DocumentDetailDisplay', () => {
       };
 
       const documentDisplay = renderDocumentDetailDisplay({ moveDocument, moveDocSchema });
-      console.log(
-        documentDisplay
-          .find('[data-cy="move-document-type"]')
-          .dive()
-          .dive()
-          .debug(),
-      );
       expect(documentDisplay.find('[data-cy="panel-subhead"]').text()).toContain(moveDocument.title);
       expect(documentDisplay.find('[data-cy="uploaded-at"]').text()).toEqual('Uploaded 27-Sep-18');
       expect(
         documentDisplay
-          .find('[data-cy="title"]')
+          .find('[data-cy="document-title"]')
           .dive()
           .dive()
           .find('SwaggerValue')
@@ -287,7 +280,7 @@ describe('DocumentDetailDisplay', () => {
       });
       expect(
         documentDisplay
-          .find('[data-cy="title"]')
+          .find('[data-cy="document-title"]')
           .dive()
           .dive()
           .find('SwaggerValue')
@@ -402,7 +395,7 @@ describe('DocumentDetailDisplay', () => {
       });
       expect(
         documentDisplay
-          .find('[data-cy="title"]')
+          .find('[data-cy="document-title"]')
           .dive()
           .dive()
           .find('SwaggerValue')
