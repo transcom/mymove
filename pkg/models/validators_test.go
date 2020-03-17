@@ -336,11 +336,7 @@ func Test_OptionalUUIDIsPresent(t *testing.T) {
 	errors = validate.NewErrors()
 	v.IsValid(errors)
 	if errors.Count() > 0 {
-		t.Fatalf("got wrong number of errors: %v", errors)
-
-		if errors.Get("name")[0] != "Name can not be blank." {
-			t.Fatalf("wrong error; expected %s, got %s", "Name can not be blank.", errors.Get("name")[0])
-		}
+		t.Fatalf("got errors when should be valid: %v", errors)
 	}
 
 	// negative test
