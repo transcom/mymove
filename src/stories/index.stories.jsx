@@ -165,10 +165,10 @@ storiesOf('Components|Button', module)
         <span className="icon">★</span>
         Button
       </Button>
-      <Button className="usa-button--unstyled" onClick={action('clicked')}>
+      <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
         Button
       </Button>
-      <Button className="usa-button--unstyled" onClick={action('clicked')}>
+      <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
         <span className="icon">★</span>
         Button
       </Button>

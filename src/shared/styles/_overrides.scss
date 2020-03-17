@@ -66,5 +66,8 @@
     &:hover {
       @include u-text('primary-dark');
     }
+    &:disabled {
+      @include u-text('base-light');
+    }
   }
 } //close usa-button
