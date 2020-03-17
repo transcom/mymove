@@ -58,10 +58,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 		MaxDaysTransitTime: 12,
-		WeightLbsLower:     1000,
-		WeightLbsUpper:     1999,
-		DistanceMilesLower: 251,
-		DistanceMilesUpper: 500,
+		WeightLbsLower:     0,
+		WeightLbsUpper:     10000,
+		DistanceMilesLower: 0,
+		DistanceMilesUpper: 10000,
 	}
 	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
@@ -150,6 +150,34 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
 		suite.NotNil(updatedMTOShipment.PrimeEstimatedWeightRecordedDate)
+	})
+
+	suite.T().Run("Successful case if scheduled pickup is changed. RequiredDeliveryDate should be generated.", func(t *testing.T) {
+		tenDaysFromNow := now.AddDate(0, 0, 11)
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:       "APPROVED",
+				ApprovedDate: &now,
+			},
+		})
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		updatedShipment := models.MTOShipment{
+			ID:                   oldShipment.ID,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+			ScheduledPickupDate:  &tenDaysFromNow,
+		}
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
+		suite.NoError(err)
+		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.NotNil(updatedMTOShipment.RequiredDeliveryDate)
+
+		// Let's double check our maths.
+		expectedRDD := updatedShipment.ScheduledPickupDate.AddDate(0, 0, 12)
+		actualRDD := *updatedMTOShipment.RequiredDeliveryDate
+		suite.Equal(expectedRDD.Year(), actualRDD.Year())
+		suite.Equal(expectedRDD.Month(), actualRDD.Month())
+		suite.Equal(expectedRDD.Day(), actualRDD.Day())
+
 	})
 
 	suite.T().Run("Failed case if approved date is 3-9 days from scheduled move date but estimated weight recorded date isn't at least 3 days prior to scheduled move date", func(t *testing.T) {
