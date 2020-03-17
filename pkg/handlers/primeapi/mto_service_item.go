@@ -2,9 +2,10 @@ package primeapi
 
 import (
 	"fmt"
-	"strings"
+	"reflect"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -33,18 +34,13 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	if _, ok := allowedMap[params.Body.ModelType()]; !ok {
 		// throw error if modelType() not on the list
 		mapKeys := getMapKeys(allowedMap)
-		logger.Error("primeapi.CreateMTOServiceItemHandler error",
-			zap.Error(fmt.Errorf("MTOServiceItem modelType() not allowed: %s, allowed modelType() %v", params.Body.ModelType(), mapKeys)))
-
 		detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", params.Body.ModelType())
-		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(&primemessages.ValidationError{
-			ClientError: primemessages.ClientError{
-				Detail: &detailErr,
-			},
-			InvalidFields: map[string]string{
-				"modelType": fmt.Sprintf("allowed modelType() %v", mapKeys),
-			},
-		})
+		verrs := validate.NewErrors()
+		verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
+
+		logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(verrs))
+		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+			"modelType() not allowed", detailErr, h.GetTraceID(), verrs))
 	}
 
 	params.Body.SetMoveTaskOrderID(params.MoveTaskOrderID)
@@ -53,7 +49,8 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 	mtoServiceItem, verrs, err := h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
 	if verrs != nil && verrs.HasAny() {
-		return mtoserviceitemops.NewCreateMTOServiceItemBadRequest().WithPayload(&primemessages.Error{Message: handlers.FmtString(verrs.Error())})
+		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+			"Model validation error", verrs.Error(), h.GetTraceID(), verrs))
 	}
 
 	if err != nil {
@@ -72,14 +69,6 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 }
 
 // helper to get the keys from a map
-func getMapKeys(m map[primemessages.MTOServiceItemModelType]bool) string {
-	b := strings.Builder{}
-	b.WriteString("[ ")
-	for key := range m {
-		b.WriteString(string(key))
-		b.WriteString(" ")
-	}
-	b.WriteString("]")
-
-	return b.String()
+func getMapKeys(m map[primemessages.MTOServiceItemModelType]bool) []reflect.Value {
+	return reflect.ValueOf(m).MapKeys()
 }

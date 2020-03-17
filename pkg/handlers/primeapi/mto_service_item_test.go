@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -115,6 +117,23 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+	})
+
+	suite.T().Run("POST failure - 422 - Model validation errors", func(t *testing.T) {
+		mockCreator := mocks.MTOServiceItemCreator{}
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockCreator,
+		}
+		verrs := validate.NewErrors()
+		verrs.Add("test", "testing")
+
+		mockCreator.On("CreateMTOServiceItem",
+			mock.Anything,
+		).Return(nil, verrs, nil)
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
 	})
 
 	suite.T().Run("POST failure - 422 - modelType() not supported", func(t *testing.T) {

@@ -2,6 +2,10 @@ package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/handlers"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -308,4 +312,20 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 		payload = append(payload, MTOServiceItem(&p))
 	}
 	return &payload
+}
+
+// ValidationError describes validation errors from the model or properties
+func ValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
+	return &primemessages.ValidationError{
+		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
+		ClientError:   *clientError(title, detail, instance),
+	}
+}
+
+func clientError(title string, detail string, instance uuid.UUID) *primemessages.ClientError {
+	return &primemessages.ClientError{
+		Title:    handlers.FmtString(title),
+		Detail:   handlers.FmtString(detail),
+		Instance: handlers.FmtUUID(instance),
+	}
 }
