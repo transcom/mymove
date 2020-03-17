@@ -2333,7 +2333,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UserUpload"
           }
         }
       }
@@ -2367,7 +2367,7 @@ func init() {
         }
       }
     },
-    "Upload": {
+    "UserUpload": {
       "type": "object",
       "required": [
         "id",
@@ -5062,7 +5062,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/UserUpload"
           }
         }
       }
@@ -5096,7 +5096,7 @@ func init() {
         }
       }
     },
-    "Upload": {
+    "UserUpload": {
       "type": "object",
       "required": [
         "id",

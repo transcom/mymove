@@ -77,14 +77,14 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 			f, err := os.Open(test.pdfName)
 			suite.NoError(err)
 			// Backfill the uploaded orders file in filesystem
-			uploadedOrdersUpload := ppm.Move.Orders.UploadedOrders.Uploads[0]
+			uploadedOrdersUpload := ppm.Move.Orders.UploadedOrders.UserUploads[0].Upload
 			_, err = context.FileStorer().Store(uploadedOrdersUpload.StorageKey, f, uploadedOrdersUpload.Checksum, nil)
 			suite.NoError(err)
 
 			// Create upload for expense document model
-			loader, err := uploader.NewUploader(suite.DB(), suite.TestLogger(), context.FileStorer(), 100*uploader.MB)
+			userUploader, err := uploader.NewUserUploader(suite.DB(), suite.TestLogger(), context.FileStorer(), 100*uploader.MB)
 			suite.NoError(err)
-			loader.CreateUploadForDocument(&expDoc.MoveDocument.DocumentID, *officeUser.UserID, uploader.File{File: f}, uploader.AllowedTypesServiceMember)
+			userUploader.CreateUserUploadForDocument(&expDoc.MoveDocument.DocumentID, *officeUser.UserID, uploader.File{File: f}, uploader.AllowedTypesServiceMember)
 
 			request := httptest.NewRequest("POST", "/fake/path", nil)
 			request = suite.AuthenticateOfficeRequest(request, officeUser)

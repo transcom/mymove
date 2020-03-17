@@ -1,0 +1,194 @@
+package uploader
+
+import (
+	"fmt"
+	"io"
+	"path"
+
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
+	"github.com/spf13/afero"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
+	"go.uber.org/zap"
+)
+
+// UserUploader encapsulates a few common processes: creating Uploads for a Document,
+// generating pre-signed URLs for file access, and deleting Uploads.
+type UserUploader struct {
+	db               *pop.Connection
+	logger           Logger
+	uploader		 *Uploader
+}
+
+
+// NewUserUploader creates and returns a new uploader
+func NewUserUploader(db *pop.Connection, logger Logger, storer storage.FileStorer, fileSizeLimit ByteSize) (*UserUploader, error) {
+	uploader, err := NewUploader(db, logger, storer, fileSizeLimit, models.UploadTypeUSER)
+	if err != nil {
+		return nil, fmt.Errorf("could not create uploader.UserUploader for UserUpload: %w", err)
+	}
+	return &UserUploader{
+		db:               db,
+		logger:           logger,
+		uploader: uploader,
+	}, nil
+}
+
+// PrepareFileForUpload
+func (u *UserUploader) PrepareFileForUpload (file io.ReadCloser, filename string) (afero.File, error) {
+	// Read the incoming data into a temporary afero.File for consumption
+	return u.uploader.PrepareFileForUpload(file, filename)
+}
+
+func (u *UserUploader) createAndStore (documentID *uuid.UUID, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
+	// If storage key is not set assign a default
+	if u.GetUploadStorageKey() == "" {
+		u.uploader.DefaultStorageKey = path.Join("user", userID.String())
+	}
+
+	newUpload, verrs, err := u.uploader.CreateUploadForDocument(File{File: file}, allowedTypes)
+	if verrs.HasAny() || err != nil {
+		u.logger.Error("error creating and storing new upload for user", zap.Error(err))
+		return nil, verrs, err
+	}
+
+	id := uuid.Must(uuid.NewV4())
+
+	newUploadForUser := &models.UserUpload{
+		ID:          id,
+		DocumentID:  documentID,
+		UploaderID:  userID,
+		UploadID:    &newUpload.ID,
+		Upload: 	 newUpload,
+	}
+
+	verrs, err = u.db.ValidateAndCreate(newUploadForUser)
+	if err != nil || verrs.HasAny() {
+		u.logger.Error("error creating new user upload", zap.Error(err))
+		return nil, verrs, err
+	}
+
+	return newUploadForUser, &validate.Errors{}, nil
+}
+
+// CreateUserUploadForDocument creates a new UserUpload by performing validations, storing the specified
+// file using the supplied storer, and saving an UserUpload object to the database containing
+// the file's metadata.
+func (u *UserUploader) CreateUserUploadForDocument(documentID *uuid.UUID, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
+
+	if u.uploader == nil {
+		return nil, &validate.Errors{}, errors.New("Did not call NewUserUploader before calling this function")
+	}
+
+	var userUpload *models.UserUpload
+	var verrs *validate.Errors
+	var uploadError error
+
+	// If we are already in a transaction, don't start one
+	if u.db.TX != nil {
+		userUpload, verrs, uploadError = u.createAndStore(documentID, userID, file, allowedTypes)
+		if verrs.HasAny() || uploadError != nil {
+			u.logger.Error("error creating new user upload (existing TX)", zap.Error(uploadError))
+		} else {
+			u.logger.Info("created a user upload with id and key (existing TX)", zap.Any("new_user_upload_id", userUpload.ID), zap.String("key", userUpload.Upload.StorageKey))
+		}
+
+		return userUpload, verrs, uploadError
+		/*
+		var err error
+		userUpload, verrs, err = u.createAndStore(documentID, userID, file, allowedTypes)
+		if err != nil {
+			u.logger.Error("error creating new user upload", zap.Error(err))
+			return nil, verrs,fmt.Errorf("error creating upload %w", err)
+		}
+		return userUpload, &validate.Errors{}, nil
+		*/
+	}
+
+	txError := u.db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+		userUpload, verrs, uploadError = u.createAndStore(documentID, userID, file, allowedTypes)
+		if verrs.HasAny() || uploadError != nil {
+			u.logger.Error("error creating new user upload", zap.Error(uploadError))
+			return transactionError
+		}
+
+		u.logger.Info("created a user upload with id and key ", zap.Any("new_user_upload_id", userUpload.ID), zap.String("key", userUpload.Upload.StorageKey))
+		return nil
+	})
+	if txError != nil {
+		return nil, verrs, uploadError
+	}
+
+	return userUpload, &validate.Errors{}, nil
+}
+
+// CreateUserUpload stores UserUpload but does not assign a Document
+func (u *UserUploader) CreateUserUpload(userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
+	if u.uploader == nil {
+		return nil, &validate.Errors{}, errors.New("Did not call NewUserUploader before calling this function")
+	}
+	return u.CreateUserUploadForDocument(nil, userID, file, allowedTypes)
+}
+
+// DeleteUserUpload removes an UserUpload from the database and deletes its file from the
+// storer.
+func (u *UserUploader) DeleteUserUpload(userUpload *models.UserUpload) error {
+	if u.db.TX != nil {
+		if err := u.uploader.deleteUpload(userUpload.Upload); err != nil {
+			return err
+		}
+		return models.DeleteUserUpload(u.db, userUpload)
+
+	} else {
+		return u.db.Transaction(func(db *pop.Connection) error {
+			if err := u.uploader.deleteUpload(userUpload.Upload); err != nil {
+				return err
+			}
+			return models.DeleteUserUpload(db, userUpload)
+		})
+	}
+	return nil
+}
+
+// PresignedURL returns a URL that can be used to access an UserUpload's file.
+func (u *UserUploader) PresignedURL(userUpload *models.UserUpload) (string, error) {
+	if userUpload == nil || userUpload.Upload == nil {
+		u.logger.Error("failed to get UserUploader presigned url")
+		return "", errors.New("failed to get UserUploader presigned url")
+	}
+	url, err := u.uploader.PresignedURL(userUpload.Upload)
+	if err != nil {
+		u.logger.Error("failed to get UserUploader presigned url", zap.Error(err))
+		return "", err
+	}
+	return url, nil
+}
+
+// FileSystem
+func (u *UserUploader) FileSystem() *afero.Afero {
+	return u.uploader.Storer.FileSystem()
+}
+
+// Uploader
+func (u *UserUploader) Uploader() *Uploader {
+	return u.uploader
+}
+
+// SetUploadStorageKey set the UserUpload.Upload.StorageKey member
+func (u *UserUploader) SetUploadStorageKey(key string) {
+	if u.uploader != nil {
+		u.uploader.SetUploadStorageKey(key)
+	}
+}
+
+// GetUploadStorageKey returns the UserUpload.Upload.StorageKey member
+func (u *UserUploader) GetUploadStorageKey() string {
+	if u.uploader == nil {
+		return ""
+	}
+	return u.uploader.UploadStorageKey
+}

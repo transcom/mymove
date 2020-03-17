@@ -12,35 +12,22 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeUpload creates a single Upload.
+// MakeUpload creates a single UserUpload.
 func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
-	document := assertions.Upload.Document
-	if assertions.Upload.DocumentID == nil || isZeroUUID(*assertions.Upload.DocumentID) {
-		document = MakeDocument(db, assertions)
-	}
-
-	uploaderID := assertions.Upload.UploaderID
-	if isZeroUUID(uploaderID) {
-		uploaderID = document.ServiceMember.UserID
-	}
-
-	// Users can either assert an Uploader (and a real file is used), or can optionally assert fields
+	// Users can either assert an UserUploader (and a real file is used), or can optionally assert fields
 	var upload *models.Upload
 	if assertions.Uploader != nil {
-		// If an Uploader is passed in, Upload assertions are ignored
+		// If an UserUploader is passed in, UserUpload assertions are ignored
 		var verrs *validate.Errors
 		var err error
 		file := fixture("test.pdf")
-		upload, verrs, err = assertions.Uploader.CreateUploadForDocument(&document.ID, uploaderID, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
+		upload, verrs, err = assertions.Uploader.CreateUploadForDocument(uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
-			log.Panic(fmt.Errorf("Errors encountered saving upload %v, %v", verrs, err))
+			log.Panic(fmt.Errorf("errors encountered saving upload %v, %v", verrs, err))
 		}
 	} else {
 		// If no file is being stored, use asserted fields
 		upload = &models.Upload{
-			DocumentID:  &document.ID,
-			Document:    document,
-			UploaderID:  uploaderID,
 			Filename:    "testFile.pdf",
 			Bytes:       2202009,
 			ContentType: "application/pdf",
@@ -55,7 +42,7 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 	return *upload
 }
 
-// MakeDefaultUpload makes an Upload with default values
+// MakeDefaultUpload makes an UserUpload with default values
 func MakeDefaultUpload(db *pop.Connection) models.Upload {
 	return MakeUpload(db, Assertions{})
 }

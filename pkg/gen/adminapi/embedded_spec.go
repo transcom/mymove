@@ -1862,7 +1862,7 @@ func init() {
         "$ref": "#/definitions/TransportationServiceProviderPerformance"
       }
     },
-    "Upload": {
+    "UserUpload": {
       "type": "object",
       "properties": {
         "content_type": {
@@ -1945,7 +1945,7 @@ func init() {
           "x-nullable": true
         },
         "upload": {
-          "$ref": "#/definitions/Upload"
+          "$ref": "#/definitions/UserUpload"
         }
       }
     },
@@ -3818,7 +3818,7 @@ func init() {
         "$ref": "#/definitions/TransportationServiceProviderPerformance"
       }
     },
-    "Upload": {
+    "UserUpload": {
       "type": "object",
       "properties": {
         "content_type": {
@@ -3901,7 +3901,7 @@ func init() {
           "x-nullable": true
         },
         "upload": {
-          "$ref": "#/definitions/Upload"
+          "$ref": "#/definitions/UserUpload"
         }
       }
     },

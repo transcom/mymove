@@ -31,15 +31,16 @@ type CreateUploadHandler struct {
 
 // Handle creates uploads
 func (h *CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	userID := session.UserID // TODO: restrict to prime user when prime auth is implemented
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	// TODO https://dp3.atlassian.net/browse/MB-1969
+	var contractorID uuid.UUID // TODO not populated. Do not know how get from MTO to Contractor ID
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID)
 	if err != nil {
 		logger.Error("error creating uuid from string", zap.Error(err))
 	}
 
 	uploadCreator := paymentrequest.NewPaymentRequestUploadCreator(h.DB(), logger, h.FileStorer())
-	createdUpload, err := uploadCreator.CreateUpload(params.File, paymentRequestID, userID)
+	createdUpload, err := uploadCreator.CreateUpload(params.File, paymentRequestID, contractorID)
 	if err != nil {
 		logger.Error("cannot create payment request upload", zap.Error(err))
 		return uploadop.NewCreateUploadBadRequest()

@@ -13,11 +13,7 @@ import (
 func (suite *ModelSuite) Test_UploadCreate() {
 	t := suite.T()
 
-	document := testdatagen.MakeDefaultDocument(suite.DB())
-
 	upload := models.Upload{
-		DocumentID:  &document.ID,
-		UploaderID:  document.ServiceMember.UserID,
 		Filename:    "test.pdf",
 		Bytes:       1048576,
 		ContentType: "application/pdf",
@@ -27,24 +23,20 @@ func (suite *ModelSuite) Test_UploadCreate() {
 	verrs, err := suite.DB().ValidateAndSave(&upload)
 
 	if err != nil {
-		t.Fatalf("could not save Upload: %v", err)
+		t.Fatalf("could not save UserUpload: %v", err)
 	}
 
 	if verrs.Count() != 0 {
-		t.Errorf("did not expect validation errors: %v", verrs)
+		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
 	}
 }
 
 func (suite *ModelSuite) Test_UploadCreateWithID() {
 	t := suite.T()
 
-	document := testdatagen.MakeDefaultDocument(suite.DB())
-
 	id := uuid.Must(uuid.NewV4())
 	upload := models.Upload{
 		ID:          id,
-		DocumentID:  &document.ID,
-		UploaderID:  document.ServiceMemberID,
 		Filename:    "test.pdf",
 		Bytes:       1048576,
 		ContentType: "application/pdf",
@@ -54,7 +46,7 @@ func (suite *ModelSuite) Test_UploadCreateWithID() {
 	verrs, err := suite.DB().ValidateAndSave(&upload)
 
 	if err != nil {
-		t.Fatalf("could not save Upload: %v", err)
+		t.Fatalf("could not save UserUpload: %v", err)
 	}
 
 	if verrs.Count() != 0 {
@@ -70,7 +62,6 @@ func (suite *ModelSuite) Test_UploadValidations() {
 	upload := &models.Upload{}
 
 	var expErrors = map[string][]string{
-		"uploader_id":  {"UploaderID can not be blank."},
 		"checksum":     {"Checksum can not be blank."},
 		"bytes":        {"Bytes can not be blank."},
 		"filename":     {"Filename can not be blank."},
@@ -92,8 +83,6 @@ func (suite *ModelSuite) TestFetchUpload() {
 		ServiceMemberID: document.ServiceMember.ID,
 	}
 	upload := models.Upload{
-		DocumentID:  &document.ID,
-		UploaderID:  document.ServiceMember.UserID,
 		Filename:    "test.pdf",
 		Bytes:       1048576,
 		ContentType: "application/pdf",
@@ -102,12 +91,37 @@ func (suite *ModelSuite) TestFetchUpload() {
 
 	verrs, err := suite.DB().ValidateAndSave(&upload)
 	if err != nil {
-		t.Fatalf("could not save Upload: %v", err)
+		t.Fatalf("could not save UserUpload: %v", err)
+	}
+	if verrs.Count() != 0 {
+		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
 	}
 
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect validation errors: %v", verrs)
+	uploadUser := models.UserUpload{
+		DocumentID:  &document.ID,
+		UploaderID:  document.ServiceMember.UserID,
+		Upload:      &upload,
+		UploadID:    &upload.ID,
 	}
+
+	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
+	if err != nil {
+		t.Fatalf("could not save UserUpload: %v", err)
+	}
+	if verrs.Count() != 0 {
+		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
+	}
+
+	// TODO removed FetchUpload, not sure if we want or need it
+	upUser, _ := models.FetchUserUpload(ctx, suite.DB(), &session, uploadUser.ID)
+	suite.Equal(upUser.UploadID, upload.ID)
+	suite.Equal(upUser.Upload.ID, upload.ID)
+	suite.Equal(upUser.ID, uploadUser.ID)
+
+	upUser, _ = models.FetchUserUploadFromUploadID(ctx, suite.DB(), &session, upload.ID)
+	suite.Equal(upUser.UploadID, upload.ID)
+	suite.Equal(upUser.Upload.ID, upload.ID)
+	suite.Equal(upUser.ID, uploadUser.ID)
 
 	up, _ := models.FetchUpload(ctx, suite.DB(), &session, upload.ID)
 	suite.Equal(up.ID, upload.ID)
@@ -125,8 +139,6 @@ func (suite *ModelSuite) TestFetchDeletedUpload() {
 		ServiceMemberID: document.ServiceMember.ID,
 	}
 	upload := models.Upload{
-		DocumentID:  &document.ID,
-		UploaderID:  document.ServiceMember.UserID,
 		Filename:    "test.pdf",
 		Bytes:       1048576,
 		ContentType: "application/pdf",
@@ -135,7 +147,7 @@ func (suite *ModelSuite) TestFetchDeletedUpload() {
 
 	verrs, err := suite.DB().ValidateAndSave(&upload)
 	if err != nil {
-		t.Fatalf("could not save Upload: %v", err)
+		t.Fatalf("could not save UserUpload: %v", err)
 	}
 
 	if verrs.Count() != 0 {

@@ -323,12 +323,16 @@ func (s *ServiceMember) IsProfileComplete() bool {
 func (s ServiceMember) FetchLatestOrder(ctx context.Context, db *pop.Connection) (Order, error) {
 
 	var order Order
-	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
+	query := db.Where("orders.service_member_id = $1 and u.deleted_at is null", s.ID).Order("created_at desc")
 	err := query.Eager("ServiceMember.User",
 		"NewDutyStation.Address",
-		"UploadedOrders.Uploads",
+		"UploadedOrders.UserUploads.Upload",
 		"Moves.PersonallyProcuredMoves",
-		"Moves.SignedCertifications").First(&order)
+		"Moves.SignedCertifications").
+		Join("documents as d", "orders.uploaded_orders_id = d.id").
+		LeftJoin("user_uploads as uu", "d.id = uu.document_id").
+		LeftJoin("uploads as u", "uu.upload_id = u.id").
+		First(&order)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound

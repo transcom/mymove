@@ -34,9 +34,9 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 	suite.T().Run("successful create upload", func(t *testing.T) {
 		upload := models.Upload{
 			ID:          uploadID,
-			DocumentID:  nil,
-			Document:    models.Document{},
-			UploaderID:  primeUser.ID,
+			//DocumentID:  nil,
+			//Document:    models.Document{},
+			//UploaderID:  primeUser.ID,
 			Filename:    "test.pdf",
 			Bytes:       42330,
 			ContentType: "application/json",
@@ -45,6 +45,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			CreatedAt:   time.Now(),
 			UpdatedAt:   time.Now(),
 			DeletedAt:   nil,
+			UploadType:  models.UploadTypePRIME,
 		}
 
 		paymentRequestUploadCreator := &mocks.PaymentRequestUploadCreator{}

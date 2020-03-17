@@ -21,5 +21,5 @@ func TestUploadsServiceSuite(t *testing.T) {
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, hs)
-	hs.PopTestSuite.TearDown()
+	//hs.PopTestSuite.TearDown()
 }

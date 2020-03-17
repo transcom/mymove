@@ -1,0 +1,226 @@
+package models_test
+
+import (
+	"context"
+
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
+
+	"github.com/gofrs/uuid"
+)
+
+func (suite *ModelSuite) Test_UserUploadCreate() {
+	t := suite.T()
+
+	document := testdatagen.MakeDefaultDocument(suite.DB())
+
+	upload := models.Upload {
+		Filename:    "test.pdf",
+		Bytes:       1048576,
+		ContentType: "application/pdf",
+		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+	}
+
+	verrs, err := suite.DB().ValidateAndSave(&upload)
+	if err != nil {
+		t.Fatalf("could not save UserUpload: %v", err)
+	}
+
+	if verrs.Count() != 0 {
+		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
+	}
+
+	uploadUser := models.UserUpload{
+		DocumentID:  &document.ID,
+		UploaderID:  document.ServiceMember.UserID,
+		Upload:      &upload,
+	}
+
+	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
+
+	if err != nil {
+		t.Fatalf("could not save UserUpload: %v", err)
+	}
+
+	if verrs.Count() != 0 {
+		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
+	}
+}
+
+func (suite *ModelSuite) Test_UserUploadCreateWithID() {
+	t := suite.T()
+
+	upload := models.Upload {
+		Filename:    "test.pdf",
+		Bytes:       1048576,
+		ContentType: "application/pdf",
+		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+	}
+
+	verrs, err := suite.DB().ValidateAndSave(&upload)
+	if err != nil {
+		t.Fatalf("could not save UserUpload: %v", err)
+	}
+
+	if verrs.Count() != 0 {
+		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
+	}
+
+	document := testdatagen.MakeDefaultDocument(suite.DB())
+
+	id := uuid.Must(uuid.NewV4())
+	uploadUser := models.UserUpload{
+		ID:          id,
+		DocumentID:  &document.ID,
+		UploaderID:  document.ServiceMemberID,
+		Upload:		 &upload,
+	}
+
+	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
+
+	if err != nil {
+		t.Fatalf("could not save UserUpload: %v", err)
+	}
+
+	if verrs.Count() != 0 {
+		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
+	}
+
+	if uploadUser.ID.String() != id.String() {
+		t.Errorf("wrong uuid for UserUpload: expected %s, got %s", id.String(), uploadUser.ID.String())
+	}
+}
+
+func (suite *ModelSuite) Test_UserUploadValidations() {
+	uploadUser := &models.UserUpload{}
+
+	var expErrors = map[string][]string{
+		"uploader_id":  {"UploaderID can not be blank."},
+	}
+
+	suite.verifyValidationErrors(uploadUser, expErrors)
+}
+
+
+func (suite *ModelSuite) TestFetchUserUploadWithNoUpload() {
+	t := suite.T()
+
+	ctx := context.Background()
+	document := testdatagen.MakeDefaultDocument(suite.DB())
+
+	session := auth.Session{
+		UserID:          document.ServiceMember.UserID,
+		ApplicationName: auth.MilApp,
+		ServiceMemberID: document.ServiceMember.ID,
+	}
+	uploadUser := models.UserUpload{
+		DocumentID:  &document.ID,
+		UploaderID:  document.ServiceMember.UserID,
+	}
+
+	verrs, err := suite.DB().ValidateAndSave(&uploadUser)
+	if err != nil {
+		t.Fatalf("could not save UserUpload: %v", err)
+	}
+
+	if verrs.Count() != 0 {
+		t.Errorf("did not expect validation errors: %v", verrs)
+	}
+
+	upUser, _ := models.FetchUserUpload(ctx, suite.DB(), &session, uploadUser.ID)
+	suite.Equal(upUser.ID, uploadUser.ID)
+	suite.Nil(upUser.Upload.ID)
+}
+
+func (suite *ModelSuite) TestFetchUserUpload() {
+	t := suite.T()
+
+	ctx := context.Background()
+	document := testdatagen.MakeDefaultDocument(suite.DB())
+
+	session := auth.Session{
+		UserID:          document.ServiceMember.UserID,
+		ApplicationName: auth.MilApp,
+		ServiceMemberID: document.ServiceMember.ID,
+	}
+
+	upload := models.Upload {
+		Filename:    "test.pdf",
+		Bytes:       1048576,
+		ContentType: "application/pdf",
+		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+	}
+
+	verrs, err := suite.DB().ValidateAndSave(&upload)
+	if err != nil {
+		t.Fatalf("could not save UserUpload: %v", err)
+	}
+
+	if verrs.Count() != 0 {
+		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
+	}
+	uploadUser := models.UserUpload{
+		DocumentID:  &document.ID,
+		UploaderID:  document.ServiceMember.UserID,
+		Upload:      &upload,
+	}
+
+	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
+	if err != nil {
+		t.Fatalf("could not save UserUpload: %v", err)
+	}
+
+	if verrs.Count() != 0 {
+		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
+	}
+
+	upUser, _ := models.FetchUserUpload(ctx, suite.DB(), &session, uploadUser.ID)
+	suite.Equal(upUser.ID, uploadUser.ID)
+	suite.Equal(upload.ID, uploadUser.Upload.ID)
+	suite.Equal(upload.ID, uploadUser.Upload.ID)
+}
+
+func (suite *ModelSuite) TestFetchDeletedUserUpload() {
+	t := suite.T()
+
+	ctx := context.Background()
+	document := testdatagen.MakeDefaultDocument(suite.DB())
+
+	session := auth.Session{
+		UserID:          document.ServiceMember.UserID,
+		ApplicationName: auth.MilApp,
+		ServiceMemberID: document.ServiceMember.ID,
+	}
+	upload := models.Upload{
+		Filename:    "test.pdf",
+		Bytes:       1048576,
+		ContentType: "application/pdf",
+		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+	}
+
+	verrs, err := suite.DB().ValidateAndSave(&upload)
+	if err != nil {
+		t.Fatalf("could not save UserUpload: %v", err)
+	}
+
+	if verrs.Count() != 0 {
+		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
+	}
+
+	uploadUser := models.UserUpload{
+		DocumentID:  &document.ID,
+		UploaderID:  document.ServiceMember.UserID,
+		UploadID:    &upload.ID,
+		Upload:      &upload,
+	}
+
+	models.DeleteUpload(suite.DB(), &upload)
+	up, _ := models.FetchUserUpload(ctx, suite.DB(), &session, uploadUser.ID)
+
+	// fetches a nil upload
+	suite.Equal(up.Upload.Filename, "")
+	suite.Equal(up.Upload.ContentType, "")
+	suite.Equal(up.Upload.ID, uuid.Nil)
+}
+

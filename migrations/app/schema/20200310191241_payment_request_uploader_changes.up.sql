@@ -1,0 +1,101 @@
+create type upload_type as enum (
+    'PRIME',
+    'USER'
+    );
+
+alter table uploads
+    alter column document_id drop not null,
+    alter column uploader_id drop not null,
+    add column upload_type upload_type,
+    drop constraint uploads_document_id_fkey,
+    drop constraint uploads_uploader_id_fkey;
+
+
+update uploads
+    set upload_type = 'USER';
+
+alter table uploads
+    alter column upload_type set not null;
+
+alter table proof_of_service_docs
+    alter column upload_id drop not null;
+
+create table user_uploads
+(
+    id uuid not null
+        primary key,
+    document_id uuid
+        constraint user_uploads_document_id_fkey
+            references documents,
+    uploader_id uuid not null constraint user_uploads_uploader_id_fkey references users,
+    upload_id uuid not null constraint user_uploads_uploads_id_fkey references uploads on delete restrict,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+        deleted_at timestamp with time zone
+
+);
+
+create index if not exists user_uploads_uploader_id_idx
+    on user_uploads (uploader_id);
+
+create index if not exists user_uploads_document_id_idx
+    on user_uploads (document_id);
+
+create index user_uploads_deleted_at_idx
+    on user_uploads (deleted_at);
+
+create table prime_uploads
+(
+    id uuid not null
+        primary key,
+    proof_of_service_docs_id uuid
+        constraint prime_uploads_proof_of_service_docs_id_fkey
+            references proof_of_service_docs,
+    contractor_id uuid
+        constraint prime_uploads_contractor_id_fkey
+            references contractor,
+    uploads_id uuid not null constraint prime_uploads_uploads_id_fkey references uploads on delete restrict,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    deleted_at timestamp with time zone
+
+);
+
+create index if not exists prime_uploads_proof_of_service_docs_id_idx
+    on prime_uploads (proof_of_service_docs_id);
+
+create index if not exists prime_uploads_contractor_id_idx
+    on prime_uploads (contractor_id);
+
+create index prime_uploads_deleted_at_idx
+    on prime_uploads (deleted_at);
+
+INSERT INTO user_uploads (id, document_id, uploader_id, upload_id, created_at, updated_at)
+SELECT uuid_generate_v4(), uploads.document_id, uploads.uploader_id, uploads.id, now(), now() FROM uploads;
+
+UPDATE uploads
+    SET uploader_id = uuid_nil();
+
+INSERT INTO prime_uploads (id, proof_of_service_docs_id, contractor_id, uploads_id, created_at, updated_at)
+SELECT uuid_generate_v4(), proof_of_service_docs.id, uuid_nil() ,proof_of_service_docs.upload_id, now(), now() FROM proof_of_service_docs;
+
+alter table invoices
+    drop constraint invoices_uploads_id_fk,
+    add column user_uploads_id uuid null constraint invoices_user_uploads_id_fkey references user_uploads on delete restrict;
+
+alter table proof_of_service_docs
+    drop constraint proof_of_service_docs_upload_id_fkey;
+
+-- Part 2 of migrations, do not deploy with above
+alter table proof_of_service_docs
+    drop column upload_id;
+
+alter table uploads
+    drop column document_id,
+    drop column uploader_id;
+
+alter table invoices
+    drop column upload_id;
+
+-- alter table prime_uploads
+--    alter column contractor_id set not null;

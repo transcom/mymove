@@ -15,8 +15,8 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Upload upload
-// swagger:model Upload
+// UserUpload upload
+// swagger:model UserUpload
 type Upload struct {
 
 	// content type
