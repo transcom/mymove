@@ -3,13 +3,11 @@ package testdatagen
 import (
 	"github.com/gobuffalo/pop"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakePPM creates a single Personally Procured Move and its associated Move and Orders
 func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcuredMove {
-	shirt := internalmessages.TShirtSizeM
 
 	// Create new Move if not provided
 	move := assertions.PersonallyProcuredMove.Move
@@ -21,7 +19,6 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 	ppm := models.PersonallyProcuredMove{
 		Move:                          move,
 		MoveID:                        move.ID,
-		Size:                          &shirt,
 		WeightEstimate:                poundPointer(8000),
 		OriginalMoveDate:              models.TimePointer(DateInsidePeakRateCycle),
 		PickupPostalCode:              models.StringPointer("72017"),

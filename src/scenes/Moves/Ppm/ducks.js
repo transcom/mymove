@@ -129,15 +129,7 @@ export function getRawWeightInfo(state) {
   }
 
   return {
-    S: {
-      min: 50,
-      max: 1000,
-    },
-    M: {
-      min: 500,
-      max: 2500,
-    },
-    L: {
+    defaultSize: {
       min: 1500,
       max: entitlement.sum,
     },
@@ -157,8 +149,7 @@ export function getSelectedWeightInfo(state) {
   if (isNull(weightInfo) || isNull(ppm)) {
     return null;
   }
-  const size = ppm && ppm.size ? ppm.size : 'L';
-  return weightInfo[size]; // eslint-disable-line security/detect-object-injection
+  return weightInfo['defaultSize']; // eslint-disable-line security/detect-object-injection
 }
 
 export function getPPM(state) {
@@ -170,7 +161,6 @@ export function getPPM(state) {
 
 // Reducer
 const initialState = {
-  pendingPpmSize: null,
   incentive: null,
   sitReimbursement: null,
   pendingPpmWeight: null,
@@ -192,17 +182,12 @@ export function ppmReducer(state = initialState, action) {
       const activePpm = fetchActivePPM(get(activeMove, 'personally_procured_moves'));
       return Object.assign({}, state, {
         currentPpm: activePpm,
-        pendingPpmSize: get(activePpm, 'size', null),
         pendingPpmWeight: get(activePpm, 'weight_estimate', null),
         incentive_estimate_min: get(activePpm, 'incentive_estimate_min', null),
         incentive_estimate_max: get(activePpm, 'incentive_estimate_max', null),
         sitReimbursement: get(activePpm, 'estimated_storage_reimbursement', null),
         hasLoadSuccess: true,
         hasLoadError: false,
-      });
-    case SET_PENDING_PPM_SIZE:
-      return Object.assign({}, state, {
-        pendingPpmSize: action.payload,
       });
     case SET_PENDING_PPM_WEIGHT:
       return Object.assign({}, state, {
@@ -217,7 +202,6 @@ export function ppmReducer(state = initialState, action) {
       return Object.assign({}, state, {
         currentPpm: action.payload,
         sitReimbursement: get(action.payload, 'estimated_storage_reimbursement', null),
-        pendingPpmSize: null,
         pendingPpmWeight: null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
