@@ -51,7 +51,7 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		return handlers.ResponseForError(logger, err)
 	}
 
-	cost, err := engine.ComputeLowestCostPPMMove(
+	costDetails, err := engine.ComputePPMMoveCosts(
 		unit.Pound(params.WeightEstimate),
 		params.OriginZip,
 		params.OriginDutyStationZip,
@@ -64,6 +64,8 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+
+	cost := rateengine.GetWinningCostMove(costDetails)
 
 	min := cost.GCC.MultiplyFloat64(0.95)
 	max := cost.GCC.MultiplyFloat64(1.05)
