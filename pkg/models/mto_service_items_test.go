@@ -11,10 +11,12 @@ import (
 func (suite *ModelSuite) TestMTOServiceItemValidation() {
 	suite.T().Run("test valid MTOServiceItem", func(t *testing.T) {
 		moveTaskOrderID := uuid.Must(uuid.NewV4())
+		mtoShipmentID := uuid.Must(uuid.NewV4())
 		reServiceID := uuid.Must(uuid.NewV4())
 
 		validMTOServiceItem := models.MTOServiceItem{
 			MoveTaskOrderID: moveTaskOrderID,
+			MTOShipmentID:   &mtoShipmentID,
 			ReServiceID:     reServiceID,
 		}
 		expErrors := map[string][]string{}

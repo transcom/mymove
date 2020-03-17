@@ -90,3 +90,36 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 
 	return model
 }
+
+// MTOServiceItemModel model
+func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) *models.MTOServiceItem {
+	if mtoServiceItem == nil {
+		return nil
+	}
+
+	shipmentID := uuid.FromStringOrNil(mtoServiceItem.MtoShipmentID().String())
+
+	// basic service item
+	model := &models.MTOServiceItem{
+		ID:              uuid.FromStringOrNil(mtoServiceItem.ID().String()),
+		MoveTaskOrderID: uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID().String()),
+		MTOShipmentID:   &shipmentID,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+	}
+
+	// here we initialize more fields below for other service item types. Eg. MTOServiceItemDOFSIT
+	switch mtoServiceItem.ModelType() {
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:
+		dofsit := mtoServiceItem.(*primemessages.MTOServiceItemDOFSIT)
+		model.ReService.Code = models.ReServiceCodeDOFSIT
+		model.Reason = dofsit.Reason
+		model.PickupPostalCode = dofsit.PickupPostalCode
+	default:
+		// assume basic service item, take in provided re service code
+		basic := mtoServiceItem.(*primemessages.MTOServiceItemBasic)
+		model.ReService.Code = models.ReServiceCode(basic.ReServiceCode)
+	}
+
+	return model
+}

@@ -218,6 +218,54 @@ paths:
           description: internal server error
           schema:
             $ref: '#/responses/ServerError'
+  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items':
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Creates mto service items
+      operationId: createMTOServiceItem
+      tags:
+        - mtoServiceItem
+        - prime
+      parameters:
+        - in: path
+          name: moveTaskOrderID
+          required: true
+          format: uuid
+          type: string
+        - in: path
+          name: mtoShipmentID
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          name: body
+          schema:
+            description: This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.
+            $ref: '#/definitions/MTOServiceItem'
+      responses:
+        '200':
+          description: created instance of a mto service item
+          schema:
+            $ref: '#/definitions/MTOServiceItem'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: internal server error
+          schema:
+            $ref: '#/responses/ServerError'
   /payment-requests:
     post:
       consumes:
@@ -654,7 +702,9 @@ definitions:
       payment_requests:
         $ref: '#/definitions/PaymentRequests'
       mto_service_items:
-        $ref: '#/definitions/MTOServiceItems'
+        type: array
+        items:
+          $ref: "#/definitions/MTOServiceItem"
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
       ppm_type:
@@ -754,31 +804,7 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
-  MTOServiceItem:
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        readOnly: true
-        type: string
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      reServiceID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      reServiceCode:
-        type: string
-      reServiceName:
-        type: string
-    type: object
-  MTOServiceItems:
-    type: array
-    items:
-      $ref: '#/definitions/MTOServiceItem'
-  MTOServiceItemstatus:
+  MTOServiceItemStatus:
     properties:
       status:
         enum:
@@ -787,6 +813,68 @@ definitions:
           - REJECTED
         type: string
     type: object
+  MTOServiceItemModelType:
+    description: Describes all model sub-types for a MTOServiceItem model
+    type: string
+    enum:
+      - MTOServiceItemBasic
+      - MTOServiceItemDOFSIT
+  MTOServiceItem:
+    description: Polymorphic type. MTOServiceItem describes a base type of a service item
+    type: object
+    discriminator: modelType
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceName:
+        type: string
+      modelType: # Base type and sub-types of MTOServiceItem
+        $ref: '#/definitions/MTOServiceItemModelType'
+    required:
+      - modelType
+  MTOServiceItemBasic:
+    description: Describes a basic service item subtype of a MTOServiceItem
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            $ref: '#/definitions/ReServiceCode'
+        required:
+          - reServiceCode
+  MTOServiceItemDOFSIT:
+    description: Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            $ref: '#/definitions/ReServiceCode'
+          reason:
+            type: string
+            example: Storage items need to be picked up
+          pickupPostalCode:
+            type: string
+            format: zip
+            example: 90210
+            pattern: '^(\d{5}([\-]\d{4})?)$'
+        required:
+          - reason
+          - pickupPostalCode
   ProofOfServiceDocs:
     properties:
       uploads:
@@ -852,6 +940,57 @@ definitions:
               example: Service Item Parameter Value
           type: object
     type: object
+  ReServiceCode:
+    type: string
+    enum:
+      - CS
+      - DBHF
+      - DBTF
+      - DCRT
+      - DDASIT
+      - DDDSIT
+      - DDFSIT
+      - DDP
+      - DDSHUT
+      - DLH
+      - DMHF
+      - DNPKF
+      - DOASIT
+      - DOFSIT
+      - DOP
+      - DOPSIT
+      - DOSHUT
+      - DPK
+      - DSH
+      - DUCRT
+      - DUPK
+      - FSC
+      - IBHF
+      - IBTF
+      - ICOLH
+      - ICOUB
+      - ICRT
+      - IDASIT
+      - IDDSIT
+      - IDFSIT
+      - IDSHUT
+      - IHPK
+      - IHUPK
+      - INPKF
+      - IOASIT
+      - IOCLH
+      - IOCUB
+      - IOFSIT
+      - IOOLH
+      - IOOUB
+      - IOPSIT
+      - IOSHUT
+      - IUBPK
+      - IUBUPK
+      - IUCRT
+      - MS
+      - NSTH
+      - NSTUB
   Upload:
     type: object
     properties:
