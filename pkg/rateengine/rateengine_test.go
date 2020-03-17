@@ -298,7 +298,7 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 		)
 		suite.NoError(err)
 
-		cost, err := engine.ComputePPMMoveCosts(
+		costs, err := engine.ComputePPMMoveCosts(
 			weight,
 			originZip,
 			originDutyStationZip,
@@ -310,16 +310,16 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 		)
 		suite.NoError(err)
 
-		suite.True(cost["pickupLocation"].IsLowest)
-		suite.False(cost["originDutyStation"].IsLowest)
-		suite.True(cost["pickupLocation"].Cost.GCC > 0)
-		suite.True(cost["originDutyStation"].Cost.GCC > 0)
+		suite.True(costs["pickupLocation"].IsLowest)
+		suite.False(costs["originDutyStation"].IsLowest)
+		suite.True(costs["pickupLocation"].Cost.GCC > 0)
+		suite.True(costs["originDutyStation"].Cost.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC > 0)
 		suite.True(ppmCostWithDutyStationZip.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC < ppmCostWithDutyStationZip.GCC)
 
-		winningCost := GetWinningCostMove(cost)
-		nonWinningCost := GetNonWinningCostMove(cost)
+		winningCost := GetWinningCostMove(costs)
+		nonWinningCost := GetNonWinningCostMove(costs)
 
 		suite.Equal(winningCost, ppmCostWithPickupZip)
 		suite.Equal(nonWinningCost, ppmCostWithDutyStationZip)
@@ -351,7 +351,7 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 		)
 		suite.NoError(err)
 
-		cost, err := engine.ComputePPMMoveCosts(
+		costs, err := engine.ComputePPMMoveCosts(
 			weight,
 			originZip,
 			originDutyStationZip,
@@ -363,16 +363,16 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 		)
 		suite.NoError(err)
 
-		suite.False(cost["pickupLocation"].IsLowest)
-		suite.True(cost["originDutyStation"].IsLowest)
-		suite.True(cost["pickupLocation"].Cost.GCC > 0)
-		suite.True(cost["originDutyStation"].Cost.GCC > 0)
+		suite.False(costs["pickupLocation"].IsLowest)
+		suite.True(costs["originDutyStation"].IsLowest)
+		suite.True(costs["pickupLocation"].Cost.GCC > 0)
+		suite.True(costs["originDutyStation"].Cost.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC > 0)
 		suite.True(ppmCostWithDutyStationZip.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC > ppmCostWithDutyStationZip.GCC)
 
-		winningCost := GetWinningCostMove(cost)
-		nonWinningCost := GetNonWinningCostMove(cost)
+		winningCost := GetWinningCostMove(costs)
+		nonWinningCost := GetNonWinningCostMove(costs)
 		suite.Equal(winningCost, ppmCostWithDutyStationZip)
 		suite.Equal(nonWinningCost, ppmCostWithPickupZip)
 	})
