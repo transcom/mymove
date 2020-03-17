@@ -1760,10 +1760,10 @@ definitions:
       - AIR_FORCE
       - COAST_GUARD
     x-display-value:
-      NAVY_AND_MARINES: 17 (Navy and Marine Corps)
-      ARMY: 21 (Army)
-      AIR_FORCE: 57 (Air Force)
-      COAST_GUARD: 70 (Coast Guard)
+      NAVY_AND_MARINES: 17 Navy and Marine Corps
+      ARMY: 21 Army
+      AIR_FORCE: 57 Air Force
+      COAST_GUARD: 70 Coast Guard
   Address:
     type: object
     properties:
