@@ -6,7 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/services"
 
@@ -27,15 +29,28 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
+	primeEstimatedWeight := unit.Pound(500)
+	primeEstimatedWeightDate := testdatagen.DateInsidePeakRateCycle
 	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 	})
+	mtoShipment.PrimeEstimatedWeight = &primeEstimatedWeight
+	mtoShipment.PrimeEstimatedWeightRecordedDate = &primeEstimatedWeightDate
+
+	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+		MaxDaysTransitTime: 12,
+		WeightLbsLower:     0,
+		WeightLbsUpper:     10000,
+		DistanceMilesLower: 0,
+		DistanceMilesUpper: 10000,
+	}
+	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
 	builder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(builder)
 
 	req := httptest.NewRequest("PUT", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
-
 	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 	params := mtoshipmentops.UpdateMTOShipmentParams{
 		HTTPRequest:     req,
@@ -46,7 +61,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	}
 
 	suite.T().Run("Successful PUT - Integration Test", func(t *testing.T) {
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, route.NewTestingPlanner(500))
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, route.NewTestingPlanner(400))
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -146,7 +161,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	}
 
 	suite.T().Run("Successful PUT - Integration Test with Only Required Fields in Payload", func(t *testing.T) {
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, route.NewTestingPlanner(500))
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, route.NewTestingPlanner(400))
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,

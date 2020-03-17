@@ -144,6 +144,8 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	}
 	err = setNewShipmentFields(f.planner, f.db, &oldShipment, mtoShipment)
 	if err != nil {
+		fmt.Println("here")
+		fmt.Println(err)
 		return &models.MTOShipment{}, err
 	}
 	verrs, err := f.builder.UpdateOne(&oldShipment, &eTag)
