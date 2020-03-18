@@ -64,7 +64,6 @@ func MoveTaskOrderWithEtag(moveTaskOrder *models.MoveTaskOrder) *primemessages.M
 			MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 			ReferenceID:        moveTaskOrder.ReferenceID,
 			PaymentRequests:    *paymentRequests,
-			PpmType:            *moveTaskOrder.PPMType,
 			MtoShipments:       *mtoShipments,
 			UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 		},
