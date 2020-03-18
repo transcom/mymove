@@ -9,18 +9,6 @@ import colors from '../shared/styles/colors.scss';
 
 const filterGroup = filter => Object.keys(colors).filter(color => color.indexOf(filter) === 0);
 
-storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
-
-storiesOf('Components/Button', module)
-  .add('with text', () => <Button onClick={action('clicked')}>Hello Button</Button>)
-  .add('with some emoji', () => (
-    <Button onClick={action('clicked')}>
-      <span role="img" aria-label="so cool">
-        😀 😎 👍 💯
-      </span>
-    </Button>
-  ));
-
 storiesOf('Global|Colors', module).add('all', () => (
   <div style={{ padding: '20px' }}>
     <h3>Brand Colors</h3>
@@ -182,3 +170,12 @@ storiesOf('Global|Typography', module)
       </small>
     </div>
   ));
+
+storiesOf('Components|Containers', module).add('all', () => (
+  <div style={{ padding: '20px' }}>
+    <div className="containter--default"></div>
+    <div className="containter--gray"></div>
+    <div className="containter--popout"></div>
+    <div className="containter--accent"></div>
+  </div>
+));
