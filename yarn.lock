@@ -2319,12 +2319,12 @@
   resolved "https://registry.yarnpkg.com/@redux-saga/types/-/types-1.1.0.tgz#0e81ce56b4883b4b2a3001ebe1ab298b84237204"
   integrity sha512-afmTuJrylUU/0OtqzaRkbyYFFNgCF73Bvel/sw90pvGrWIZ+vyoIJqA6eMSoA6+nb443kTmulmBtC9NerXboNg==
 
-"@rescripts/cli@^0.0.13":
-  version "0.0.13"
-  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.13.tgz#b35331ada2dc5d9578a7a40a339684451acf295d"
-  integrity sha512-ik/HqNVcR/9Yb2nz3fvNBA+fKviAGxEmZc5ci2rbrNzcDC4vu/ZH1yY8eBHZ9opA7KFeU2O5MWhgMFYXmmN1Cg==
+"@rescripts/cli@^0.0.14":
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.14.tgz#1ec700148e754337bff1cedaefd757e016664978"
+  integrity sha512-BPDm8xwYFdzOe8uardwbybrlFu9C6f9463CHPs1M1gtWK+gyXxfWxsYuNMxWlxAnogRHpqLYSYFHGphx2ocGEg==
   dependencies:
-    "@rescripts/utilities" "^0.0.6"
+    "@rescripts/utilities" "^0.0.7"
     ramda "^0.26.0"
     react-dev-utils "^7.0.0"
 
@@ -2366,6 +2366,13 @@
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/@rescripts/utilities/-/utilities-0.0.6.tgz#23202bed3c7015cb24b7fba7f3fb0660d1713d65"
   integrity sha512-Lmy6+b3HZ7gbN+kKaP6B752/KW1EbLlsAjxCB/9ztzzv3BKnIvJm1R5rMGg4ycNMSlrOOpCFVpuKry5EHqaNmw==
+  dependencies:
+    ramda "^0.26.0"
+
+"@rescripts/utilities@^0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@rescripts/utilities/-/utilities-0.0.7.tgz#fac07a981fcc9674c9b55cedb9da67f03dadda52"
+  integrity sha512-kdk4qvNYXOH7mVJCP/URokp5J+1HCR+tT1Zgtp8X9hLywn6WoKlU/tQ2ECB/NPOHrZjp/DGXWeQBAchLXV8q2w==
   dependencies:
     ramda "^0.26.0"
 
