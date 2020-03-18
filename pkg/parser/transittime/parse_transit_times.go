@@ -31,8 +31,6 @@ var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIn
 	transitTimeColIndex := 2
 
 	for curRowIndex := transitTimeRowIndex; curRowIndex < sheet.MaxRow; curRowIndex++ {
-		fmt.Printf("HERE IN PARSING DISTANCE HEADERS %#v \n", getValueFromSheet(sheet, curRowIndex, distanceHeaderColIndex))
-
 		// should be consecutive headers
 		if !strings.Contains(getValueFromSheet(sheet, curRowIndex, distanceHeaderColIndex), "-") {
 			// colIndex should reset
@@ -40,8 +38,6 @@ var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIn
 		}
 
 		for curColIndex := transitTimeColIndex; curColIndex < sheet.MaxCol; curColIndex++ {
-			fmt.Printf("HERE IN PARSING WEIGHT HEADERS %#v \n", getValueFromSheet(sheet, weightHeaderRowIndex, curColIndex))
-
 			// should be consecutive headers
 			if getValueFromSheet(sheet, weightHeaderRowIndex, curColIndex) == "" {
 				// colIndex should reset
