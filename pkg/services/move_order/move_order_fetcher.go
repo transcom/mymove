@@ -55,7 +55,7 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.MoveOrd
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.MoveOrder{}, services.NewNotFoundError(moveOrderID)
+			return &models.MoveOrder{}, services.NewNotFoundError(moveOrderID, "")
 		default:
 			return &models.MoveOrder{}, err
 		}
