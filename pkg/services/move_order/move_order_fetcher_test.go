@@ -30,8 +30,8 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrder() {
 
 	moveOrder := moveOrders[0]
 	suite.NotNil(moveOrder.Customer)
-	suite.Equal(expectedMoveOrder.Customer.FirstName, moveOrder.Customer.FirstName)
-	suite.Equal(expectedMoveOrder.Customer.LastName, moveOrder.Customer.LastName)
+	suite.Equal(*expectedMoveOrder.Customer.FirstName, *moveOrder.Customer.FirstName)
+	suite.Equal(*expectedMoveOrder.Customer.LastName, *moveOrder.Customer.LastName)
 	suite.Equal(expectedMoveOrder.ID, moveOrder.ID)
 	suite.Equal(expectedMoveOrder.CustomerID, moveOrder.CustomerID)
 	suite.NotNil(moveOrder.DestinationDutyStation)
