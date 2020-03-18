@@ -67,15 +67,6 @@ func (o *CreateMTOServiceItem) ServeHTTP(rw http.ResponseWriter, r *http.Request
 // swagger:model CreateMTOServiceItemBody
 type CreateMTOServiceItemBody struct {
 
-	// meta ID
-	// Required: true
-	// Format: uuid
-	MetaID *strfmt.UUID `json:"metaID"`
-
-	// meta type
-	// Required: true
-	MetaType *string `json:"metaType"`
-
 	// mto shipment ID
 	// Required: true
 	// Format: uuid
@@ -91,14 +82,6 @@ type CreateMTOServiceItemBody struct {
 func (o *CreateMTOServiceItemBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateMetaID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateMetaType(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.validateMtoShipmentID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -110,28 +93,6 @@ func (o *CreateMTOServiceItemBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *CreateMTOServiceItemBody) validateMetaID(formats strfmt.Registry) error {
-
-	if err := validate.Required("createMTOServiceItemBody"+"."+"metaID", "body", o.MetaID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("createMTOServiceItemBody"+"."+"metaID", "body", "uuid", o.MetaID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *CreateMTOServiceItemBody) validateMetaType(formats strfmt.Registry) error {
-
-	if err := validate.Required("createMTOServiceItemBody"+"."+"metaType", "body", o.MetaType); err != nil {
-		return err
-	}
-
 	return nil
 }
 

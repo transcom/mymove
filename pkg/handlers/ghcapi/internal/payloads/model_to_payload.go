@@ -2,6 +2,7 @@ package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -34,14 +35,14 @@ func Customer(customer *models.Customer) *ghcmessages.Customer {
 		return nil
 	}
 	payload := ghcmessages.Customer{
-		Agency:             customer.Agency,
+		Agency:             swag.StringValue(customer.Agency),
 		CurrentAddress:     Address(&customer.CurrentAddress),
 		DestinationAddress: Address(&customer.DestinationAddress),
-		DodID:              customer.DODID,
+		DodID:              swag.StringValue(customer.DODID),
 		Email:              customer.Email,
-		FirstName:          customer.FirstName,
+		FirstName:          swag.StringValue(customer.FirstName),
 		ID:                 strfmt.UUID(customer.ID.String()),
-		LastName:           customer.LastName,
+		LastName:           swag.StringValue(customer.LastName),
 		Phone:              customer.PhoneNumber,
 		UserID:             strfmt.UUID(customer.UserID.String()),
 	}
@@ -69,10 +70,10 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	}
 
 	if moveOrder.Customer != nil {
-		payload.Agency = moveOrder.Customer.Agency
+		payload.Agency = swag.StringValue(moveOrder.Customer.Agency)
 		payload.CustomerID = strfmt.UUID(moveOrder.CustomerID.String())
-		payload.FirstName = moveOrder.Customer.FirstName
-		payload.LastName = moveOrder.Customer.LastName
+		payload.FirstName = swag.StringValue(moveOrder.Customer.FirstName)
+		payload.LastName = swag.StringValue(moveOrder.Customer.LastName)
 	}
 	if moveOrder.ReportByDate != nil {
 		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
