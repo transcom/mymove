@@ -195,13 +195,22 @@ storiesOf('Components|Containers', module).add('all', () => (
         .container--popout
       </code>
     </div>
-    <div className="container container--accent">
+    <div className="container container--accent--blue">
       <code>
-        <b>Container Accent</b>
+        <b>Container Accent Blue</b>
         <br />
         .container
         <br />
-        .container--accent
+        .container--accent--blue
+      </code>
+    </div>
+    <div className="container container--accent--yellow">
+      <code>
+        <b>Container Accent Yellow</b>
+        <br />
+        .container
+        <br />
+        .container--accent--yellow
       </code>
     </div>
   </div>

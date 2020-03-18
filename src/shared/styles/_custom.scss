@@ -15,7 +15,12 @@
   }
   &--accent {
     @include u-shadow(2);
-    border-top: 8px solid $accent-blue;
+    &--blue {
+      border-top: 8px solid $accent-blue;
+    }
+    &--yellow {
+      border-top: 8px solid $accent-yellow;
+    }
   }
 }
 
