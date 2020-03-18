@@ -24,6 +24,7 @@ type CreatePaymentRequestHandler struct {
 // Handle creates the payment request
 func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymentRequestParams) middleware.Responder {
 	// TODO: authorization to create payment request
+
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	payload := params.Body

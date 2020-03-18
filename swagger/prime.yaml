@@ -85,7 +85,6 @@ paths:
           name: If-Match
           type: string
           required: true
-
       responses:
         '200':
           description: Successfully updated move task order post counseling information
@@ -334,15 +333,6 @@ paths:
           type: file
           description: The file to upload
           required: true
-        # - in: body
-        #   name: body
-        #   required: true
-        #   schema:
-        #     type: object
-        #     properties:
-        #       pointOfContact:
-        #         type: string
-        #         description: Email or id of a contact person for this update
       responses:
         '201':
           description: Created upload
