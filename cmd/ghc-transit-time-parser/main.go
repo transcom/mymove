@@ -15,7 +15,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/parser/transittimes"
+	"github.com/transcom/mymove/pkg/parser/transittime"
 )
 
 /*************************************************************************
@@ -29,9 +29,9 @@ For help run: <program> -h
  *************************************************************************/
 
 func main() {
-	xlsxDataSheets := transittimes.InitDataSheetInfo()
+	xlsxDataSheets := transittime.InitDataSheetInfo()
 
-	params := transittimes.ParamConfig{}
+	params := transittime.ParamConfig{}
 	params.RunTime = time.Now()
 
 	flag := pflag.CommandLine
@@ -107,13 +107,13 @@ func main() {
 	}()
 
 	// Now kick off the parsing
-	err = transittimes.Parse(xlsxDataSheets, params, db, logger)
+	err = transittime.Parse(xlsxDataSheets, params, db, logger)
 	if err != nil {
 		log.Fatalf("Failed to parse transit times template due to %v", err)
 	}
 }
 
-func xlsxSheetsUsage(xlsxDataSheets []transittimes.XlsxDataSheetInfo) string {
+func xlsxSheetsUsage(xlsxDataSheets []transittime.XlsxDataSheetInfo) string {
 	message := "Provide comma separated string of sequential sheet index numbers starting with 0:\n"
 	message += "\t e.g. '-xlsxSheets=\"6,7,11\"'\n"
 	message += "\t      '-xlsxSheets=\"6\"'\n"

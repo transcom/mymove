@@ -1,10 +1,11 @@
-package transittimes
+package transittime
 
 import (
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"testing"
 	"time"
@@ -19,7 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type PricingParserSuite struct {
+type TransitTimeParserSuite struct {
 	testingsuite.PopTestSuite
 	logger                *zap.Logger
 	tableFromSliceCreator services.TableFromSliceCreator
@@ -27,20 +28,20 @@ type PricingParserSuite struct {
 	xlsxFile              *xlsx.File
 }
 
-func (suite *PricingParserSuite) SetupTest() {
+func (suite *TransitTimeParserSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestPricingParserSuite(t *testing.T) {
+func TestTransitTimeParserSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	hs := &PricingParserSuite{
+	hs := &TransitTimeParserSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
-		xlsxFilename: "fixtures/pricing_template_2019-09-19_fake-data.xlsx",
+		xlsxFilename: "fixtures/Appendix_C(i)_-_Transit_Time_Tables_Fake_Data.xlsx",
 	}
 
 	hs.tableFromSliceCreator = dbtools.NewTableFromSliceCreator(hs.DB(), logger, true, false)
@@ -54,7 +55,7 @@ func TestPricingParserSuite(t *testing.T) {
 	hs.PopTestSuite.TearDown()
 }
 
-func (suite *PricingParserSuite) Test_xlsxDataSheetInfo_generateOutputFilename() {
+func (suite *TransitTimeParserSuite) Test_xlsxDataSheetInfo_generateOutputFilename() {
 
 	type fields struct {
 		description    *string
@@ -96,7 +97,7 @@ func (suite *PricingParserSuite) Test_xlsxDataSheetInfo_generateOutputFilename()
 				index:   1,
 				runTime: currentTime,
 			},
-			want: "1_rate_engine_ghc_parse_" + currentTime.Format("20060102150405") + ".csv",
+			want: "1_transit_time_ghc_parse_" + currentTime.Format("20060102150405") + ".csv",
 		},
 		{
 			name: "TC 3: generate filename with suffix",
@@ -105,7 +106,7 @@ func (suite *PricingParserSuite) Test_xlsxDataSheetInfo_generateOutputFilename()
 				runTime: currentTime,
 			},
 			adtlSuffix: swag.String("adtlSuffix"),
-			want:       "2_rate_engine_ghc_parse_adtlSuffix_" + currentTime.Format("20060102150405") + ".csv",
+			want:       "2_transit_time_ghc_parse_adtlSuffix_" + currentTime.Format("20060102150405") + ".csv",
 		},
 	}
 	for _, tt := range tests {
@@ -173,7 +174,7 @@ var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int)
 	return []TestStruct6{}, nil
 }
 
-func (suite *PricingParserSuite) helperTestSetup() []XlsxDataSheetInfo {
+func (suite *TransitTimeParserSuite) helperTestSetup() []XlsxDataSheetInfo {
 	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
 
 	// 0:
@@ -233,7 +234,7 @@ func (suite *PricingParserSuite) helperTestSetup() []XlsxDataSheetInfo {
 	return xlsxDataSheets
 }
 
-func (suite *PricingParserSuite) Test_process() {
+func (suite *TransitTimeParserSuite) Test_process() {
 
 	xlsxDataSheets := suite.helperTestSetup()
 
@@ -296,7 +297,7 @@ func (suite *PricingParserSuite) Test_process() {
 	}
 }
 
-func (suite *PricingParserSuite) Test_getInt() {
+func (suite *TransitTimeParserSuite) Test_getInt() {
 	type args struct {
 		from string
 	}
@@ -343,7 +344,7 @@ func (suite *PricingParserSuite) Test_getInt() {
 	}
 }
 
-func (suite *PricingParserSuite) Test_removeFirstDollarSign() {
+func (suite *TransitTimeParserSuite) Test_removeFirstDollarSign() {
 	type args struct {
 		s string
 	}
@@ -384,12 +385,12 @@ func (suite *PricingParserSuite) Test_removeFirstDollarSign() {
 	}
 }
 
-func (suite *PricingParserSuite) helperTestExpectedFileOutput(goldenFilename string, currentOutputFilename string) {
+func (suite *TransitTimeParserSuite) helperTestExpectedFileOutput(goldenFilename string, currentOutputFilename string) {
 	expected := filepath.Join("fixtures", goldenFilename) // relative path
-	expectedBytes, err := ioutil.ReadFile(expected)
+	expectedBytes, err := ioutil.ReadFile(path.Clean(expected))
 	suite.NoErrorf(err, "error loading expected CSV file output fixture <%s>", expected)
 
-	currentBytes, err := ioutil.ReadFile(currentOutputFilename) // relative path
+	currentBytes, err := ioutil.ReadFile(path.Clean(currentOutputFilename)) // relative path
 	suite.NoErrorf(err, "error loading current/new output file <%s>", currentOutputFilename)
 
 	suite.Equal(string(expectedBytes), string(currentBytes))

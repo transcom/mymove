@@ -1,4 +1,4 @@
-package transittimes
+package transittime
 
 import (
 	"fmt"
@@ -10,8 +10,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// parseDomesticTransitTimes: parser for: Domestic Transit Times
-var parseDomesticTransitTimes processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+// parseDomesticTransitTime: parser for: Domestic Transit Times
+var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 1 // Domestic Transit Times
 	// horizontal, increment by column
@@ -20,7 +20,7 @@ var parseDomesticTransitTimes processXlsxSheet = func(params ParamConfig, sheetI
 	const distanceHeaderColIndex int = 1
 
 	if xlsxDataSheetNum != sheetIndex {
-		return nil, fmt.Errorf("parseDomesticTransitTimes expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+		return nil, fmt.Errorf("parseDomesticTransitTime expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
 	log.Println("Parsing Domestic Transit Times")
@@ -81,6 +81,6 @@ var parseDomesticTransitTimes processXlsxSheet = func(params ParamConfig, sheetI
 
 // ToDo: Need to figure out what to verify on the sheet
 // verifyTransitTimes: verification for: Domestic Transit Times
-var verifyTransitTimes verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
+var verifyTransitTime verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 	return nil
 }

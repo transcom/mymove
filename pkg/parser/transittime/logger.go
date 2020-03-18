@@ -1,4 +1,4 @@
-package transittimes
+package transittime
 
 import (
 	"go.uber.org/zap"

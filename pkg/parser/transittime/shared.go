@@ -1,4 +1,4 @@
-package transittimes
+package transittime
 
 import (
 	"fmt"
@@ -84,7 +84,7 @@ func (x *XlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time,
 	if x.outputFilename != nil {
 		name = *x.outputFilename
 	} else {
-		name = "rate_engine_ghc_parse"
+		name = "transit_time_ghc_parse"
 	}
 
 	if adtlSuffix != nil {

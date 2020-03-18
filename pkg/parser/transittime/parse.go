@@ -1,4 +1,4 @@
-package transittimes
+package transittime
 
 import (
 	"log"
@@ -61,6 +61,7 @@ const xlsxSheetsCountMax int = 35
 type processXlsxSheet func(ParamConfig, int) (interface{}, error)
 type verifyXlsxSheet func(ParamConfig, int) error
 
+// XlsxDataSheetInfo describes the excel sheet info
 type XlsxDataSheetInfo struct {
 	Description    *string
 	ProcessMethods []xlsxProcessInfo
@@ -73,6 +74,7 @@ type xlsxProcessInfo struct {
 	adtlSuffix *string
 }
 
+// ParamConfig config for the transit time parser program
 type ParamConfig struct {
 	ProcessAll    bool
 	ShowOutput    bool
@@ -102,11 +104,11 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		outputFilename: swag.String("hhg_domestic_transit_times"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
-				process:    &parseDomesticTransitTimes,
+				process:    &parseDomesticTransitTime,
 				adtlSuffix: swag.String("domestic"),
 			},
 		},
-		verify: &verifyTransitTimes,
+		verify: &verifyTransitTime,
 	}
 
 	return xlsxDataSheets
