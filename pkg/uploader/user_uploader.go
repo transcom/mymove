@@ -97,15 +97,6 @@ func (u *UserUploader) CreateUserUploadForDocument(documentID *uuid.UUID, userID
 		}
 
 		return userUpload, verrs, uploadError
-		/*
-			var err error
-			userUpload, verrs, err = u.createAndStore(documentID, userID, file, allowedTypes)
-			if err != nil {
-				u.logger.Error("error creating new user upload", zap.Error(err))
-				return nil, verrs,fmt.Errorf("error creating upload %w", err)
-			}
-			return userUpload, &validate.Errors{}, nil
-		*/
 	}
 
 	txError := u.db.Transaction(func(db *pop.Connection) error {

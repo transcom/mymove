@@ -12,12 +12,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeUpload creates a single UserUpload.
+// MakeUpload creates a single Upload.
 func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
-	// Users can either assert an UserUploader (and a real file is used), or can optionally assert fields
+	// Users can either assert an Uploader (and a real file is used), or can optionally assert fields
 	var upload *models.Upload
 	if assertions.Uploader != nil {
-		// If an UserUploader is passed in, UserUpload assertions are ignored
+		// If an Uploader is passed in, Upload assertions are ignored
 		var verrs *validate.Errors
 		var err error
 		file := fixture("test.pdf")
@@ -42,7 +42,7 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 	return *upload
 }
 
-// MakeDefaultUpload makes an UserUpload with default values
+// MakeDefaultUpload makes an Upload with default values
 func MakeDefaultUpload(db *pop.Connection) models.Upload {
 	return MakeUpload(db, Assertions{})
 }

@@ -56,7 +56,7 @@ func (b ByteSize) Int64() int64 {
 	return int64(b)
 }
 
-// File type to be used by UserUploader. A wrapper around afero.File that allows attaching
+// File type to be used by Uploader. A wrapper around afero.File that allows attaching
 // some additional metadata
 type File struct {
 	afero.File

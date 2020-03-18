@@ -116,7 +116,6 @@ func (suite *ModelSuite) TestFetchUpload() {
 		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
 	}
 
-	// TODO removed FetchUpload, not sure if we want or need it
 	upUser, _ := models.FetchUserUpload(ctx, suite.DB(), &session, uploadUser.ID)
 	suite.Equal(*upUser.UploadID, upload.ID)
 	suite.Equal(upUser.Upload.ID, upload.ID)
