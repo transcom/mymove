@@ -735,7 +735,6 @@ definitions:
     items:
       $ref: '#/definitions/MoveTaskOrderWithEtag'
     type: array
-
   MoveTaskOrderWithEtag:
     allOf:
       - $ref: '#/definitions/MoveTaskOrder'
