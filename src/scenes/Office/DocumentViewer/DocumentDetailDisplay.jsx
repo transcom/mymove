@@ -37,7 +37,13 @@ const DocumentDetailDisplay = ({
         <p className="uploaded-at" data-cy="uploaded-at">
           Uploaded {formatDate(get(moveDocument, 'document.uploads.0.created_at'))}
         </p>
-        <PanelSwaggerField data-cy="title" title="Document title" fieldName="title" required {...moveDocFieldProps} />
+        <PanelSwaggerField
+          data-cy="document-title"
+          title="Document title"
+          fieldName="title"
+          required
+          {...moveDocFieldProps}
+        />
         <PanelSwaggerField
           data-cy="move-document-type"
           title="move-document-type"
