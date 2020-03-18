@@ -226,7 +226,7 @@ storiesOf('Components|Button', module)
 
 // Colors
 storiesOf('Global|Colors', module).add('all', () => (
-  <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
+  <div style={{ padding: '20px' }}>
     <h3>Brand Colors</h3>
     <ColorGroup group={filterGroup('brand')} />
     <h3>Background Colors</h3>
@@ -328,7 +328,7 @@ ColorGroup.propTypes = {
 // Typography
 storiesOf('Global|Typography', module)
   .add('Headers', () => (
-    <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
+    <div style={{ padding: '20px' }}>
       <p>h1</p>
       <h1>Public Sans 40/48</h1>
       <p>h2</p>
@@ -344,7 +344,7 @@ storiesOf('Global|Typography', module)
     </div>
   ))
   .add('Text', () => (
-    <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
+    <div style={{ padding: '20px' }}>
       <p>p</p>
       <p>
         Public Sans 15/23 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
@@ -366,7 +366,7 @@ storiesOf('Global|Typography', module)
     </div>
   ))
   .add('Links', () => (
-    <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
+    <div style={{ padding: '20px' }}>
       <p>a</p>
       <a href="https://materializecss.com/sass.html">USWDS blue-warm-60v</a>
       <p>a:hover</p>
