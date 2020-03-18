@@ -54,6 +54,7 @@ func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection) error {
 
 	for _, zip3RateArea := range zip3RateAreas {
 		var reZip3 models.ReZip3
+
 		err = dbTx.Where("zip3 = ?", zip3RateArea.Zip).First(&reZip3)
 		if err != nil {
 			return fmt.Errorf("failed to find ReZip3 record with zip %s: %w", zip3RateArea.Zip, err)
@@ -62,6 +63,7 @@ func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection) error {
 		if zip3RateArea.RateArea == "ZIP" {
 			reZip3.RateAreaID = nil
 			reZip3.HasMultipleRateAreas = true
+
 			verrs, err := dbTx.ValidateAndUpdate(&reZip3)
 			if err != nil {
 				return fmt.Errorf("failed to update %v: %v", reZip3, err)
@@ -74,8 +76,10 @@ func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection) error {
 			if !found {
 				return fmt.Errorf("failed to map %s rate area to ID", zip3RateArea.RateArea)
 			}
+
 			reZip3.RateAreaID = &rateAreaID
 			reZip3.HasMultipleRateAreas = false
+
 			verrs, err := dbTx.ValidateAndUpdate(&reZip3)
 			if err != nil {
 				return fmt.Errorf("failed to update %v: %v", reZip3, err)
@@ -89,13 +93,39 @@ func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection) error {
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) createZip5s(db *pop.Connection) error {
-	//TODO 1: Load /fixtures/tariff400ng_zip5s_rate_areas_fixture.csv
-	//TODO 2: Iterate over each row in CSV fixture
-	//TODO 3: Store zip5 and rate_area value from each row of the CSV
-	//TODO 4: Create a new record in re_zip5s_rate_areas table for each row of the CSV fixture
-	//TODO 5: Store zip5 value in record
-	//TODO 6: Find the corresponding re_rate_areas record and associate it with the new re_zip5s record
+func (gre *GHCRateEngineImporter) createZip5s(dbTx *pop.Connection) error {
+	csvFile, err := os.OpenFile("pkg/services/ghcimport/fixtures/tariff400ng_zip5_rate_areas_fixture.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer csvFile.Close()
+
+	zip5RateAreas := []*Zip5Fixture{}
+
+	err = gocsv.UnmarshalFile(csvFile, &zip5RateAreas)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal file: %w", err)
+	}
+
+	for _, zip5RateArea := range zip5RateAreas {
+		var reZip5 models.ReZip5RateArea
+
+		rateAreaID, found := gre.domesticRateAreaToIDMap[zip5RateArea.RateArea]
+		if !found {
+			return fmt.Errorf("failed to map %s rate area to ID", zip5RateArea.RateArea)
+		}
+
+		reZip5.Zip5 = zip5RateArea.Zip
+		reZip5.RateAreaID = rateAreaID
+
+		verrs, err := dbTx.ValidateAndCreate(&reZip5)
+		if err != nil {
+			return fmt.Errorf("failed to update %v: %v", reZip5, err)
+		}
+		if verrs.HasAny() {
+			return fmt.Errorf("failed to validate %v: %v", reZip5, verrs)
+		}
+	}
 
 	return nil
 }
