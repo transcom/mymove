@@ -197,9 +197,9 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 
 	// Call process function
 	if len(xlsxInfo.ProcessMethods) > 0 {
-		for methodIndex, p := range xlsxInfo.ProcessMethods {
-			if p.process != nil {
-				callFunc := *p.process
+		for methodIndex, processMethods := range xlsxInfo.ProcessMethods {
+			if processMethods.process != nil {
+				callFunc := *processMethods.process
 				slice, err := callFunc(params, sheetIndex, logger)
 				if err != nil {
 					log.Printf("%s process error: %v\n", description, err)
@@ -207,7 +207,7 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 				}
 
 				if params.SaveToFile {
-					filename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.RunTime, p.adtlSuffix)
+					filename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.RunTime, processMethods.adtlSuffix)
 					if err := createCSV(filename, slice); err != nil {
 						return errors.Wrapf(err, "Could not create CSV for sheet index: %d with Description: %s", sheetIndex, description)
 					}
