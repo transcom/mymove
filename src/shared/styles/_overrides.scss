@@ -6,6 +6,9 @@
   @include u-padding-x('3');
   @include u-padding-y('105');
   @include u-font-size('body', 'xs');
+  display: flex;
+  align-items: center;
+  height: 39px;
   &:hover,
   &:focus,
   .hover &,

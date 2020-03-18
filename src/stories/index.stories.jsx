@@ -13,216 +13,220 @@ const filterGroup = filter => Object.keys(colors).filter(color => color.indexOf(
 
 storiesOf('Components|Button', module)
   .add('default', () => (
-    <div style={{ padding: '20px' }}>
-      <Button onClick={action('clicked')}>Button</Button>
+    <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
+      <Button onClick={action('clicked')}>
+        <span>Button</span>
+      </Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--small" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
     </div>
   ))
   .add('hover', () => (
-    <div className="hover" style={{ padding: '20px' }}>
-      <Button onClick={action('clicked')}>Button</Button>
+    <div className="hover" style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
+      <Button onClick={action('clicked')}>
+        <span>Button</span>
+      </Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--small" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
     </div>
   ))
   .add('focus', () => (
-    <div className="focus" style={{ padding: '20px' }}>
+    <div className="focus" style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--small" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
     </div>
   ))
   .add('active', () => (
-    <div className="active" style={{ padding: '20px' }}>
+    <div className="active" style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
       <Button onClick={action('clicked')}>Button</Button>
       <Button className="usa-button--icon" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--small" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary className="usa-button--small" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button className="usa-button--unstyled" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
     </div>
   ))
   .add('disabled', () => (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
       <Button disabled onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button disabled className="usa-button--icon" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary disabled onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button disabled className="usa-button--small" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button disabled className="usa-button--icon usa-button--small" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary disabled className="usa-button--small" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button secondary disabled className="usa-button--small usa-button--icon" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
       <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
-        Button
+        <span>Button</span>
       </Button>
       <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
         <span className="icon">
-          <img src="{editIcon}" alt=" " />
+          <img src={editIcon} alt=" " />
         </span>
-        Button
+        <span>Button</span>
       </Button>
     </div>
   ));
 
 // Colors
 storiesOf('Global|Colors', module).add('all', () => (
-  <div style={{ padding: '20px' }}>
+  <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
     <h3>Brand Colors</h3>
     <ColorGroup group={filterGroup('brand')} />
     <h3>Background Colors</h3>
@@ -324,7 +328,7 @@ ColorGroup.propTypes = {
 // Typography
 storiesOf('Global|Typography', module)
   .add('Headers', () => (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
       <p>h1</p>
       <h1>Public Sans 40/48</h1>
       <p>h2</p>
@@ -340,7 +344,7 @@ storiesOf('Global|Typography', module)
     </div>
   ))
   .add('Text', () => (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
       <p>p</p>
       <p>
         Public Sans 15/23 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
@@ -362,7 +366,7 @@ storiesOf('Global|Typography', module)
     </div>
   ))
   .add('Links', () => (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
       <p>a</p>
       <a href="https://materializecss.com/sass.html">USWDS blue-warm-60v</a>
       <p>a:hover</p>
