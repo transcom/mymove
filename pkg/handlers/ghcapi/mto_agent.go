@@ -39,7 +39,7 @@ func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) 
 
 	// Let's set up our filter for the service object call
 	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("mtoshipment_id", "=", mtoShipmentID.String()),
+		query.NewQueryFilter("mto_shipment_id", "=", mtoShipmentID.String()),
 	}
 	var mtoAgents models.MTOAgents
 	err = h.FetchRecordList(&mtoAgents, queryFilters, query.NewQueryAssociations([]services.QueryAssociation{}), nil, nil)
