@@ -341,10 +341,10 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
-                "ppm_estimated_weight": {
+                "ppmEstimatedWeight": {
                   "type": "integer"
                 },
-                "ppm_type": {
+                "ppmType": {
                   "type": "string",
                   "enum": [
                     "FULL",
@@ -802,7 +802,7 @@ func init() {
         "address": {
           "$ref": "#/definitions/Address"
         },
-        "address_id": {
+        "addressId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -1148,9 +1148,9 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "required": [
-        "mto_shipments",
-        "mto_service_items",
-        "payment_requests"
+        "mtoShipments",
+        "mtoServiceItems",
+        "paymentRequests"
       ],
       "properties": {
         "createdAt": {
@@ -1178,22 +1178,22 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "mto_service_items": {
+        "mtoServiceItems": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
           }
         },
-        "mto_shipments": {
+        "mtoShipments": {
           "$ref": "#/definitions/MTOShipments"
         },
-        "payment_requests": {
+        "paymentRequests": {
           "$ref": "#/definitions/PaymentRequests"
         },
-        "ppm_estimated_weight": {
+        "ppmEstimatedWeight": {
           "type": "integer"
         },
-        "ppm_type": {
+        "ppmType": {
           "type": "string",
           "enum": [
             "FULL",
@@ -1408,7 +1408,7 @@ func init() {
     },
     "ValidationError": {
       "required": [
-        "invalid_fields"
+        "invalidFields"
       ],
       "allOf": [
         {
@@ -1419,7 +1419,7 @@ func init() {
         }
       ],
       "properties": {
-        "invalid_fields": {
+        "invalidFields": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -1839,10 +1839,10 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
-                "ppm_estimated_weight": {
+                "ppmEstimatedWeight": {
                   "type": "integer"
                 },
-                "ppm_type": {
+                "ppmType": {
                   "type": "string",
                   "enum": [
                     "FULL",
@@ -2345,7 +2345,7 @@ func init() {
         "address": {
           "$ref": "#/definitions/Address"
         },
-        "address_id": {
+        "addressId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -2691,9 +2691,9 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "required": [
-        "mto_shipments",
-        "mto_service_items",
-        "payment_requests"
+        "mtoShipments",
+        "mtoServiceItems",
+        "paymentRequests"
       ],
       "properties": {
         "createdAt": {
@@ -2721,22 +2721,22 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "mto_service_items": {
+        "mtoServiceItems": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
           }
         },
-        "mto_shipments": {
+        "mtoShipments": {
           "$ref": "#/definitions/MTOShipments"
         },
-        "payment_requests": {
+        "paymentRequests": {
           "$ref": "#/definitions/PaymentRequests"
         },
-        "ppm_estimated_weight": {
+        "ppmEstimatedWeight": {
           "type": "integer"
         },
-        "ppm_type": {
+        "ppmType": {
           "type": "string",
           "enum": [
             "FULL",
@@ -2951,7 +2951,7 @@ func init() {
     },
     "ValidationError": {
       "required": [
-        "invalid_fields"
+        "invalidFields"
       ],
       "allOf": [
         {
@@ -2962,7 +2962,7 @@ func init() {
         }
       ],
       "properties": {
-        "invalid_fields": {
+        "invalidFields": {
           "type": "object",
           "additionalProperties": {
             "type": "string"

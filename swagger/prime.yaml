@@ -71,12 +71,12 @@ paths:
           schema:
             type: object
             properties:
-              ppm_type:
+              ppmType:
                 type: string
                 enum:
                   - FULL
                   - PARTIAL
-              ppm_estimated_weight:
+              ppmEstimatedWeight:
                 type: integer
         - in: header
           name: If-Match
@@ -576,7 +576,7 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
-      address_id:
+      addressId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -670,9 +670,9 @@ definitions:
   MoveTaskOrder:
     type: object
     required:
-      - mto_shipments
-      - mto_service_items
-      - payment_requests
+      - mtoShipments
+      - mtoServiceItems
+      - paymentRequests
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -699,20 +699,20 @@ definitions:
       updatedAt:
         format: date
         type: string
-      payment_requests:
+      paymentRequests:
         $ref: '#/definitions/PaymentRequests'
-      mto_service_items:
+      mtoServiceItems:
         type: array
         items:
           $ref: "#/definitions/MTOServiceItem"
-      mto_shipments:
+      mtoShipments:
         $ref: '#/definitions/MTOShipments'
-      ppm_type:
+      ppmType:
         type: string
         enum:
           - FULL
           - PARTIAL
-      ppm_estimated_weight:
+      ppmEstimatedWeight:
         type: integer
   MoveTaskOrders:
     items:
@@ -1020,12 +1020,12 @@ definitions:
       - $ref: '#/definitions/ClientError'
       - type: object
     properties:
-      invalid_fields:
+      invalidFields:
         type: object
         additionalProperties:
           type: string
     required:
-      - invalid_fields
+      - invalidFields
 responses:
   InvalidRequest:
     description: The request payload is invalid
