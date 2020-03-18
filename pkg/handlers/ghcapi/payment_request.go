@@ -183,7 +183,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a payment request ", h.GetTraceID())
 			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payload)
 		case services.PreconditionFailedError:
-			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed()
+			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
 			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()

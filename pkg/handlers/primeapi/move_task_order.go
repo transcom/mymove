@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -75,7 +76,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 		case services.NotFoundError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound()
 		case services.PreconditionFailedError:
-			return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed()
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.InvalidInputError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity()
 		default:
