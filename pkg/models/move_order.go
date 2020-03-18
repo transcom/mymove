@@ -28,6 +28,7 @@ type MoveOrder struct {
 	OriginDutyStation        *DutyStation `belongs_to:"duty_stations"`
 	OriginDutyStationID      *uuid.UUID   `db:"origin_duty_station_id"`
 	ReportByDate             *time.Time   `db:"report_by_date"`
+	LinesOfAccounting        *string      `db:"lines_of_accounting"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

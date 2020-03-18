@@ -2,7 +2,7 @@
 
 Upgrading the Go version that we use happens in roughly these steps:
 
-1. Update [trussworks/circleci-docker-primary](https://github.com/trussworks/circleci-docker-primary) to point at an updated Go binary
+1. Update [transcom/circleci-docker](https://github.com/transcom/circleci-docker) to point at an updated Go binary
 2. Upgrade local Go version (`brew upgrade go`)
 3. Create a PR for the `transcom/mymove` repo with the updated git hash created in step 1
 4. Create a PR for the `transcom/ppp-infra` repo with the updated git hash created in step 1
@@ -28,7 +28,7 @@ For more details read the following sections.
 
 ## Update `transcom/mymove` Repo
 
-- After your Docker image PR lands, grab the git hash from [Docker](https://hub.docker.com/r/trussworks/circleci-docker-primary/tags) that corresponds with your merged code
+- After your Docker image PR lands, grab the git hash from [Docker](https://hub.docker.com/r/milmove/circleci-docker) that corresponds with your merged code
 - Update the following files with the updated Docker image git hash and Go version:
   - `.circleci/config.yml`
   - `Dockerfile.local`

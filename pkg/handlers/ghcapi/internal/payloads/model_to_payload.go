@@ -2,15 +2,20 @@ package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// MoveTaskOrder payload
 func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
 		return nil
 	}
+
 	payload := &ghcmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
@@ -19,29 +24,32 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
+		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 	return payload
 }
 
+// Customer payload
 func Customer(customer *models.Customer) *ghcmessages.Customer {
 	if customer == nil {
 		return nil
 	}
 	payload := ghcmessages.Customer{
-		Agency:             customer.Agency,
+		Agency:             swag.StringValue(customer.Agency),
 		CurrentAddress:     Address(&customer.CurrentAddress),
 		DestinationAddress: Address(&customer.DestinationAddress),
-		DodID:              customer.DODID,
+		DodID:              swag.StringValue(customer.DODID),
 		Email:              customer.Email,
-		FirstName:          customer.FirstName,
+		FirstName:          swag.StringValue(customer.FirstName),
 		ID:                 strfmt.UUID(customer.ID.String()),
-		LastName:           customer.LastName,
+		LastName:           swag.StringValue(customer.LastName),
 		Phone:              customer.PhoneNumber,
 		UserID:             strfmt.UUID(customer.UserID.String()),
 	}
 	return &payload
 }
 
+// MoveOrder payload
 func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	if moveOrder == nil {
 		return nil
@@ -62,10 +70,10 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	}
 
 	if moveOrder.Customer != nil {
-		payload.Agency = moveOrder.Customer.Agency
+		payload.Agency = swag.StringValue(moveOrder.Customer.Agency)
 		payload.CustomerID = strfmt.UUID(moveOrder.CustomerID.String())
-		payload.FirstName = moveOrder.Customer.FirstName
-		payload.LastName = moveOrder.Customer.LastName
+		payload.FirstName = swag.StringValue(moveOrder.Customer.FirstName)
+		payload.LastName = swag.StringValue(moveOrder.Customer.LastName)
 	}
 	if moveOrder.ReportByDate != nil {
 		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
@@ -86,6 +94,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	return &payload
 }
 
+// Entitlement payload
 func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement == nil {
 		return nil
@@ -123,6 +132,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	}
 }
 
+// DutyStation payload
 func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
 	if dutyStation == nil {
 		return nil
@@ -137,6 +147,7 @@ func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
 	return &payload
 }
 
+// Address payload
 func Address(address *models.Address) *ghcmessages.Address {
 	if address == nil {
 		return nil
@@ -153,15 +164,16 @@ func Address(address *models.Address) *ghcmessages.Address {
 	}
 }
 
+// MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	strfmt.MarshalFormat = strfmt.RFC3339Micro
-	return &ghcmessages.MTOShipment{
+
+	payload := &ghcmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             mtoShipment.ShipmentType,
 		Status:                   string(mtoShipment.Status),
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(&mtoShipment.PickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
@@ -169,14 +181,51 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
+
+	if mtoShipment.RequestedPickupDate != nil {
+		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
+	}
+
+	if mtoShipment.ApprovedDate != nil {
+		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
+	}
+
+	return payload
 }
 
+// MTOShipments payload
 func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
 		payload[i] = MTOShipment(&m)
+	}
+	return &payload
+}
+
+// MTOAgent payload
+func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
+	payload := &ghcmessages.MTOAgent{
+		ID:            strfmt.UUID(mtoAgent.ID.String()),
+		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
+		CreatedAt:     strfmt.Date(mtoAgent.CreatedAt),
+		UpdatedAt:     strfmt.Date(mtoAgent.UpdatedAt),
+		FirstName:     mtoAgent.FirstName,
+		LastName:      mtoAgent.LastName,
+		AgentType:     string(mtoAgent.MTOAgentType),
+		Email:         mtoAgent.Email,
+		Phone:         mtoAgent.Phone,
+	}
+	return payload
+}
+
+// MTOAgents payload
+func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
+	payload := make(ghcmessages.MTOAgents, len(*mtoAgents))
+	for i, m := range *mtoAgents {
+		payload[i] = MTOAgent(&m)
 	}
 	return &payload
 }

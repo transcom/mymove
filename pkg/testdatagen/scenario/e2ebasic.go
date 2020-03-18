@@ -4,6 +4,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/gobuffalo/pop"
@@ -569,18 +571,16 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	/*
 	* Creates two valid, unclaimed access codes
 	 */
-	accessCodePPMMoveType := models.SelectedMoveTypeHHG
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
 		AccessCode: models.AccessCode{
 			Code:     "X3FQJK",
-			MoveType: &accessCodePPMMoveType,
+			MoveType: models.SelectedMoveTypeHHG,
 		},
 	})
-	accessCodeHHGMoveType := models.SelectedMoveTypePPM
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
 		AccessCode: models.AccessCode{
 			Code:     "ABC123",
-			MoveType: &accessCodeHHGMoveType,
+			MoveType: models.SelectedMoveTypePPM,
 		},
 	})
 	email = "accesscode@mail.com"
@@ -611,7 +611,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
 		AccessCode: models.AccessCode{
 			Code:            "ZYX321",
-			MoveType:        &accessCodeHHGMoveType,
+			MoveType:        models.SelectedMoveTypePPM,
 			ServiceMember:   sm,
 			ServiceMemberID: &sm.ID,
 		},
@@ -945,6 +945,17 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		MoveTaskOrder: mto,
 	})
 
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   MTOShipment,
+			MTOShipmentID: MTOShipment.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781"),
@@ -1075,7 +1086,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 	mto2 := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			ID:                 uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb7791"),
+			ID:                 uuid.FromStringOrNil("0da3f34cc-fb94-4e0b-1c90-ba3333cb7791"),
 			MoveOrderID:        moveOrders6.ID,
 			UpdatedAt:          time.Unix(1576779681256, 0),
 			IsAvailableToPrime: true,
@@ -1087,6 +1098,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MoveTaskOrder: mto2,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MoveTaskOrder: mto2,
 	})
 }

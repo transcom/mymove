@@ -52,14 +52,14 @@ func (e *errInvalidMigrationType) Error() string {
 	return fmt.Sprintf("invalid migration type %q, expecting sql or fizz.", e.Value)
 }
 
-// InitMigrationFlags initializes the Migration command line flags
+// InitMigrationFileFlags initializes the Migration command line flags
 func InitMigrationFileFlags(flag *pflag.FlagSet) {
 	flag.String(MigrationVersionFlag, time.Now().Format(VersionTimeFormat), "migration version: integer representation of datetime, default is current time using Go format "+VersionTimeFormat)
 	flag.StringP(MigrationNameFlag, "n", "", "migration name: alphanumeric, no spaces, underscores and dashes allowed")
 	flag.StringP(MigrationTypeFlag, "t", "sql", "migration type: fizz or sql.")
 }
 
-// CheckMigration validates migration command line flags
+// CheckMigrationFile validates migration command line flags
 func CheckMigrationFile(v *viper.Viper) error {
 	migrationVersion := v.GetString(MigrationVersionFlag)
 	if len(migrationVersion) == 0 {

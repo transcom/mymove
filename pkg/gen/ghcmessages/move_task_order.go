@@ -28,6 +28,9 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	DestinationDutyStation strfmt.UUID `json:"destinationDutyStation,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// entitlements
 	Entitlements *Entitlements `json:"entitlements,omitempty"`
 
@@ -53,7 +56,7 @@ type MoveTaskOrder struct {
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
 	// reference Id
-	ReferenceID *string `json:"referenceId,omitempty"`
+	ReferenceID string `json:"referenceId,omitempty"`
 
 	// requested pickup date
 	// Format: date

@@ -3,6 +3,8 @@ package testdatagen
 import (
 	"github.com/gobuffalo/pop"
 
+	mtoservicehelper "github.com/transcom/mymove/pkg/services/move_task_order/shared"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -12,7 +14,16 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	if isZeroUUID(moveOrder.ID) {
 		moveOrder = MakeMoveOrder(db, assertions)
 	}
-	var referenceID *string
+
+	var referenceID string
+	if assertions.MoveTaskOrder.ReferenceID == "" {
+		referenceID, _ = mtoservicehelper.GenerateReferenceID(db)
+	}
+
+	var ppmType string
+	if assertions.MoveTaskOrder.PPMType == "" {
+		ppmType = "PARTIAL"
+	}
 
 	moveTaskOrder := models.MoveTaskOrder{
 		MoveOrder:          moveOrder,
@@ -20,6 +31,7 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 		ReferenceID:        referenceID,
 		IsAvailableToPrime: false,
 		IsCanceled:         false,
+		PPMType:            ppmType,
 	}
 
 	// Overwrite values with those from assertions

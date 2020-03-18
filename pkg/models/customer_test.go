@@ -12,7 +12,6 @@ func (suite *ModelSuite) TestCustomerValidation() {
 	suite.T().Run("test valid Customer", func(t *testing.T) {
 		validCustomer := models.Customer{
 			UserID: uuid.Must(uuid.NewV4()),
-			DODID:  "1234567890",
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validCustomer, expErrors)

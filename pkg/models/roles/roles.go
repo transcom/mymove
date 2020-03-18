@@ -9,18 +9,26 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// Role is an object representing the types of users who can authenticate in the admin app
+// RoleType represents the types of users who can authenticate in the admin app
 type RoleType string
+
+// RoleName represents the names of roles
 type RoleName string
 
 const (
-	RoleTypeTOO                RoleType = "transportation_ordering_officer"
-	RoleTypeCustomer           RoleType = "customer"
-	RoleTypeTIO                RoleType = "transportation_invoicing_officer"
+	// RoleTypeTOO is the Transportation Ordering Officer Role
+	RoleTypeTOO RoleType = "transportation_ordering_officer"
+	// RoleTypeCustomer is the Customer Role
+	RoleTypeCustomer RoleType = "customer"
+	// RoleTypeTIO is the Transportation Invoicing Officer Role
+	RoleTypeTIO RoleType = "transportation_invoicing_officer"
+	// RoleTypeContractingOfficer is the Contracting Officer Role
 	RoleTypeContractingOfficer RoleType = "contracting_officer"
-	RoleTypePPMOfficeUsers     RoleType = "ppm_office_users"
+	// RoleTypePPMOfficeUsers is the PPM Office User Role
+	RoleTypePPMOfficeUsers RoleType = "ppm_office_users"
 )
 
+// Role represents a Role for users
 type Role struct {
 	ID        uuid.UUID `json:"id" db:"id"`
 	RoleType  RoleType  `json:"role_type" db:"role_type"`
@@ -29,8 +37,10 @@ type Role struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
+// Roles is a slice of Role objects
 type Roles []Role
 
+// HasRole validates if Role has a role of a particular type
 func (rs Roles) HasRole(roleType RoleType) bool {
 	for _, r := range rs {
 		if r.RoleType == roleType {
@@ -40,6 +50,7 @@ func (rs Roles) HasRole(roleType RoleType) bool {
 	return false
 }
 
+// GetRole returns the role a Role Type
 func (rs Roles) GetRole(roleType RoleType) (Role, bool) {
 	for _, r := range rs {
 		if r.RoleType == roleType {

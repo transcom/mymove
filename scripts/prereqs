@@ -43,7 +43,6 @@ has yarn "brew install yarn"
 has pre-commit "brew install pre-commit"
 has shellcheck "brew install shellcheck"
 has psql "brew install postgresql"
-has go-bindata "brew install go-bindata"
 has node "brew install node@10 && brew link --force node@10"
 
 # not on CircleCI
@@ -84,7 +83,6 @@ check-aws-cli-version
 check-aws-vault-version
 check-bash-version
 check-chamber-version
-check-go-bindata-version
 check-go-version
 check-gopath
 check-hosts-file

@@ -17,7 +17,6 @@ environment.
 | `check-aws-vault-version` | checks the aws-vault version required for the project |
 | `check-bash-version` | Script helps ensure that /etc/shells has all the correct entries in it |
 | `check-chamber-version` | checks the chamber version required for the project |
-| `check-go-bindata-version` | checks the go-bindata version required for the project |
 | `check-go-version` | checks the go version required for the project |
 | `check-gopath` | checks the go path is correct for the project |
 | `check-hosts-file` | Script helps ensure that /etc/hosts has all the correct entries in it |
@@ -65,6 +64,7 @@ committing.
 | `pre-commit-go-lint` | modify go files with linting rules |
 | `pre-commit-go-mod` | modify `go.mod` and `go.sum` to match whats in the project |
 | `pre-commit-go-vet` | analyze code with `go vet` |
+| `pre-commit-swagger-validate` | Pre-commit hook to run `swagger validate` that is different based on environment |
 
 ## CircleCI Scripts
 
@@ -93,6 +93,7 @@ application testing
 | Script Name | Description |
 | --- | --- |
 | `check-docker-size` | Script to check the available disk space Docker has used |
+| `ensure-application` | Ensure APPLICATION is set to `app` or `orders` and matches input value |
 | `export-obfuscated-tspp-sample` | Export a subset of rows from the `transportation_service_provider_performances` table |
 | `find-invoices` |  This script will use available API endpoints to find invoices in whatever environment you specify|
 | `generate-devlocal-cert` | Convenience script for creating a new certificate signed by the DevLocal CA. |
@@ -109,6 +110,7 @@ This subset of development scripts is used primarily for building the app.
 | Script Name | Description |
 | --- | --- |
 | `copy-swagger-ui` |  Copies the assets (other than xxx.html) into the public directory |
+| `gen-assets` | generate assets from packages using go-bindata |
 | `gen-server` | generate swagger code from yaml files |
 
 ### Testing
@@ -119,6 +121,7 @@ This subset of development scripts is used for testing
 | --- | --- |
 | `run-e2e-test` | Runs cypress tests with interactive GUI |
 | `run-e2e-test-docker` | Runs cypress tests entirely inside docker containers like in CircleCI |
+| `run-server-test` | Run golang server tests |
 | `run-server-test-in-circle-container` | Executed in docker-compose.circle.yml to run the `make server_test` task in a CircleCI container |
 
 ### Secure Migrations

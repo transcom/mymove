@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// PaymentServiceItemParam represents a parameter of the Payment Service Item
 type PaymentServiceItemParam struct {
 	ID                    uuid.UUID `json:"id" db:"id"`
 	PaymentServiceItemID  uuid.UUID `json:"payment_service_item_id" db:"payment_service_item_id"`

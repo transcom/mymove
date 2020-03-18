@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -14,6 +15,7 @@ import (
 )
 
 const testContractCode = "TEST"
+const testContractCode2 = "TEST2"
 const testContractName = "Test Contract"
 
 var tablesToTruncate = [...]string{
@@ -58,39 +60,25 @@ func (suite *GHCRateEngineImportSuite) TearDownSuite() {
 	suite.PopTestSuite.TearDown()
 }
 
-func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
-	fmt.Print("Importing stage data...")
-	path := filepath.Join("fixtures", "stage_ghc_pricing.sql")
-	c, ioErr := ioutil.ReadFile(path)
+func (suite *GHCRateEngineImportSuite) helperLoadSQLFixture(fileName string) {
+	path := filepath.Join("fixtures", fileName)
+	_, err := os.Stat(path)
+	suite.NoError(err)
+
+	c, ioErr := ioutil.ReadFile(filepath.Clean(path))
 	suite.NoError(ioErr)
 
 	sql := string(c)
-	err := suite.DB().RawQuery(sql).Exec()
-	if suite.NoError(err) {
-		fmt.Println(" success")
-	}
+	err = suite.DB().RawQuery(sql).Exec()
+	suite.NoError(err)
+}
+
+func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
+	suite.helperLoadSQLFixture("stage_ghc_pricing.sql")
 }
 
 func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
-	fmt.Print("Importing re_services data...")
-	path := filepath.Join("../../../migrations/app/schema", "20191101201107_create-re-services-table-with-values.up.sql")
-	c, ioErr := ioutil.ReadFile(path)
-	suite.NoError(ioErr)
-
-	sql := string(c)
-	err := suite.DB().RawQuery(sql).Exec()
-	if suite.NoError(err) {
-		// read second migration
-		path = filepath.Join("../../../migrations/app/schema", "20191126160639_update-and-add-values-for-reservices-table.up.sql")
-		c, ioErr = ioutil.ReadFile(path)
-		suite.NoError(ioErr)
-
-		sql := string(c)
-		err := suite.DB().RawQuery(sql).Exec()
-		if suite.NoError(err) {
-			fmt.Println(" success")
-		}
-	}
+	suite.helperLoadSQLFixture("re_services_data.sql")
 }
 
 func TestGHCRateEngineImportSuite(t *testing.T) {

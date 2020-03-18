@@ -11,13 +11,17 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// AdminRole represents administrative roles
 type AdminRole string
 
 const (
-	SystemAdminRole  AdminRole = "SYSTEM_ADMIN"
+	// SystemAdminRole represents a role for managing the system
+	SystemAdminRole AdminRole = "SYSTEM_ADMIN"
+	// ProgramAdminRole represents a role for managing the program (Note: This is deprecated and should be removed)
 	ProgramAdminRole AdminRole = "PROGRAM_ADMIN"
 )
 
+// ValidRoles returns a slice of valid roles for an admin
 func (ar *AdminRole) ValidRoles() []AdminRole {
 	return []AdminRole{
 		SystemAdminRole,
@@ -25,10 +29,12 @@ func (ar *AdminRole) ValidRoles() []AdminRole {
 	}
 }
 
+// String returns a string representation of the admin role
 func (ar *AdminRole) String() string {
 	return string(*ar)
 }
 
+// AdminUser is someone who operates the Milmove systems
 type AdminUser struct {
 	ID             uuid.UUID    `json:"id" db:"id"`
 	CreatedAt      time.Time    `json:"created_at" db:"created_at"`
@@ -59,6 +65,7 @@ func (a AdminUsers) String() string {
 	return string(ja)
 }
 
+// RoleInclusion is used to validate if a role is valid for inclusion
 type RoleInclusion struct {
 	Name    string
 	Field   AdminRole
@@ -66,6 +73,7 @@ type RoleInclusion struct {
 	Message string
 }
 
+// IsValid validates if RoleInclusion is valid
 func (v *RoleInclusion) IsValid(errors *validate.Errors) {
 	found := false
 	for _, l := range v.List {

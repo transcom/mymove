@@ -47,6 +47,7 @@ type pdfCPUWrapper struct {
 	*pdfcpu.Configuration
 }
 
+// Merge merges files
 func (pcw pdfCPUWrapper) Merge(files []io.ReadSeeker, w io.Writer) error {
 	var rscs []io.ReadSeeker
 	for _, f := range files {
@@ -59,10 +60,12 @@ func (pcw pdfCPUWrapper) Merge(files []io.ReadSeeker, w io.Writer) error {
 	return api.Merge(rscs, w, pcw.Configuration)
 }
 
+// Validate validates the api configuration
 func (pcw pdfCPUWrapper) Validate(rs io.ReadSeeker) error {
 	return api.Validate(rs, pcw.Configuration)
 }
 
+// PDFLibrary is the PDF library interface
 type PDFLibrary interface {
 	Merge(rsc []io.ReadSeeker, w io.Writer) error
 	Validate(rs io.ReadSeeker) error
@@ -129,6 +132,7 @@ func (g *Generator) newTempFile() (afero.File, error) {
 	return outputFile, nil
 }
 
+// Cleanup removes filesystem working dir
 func (g *Generator) Cleanup() error {
 	return g.fs.RemoveAll(g.workDir)
 }
@@ -225,6 +229,7 @@ var contentTypeToImageType = map[string]string{
 	"image/png":  "PNG",
 }
 
+// ReduceUnusedSpace reduces unused space
 func ReduceUnusedSpace(file afero.File, g *Generator, contentType string) (imgFile afero.File, width float64, height float64, err error) {
 	// Figure out if the image should be rotated by calculating height and width of image.
 	pic, _, decodeErr := image.Decode(file)

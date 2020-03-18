@@ -11,6 +11,7 @@ type officeUserCreator struct {
 	builder officeUserQueryBuilder
 }
 
+// CreateOfficeUser creates office users
 func (o *officeUserCreator) CreateOfficeUser(user *models.OfficeUser, transportationIDFilter []services.QueryFilter) (*models.OfficeUser, *validate.Errors, error) {
 	// Use FetchOne to see if we have a transportation office that matches the provided id
 	var transportationOffice models.TransportationOffice
@@ -28,6 +29,7 @@ func (o *officeUserCreator) CreateOfficeUser(user *models.OfficeUser, transporta
 	return user, nil, nil
 }
 
+// NewOfficeUserCreator returns a new office user creator
 func NewOfficeUserCreator(builder officeUserQueryBuilder) services.OfficeUserCreator {
 	return &officeUserCreator{builder}
 }

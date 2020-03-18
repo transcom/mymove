@@ -12,4 +12,16 @@ describe('incentive', () => {
       expect(incentive.hasShortHaulError()).toBe(false);
     });
   });
+  describe('Check format for incentive range', () => {
+    it('should reutrn range', () => {
+      expect(incentive.formatIncentiveRange({ incentive_estimate_min: 1000, incentive_estimate_max: 2000 })).toEqual(
+        '$10.00 - 20.00',
+      );
+      expect(
+        incentive.formatIncentiveRange({
+          currentPpm: { incentive_estimate_min: 30000, incentive_estimate_max: 40000 },
+        }),
+      ).toEqual('$300.00 - 400.00');
+    });
+  });
 });

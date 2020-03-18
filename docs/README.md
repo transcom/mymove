@@ -53,6 +53,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Run End to End (Cypress) Tests](how-to/run-e2e-tests.md#how-to-run-end-to-end-cypress-tests)
 * [Run Go Tests](how-to/run-go-tests.md#how-to-run-go-tests)
 * [Run JavaScript (Jest) Tests](how-to/run-js-tests.md#how-to-run-javascript-jest-tests)
+* [Run Loki Tests Against Storybook](how-to/run-loki-tests-against-storybook.md#how-to-run-loki-tests-against-storybook)
 * [Run and troubleshoot pre-commit hooks](how-to/run-pre-commit-hooks.md#run-and-troubleshoot-pre-commit-hooks)
 * [Run server_test job in CircleCI container locally](how-to/run-server-test-circle-ci.md#run-server-test-job-in-circleci-container-locally)
 * [Use and Run Storybook](how-to/run-storybook.md#how-to-use-and-run-storybook)
@@ -60,12 +61,14 @@ If you are looking to understand choices made in this project, see the list of [
 * [Setup Postman to make Mutual TLS API Calls](how-to/setup-postman-to-make-mutual-tls-api-calls.md#how-to-setup-postman-to-make-mutual-tls-api-calls)
 * [Store Data in Redux](how-to/store-data-in-redux.md#how-to-store-data-in-redux)
 * [Store UI State in Redux](how-to/store-ui-state-in-redux.md#how-to-store-ui-state-in-redux)
+* [Test Prime API on staging and experimental](how-to/test-prime-api-staging-experimental.md#how-to-test-prime-api-on-staging-and-experimental)
 * [Test Virus Scanning](how-to/test-virus-scanning.md#how-to-test-virus-scanning)
 * [Troubleshoot GEX Connection](how-to/troubleshoot-gex-connection.md#how-to-troubleshoot-gex-connection)
 * [Unit Test React Components](how-to/unit-test-react-components.md#how-to-unit-test-react-components)
 * [Upgrade Go Version](how-to/upgrade-go-version.md#how-to-upgrade-go-version)
 * [Upload Electronic Orders Using your CAC](how-to/upload-electronic-orders.md#how-to-upload-electronic-orders-using-your-cac)
-* [Upload Electronic Orders Using your CAC](how-to/use-mtls-with-cac.md#how-to-upload-electronic-orders-using-your-cac)
+* [Create CAC Access (for using Prime API and uploading Electronic Orders)](how-to/use-mtls-with-cac.md#how-to-create-cac-access-for-using-prime-api-and-uploading-electronic-orders)
+* [Use Optimistic Locking](how-to/use-optimistic-locking.md#how-to-use-optimistic-locking)
 * [View ECS Service Logs](how-to/view-ecs-service-logs.md#how-to-view-ecs-service-logs)
 
 ## ADRs
@@ -112,7 +115,7 @@ If you are looking to understand choices made in this project, see the list of [
 * 0039 [Use React Lazy for code splitting](adr/0039-react-lazy-and-code-splitting.md#use-react-lazy-for-code-splitting)
 * 0040 [Add Role-Based Authorization](adr/0040-role-base-authorization.md#add-role-based-authorization)
 * 0041 [Front End Form Library](adr/0041-front-end-form-library.md#front-end-form-library)
-* 0042 [Use Last-Modified / If-Unmodified-Since for optimistic locking](adr/0042-optimistic-locking.md#use-last-modified-if-unmodified-since-for-optimistic-locking)
+* 0042 [Use If-Match / E-tags for optimistic locking](adr/0042-optimistic-locking.md#use-if-match-e-tags-for-optimistic-locking)
 * 0043 [*Handling time in the Prime API*](adr/0043-prime-time.md#handling-time-in-the-prime-api)
 
 <!--endindex-->

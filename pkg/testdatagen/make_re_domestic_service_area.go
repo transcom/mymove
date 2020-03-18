@@ -8,9 +8,13 @@ import (
 
 // MakeReDomesticServiceArea creates a single ReDomesticServiceArea
 func MakeReDomesticServiceArea(db *pop.Connection, assertions Assertions) models.ReDomesticServiceArea {
+	reContract := assertions.ReDomesticServiceArea.Contract
+	if isZeroUUID(reContract.ID) {
+		reContract = MakeReContract(db, assertions)
+	}
+
 	reDomesticServiceArea := models.ReDomesticServiceArea{
-		BasePointCity:    "Birmingham",
-		State:            "AL",
+		ContractID:       reContract.ID,
 		ServiceArea:      "004",
 		ServicesSchedule: 2,
 		SITPDSchedule:    2,

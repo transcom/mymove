@@ -8,10 +8,12 @@ type queryAssociation struct {
 	field string
 }
 
+// Field returns a field on a query association
 func (q queryAssociation) Field() string {
 	return q.field
 }
 
+// NewQueryAssociation creates a new query association
 func NewQueryAssociation(field string) services.QueryAssociation {
 	return queryAssociation{
 		field,
@@ -22,6 +24,7 @@ type queryAssociations struct {
 	associations []services.QueryAssociation
 }
 
+// StringGetAssociations returns a slice of string associations
 func (qa queryAssociations) StringGetAssociations() []string {
 	associations := make([]string, 0, len(qa.associations))
 
@@ -32,6 +35,7 @@ func (qa queryAssociations) StringGetAssociations() []string {
 	return associations
 }
 
+// NewQueryAssociations returns new query associations
 func NewQueryAssociations(associations []services.QueryAssociation) services.QueryAssociations {
 	return queryAssociations{
 		associations,

@@ -11,35 +11,40 @@
 
 version: '2.1'
 
+# References for variables shared across the file
+references:
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
+  postgres: &postgres postgres:10.10
+
 executors:
-  # `mymove_small` and `mymove_medium` use the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
+  # `mymove_small` and `mymove_medium` use the `milmove/milmove-app` docker image with a checkout of the mymove code
   mymove_small:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: *circleci-docker
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: *circleci-docker
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: *circleci-docker
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+      - image: *circleci-docker
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
-      - image: postgres:10.10
+      - image: *circleci-docker
+      - image: *postgres
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -48,8 +53,8 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
-      - image: postgres:10.10
+      - image: *circleci-docker
+      - image: *postgres
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -71,11 +76,14 @@ commands:
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-migrations)' | tee -a "${BASH_ENV}"
+      - run:
           name: Snapshot database
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
       - run:
           name: Run migrations
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations@${ECR_DIGEST} $APP_ENVIRONMENT
           no_output_timeout: 60m
           environment:
             CHAMBER_RETRIES: 20
@@ -88,19 +96,22 @@ commands:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-tasks)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy fuel price data task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy post move email survey task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy payment reminder email task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
@@ -120,9 +131,12 @@ commands:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - run:
           name: Health Check
@@ -151,9 +165,12 @@ commands:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app-client-tls service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - run:
           name: Health Check
@@ -192,15 +209,88 @@ commands:
           name: 'Build, tag, and push docker image << parameters.tag >> from Dockerfile << parameters.dockerfile >>'
           command: |
             docker build -f << parameters.dockerfile >> -t << parameters.tag >> .
-            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
+            aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             shopt -s extglob
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
       - run:
+          name: Record ECR Image Digest
+          command: |
+            mkdir -p /home/circleci/transcom/mymove/bin/sha
+            echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
+            cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
+      - run:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
+      - persist_to_workspace:
+          root: bin
+          paths:
+            - sha/
+
+  server_tests_step:
+    parameters:
+      application:
+        type: string
+    steps:
+      - run:
+          name: make server_test_build for <<parameters.application>>
+          command: make server_test_build
+          environment:
+            APPLICATION: "<< parameters.application >>"
+            GOFLAGS: "-p=4"
+      - run:
+          name: make db_test_reset for <<parameters.application>>
+          command: make db_test_reset
+          environment:
+            APPLICATION: "<< parameters.application >>"
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
+      - run:
+          name: make db_test_migrate for <<parameters.application>>
+          command: make db_test_migrate
+          environment:
+            APPLICATION: "<< parameters.application >>"
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
+      - run:
+          name: make server_test_standalone for <<parameters.application>>
+          command: |
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            source $BASH_ENV
+            make server_test_standalone
+          environment:
+            APPLICATION: "<< parameters.application >>"
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+            ENV: test
+            ENVIRONMENT: test
+            GOFLAGS: "-p=4"
+            JUNIT: 1
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
+            SERVE_API_INTERNAL: true
   e2e_tests:
     steps:
       - run:
@@ -219,6 +309,7 @@ commands:
             make e2e_test_docker
           environment:
             # Env vars needed for the webserver to run inside docker
+            APPLICATION: app
             LOGIN_GOV_CALLBACK_PROTOCOL: http
             LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
             LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
@@ -281,6 +372,7 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code
       - save_cache:
@@ -317,18 +409,28 @@ jobs:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run: echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
-      - run: make bin/swagger
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
-          name: Run pre-commit tests
-          command: pre-commit run --all-files
+          name: Run pre-commit tests without golangci-lint
+          command: SKIP=golangci-lint pre-commit run --all-files
+      # The output of golangci-lint is an artifact towards STIG compliance
+      - run:
+          name: Run pre-commit tests with golangci-lint only
+          command: |
+            echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
+            echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
+            source $BASH_ENV
+            mkdir -p tmp/test-results/pretest
+            pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
       # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
+      - store_artifacts:
+          path: ~/transcom/mymove/tmp/test-results
+          destination: test-results
       - announce_failure
 
   # `acceptance_tests_local` runs acceptance tests for the webserver against a local environment.
@@ -384,7 +486,6 @@ jobs:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
-      - run: rm -f bin/swagger && make bin/swagger
       - run: make server_generate
       - run: rm -f bin/generate-test-data && make bin/generate-test-data
       - e2e_tests
@@ -407,46 +508,13 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: sudo apt-get update && sudo apt-get install -yy postgresql-client
       - run: make bin/go-junit-report
       - run: make bin/milmove
-      - run:
-          name: make db_test_migrate
-          command: make db_test_migrate
-          environment:
-            APPLICATION: app
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT_TEST: 5433
-            DB_PORT: 5432
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
-      - run:
-          name: make server_test_standalone
-          command: |
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            source $BASH_ENV
-            mkdir -p tmp/test-results/gotest
-            # setup a trap incase the tests fail, we still want to generate the report
-            trap "bin/go-junit-report < tmp/test-results/gotest/go-test.out >  tmp/test-results/gotest/go-test-report.xml" EXIT
-            make server_test_standalone | tee tmp/test-results/gotest/go-test.out
-          environment:
-            APPLICATION: app
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT_TEST: 5433
-            DB_PORT: 5432
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
-            ENV: test
-            ENVIRONMENT: test
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
-            SERVE_API_INTERNAL: true
+      - server_tests_step:
+          application: app
+      - server_tests_step:
+          application: orders
       - store_artifacts:
           path: ~/transcom/mymove/tmp/test-results
           destination: test-results
@@ -547,6 +615,67 @@ jobs:
           repo: app-migrations
       - announce_failure
 
+  # `build_django_app` builds the django app container and pushes to container repository
+  build_milmove_admin_app:
+    executor: mymove_and_postgres_medium
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: sudo apt-get update && sudo apt-get install -yy postgresql-client
+      - run:
+          name: make db_test_reset for milmove_admin
+          command: make db_test_reset
+          environment:
+            APPLICATION: app
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+      - run:
+          name: make db_test_migrate for milmove_admin
+          command: make db_test_migrate
+          environment:
+            APPLICATION: app
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+      - run:
+          name: clone mymove_admin repo
+          command: git clone https://github.com/transcom/milmove_admin.git
+          working_directory: ~/transcom
+      - run:
+          name: generate models file for migrations
+          command: make generate_models_standalone
+          working_directory: ~/transcom/milmove_admin
+          environment:
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DJANGO_ALLOWED_HOSTS: 'localhost 127.0.0.1 [::1]'
+            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
+            LOGIN_GOV_CALLBACK_PROTOCOL: http
+            LOGIN_GOV_ENGADMIN_CLIENT_ID: 'urn:gov:gsa:openidconnect.profiles:sp:sso:dod:engadminmovemillocal'
+            LOCAL_HOST_NAME: engadminlocal
+            LOGIN_GOV_CALLBACK_PORT: 3000
+            LOGIN_GOV_KID_JWK: milmove_admin
+            LOGIN_GOV_JWK_SET_FILENAME: keyset.jwk
+
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
     executor: mymove_medium
@@ -559,7 +688,6 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - run: make bin/rds-ca-2019-root.pem
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
-      - run: rm -f bin/swagger && make bin/swagger
       - run: make server_generate
       - run: rm -f bin/milmove-tasks && make bin/milmove-tasks
       - build_tag_push:
@@ -746,6 +874,10 @@ workflows:
       - pre_deps_golang
 
       - pre_deps_yarn
+
+      - build_milmove_admin_app:
+          requires:
+            - pre_deps_golang
 
       - check_generated_code:
           requires:

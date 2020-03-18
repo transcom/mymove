@@ -4,11 +4,16 @@
 
 <!-- toc -->
 
+* [Design + Engineering Process for new components](#design--engineering-process-for-new-components)
+  * [Design delivers component design](#design-delivers-component-design)
+  * [Engineering](#engineering)
+  * [Update Loki tests accordingly](#update-loki-tests-accordingly)
 * [Testing](#testing)
   * [Test Runners and Libraries](#test-runners-and-libraries)
   * [Writing Tests](#writing-tests)
   * [Browser Testing](#browser-testing)
-* [Style](#style)
+  * [Storybook Testing](#storybook-testing)
+* [Code Style](#code-style)
   * [Auto-formatting](#auto-formatting)
   * [Linting](#linting)
   * [File Layout & Naming](#file-layout--naming)
@@ -16,7 +21,7 @@
   * [Function Declarations](#function-declarations)
   * [Ordering imports](#ordering-imports)
   * [Using Redux](#using-redux)
-  * [Styling Standards](#styling-standards)
+  * [CSS Styling Standards](#css-styling-standards)
     * [Using Sass and CSS Modules](#using-sass-and-css-modules)
     * [Classnames](#classnames)
     * [rem vs. em](#rem-vs-em)
@@ -35,6 +40,24 @@
 Regenerate with "pre-commit run -a markdown-toc"
 
 <!-- tocstop -->
+
+## Design + Engineering Process for new components
+
+MilMove has defined a process for taking a new component from concept to design to implementation. This section of the doc will describe this process. We use [Storybook](https://storybook.js.org/) for showing the finished components and you can view all current ones on master by going to our [public storybook site](https://storybook.move.mil/). If you want to see things locally please check out the [How To Run Storybook](how-to/run-storybook.md) document.
+
+### Design delivers component design
+
+After the research and initial prototypes are made a designer will create a full design for a new component, card, or page. Once the design has passed the design team's review process the designer will deliver a link to the [Abstract](https://www.abstract.com/) design. Since engineers are not likely to have an Abstract account the designers will ensure that this link is a publicly viewable version. For example here is the link we used for the [TabNav](https://app.abstract.com/share/39907fe2-a5c6-4063-ac68-71bae522e296?mode=build&selected=3210965808-139C6AE4-167B-4B24-B583-C1F45CC3493D) component.
+
+We have added the github `@transcom/truss-design` as code owners of `src/stories` thus requiring their approval for these changes in addition to normal engineering review.
+
+### Engineering
+
+Once an engineer has the Abstract design for a new component they can begin to implement it. The new process requires that all components have a [Storybook](https://storybook.js.org/) story created or updated for it. Storybook stories require approval from someone on the design team before they can be merged, preferable the designer who created the original Abstract design. We are following the [USWDS](#uswds) standard for design and implementation, so please review that section of this document. Be sure to use [USWDS mixins](https://designsystem.digital.gov/utilities/) and any components that are available in `react-uswds`. If there is a USWDS component not already in `react-uswds` please add it to that package and then make use of it.
+
+### Update Loki tests accordingly
+
+We currently use [Loki](https://loki.js.org/) for ensuring our storybook components do not regress as the project goes on. Please ensure you run the tests and add or update new reference images as you create or update components. See [How to Run Loki tests against Storybook](how-to/run-loki-tests-against-storybook.md) document for more details.
 
 ## Testing
 
@@ -63,7 +86,12 @@ Regenerate with "pre-commit run -a markdown-toc"
 * We use the [Cypress framework](https://www.cypress.io/) for most browser testing, both with chrome and headless chrome
 * For testing on Windows 10 with IE 11 we have a [testing document](https://docs.google.com/document/d/1j04tGHTBpcdS8RSzlSB-dImLbIxsLpsFlCzZUWxUKxg/edit#)
 
-## Style
+### Storybook Testing
+
+* We use the [Loki](https://loki.js.org/) package for visually testing storybook.
+* For details on how to run, add, or update these tests see [How to Run Loki tests against Storybook](how-to/run-loki-tests-against-storybook.md)
+
+## Code Style
 
 Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript) unless they conflict with the project’s Prettier or Lint rules.
 
@@ -78,13 +106,24 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
 
 ### Linting
 
-* CRA runs ESLint on the dev server. We are using [create-app-rewired](https://github.com/timarney/react-app-rewired) to configure eslint to use a security package requested by the DOD.
+* CRA runs ESLint on the dev server, you can execute `yarn run lint` to execute linting on all files, otherwise pre-commit will run it for you on files changed.
+* We are using [rescripts](https://github.com/harrysolovay/rescripts) to configure eslint to use a security package, [eslint-plugin-security](https://github.com/nodesecurity/eslint-plugin-security), requested by the DOD.
 
 ### File Layout & Naming
 
-* All front-end client code is kept within a subdirectory called `src`. This is an artifact of using `create-react-app`.
+* All front-end client code is kept within a subdirectory called `src`. This is an artifact of using `create-react-app` and common React best practice.
 * Inside that directory:
-  * `/src`
+  * `/src/components` Low-level React Components that are more about rendering UI than handling application logic, and should typically not be connected to providers directly. Aim for abstract, generic components that can be shared across the application easily, and will usually have corresponding stories files for viewing in Storybook.
+  * `/src/config` High-level configuration definitions relevant to the whole application (such as routes).
+  * `/src/constants` Define constants here instead of using string literals for any values with specific meaning in the context of the application. For example, data that comes back from the API that may be used in UI logic (such as a user role or payment request status).
+  * `/src/containers` React Components that are primarily concerned with connecting UI to containers or providers (such as Redux), and sharing behavior or patterns via hooks or higher-order components.
+  * `/src/helpers` Miscellaneous utilities that implement logic, data handling, and other common functions used throughout the application. These should not include React-specific code such as JSX, and they should generally be purely functional and well-tested.
+  * `/src/layout` React components used to render common layout elements, such as header, footer, page content, etc. Similar to the components located in /src/components, they should focus on rendering UI rather than application logic or connecting to providers. However, they are designed such that there should only ever be one instance on each page.
+  * `/src/pages` React components that correspond to actual routes (URLs). These are responsible for assembling the UI components for a page, and hooking them up with the necessary providers such as Redux. Queries should be co-located with page components, since pages are explicitly dependent on them.
+  * `/src/stories` Storybook stories for components live here.
+  * ***NOTE: The code style recommendations above are strictly enforced in the above directories***
+  * `/src/shared/styles` Global or shared styles
+* Previous layout of components PPM and HHG work was done in the following structure and will remain concurrently until it can be migrated to the new recommendations above. ***No new files should go in the following directories.*** New files should be put into the above structure. If there are significant changes to components in the below directories please migrate them to the new structure.
   * `/src/scenes` Group components by scene name
   * `/src/shared` Group shared components, like headers
 * File naming
@@ -117,7 +156,7 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
 * Connect higher level components to Redux, pass down props to less significant children. (Avoid connecting everything to Redux.)
 * Use [ducks](https://github.com/erikras/ducks-modular-redux) for organizing code.
 
-### Styling Standards
+### CSS Styling Standards
 
 MilMove is transitioning from anarchistic styling to more organized and standardized styling, so much of the existing code is not yet organized to the current standards.  You can find an example of refactored code styling of `InvoicePane.jsx` in `InvoicePanel.module.scss` and its child components and corresponding stylesheets.  All new components/styling should utilize the below standards. When we touch an existing component, we should try to adjust the styling to follow the standards.
 
@@ -158,8 +197,9 @@ Understand the [difference between rem and em](https://zellwk.com/blog/rem-vs-em
 
 #### USWDS
 
-* Check the [USWDS Design Standards](https://standards.usa.gov/components/) for a component that matches your needs. Maximize the code view to see what classes to use to replicate the component styles.
-* USWDS has a [Slack chat](https://chat.18f.gov/) you can go to for help. Get invited to it by filling out this form.
+* Check the [Truss USWDS React package](https://github.com/trussworks/react-uswds) for a component that matches your needs. Maximize the code view to see what classes to use to replicate the component styles.
+* If there isn't a component there already Check the [Truss USWDS React package](https://standards.usa.gov/components/) for a component that matches your needs. Please add it to the USWDS React code and then import the new version for use in MilMove.
+* USWDS has a [Slack chat](https://chat.18f.gov/) you can go to for help. Get invited to it by filling out [this form](https://chat.18f.gov/).
 
 ## Tooling
 
@@ -226,6 +266,7 @@ Important JS patterns and features to understand.
 Various resources on React, Redux, etc, for a variety of learning styles.
 
 * _Read_: [React Tutorial](https://reactjs.org/tutorial/tutorial.html) - Official tutorial from React. I (Alexi) personally found this cumbersome. If you stick with it you’ll learn the basics.
+* _Read_: [Modern JavaScript Tutorial](https://javascript.info/) - A site with tutorials covering many modern javascript concepts
 * _Watch_: [Getting Started with Redux](https://egghead.io/courses/getting-started-with-redux) - Free 30 video series by the author of Redux.
 * _Watch_: [ReactJS / Redux Tutorial](https://www.youtube.com/playlist?list=PL55RiY5tL51rrC3sh8qLiYHqUV3twEYU_) - ~60 minutes of YouTube videos that will get you up and running with React and Redux. The content is useful, the guy’s voice can be a bit of a challenge.
 * _Watch_: [This video](https://www.youtube.com/watch?list=PLb0IAmt7-GS188xDYE-u1ShQmFFGbrk0v&v=nYkdrAPrdcw) from the introduction of Flux can be useful for some high-level background about the pattern (the MVC bashing is overdone, but otherwise this video is useful.)

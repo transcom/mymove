@@ -2,6 +2,8 @@
 
 set -eux -o pipefail
 
+scripts/ensure-application app
+
 # Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
 export REACT_APP_NODE_ENV=development
 
@@ -34,14 +36,14 @@ make e2e_clean
 
 if [[ -n "${CIRCLECI+x}" ]]; then
   # CI/CD allows us to use pre-built images using the branch name
+  scripts/update-docker-compose
 
   # Let's clean things up before starting
   # This may show an error locally but can be safely ignored, its only for CircleCI
   docker-compose down --rmi all || true
 
   # Docker Compose Setup
-  aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
-  scripts/update-docker-compose
+  aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 
   # If you don't pull and CircleCI has cached previous images then you won't see any changes from AWS ECR
   docker-compose pull
@@ -62,13 +64,13 @@ else
   # Locally development requires that we build the container
 
   # Let's clean things up before starting
-  docker-compose -f docker-compose.local.yml down || true
+  docker-compose -f docker-compose.local.yml down --remove-orphans || true
 
   # Build artifacts
   make client_build
 
   # Build images and start everything up
-  docker-compose -f docker-compose.local.yml up -d --build
+  docker-compose -f docker-compose.local.yml up --remove-orphans -d --build
 
   # Build a small tools dockerfile
   docker build -f Dockerfile.tools_local --tag tools:latest .

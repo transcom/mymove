@@ -1,12 +1,15 @@
-import { configure } from '@storybook/react';
+import { configure, addDecorator } from '@storybook/react';
+import { withInfo } from '@storybook/addon-info';
+import 'loki/configure-react';
 
-import 'uswds';
-import 'uswds/dist/css/uswds.css';
+import './storybook.scss';
+import '../src/index.scss';
 
-function loadStories() {
-  require('../src/stories/index.stories.js');
-  require('../src/stories/statusTimeLine.stories.js');
-  require('../src/stories/dateAndLocation.stories.js');
-}
+const req = require.context('../src', true, /\.stories\.jsx?$/);
 
+const loadStories = () => {
+  req.keys().forEach(req);
+};
+
+addDecorator(withInfo);
 configure(loadStories, module);

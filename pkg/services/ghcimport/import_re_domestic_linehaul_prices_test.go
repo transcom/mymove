@@ -55,7 +55,10 @@ func (suite *GHCRateEngineImportSuite) helperCheckDomesticLinehaulValue() {
 
 	// Get domestic service area UUID.
 	var serviceArea models.ReDomesticServiceArea
-	err = suite.DB().Where("service_area = '452'").First(&serviceArea)
+	err = suite.DB().
+		Where("contract_id = ?", contract.ID).
+		Where("service_area = '452'").
+		First(&serviceArea)
 	suite.NoError(err)
 
 	// Get linehaul price.

@@ -24,7 +24,8 @@ var (
 	moveReviewedRawTextTemplate = string(assets.MustAsset("pkg/notifications/templates/move_reviewed_template.txt"))
 	textTemplate                = text.Must(text.New("text_template").Parse(moveReviewedRawTextTemplate))
 	moveReviewedRawHTMLTemplate = string(assets.MustAsset("pkg/notifications/templates/move_reviewed_template.html"))
-	HTMLTemplate                = html.Must(html.New("text_template").Parse(moveReviewedRawHTMLTemplate))
+	// HTMLTemplate is a template for reviewed moves
+	HTMLTemplate = html.Must(html.New("text_template").Parse(moveReviewedRawHTMLTemplate))
 )
 
 // MoveReviewed has notification content for completed/reviewed moves
@@ -48,18 +49,22 @@ func NewMoveReviewed(db *pop.Connection, logger Logger, date time.Time) (*MoveRe
 	}, nil
 }
 
+// EmailInfos is a slice of email info
 type EmailInfos []EmailInfo
 
+// EmailInfo email information for rendering a template
 type EmailInfo struct {
 	ServiceMemberID    uuid.UUID `db:"id"`
 	Email              *string   `db:"personal_email"`
 	DutyStationName    string    `db:"duty_station_name"`
 	NewDutyStationName string    `db:"new_duty_station_name"`
+	Locator            string    `db:"locator"`
 }
 
+// GetEmailInfo retreives email information
 func (m MoveReviewed) GetEmailInfo(date time.Time) (EmailInfos, error) {
 	dateString := date.Format("2006-01-02")
-	query := `SELECT sm.id, sm.personal_email, dsn.name AS new_duty_station_name, dso.name AS duty_station_name
+	query := `SELECT sm.id, sm.personal_email, dsn.name AS new_duty_station_name, dso.name AS duty_station_name, m.locator
 FROM personally_procured_moves p
          JOIN moves m ON p.move_id = m.id
          JOIN orders o ON m.orders_id = o.id
@@ -111,13 +116,15 @@ func (m MoveReviewed) formatEmails(emailInfos EmailInfos) ([]emailContent, error
 		}
 		smEmail := emailContent{
 			recipientEmail: *emailInfo.Email,
-			subject:        "[MilMove] Let us know how we did",
+			subject:        fmt.Sprintf("[MilMove] Tell us how we did with your move (%s)", emailInfo.Locator),
 			htmlBody:       htmlBody,
 			textBody:       textBody,
 			onSuccess:      m.OnSuccess(emailInfo),
 		}
 		m.logger.Info("generated move reviewed email to service member",
-			zap.String("service member uuid", emailInfo.ServiceMemberID.String()))
+			zap.String("moveLocator", emailInfo.Locator),
+			zap.String("service member uuid", emailInfo.ServiceMemberID.String()),
+		)
 		emails = append(emails, smEmail)
 	}
 	return emails, nil

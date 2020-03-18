@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -411,27 +412,78 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 
 	builder.CreateOne(&userInfo)
 
-	officeUser := models.OfficeUser{}
-	suite.DB().Last(&officeUser)
+	suite.T().Run("Successfully updates a record", func(t *testing.T) {
+		officeUser := models.OfficeUser{}
+		suite.DB().Last(&officeUser)
 
-	updatedOfficeUserInfo := models.OfficeUser{
-		ID:                     officeUser.ID,
-		LastName:               "Spaceman",
-		FirstName:              "Leo",
-		Email:                  "leo@spaceman.org", // updated the email
-		TransportationOfficeID: transportationOffice.ID,
-		Telephone:              "312-111-1111",
-		TransportationOffice:   transportationOffice,
-	}
+		updatedOfficeUserInfo := models.OfficeUser{
+			ID:                     officeUser.ID,
+			LastName:               "Spaceman",
+			FirstName:              "Leo",
+			Email:                  "leo@spaceman.org", // updated the email
+			TransportationOfficeID: transportationOffice.ID,
+			Telephone:              "312-111-1111",
+			TransportationOffice:   transportationOffice,
+		}
 
-	suite.T().Run("Successfully creates a record", func(t *testing.T) {
-		verrs, err := builder.UpdateOne(&updatedOfficeUserInfo)
+		verrs, err := builder.UpdateOne(&updatedOfficeUserInfo, nil)
 		suite.Nil(verrs)
 		suite.Nil(err)
+
+		var filters []services.QueryFilter
+		queryFilters := append(filters, NewQueryFilter("id", "=", updatedOfficeUserInfo.ID.String()))
+		var record models.OfficeUser
+		builder.FetchOne(&record, queryFilters)
+		suite.Equal("leo@spaceman.org", record.Email)
+	})
+
+	suite.T().Run("Successfully updates a record with an eTag for optimistic locking", func(t *testing.T) {
+		officeUser := models.OfficeUser{}
+		suite.DB().Last(&officeUser)
+
+		updatedOfficeUserInfo := models.OfficeUser{
+			ID:                     officeUser.ID,
+			LastName:               "Spaceman",
+			FirstName:              "Leo",
+			Email:                  "leo@spaceman.org", // updated the email
+			TransportationOfficeID: transportationOffice.ID,
+			Telephone:              "312-111-1111",
+			TransportationOffice:   transportationOffice,
+		}
+
+		eTag := etag.GenerateEtag(officeUser.UpdatedAt)
+		verrs, err := builder.UpdateOne(&updatedOfficeUserInfo, &eTag)
+		suite.Nil(verrs)
+		suite.Nil(err)
+
+		var filters []services.QueryFilter
+		queryFilters := append(filters, NewQueryFilter("id", "=", updatedOfficeUserInfo.ID.String()))
+		var record models.OfficeUser
+		builder.FetchOne(&record, queryFilters)
+		suite.Equal("leo@spaceman.org", record.Email)
+	})
+
+	suite.T().Run("Reject the update when a stale eTag is used", func(t *testing.T) {
+		officeUser := models.OfficeUser{}
+		suite.DB().Last(&officeUser)
+
+		updatedOfficeUserInfo := models.OfficeUser{
+			ID:                     officeUser.ID,
+			LastName:               "Spaceman",
+			FirstName:              "Leo",
+			Email:                  "leo@spaceman.org", // updated the email
+			TransportationOfficeID: transportationOffice.ID,
+			Telephone:              "312-111-1111",
+			TransportationOffice:   transportationOffice,
+		}
+
+		staleETag := etag.GenerateEtag(time.Now())
+		_, err := builder.UpdateOne(&updatedOfficeUserInfo, &staleETag)
+		suite.NotNil(err)
 	})
 
 	suite.T().Run("Rejects input that isn't a pointer to a struct", func(t *testing.T) {
-		_, err := builder.UpdateOne(updatedOfficeUserInfo)
+		_, err := builder.UpdateOne(models.OfficeUser{}, nil)
 		suite.Error(err, "Model should be a pointer to a struct")
 	})
 }
@@ -524,7 +576,7 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 	claimedTime := time.Now()
 	invalidAccessCode := models.AccessCode{
 		Code:            code,
-		MoveType:        &selectedMoveType,
+		MoveType:        selectedMoveType,
 		ServiceMemberID: &sm.ID,
 		ClaimedAt:       &claimedTime,
 	}
@@ -532,7 +584,7 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 	code2 := "TEST10"
 	accessCode2 := models.AccessCode{
 		Code:     code2,
-		MoveType: &selectedMoveType,
+		MoveType: selectedMoveType,
 	}
 	suite.MustSave(&accessCode2)
 

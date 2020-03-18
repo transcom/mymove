@@ -2,16 +2,18 @@
 
 set -eu -o pipefail
 
-VERSION="go1.13"
+VERSION_NUMBER=1.14
+
+VERSION="go${VERSION_NUMBER}"
 
 GOLANG_VERSION=$(go version)
 if [[ $GOLANG_VERSION = *$VERSION* ]]; then
   echo "Golang $GOLANG_VERSION installed"
 else
-  echo "Golang $VERSION is required to run this project! Found $GOLANG_VERSION"
+  echo "Golang ${VERSION} is required to run this project! Found ${GOLANG_VERSION}"
   echo "Install go with 'brew install go'"
   echo "or if that version is ahead of ${GOLANG_VERSION} then run:"
-  echo "Run 'brew install go@1.13 && brew link --force go@1.13' to install"
+  echo "Run 'brew install go@${VERSION_NUMBER} && brew link --force go@${VERSION_NUMBER}' to install"
   exit 1
 fi
 

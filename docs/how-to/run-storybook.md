@@ -8,15 +8,19 @@ Storybook is a user interface development environment and playground for UI comp
 
 Storybook expects _stories_ to be defined for each component to be showcased. These stories are defined in the stories directory `src/stories`
 
-### Dependencies
+### Running with tooling installed locally
+
+This is the flow that most engineers will likely take since they probably have all the dependencies installed already.
+
+#### Dependencies
 
 If this is your first time running storybook you should run `make client_deps` first to ensure storybook packages are installed
 
-### How to run storybook server locally
+#### How to run storybook server locally
 
 To see the components locally simply run `make storybook` and the server will start and automatically open a browser window. If not open [http://localhost:6006](http://localhost:6006)
 
-### How to generate static storybook site files
+#### How to generate static storybook site files
 
 If you wish to generate the static version of storybook run `make build_storybook` and the command will generate the files in `storybook-static`
 
@@ -35,3 +39,11 @@ Storybook Addon Actions can be used to display data received by event handlers i
 #### Knobs
 
 Storybook Addon Knobs allow you to edit props dynamically using the Storybook UI. You can also use Knobs as a dynamic variable inside stories in Storybook. See [the documentation](https://github.com/storybookjs/storybook/tree/master/addons/knobs) for more details.
+
+### Testing Stories
+
+We use [Loki](https://loki.js.org/) for testing our storybook stories. You will need to approve any changes to the reference images before a build will pass. Read [How to Run Loki tests against Storybook](run-loki-tests-against-storybook.md) for details.
+
+### Story changes require approval of Design
+
+As part of the new process of Design and Engineering collaboration, the design team has been made code owners of the code in `src/stories` and the reference, ie approved, images in `.loki/reference`. So if you are adding a new story, modifying an existing one, or updating Loki reference images you will be required to have a designer give their approval on the GitHub PR.

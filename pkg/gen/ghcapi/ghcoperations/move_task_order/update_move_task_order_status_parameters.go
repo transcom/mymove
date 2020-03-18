@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -30,6 +31,11 @@ type UpdateMoveTaskOrderStatusParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*
+	  Required: true
+	  In: header
+	*/
+	IfMatch string
 	/*ID of move order to use
 	  Required: true
 	  In: path
@@ -46,6 +52,10 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 
 	o.HTTPRequest = r
 
+	if err := o.bindIfMatch(r.Header[http.CanonicalHeaderKey("If-Match")], true, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)
@@ -54,6 +64,27 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindIfMatch binds and validates parameter IfMatch from header.
+func (o *UpdateMoveTaskOrderStatusParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("If-Match", "header")
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+
+	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
+		return err
+	}
+
+	o.IfMatch = raw
+
 	return nil
 }
 

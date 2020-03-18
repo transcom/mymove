@@ -2,7 +2,8 @@ package pricing
 
 import (
 	"fmt"
-	"log"
+
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -16,7 +17,7 @@ const destinationPriceAreaIDColumn int = 4
 const destinationPriceAreaColumn int = 5
 
 // parseOconusToOconusPrices: parser for 3a) OCONUS to OCONUS Prices
-var parseOconusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseOconusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 10 // 3a) OCONUS TO OCONUS Prices
 
@@ -24,7 +25,7 @@ var parseOconusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetI
 		return nil, fmt.Errorf("parseOconusToOconusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Oconus To Oconus Prices")
+	logger.Info("Parsing OCONUS to OCONUS prices")
 
 	var oconusToOconusPrices []models.StageOconusToOconusPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
@@ -45,7 +46,7 @@ var parseOconusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetI
 			oconusToOconusPrice.UBPrice = getCell(row.Cells, colIndex)
 
 			if params.ShowOutput == true {
-				log.Printf("%v\n", oconusToOconusPrice)
+				logger.Info("", zap.Any("StageOconusToOconusPrice", oconusToOconusPrice))
 			}
 			oconusToOconusPrices = append(oconusToOconusPrices, oconusToOconusPrice)
 
@@ -56,7 +57,7 @@ var parseOconusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetI
 }
 
 // parseConusToOconusPrices: parser for 3b) CONUS to OCONUS Prices
-var parseConusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseConusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 11 // 3b) CONUS TO OCONUS Prices
 
@@ -64,7 +65,7 @@ var parseConusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 		return nil, fmt.Errorf("parseConusToOconusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Conus To Oconus Prices")
+	logger.Info("Parsing CONUS to OCONUS prices")
 
 	var conusToOconusPrices []models.StageConusToOconusPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
@@ -85,7 +86,7 @@ var parseConusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 			conusToOconusPrice.UBPrice = getCell(row.Cells, colIndex)
 
 			if params.ShowOutput == true {
-				log.Printf("%v\n", conusToOconusPrice)
+				logger.Info("", zap.Any("StageConusToOconusPrice", conusToOconusPrice))
 			}
 			conusToOconusPrices = append(conusToOconusPrices, conusToOconusPrice)
 
@@ -96,7 +97,7 @@ var parseConusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 }
 
 // parseOconusToConusPrices: parser for 3c) OCONUS to CONUS Prices
-var parseOconusToConusPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseOconusToConusPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 12 // 3c) OCONUS TO CONUS Prices
 
@@ -104,7 +105,7 @@ var parseOconusToConusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 		return nil, fmt.Errorf("parseOconusToConusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Oconus To Conus Prices")
+	logger.Info("Parsing OCONUS to CONUS prices")
 
 	var oconusToConusPrices []models.StageOconusToConusPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
@@ -125,7 +126,7 @@ var parseOconusToConusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 			oconusToConusPrice.UBPrice = getCell(row.Cells, colIndex)
 
 			if params.ShowOutput == true {
-				log.Printf("%v\n", oconusToConusPrice)
+				logger.Info("", zap.Any("StageOconusToConusPrice", oconusToConusPrice))
 			}
 			oconusToConusPrices = append(oconusToConusPrices, oconusToConusPrice)
 

@@ -2,14 +2,14 @@ package pricing
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/tealeg/xlsx"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 16 // 4a) Mgmt., Coun., Trans. Prices
 	const mgmtRowIndexStart int = 9
@@ -20,7 +20,7 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 		return nil, fmt.Errorf("parseShipmentManagementServices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Shipment Management Services Prices")
+	logger.Info("Parsing shipment management services prices")
 	var mgmtPrices []models.StageShipmentManagementServicesPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[mgmtRowIndexStart:]
 	for _, row := range dataRows {
@@ -35,7 +35,7 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 		}
 
 		if params.ShowOutput == true {
-			log.Printf("%v\n", shipMgmtSrvcPrice)
+			logger.Info("", zap.Any("StageShipmentManagementServicesPrice", shipMgmtSrvcPrice))
 		}
 		mgmtPrices = append(mgmtPrices, shipMgmtSrvcPrice)
 	}
@@ -43,7 +43,7 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 	return mgmtPrices, nil
 }
 
-var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 16 // 4a) Mgmt., Coun., Trans. Prices
 	const counRowIndexStart int = 22
@@ -54,7 +54,7 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 		return nil, fmt.Errorf("parseCounselingServicesPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Counseling Services Prices")
+	logger.Info("Parsing counseling services prices")
 	var counPrices []models.StageCounselingServicesPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[counRowIndexStart:]
 	for _, row := range dataRows {
@@ -69,7 +69,7 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 		}
 
 		if params.ShowOutput == true {
-			log.Printf("%v\n", cnslSrvcPrice)
+			logger.Info("", zap.Any("StageCounselingServicesPrice", cnslSrvcPrice))
 		}
 		counPrices = append(counPrices, cnslSrvcPrice)
 	}
@@ -77,7 +77,7 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 	return counPrices, nil
 }
 
-var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 16 // 4a) Mgmt., Coun., Trans. Prices
 	const tranRowIndexStart int = 34
@@ -88,7 +88,7 @@ var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex
 		return nil, fmt.Errorf("parseTransitionPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Transition Prices")
+	logger.Info("Parsing transition prices")
 	var tranPrices []models.StageTransitionPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[tranRowIndexStart:]
 	for _, row := range dataRows {
@@ -103,7 +103,7 @@ var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex
 		}
 
 		if params.ShowOutput == true {
-			log.Printf("%v\n", tranPrice)
+			logger.Info("", zap.Any("StageTransitionPrice", tranPrice))
 		}
 		tranPrices = append(tranPrices, tranPrice)
 	}

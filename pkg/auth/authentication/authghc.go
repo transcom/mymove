@@ -15,15 +15,22 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// ErrTOOUnauthorized is too unauthorized error
 var ErrTOOUnauthorized = errors.New("too unauthorized user")
+
+// ErrUnauthorized is unauthorized user
 var ErrUnauthorized = errors.New("unauthorized user")
+
+// ErrUserDeactivated is user deactivated error
 var ErrUserDeactivated = errors.New("user is deactivated")
 
+// UserCreator creates users
 //go:generate mockery -name UserCreator
 type UserCreator interface {
 	CreateUser(id string, email string) (*models.User, error)
 }
 
+// RoleAssociator associates roles to users
 //go:generate mockery -name RoleAssociator
 type RoleAssociator interface {
 	AdminUserAssociator
@@ -32,35 +39,41 @@ type RoleAssociator interface {
 	TOORoleChecker
 }
 
+// CustomerCreatorAndAssociator interface
 //go:generate mockery -name CustomerCreatorAndAssociator
 type CustomerCreatorAndAssociator interface {
 	CreateAndAssociateCustomer(userID uuid.UUID) error
 }
 
+// OfficeUserAssociator interface
 //go:generate mockery -name OfficeUserAssociator
 type OfficeUserAssociator interface {
 	FetchOfficeUser(email string) (*models.OfficeUser, error)
 	AssociateOfficeUser(user *models.User) (uuid.UUID, error)
 }
 
+// AdminUserAssociator interface
 //go:generate mockery -name AdminUserAssociator
 type AdminUserAssociator interface {
 	FetchAdminUser(email string) (*models.AdminUser, error)
 	AssociateAdminUser(user *models.User) (uuid.UUID, error)
 }
 
+// TOORoleChecker checks TOO roles
 //go:generate mockery -name TOORoleChecker
 type TOORoleChecker interface {
 	FetchUserIdentity(user *models.User) (*models.UserIdentity, error)
 	VerifyHasTOORole(identity *models.UserIdentity) (roles.Role, error)
 }
 
+// UnknownUserAuthorizer is an unknown user authorizer
 type UnknownUserAuthorizer struct {
 	logger Logger
 	UserCreator
 	RoleAssociator
 }
 
+// NewUnknownUserAuthorizer returns a new unknown user authorizer
 func NewUnknownUserAuthorizer(db *pop.Connection, logger Logger) *UnknownUserAuthorizer {
 	uc := userCreator{db}
 	oa := officeUserAssociator{db, logger}
@@ -82,6 +95,7 @@ func NewUnknownUserAuthorizer(db *pop.Connection, logger Logger) *UnknownUserAut
 	}
 }
 
+// AuthorizeUnknownUser will authorize an unknown user
 func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, session *auth.Session) error {
 	user, err := uua.CreateUser(openIDUser.UserID, openIDUser.Email)
 	if err != nil {
@@ -141,6 +155,7 @@ type officeUserAssociator struct {
 	logger Logger
 }
 
+// AssociatedOfficeUser associates an office user
 func (oua officeUserAssociator) AssociateOfficeUser(user *models.User) (uuid.UUID, error) {
 	officeUser, err := oua.FetchOfficeUser(user.LoginGovEmail)
 	if err == models.ErrFetchNotFound {
@@ -166,6 +181,7 @@ func (oua officeUserAssociator) AssociateOfficeUser(user *models.User) (uuid.UUI
 	return officeUser.ID, nil
 }
 
+// FetchOfficeUser fetches an office user
 func (oua officeUserAssociator) FetchOfficeUser(email string) (*models.OfficeUser, error) {
 	officeUser, err := models.FetchOfficeUserByEmail(oua.db, email)
 	return officeUser, err
@@ -176,6 +192,7 @@ type adminUserAssociator struct {
 	logger Logger
 }
 
+// AssociateAdminuser associates an admin user
 func (aua adminUserAssociator) AssociateAdminUser(user *models.User) (uuid.UUID, error) {
 	adminUser, err := aua.FetchAdminUser(user.LoginGovEmail)
 	if err != nil {
@@ -201,6 +218,7 @@ func (aua adminUserAssociator) AssociateAdminUser(user *models.User) (uuid.UUID,
 	return adminUser.ID, nil
 }
 
+// FetchAdminUser fetches an admin user
 func (aua adminUserAssociator) FetchAdminUser(email string) (*models.AdminUser, error) {
 	var adminUser models.AdminUser
 	err := aua.db.Where("LOWER(email) = $1", strings.ToLower(email)).First(&adminUser)
@@ -212,6 +230,7 @@ type customerAssociator struct {
 	logger Logger
 }
 
+// CreateAndAssociateCustomer creates and associates a user
 func (ca customerAssociator) CreateAndAssociateCustomer(userID uuid.UUID) error {
 	if userID == uuid.Nil {
 		ca.logger.Error("error creating customer, user id cannot be nil")
@@ -231,6 +250,7 @@ type userCreator struct {
 	db *pop.Connection
 }
 
+// CreateUser creates a user
 func (uc userCreator) CreateUser(id string, email string) (*models.User, error) {
 	return models.CreateUser(uc.db, id, email)
 }
@@ -240,11 +260,13 @@ type tooRoleChecker struct {
 	logger Logger
 }
 
+// FetchUserIdentity fetches a user identity
 func (t tooRoleChecker) FetchUserIdentity(user *models.User) (*models.UserIdentity, error) {
 	return models.FetchUserIdentity(t.db, user.LoginGovUUID.String())
 }
 
-//Probably want to update this to return roles to add to session
+// VerifyHasTOORole verifies user has TOO Role
+// Probably want to update this to return roles to add to session
 func (t tooRoleChecker) VerifyHasTOORole(identity *models.UserIdentity) (roles.Role, error) {
 	if role, ok := identity.Roles.GetRole(roles.RoleTypeTOO); ok {
 		return role, nil

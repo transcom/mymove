@@ -31,9 +31,11 @@ endif
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
 GC_FLAGS=-trimpath=$(GOPATH)
 DB_PORT_DEV=5432
+DB_PORT_TEST=5433
 DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 ifdef CIRCLECI
+	DB_PORT_DEV=5432
 	DB_PORT_TEST=5432
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
@@ -111,12 +113,6 @@ check_node_version: .check_node_version.stamp ## Check that the correct Node ver
 	scripts/check-node-version
 	touch .check_node_version.stamp
 
-.PHONY: check_go_bindata_version
-check_go_bindata_version: .check_go_bindata_version.stamp ## Check that the correct go-bindata version is installed
-.check_go_bindata_version.stamp: scripts/check-go-bindata-version
-	scripts/check-go-bindata-version
-	touch .check_go_bindata_version.stamp
-
 .PHONY: check_docker_size
 check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
@@ -131,10 +127,9 @@ test: client_test server_test e2e_test ## Run all tests
 diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on environment
 
 .PHONY: check_log_dir
-check_log_dir:
+check_log_dir: ## Make sure we have a log directory
 	mkdir -p log
 
-# Make sure we have a log directory
 #
 # ----- END CHECK TARGETS -----
 #
@@ -200,9 +195,6 @@ bin/gin: .check_go_version.stamp .check_gopath.stamp
 
 bin/soda: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
-
-bin/swagger: .check_go_version.stamp .check_gopath.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
 # No static linking / $(LDFLAGS) because go-junit-report is only used for building the CirlceCi test report
 bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp
@@ -286,9 +278,8 @@ bin/send-to-gex: pkg/gen/
 bin/tls-checker:
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
-pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
-	# Fix the modtime to prevent diffs when generating on different machines
-	go-bindata -modtime 1569961560 -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/ pkg/notifications/templates/
+pkg/assets/assets.go:
+	scripts/gen-assets
 
 #
 # ----- END BIN TARGETS -----
@@ -300,7 +291,7 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
-pkg/gen/: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.yaml)
+pkg/gen/: pkg/assets/assets.go $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 
 .PHONY: server_build
@@ -316,13 +307,13 @@ server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
-# Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port 8080.
+# Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
 server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
 		--bin /bin/milmove_gin \
-		--laddr 127.0.0.1 --port 9001 \
+		--laddr 127.0.0.1 --port "$(GIN_PORT)" \
 		--excludeDir node_modules \
 		--immediate \
 		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
@@ -337,7 +328,6 @@ server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp
 
 .PHONY: build_tools
 build_tools: bin/gin \
-	bin/swagger \
 	bin/mockery \
 	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
@@ -379,7 +369,7 @@ ifndef TEST_ACC_ENV
 	SERVE_API_INTERNAL=true \
 	SERVE_API_GHC=false \
 	MUTUAL_TLS_ENABLED=true \
-	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
+	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 ifndef CIRCLECI
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
@@ -387,13 +377,13 @@ ifndef CIRCLECI
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	aws-vault exec $(AWS_PROFILE) -- \
 	chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
-	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
+	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber/v2
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
 	TEST_ACC_CWD=$(PWD) \
 	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
-	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
+	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 endif
 endif
 
@@ -406,36 +396,24 @@ server_test: db_test_reset db_test_migrate server_test_standalone ## Run server 
 
 .PHONY: server_test_standalone
 server_test_standalone: ## Run server unit tests with no deps
-	# Don't run tests in /cmd or /pkg/gen/ or mocks
-	# Pass `-short` to exclude long running tests
-	# Disable test caching with `-count 1` - caching was masking local test failures
-ifndef CIRCLECI
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -parallel 8 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
-else
-	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
-	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -v -parallel 4 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
-endif
+	NO_DB=1 scripts/run-server-test
 
+.PHONY: server_test_build
 server_test_build:
-	# Try to compile tests, but don't run them.
-	go test -run=nope -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	NO_DB=1 DRY_RUN=1 scripts/run-server-test
 
 .PHONY: server_test_all
 server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
-	DB_PORT=$(DB_PORT_TEST) go test -parallel 4 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	LONG_TEST=1 scripts/run-server-test
 
 .PHONY: server_test_coverage_generate
 server_test_coverage_generate: db_test_reset db_test_migrate server_test_coverage_generate_standalone ## Run server unit test coverage
 
 .PHONY: server_test_coverage_generate_standalone
 server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
-	# Don't run tests in /cmd or /pkg/gen
-	# Use -test.parallel 1 to test packages serially and avoid database collisions
-	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Add coverage tracker via go cover
-	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -parallel 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	NO_DB=1 COVERAGE=1 scripts/run-server-test
 
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
@@ -447,7 +425,7 @@ server_test_docker:
 
 .PHONY: server_test_docker_down
 server_test_docker_down:
-	docker-compose -f docker-compose.circle.yml down
+	docker-compose -f docker-compose.circle.yml --compatibility down
 
 #
 # ----- END SERVER TARGETS -----
@@ -574,6 +552,7 @@ ifndef CIRCLECI
 		echo "No database container"
 else
 	@echo "Relying on CircleCI's database setup to destroy the DB."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'DROP DATABASE IF EXISTS $(DB_NAME_TEST);'
 endif
 
 .PHONY: db_test_start
@@ -602,6 +581,7 @@ ifndef CIRCLECI
 		createdb -p $(DB_PORT_TEST) -h localhost -U postgres $(DB_NAME_TEST) || true
 else
 	@echo "Relying on CircleCI's database setup to create the DB."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
 endif
 
 .PHONY: db_test_run
@@ -671,6 +651,8 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 
 .PHONY: db_e2e_up
 db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-end) data
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
 	@echo "Truncate the ${DB_NAME_TEST} database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
@@ -681,6 +663,8 @@ db_e2e_init: db_test_reset db_test_migrate db_e2e_up ## Initialize e2e (end-to-e
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: db_dev_reset db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="development"
 
@@ -785,7 +769,7 @@ tasks_send_payment_reminder: tasks_build_linux_docker ## Run send-payment-remind
 .PHONY: run_prod_migrations
 run_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Prod migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with prod migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-prod-us-west-2/secure-migrations;file://migrations" \
+	MIGRATION_PATH="s3://transcom-ppp-app-prod-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
@@ -795,7 +779,7 @@ run_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Prod migrat
 .PHONY: run_staging_migrations
 run_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Staging migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with staging migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations" \
+	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
@@ -805,7 +789,7 @@ run_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Staging 
 .PHONY: run_experimental_migrations
 run_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Experimental migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with experimental migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations" \
+	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
@@ -841,12 +825,17 @@ gofmt:  ## Run go fmt over all Go files
 	go fmt $$(go list ./...) >> /dev/null
 
 .PHONY: pre_commit_tests
-pre_commit_tests: .client_deps.stamp bin/swagger ## Run pre-commit tests
+pre_commit_tests: .client_deps.stamp ## Run pre-commit tests
 	pre-commit run --all-files
 
 .PHONY: pretty
 pretty: gofmt ## Run code through JS and Golang formatters
 	npx prettier --write --loglevel warn "src/**/*.{js,jsx}"
+
+.PHONY: docker_circleci
+docker_circleci: ## Run CircleCI container locally with project mounted
+	docker pull milmove/circleci-docker:milmove-app
+	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images
 prune_images:  ## Prune docker images
@@ -897,6 +886,14 @@ storybook: ## Start the storybook server
 storybook_build: ## Build static storybook site
 	yarn run build-storybook
 
+.PHONY: storybook_tests
+storybook_tests: ## Run the Loki storybook tests to ensure no breaking changes
+	yarn run loki test
+
+.PHONY: loki_approve_changes
+loki_approve_changes: ## Approves differences in Loki test results
+	yarn run loki approve
+
 #
 # ----- END RANDOM TARGETS -----
 #
@@ -912,7 +909,7 @@ docker_compose_setup: .check_hosts.stamp ## Install requirements to use docker-c
 
 .PHONY: docker_compose_up
 docker_compose_up: ## Bring up docker-compose containers
-	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
+	aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 	scripts/update-docker-compose
 	docker-compose up
 

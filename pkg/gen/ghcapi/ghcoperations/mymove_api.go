@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
@@ -53,8 +54,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderDeleteMoveTaskOrderHandler: move_task_order.DeleteMoveTaskOrderHandlerFunc(func(params move_task_order.DeleteMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderDeleteMoveTaskOrder has not yet been implemented")
 		}),
-		CustomerGetAllCustomerMovesHandler: customer.GetAllCustomerMovesHandlerFunc(func(params customer.GetAllCustomerMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation CustomerGetAllCustomerMoves has not yet been implemented")
+		MtoAgentFetchMTOAgentListHandler: mto_agent.FetchMTOAgentListHandlerFunc(func(params mto_agent.FetchMTOAgentListParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoAgentFetchMTOAgentList has not yet been implemented")
 		}),
 		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation CustomerGetCustomer has not yet been implemented")
@@ -147,8 +148,8 @@ type MymoveAPI struct {
 	MtoServiceItemDeleteMTOServiceItemHandler mto_service_item.DeleteMTOServiceItemHandler
 	// MoveTaskOrderDeleteMoveTaskOrderHandler sets the operation handler for the delete move task order operation
 	MoveTaskOrderDeleteMoveTaskOrderHandler move_task_order.DeleteMoveTaskOrderHandler
-	// CustomerGetAllCustomerMovesHandler sets the operation handler for the get all customer moves operation
-	CustomerGetAllCustomerMovesHandler customer.GetAllCustomerMovesHandler
+	// MtoAgentFetchMTOAgentListHandler sets the operation handler for the fetch m t o agent list operation
+	MtoAgentFetchMTOAgentListHandler mto_agent.FetchMTOAgentListHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
 	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// MoveTaskOrderGetEntitlementsHandler sets the operation handler for the get entitlements operation
@@ -260,8 +261,8 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "move_task_order.DeleteMoveTaskOrderHandler")
 	}
 
-	if o.CustomerGetAllCustomerMovesHandler == nil {
-		unregistered = append(unregistered, "customer.GetAllCustomerMovesHandler")
+	if o.MtoAgentFetchMTOAgentListHandler == nil {
+		unregistered = append(unregistered, "mto_agent.FetchMTOAgentListHandler")
 	}
 
 	if o.CustomerGetCustomerHandler == nil {
@@ -452,7 +453,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/customer"] = customer.NewGetAllCustomerMoves(o.context, o.CustomerGetAllCustomerMovesHandler)
+	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents"] = mto_agent.NewFetchMTOAgentList(o.context, o.MtoAgentFetchMTOAgentListHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

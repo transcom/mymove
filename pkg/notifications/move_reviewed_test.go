@@ -1,6 +1,7 @@
 package notifications
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -161,17 +162,20 @@ func (suite *NotificationSuite) TestFormatEmails() {
 			Email:              &email1,
 			DutyStationName:    "d1",
 			NewDutyStationName: "nd2",
+			Locator:            "abc123",
 		},
 		{
 			Email:              &email2,
 			DutyStationName:    "d2",
 			NewDutyStationName: "nd2",
+			Locator:            "abc456",
 		},
 		{
 			// nil emails should be skipped
 			Email:              nil,
 			DutyStationName:    "d2",
 			NewDutyStationName: "nd2",
+			Locator:            "abc788",
 		},
 	}
 
@@ -191,7 +195,7 @@ func (suite *NotificationSuite) TestFormatEmails() {
 		suite.NoError(err)
 		expectedEmailContent := emailContent{
 			recipientEmail: *emailInfo.Email,
-			subject:        "[MilMove] Let us know how we did",
+			subject:        fmt.Sprintf("[MilMove] Tell us how we did with your move (%s)", emailInfo.Locator),
 			htmlBody:       htmlBody,
 			textBody:       textBody,
 		}

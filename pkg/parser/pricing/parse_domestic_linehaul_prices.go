@@ -2,14 +2,15 @@ package pricing
 
 import (
 	"fmt"
-	"log"
 	"strconv"
+
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // parseDomesticLinehaulPrices: parser for 2a) Domestic Linehaul Prices
-var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 6  // 2a) Domestic Linehaul Prices
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
@@ -23,7 +24,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, shee
 		return nil, fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Domestic Linehaul Prices")
+	logger.Info("Parsing domestic linehaul prices")
 
 	var domPrices []models.StageDomesticLinehaulPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
@@ -51,7 +52,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, shee
 						}
 						colIndex++
 						if params.ShowOutput == true {
-							log.Printf("%v\n", domPrice)
+							logger.Info("", zap.Any("StageDomesticLinehaulPrice", domPrice))
 						}
 						domPrices = append(domPrices, domPrice)
 					}
@@ -111,7 +112,12 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params ParamConfig, shee
 						verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, Escalation: %d, rateSeasons %v, dlhWeightBands %v",
 							dataRowsIndex, colIndex, escalation, r, w)
 						if dataRowsIndex == 0 {
-							if m.lower != getInt(getCell(row.Cells, colIndex)) {
+							fromMilesCell := getCell(row.Cells, colIndex)
+							fromMiles, err := getInt(fromMilesCell)
+							if err != nil {
+								return fmt.Errorf("could not convert %s to int: %w", fromMilesCell, err)
+							}
+							if m.lower != fromMiles {
 								return fmt.Errorf("format error: From Miles --> does not match expected number expected %d got %s\n%s", m.lower, getCell(row.Cells, colIndex), verificationLog)
 							}
 							if "ServiceAreaNumber" != removeWhiteSpace(getCell(row.Cells, serviceAreaNumberColumn)) {
@@ -124,7 +130,12 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params ParamConfig, shee
 								return fmt.Errorf("format error: Header <SServicesSchedule> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, serviceScheduleColumn)), verificationLog)
 							}
 						} else if dataRowsIndex == 1 {
-							if m.upper != getInt(getCell(row.Cells, colIndex)) {
+							toMilesCell := getCell(row.Cells, colIndex)
+							toMiles, err := getInt(toMilesCell)
+							if err != nil {
+								return fmt.Errorf("could not convert %s to int: %w", toMilesCell, err)
+							}
+							if m.upper != toMiles {
 								return fmt.Errorf("format error: To Miles --> does not match expected number expected %d got %s\n%s", m.upper, getCell(row.Cells, colIndex), verificationLog)
 							}
 						} else if dataRowsIndex == 2 {

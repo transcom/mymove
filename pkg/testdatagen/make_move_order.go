@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// MakeGrade makes a service member grade
 func MakeGrade() string {
 	grades := [28]string{"E_1",
 		"E_2",
@@ -65,6 +66,11 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		destinationDutyStation = MakeDutyStation(db, assertions)
 	}
 
+	orderNumber := assertions.MoveOrder.OrderNumber
+	if orderNumber == nil || *orderNumber == "" {
+		orderNumber = stringPointer("ORDER123")
+	}
+
 	orderType := assertions.MoveOrder.OrderType
 	if orderType == nil || *orderType == "" {
 		orderType = stringPointer("GHC")
@@ -87,6 +93,8 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		dateIssued = models.TimePointer(time.Date(2020, time.January, 15, 0, 0, 0, 0, time.UTC))
 	}
 
+	linesOfAccounting := "F8E1"
+
 	moveOrder := models.MoveOrder{
 		Customer:                 &customer,
 		CustomerID:               &customer.ID,
@@ -99,10 +107,11 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		Grade:                    grade,
 		OriginDutyStation:        &originDutyStation,
 		OriginDutyStationID:      &originDutyStation.ID,
-		OrderNumber:              assertions.MoveOrder.OrderNumber,
+		OrderNumber:              orderNumber,
 		OrderType:                orderType,
 		OrderTypeDetail:          orderTypeDetail,
 		ReportByDate:             reportByDate,
+		LinesOfAccounting:        &linesOfAccounting,
 	}
 
 	// Overwrite values with those from assertions

@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8 as builder
+FROM milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db as builder
 
 ENV CIRCLECI=true
 
@@ -12,7 +12,6 @@ WORKDIR /home/circleci/project
 RUN make clean
 RUN make bin/rds-ca-2019-root.pem
 RUN rm -f pkg/assets/assets.go && make pkg/assets/assets.go
-RUN rm -f bin/swagger &&  make bin/swagger
 RUN make server_generate
 RUN rm -f bin/milmove-tasks && make bin/milmove-tasks
 

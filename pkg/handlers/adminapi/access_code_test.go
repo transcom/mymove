@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 		ServiceMemberID: &sm.ID,
 		ServiceMember:   sm,
 		Code:            "ABCXYZ",
-		MoveType:        m.SelectedMoveType,
+		MoveType:        *m.SelectedMoveType,
 	}
 	assertions := testdatagen.Assertions{
 		AccessCode: ac,
@@ -61,7 +61,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(ac.ID.String(), okResponse.Payload[0].ID.String())
 		suite.Equal(ac.Code, okResponse.Payload[0].Code)
-		suite.Equal(string(*ac.MoveType), okResponse.Payload[0].MoveType)
+		suite.Equal(ac.MoveType.String(), okResponse.Payload[0].MoveType)
 		suite.Equal(m.Locator, okResponse.Payload[0].Locator)
 	})
 	suite.T().Run("test failed response", func(t *testing.T) {

@@ -17,7 +17,7 @@ services:
   server_test:
     depends_on:
       - database
-    image: trussworks/circleci-docker-primary:2d679f4bc2c1ab1fc46e2ef440d8ef300da607b8
+    image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
     deploy:
       resources:
         limits:
@@ -29,6 +29,7 @@ services:
       - ./:/home/circleci/transcom/mymove
     working_dir: /home/circleci/transcom/mymove
     environment:
+      - APPLICATION
       - CLIENT_AUTH_SECRET_KEY
       - CSRF_AUTH_KEY
       - CIRCLECI=1

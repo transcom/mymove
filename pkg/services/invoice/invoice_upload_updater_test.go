@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -22,7 +23,7 @@ import (
 func (suite *InvoiceServiceSuite) openLocalFile(path string) (afero.File, error) {
 	var fs = afero.NewMemMapFs()
 
-	file, err := os.Open(path)
+	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		suite.logger.Fatal("Error opening local file", zap.Error(err))
 	}
