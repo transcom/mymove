@@ -52,7 +52,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 
 		fileName, err := p.assembleUploadFilePathName(paymentRequestID)
 		if err != nil {
-			return fmt.Errorf("could not assemble userUpload filepath name %w", err)
+			return fmt.Errorf("could not assemble primeUpload filepath name %w", err)
 		}
 
 		aFile, err := newUploader.PrepareFileForUpload(file, fileName)
@@ -80,6 +80,9 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 
 		posID := &proofOfServiceDoc.ID
 		primeUpload, verrs, err := newUploader.CreatePrimeUploadForDocument(posID, contractorID, uploader.File{File: aFile}, uploader.AllowedTypesPaymentRequest)
+		if verrs.HasAny() {
+			return fmt.Errorf("validation error creating payment request primeUpload: %w", verrs)
+		}
 		if err != nil {
 			return fmt.Errorf("failure creating payment request primeUpload: %w", err)
 		}

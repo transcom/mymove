@@ -64,12 +64,11 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 		return ppmop.NewCreatePPMAttachmentsFailedDependency()
 	}
 
-
 	// Flatten out uploads into a slice
 	for _, moveDoc := range moveDocs {
-		moveDocUploads, err := models.UploadsFromUserUploads(h.DB(), moveDoc.Document.UserUploads)
-		if err != nil {
-			logger.Error("failed to get uploads for moveDoc.Document.UserUploads", zap.Error(err))
+		moveDocUploads, moveDocUploadsErr := models.UploadsFromUserUploads(h.DB(), moveDoc.Document.UserUploads)
+		if moveDocUploadsErr != nil {
+			logger.Error("failed to get uploads for moveDoc.Document.UserUploads", zap.Error(moveDocUploadsErr))
 			return ppmop.NewCreatePPMAttachmentsFailedDependency()
 		}
 		uploads = append(uploads, moveDocUploads...)

@@ -2,7 +2,6 @@ package primeapi
 
 import (
 	"fmt"
-
 	"net/http/httptest"
 	"os"
 	"testing"
@@ -31,9 +30,11 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 
+	testdatagen.MakeDefaultContractor(suite.DB())
+
 	suite.T().Run("successful create upload", func(t *testing.T) {
 		upload := models.Upload{
-			ID:          uploadID,
+			ID: uploadID,
 			//DocumentID:  nil,
 			//Document:    models.Document{},
 			//UploaderID:  primeUser.ID,

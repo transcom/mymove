@@ -52,12 +52,12 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 
 	uploadID, _ := uuid.NewV4()
 	uploadUserAssertions := models.UserUpload{
-		Document:    document,
-		DocumentID:  &document.ID,
-		CreatedAt:   time.Now(),
-		UploaderID:  sm.UserID,
-		Upload: &models.Upload {
-			ID: 		 uploadID,
+		Document:   document,
+		DocumentID: &document.ID,
+		CreatedAt:  time.Now(),
+		UploaderID: sm.UserID,
+		Upload: &models.Upload{
+			ID:          uploadID,
 			Filename:    "FileName",
 			Bytes:       int64(15),
 			ContentType: "application/pdf",

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/mock"
+
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/storage/mocks"

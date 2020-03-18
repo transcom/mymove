@@ -22,7 +22,6 @@ func (suite *ModelSuite) TestProofOfServiceDocValidation() {
 
 		expErrors := map[string][]string{
 			"payment_request_id": {"PaymentRequestID can not be blank."},
-			"prime_upload_id":          {"PrimeUploadID can not be blank."},
 		}
 
 		suite.verifyValidationErrors(&invalidProofOfServiceDoc, expErrors)

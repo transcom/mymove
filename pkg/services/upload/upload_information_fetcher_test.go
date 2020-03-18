@@ -34,7 +34,6 @@ func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
 		u := *uu.Upload
 		ui, err := uif.FetchUploadInformation(u.ID)
 
-
 		suite.NoError(err)
 		suite.Nil(ui.ServiceMemberID)
 		suite.Equal(ou.ID, *ui.OfficeUserID)

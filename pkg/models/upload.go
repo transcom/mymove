@@ -11,6 +11,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/utilities"
 )
@@ -19,13 +20,13 @@ import (
 type UploadType string
 
 const (
-	// UploadTypeUSER
-	UploadTypeUSER  UploadType = "USER"
-	// UploadTypePRIME
+	// UploadTypeUSER string USER
+	UploadTypeUSER UploadType = "USER"
+	// UploadTypePRIME string PRIME
 	UploadTypePRIME UploadType = "PRIME"
 )
 
-// An UserUpload represents an uploaded file, such as an image or PDF.
+// An Upload represents an uploaded file, such as an image or PDF.
 type Upload struct {
 	ID          uuid.UUID  `db:"id"`
 	Filename    string     `db:"filename"`
@@ -72,7 +73,6 @@ func (u *Upload) BeforeCreate(tx *pop.Connection) error {
 	return nil
 }
 
-
 // FetchUpload returns an UserUpload if the user has access to that upload
 func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (Upload, error) {
 	var upload Upload
@@ -88,12 +88,16 @@ func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session,
 	if upload.UploadType == UploadTypeUSER {
 		_, err := FetchUserUploadFromUploadID(ctx, db, session, upload.ID)
 		if err != nil {
-			return Upload{}, fmt.Errorf("error fetching upload errors: %w", err)
+			return Upload{}, fmt.Errorf("error fetching user upload errors: %w", err)
+		}
+	} else if upload.UploadType == UploadTypePRIME {
+		_, err := FetchPrimeUploadFromUploadID(ctx, db, session, upload.ID)
+		if err != nil {
+			return Upload{}, fmt.Errorf("error fetching prime upload errors: %w", err)
 		}
 	}
 	return upload, nil
 }
-
 
 // DeleteUpload deletes an upload from the database
 func DeleteUpload(dbConn *pop.Connection, upload *Upload) error {
@@ -111,5 +115,5 @@ func DeleteUpload(dbConn *pop.Connection, upload *Upload) error {
 			return nil
 		})
 	}
-    return nil
+	return nil
 }

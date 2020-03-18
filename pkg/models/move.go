@@ -229,7 +229,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	// Make a generic Document
 	newDoc := Document{
 		ServiceMemberID: m.Orders.ServiceMemberID,
-		UserUploads:  userUploads,
+		UserUploads:     userUploads,
 	}
 	newDocVerrs, newDocErr := db.ValidateAndCreate(&newDoc)
 	if newDocErr != nil || newDocVerrs.HasAny() {

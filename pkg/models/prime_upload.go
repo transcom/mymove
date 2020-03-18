@@ -16,21 +16,22 @@ import (
 
 // An PrimeUpload represents an user uploaded file, such as an image or PDF.
 type PrimeUpload struct {
-	ID          uuid.UUID  `db:"id"`
-	ProofOfServiceDocID  *uuid.UUID `db:"proof_of_service_docs_id"`
-	ProofOfServiceDoc    ProofOfServiceDoc   `belongs_to:"proof_of_service_docs"`
-	ContractorID uuid.UUID `db:"contractor"`
-	Contractor   Contractor `belongs_to:"contractor"`
-	UploadID    *uuid.UUID  `db:"upload_id"`
-	Upload      *Upload     `belongs_to:"uploads"`
-	CreatedAt   time.Time  `db:"created_at"`
-	UpdatedAt   time.Time  `db:"updated_at"`
-	DeletedAt   *time.Time `db:"deleted_at"`
+	ID                  uuid.UUID         `db:"id"`
+	ProofOfServiceDocID *uuid.UUID        `db:"proof_of_service_docs_id"`
+	ProofOfServiceDoc   ProofOfServiceDoc `belongs_to:"proof_of_service_docs"`
+	ContractorID        uuid.UUID         `db:"contractor_id"`
+	Contractor          Contractor        `belongs_to:"contractors"`
+	UploadID            *uuid.UUID        `db:"upload_id"`
+	Upload              *Upload           `belongs_to:"uploads"`
+	CreatedAt           time.Time         `db:"created_at"`
+	UpdatedAt           time.Time         `db:"updated_at"`
+	DeletedAt           *time.Time        `db:"deleted_at"`
 }
 
 // PrimeUploads is not required by pop and may be deleted
 type PrimeUploads []PrimeUpload
 
+// UploadsFromPrimeUploads return a slice of uploads given a slice of prime uploads
 func UploadsFromPrimeUploads(db *pop.Connection, primeUploads PrimeUploads) (Uploads, error) {
 	var uploads Uploads
 	for _, PrimeUpload := range primeUploads {
@@ -55,7 +56,7 @@ func (u *PrimeUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-// BeforeCreate
+// BeforeCreate ensure ID is assigned
 func (u *PrimeUpload) BeforeCreate(tx *pop.Connection) error {
 	// Populate ID if not exists
 	if u.ID == uuid.Nil {
@@ -89,7 +90,7 @@ func FetchPrimeUpload(ctx context.Context, db *pop.Connection, session *auth.Ses
 	} else if primeUpload.UploaderID != session.UserID {
 		return PrimeUpload{}, errors.Wrap(ErrFetchNotFound, "user ID doesn't match uploader ID")
 	}
-	 */
+	*/
 	return primeUpload, nil
 }
 
@@ -119,7 +120,7 @@ func FetchPrimeUploadFromUploadID(ctx context.Context, db *pop.Connection, sessi
 		return PrimeUpload{}, errors.Wrap(ErrFetchNotFound, "user ID doesn't match uploader ID")
 	}
 
-	 */
+	*/
 	return primeUpload, nil
 }
 
@@ -141,4 +142,3 @@ func DeletePrimeUpload(dbConn *pop.Connection, primeUpload *PrimeUpload) error {
 	}
 	return nil
 }
-

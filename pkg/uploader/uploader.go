@@ -66,16 +66,16 @@ type File struct {
 // Uploader encapsulates a few common processes: creating Uploads for a Document,
 // generating pre-signed URLs for file access, and deleting Uploads.
 type Uploader struct {
-	db               *pop.Connection
-	logger           Logger
-	Storer           storage.FileStorer
-	UploadStorageKey string
+	db                *pop.Connection
+	logger            Logger
+	Storer            storage.FileStorer
+	UploadStorageKey  string
 	DefaultStorageKey string
-	FileSizeLimit    ByteSize
-	UploadType       models.UploadType
+	FileSizeLimit     ByteSize
+	UploadType        models.UploadType
 }
 
-// newUploader creates and returns a new uploader
+// NewUploader creates and returns a new uploader
 func NewUploader(db *pop.Connection, logger Logger, storer storage.FileStorer, fileSizeLimit ByteSize, uploadType models.UploadType) (*Uploader, error) {
 	if fileSizeLimit > MaxFileSizeLimit {
 		return nil, ErrFileSizeLimitExceedsMax
@@ -95,8 +95,8 @@ func (u *Uploader) SetUploadStorageKey(key string) {
 	u.UploadStorageKey = key
 }
 
-// PrepareFileForUpload
-func (u *Uploader) PrepareFileForUpload (file io.ReadCloser, filename string) (afero.File, error) {
+// PrepareFileForUpload copy file buffer into Afero file, return Afero file
+func (u *Uploader) PrepareFileForUpload(file io.ReadCloser, filename string) (afero.File, error) {
 	// Read the incoming data into a temporary afero.File for consumption
 	aFile, err := u.Storer.TempFileSystem().Create(filename)
 	if err != nil {
@@ -195,7 +195,6 @@ func (u *Uploader) CreateUploadForDocument(file File, allowedTypes AllowedFileTy
 		newUpload.StorageKey = path.Join(u.DefaultStorageKey, "uploads", id.String())
 	}
 
-
 	var uploadError error
 	// If we are already in a transaction, don't start one
 	if u.db.TX != nil {
@@ -253,16 +252,14 @@ func (u *Uploader) deleteUpload(upload *models.Upload) error {
 			return err
 		}
 		return models.DeleteUpload(u.db, upload)
-	} else {
-		return u.db.Transaction(func(db *pop.Connection) error {
-			if err := u.Storer.Delete(upload.StorageKey); err != nil {
-				return err
-			}
-
-			return models.DeleteUpload(db, upload)
-		})
 	}
-	return nil
+	return u.db.Transaction(func(db *pop.Connection) error {
+		if err := u.Storer.Delete(upload.StorageKey); err != nil {
+			return err
+		}
+
+		return models.DeleteUpload(db, upload)
+	})
 }
 
 // Download fetches an Upload's file and stores it in a tempfile. The path to this

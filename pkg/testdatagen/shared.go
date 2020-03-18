@@ -13,6 +13,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imdario/mergo"
 	"github.com/spf13/afero"
+
 	"github.com/transcom/mymove/pkg/uploader"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -26,7 +27,7 @@ type Assertions struct {
 	AdminUser                                models.AdminUser
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
-	Contractor						         models.Contractor
+	Contractor                               models.Contractor
 	Customer                                 models.Customer
 	DestinationDutyStation                   models.DutyStation
 	DistanceCalculation                      models.DistanceCalculation
@@ -54,7 +55,7 @@ type Assertions struct {
 	PaymentRequest                           models.PaymentRequest
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	PrimeUpload                              models.PrimeUpload
-	PrimeUploader                           *uploader.PrimeUploader
+	PrimeUploader                            *uploader.PrimeUploader
 	ProofOfServiceDoc                        models.ProofOfServiceDoc
 	ReContract                               models.ReContract
 	ReContractYear                           models.ReContractYear

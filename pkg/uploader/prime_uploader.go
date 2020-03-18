@@ -10,19 +10,19 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
-	"go.uber.org/zap"
 )
 
 // PrimeUploader encapsulates a few common processes: creating Uploads for a Document,
 // generating pre-signed URLs for file access, and deleting Uploads.
 type PrimeUploader struct {
-	db               *pop.Connection
-	logger           Logger
-	uploader		 *Uploader
+	db       *pop.Connection
+	logger   Logger
+	uploader *Uploader
 }
-
 
 // NewPrimeUploader creates and returns a new uploader
 func NewPrimeUploader(db *pop.Connection, logger Logger, storer storage.FileStorer, fileSizeLimit ByteSize) (*PrimeUploader, error) {
@@ -31,19 +31,19 @@ func NewPrimeUploader(db *pop.Connection, logger Logger, storer storage.FileStor
 		return nil, fmt.Errorf("could not create uploader.PrimeUploader for PrimeUpload: %w", err)
 	}
 	return &PrimeUploader{
-		db:               db,
-		logger:           logger,
+		db:       db,
+		logger:   logger,
 		uploader: uploader,
 	}, nil
 }
 
-// PrepareFileForUpload
-func (u *PrimeUploader) PrepareFileForUpload (file io.ReadCloser, filename string) (afero.File, error) {
+// PrepareFileForUpload called Uploader.PrepareFileForUpload
+func (u *PrimeUploader) PrepareFileForUpload(file io.ReadCloser, filename string) (afero.File, error) {
 	// Read the incoming data into a temporary afero.File for consumption
 	return u.uploader.PrepareFileForUpload(file, filename)
 }
 
-func (u *PrimeUploader) createAndStore (posID *uuid.UUID, contractorID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.PrimeUpload, *validate.Errors, error) {
+func (u *PrimeUploader) createAndStore(posID *uuid.UUID, contractorID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.PrimeUpload, *validate.Errors, error) {
 	// If storage key is not set assign a default
 	if u.GetUploadStorageKey() == "" {
 		u.uploader.DefaultStorageKey = path.Join("prime", contractorID.String())
@@ -58,16 +58,16 @@ func (u *PrimeUploader) createAndStore (posID *uuid.UUID, contractorID uuid.UUID
 	id := uuid.Must(uuid.NewV4())
 
 	newUploadForUser := &models.PrimeUpload{
-		ID:          id,
-		ProofOfServiceDocID:  posID,
-		ContractorID:  contractorID,
-		UploadID:    &newUpload.ID,
-		Upload: 	 newUpload,
+		ID:                  id,
+		ProofOfServiceDocID: posID,
+		ContractorID:        contractorID,
+		UploadID:            &newUpload.ID,
+		Upload:              newUpload,
 	}
 
 	verrs, err = u.db.ValidateAndCreate(newUploadForUser)
 	if err != nil || verrs.HasAny() {
-		u.logger.Error("error creating new user upload", zap.Error(err))
+		u.logger.Error("error creating new prime upload", zap.Error(err))
 		return nil, verrs, err
 	}
 
@@ -91,9 +91,9 @@ func (u *PrimeUploader) CreatePrimeUploadForDocument(posID *uuid.UUID, contracto
 	if u.db.TX != nil {
 		primeUpload, verrs, uploadError = u.createAndStore(posID, contractorID, file, allowedTypes)
 		if verrs.HasAny() || uploadError != nil {
-			u.logger.Error("error creating new user upload (existing TX)", zap.Error(uploadError))
+			u.logger.Error("error creating new prime upload (existing TX)", zap.Error(uploadError))
 		} else {
-			u.logger.Info("created a user upload with id and key (existing TX)", zap.Any("new_prime_upload_id", primeUpload.ID), zap.String("key", primeUpload.Upload.StorageKey))
+			u.logger.Info("created a prime upload with id and key (existing TX)", zap.Any("new_prime_upload_id", primeUpload.ID), zap.String("key", primeUpload.Upload.StorageKey))
 		}
 
 		return primeUpload, verrs, uploadError
@@ -101,7 +101,7 @@ func (u *PrimeUploader) CreatePrimeUploadForDocument(posID *uuid.UUID, contracto
 			var err error
 			PrimeUpload, verrs, err = u.createAndStore(documentID, userID, file, allowedTypes)
 			if err != nil {
-				u.logger.Error("error creating new user upload", zap.Error(err))
+				u.logger.Error("error creating new prime upload", zap.Error(err))
 				return nil, verrs,fmt.Errorf("error creating upload %w", err)
 			}
 			return PrimeUpload, &validate.Errors{}, nil
@@ -112,11 +112,11 @@ func (u *PrimeUploader) CreatePrimeUploadForDocument(posID *uuid.UUID, contracto
 		transactionError := errors.New("Rollback The transaction")
 		primeUpload, verrs, uploadError = u.createAndStore(posID, contractorID, file, allowedTypes)
 		if verrs.HasAny() || uploadError != nil {
-			u.logger.Error("error creating new user upload", zap.Error(uploadError))
+			u.logger.Error("error creating new prime upload", zap.Error(uploadError))
 			return transactionError
 		}
 
-		u.logger.Info("created a user upload with id and key ", zap.Any("new_prime_upload_id", primeUpload.ID), zap.String("key", primeUpload.Upload.StorageKey))
+		u.logger.Info("created a prime upload with id and key ", zap.Any("new_prime_upload_id", primeUpload.ID), zap.String("key", primeUpload.Upload.StorageKey))
 		return nil
 	})
 	if txError != nil {
@@ -143,15 +143,13 @@ func (u *PrimeUploader) DeletePrimeUpload(primeUpload *models.PrimeUpload) error
 		}
 		return models.DeletePrimeUpload(u.db, primeUpload)
 
-	} else {
-		return u.db.Transaction(func(db *pop.Connection) error {
-			if err := u.uploader.deleteUpload(primeUpload.Upload); err != nil {
-				return err
-			}
-			return models.DeletePrimeUpload(db, primeUpload)
-		})
 	}
-	return nil
+	return u.db.Transaction(func(db *pop.Connection) error {
+		if err := u.uploader.deleteUpload(primeUpload.Upload); err != nil {
+			return err
+		}
+		return models.DeletePrimeUpload(db, primeUpload)
+	})
 }
 
 // PresignedURL returns a URL that can be used to access an PrimeUpload's file.
@@ -168,12 +166,12 @@ func (u *PrimeUploader) PresignedURL(primeUpload *models.PrimeUpload) (string, e
 	return url, nil
 }
 
-// FileSystem
+// FileSystem return Uploader file system
 func (u *PrimeUploader) FileSystem() *afero.Afero {
 	return u.uploader.Storer.FileSystem()
 }
 
-// Uploader
+// Uploader return Uploader
 func (u *PrimeUploader) Uploader() *Uploader {
 	return u.uploader
 }

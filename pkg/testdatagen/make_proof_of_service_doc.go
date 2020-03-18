@@ -22,7 +22,7 @@ func MakeProofOfServiceDoc(db *pop.Connection, assertions Assertions) models.Pro
 	}
 
 	posDoc := models.ProofOfServiceDoc{
-		PaymentRequest: pr,
+		PaymentRequest:   pr,
 		PaymentRequestID: prID,
 	}
 
@@ -38,4 +38,3 @@ func MakeProofOfServiceDoc(db *pop.Connection, assertions Assertions) models.Pro
 func MakeDefaultProofOfServiceDocument(db *pop.Connection) models.ProofOfServiceDoc {
 	return MakeProofOfServiceDoc(db, Assertions{})
 }
-

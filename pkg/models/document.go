@@ -47,22 +47,21 @@ func FetchDocument(ctx context.Context, db *pop.Connection, session *auth.Sessio
 	}
 
 	/*
-	err := query.Eager("ID",
-		"ServiceMemberID",
-	    "ServiceMember",
-		"UserUploads.Upload",
-		"DeletedAt").
-		LeftJoin("user_uploads as uu", "documents.id = uu.document_id").
-		LeftJoin("uploads as u", "uu.upload_id = u.id").
-		Find(&document, id)
+		err := query.Eager("ID",
+			"ServiceMemberID",
+		    "ServiceMember",
+			"UserUploads.Upload",
+			"DeletedAt").
+			LeftJoin("user_uploads as uu", "documents.id = uu.document_id").
+			LeftJoin("uploads as u", "uu.upload_id = u.id").
+			Find(&document, id)
 
-	 */
+	*/
 
 	err := query.Eager("UserUploads.Upload").
 		LeftJoin("user_uploads as uu", "documents.id = uu.document_id").
 		LeftJoin("uploads as u", "uu.upload_id = u.id").
 		Find(&document, id)
-
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

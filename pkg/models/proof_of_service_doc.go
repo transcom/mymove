@@ -17,9 +17,8 @@ type ProofOfServiceDoc struct {
 	UpdatedAt        time.Time `db:"updated_at"`
 
 	//Associations
-	PaymentRequest    PaymentRequest `belongs_to:"payment_request"`
-	PrimeUploads      PrimeUploads   `has_many:"prime_uploads" order_by:"created_at asc"`
-
+	PaymentRequest PaymentRequest `belongs_to:"payment_request"`
+	PrimeUploads   PrimeUploads   `has_many:"prime_uploads" order_by:"created_at asc"`
 }
 
 // ProofOfServiceDocs is not required by pop and may be deleted

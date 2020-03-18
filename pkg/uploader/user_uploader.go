@@ -10,19 +10,19 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
-	"go.uber.org/zap"
 )
 
 // UserUploader encapsulates a few common processes: creating Uploads for a Document,
 // generating pre-signed URLs for file access, and deleting Uploads.
 type UserUploader struct {
-	db               *pop.Connection
-	logger           Logger
-	uploader		 *Uploader
+	db       *pop.Connection
+	logger   Logger
+	uploader *Uploader
 }
-
 
 // NewUserUploader creates and returns a new uploader
 func NewUserUploader(db *pop.Connection, logger Logger, storer storage.FileStorer, fileSizeLimit ByteSize) (*UserUploader, error) {
@@ -31,19 +31,19 @@ func NewUserUploader(db *pop.Connection, logger Logger, storer storage.FileStore
 		return nil, fmt.Errorf("could not create uploader.UserUploader for UserUpload: %w", err)
 	}
 	return &UserUploader{
-		db:               db,
-		logger:           logger,
+		db:       db,
+		logger:   logger,
 		uploader: uploader,
 	}, nil
 }
 
-// PrepareFileForUpload
-func (u *UserUploader) PrepareFileForUpload (file io.ReadCloser, filename string) (afero.File, error) {
+// PrepareFileForUpload called Uploader.PrepareFileForUpload
+func (u *UserUploader) PrepareFileForUpload(file io.ReadCloser, filename string) (afero.File, error) {
 	// Read the incoming data into a temporary afero.File for consumption
 	return u.uploader.PrepareFileForUpload(file, filename)
 }
 
-func (u *UserUploader) createAndStore (documentID *uuid.UUID, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
+func (u *UserUploader) createAndStore(documentID *uuid.UUID, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
 	// If storage key is not set assign a default
 	if u.GetUploadStorageKey() == "" {
 		u.uploader.DefaultStorageKey = path.Join("user", userID.String())
@@ -58,11 +58,11 @@ func (u *UserUploader) createAndStore (documentID *uuid.UUID, userID uuid.UUID, 
 	id := uuid.Must(uuid.NewV4())
 
 	newUploadForUser := &models.UserUpload{
-		ID:          id,
-		DocumentID:  documentID,
-		UploaderID:  userID,
-		UploadID:    &newUpload.ID,
-		Upload: 	 newUpload,
+		ID:         id,
+		DocumentID: documentID,
+		UploaderID: userID,
+		UploadID:   &newUpload.ID,
+		Upload:     newUpload,
 	}
 
 	verrs, err = u.db.ValidateAndCreate(newUploadForUser)
@@ -98,13 +98,13 @@ func (u *UserUploader) CreateUserUploadForDocument(documentID *uuid.UUID, userID
 
 		return userUpload, verrs, uploadError
 		/*
-		var err error
-		userUpload, verrs, err = u.createAndStore(documentID, userID, file, allowedTypes)
-		if err != nil {
-			u.logger.Error("error creating new user upload", zap.Error(err))
-			return nil, verrs,fmt.Errorf("error creating upload %w", err)
-		}
-		return userUpload, &validate.Errors{}, nil
+			var err error
+			userUpload, verrs, err = u.createAndStore(documentID, userID, file, allowedTypes)
+			if err != nil {
+				u.logger.Error("error creating new user upload", zap.Error(err))
+				return nil, verrs,fmt.Errorf("error creating upload %w", err)
+			}
+			return userUpload, &validate.Errors{}, nil
 		*/
 	}
 
@@ -143,15 +143,13 @@ func (u *UserUploader) DeleteUserUpload(userUpload *models.UserUpload) error {
 		}
 		return models.DeleteUserUpload(u.db, userUpload)
 
-	} else {
-		return u.db.Transaction(func(db *pop.Connection) error {
-			if err := u.uploader.deleteUpload(userUpload.Upload); err != nil {
-				return err
-			}
-			return models.DeleteUserUpload(db, userUpload)
-		})
 	}
-	return nil
+	return u.db.Transaction(func(db *pop.Connection) error {
+		if err := u.uploader.deleteUpload(userUpload.Upload); err != nil {
+			return err
+		}
+		return models.DeleteUserUpload(db, userUpload)
+	})
 }
 
 // PresignedURL returns a URL that can be used to access an UserUpload's file.
@@ -168,12 +166,12 @@ func (u *UserUploader) PresignedURL(userUpload *models.UserUpload) (string, erro
 	return url, nil
 }
 
-// FileSystem
+// FileSystem return file system from Uploader file storer
 func (u *UserUploader) FileSystem() *afero.Afero {
 	return u.uploader.Storer.FileSystem()
 }
 
-// Uploader
+// Uploader return the Uploader for UserUploader
 func (u *UserUploader) Uploader() *Uploader {
 	return u.uploader
 }

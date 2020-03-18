@@ -18,6 +18,7 @@ func (suite *ModelSuite) Test_UploadCreate() {
 		Bytes:       1048576,
 		ContentType: "application/pdf",
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+		UploadType:  models.UploadTypeUSER,
 	}
 
 	verrs, err := suite.DB().ValidateAndSave(&upload)
@@ -41,6 +42,7 @@ func (suite *ModelSuite) Test_UploadCreateWithID() {
 		Bytes:       1048576,
 		ContentType: "application/pdf",
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+		UploadType:  models.UploadTypeUSER,
 	}
 
 	verrs, err := suite.DB().ValidateAndSave(&upload)
@@ -66,6 +68,7 @@ func (suite *ModelSuite) Test_UploadValidations() {
 		"bytes":        {"Bytes can not be blank."},
 		"filename":     {"Filename can not be blank."},
 		"content_type": {"ContentType can not be blank."},
+		"upload_type":  {"UploadType is not in the list [USER, PRIME]."},
 	}
 
 	suite.verifyValidationErrors(upload, expErrors)
@@ -87,6 +90,7 @@ func (suite *ModelSuite) TestFetchUpload() {
 		Bytes:       1048576,
 		ContentType: "application/pdf",
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+		UploadType:  models.UploadTypeUSER,
 	}
 
 	verrs, err := suite.DB().ValidateAndSave(&upload)
@@ -98,10 +102,10 @@ func (suite *ModelSuite) TestFetchUpload() {
 	}
 
 	uploadUser := models.UserUpload{
-		DocumentID:  &document.ID,
-		UploaderID:  document.ServiceMember.UserID,
-		Upload:      &upload,
-		UploadID:    &upload.ID,
+		DocumentID: &document.ID,
+		UploaderID: document.ServiceMember.UserID,
+		Upload:     &upload,
+		UploadID:   &upload.ID,
 	}
 
 	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
@@ -114,12 +118,12 @@ func (suite *ModelSuite) TestFetchUpload() {
 
 	// TODO removed FetchUpload, not sure if we want or need it
 	upUser, _ := models.FetchUserUpload(ctx, suite.DB(), &session, uploadUser.ID)
-	suite.Equal(upUser.UploadID, upload.ID)
+	suite.Equal(*upUser.UploadID, upload.ID)
 	suite.Equal(upUser.Upload.ID, upload.ID)
 	suite.Equal(upUser.ID, uploadUser.ID)
 
 	upUser, _ = models.FetchUserUploadFromUploadID(ctx, suite.DB(), &session, upload.ID)
-	suite.Equal(upUser.UploadID, upload.ID)
+	suite.Equal(*upUser.UploadID, upload.ID)
 	suite.Equal(upUser.Upload.ID, upload.ID)
 	suite.Equal(upUser.ID, uploadUser.ID)
 
@@ -143,6 +147,7 @@ func (suite *ModelSuite) TestFetchDeletedUpload() {
 		Bytes:       1048576,
 		ContentType: "application/pdf",
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+		UploadType:  models.UploadTypeUSER,
 	}
 
 	verrs, err := suite.DB().ValidateAndSave(&upload)

@@ -34,6 +34,16 @@ func (h *CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlew
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	// TODO https://dp3.atlassian.net/browse/MB-1969
 	var contractorID uuid.UUID // TODO not populated. Do not know how get from MTO to Contractor ID
+	contractor, err := models.FetchGHCPrimeTestContractor(h.DB())
+	if err != nil {
+		logger.Error("error getting TEST GHC Prime Contractor", zap.Error(err))
+	}
+	if contractor != nil {
+		contractorID = contractor.ID
+	} else {
+		logger.Error("error with TEST GHC Prime Contractor value is nil")
+	}
+
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID)
 	if err != nil {
 		logger.Error("error creating uuid from string", zap.Error(err))

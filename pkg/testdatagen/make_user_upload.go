@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/gobuffalo/validate"
+
 	"github.com/transcom/mymove/pkg/uploader"
 
 	"github.com/gobuffalo/pop"
@@ -45,11 +46,11 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 		upload := MakeUpload(db, assertions)
 
 		userUpload = &models.UserUpload{
-			DocumentID:  &document.ID,
-			Document:    document,
-			UploaderID:  uploaderID,
-			Upload:      &upload,
-			UploadID:    &upload.ID,
+			DocumentID: &document.ID,
+			Document:   document,
+			UploaderID: uploaderID,
+			Upload:     &upload,
+			UploadID:   &upload.ID,
 		}
 
 		mergeModels(userUpload, assertions.UserUpload)
@@ -64,4 +65,3 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 func MakeDefaultUserUpload(db *pop.Connection) models.UserUpload {
 	return MakeUserUpload(db, Assertions{})
 }
-

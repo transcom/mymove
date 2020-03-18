@@ -1,18 +1,17 @@
-
-package  testdatagen
+package testdatagen
 
 import (
-"fmt"
-"log"
+	"fmt"
+	"log"
 
-"github.com/gobuffalo/validate"
-"github.com/transcom/mymove/pkg/uploader"
+	"github.com/gobuffalo/validate"
 
-"github.com/gobuffalo/pop"
+	"github.com/transcom/mymove/pkg/uploader"
 
-"github.com/transcom/mymove/pkg/models"
+	"github.com/gobuffalo/pop"
+
+	"github.com/transcom/mymove/pkg/models"
 )
-
 
 // MakePrimeUpload creates a single PrimeUpload.
 func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUpload {
@@ -55,11 +54,11 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 		upload := MakeUpload(db, assertions)
 
 		primeUpload = &models.PrimeUpload{
-			ProofOfServiceDocID:  &posDoc.ID,
-			ProofOfServiceDoc:    posDoc,
-			ContractorID:  contractor.ID,
-			Upload:      &upload,
-			UploadID:    &upload.ID,
+			ProofOfServiceDocID: &posDoc.ID,
+			ProofOfServiceDoc:   posDoc,
+			ContractorID:        contractor.ID,
+			Upload:              &upload,
+			UploadID:            &upload.ID,
 		}
 
 		mergeModels(primeUpload, assertions.PrimeUpload)
@@ -74,5 +73,3 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 func MakeDefaultPrimeUpload(db *pop.Connection) models.PrimeUpload {
 	return MakePrimeUpload(db, Assertions{})
 }
-
-

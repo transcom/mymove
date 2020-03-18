@@ -16,20 +16,21 @@ import (
 
 // An UserUpload represents an user uploaded file, such as an image or PDF.
 type UserUpload struct {
-	ID          uuid.UUID  `db:"id"`
-	DocumentID  *uuid.UUID `db:"document_id"`
-	Document    Document   `belongs_to:"documents"`
-	UploaderID  uuid.UUID  `db:"uploader_id"`
-	UploadID    *uuid.UUID  `db:"upload_id"`
-	Upload      *Upload     `belongs_to:"uploads"`
-	CreatedAt   time.Time  `db:"created_at"`
-	UpdatedAt   time.Time  `db:"updated_at"`
-	DeletedAt   *time.Time `db:"deleted_at"`
+	ID         uuid.UUID  `db:"id"`
+	DocumentID *uuid.UUID `db:"document_id"`
+	Document   Document   `belongs_to:"documents"`
+	UploaderID uuid.UUID  `db:"uploader_id"`
+	UploadID   *uuid.UUID `db:"upload_id"`
+	Upload     *Upload    `belongs_to:"uploads"`
+	CreatedAt  time.Time  `db:"created_at"`
+	UpdatedAt  time.Time  `db:"updated_at"`
+	DeletedAt  *time.Time `db:"deleted_at"`
 }
 
 // UserUploads is not required by pop and may be deleted
 type UserUploads []UserUpload
 
+// UploadsFromUserUploads returns a slice of Uploads given a slice of UserUploads
 func UploadsFromUserUploads(db *pop.Connection, userUploads UserUploads) (Uploads, error) {
 	var uploads Uploads
 	for _, userUpload := range userUploads {
@@ -54,7 +55,7 @@ func (u *UserUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-// BeforeCreate
+// BeforeCreate ensure an ID is created
 func (u *UserUpload) BeforeCreate(tx *pop.Connection) error {
 	// Populate ID if not exists
 	if u.ID == uuid.Nil {
@@ -67,8 +68,7 @@ func (u *UserUpload) BeforeCreate(tx *pop.Connection) error {
 func FetchUserUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (UserUpload, error) {
 	var userUpload UserUpload
 	err := db.Q().
-		Join("uploads AS ups", "ups.id = user_uploads.upload_id").
-		Where("ups.deleted_at is null").Eager().Find(&userUpload, id)
+		Where("deleted_at is null").Eager().Find(&userUpload, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return UserUpload{}, errors.Wrap(ErrFetchNotFound, "error fetching user_uploads")
@@ -95,7 +95,7 @@ func FetchUserUploadFromUploadID(ctx context.Context, db *pop.Connection, sessio
 	var userUpload UserUpload
 	err := db.Q().
 		Join("uploads AS ups", "ups.id = user_uploads.upload_id").
-		Where("ups.ID = $1", uploadID).Eager().First(&userUpload)
+		Where("ups.ID = $1 and user_uploads.deleted_at is null", uploadID).Eager().First(&userUpload)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return UserUpload{}, errors.Wrap(ErrFetchNotFound, "error fetching user_uploads")
@@ -135,4 +135,3 @@ func DeleteUserUpload(dbConn *pop.Connection, userUpload *UserUpload) error {
 	}
 	return nil
 }
-

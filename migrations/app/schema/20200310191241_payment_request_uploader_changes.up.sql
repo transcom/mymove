@@ -44,6 +44,23 @@ create index if not exists user_uploads_document_id_idx
 create index user_uploads_deleted_at_idx
     on user_uploads (deleted_at);
 
+create table contractors
+(
+    id uuid not null
+        constraint contractors_pkey
+            primary key,
+    created_at timestamp with time zone default now() not null,
+    updated_at timestamp with time zone default now() not null,
+    name varchar(80) not null,
+    contract_number varchar(80) not null
+        constraint contractors_contract_number_key
+            unique,
+    type varchar(80) not null
+);
+
+INSERT INTO contractors (id, created_at, updated_at, name,  contract_number, type)
+SELECT id, created_at, updated_at, name,  contract_number, type FROM contractor;
+
 create table prime_uploads
 (
     id uuid not null
@@ -51,10 +68,8 @@ create table prime_uploads
     proof_of_service_docs_id uuid
         constraint prime_uploads_proof_of_service_docs_id_fkey
             references proof_of_service_docs,
-    contractor_id uuid
-        constraint prime_uploads_contractor_id_fkey
-            references contractor,
-    uploads_id uuid not null constraint prime_uploads_uploads_id_fkey references uploads on delete restrict,
+    contractor_id uuid constraint prime_uploads_contractor_id_fkey references contractors,
+    upload_id uuid not null constraint prime_uploads_uploads_id_fkey references uploads on delete restrict,
     created_at timestamp not null,
     updated_at timestamp not null,
     deleted_at timestamp with time zone
@@ -76,7 +91,7 @@ SELECT uuid_generate_v4(), uploads.document_id, uploads.uploader_id, uploads.id,
 UPDATE uploads
     SET uploader_id = uuid_nil();
 
-INSERT INTO prime_uploads (id, proof_of_service_docs_id, contractor_id, uploads_id, created_at, updated_at)
+INSERT INTO prime_uploads (id, proof_of_service_docs_id, contractor_id, upload_id, created_at, updated_at)
 SELECT uuid_generate_v4(), proof_of_service_docs.id, uuid_nil() ,proof_of_service_docs.upload_id, now(), now() FROM proof_of_service_docs;
 
 alter table invoices
@@ -87,15 +102,15 @@ alter table proof_of_service_docs
     drop constraint proof_of_service_docs_upload_id_fkey;
 
 -- Part 2 of migrations, do not deploy with above
-alter table proof_of_service_docs
-    drop column upload_id;
+-- alter table proof_of_service_docs
+--    drop column upload_id;
+--
+-- alter table uploads
+--    drop column document_id,
+--    drop column uploader_id;
+--
+-- alter table invoices
+--    drop column upload_id;
+--
+-- drop table contractor;
 
-alter table uploads
-    drop column document_id,
-    drop column uploader_id;
-
-alter table invoices
-    drop column upload_id;
-
--- alter table prime_uploads
---    alter column contractor_id set not null;
