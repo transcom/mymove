@@ -172,10 +172,34 @@ storiesOf('Global|Typography', module)
   ));
 
 storiesOf('Components|Containers', module).add('all', () => (
-  <div style={{ padding: '20px' }}>
-    <div className="containter--default"></div>
-    <div className="containter--gray"></div>
-    <div className="containter--popout"></div>
-    <div className="containter--accent"></div>
+  <div id="containers" style={{ padding: '20px' }}>
+    <div className="container">
+      <code>
+        <b>Container Default</b>
+        <br />
+        .container
+      </code>
+    </div>
+    <div className="container container--gray">
+      <code>
+        <b>Container Gray</b>
+        <br />
+        .container <br /> .container--gray
+      </code>
+    </div>
+    <div className="container container--popout">
+      <code>
+        <b>Container Popout</b>
+        <br />
+        .container <br /> .container--gray
+      </code>
+    </div>
+    <div className="container container--accent">
+      <code>
+        <b>Container Accent</b>
+        <br />
+        .container <br /> .container--accent
+      </code>
+    </div>
   </div>
 ));
