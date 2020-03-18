@@ -149,7 +149,7 @@ export function getSelectedWeightInfo(state) {
   if (isNull(weightInfo) || isNull(ppm)) {
     return null;
   }
-  return weightInfo['defaultSize']; // eslint-disable-line security/detect-object-injection
+  return weightInfo.defaultSize; // eslint-disable-line security/detect-object-injection
 }
 
 export function getPPM(state) {
