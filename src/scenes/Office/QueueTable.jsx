@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
+// react-table-6 will be deprecated but there are breaking changes. We will use react-table 7.x+ for all new uses
 import ReactTable from 'react-table-6';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
-import 'react-table-6/react-table.css';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
 import { setUserIsLoggedIn } from 'shared/Data/users';
@@ -12,6 +12,7 @@ import { defaultColumns } from './queueTableColumns';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
+import 'react-table-6/react-table.css';
 
 class QueueTable extends Component {
   constructor() {
