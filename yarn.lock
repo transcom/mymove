@@ -2328,46 +2328,39 @@
     ramda "^0.26.0"
     react-dev-utils "^7.0.0"
 
-"@rescripts/rescript-env@^0.0.11":
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/@rescripts/rescript-env/-/rescript-env-0.0.11.tgz#0ea2c0c416ec52a9c8fc1e50a40982a7a614dd66"
-  integrity sha512-wXAEvoH9CBzG3NM3QpPb8417YVIS7QqKo1mF7F/LGINQURtDRdZiLGIF3bJUjcwvfN/z0xI1E62bISuCO3k03A==
+"@rescripts/rescript-env@^0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@rescripts/rescript-env/-/rescript-env-0.0.12.tgz#dff22550156ab1df1ea3ed11df0d317e80bc690e"
+  integrity sha512-aWzNWcRAvbyQCDNDDJFEyYmLwZJPH4wT40QckSPnD5jkHmDtOYridXb/2sBqdTG240Wm1UvugzVsKxmrsxN58w==
   dependencies:
-    "@rescripts/rescript-use-babel-config" "^0.0.9"
-    "@rescripts/rescript-use-eslint-config" "^0.0.10"
-    "@rescripts/rescript-use-tslint-config" "^0.0.6"
-    "@rescripts/utilities" "^0.0.6"
+    "@rescripts/rescript-use-babel-config" "^0.0.10"
+    "@rescripts/rescript-use-eslint-config" "^0.0.11"
+    "@rescripts/rescript-use-tslint-config" "^0.0.7"
+    "@rescripts/utilities" "^0.0.7"
     ramda "^0.26.1"
 
-"@rescripts/rescript-use-babel-config@^0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-babel-config/-/rescript-use-babel-config-0.0.9.tgz#18d30e85b205fd8065354f1be263bf0603d2ccfa"
-  integrity sha512-jJjqUFJRqTjFgntM3TAuPPKtxpf0rltV7hFtTTxrO2i+DqUerj0SEWZMeVWJv/t4QkBtNQBKlDD7MF3TGHflpw==
-  dependencies:
-    "@rescripts/utilities" "^0.0.6"
-
-"@rescripts/rescript-use-eslint-config@^0.0.10":
+"@rescripts/rescript-use-babel-config@^0.0.10":
   version "0.0.10"
-  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-eslint-config/-/rescript-use-eslint-config-0.0.10.tgz#09f20509b679d50c787fee22b279e8c1310ecec0"
-  integrity sha512-guZHYGs/w50REfJYFhX03KkaFxKqj18XIknKta9/QtG9rXaYc6hR/+7nqUVwsZIvtWDT/zxXcxcSju1w3ZtUcg==
+  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-babel-config/-/rescript-use-babel-config-0.0.10.tgz#a291a0c0f28c6ef68a69704a08f6e0017531ba34"
+  integrity sha512-S+b7X54Q1/CmMjxe0p2d7UHISDy+DnLlGDFyGulJJBY8PuOsHt1BqSzKqJAOt5S1LpcZ756YW3umK0clp5u+eQ==
   dependencies:
-    "@rescripts/utilities" "^0.0.6"
+    "@rescripts/utilities" "^0.0.7"
 
-"@rescripts/rescript-use-tslint-config@^0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-tslint-config/-/rescript-use-tslint-config-0.0.6.tgz#a9b66b21164907a544df2a0c527263d1189cf1e5"
-  integrity sha512-9Jjl//tDhR/tYs2ns1Ld8njjxnykfavOk6XIudiOHYY+xKzY2TykgniO4S5cFYWEm992FOLWABNrrInSAEOofA==
+"@rescripts/rescript-use-eslint-config@^0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-eslint-config/-/rescript-use-eslint-config-0.0.11.tgz#42c76779976f659297c5b3b381f74a2c42a28d78"
+  integrity sha512-rMdRunSosbLM2aGLJpjEnmkfQYm71NmObt6QR4h3e98+vk4in3xelk24vJYcMoCD3Gy/W3sL7IL58I4HGavHhA==
   dependencies:
-    "@rescripts/utilities" "^0.0.6"
+    "@rescripts/utilities" "^0.0.7"
+
+"@rescripts/rescript-use-tslint-config@^0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-tslint-config/-/rescript-use-tslint-config-0.0.7.tgz#20772130e9c194b7ceb030626012cae87dedb09b"
+  integrity sha512-2Pt8bKB2ROoU/YQnazLxEiM/dE8ld7xxVuCYp+hs9J2UdncQuQokeMmujBZ9xkDpFsjo7Am3l9ccWHE2lQl91w==
+  dependencies:
+    "@rescripts/utilities" "^0.0.7"
     ramda "^0.26.0"
     tslint-loader "^3.5.4"
-
-"@rescripts/utilities@^0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@rescripts/utilities/-/utilities-0.0.6.tgz#23202bed3c7015cb24b7fba7f3fb0660d1713d65"
-  integrity sha512-Lmy6+b3HZ7gbN+kKaP6B752/KW1EbLlsAjxCB/9ztzzv3BKnIvJm1R5rMGg4ycNMSlrOOpCFVpuKry5EHqaNmw==
-  dependencies:
-    ramda "^0.26.0"
 
 "@rescripts/utilities@^0.0.7":
   version "0.0.7"
