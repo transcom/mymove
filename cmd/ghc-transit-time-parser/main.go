@@ -39,7 +39,7 @@ func main() {
 	flag.BoolVar(&params.ProcessAll, "all", true, "Parse entire Transit Times GHC XLSX")
 	flag.StringSliceVar(&params.XlsxSheets, "xlsxSheets", []string{}, xlsxSheetsUsage(xlsxDataSheets))
 	flag.BoolVar(&params.ShowOutput, "display", false, "Display output of parsed info")
-	flag.BoolVar(&params.SaveToFile, "save-csv", false, "Save output to CSV file")
+	flag.BoolVar(&params.SaveToFile, "save-csv", true, "Save output to CSV file")
 	flag.BoolVar(&params.RunVerify, "verify", true, "Default is true, if false skip sheet format verification")
 	flag.BoolVar(&params.RunImport, "re-import", true, "Run GHC Transit Times Import")
 

@@ -134,43 +134,43 @@ type TestStruct4 struct{ Field1 string }
 type TestStruct5 struct{ Field1 string }
 type TestStruct6 struct{ Field1 string }
 
-var testVerifyFunc1 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
+var testVerifyFunc1 verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) error {
 	return nil
 }
 
-var testVerifyFunc2 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
+var testVerifyFunc2 verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) error {
 	return nil
 }
 
-var testVerifyFunc3 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
+var testVerifyFunc3 verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) error {
 	return fmt.Errorf("forced test error from function testVerifyFunc3 with index %d", sheetIndex)
 }
 
-var testVerifyFunc4 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
+var testVerifyFunc4 verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) error {
 	return nil
 }
 
-var testProcessFunc1 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc1 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	return []TestStruct1{}, nil
 }
 
-var testProcessFunc2 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc2 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	return []TestStruct2{}, nil
 }
 
-var testProcessFunc3 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc3 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	return nil, fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
 }
 
-var testProcessFunc4 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc4 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	return []TestStruct4{}, nil
 }
 
-var testProcessFunc5 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc5 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	return []TestStruct5{}, nil
 }
 
-var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	return []TestStruct6{}, nil
 }
 
@@ -290,7 +290,7 @@ func (suite *TransitTimeParserSuite) Test_process() {
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			if err := process(xlsxDataSheets, tt.args.params, tt.args.sheetIndex, suite.tableFromSliceCreator); (err != nil) != tt.wantErr {
+			if err := process(xlsxDataSheets, tt.args.params, tt.args.sheetIndex, suite.tableFromSliceCreator, suite.logger); (err != nil) != tt.wantErr {
 				t.Errorf("process() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

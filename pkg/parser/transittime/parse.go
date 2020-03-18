@@ -58,8 +58,8 @@ intentionally are modifying the pattern of how the processing functions are call
 
 const xlsxSheetsCountMax int = 35
 
-type processXlsxSheet func(ParamConfig, int) (interface{}, error)
-type verifyXlsxSheet func(ParamConfig, int) error
+type processXlsxSheet func(ParamConfig, int, Logger) (interface{}, error)
+type verifyXlsxSheet func(ParamConfig, int, Logger) error
 
 // XlsxDataSheetInfo describes the excel sheet info
 type XlsxDataSheetInfo struct {
@@ -125,7 +125,7 @@ func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Conne
 		if params.ProcessAll == true {
 			for i, x := range xlsxDataSheets {
 				if len(x.ProcessMethods) >= 1 {
-					dbErr := process(xlsxDataSheets, params, i, tableFromSliceCreator)
+					dbErr := process(xlsxDataSheets, params, i, tableFromSliceCreator, logger)
 					if dbErr != nil {
 						log.Printf("Error processing xlsxDataSheets %v\n", dbErr.Error())
 						return dbErr
@@ -140,7 +140,7 @@ func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Conne
 					return dbErr
 				}
 				if index < len(xlsxDataSheets) {
-					dbErr = process(xlsxDataSheets, params, index, tableFromSliceCreator)
+					dbErr = process(xlsxDataSheets, params, index, tableFromSliceCreator, logger)
 					if dbErr != nil {
 						log.Printf("Error processing %v\n", dbErr)
 						return dbErr
@@ -169,7 +169,7 @@ func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Conne
 //         a.) add new verify function for your processing
 //         b.) add new process function for your processing
 //         c.) update InitDataSheetInfo() with a.) and b.)
-func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
+func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, logger Logger) error {
 	xlsxInfo := xlsxDataSheets[sheetIndex]
 	var description string
 	if xlsxInfo.Description != nil {
@@ -183,7 +183,7 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 	if params.RunVerify == true {
 		if xlsxInfo.verify != nil {
 			callFunc := *xlsxInfo.verify
-			err := callFunc(params, sheetIndex)
+			err := callFunc(params, sheetIndex, logger)
 			if err != nil {
 				log.Printf("%s Verify error: %v\n", description, err)
 				return errors.Wrapf(err, " Verify error for sheet index: %d with Description: %s", sheetIndex, description)
@@ -200,7 +200,7 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 		for methodIndex, p := range xlsxInfo.ProcessMethods {
 			if p.process != nil {
 				callFunc := *p.process
-				slice, err := callFunc(params, sheetIndex)
+				slice, err := callFunc(params, sheetIndex, logger)
 				if err != nil {
 					log.Printf("%s process error: %v\n", description, err)
 					return errors.Wrapf(err, " process error for sheet index: %d with Description: %s", sheetIndex, description)
@@ -211,10 +211,13 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 					if err := createCSV(filename, slice); err != nil {
 						return errors.Wrapf(err, "Could not create CSV for sheet index: %d with Description: %s", sheetIndex, description)
 					}
+					log.Println("File created:")
+					log.Println(filename)
 				}
-				if err := tableFromSliceCreator.CreateTableFromSlice(slice); err != nil {
-					return errors.Wrapf(err, "Could not create table for sheet index: %d with Description: %s", sheetIndex, description)
-				}
+				// ToDo: needs extra work
+				//if err := tableFromSliceCreator.CreateTableFromSlice(slice); err != nil {
+				//	return errors.Wrapf(err, "Could not create table for sheet index: %d with Description: %s", sheetIndex, description)
+				//}
 			} else {
 				log.Printf("No process function for sheet index %d with Description %s method index: %d\n", sheetIndex, description, methodIndex)
 			}

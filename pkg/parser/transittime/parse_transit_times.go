@@ -2,8 +2,9 @@ package transittime
 
 import (
 	"fmt"
-	"log"
 	"strings"
+
+	"go.uber.org/zap"
 
 	"github.com/gofrs/uuid"
 
@@ -11,7 +12,7 @@ import (
 )
 
 // parseDomesticTransitTime: parser for: Domestic Transit Times
-var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 1 // Domestic Transit Times
 	// horizontal, increment by column
@@ -23,7 +24,7 @@ var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIn
 		return nil, fmt.Errorf("parseDomesticTransitTime expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	log.Println("Parsing Domestic Transit Times")
+	logger.Info("Parsing Domestic Transit Times")
 	var domTransitTimes []models.GHCDomesticTransitTime
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 
@@ -66,7 +67,7 @@ var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIn
 			}
 
 			if params.ShowOutput == true {
-				log.Printf("%#v\n", domTransitTime)
+				logger.Info("", zap.Any("DomesticTransitTime", domTransitTime))
 			}
 			domTransitTimes = append(domTransitTimes, domTransitTime)
 		}
@@ -77,6 +78,6 @@ var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIn
 
 // ToDo: Need to figure out what to verify on the sheet
 // verifyTransitTimes: verification for: Domestic Transit Times
-var verifyTransitTime verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
+var verifyTransitTime verifyXlsxSheet = func(params ParamConfig, sheetIndex int, logger Logger) error {
 	return nil
 }
