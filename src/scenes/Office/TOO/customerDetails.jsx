@@ -267,10 +267,7 @@ class CustomerDetails extends Component {
             </table>
 
             <div>
-              <button
-                data-hi={moveTaskOrder.eTag}
-                onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id, moveTaskOrder.eTag)}
-              >
+              <button onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id, moveTaskOrder.eTag)}>
                 Send to Prime
               </button>
             </div>
