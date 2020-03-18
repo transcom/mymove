@@ -92,6 +92,7 @@ type Moves []Move
 // This method is not required and may be deleted.
 func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
+		&validators.StringIsPresent{Field: m.Locator, Name: "Locator"},
 		&validators.UUIDIsPresent{Field: m.OrdersID, Name: "OrdersID"},
 		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
 	), nil
