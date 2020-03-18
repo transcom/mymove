@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
-// react-table-6 will be deprecated but there are breaking changes. We will use react-table 7.x+ for all new uses
 import ReactTable from 'react-table-6';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
