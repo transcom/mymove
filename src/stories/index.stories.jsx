@@ -2,9 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
-import { linkTo } from '@storybook/addon-links';
-import { Button, Welcome } from '@storybook/react/demo';
 import colors from '../shared/styles/colors.scss';
 
 const filterGroup = filter => Object.keys(colors).filter(color => color.indexOf(filter) === 0);
@@ -184,21 +181,27 @@ storiesOf('Components|Containers', module).add('all', () => (
       <code>
         <b>Container Gray</b>
         <br />
-        .container <br /> .container--gray
+        .container
+        <br />
+        .container--gray
       </code>
     </div>
     <div className="container container--popout">
       <code>
         <b>Container Popout</b>
         <br />
-        .container <br /> .container--popout
+        .container
+        <br />
+        .container--popout
       </code>
     </div>
     <div className="container container--accent">
       <code>
         <b>Container Accent</b>
         <br />
-        .container <br /> .container--accent
+        .container
+        <br />
+        .container--accent
       </code>
     </div>
   </div>
