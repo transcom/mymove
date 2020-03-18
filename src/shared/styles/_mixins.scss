@@ -1,7 +1,4 @@
 //Mixins
-@import 'uswds';
-
-// px to rem conversion
 
 // Function for converting a px based font-size to rem.
 @function calculateRem($size) {
