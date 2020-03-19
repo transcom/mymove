@@ -27,6 +27,9 @@ type MoveTaskOrder struct {
 	// Format: date
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -84,6 +87,8 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
+		ETag string `json:"eTag,omitempty"`
+
 		ID strfmt.UUID `json:"id,omitempty"`
 
 		IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
@@ -125,6 +130,9 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 	// createdAt
 	result.CreatedAt = data.CreatedAt
+
+	// eTag
+	result.ETag = data.ETag
 
 	// id
 	result.ID = data.ID
@@ -174,6 +182,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 		CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
+		ETag string `json:"eTag,omitempty"`
+
 		ID strfmt.UUID `json:"id,omitempty"`
 
 		IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
@@ -198,6 +208,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	}{
 
 		CreatedAt: m.CreatedAt,
+
+		ETag: m.ETag,
 
 		ID: m.ID,
 

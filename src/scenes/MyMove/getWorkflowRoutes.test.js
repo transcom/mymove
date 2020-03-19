@@ -409,7 +409,6 @@ describe('when getting the next incomplete page', () => {
             original_move_date: '2018-10-10',
             pickup_postal_code: '22222',
             destination_postal_code: '22222',
-            size: 'L',
             weight_estimate: 555,
           },
         });

@@ -225,6 +225,48 @@ func (o *UpdatePaymentRequestNotFound) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
+// UpdatePaymentRequestPreconditionFailedCode is the HTTP code returned for type UpdatePaymentRequestPreconditionFailed
+const UpdatePaymentRequestPreconditionFailedCode int = 412
+
+/*UpdatePaymentRequestPreconditionFailed Precondition failed
+
+swagger:response updatePaymentRequestPreconditionFailed
+*/
+type UpdatePaymentRequestPreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewUpdatePaymentRequestPreconditionFailed creates UpdatePaymentRequestPreconditionFailed with default headers values
+func NewUpdatePaymentRequestPreconditionFailed() *UpdatePaymentRequestPreconditionFailed {
+
+	return &UpdatePaymentRequestPreconditionFailed{}
+}
+
+// WithPayload adds the payload to the update payment request precondition failed response
+func (o *UpdatePaymentRequestPreconditionFailed) WithPayload(payload interface{}) *UpdatePaymentRequestPreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update payment request precondition failed response
+func (o *UpdatePaymentRequestPreconditionFailed) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdatePaymentRequestPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(412)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // UpdatePaymentRequestInternalServerErrorCode is the HTTP code returned for type UpdatePaymentRequestInternalServerError
 const UpdatePaymentRequestInternalServerErrorCode int = 500
 

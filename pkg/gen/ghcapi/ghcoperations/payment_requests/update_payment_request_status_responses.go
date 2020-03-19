@@ -225,6 +225,92 @@ func (o *UpdatePaymentRequestStatusNotFound) WriteResponse(rw http.ResponseWrite
 	}
 }
 
+// UpdatePaymentRequestStatusPreconditionFailedCode is the HTTP code returned for type UpdatePaymentRequestStatusPreconditionFailed
+const UpdatePaymentRequestStatusPreconditionFailedCode int = 412
+
+/*UpdatePaymentRequestStatusPreconditionFailed Precondition Failed
+
+swagger:response updatePaymentRequestStatusPreconditionFailed
+*/
+type UpdatePaymentRequestStatusPreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewUpdatePaymentRequestStatusPreconditionFailed creates UpdatePaymentRequestStatusPreconditionFailed with default headers values
+func NewUpdatePaymentRequestStatusPreconditionFailed() *UpdatePaymentRequestStatusPreconditionFailed {
+
+	return &UpdatePaymentRequestStatusPreconditionFailed{}
+}
+
+// WithPayload adds the payload to the update payment request status precondition failed response
+func (o *UpdatePaymentRequestStatusPreconditionFailed) WithPayload(payload interface{}) *UpdatePaymentRequestStatusPreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update payment request status precondition failed response
+func (o *UpdatePaymentRequestStatusPreconditionFailed) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdatePaymentRequestStatusPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(412)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
+// UpdatePaymentRequestStatusUnprocessableEntityCode is the HTTP code returned for type UpdatePaymentRequestStatusUnprocessableEntity
+const UpdatePaymentRequestStatusUnprocessableEntityCode int = 422
+
+/*UpdatePaymentRequestStatusUnprocessableEntity Validation error
+
+swagger:response updatePaymentRequestStatusUnprocessableEntity
+*/
+type UpdatePaymentRequestStatusUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewUpdatePaymentRequestStatusUnprocessableEntity creates UpdatePaymentRequestStatusUnprocessableEntity with default headers values
+func NewUpdatePaymentRequestStatusUnprocessableEntity() *UpdatePaymentRequestStatusUnprocessableEntity {
+
+	return &UpdatePaymentRequestStatusUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the update payment request status unprocessable entity response
+func (o *UpdatePaymentRequestStatusUnprocessableEntity) WithPayload(payload *ghcmessages.ValidationError) *UpdatePaymentRequestStatusUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update payment request status unprocessable entity response
+func (o *UpdatePaymentRequestStatusUnprocessableEntity) SetPayload(payload *ghcmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdatePaymentRequestStatusUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdatePaymentRequestStatusInternalServerErrorCode is the HTTP code returned for type UpdatePaymentRequestStatusInternalServerError
 const UpdatePaymentRequestStatusInternalServerErrorCode int = 500
 
