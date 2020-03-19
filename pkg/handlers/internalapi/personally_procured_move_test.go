@@ -303,8 +303,6 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 
 func (suite *HandlerSuite) TestPatchPPMHandler() {
 	suite.setupPersonallyProcuredMoveTest()
-	initialSize := internalmessages.TShirtSize("S")
-	newSize := internalmessages.TShirtSize("L")
 
 	initialWeight := unit.Pound(4100)
 	newWeight := swag.Int64(4105)
@@ -334,7 +332,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:                     move.ID,
 		Move:                       move,
-		Size:                       &initialSize,
 		WeightEstimate:             &initialWeight,
 		OriginalMoveDate:           &initialMoveDate,
 		HasAdditionalPostalCode:    hasAdditionalPostalCode,
@@ -351,7 +348,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
-		Size:                    &newSize,
 		WeightEstimate:          newWeight,
 		OriginalMoveDate:        handlers.FmtDatePtr(&newMoveDate),
 		HasAdditionalPostalCode: newHasAdditionalPostalCode,
@@ -375,7 +371,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	patchPPMPayload := okResponse.Payload
 
-	suite.Equal(*patchPPMPayload.Size, newSize, "Size should have been updated.")
 	suite.Equal(patchPPMPayload.WeightEstimate, newWeight, "Weight should have been updated.")
 	suite.Equal(patchPPMPayload.TotalSitCost, newSitCost, "Total sit cost should have been updated.")
 	suite.Equal(patchPPMPayload.PickupPostalCode, newPickupPostalCode, "PickupPostalCode should have been updated.")
@@ -386,8 +381,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	scenario.RunRateEngineScenario1(suite.DB())
 	suite.setupPersonallyProcuredMoveTest()
-	initialSize := internalmessages.TShirtSize("S")
-	newSize := internalmessages.TShirtSize("L")
 
 	initialWeight := unit.Pound(4100)
 	newWeight := swag.Int64(4105)
@@ -444,7 +437,6 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:                     move.ID,
 		Move:                       move,
-		Size:                       &initialSize,
 		WeightEstimate:             &initialWeight,
 		OriginalMoveDate:           &initialMoveDate,
 		HasAdditionalPostalCode:    hasAdditionalPostalCode,
@@ -462,7 +454,6 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
-		Size:                    &newSize,
 		WeightEstimate:          newWeight,
 		OriginalMoveDate:        handlers.FmtDatePtr(&newMoveDate),
 		HasAdditionalPostalCode: newHasAdditionalPostalCode,
@@ -487,7 +478,6 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	patchPPMPayload := okResponse.Payload
 
-	suite.Equal(*patchPPMPayload.Size, newSize, "Size should have been updated.")
 	suite.Equal(patchPPMPayload.WeightEstimate, newWeight, "Weight should have been updated.")
 	suite.Equal(patchPPMPayload.TotalSitCost, newSitCost, "Total sit cost should have been updated.")
 	suite.Equal(patchPPMPayload.PickupPostalCode, newPickupPostalCode, "PickupPostalCode should have been updated.")
@@ -581,8 +571,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
-	initialSize := internalmessages.TShirtSize("S")
-	newSize := internalmessages.TShirtSize("L")
 	initialWeight := unit.Pound(1)
 	newWeight := swag.Int64(5)
 
@@ -596,7 +584,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:           move.ID,
 		Move:             move,
-		Size:             &initialSize,
 		WeightEstimate:   &initialWeight,
 		OriginalMoveDate: &initialMoveDate,
 		Status:           models.PPMStatusDRAFT,
@@ -607,7 +594,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	req = suite.AuthenticateRequest(req, user2)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
-		Size:             &newSize,
 		WeightEstimate:   newWeight,
 		OriginalMoveDate: handlers.FmtDatePtr(&newMoveDate),
 	}
@@ -627,8 +613,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 
 // TODO: no response is returned when the moveid doesn't match. How did this ever work?
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
-	initialSize := internalmessages.TShirtSize("S")
-	newSize := internalmessages.TShirtSize("L")
 	initialWeight := unit.Pound(1)
 	newWeight := swag.Int64(5)
 
@@ -654,7 +638,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move2.ID,
 		Move:           *move2,
-		Size:           &initialSize,
 		WeightEstimate: &initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
@@ -664,7 +647,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	req = suite.AuthenticateRequest(req, orders.ServiceMember)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
-		Size:           &newSize,
 		WeightEstimate: newWeight,
 	}
 
@@ -683,8 +665,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	t := suite.T()
 
-	initialSize := internalmessages.TShirtSize("S")
-	newSize := internalmessages.TShirtSize("L")
 	initialWeight := unit.Pound(1)
 	newWeight := swag.Int64(5)
 
@@ -695,7 +675,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,
 		Move:           move,
-		Size:           &initialSize,
 		WeightEstimate: &initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
@@ -705,7 +684,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
-		Size:           &newSize,
 		WeightEstimate: newWeight,
 	}
 
@@ -729,7 +707,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 	t := suite.T()
 
-	initialSize := internalmessages.TShirtSize("S")
 	initialWeight := unit.Pound(1)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
@@ -737,7 +714,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,
 		Move:           move,
-		Size:           &initialSize,
 		WeightEstimate: &initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
@@ -800,7 +776,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 	t := suite.T()
 
-	initialSize := internalmessages.TShirtSize("S")
 	initialWeight := unit.Pound(1)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
@@ -808,7 +783,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,
 		Move:           move,
-		Size:           &initialSize,
 		WeightEstimate: &initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
@@ -860,7 +834,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 func (suite *HandlerSuite) TestRequestPPMPayment() {
 	t := suite.T()
 
-	initialSize := internalmessages.TShirtSize("S")
 	initialWeight := unit.Pound(1)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
@@ -879,7 +852,6 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,
 		Move:           move,
-		Size:           &initialSize,
 		WeightEstimate: &initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
