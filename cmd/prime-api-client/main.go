@@ -83,6 +83,16 @@ func main() {
 	initUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
 	root.AddCommand(updateMTOShipmentCommand)
 
+	createMTOServiceItemCommand := &cobra.Command{
+		Use:          "create-mto-service-item",
+		Short:        "Create mto service item",
+		Long:         "Create move task order service item for move task order and/or shipment",
+		RunE:         createMTOServiceItem,
+		SilenceUsage: true,
+	}
+	initCreateMTOServiceItemFlags(createMTOServiceItemCommand.Flags())
+	root.AddCommand(createMTOServiceItemCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
