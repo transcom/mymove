@@ -213,8 +213,10 @@ Understand the [difference between rem and em](https://zellwk.com/blog/rem-vs-em
 
 #### USWDS
 
-* Check the [Truss USWDS React package](https://github.com/trussworks/react-uswds) for a component that matches your needs. Maximize the code view to see what classes to use to replicate the component styles.
-* If there isn't a component there already Check the [Truss USWDS React package](https://standards.usa.gov/components/) for a component that matches your needs. Please add it to the USWDS React code and then import the new version for use in MilMove.
+MilMove uses the United States Web Design Standards (USWDS) project version 2. There have been significant changes to USWDS between version 1.0 and 2.0. If you are familiar with USWDS version 1.0 please review the [USWDS Migration Guide](https://designsystem.digital.gov/documentation/migration/) to learn what's different in 2.0.
+
+* Check the [Truss USWDS React package](https://github.com/trussworks/react-uswds) for a component that matches your needs. Look at the component code to see what classes to use to replicate the component styles.
+* If there isn't a component there already Check the [USWDS Documentation](https://standards.usa.gov/components/) for a component that matches your needs. Please add it to the USWDS React code and then import the new version for use in MilMove.
 * USWDS has a [Slack chat](https://chat.18f.gov/) you can go to for help. Get invited to it by filling out [this form](https://chat.18f.gov/).
 
 ## Tooling
