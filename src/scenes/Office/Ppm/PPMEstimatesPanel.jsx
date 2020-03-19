@@ -8,7 +8,7 @@ import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/Editable
 import { formatCentsRange } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { selectPPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
 
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 
@@ -107,7 +107,7 @@ let PPMEstimatesPanel = editablePanelify(EstimatesDisplay, EstimatesEdit);
 PPMEstimatesPanel = reduxForm({ form: formName })(PPMEstimatesPanel);
 
 function mapStateToProps(state, ownProps) {
-  const PPMEstimate = selectPPMForMove(state, ownProps.moveId);
+  const PPMEstimate = selectActivePPMForMove(state, ownProps.moveId);
   const formValues = getFormValues(formName)(state);
 
   return {

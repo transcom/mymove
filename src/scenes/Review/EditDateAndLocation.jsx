@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { createOrUpdatePpm, getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectPPMForMove } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
@@ -204,7 +204,7 @@ function mapStateToProps(state) {
     error: get(state, 'ppm.error'),
     hasSubmitError: get(state, 'ppm.hasSubmitError'),
     entitiesSitReimbursement: get(
-      selectPPMForMove(state, get(state, 'moves.currentMove.id')),
+      selectActivePPMForMove(state, get(state, 'moves.currentMove.id')),
       'estimated_storage_reimbursement',
       '',
     ),

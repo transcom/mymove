@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 import { object, string, shape, bool, number } from 'prop-types';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
-import { selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
 import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
@@ -165,7 +165,7 @@ PPMShipmentSummary.propTypes = {
 function mapStateToProps(state, ownProps) {
   const { ppm } = ownProps;
   const advance = selectReimbursement(state, ppm.advance);
-  const { incentive_estimate_min, incentive_estimate_max, estimated_storage_reimbursement } = selectPPMForMove(
+  const { incentive_estimate_min, incentive_estimate_max, estimated_storage_reimbursement } = selectActivePPMForMove(
     state,
     ppm.move_id,
   );

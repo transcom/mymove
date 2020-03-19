@@ -6,7 +6,7 @@ import { reduxForm, getFormValues } from 'redux-form';
 
 import { editablePanelify, PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { selectPPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
 
 const DatesAndLocationDisplay = props => {
   const fieldProps = {
@@ -56,7 +56,7 @@ DatesAndLocationPanel = reduxForm({
 
 function mapStateToProps(state, props) {
   const formValues = getFormValues(formName)(state);
-  const ppm = selectPPMForMove(state, props.moveId);
+  const ppm = selectActivePPMForMove(state, props.moveId);
 
   return {
     // reduxForm

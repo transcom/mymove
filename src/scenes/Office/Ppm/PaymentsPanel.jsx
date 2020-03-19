@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import {
   selectReimbursement,
   approveReimbursement,
-  selectPPMForMove,
+  selectActivePPMForMove,
   downloadPPMAttachments,
   downloadPPMAttachmentsLabel,
 } from 'shared/Entities/modules/ppms';
@@ -314,7 +314,7 @@ class PaymentsTable extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   const { moveId } = ownProps;
-  const ppm = selectPPMForMove(state, moveId);
+  const ppm = selectActivePPMForMove(state, moveId);
   const advance = selectReimbursement(state, ppm.advance);
   const signedCertifications = selectPaymentRequestCertificationForMove(state, moveId);
   const moveDocuments = selectAllDocumentsForMove(state, moveId);
