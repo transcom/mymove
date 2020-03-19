@@ -33,7 +33,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		case services.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.PreconditionFailedError:
-			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed()
+			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError()
 		}

@@ -878,13 +878,17 @@ spellcheck: ## Run interactive spellchecker
 storybook: ## Start the storybook server
 	yarn run storybook
 
+.PHONY: storybook_docker
+storybook_docker: ## Start the storybook server in a docker container
+	docker-compose -f docker-compose.storybook.yml up --build storybook
+
 .PHONY: storybook_build
 storybook_build: ## Build static storybook site
 	yarn run build-storybook
 
 .PHONY: storybook_tests
 storybook_tests: ## Run the Loki storybook tests to ensure no breaking changes
-	yarn run loki test
+	scripts/run-storybook-tests
 
 .PHONY: loki_approve_changes
 loki_approve_changes: ## Approves differences in Loki test results
