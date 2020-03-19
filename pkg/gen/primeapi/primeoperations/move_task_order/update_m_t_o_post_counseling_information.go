@@ -68,6 +68,9 @@ func (o *UpdateMTOPostCounselingInformation) ServeHTTP(rw http.ResponseWriter, r
 // swagger:model UpdateMTOPostCounselingInformationBody
 type UpdateMTOPostCounselingInformationBody struct {
 
+	// Email or id of a contact person for this update
+	PointOfContact string `json:"pointOfContact,omitempty"`
+
 	// ppm estimated weight
 	PpmEstimatedWeight int64 `json:"ppm_estimated_weight,omitempty"`
 

@@ -16,7 +16,7 @@ import (
 
 // MoveTaskOrders move task orders
 // swagger:model MoveTaskOrders
-type MoveTaskOrders []*MoveTaskOrder
+type MoveTaskOrders []*MoveTaskOrderWithEtag
 
 // Validate validates this move task orders
 func (m MoveTaskOrders) Validate(formats strfmt.Registry) error {

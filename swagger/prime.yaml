@@ -78,6 +78,9 @@ paths:
                   - PARTIAL
               ppm_estimated_weight:
                 type: integer
+              pointOfContact:
+                type: string
+                description: Email or id of a contact person for this update
         - in: header
           name: If-Match
           type: string
@@ -180,6 +183,7 @@ paths:
           type: string
         - in: body
           name: body
+          required: true
           schema:
             $ref: '#/definitions/MTOShipment'
         - in: header
@@ -528,6 +532,9 @@ definitions:
         items:
           $ref: '#/definitions/ServiceItem'
         type: array
+      pointOfContact:
+        type: string
+        description: Email or id of a contact person for this update
   Customer:
     type: object
     properties:
@@ -712,9 +719,8 @@ definitions:
         type: integer
   MoveTaskOrders:
     items:
-      $ref: '#/definitions/MoveTaskOrder'
+      $ref: '#/definitions/MoveTaskOrderWithEtag'
     type: array
-
   MoveTaskOrderWithEtag:
     allOf:
       - $ref: '#/definitions/MoveTaskOrder'
@@ -784,6 +790,9 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+      pointOfContact:
+        type: string
+        description: Email or id of a contact person for this update
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'

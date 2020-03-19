@@ -187,6 +187,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -337,6 +338,10 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
+                "pointOfContact": {
+                  "description": "Email or id of a contact person for this update",
+                  "type": "string"
+                },
                 "ppm_estimated_weight": {
                   "type": "integer"
                 },
@@ -738,6 +743,10 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
         "serviceItems": {
           "type": "array",
           "items": {
@@ -1027,6 +1036,10 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
         "primeActualWeight": {
           "type": "integer",
           "example": 4500
@@ -1224,7 +1237,7 @@ func init() {
     "MoveTaskOrders": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
+        "$ref": "#/definitions/MoveTaskOrderWithEtag"
       }
     },
     "PaymentRequest": {
@@ -1654,6 +1667,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -1831,6 +1845,10 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
+                "pointOfContact": {
+                  "description": "Email or id of a contact person for this update",
+                  "type": "string"
+                },
                 "ppm_estimated_weight": {
                   "type": "integer"
                 },
@@ -2277,6 +2295,10 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
         "serviceItems": {
           "type": "array",
           "items": {
@@ -2566,6 +2588,10 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
         "primeActualWeight": {
           "type": "integer",
           "example": 4500
@@ -2763,7 +2789,7 @@ func init() {
     "MoveTaskOrders": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
+        "$ref": "#/definitions/MoveTaskOrderWithEtag"
       }
     },
     "PaymentRequest": {

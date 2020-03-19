@@ -85,11 +85,11 @@ func MoveTaskOrderWithEtag(moveTaskOrder *models.MoveTaskOrder) *primemessages.M
 }
 
 // MoveTaskOrders payload
-func MoveTaskOrders(moveTaskOrders *models.MoveTaskOrders) []*primemessages.MoveTaskOrder {
+func MoveTaskOrders(moveTaskOrders *models.MoveTaskOrders) []*primemessages.MoveTaskOrderWithEtag {
 	payload := make(primemessages.MoveTaskOrders, len(*moveTaskOrders))
 
 	for i, m := range *moveTaskOrders {
-		payload[i] = MoveTaskOrder(&m)
+		payload[i] = MoveTaskOrderWithEtag(&m)
 	}
 	return payload
 }
