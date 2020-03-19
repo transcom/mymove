@@ -89,7 +89,7 @@ paths:
         '200':
           description: Successfully updated move task order post counseling information
           schema:
-            $ref: '#/definitions/MoveTaskOrderWithEtag'
+            $ref: '#/definitions/MoveTaskOrder'
         '401':
           description: The request was denied
           schema:
@@ -499,6 +499,8 @@ definitions:
         x-nullable: true
         example: 'USA'
         default: USA
+      eTag:
+        type: string
     required:
       - streetAddress1
       - city
@@ -569,6 +571,8 @@ definitions:
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: fake@example.com
+      eTag:
+        type: string
   DutyStation:
     type: object
     properties:
@@ -585,6 +589,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       address:
         $ref: '#/definitions/Address'
+      eTag:
+        type: string
   Entitlements:
     properties:
       id:
@@ -626,6 +632,8 @@ definitions:
       totalDependents:
         example: 2
         type: integer
+      eTag:
+        type: string
     type: object
   Error:
     properties:
@@ -668,6 +676,8 @@ definitions:
       orderNumber:
         type: string
       linesOfAccounting:
+        type: string
+      eTag:
         type: string
     type: object
   MoveTaskOrder:
@@ -717,17 +727,12 @@ definitions:
           - PARTIAL
       ppm_estimated_weight:
         type: integer
-  MoveTaskOrders:
-    items:
-      $ref: '#/definitions/MoveTaskOrderWithEtag'
-    type: array
-  MoveTaskOrderWithEtag:
-    allOf:
-      - $ref: '#/definitions/MoveTaskOrder'
-      - type: object
-    properties:
       eTag:
         type: string
+  MoveTaskOrders:
+    items:
+      $ref: '#/definitions/MoveTaskOrder'
+    type: array
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -849,6 +854,8 @@ definitions:
         type: string
       modelType: # Base type and sub-types of MTOServiceItem
         $ref: '#/definitions/MTOServiceItemModelType'
+      eTag:
+        type: string
     required:
       - modelType
   MTOServiceItemBasic:
@@ -913,6 +920,8 @@ definitions:
         example: 1234-5678-1
         readOnly: true
         type: string
+      eTag:
+        type: string
     type: object
   PaymentRequestStatus:
     enum:
@@ -944,6 +953,8 @@ definitions:
               type: string
               example: Service Item Parameter Value
           type: object
+      eTag:
+        type: string
     type: object
   ReServiceCode:
     type: string

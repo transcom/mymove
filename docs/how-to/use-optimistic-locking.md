@@ -75,3 +75,103 @@ if err != nil {
 return widgetops.NewPatchWidgetOk().WithPayload(widget) // make sure payload includes updated E-tag.
 //...
 ```
+
+## How to use optimistic locking on the front-end
+
+Luckily, once we've added the `eTag` key to our Swagger configuration, it's
+automatically stored in the Redux state. All we have to do is pull it out of the
+Redux state when we need it.
+
+Let's say we need to make an update to an MTO's status. First, we'll need to
+visit the entity file:
+
+```javascript
+// src/shared/Entities/modules/moveTaskOrders.js
+
+//...
+
+
+const updateMoveTaskOrders = 'moveTaskOrder.updateMoveTaskOrderStatus';
+export function updateMoveTaskOrderStatus(
+  moveTaskOrderID,
+  isAvailableToPrime,
+  label = updateMoveTaskOrders,
+) {
+  const swaggerTag = 'moveTaskOrder.updateMoveTaskOrderStatus';
+  return swaggerRequest(
+    getGHCClient,
+    swaggerTag,
+    { moveTaskOrderID },
+    { updateMoveTaskOrders },
+  );
+}
+
+//...
+```
+
+We need to make sure this function takes an ETag as an argument and passes it
+along in the `If-Match` header:
+
+```javascript
+// src/shared/Entities/modules/moveTaskOrders.js
+
+//...
+
+
+const updateMoveTaskOrders = 'moveTaskOrder.updateMoveTaskOrderStatus';
+export function updateMoveTaskOrderStatus(
+  moveTaskOrderID,
+  ifMatchETag,
+  isAvailableToPrime,
+  label = updateMoveTaskOrders,
+) {
+  const swaggerTag = 'moveTaskOrder.updateMoveTaskOrderStatus';
+  return swaggerRequest(
+    getGHCClient,
+    swaggerTag,
+    { moveTaskOrderID, 'If-Match': ifMatchETag },
+    { updateMoveTaskOrders },
+  );
+}
+
+//...
+```
+
+Now we need to find where this function is actually being called. It looks like
+it's being used as the callback for a button click:
+
+```jsx
+// src/scenes/Office/TOO/customerDetails.jsx
+
+//...
+
+
+<button
+  data-hi={moveTaskOrder.eTag}
+  onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id)}
+>
+  Send to Prime
+</button>
+
+//...
+```
+
+We'll need to supply the ETag as an argument:
+
+```jsx
+// src/scenes/Office/TOO/customerDetails.jsx
+
+//...
+
+
+<button
+  onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id, moveTaskOrder.eTag)}
+>
+  Send to Prime
+</button>
+
+//...
+```
+
+You should now be able to update the move task order without getting that pesky
+`412 Precondition Failed` error.
