@@ -1,6 +1,7 @@
 package movetaskorder
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -83,10 +84,10 @@ func (o *moveTaskOrderCreator) createDefaultServiceItems(moveTaskOrder *models.M
 	}
 
 	for _, serviceItem := range defaultServiceItems {
-		_, err := o.db.ValidateAndCreate(&serviceItem)
+		verrs, err := o.db.ValidateAndCreate(&serviceItem)
 
-		if err != nil {
-			return err
+		if err != nil || (verrs != nil && verrs.HasAny()) {
+			return fmt.Errorf("%v %#v", err, verrs)
 		}
 
 		moveTaskOrder.MTOServiceItems = append(moveTaskOrder.MTOServiceItems, serviceItem)

@@ -35,11 +35,11 @@
     "prop-types": "^15.7.2",
     "query-string": "6",
     "ra-data-simple-rest": "^2.9.9",
-    "react": "^16.13.0",
+    "react": "^16.13.1",
     "react-admin": "^3.3.1",
     "react-app-polyfill": "^1.0.6",
     "react-day-picker": "=7.4.0",
-    "react-dom": "^16.13.0",
+    "react-dom": "^16.13.1",
     "react-filepond": "^4.0.0",
     "react-form": "^4.0.1",
     "react-highlight-words": "^0.16.0",
@@ -112,14 +112,14 @@
   "loki": {
     "configurations": {
       "chrome.laptop": {
-        "target": "chrome.docker",
+        "target": "chrome.app",
         "width": 1366,
         "height": 768,
         "deviceScaleFactor": 1,
         "mobile": false
       },
       "chrome.iphone7": {
-        "target": "chrome.docker",
+        "target": "chrome.app",
         "preset": "iPhone 7"
       }
     }

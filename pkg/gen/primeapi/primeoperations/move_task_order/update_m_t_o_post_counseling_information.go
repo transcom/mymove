@@ -34,7 +34,7 @@ func NewUpdateMTOPostCounselingInformation(ctx *middleware.Context, handler Upda
 	return &UpdateMTOPostCounselingInformation{Context: ctx, Handler: handler}
 }
 
-/*UpdateMTOPostCounselingInformation swagger:route PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info moveTaskOrder prime updateMTOPostCounselingInformation
+/*UpdateMTOPostCounselingInformation swagger:route PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info moveTaskOrder updateMTOPostCounselingInformation
 
 Updates move task order's post counseling information
 
@@ -67,6 +67,9 @@ func (o *UpdateMTOPostCounselingInformation) ServeHTTP(rw http.ResponseWriter, r
 // UpdateMTOPostCounselingInformationBody update m t o post counseling information body
 // swagger:model UpdateMTOPostCounselingInformationBody
 type UpdateMTOPostCounselingInformationBody struct {
+
+	// Email or id of a contact person for this update
+	PointOfContact string `json:"pointOfContact,omitempty"`
 
 	// ppm estimated weight
 	PpmEstimatedWeight int64 `json:"ppm_estimated_weight,omitempty"`

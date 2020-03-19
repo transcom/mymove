@@ -49,9 +49,9 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Gets all move orders
+      description: Gets all move task orders
       operationId: fetchMTOUpdates
-      summary: Gets all move orders
+      summary: Gets all move task orders
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
       - description: ID of move task order to use
@@ -78,6 +78,9 @@ paths:
                   - PARTIAL
               ppm_estimated_weight:
                 type: integer
+              pointOfContact:
+                type: string
+                description: Email or id of a contact person for this update
         - in: header
           name: If-Match
           type: string
@@ -113,7 +116,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-        - prime
       description: Updates move task order's post counseling information
       operationId: updateMTOPostCounselingInformation
       summary: Updates move task order's post counseling information
@@ -155,7 +157,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-        - prime
       description: Gets a the customer associated with a move task order ID
       operationId: getMoveTaskOrderCustomer
       summary: Gets a the customer associated with a move task order ID
@@ -169,7 +170,6 @@ paths:
       operationId: updateMTOShipment
       tags:
         - mtoShipment
-        - prime
       parameters:
         - in: path
           name: moveTaskOrderID
@@ -183,6 +183,7 @@ paths:
           type: string
         - in: body
           name: body
+          required: true
           schema:
             $ref: '#/definitions/MTOShipment'
         - in: header
@@ -228,7 +229,6 @@ paths:
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
-        - prime
       parameters:
         - in: path
           name: moveTaskOrderID
@@ -534,6 +534,9 @@ definitions:
         items:
           $ref: '#/definitions/ServiceItem'
         type: array
+      pointOfContact:
+        type: string
+        description: Email or id of a contact person for this update
   Customer:
     type: object
     properties:
@@ -792,6 +795,9 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+      pointOfContact:
+        type: string
+        description: Email or id of a contact person for this update
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'

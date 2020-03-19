@@ -38,14 +38,14 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move orders",
+        "description": "Gets all move task orders",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move orders",
+        "summary": "Gets all move task orders",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
@@ -103,8 +103,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder",
-          "prime"
+          "moveTaskOrder"
         ],
         "summary": "Gets a the customer associated with a move task order ID",
         "operationId": "getMoveTaskOrderCustomer",
@@ -166,8 +165,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoShipment",
-          "prime"
+          "mtoShipment"
         ],
         "summary": "Updates mto shipment",
         "operationId": "updateMTOShipment",
@@ -189,6 +187,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -255,8 +254,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoServiceItem",
-          "prime"
+          "mtoServiceItem"
         ],
         "summary": "Creates mto service items",
         "operationId": "createMTOServiceItem",
@@ -328,8 +326,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder",
-          "prime"
+          "moveTaskOrder"
         ],
         "summary": "Updates move task order's post counseling information",
         "operationId": "updateMTOPostCounselingInformation",
@@ -341,6 +338,10 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
+                "pointOfContact": {
+                  "description": "Email or id of a contact person for this update",
+                  "type": "string"
+                },
                 "ppm_estimated_weight": {
                   "type": "integer"
                 },
@@ -745,6 +746,10 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
         "serviceItems": {
           "type": "array",
           "items": {
@@ -1045,6 +1050,10 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
         },
         "primeActualWeight": {
           "type": "integer",
@@ -1494,14 +1503,14 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move orders",
+        "description": "Gets all move task orders",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move orders",
+        "summary": "Gets all move task orders",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
@@ -1574,8 +1583,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder",
-          "prime"
+          "moveTaskOrder"
         ],
         "summary": "Gets a the customer associated with a move task order ID",
         "operationId": "getMoveTaskOrderCustomer",
@@ -1649,8 +1657,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoShipment",
-          "prime"
+          "mtoShipment"
         ],
         "summary": "Updates mto shipment",
         "operationId": "updateMTOShipment",
@@ -1672,6 +1679,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -1756,8 +1764,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoServiceItem",
-          "prime"
+          "mtoServiceItem"
         ],
         "summary": "Creates mto service items",
         "operationId": "createMTOServiceItem",
@@ -1838,8 +1845,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder",
-          "prime"
+          "moveTaskOrder"
         ],
         "summary": "Updates move task order's post counseling information",
         "operationId": "updateMTOPostCounselingInformation",
@@ -1851,6 +1857,10 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
+                "pointOfContact": {
+                  "description": "Email or id of a contact person for this update",
+                  "type": "string"
+                },
                 "ppm_estimated_weight": {
                   "type": "integer"
                 },
@@ -2300,6 +2310,10 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
         "serviceItems": {
           "type": "array",
           "items": {
@@ -2600,6 +2614,10 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
         },
         "primeActualWeight": {
           "type": "integer",
