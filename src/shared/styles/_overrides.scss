@@ -34,7 +34,7 @@
     @include u-bg('transparent');
     box-shadow: inset 0 0 0 2px color('primary-vivid');
     .icon svg path {
-      fill: $link;
+      fill: $primary;
     }
     &:hover,
     &:focus,
@@ -44,7 +44,7 @@
       @include u-bg('transparent');
       box-shadow: inset 0 0 0 2px color('primary-dark');
       .icon svg path {
-        fill: #1a4480;
+        fill: $primary-dark;
       }
     }
     &:active,
@@ -53,7 +53,7 @@
       @include u-bg('transparent');
       box-shadow: inset 0 0 0 2px color('primary-darker');
       .icon svg path {
-        fill: #162e51;
+        fill: $primary-darker;
       }
     }
     &:disabled,
@@ -62,7 +62,7 @@
       @include u-bg('transparent');
       box-shadow: inset 0 0 0 2px color('base-light');
       .icon svg path {
-        fill: #c9c9c9;
+        fill: $base-light;
       }
     }
   } //close &--secondary
@@ -84,27 +84,29 @@
     .icon {
       @include u-padding-right('1');
       svg path {
-        fill: #0050d8;
+        fill: $primary;
       }
     }
     &:hover,
-    .hover & {
+    &:focus,
+    .hover &,
+    .focus & {
       @include u-text('primary-dark');
       .icon svg path {
-        fill: #1a4480;
+        fill: $primary-dark;
       }
     }
     &:disabled {
       @include u-text('base-light');
       .icon svg path {
-        fill: #c9c9c9;
+        fill: $base-light;
       }
     }
     &:active,
     .active & {
       @include u-text('primary-darker');
       .icon svg path {
-        fill: #162e51;
+        fill: $primary-darker;
       }
     }
   }
