@@ -49,9 +49,9 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Gets all move orders
+      description: Gets all move task orders
       operationId: fetchMTOUpdates
-      summary: Gets all move orders
+      summary: Gets all move task orders
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
       - description: ID of move task order to use
@@ -113,7 +113,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-        - prime
       description: Updates move task order's post counseling information
       operationId: updateMTOPostCounselingInformation
       summary: Updates move task order's post counseling information
@@ -155,7 +154,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-        - prime
       description: Gets a the customer associated with a move task order ID
       operationId: getMoveTaskOrderCustomer
       summary: Gets a the customer associated with a move task order ID
@@ -169,7 +167,6 @@ paths:
       operationId: updateMTOShipment
       tags:
         - mtoShipment
-        - prime
       parameters:
         - in: path
           name: moveTaskOrderID
@@ -228,7 +225,6 @@ paths:
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
-        - prime
       parameters:
         - in: path
           name: moveTaskOrderID
