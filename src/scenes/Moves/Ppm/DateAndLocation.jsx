@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
@@ -8,7 +8,7 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove, createPPM, updatePPM, updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import { createOrUpdatePpm, setInitialFormValues } from './ducks';
@@ -170,38 +170,55 @@ export class DateAndLocation extends Component {
 DateAndLocation.propTypes = {
   schema: PropTypes.object.isRequired,
   createOrUpdatePpm: PropTypes.func.isRequired,
+  createPPM: PropTypes.func.isRequired,
+  updatePPM: PropTypes.func.isRequired,
   error: PropTypes.object,
 };
 
 function mapStateToProps(state) {
-  const props = {
-    schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
-    ...state.ppm,
-    currentOrders: state.orders.currentOrders,
-    formValues: getFormValues(formName)(state),
-    entitlement: loadEntitlementsFromState(state),
-    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
-  };
+  const moveID = state.moves.currentMove.id;
+  const activePPM = selectActivePPMForMove(state, moveID);
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
-
-  props.initialValues = props.currentPpm
-    ? props.currentPpm
+  let initialValues = !isEmpty(activePPM)
+    ? activePPM
     : defaultPickupZip
     ? {
         pickup_postal_code: defaultPickupZip,
         origin_duty_station_zip: originDutyStationZip,
       }
     : null;
-  if (state.ppm && state.ppm.currentPpm) {
-    state.ppm.currentPpm.origin_duty_station_zip = originDutyStationZip;
-  }
 
+  const props = {
+    schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
+    ...state.ppm,
+    currentPPM: selectActivePPMForMove(state, moveID),
+    initialValues: initialValues,
+    currentOrders: state.orders.currentOrders,
+    formValues: getFormValues(formName)(state),
+    entitlement: loadEntitlementsFromState(state),
+    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
+  };
+
+  // props.initialValues = !isEmpty(props.currentPPM)
+  //   ? props.currentPPM
+  //   : defaultPickupZip
+  //   ? {
+  //       pickup_postal_code: defaultPickupZip,
+  //       origin_duty_station_zip: originDutyStationZip,
+  //     }
+  //   : null;
+  // if (!isEmpty(props.currentPPM)) {
+  //   props.currentPPM.origin_duty_station_zip = originDutyStationZip;
+  // }
   return props;
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdatePpm, setInitialFormValues, updatePPMEstimate }, dispatch);
+  return bindActionCreators(
+    { createOrUpdatePpm, createPPM, updatePPM, setInitialFormValues, updatePPMEstimate },
+    dispatch,
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
