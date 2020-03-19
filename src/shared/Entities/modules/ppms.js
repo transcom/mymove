@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, filter } from 'lodash';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 import { formatDateForSwagger } from 'shared/dates';
@@ -34,7 +34,6 @@ export function loadPPMs(moveId, label = loadPPMsLabel) {
 
 export function createPPM(
   moveId,
-  personallyProcuredMoveId,
   payload /*shape: {size, weightEstimate, estimatedIncentive}*/,
   label = createPPMLabel,
 ) {
@@ -46,7 +45,6 @@ export function createPPM(
     swaggerTag,
     {
       moveId,
-      personallyProcuredMoveId,
       createPersonallyProcuredMovePayload: payload,
     },
     { label },
@@ -102,6 +100,7 @@ export function approveReimbursement(reimbursementId, label = approveReimburseme
 
 export function selectActivePPMForMove(state, moveId) {
   const ppms = Object.values(state.entities.personallyProcuredMoves);
+  filter(ppms, ppm => ppm.moveId === moveId);
   const activePPM = fetchActivePPM(ppms);
   return activePPM || {};
 }
