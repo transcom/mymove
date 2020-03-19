@@ -82,10 +82,10 @@ func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection) error {
 
 			verrs, err := dbTx.ValidateAndUpdate(&reZip3)
 			if err != nil {
-				return fmt.Errorf("failed to update %v: %v", reZip3, err)
+				return fmt.Errorf("failed to update zip: %v: %v", reZip3.Zip3, err)
 			}
 			if verrs.HasAny() {
-				return fmt.Errorf("failed to validate %v: %v", reZip3, verrs)
+				return fmt.Errorf("failed to validate zip: %v: %v", reZip3.Zip3, verrs)
 			}
 		}
 	}
@@ -120,10 +120,10 @@ func (gre *GHCRateEngineImporter) createZip5s(dbTx *pop.Connection) error {
 
 		verrs, err := dbTx.ValidateAndCreate(&reZip5)
 		if err != nil {
-			return fmt.Errorf("failed to update %v: %v", reZip5, err)
+			return fmt.Errorf("failed to update zip: %v: %v", reZip5.Zip5, err)
 		}
 		if verrs.HasAny() {
-			return fmt.Errorf("failed to validate %v: %v", reZip5, verrs)
+			return fmt.Errorf("failed to validate zip: %v: %v", reZip5.Zip5, verrs)
 		}
 	}
 
