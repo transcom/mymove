@@ -58,13 +58,50 @@ func (a *Auditor) SetRequestContext(request *http.Request) {
 
 // Record creates an audit recording
 func (a *Auditor) Record(name string, model, payload interface{}) (*models.AuditRecording, error) {
-	modelMap := slices.Map{}   // Will flesh out with some good ol' reflection
-	payloadMap := slices.Map{} // Will flesh out with some good ol' reflection
+	modelMap := slices.Map{}
+	payloadMap := slices.Map{}
+	val := reflect.ValueOf(model)
 
-	ipAddress := strings.Split(a.request.RemoteAddr, ":")[0]
+	if model != nil {
+		var modelValue reflect.Value
+		if val.Kind() == reflect.Ptr {
+			modelValue = reflect.ValueOf(model).Elem()
+		}
+
+		if val.Kind() == reflect.Struct {
+			modelValue = val
+		}
+
+		for i := 0; i < modelValue.NumField(); i++ {
+			fieldFromType := modelValue.Type().Field(i)
+			fieldFromValue := modelValue.Field(i)
+			fieldName := flect.Underscore(fieldFromType.Name)
+			_, ok := fieldFromType.Tag.Lookup("db")
+
+			if !ok || fieldFromValue.IsZero() {
+				continue
+			}
+
+			modelMap[fieldName] = fieldFromValue.Interface()
+		}
+	}
+
+	if payload != nil {
+		payloadVal := reflect.ValueOf(payload).Elem()
+		for i := 0; i < payloadVal.NumField(); i++ {
+			fieldFromType := payloadVal.Type().Field(i)
+			fieldFromValue := payloadVal.Field(i)
+			fieldName := flect.Underscore(fieldFromType.Name)
+
+			if !fieldFromValue.IsZero() {
+				payloadMap[fieldName] = fieldFromValue.Interface()
+			}
+		}
+
+	}
+
 	metadata := slices.Map{
-		"ip_address": ipAddress,
-		"user_agent": a.request.UserAgent(),
+		"milmove_trace_id": a.hctx.GetTraceID(),
 	}
 
 	// Tie to MTO if there is a MTO ID on the model
@@ -79,7 +116,9 @@ func (a *Auditor) Record(name string, model, payload interface{}) (*models.Audit
 	}
 
 	if a.session == nil {
-		auditRecording.ClientCertID = &a.clientCert.ID
+		if a.clientCert != nil {
+			auditRecording.ClientCertID = &a.clientCert.ID
+		}
 	} else {
 		auditRecording.UserID = &a.session.UserID
 		auditRecording.FirstName = &a.session.FirstName
@@ -126,33 +165,6 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 	if err == nil && reflect.ValueOf(model).IsValid() == true && reflect.ValueOf(model).IsNil() == false && reflect.ValueOf(model).IsZero() == false {
 		recordType := parseRecordType(t.String())
 		elem := reflect.ValueOf(model).Elem()
-		// modelMap := slices.Map{}
-		// payloadMap := slices.Map{}
-
-		// modelValue := elem
-		// for i := 0; i < modelValue.NumField(); i++ {
-		// 	fieldFromType := modelValue.Type().Field(i)
-		// 	fieldFromValue := modelValue.Field(i)
-		// 	fieldName := flect.Underscore(fieldFromType.Name)
-		//
-		// 	if !fieldFromValue.IsZero() {
-		// 		modelMap[fieldName] = fieldFromValue.Interface()
-		// 	}
-		// }
-		//
-		// if payload != nil {
-		// 	payloadVal := reflect.ValueOf(payload).Elem()
-		// 	for i := 0; i < payloadVal.NumField(); i++ {
-		// 		fieldFromType := payloadVal.Type().Field(i)
-		// 		fieldFromValue := payloadVal.Field(i)
-		// 		fieldName := flect.Underscore(fieldFromType.Name)
-		//
-		// 		if !fieldFromValue.IsZero() {
-		// 			payloadMap[fieldName] = fieldFromValue.Interface()
-		// 		}
-		// 	}
-		//
-		// }
 
 		var createdAt string
 		if elem.FieldByName("CreatedAt").IsValid() == true {
@@ -235,13 +247,16 @@ func fullName(first, last string) string {
 
 func validateInterface(thing interface{}) (reflect.Type, error) {
 	t := reflect.TypeOf(thing)
-	if t.Kind() != reflect.Ptr {
-		return nil, errors.New("must pass a pointer to a struct")
-	}
 
-	t = t.Elem()
-	if t.Kind() != reflect.Struct {
-		return nil, errors.New("must pass a pointer to a struct")
+	if t != nil {
+		if t.Kind() != reflect.Ptr {
+			return nil, errors.New("must pass a pointer to a struct")
+		}
+
+		t = t.Elem()
+		if t.Kind() != reflect.Struct {
+			return nil, errors.New("must pass a pointer to a struct")
+		}
 	}
 
 	return t, nil

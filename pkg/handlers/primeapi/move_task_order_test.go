@@ -2,21 +2,21 @@ package primeapi
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/gobuffalo/validate"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/services/mocks"
-
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -60,9 +60,11 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandler() {
 
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	builder := query.NewQueryBuilder(context.DB())
+	auditor := audit.NewAuditor(builder, context)
 
 	// make the request
-	handler := FetchMTOUpdatesHandler{HandlerContext: context}
+	handler := FetchMTOUpdatesHandler{context, &auditor}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -103,9 +105,11 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request, Since: &since}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	builder := query.NewQueryBuilder(context.DB())
+	auditor := audit.NewAuditor(builder, context)
 
 	// make the request
-	handler := FetchMTOUpdatesHandler{HandlerContext: context}
+	handler := FetchMTOUpdatesHandler{context, &auditor}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)

@@ -18,7 +18,7 @@ import (
 
 // User is an entity with a registered uuid and email at login.gov
 type User struct {
-	ID            uuid.UUID   `json:"id" db:"id"`
+	ID            uuid.UUID   `json:"id" db:"id" audit:"security"`
 	CreatedAt     time.Time   `json:"created_at" db:"created_at"`
 	UpdatedAt     time.Time   `json:"updated_at" db:"updated_at"`
 	LoginGovUUID  uuid.UUID   `json:"login_gov_uuid" db:"login_gov_uuid"`
