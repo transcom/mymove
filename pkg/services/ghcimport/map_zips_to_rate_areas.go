@@ -12,13 +12,13 @@ import (
 
 //Zip3Fixture stores zip and rate and area information from tariff400ng_zip3s_fixture.csv
 type Zip3Fixture struct {
-	Zip      string `csv:"zip"`
+	Zip      string `csv:"zip3"`
 	RateArea string `csv:"rate_area"`
 }
 
 //Zip5Fixture stores zip and rate and area information from tariff400ng_zip5_rate_areas_fixture.csv
 type Zip5Fixture struct {
-	Zip      string `csv:"zip"`
+	Zip      string `csv:"zip5"`
 	RateArea string `csv:"rate_area"`
 }
 
