@@ -60,7 +60,12 @@ func (a *Auditor) SetRequestContext(request *http.Request) {
 func (a *Auditor) Record(name string, model, payload interface{}) (*models.AuditRecording, error) {
 	modelMap := slices.Map{}   // Will flesh out with some good ol' reflection
 	payloadMap := slices.Map{} // Will flesh out with some good ol' reflection
-	metadata := slices.Map{}   // Will be based upon some rules for specific events
+
+	ipAddress := strings.Split(a.request.RemoteAddr, ":")[0]
+	metadata := slices.Map{
+		"ip_address": ipAddress,
+		"user_agent": a.request.UserAgent(),
+	}
 
 	// Tie to MTO if there is a MTO ID on the model
 	// Add friendly shipment identifier if model is shipment
