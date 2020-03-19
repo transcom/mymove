@@ -1,0 +1,24 @@
+#! /usr/bin/env bash
+
+#
+# Runs the storybook tests in docker containers for CircleCI testing.
+#
+
+set -eu -o pipefail
+
+docker-compose -f docker-compose.storybook.yml build --pull
+docker-compose -f docker-compose.storybook.yml up storybook_tests
+container=$(docker-compose -f docker-compose.storybook.yml ps --filter=name=storybook_tests | awk 'END{print $1}')
+return_code=$(docker-compose -f docker-compose.storybook.yml ps --filter=name=storybook_tests | awk 'END{print $6}')
+
+echo "Clean .loki directory"
+rm -rf .loki
+
+echo "Copy results to .loki directory"
+docker cp "$container":/home/circleci/project/.loki/ .loki
+ls -lR .loki
+
+echo "Shutdown containers"
+docker-compose -f docker-compose.storybook.yml down
+
+exit "$return_code"
