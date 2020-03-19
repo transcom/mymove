@@ -306,11 +306,11 @@ type UpdateMTOPostCounselingInformationBody struct {
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
 	// ppm estimated weight
-	PpmEstimatedWeight int64 `json:"ppm_estimated_weight,omitempty"`
+	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
 	// ppm type
 	// Enum: [FULL PARTIAL]
-	PpmType string `json:"ppm_type,omitempty"`
+	PpmType string `json:"ppmType,omitempty"`
 }
 
 // Validate validates this update m t o post counseling information body
@@ -363,7 +363,7 @@ func (o *UpdateMTOPostCounselingInformationBody) validatePpmType(formats strfmt.
 	}
 
 	// value enum
-	if err := o.validatePpmTypeEnum("body"+"."+"ppm_type", "body", o.PpmType); err != nil {
+	if err := o.validatePpmTypeEnum("body"+"."+"ppmType", "body", o.PpmType); err != nil {
 		return err
 	}
 
