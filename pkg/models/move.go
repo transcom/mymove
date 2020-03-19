@@ -13,7 +13,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -382,7 +381,6 @@ func (m Move) CreateMovingExpenseDocument(
 
 // CreatePPM creates a new PPM associated with this move
 func (m Move) CreatePPM(db *pop.Connection,
-	size *internalmessages.TShirtSize,
 	weightEstimate *unit.Pound,
 	originalMoveDate *time.Time,
 	pickupPostalCode *string,
@@ -398,7 +396,6 @@ func (m Move) CreatePPM(db *pop.Connection,
 	newPPM := PersonallyProcuredMove{
 		MoveID:                        m.ID,
 		Move:                          m,
-		Size:                          size,
 		WeightEstimate:                weightEstimate,
 		OriginalMoveDate:              originalMoveDate,
 		PickupPostalCode:              pickupPostalCode,

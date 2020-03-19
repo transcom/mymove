@@ -10,12 +10,14 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 	"strings"
+
+	"github.com/go-openapi/strfmt"
 )
 
-// UpdateMTOServiceItemstatusURL generates an URL for the update m t o service itemstatus operation
-type UpdateMTOServiceItemstatusURL struct {
-	MoveTaskOrderID  string
-	MtoServiceItemID string
+// CreateMTOServiceItemURL generates an URL for the create m t o service item operation
+type CreateMTOServiceItemURL struct {
+	MoveTaskOrderID strfmt.UUID
+	MtoShipmentID   strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -25,7 +27,7 @@ type UpdateMTOServiceItemstatusURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *UpdateMTOServiceItemstatusURL) WithBasePath(bp string) *UpdateMTOServiceItemstatusURL {
+func (o *CreateMTOServiceItemURL) WithBasePath(bp string) *CreateMTOServiceItemURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -33,33 +35,33 @@ func (o *UpdateMTOServiceItemstatusURL) WithBasePath(bp string) *UpdateMTOServic
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *UpdateMTOServiceItemstatusURL) SetBasePath(bp string) {
+func (o *CreateMTOServiceItemURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *UpdateMTOServiceItemstatusURL) Build() (*url.URL, error) {
+func (o *CreateMTOServiceItemURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status"
+	var _path = "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items"
 
-	moveTaskOrderID := o.MoveTaskOrderID
+	moveTaskOrderID := o.MoveTaskOrderID.String()
 	if moveTaskOrderID != "" {
 		_path = strings.Replace(_path, "{moveTaskOrderID}", moveTaskOrderID, -1)
 	} else {
-		return nil, errors.New("moveTaskOrderId is required on UpdateMTOServiceItemstatusURL")
+		return nil, errors.New("moveTaskOrderId is required on CreateMTOServiceItemURL")
 	}
 
-	mtoServiceItemID := o.MtoServiceItemID
-	if mtoServiceItemID != "" {
-		_path = strings.Replace(_path, "{mtoServiceItemID}", mtoServiceItemID, -1)
+	mtoShipmentID := o.MtoShipmentID.String()
+	if mtoShipmentID != "" {
+		_path = strings.Replace(_path, "{mtoShipmentID}", mtoShipmentID, -1)
 	} else {
-		return nil, errors.New("mtoServiceItemId is required on UpdateMTOServiceItemstatusURL")
+		return nil, errors.New("mtoShipmentId is required on CreateMTOServiceItemURL")
 	}
 
 	_basePath := o._basePath
 	if _basePath == "" {
-		_basePath = "/ghc/v1"
+		_basePath = "/prime/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
@@ -67,7 +69,7 @@ func (o *UpdateMTOServiceItemstatusURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *UpdateMTOServiceItemstatusURL) Must(u *url.URL, err error) *url.URL {
+func (o *CreateMTOServiceItemURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -78,17 +80,17 @@ func (o *UpdateMTOServiceItemstatusURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *UpdateMTOServiceItemstatusURL) String() string {
+func (o *CreateMTOServiceItemURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *UpdateMTOServiceItemstatusURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *CreateMTOServiceItemURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on UpdateMTOServiceItemstatusURL")
+		return nil, errors.New("scheme is required for a full url on CreateMTOServiceItemURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on UpdateMTOServiceItemstatusURL")
+		return nil, errors.New("host is required for a full url on CreateMTOServiceItemURL")
 	}
 
 	base, err := o.Build()
@@ -102,6 +104,6 @@ func (o *UpdateMTOServiceItemstatusURL) BuildFull(scheme, host string) (*url.URL
 }
 
 // StringFull returns the string representation of a complete url
-func (o *UpdateMTOServiceItemstatusURL) StringFull(scheme, host string) string {
+func (o *CreateMTOServiceItemURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

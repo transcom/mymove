@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
@@ -66,7 +67,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 		case services.InvalidInputError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusBadRequest()
 		case services.PreconditionFailedError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed()
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
 		}

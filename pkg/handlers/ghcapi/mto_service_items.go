@@ -29,10 +29,8 @@ func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOSer
 		MoveTaskOrderID: handlers.FmtUUID(s.MoveTaskOrderID),
 		MtoShipmentID:   handlers.FmtUUIDPtr(s.MTOShipmentID),
 		ReServiceID:     handlers.FmtUUID(s.ReServiceID),
-		ReServiceCode:   handlers.FmtStringPtr(&s.ReService.Code),
+		ReServiceCode:   handlers.FmtString(string(s.ReService.Code)),
 		ReServiceName:   handlers.FmtStringPtr(&s.ReService.Name),
-		MetaID:          handlers.FmtUUIDPtr(s.MetaID),
-		MetaType:        handlers.FmtStringPtr(s.MetaType),
 	}
 }
 
@@ -86,11 +84,6 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		errs = append(errs, fmt.Errorf("UUID Parsing for %s: %w", "MtoShipmentID", err).Error())
 	}
 
-	metaID, err := uuid.FromString(params.CreateMTOServiceItemBody.MetaID.String())
-	if err != nil {
-		errs = append(errs, fmt.Errorf("UUID Parsing for %s: %w", "MetaID", err).Error())
-	}
-
 	// return any parsing errors for uuids
 	if len(errs) > 0 {
 		parsingError := strings.Join(errs, "\n")
@@ -100,14 +93,10 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		return mtoserviceitemop.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payload)
 	}
 
-	metaType := *params.CreateMTOServiceItemBody.MetaType
-
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: moveTaskOrderID,
 		ReServiceID:     reServiceID,
 		MTOShipmentID:   &mtoShipmentID,
-		MetaID:          &metaID,
-		MetaType:        &metaType,
 	}
 
 	// Capture creation attempt in audit log

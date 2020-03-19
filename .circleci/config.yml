@@ -11,35 +11,40 @@
 
 version: '2.1'
 
+# References for variables shared across the file
+references:
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
+  postgres: &postgres postgres:10.10
+
 executors:
   # `mymove_small` and `mymove_medium` use the `milmove/milmove-app` docker image with a checkout of the mymove code
   mymove_small:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
+      - image: *circleci-docker
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
+      - image: *circleci-docker
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
+      - image: *circleci-docker
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
+      - image: *circleci-docker
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
-      - image: postgres:10.10
+      - image: *circleci-docker
+      - image: *postgres
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -48,8 +53,8 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
-      - image: postgres:10.10
+      - image: *circleci-docker
+      - image: *postgres
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -577,6 +582,31 @@ jobs:
           repo: app
       - announce_failure
 
+  # `storybook_tests` runs the loki test suite against the current storybook code
+  storybook_tests:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - restore_cache:
+          keys:
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: make storybook_tests
+      - store_artifacts:
+          path: .loki/current
+          destination: current
+      - store_artifacts:
+          path: .loki/difference
+          destination: difference
+      - store_artifacts:
+          path: .loki/reference
+          destination: reference
+      - announce_failure
+
   # `build_storybook_app` builds the storybook application container and pushes to the container repository
   build_storybook_app:
     executor: mymove_medium
@@ -943,6 +973,7 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_yarn
+            - storybook_tests
 
       - build_tools:
           requires:
@@ -1082,6 +1113,11 @@ workflows:
               only: master
               # Uncomment below if pushing a test branch. Also comment out approve_prod_deploy few lines above.
               #only: placeholder_branch_name
+
+      - storybook_tests:
+          requires:
+            - anti_virus
+            - pre_deps_yarn
 
 experimental:
   notify:

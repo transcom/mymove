@@ -14,7 +14,7 @@ import (
 )
 
 type ppmComputer interface {
-	ComputeLowestCostPPMMove(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostComputation, err error)
+	ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error)
 }
 
 //SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
@@ -50,7 +50,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
 
-	actualCost, err := sswPpmComputer.ComputeLowestCostPPMMove(
+	actualCosts, err := sswPpmComputer.ComputePPMMoveCosts(
 		ssfd.PPMRemainingEntitlement,
 		*firstPPM.PickupPostalCode,
 		originDutyStationZip,
@@ -64,9 +64,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating PPM actual obligations")
 	}
 
-	mileageWon := unit.Miles(actualCost.Mileage)
-
-	maxCost, err := sswPpmComputer.ComputeLowestCostPPMMove(
+	maxCosts, err := sswPpmComputer.ComputePPMMoveCosts(
 		ssfd.WeightAllotment.TotalWeight,
 		*firstPPM.PickupPostalCode,
 		originDutyStationZip,
@@ -80,17 +78,26 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating PPM max obligations")
 	}
 
+	actualCost := rateengine.GetWinningCostMove(actualCosts)
+	maxCost := rateengine.GetWinningCostMove(maxCosts)
+	nonWinningActualCost := rateengine.GetNonWinningCostMove(actualCosts)
+	nonWinningMaxCost := rateengine.GetNonWinningCostMove(maxCosts)
+
 	var actualSIT unit.Cents
 	if firstPPM.TotalSITCost != nil {
 		actualSIT = *firstPPM.TotalSITCost
 	}
+
 	if actualSIT > maxCost.SITMax {
 		actualSIT = maxCost.SITMax
 	}
 
-	maxObligation := models.Obligation{Gcc: maxCost.GCC, SIT: maxCost.SITMax}
-	actualObligation := models.Obligation{Gcc: actualCost.GCC, SIT: actualSIT, Miles: mileageWon}
-	obligations := models.Obligations{MaxObligation: maxObligation, ActualObligation: actualObligation}
+	obligations := models.Obligations{
+		ActualObligation:           models.Obligation{Gcc: actualCost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost.Mileage)},
+		MaxObligation:              models.Obligation{Gcc: maxCost.GCC, SIT: actualSIT, Miles: unit.Miles(actualCost.Mileage)},
+		NonWinningActualObligation: models.Obligation{Gcc: nonWinningActualCost.GCC, SIT: actualSIT, Miles: unit.Miles(nonWinningActualCost.Mileage)},
+		NonWinningMaxObligation:    models.Obligation{Gcc: nonWinningMaxCost.GCC, SIT: actualSIT, Miles: unit.Miles(nonWinningActualCost.Mileage)},
+	}
 	return obligations, nil
 }
 

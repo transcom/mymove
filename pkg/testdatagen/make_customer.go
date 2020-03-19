@@ -4,32 +4,35 @@ import (
 	"fmt"
 	"math/rand"
 
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeFirstName chooses a random first name of a star wars character
-func MakeFirstName() string {
+func MakeFirstName() *string {
 	firstNameArr := [10]string{"Darth", "Obi-Wan", "Luke", "Princess", "Han", "Baby", "Chew", "Jango", "R2", "Lando"}
-	return firstNameArr[rand.Intn(len(firstNameArr))]
+	return &firstNameArr[rand.Intn(len(firstNameArr))]
 }
 
 // MakeLastName chooses a random last name of a star wars character
-func MakeLastName() string {
+func MakeLastName() *string {
 	lastNameArr := [10]string{"Vader", "Kenobi", "Skywalker", "Leia", "Solo", "Yoda", "Bacca", "Fett", "D2", "Calrissian"}
-	return lastNameArr[rand.Intn(len(lastNameArr))]
+	return &lastNameArr[rand.Intn(len(lastNameArr))]
 }
 
 // MakeAgency chooses a random agency
-func MakeAgency() string {
-	agencies := [5]string{"ARMY",
+func MakeAgency() *string {
+	agencies := [5]string{
+		"ARMY",
 		"NAVY",
 		"MARINES",
 		"AIR_FORCE",
-		"COAST_GUARD"}
+		"COAST_GUARD",
+	}
 
-	return agencies[rand.Intn(len(agencies))]
+	return &agencies[rand.Intn(len(agencies))]
 }
 
 // MakeCustomer creates a single Customer
@@ -46,19 +49,19 @@ func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
 	email := aCustomer.Email
 	phoneNumber := aCustomer.PhoneNumber
 
-	if firstName == "" {
+	if firstName == nil {
 		firstName = MakeFirstName()
 	}
 
-	if lastName == "" {
+	if lastName == nil {
 		lastName = MakeLastName()
 	}
 
-	if agency == "" {
+	if agency == nil {
 		agency = MakeAgency()
 	}
 	if email == nil || *email == "" {
-		e := fmt.Sprintf("%s%s@mail.com", firstName, lastName)
+		e := fmt.Sprintf("%s%s@mail.com", *firstName, *lastName)
 		email = &e
 	}
 	if phoneNumber == nil || *phoneNumber == "" {
@@ -79,7 +82,7 @@ func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
 		Agency:               agency,
 		CurrentAddress:       currentAddress,
 		CurrentAddressID:     &currentAddress.ID,
-		DODID:                randomEdipi(),
+		DODID:                swag.String(randomEdipi()),
 		DestinationAddress:   destinationAddress,
 		DestinationAddressID: &destinationAddress.ID,
 		Email:                email,

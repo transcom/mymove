@@ -382,7 +382,6 @@ PpmWeight.propTypes = {
   currentWeight: PropTypes.number,
   currentPpm: PropTypes.shape({
     id: PropTypes.string,
-    size: PropTypes.string,
     weight: PropTypes.number,
     incentive: PropTypes.string,
   }),

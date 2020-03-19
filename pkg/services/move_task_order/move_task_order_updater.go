@@ -61,11 +61,12 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 	err := o.builder.FetchOne(&moveTaskOrder, queryFilters)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(moveTaskOrder.ID)
+		return nil, services.NewNotFoundError(moveTaskOrder.ID, "")
 	}
 
-	moveTaskOrder.PPMType = body.PpmType
-	moveTaskOrder.PPMEstimatedWeight = unit.Pound(body.PpmEstimatedWeight)
+	estimatedWeight := unit.Pound(body.PpmEstimatedWeight)
+	moveTaskOrder.PPMType = &body.PpmType
+	moveTaskOrder.PPMEstimatedWeight = &estimatedWeight
 	verrs, err := o.builder.UpdateOne(&moveTaskOrder, &eTag)
 
 	if verrs != nil && verrs.HasAny() {

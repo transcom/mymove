@@ -23,7 +23,6 @@ describe('Ppm Reducer', () => {
           id: 'cd67c9e4-ef59-45e5-94bc-767aaafe559e',
           pickup_postal_code: '80913',
           original_move_date: '2018-06-28',
-          size: 'L',
           status: 'DRAFT',
           weight_estimate: 9000,
         },
@@ -33,7 +32,6 @@ describe('Ppm Reducer', () => {
         hasLoadSuccess: true,
         incentive_estimate_min: 1495409,
         incentive_estimate_max: 1652821,
-        pendingPpmSize: 'L',
         pendingPpmWeight: 9000,
         pendingValue: '',
         sitReimbursement: null,
@@ -55,7 +53,6 @@ describe('Ppm Reducer', () => {
         hasLoadSuccess: true,
         incentive_estimate_min: null,
         incentive_estimate_max: null,
-        pendingPpmSize: null,
         pendingPpmWeight: null,
         sitReimbursement: null,
       });
@@ -72,7 +69,6 @@ describe('Ppm Reducer', () => {
 
       expect(newState).toEqual({
         pendingValue: '',
-        pendingPpmSize: null,
         pendingPpmWeight: null,
         currentPpm: samplePpm,
         sitReimbursement: null,
