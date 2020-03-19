@@ -6,8 +6,9 @@ MilMove uses [Loki](https://loki.js.org/) for testing stories in storybook to en
 
 ### Prereqs
 
-* You will need storybook running locally already. See [How to Run Storybook](docs/how-to/run-storybook.md) for details.
+* You will need storybook running locally already. See [How to Run Storybook](run-storybook.md) for details.
 * You will need Docker for Mac running locally as well. You can install the latest stable version from [here](https://download.docker.com/mac/stable/Docker.dmg).
+  * Detailed instructions for installation can be found in the [Docker for Mac Documentation](https://docs.docker.com/docker-for-mac/install/)
 
 ### Running Loki Tests
 

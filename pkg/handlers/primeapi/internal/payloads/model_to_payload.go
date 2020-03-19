@@ -30,11 +30,18 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		PaymentRequests:    *paymentRequests,
-		PpmEstimatedWeight: int64(moveTaskOrder.PPMEstimatedWeight),
-		PpmType:            moveTaskOrder.PPMType,
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
+
+	if moveTaskOrder.PPMEstimatedWeight != nil {
+		payload.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
+	}
+
+	if moveTaskOrder.PPMType != nil {
+		payload.PpmType = *moveTaskOrder.PPMType
+	}
+
 	// mto service item references a polymorphic type which auto-generates an interface and getters and setters
 	payload.SetMtoServiceItems(*mtoServiceItems)
 
@@ -58,8 +65,6 @@ func MoveTaskOrderWithEtag(moveTaskOrder *models.MoveTaskOrder) *primemessages.M
 			MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 			ReferenceID:        moveTaskOrder.ReferenceID,
 			PaymentRequests:    *paymentRequests,
-			PpmEstimatedWeight: moveTaskOrder.PPMEstimatedWeight.Int64(),
-			PpmType:            moveTaskOrder.PPMType,
 			MtoShipments:       *mtoShipments,
 			UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 		},
@@ -67,6 +72,14 @@ func MoveTaskOrderWithEtag(moveTaskOrder *models.MoveTaskOrder) *primemessages.M
 	}
 	// mto service item references a polymorphic type which auto-generates an interface and getters and setters
 	payload.SetMtoServiceItems(*mtoServiceItems)
+
+	if moveTaskOrder.PPMEstimatedWeight != nil {
+		payload.MoveTaskOrder.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
+	}
+
+	if moveTaskOrder.PPMType != nil {
+		payload.MoveTaskOrder.PpmType = *moveTaskOrder.PPMType
+	}
 
 	return payload
 }

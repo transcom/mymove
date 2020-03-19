@@ -285,7 +285,7 @@ func (suite *ModelSuite) TestSaveOrder() {
 	suite.MustSave(&station)
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
-	_, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, swag.String("55555"), nil, nil, nil, true, &advance)
+	_, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, swag.String("55555"), nil, nil, nil, true, &advance)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
