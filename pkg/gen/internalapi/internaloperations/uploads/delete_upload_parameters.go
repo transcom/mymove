@@ -58,7 +58,7 @@ func (o *DeleteUploadParams) BindRequest(r *http.Request, route *middleware.Matc
 	return nil
 }
 
-// bindUploadID binds and validates parameter UserUploadID from path.
+// bindUploadID binds and validates parameter UploadID from path.
 func (o *DeleteUploadParams) bindUploadID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
@@ -82,7 +82,7 @@ func (o *DeleteUploadParams) bindUploadID(rawData []string, hasKey bool, formats
 	return nil
 }
 
-// validateUploadID carries on validations for parameter UserUploadID
+// validateUploadID carries on validations for parameter UploadID
 func (o *DeleteUploadParams) validateUploadID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("uploadId", "path", "uuid", o.UploadID.String(), formats); err != nil {

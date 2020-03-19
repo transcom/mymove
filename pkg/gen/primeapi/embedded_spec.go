@@ -438,7 +438,7 @@ func init() {
           "201": {
             "description": "Created upload",
             "schema": {
-              "$ref": "#/definitions/UserUpload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -1155,7 +1155,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UserUpload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -1186,7 +1186,7 @@ func init() {
         }
       }
     },
-    "UserUpload": {
+    "Upload": {
       "type": "object",
       "required": [
         "filename",
@@ -1769,7 +1769,7 @@ func init() {
           "201": {
             "description": "Created upload",
             "schema": {
-              "$ref": "#/definitions/UserUpload"
+              "$ref": "#/definitions/Upload"
             }
           },
           "400": {
@@ -2501,7 +2501,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UserUpload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -2532,7 +2532,7 @@ func init() {
         }
       }
     },
-    "UserUpload": {
+    "Upload": {
       "type": "object",
       "required": [
         "filename",
