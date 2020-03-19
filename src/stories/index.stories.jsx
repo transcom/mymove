@@ -57,9 +57,52 @@ const ButtonGroup = props => (
 
 storiesOf('Components|Button', module)
   .add('default', () => <ButtonGroup />)
+  .add('active', () => <ButtonGroup className="active" />)
   .add('hover', () => <ButtonGroup className="hover" />)
   .add('focus', () => <ButtonGroup className="focus" />)
-  .add('disabled', () => <ButtonGroup className="disabled" />);
+  .add('disabled', () => (
+    <div className="disabled" style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
+      <Button disabled onClick={action('clicked')}>
+        <span>Button</span>
+      </Button>
+      <Button disabled className="usa-button--icon" onClick={action('clicked')}>
+        <span className="icon">
+          <EditIcon />
+        </span>
+        <span>Button</span>
+      </Button>
+      <Button disabled secondary onClick={action('clicked')}>
+        <span>Button</span>
+      </Button>
+      <Button disabled className="usa-button--small" onClick={action('clicked')}>
+        <span>Button</span>
+      </Button>
+      <Button disabled className="usa-button--icon usa-button--small" onClick={action('clicked')}>
+        <span className="icon">
+          <EditIcon />
+        </span>
+        <span>Button</span>
+      </Button>
+      <Button disabled secondary className="usa-button--small" onClick={action('clicked')}>
+        <span>Button</span>
+      </Button>
+      <Button disabled secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
+        <span className="icon">
+          <EditIcon />
+        </span>
+        <span>Button</span>
+      </Button>
+      <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
+        <span>Button</span>
+      </Button>
+      <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
+        <span className="icon">
+          <EditIcon />
+        </span>
+        <span>Button</span>
+      </Button>
+    </div>
+  ));
 
 // Colors
 storiesOf('Global|Colors', module).add('all', () => (

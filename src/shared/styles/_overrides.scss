@@ -1,5 +1,6 @@
 //USWDS Overrides
 //many of the components in our system use the USWDS cpmonents as a starting point, but divert a little. Here we will store any ovverrriding scss.
+@import 'shared/styles/colors.scss';
 
 .usa-button {
   @include u-bg('primary-vivid');
@@ -9,6 +10,7 @@
   display: flex;
   align-items: center;
   height: 42px;
+  @include u-margin('1');
   .icon svg path {
     fill: white;
   }
@@ -41,18 +43,27 @@
       @include u-text('primary-dark');
       @include u-bg('transparent');
       box-shadow: inset 0 0 0 2px color('primary-dark');
+      .icon svg path {
+        fill: #1a4480;
+      }
     }
     &:active,
     .active & {
       @include u-text('primary-darker');
       @include u-bg('transparent');
       box-shadow: inset 0 0 0 2px color('primary-darker');
+      .icon svg path {
+        fill: #162e51;
+      }
     }
     &:disabled,
     .disabled & {
       @include u-text('base-light');
       @include u-bg('transparent');
       box-shadow: inset 0 0 0 2px color('base-light');
+      .icon svg path {
+        fill: #c9c9c9;
+      }
     }
   } //close &--secondary
   &--icon {
@@ -64,6 +75,7 @@
     @include u-padding-x('105');
     @include u-padding-y('1');
     @include u-font-size('body', '2xs');
+    height: 34px;
   }
   &.usa-button--unstyled {
     @include u-bg('transparent');
@@ -72,28 +84,28 @@
     .icon {
       @include u-padding-right('1');
       svg path {
-        fill: $link;
+        fill: #0050d8;
       }
     }
     &:hover,
     .hover & {
       @include u-text('primary-dark');
       .icon svg path {
-        fill: $theme-color-primary-dark;
+        fill: #1a4480;
       }
     }
     &:disabled {
       @include u-text('base-light');
       .icon svg path {
-        fill: $theme-color-base-light;
+        fill: #c9c9c9;
       }
     }
     &:active,
     .active & {
       @include u-text('primary-darker');
-    }
-    .icon svg path {
-      fill: $theme-color-primary-darker;
+      .icon svg path {
+        fill: #162e51;
+      }
     }
   }
 } //close usa-button
