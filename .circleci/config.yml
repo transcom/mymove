@@ -575,9 +575,7 @@ jobs:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make bin/rds-ca-2019-root.pem
       - run:
-          command: make client_build
-          environment:
-            EXTEND_ESLINT: true
+          command: EXTEND_ESLINT=true make client_build
       - run: make server_build
       - build_tag_push:
           dockerfile: Dockerfile
