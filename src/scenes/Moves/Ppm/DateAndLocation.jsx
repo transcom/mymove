@@ -192,7 +192,7 @@ function mapStateToProps(state) {
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     ...state.ppm,
-    currentPPM: selectActivePPMForMove(state, moveID),
+    currentPPM: activePPM,
     initialValues: initialValues,
     currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
