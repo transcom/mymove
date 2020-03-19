@@ -38,14 +38,14 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move orders",
+        "description": "Gets all move task orders",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move orders",
+        "summary": "Gets all move task orders",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
@@ -103,8 +103,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder",
-          "prime"
+          "moveTaskOrder"
         ],
         "summary": "Gets a the customer associated with a move task order ID",
         "operationId": "getMoveTaskOrderCustomer",
@@ -166,8 +165,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoShipment",
-          "prime"
+          "mtoShipment"
         ],
         "summary": "Updates mto shipment",
         "operationId": "updateMTOShipment",
@@ -255,8 +253,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoServiceItem",
-          "prime"
+          "mtoServiceItem"
         ],
         "summary": "Creates mto service items",
         "operationId": "createMTOServiceItem",
@@ -328,8 +325,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder",
-          "prime"
+          "moveTaskOrder"
         ],
         "summary": "Updates move task order's post counseling information",
         "operationId": "updateMTOPostCounselingInformation",
@@ -1482,14 +1478,14 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move orders",
+        "description": "Gets all move task orders",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move orders",
+        "summary": "Gets all move task orders",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
@@ -1562,8 +1558,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder",
-          "prime"
+          "moveTaskOrder"
         ],
         "summary": "Gets a the customer associated with a move task order ID",
         "operationId": "getMoveTaskOrderCustomer",
@@ -1637,8 +1632,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoShipment",
-          "prime"
+          "mtoShipment"
         ],
         "summary": "Updates mto shipment",
         "operationId": "updateMTOShipment",
@@ -1744,8 +1738,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoServiceItem",
-          "prime"
+          "mtoServiceItem"
         ],
         "summary": "Creates mto service items",
         "operationId": "createMTOServiceItem",
@@ -1826,8 +1819,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder",
-          "prime"
+          "moveTaskOrder"
         ],
         "summary": "Updates move task order's post counseling information",
         "operationId": "updateMTOPostCounselingInformation",

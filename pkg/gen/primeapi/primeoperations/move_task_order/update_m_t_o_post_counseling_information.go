@@ -34,7 +34,7 @@ func NewUpdateMTOPostCounselingInformation(ctx *middleware.Context, handler Upda
 	return &UpdateMTOPostCounselingInformation{Context: ctx, Handler: handler}
 }
 
-/*UpdateMTOPostCounselingInformation swagger:route PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info moveTaskOrder prime updateMTOPostCounselingInformation
+/*UpdateMTOPostCounselingInformation swagger:route PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info moveTaskOrder updateMTOPostCounselingInformation
 
 Updates move task order's post counseling information
 
