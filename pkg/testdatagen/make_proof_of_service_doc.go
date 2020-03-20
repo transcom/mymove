@@ -27,14 +27,14 @@ func MakeProofOfServiceDoc(db *pop.Connection, assertions Assertions) models.Pro
 	}
 
 	// Overwrite values with those from assertions
-	mergeModels(&posDoc, assertions.Document)
+	mergeModels(&posDoc, assertions.ProofOfServiceDoc)
 
 	mustCreate(db, &posDoc)
 
 	return posDoc
 }
 
-// MakeDefaultProofOfServiceDocument returns a ProofOfServiceDoc with default values
-func MakeDefaultProofOfServiceDocument(db *pop.Connection) models.ProofOfServiceDoc {
+// MakeDefaultProofOfServiceDoc returns a ProofOfServiceDoc with default values
+func MakeDefaultProofOfServiceDoc(db *pop.Connection) models.ProofOfServiceDoc {
 	return MakeProofOfServiceDoc(db, Assertions{})
 }

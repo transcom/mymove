@@ -190,3 +190,11 @@ func (u *PrimeUploader) GetUploadStorageKey() string {
 	}
 	return u.uploader.UploadStorageKey
 }
+
+// Download fetches an Upload's file and stores it in a tempfile. The path to this
+// file is returned.
+//
+// It is the caller's responsibility to delete the tempfile.
+func (u *PrimeUploader) Download(primeUpload *models.PrimeUpload) (io.ReadCloser, error) {
+	return u.uploader.Download(primeUpload.Upload)
+}
