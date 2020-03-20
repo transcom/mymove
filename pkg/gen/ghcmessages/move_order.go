@@ -36,6 +36,9 @@ type MoveOrder struct {
 	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// entitlement
 	Entitlement *Entitlements `json:"entitlement,omitempty"`
 

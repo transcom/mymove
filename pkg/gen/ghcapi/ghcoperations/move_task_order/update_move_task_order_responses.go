@@ -225,6 +225,48 @@ func (o *UpdateMoveTaskOrderNotFound) WriteResponse(rw http.ResponseWriter, prod
 	}
 }
 
+// UpdateMoveTaskOrderPreconditionFailedCode is the HTTP code returned for type UpdateMoveTaskOrderPreconditionFailed
+const UpdateMoveTaskOrderPreconditionFailedCode int = 412
+
+/*UpdateMoveTaskOrderPreconditionFailed Precondition failed
+
+swagger:response updateMoveTaskOrderPreconditionFailed
+*/
+type UpdateMoveTaskOrderPreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewUpdateMoveTaskOrderPreconditionFailed creates UpdateMoveTaskOrderPreconditionFailed with default headers values
+func NewUpdateMoveTaskOrderPreconditionFailed() *UpdateMoveTaskOrderPreconditionFailed {
+
+	return &UpdateMoveTaskOrderPreconditionFailed{}
+}
+
+// WithPayload adds the payload to the update move task order precondition failed response
+func (o *UpdateMoveTaskOrderPreconditionFailed) WithPayload(payload interface{}) *UpdateMoveTaskOrderPreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update move task order precondition failed response
+func (o *UpdateMoveTaskOrderPreconditionFailed) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMoveTaskOrderPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(412)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // UpdateMoveTaskOrderInternalServerErrorCode is the HTTP code returned for type UpdateMoveTaskOrderInternalServerError
 const UpdateMoveTaskOrderInternalServerErrorCode int = 500
 
