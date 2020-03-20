@@ -26,6 +26,9 @@ type CreatePaymentRequestPayload struct {
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
+	// Email or id of a contact person for this update
+	PointOfContact string `json:"pointOfContact,omitempty"`
+
 	// service items
 	ServiceItems []*ServiceItem `json:"serviceItems"`
 }

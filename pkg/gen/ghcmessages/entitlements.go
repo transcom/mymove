@@ -23,6 +23,9 @@ type Entitlements struct {
 	// dependents authorized
 	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`

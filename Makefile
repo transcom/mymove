@@ -242,6 +242,9 @@ bin/generate-test-data:
 bin/ghc-pricing-parser:
 	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/ghc-pricing-parser
 
+bin/ghc-transit-time-parser:
+	go build -ldflags "$(LDFLAGS)" -o bin/ghc-transit-time-parser ./cmd/ghc-transit-time-parser
+
 bin/health-checker:
 	go build -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
 
@@ -335,6 +338,7 @@ build_tools: bin/gin \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/ghc-pricing-parser \
+	bin/ghc-transit-time-parser \
 	bin/health-checker \
 	bin/iws \
 	bin/milmove-tasks \

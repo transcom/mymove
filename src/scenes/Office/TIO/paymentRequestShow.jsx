@@ -12,6 +12,7 @@ class PaymentRequestShow extends React.Component {
   updatePaymentRequest = (paymentRequest = {}) => {
     paymentRequest.status = 'REVIEWED';
     paymentRequest.paymentRequestID = this.props.id;
+    paymentRequest.ifMatchETag = this.props.paymentRequest.eTag;
     this.props.updatePaymentRequest(paymentRequest);
   };
 

@@ -12,33 +12,39 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 
 	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
-// NewUpdateMTOServiceItemstatusParams creates a new UpdateMTOServiceItemstatusParams object
+// NewUpdateMTOServiceItemStatusParams creates a new UpdateMTOServiceItemStatusParams object
 // no default values defined in spec.
-func NewUpdateMTOServiceItemstatusParams() UpdateMTOServiceItemstatusParams {
+func NewUpdateMTOServiceItemStatusParams() UpdateMTOServiceItemStatusParams {
 
-	return UpdateMTOServiceItemstatusParams{}
+	return UpdateMTOServiceItemStatusParams{}
 }
 
-// UpdateMTOServiceItemstatusParams contains all the bound params for the update m t o service itemstatus operation
+// UpdateMTOServiceItemStatusParams contains all the bound params for the update m t o service item status operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters updateMTOServiceItemstatus
-type UpdateMTOServiceItemstatusParams struct {
+// swagger:parameters updateMTOServiceItemStatus
+type UpdateMTOServiceItemStatusParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
 	/*
 	  Required: true
+	  In: header
+	*/
+	IfMatch string
+	/*
+	  Required: true
 	  In: body
 	*/
-	Body *ghcmessages.MTOServiceItemstatus
+	Body *ghcmessages.MTOServiceItem
 	/*ID of move order to use
 	  Required: true
 	  In: path
@@ -54,15 +60,19 @@ type UpdateMTOServiceItemstatusParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewUpdateMTOServiceItemstatusParams() beforehand.
-func (o *UpdateMTOServiceItemstatusParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewUpdateMTOServiceItemStatusParams() beforehand.
+func (o *UpdateMTOServiceItemStatusParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
 
+	if err := o.bindIfMatch(r.Header[http.CanonicalHeaderKey("If-Match")], true, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.MTOServiceItemstatus
+		var body ghcmessages.MTOServiceItem
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body"))
@@ -98,8 +108,29 @@ func (o *UpdateMTOServiceItemstatusParams) BindRequest(r *http.Request, route *m
 	return nil
 }
 
+// bindIfMatch binds and validates parameter IfMatch from header.
+func (o *UpdateMTOServiceItemStatusParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("If-Match", "header")
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+
+	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
+		return err
+	}
+
+	o.IfMatch = raw
+
+	return nil
+}
+
 // bindMoveTaskOrderID binds and validates parameter MoveTaskOrderID from path.
-func (o *UpdateMTOServiceItemstatusParams) bindMoveTaskOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateMTOServiceItemStatusParams) bindMoveTaskOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -114,7 +145,7 @@ func (o *UpdateMTOServiceItemstatusParams) bindMoveTaskOrderID(rawData []string,
 }
 
 // bindMtoServiceItemID binds and validates parameter MtoServiceItemID from path.
-func (o *UpdateMTOServiceItemstatusParams) bindMtoServiceItemID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateMTOServiceItemStatusParams) bindMtoServiceItemID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]

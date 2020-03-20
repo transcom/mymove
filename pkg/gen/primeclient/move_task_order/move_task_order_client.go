@@ -27,9 +27,9 @@ type Client struct {
 }
 
 /*
-FetchMTOUpdates gets all move orders
+FetchMTOUpdates gets all move task orders
 
-Gets all move orders
+Gets all move task orders
 */
 func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdatesOK, error) {
 	// TODO: Validate the params before sending
