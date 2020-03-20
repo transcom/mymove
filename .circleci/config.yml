@@ -392,7 +392,6 @@ jobs:
           name: make anti_virus
           command: make anti_virus
           environment:
-            AV_MOUNT_DIR: /transcom/mymove
             # WARNING: IGNORE FILES AT OUR PERIL. IF ADDING HERE ADD NOTES!
             # - pkg/testdatagen/testdata/orders.pdf is a file used exclusively for testing
             AV_IGNORE_FILES: pkg/testdatagen/testdata/orders.pdf

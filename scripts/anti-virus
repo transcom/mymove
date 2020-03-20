@@ -138,7 +138,9 @@ msg_now "Retry Complete Time"
 if [[ -n "${CIRCLECI+x}" ]]; then
   # Can't mount folders in CircleCI so copy this data in
   # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
-  docker cp "${DIR}" "${CONTAINER_NAME}:${MOUNT_DIR}/.."
+  echo
+  echo "Copying files from ${DIR} to ${CONTAINER_NAME}:${MOUNT_DIR}"
+  docker cp "${DIR}" "${CONTAINER_NAME}:${MOUNT_DIR}"
 fi
 
 # Create a whitelist of files to ignore
