@@ -375,7 +375,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 				PrimeEstimatedWeight: &estimatedWeight,
 			},
 		})
-		_, err := updater.UpdateMTOShipmentStatus(shipmentHeavy.ID, status, nil, eTag)
+		shipmentHeavyEtag := etag.GenerateEtag(shipmentHeavy.UpdatedAt)
+		_, err := updater.UpdateMTOShipmentStatus(shipmentHeavy.ID, status, nil, shipmentHeavyEtag)
 		suite.NoError(err)
 		serviceItems := models.MTOServiceItems{}
 		_ = suite.DB().All(&serviceItems)
