@@ -22,7 +22,9 @@ WORKDIR /home/circleci/project
 # ENTRYPOINT is set by parent docker image, this is intentionally not overridden to allow support for running chrome in the container for loki tests.
 CMD yarn storybook --ci
 
-RUN yarn install
+# setting network concurrency to 1 because using the default failed with errors trying to extract package tar files saying they were corrupt.
+# this was workaround that seemed to fix the issue See for details https://github.com/yarnpkg/yarn/issues/7212
+RUN yarn install --network-concurrency 1
 
 COPY --chown=circleci:circleci .storybook/ /home/circleci/project/.storybook/
 
