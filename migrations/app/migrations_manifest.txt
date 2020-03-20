@@ -482,3 +482,4 @@
 20200316180737_alter_moving_expense_document_nullability.up.sql
 20200316205857_alter_uploads_nullability.up.sql
 20200317164138_jaynawallace_cac.up.sql
+20200319211333_add_missing_zip3s_to_tariff400ng_zip3s_table.up.sql
