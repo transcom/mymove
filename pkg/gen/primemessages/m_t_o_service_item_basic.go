@@ -19,6 +19,8 @@ import (
 // MTOServiceItemBasic Describes a basic service item subtype of a MTOServiceItem
 // swagger:model MTOServiceItemBasic
 type MTOServiceItemBasic struct {
+	eTagField string
+
 	idField strfmt.UUID
 
 	moveTaskOrderIdField strfmt.UUID
@@ -32,6 +34,16 @@ type MTOServiceItemBasic struct {
 	// re service code
 	// Required: true
 	ReServiceCode ReServiceCode `json:"reServiceCode"`
+}
+
+// ETag gets the e tag of this subtype
+func (m *MTOServiceItemBasic) ETag() string {
+	return m.eTagField
+}
+
+// SetETag sets the e tag of this subtype
+func (m *MTOServiceItemBasic) SetETag(val string) {
+	m.eTagField = val
 }
 
 // ID gets the id of this subtype
@@ -115,6 +127,8 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 	var base struct {
 		/* Just the base type fields. Used for unmashalling polymorphic types.*/
 
+		ETag string `json:"eTag,omitempty"`
+
 		ID strfmt.UUID `json:"id,omitempty"`
 
 		ModelType MTOServiceItemModelType `json:"modelType"`
@@ -136,6 +150,8 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 	}
 
 	var result MTOServiceItemBasic
+
+	result.eTagField = base.ETag
 
 	result.idField = base.ID
 
@@ -177,6 +193,8 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	b2, err = json.Marshal(struct {
+		ETag string `json:"eTag,omitempty"`
+
 		ID strfmt.UUID `json:"id,omitempty"`
 
 		ModelType MTOServiceItemModelType `json:"modelType"`
@@ -189,6 +207,8 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 	}{
+
+		ETag: m.ETag(),
 
 		ID: m.ID(),
 
