@@ -246,20 +246,11 @@ func (u *Uploader) PresignedURL(upload *models.Upload) (string, error) {
 
 // DeleteUpload removes an Upload from the database and deletes its file from the
 // storer.
-func (u *Uploader) deleteUpload(upload *models.Upload) error {
-	if u.db.TX != nil {
-		if err := u.Storer.Delete(upload.StorageKey); err != nil {
-			return err
-		}
-		return models.DeleteUpload(u.db, upload)
+func (u *Uploader) DeleteUpload(upload *models.Upload) error {
+	if err := u.Storer.Delete(upload.StorageKey); err != nil {
+		return err
 	}
-	return u.db.Transaction(func(db *pop.Connection) error {
-		if err := u.Storer.Delete(upload.StorageKey); err != nil {
-			return err
-		}
-
-		return models.DeleteUpload(db, upload)
-	})
+	return models.DeleteUpload(u.db, upload)
 }
 
 // Download fetches an Upload's file and stores it in a tempfile. The path to this

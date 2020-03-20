@@ -117,3 +117,16 @@ func DeleteUpload(dbConn *pop.Connection, upload *Upload) error {
 	}
 	return nil
 }
+
+// Valid checks if UploadType is set to a valid value
+func (ut UploadType) Valid() bool {
+	for _, value := range []string{
+		string(UploadTypeUSER),
+		string(UploadTypePRIME),
+	} {
+		if string(ut) == value {
+			return true
+		}
+	}
+	return false
+}

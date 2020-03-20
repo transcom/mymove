@@ -165,7 +165,7 @@ func main() {
 		storer := storage.NewFilesystem(fsParams)
 		userUploader, uploaderErr := uploader.NewUserUploader(dbConnection, logger, storer, 25*uploader.MB)
 		if uploaderErr != nil {
-			logger.Fatal("could not instantiate uploader", zap.Error(err))
+			logger.Fatal("could not instantiate user uploader", zap.Error(err))
 		}
 
 		tdgs.E2eBasicScenario.Run(dbConnection, userUploader, logger, storer)

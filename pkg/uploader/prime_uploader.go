@@ -138,14 +138,14 @@ func (u *PrimeUploader) CreatePrimeUpload(contractorID uuid.UUID, file File, all
 // storer.
 func (u *PrimeUploader) DeletePrimeUpload(primeUpload *models.PrimeUpload) error {
 	if u.db.TX != nil {
-		if err := u.uploader.deleteUpload(primeUpload.Upload); err != nil {
+		if err := u.uploader.DeleteUpload(primeUpload.Upload); err != nil {
 			return err
 		}
 		return models.DeletePrimeUpload(u.db, primeUpload)
 
 	}
 	return u.db.Transaction(func(db *pop.Connection) error {
-		if err := u.uploader.deleteUpload(primeUpload.Upload); err != nil {
+		if err := u.uploader.DeleteUpload(primeUpload.Upload); err != nil {
 			return err
 		}
 		return models.DeletePrimeUpload(db, primeUpload)

@@ -76,6 +76,7 @@ type Assertions struct {
 	TransportationServiceProvider            models.TransportationServiceProvider
 	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
 	Upload                                   models.Upload
+	UploadUseZeroBytes                       bool
 	Uploader                                 *uploader.Uploader
 	UserUpload                               models.UserUpload
 	UserUploader                             *uploader.UserUploader

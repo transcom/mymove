@@ -34,10 +34,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 
 	suite.T().Run("successful create upload", func(t *testing.T) {
 		upload := models.Upload{
-			ID: uploadID,
-			//DocumentID:  nil,
-			//Document:    models.Document{},
-			//UploaderID:  primeUser.ID,
+			ID:          uploadID,
 			Filename:    "test.pdf",
 			Bytes:       42330,
 			ContentType: "application/json",

@@ -87,34 +87,14 @@ func (u *UserUploader) CreateUserUploadForDocument(documentID *uuid.UUID, userID
 	var verrs *validate.Errors
 	var uploadError error
 
-	// If we are already in a transaction, don't start one
-	if u.db.TX != nil {
-		userUpload, verrs, uploadError = u.createAndStore(documentID, userID, file, allowedTypes)
-		if verrs.HasAny() || uploadError != nil {
-			u.logger.Error("error creating new user upload (existing TX)", zap.Error(uploadError))
-		} else {
-			u.logger.Info("created a user upload with id and key (existing TX)", zap.Any("new_user_upload_id", userUpload.ID), zap.String("key", userUpload.Upload.StorageKey))
-		}
-
-		return userUpload, verrs, uploadError
+	userUpload, verrs, uploadError = u.createAndStore(documentID, userID, file, allowedTypes)
+	if verrs.HasAny() || uploadError != nil {
+		u.logger.Error("error creating new user upload (existing TX)", zap.Error(uploadError))
+	} else {
+		u.logger.Info("created a user upload with id and key (existing TX)", zap.Any("new_user_upload_id", userUpload.ID), zap.String("key", userUpload.Upload.StorageKey))
 	}
 
-	txError := u.db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("Rollback The transaction")
-		userUpload, verrs, uploadError = u.createAndStore(documentID, userID, file, allowedTypes)
-		if verrs.HasAny() || uploadError != nil {
-			u.logger.Error("error creating new user upload", zap.Error(uploadError))
-			return transactionError
-		}
-
-		u.logger.Info("created a user upload with id and key ", zap.Any("new_user_upload_id", userUpload.ID), zap.String("key", userUpload.Upload.StorageKey))
-		return nil
-	})
-	if txError != nil {
-		return nil, verrs, uploadError
-	}
-
-	return userUpload, &validate.Errors{}, nil
+	return userUpload, verrs, uploadError
 }
 
 // CreateUserUpload stores UserUpload but does not assign a Document
@@ -128,19 +108,10 @@ func (u *UserUploader) CreateUserUpload(userID uuid.UUID, file File, allowedType
 // DeleteUserUpload removes an UserUpload from the database and deletes its file from the
 // storer.
 func (u *UserUploader) DeleteUserUpload(userUpload *models.UserUpload) error {
-	if u.db.TX != nil {
-		if err := u.uploader.deleteUpload(userUpload.Upload); err != nil {
-			return err
-		}
-		return models.DeleteUserUpload(u.db, userUpload)
-
+	if err := u.uploader.DeleteUpload(userUpload.Upload); err != nil {
+		return err
 	}
-	return u.db.Transaction(func(db *pop.Connection) error {
-		if err := u.uploader.deleteUpload(userUpload.Upload); err != nil {
-			return err
-		}
-		return models.DeleteUserUpload(db, userUpload)
-	})
+	return models.DeleteUserUpload(u.db, userUpload)
 }
 
 // PresignedURL returns a URL that can be used to access an UserUpload's file.
@@ -180,4 +151,12 @@ func (u *UserUploader) GetUploadStorageKey() string {
 		return ""
 	}
 	return u.uploader.UploadStorageKey
+}
+
+// Download fetches an Upload's file and stores it in a tempfile. The path to this
+// file is returned.
+//
+// It is the caller's responsibility to delete the tempfile.
+func (u *UserUploader) Download(userUpload *models.UserUpload) (io.ReadCloser, error) {
+	return u.uploader.Download(userUpload.Upload)
 }

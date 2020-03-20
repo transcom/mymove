@@ -27,12 +27,39 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 		}
 	} else {
 		// If no file is being stored, use asserted fields
-		upload = &models.Upload{
-			Filename:    "testFile.pdf",
-			Bytes:       2202009,
-			ContentType: "application/pdf",
-			Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+		upload = &models.Upload{}
+
+		filename := "testFile.pdf"
+		if assertions.Upload.Filename != "" {
+			filename = assertions.Upload.Filename
 		}
+		upload.Filename = filename
+
+		bytes := int64(2202009)
+		if assertions.UploadUseZeroBytes == true {
+			bytes = 0
+		} else if assertions.Upload.Bytes > 0 {
+			bytes = assertions.Upload.Bytes
+		}
+		upload.Bytes = bytes
+
+		contentType := "application/pdf"
+		if assertions.Upload.ContentType != "" {
+			contentType = assertions.Upload.ContentType
+		}
+		upload.ContentType = contentType
+
+		checksum := "ImGQ2Ush0bDHsaQthV5BnQ=="
+		if assertions.Upload.Checksum != "" {
+			checksum = assertions.Upload.Checksum
+		}
+		upload.Checksum = checksum
+
+		uploadType := models.UploadTypeUSER
+		if assertions.Upload.UploadType.Valid() {
+			uploadType = assertions.Upload.UploadType
+		}
+		upload.UploadType = uploadType
 
 		mergeModels(upload, assertions.Upload)
 

@@ -43,20 +43,7 @@ func FetchDocument(ctx context.Context, db *pop.Connection, session *auth.Sessio
 
 	if !includeDeletedDocs {
 		query = query.Where("documents.deleted_at is null and u.deleted_at is null")
-		//query = query.Where("documents.deleted_at is null")
 	}
-
-	/*
-		err := query.Eager("ID",
-			"ServiceMemberID",
-		    "ServiceMember",
-			"UserUploads.Upload",
-			"DeletedAt").
-			LeftJoin("user_uploads as uu", "documents.id = uu.document_id").
-			LeftJoin("uploads as u", "uu.upload_id = u.id").
-			Find(&document, id)
-
-	*/
 
 	err := query.Eager("UserUploads.Upload").
 		LeftJoin("user_uploads as uu", "documents.id = uu.document_id").
