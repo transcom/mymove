@@ -7,6 +7,18 @@ set -eu -o pipefail
 #
 # More information about the docker setup is found here: https://github.com/mko-x/docker-clamav
 #
+# Environment Variables that modify behavior:
+#
+# - AV_CONTAINER_NAME: The name used to reference the running container (default: anti_virus)
+# - AV_DOCKER_IMAGE: The docker image used which runs ClamAV (default: mk0x/docker-clamav:alpine)
+# - AV_IGNORE_FILES: Specific files to ignore when scanning in a space-separated list
+# - AV_IGNORE_SIGS: Specific signatures to ignore when scanning in a space-separated list
+# - AV_MOUNT_DIR: The directory in the container used to mount files for scanning (default: /project)
+# - AV_RETRY_COUNT: The number of times to check the docker container's running state (default: 5)
+# - AV_RETRY_SLEEP: The number of seconds to sleep between retrying checks on the container's running state (default: 15)
+# - AV_WHITELIST_FILES: The database file used for whitelisted files (default: whitelist-files.fp)
+# - AV_WHITELIST_SIGS: The database file used for whitelisted signatures (default: whitelist-signatures.ign2)
+#
 
 function msg_now() {
   msg=$1
@@ -17,26 +29,25 @@ msg_now "Script Start Time"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 readonly DIR
-SLEEP=15
-readonly SLEEP
-DOCKER_IMAGE=mk0x/docker-clamav:alpine
+RETRY_COUNT=${AV_RETRY_COUNT:-5}
+readonly RETRY_COUNT
+RETRY_SLEEP=${AV_RETRY_SLEEP:-15}
+readonly RETRY_SLEEP
+DOCKER_IMAGE=${AV_DOCKER_IMAGE:-mk0x/docker-clamav:alpine}
 readonly DOCKER_IMAGE
-CONTAINER_NAME=anti_virus
+CONTAINER_NAME=${AV_CONTAINER_NAME:-anti_virus}
 readonly CONTAINER_NAME
-MOUNT_DIR=/transcom/mymove
+MOUNT_DIR=${AV_MOUNT_DIR:-/project}
 readonly MOUNT_DIR
-IGNORE_FILES=(pkg/testdatagen/testdata/orders.pdf)
+IGNORE_FILES=${AV_IGNORE_FILES:-}
 readonly IGNORE_FILES
-# WARNING: IGNORE AT OUR PERIL. IF ADDING HERE ADD NOTES!
-# - PUA.Pdf.Trojan.EmbeddedJavaScript-1 is ignored because we don't ship PDFs in any docker containers
-# - orders.pdf.UNOFFICIAL is a finding based on the ignored file above of the same name
-IGNORE_SIGS=(PUA.Pdf.Trojan.EmbeddedJavaScript-1 orders.pdf.UNOFFICIAL)
+IGNORE_SIGS=${AV_IGNORE_SIGS:-}
 readonly IGNORE_SIGS
 # *.fp is preferred over *.hsb
-WHITELIST_FILES=whitelist-files.fp
+WHITELIST_FILES=${AV_WHITELIST_FILES:-whitelist-files.fp}
 readonly WHITELIST_FILES
 # *.ign2 replaces *.ign files
-WHITELIST_SIGS=whitelist-signatures.ign2
+WHITELIST_SIGS=${AV_WHITELIST_SIGS:-whitelist-signatures.ign2}
 readonly WHITELIST_SIGS
 
 if [ -n "${CIRCLECI+x}" ]; then
@@ -64,25 +75,41 @@ docker pull "${DOCKER_IMAGE}"
 # is updating) means we may be run into a container exiting early and its unclear why.
 
 # Start rerun loop here
-for RETRY_COUNT in {1..5}; do
+for ((COUNT=1; COUNT<=RETRY_COUNT; COUNT++)); do
   msg_now "Retry Start Time"
 
-  # Mount the project directory inside for scanning later
-  echo
-  echo "Mounting the project directory for scanning:"
-  docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
+  echo "Running the anti-virus container ${DOCKER_IMAGE} as ${CONTAINER_NAME}"
+  if [[ -n "${CIRCLECI+x}" ]]; then
+    docker run -d -p 3310:3310 --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
+  else
+    echo
+    echo "Mounting the project directory for scanning:"
+    # Can't mount folders in CircleCI so this mount point won't work.
+    # It's only here as a speed convenience for running locally.
+    # See below where the repo is copied into the container in CircleCI.
+    docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
+  fi
 
-  # Need to sleep just long enough for docker to start up
+  # Need to sleep just long enough for docker to start up. This number is arbitrary but appears to work.
   sleep 5
+
+  # Inspect the running state
   if [ "$(docker inspect -f '{{.State.Running}}' "${CONTAINER_NAME}")" == "false" ]; then
     docker logs "${CONTAINER_NAME}"
     docker rm -f "${CONTAINER_NAME}"
-    echo "Container not running! Retry number ${RETRY_COUNT}"
-    if [ "${RETRY_COUNT}" == "5" ]; then
+    echo
+    echo "********************************************************************************"
+    echo "Container not running! Retry number ${COUNT}"
+    echo "See Help Information: "
+    echo " - For FreshClam Errors: https://www.clamav.net/documents/freshclam-faq"
+    echo " - For ClamAV Troubleshooting: https://www.clamav.net/documents/troubleshooting-faq"
+    echo " - For other questions: https://www.clamav.net/documents/clam-antivirus-user-manual"
+    echo "********************************************************************************"
+    if [ "${COUNT}" == "5" ]; then
       echo "Script cannot continue now that retries are exhuasted"
       exit 1
     else
-      break
+      continue
     fi
   else
     # Remove warning from clamav:
@@ -94,8 +121,8 @@ for RETRY_COUNT in {1..5}; do
       if docker exec -it "${CONTAINER_NAME}" ls /tmp/clamd.sock &> /dev/null ; then
         break
       else
-        echo "Retry ${RETRY_COUNT}: Waiting ${SLEEP} seconds for clamd service to be available"
-        sleep "${SLEEP}"
+        echo "Retry ${COUNT}: Waiting ${RETRY_SLEEP} seconds for clamd service to be available"
+        sleep "${RETRY_SLEEP}"
       fi
     done
     break
@@ -121,8 +148,10 @@ fi
 # See https://www.clamav.net/documents/file-hash-signatures
 echo
 echo "Creating whitelist of files to ignore:"
+
+rm -f "${WHITELIST_FILES}"
 touch "${WHITELIST_FILES}"
-for file in "${IGNORE_FILES[@]}"; do
+for file in ${IGNORE_FILES}; do
   # This step verifies the ignore file exists and also details some info for debugging
   docker exec -it "${CONTAINER_NAME}" ls -alh "${MOUNT_DIR}/${file}"
   # Sigtool format is "MD5sum:Filesize:Comment"
@@ -130,8 +159,9 @@ for file in "${IGNORE_FILES[@]}"; do
 done
 echo
 echo "Creating whitelist of signatures to ignore:"
+rm -f "${WHITELIST_SIGS}"
 touch "${WHITELIST_SIGS}"
-for sig in "${IGNORE_SIGS[@]}"; do
+for sig in ${IGNORE_SIGS}; do
   echo "${sig}" | tee -a "${WHITELIST_SIGS}"
 done
 
@@ -180,7 +210,9 @@ msg_now "Scan End Time"
 
 # Clean up, useful in developement only
 # docker rm -f "${CONTAINER_NAME}"
-# rm -f "${WHITELIST_FILES}"
-# rm -f "${WHITELIST_SIGS}"
+
+# Remove whitelist files
+rm -f "${WHITELIST_FILES}"
+rm -f "${WHITELIST_SIGS}"
 
 msg_now "Script End Time"
