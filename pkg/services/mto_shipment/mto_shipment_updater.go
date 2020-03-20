@@ -177,6 +177,7 @@ type mtoShipmentStatusUpdater struct {
 	db        *pop.Connection
 	builder   UpdateMTOShipmentQueryBuilder
 	siCreator services.MTOServiceItemCreator
+	planner   route.Planner
 }
 
 // UpdateMTOShipmentStatus updates MTO Shipment Status
@@ -204,6 +205,17 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	if shipment.Status == models.MTOShipmentStatusApproved {
 		approvedDate := time.Now()
 		shipment.ApprovedDate = &approvedDate
+
+		if shipment.ScheduledPickupDate != nil &&
+			shipment.RequiredDeliveryDate == nil &&
+			shipment.PrimeEstimatedWeight != nil {
+			requiredDeliveryDate, calcErr := calculateRequiredDeliveryDate(o.planner, o.db, shipment.PickupAddress, shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
+			if calcErr != nil {
+				return nil, calcErr
+			}
+			shipment.RequiredDeliveryDate = requiredDeliveryDate
+		}
+
 	}
 
 	verrs, err := o.builder.UpdateOne(&shipment, &eTag)
@@ -350,7 +362,7 @@ func calculateRequiredDeliveryDate(planner route.Planner, db *pop.Connection, pi
 	err = db.Where("distance_miles_lower <= ? "+
 		"AND distance_miles_upper >= ? "+
 		"AND weight_lbs_lower <= ? "+
-		"AND weight_lbs_upper >= ?",
+		"AND (weight_lbs_upper >= ? OR weight_lbs_upper = 0)",
 		distance, distance, weight, weight).First(&ghcDomesticTransitTime)
 
 	if err != nil {
@@ -363,8 +375,8 @@ func calculateRequiredDeliveryDate(planner route.Planner, db *pop.Connection, pi
 }
 
 // NewMTOShipmentStatusUpdater creates a new MTO Shipment Status Updater
-func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, siCreator services.MTOServiceItemCreator) services.MTOShipmentStatusUpdater {
-	return &mtoShipmentStatusUpdater{db, builder, siCreator}
+func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, siCreator services.MTOServiceItemCreator, planner route.Planner) services.MTOShipmentStatusUpdater {
+	return &mtoShipmentStatusUpdater{db, builder, siCreator, planner}
 }
 
 // ConflictStatusError returns an error for a conflict in status

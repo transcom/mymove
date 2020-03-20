@@ -266,10 +266,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	estimatedWeight := unit.Pound(2000)
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 		MTOShipment: models.MTOShipment{
-			ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+			PrimeEstimatedWeight: &estimatedWeight,
 		},
 	})
 	shipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -322,17 +325,65 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		})
 	}
 
+	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+		MaxDaysTransitTime: 12,
+		WeightLbsLower:     0,
+		WeightLbsUpper:     10000,
+		DistanceMilesLower: 0,
+		DistanceMilesUpper: 10000,
+	}
+	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
+	// Let's also create a transit time object with a zero upper bound for weight (this can happen in the table).
+	ghcDomesticTransitTime0LbsUpper := models.GHCDomesticTransitTime{
+		MaxDaysTransitTime: 12,
+		WeightLbsLower:     10001,
+		WeightLbsUpper:     0,
+		DistanceMilesLower: 0,
+		DistanceMilesUpper: 10000,
+	}
+	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime0LbsUpper)
+
 	builder := query.NewQueryBuilder(suite.DB())
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
-	updater := NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator)
+	updater := NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, route.NewTestingPlanner(500))
 
 	suite.T().Run("If we get a mto shipment pointer with a status it should update and return no error", func(t *testing.T) {
 		_, err := updater.UpdateMTOShipmentStatus(shipment.ID, status, nil, eTag)
+		suite.NoError(err)
 		serviceItems := models.MTOServiceItems{}
 		_ = suite.DB().All(&serviceItems)
-		shipments := models.MTOShipment{}
-		suite.DB().All(&shipments)
+		fetchedShipment := models.MTOShipment{}
+		err = suite.DB().Find(&fetchedShipment, shipment.ID)
 		suite.NoError(err)
+		// We also should have a required delivery date
+		suite.NotNil(fetchedShipment.RequiredDeliveryDate)
+	})
+
+	suite.T().Run("If we are approving a shipment but are missing key information (estimated weight and pickup date) it should fail", func(t *testing.T) {
+		_, err := updater.UpdateMTOShipmentStatus(shipment2.ID, status, nil, eTag)
+		suite.NotNil(err)
+	})
+
+	suite.T().Run("If we act on a shipment with a weight that has a 0 upper weight it should still work", func(t *testing.T) {
+		estimatedWeight := unit.Pound(11000)
+		shipmentHeavy := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MoveTaskOrder: mto,
+			MTOShipment: models.MTOShipment{
+				ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
+				PrimeEstimatedWeight: &estimatedWeight,
+			},
+		})
+		_, err := updater.UpdateMTOShipmentStatus(shipmentHeavy.ID, status, nil, eTag)
+		suite.NoError(err)
+		serviceItems := models.MTOServiceItems{}
+		_ = suite.DB().All(&serviceItems)
+		fetchedShipment := models.MTOShipment{}
+		err = suite.DB().Find(&fetchedShipment, shipment.ID)
+		suite.NoError(err)
+		// We also should have a required delivery date
+		suite.NotNil(fetchedShipment.RequiredDeliveryDate)
 	})
 
 	suite.T().Run("Update MTO Shipment SUBMITTED status to REJECTED with a rejection reason should return no error", func(t *testing.T) {
@@ -343,6 +394,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.NotNil(returnedShipment)
 		suite.Equal(models.MTOShipmentStatusRejected, returnedShipment.Status)
 		suite.Equal(&rejectionReason, returnedShipment.RejectionReason)
+		// Since this is a rejection we should not generate a required delivery date
+		suite.Nil(returnedShipment.RequiredDeliveryDate)
 	})
 
 	suite.T().Run("Update MTO Shipment status to REJECTED with no rejection reason should return error", func(t *testing.T) {
