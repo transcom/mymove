@@ -8,10 +8,10 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectActivePPMForMove, createPPM, updatePPM, updatePPMEstimate } from 'shared/Entities/modules/ppms';
+import { createPPM, selectActivePPMForMove, updatePPM, updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
-import { createOrUpdatePpm, setInitialFormValues } from './ducks';
+import { setInitialFormValues } from './ducks';
 
 import './DateAndLocation.css';
 
@@ -83,10 +83,15 @@ export class DateAndLocation extends Component {
         pendingValues.days_in_storage = null;
       }
       const moveId = this.props.match.params.moveId;
-      return this.props
-        .createOrUpdatePpm(moveId, pendingValues)
-        .then(({ payload }) => this.props.updatePPMEstimate(moveId, payload.id).catch(err => err));
-      // catch block returns error so that the wizard can continue on with its flow
+      if (isEmpty(this.props.currentPPM)) {
+        return this.props
+          .createPPM(moveId, pendingValues)
+          .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch(err => err));
+      } else {
+        return this.props
+          .updatePPM(moveId, this.props.currentPPM.id, pendingValues)
+          .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch(err => err));
+      }
     }
   };
 
@@ -169,7 +174,6 @@ export class DateAndLocation extends Component {
 
 DateAndLocation.propTypes = {
   schema: PropTypes.object.isRequired,
-  createOrUpdatePpm: PropTypes.func.isRequired,
   createPPM: PropTypes.func.isRequired,
   updatePPM: PropTypes.func.isRequired,
   error: PropTypes.object,
@@ -177,11 +181,20 @@ DateAndLocation.propTypes = {
 
 function mapStateToProps(state) {
   const moveID = state.moves.currentMove.id;
-  const activePPM = selectActivePPMForMove(state, moveID);
+
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
-  let initialValues = !isEmpty(activePPM)
-    ? activePPM
+
+  const props = {
+    schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
+    currentPPM: selectActivePPMForMove(state, moveID),
+    currentOrders: state.orders.currentOrders,
+    formValues: getFormValues(formName)(state),
+    entitlement: loadEntitlementsFromState(state),
+    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
+  };
+  props.initialValues = !isEmpty(props.currentPPM)
+    ? props.currentPPM
     : defaultPickupZip
     ? {
         pickup_postal_code: defaultPickupZip,
@@ -189,36 +202,11 @@ function mapStateToProps(state) {
       }
     : null;
 
-  const props = {
-    schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
-    ...state.ppm,
-    currentPPM: activePPM,
-    initialValues: initialValues,
-    currentOrders: state.orders.currentOrders,
-    formValues: getFormValues(formName)(state),
-    entitlement: loadEntitlementsFromState(state),
-    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
-  };
-
-  // props.initialValues = !isEmpty(props.currentPPM)
-  //   ? props.currentPPM
-  //   : defaultPickupZip
-  //   ? {
-  //       pickup_postal_code: defaultPickupZip,
-  //       origin_duty_station_zip: originDutyStationZip,
-  //     }
-  //   : null;
-  // if (!isEmpty(props.currentPPM)) {
-  //   props.currentPPM.origin_duty_station_zip = originDutyStationZip;
-  // }
   return props;
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { createOrUpdatePpm, createPPM, updatePPM, setInitialFormValues, updatePPMEstimate },
-    dispatch,
-  );
+  return bindActionCreators({ createPPM, updatePPM, setInitialFormValues, updatePPMEstimate }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
