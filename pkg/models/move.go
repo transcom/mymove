@@ -13,7 +13,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -92,6 +91,7 @@ type Moves []Move
 // This method is not required and may be deleted.
 func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
+		&validators.StringIsPresent{Field: m.Locator, Name: "Locator"},
 		&validators.UUIDIsPresent{Field: m.OrdersID, Name: "OrdersID"},
 		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
 	), nil
@@ -382,7 +382,6 @@ func (m Move) CreateMovingExpenseDocument(
 
 // CreatePPM creates a new PPM associated with this move
 func (m Move) CreatePPM(db *pop.Connection,
-	size *internalmessages.TShirtSize,
 	weightEstimate *unit.Pound,
 	originalMoveDate *time.Time,
 	pickupPostalCode *string,
@@ -398,7 +397,6 @@ func (m Move) CreatePPM(db *pop.Connection,
 	newPPM := PersonallyProcuredMove{
 		MoveID:                        m.ID,
 		Move:                          m,
-		Size:                          size,
 		WeightEstimate:                weightEstimate,
 		OriginalMoveDate:              originalMoveDate,
 		PickupPostalCode:              pickupPostalCode,
