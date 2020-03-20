@@ -10,6 +10,7 @@ set -eu -o pipefail
 # Environment Variables that modify behavior:
 #
 # - AV_CONTAINER_NAME: The name used to reference the running container (default: anti_virus)
+# - AV_DIR: The full path to the directory that will be scanned (required, no default)
 # - AV_DOCKER_IMAGE: The docker image used which runs ClamAV (default: mk0x/docker-clamav:alpine)
 # - AV_IGNORE_FILES: Specific files to ignore when scanning in a space-separated list
 # - AV_IGNORE_SIGS: Specific signatures to ignore when scanning in a space-separated list
@@ -27,8 +28,22 @@ function msg_now() {
 
 msg_now "Script Start Time"
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
+DIR="${AV_DIR:-}"
 readonly DIR
+if [[ -z "${DIR+x}" ]]; then
+  echo "Must set AV_DIR environment variable to run this script"
+  exit 1
+fi
+
+if [[ ! -d "${DIR}" ]]; then
+  echo "The AV_DIR environment variable must be a directory that exists on the filesystem."
+  echo "The directory '${DIR}' does not exist!"
+  exit 1
+else
+  echo
+  echo "Preparing to scan ${DIR}"
+fi
+
 RETRY_COUNT=${AV_RETRY_COUNT:-5}
 readonly RETRY_COUNT
 RETRY_SLEEP=${AV_RETRY_SLEEP:-15}
