@@ -22,7 +22,7 @@ type Notification struct {
 	// created at
 	// Required: true
 	// Format: datetime
-	CreatedAt *strfmt.DateTime `json:"created_at"`
+	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// email
 	// Required: true
@@ -36,16 +36,16 @@ type Notification struct {
 	// notification type
 	// Required: true
 	// Enum: [MOVE_REVIEWED_EMAIL MOVE_PAYMENT_REMINDER_EMAIL]
-	NotificationType *string `json:"notification_type"`
+	NotificationType *string `json:"notificationType"`
 
-	// service member id
+	// service member Id
 	// Required: true
 	// Format: uuid
-	ServiceMemberID *strfmt.UUID `json:"service_member_id"`
+	ServiceMemberID *strfmt.UUID `json:"serviceMemberId"`
 
-	// ses message id
+	// ses message Id
 	// Required: true
-	SesMessageID *string `json:"ses_message_id"`
+	SesMessageID *string `json:"sesMessageId"`
 }
 
 // Validate validates this notification
@@ -84,11 +84,11 @@ func (m *Notification) Validate(formats strfmt.Registry) error {
 
 func (m *Notification) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("created_at", "body", m.CreatedAt); err != nil {
+	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("created_at", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -148,12 +148,12 @@ func (m *Notification) validateNotificationTypeEnum(path, location string, value
 
 func (m *Notification) validateNotificationType(formats strfmt.Registry) error {
 
-	if err := validate.Required("notification_type", "body", m.NotificationType); err != nil {
+	if err := validate.Required("notificationType", "body", m.NotificationType); err != nil {
 		return err
 	}
 
 	// value enum
-	if err := m.validateNotificationTypeEnum("notification_type", "body", *m.NotificationType); err != nil {
+	if err := m.validateNotificationTypeEnum("notificationType", "body", *m.NotificationType); err != nil {
 		return err
 	}
 
@@ -162,11 +162,11 @@ func (m *Notification) validateNotificationType(formats strfmt.Registry) error {
 
 func (m *Notification) validateServiceMemberID(formats strfmt.Registry) error {
 
-	if err := validate.Required("service_member_id", "body", m.ServiceMemberID); err != nil {
+	if err := validate.Required("serviceMemberId", "body", m.ServiceMemberID); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("service_member_id", "body", "uuid", m.ServiceMemberID.String(), formats); err != nil {
+	if err := validate.FormatOf("serviceMemberId", "body", "uuid", m.ServiceMemberID.String(), formats); err != nil {
 		return err
 	}
 
@@ -175,7 +175,7 @@ func (m *Notification) validateServiceMemberID(formats strfmt.Registry) error {
 
 func (m *Notification) validateSesMessageID(formats strfmt.Registry) error {
 
-	if err := validate.Required("ses_message_id", "body", m.SesMessageID); err != nil {
+	if err := validate.Required("sesMessageId", "body", m.SesMessageID); err != nil {
 		return err
 	}
 
