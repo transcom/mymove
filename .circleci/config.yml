@@ -388,7 +388,18 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
-      - run: make anti_virus
+      - run:
+          name: make anti_virus
+          command: make anti_virus
+          environment:
+            AV_DIR: /home/circleci/transcom/mymove
+            # WARNING: IGNORE FILES AT OUR PERIL. IF ADDING HERE ADD NOTES!
+            # - pkg/testdatagen/testdata/orders.pdf is a file used exclusively for testing
+            AV_IGNORE_FILES: pkg/testdatagen/testdata/orders.pdf
+            # WARNING: IGNORE SIGNATURES AT OUR PERIL. IF ADDING HERE ADD NOTES!
+            # - PUA.Pdf.Trojan.EmbeddedJavaScript-1 is ignored because we don't ship PDFs in any docker containers
+            # - orders.pdf.UNOFFICIAL is a finding based on the ignored file above of the same name
+            AV_IGNORE_SIGS: "PUA.Pdf.Trojan.EmbeddedJavaScript-1 orders.pdf.UNOFFICIAL"
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
@@ -580,6 +591,31 @@ jobs:
           dockerfile: Dockerfile
           tag: ppp:web-dev
           repo: app
+      - announce_failure
+
+  # `storybook_tests` runs the loki test suite against the current storybook code
+  storybook_tests:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - restore_cache:
+          keys:
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: make storybook_tests
+      - store_artifacts:
+          path: .loki/current
+          destination: current
+      - store_artifacts:
+          path: .loki/difference
+          destination: difference
+      - store_artifacts:
+          path: .loki/reference
+          destination: reference
       - announce_failure
 
   # `build_storybook_app` builds the storybook application container and pushes to the container repository
@@ -948,6 +984,7 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_yarn
+            - storybook_tests
 
       - build_tools:
           requires:
@@ -1087,6 +1124,11 @@ workflows:
               only: master
               # Uncomment below if pushing a test branch. Also comment out approve_prod_deploy few lines above.
               #only: placeholder_branch_name
+
+      - storybook_tests:
+          requires:
+            - anti_virus
+            - pre_deps_yarn
 
 experimental:
   notify:

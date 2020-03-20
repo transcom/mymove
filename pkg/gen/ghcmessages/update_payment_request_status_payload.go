@@ -16,6 +16,9 @@ import (
 // swagger:model UpdatePaymentRequestStatusPayload
 type UpdatePaymentRequestStatusPayload struct {
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 

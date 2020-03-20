@@ -6,7 +6,7 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 
 import QueueTable from './QueueTable';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-6';
 import store from 'shared/store';
 import { mount } from 'enzyme/build';
 import { setIsLoggedInType } from 'shared/Data/users';

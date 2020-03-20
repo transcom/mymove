@@ -31,7 +31,6 @@ const movePayload = {
       id: 'cd67c9e4-ef59-45e5-94bc-767aaafe559e',
       pickup_postal_code: '80913',
       original_move_date: '2018-06-28',
-      size: 'L',
       status: 'DRAFT',
       weight_estimate: 9000,
     },

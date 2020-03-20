@@ -6,6 +6,7 @@ package mto_shipment
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -40,6 +41,7 @@ type UpdateMTOShipmentParams struct {
 	*/
 	IfMatch string
 	/*
+	  Required: true
 	  In: body
 	*/
 	Body *primemessages.MTOShipment
@@ -72,7 +74,11 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 		defer r.Body.Close()
 		var body primemessages.MTOShipment
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			res = append(res, errors.NewParseError("body", "body", "", err))
+			if err == io.EOF {
+				res = append(res, errors.Required("body", "body"))
+			} else {
+				res = append(res, errors.NewParseError("body", "body", "", err))
+			}
 		} else {
 			// validate body object
 			if err := body.Validate(route.Formats); err != nil {
@@ -83,6 +89,8 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 				o.Body = &body
 			}
 		}
+	} else {
+		res = append(res, errors.Required("body", "body"))
 	}
 	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {

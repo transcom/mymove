@@ -11,7 +11,8 @@
 /coverage
 coverage.out
 __snapshots__
-.loki
+.loki/difference
+.loki/current
 
 # development
 /mnt

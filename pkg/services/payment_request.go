@@ -3,7 +3,6 @@ package services
 import (
 	"io"
 
-	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -30,7 +29,7 @@ type PaymentRequestFetcher interface {
 // PaymentRequestStatusUpdater is the exported interface for updating the status of a payment request
 //go:generate mockery -name PaymentRequestStatusUpdater
 type PaymentRequestStatusUpdater interface {
-	UpdatePaymentRequestStatus(*models.PaymentRequest) (*validate.Errors, error)
+	UpdatePaymentRequestStatus(paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error)
 }
 
 // PaymentRequestUploadCreator is the exported interface for creating a payment request upload

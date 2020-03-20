@@ -17,6 +17,9 @@ import (
 // swagger:model PaymentRequest
 type PaymentRequest struct {
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Read Only: true
 	// Format: uuid
