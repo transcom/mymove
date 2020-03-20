@@ -1,0 +1,49 @@
+// Typography
+
+//using the uswds typeset mixin which does (font family, size tolken, line height tolken)
+
+h1 {
+  @include typeset('body', '2xl', 2);
+  @include u-text('normal');
+}
+h2 {
+  @include typeset('body', 11, 2);
+}
+h3 {
+  @include typeset('body', 9, 2);
+  @include u-text('normal');
+}
+h4 {
+  @include typeset('body', 6, 2);
+}
+h5 {
+  @include typeset('body', 4, 3);
+}
+h6 {
+  @include typeset('body',  2, 3);
+  @include u-text('normal');
+}
+p {
+  @include typeset('body',  4, 3);
+}
+small {
+  @include typeset('body',  2, 2);
+}
+a {
+  @include u-text('no-underline')
+  &:hover , &.hover {
+    @include u-text('underline');
+  }
+  &:visited, &.visited {
+    @include u-text('violet-warm-60');
+  }
+  &:disabled, &.disabled {
+    @include u-text('gray-40');
+    &:hover  {
+      @include u-text('no-underline')
+    }
+  }
+  &:focus , &.focus {
+    @include u-outline('05', 'blue-40v');
+  }
+}

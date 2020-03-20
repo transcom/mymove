@@ -11,17 +11,17 @@ import (
 
 // MTOServiceItem is an object representing service items for a move task order.
 type MTOServiceItem struct {
-	ID              uuid.UUID     `db:"id"`
-	MoveTaskOrder   MoveTaskOrder `belongs_to:"move_task_orders"`
-	MoveTaskOrderID uuid.UUID     `db:"move_task_order_id"`
-	MTOShipment     MTOShipment   `belongs_to:"mto_shipments"`
-	MTOShipmentID   *uuid.UUID    `db:"mto_shipment_id"`
-	ReService       ReService     `belongs_to:"re_services"`
-	ReServiceID     uuid.UUID     `db:"re_service_id"`
-	MetaID          *uuid.UUID    `db:"meta_id"`
-	MetaType        *string       `db:"meta_type"`
-	CreatedAt       time.Time     `db:"created_at"`
-	UpdatedAt       time.Time     `db:"updated_at"`
+	ID               uuid.UUID     `db:"id"`
+	MoveTaskOrder    MoveTaskOrder `belongs_to:"move_task_orders"`
+	MoveTaskOrderID  uuid.UUID     `db:"move_task_order_id"`
+	MTOShipment      MTOShipment   `belongs_to:"mto_shipments"`
+	MTOShipmentID    *uuid.UUID    `db:"mto_shipment_id"`
+	ReService        ReService     `belongs_to:"re_services"`
+	ReServiceID      uuid.UUID     `db:"re_service_id"`
+	Reason           *string       `db:"reason"`
+	PickupPostalCode *string       `db:"pickup_postal_code"`
+	CreatedAt        time.Time     `db:"created_at"`
+	UpdatedAt        time.Time     `db:"updated_at"`
 }
 
 // MTOServiceItems is a slice containing MTOServiceItems
@@ -31,7 +31,11 @@ type MTOServiceItems []MTOServiceItem
 func (m *MTOServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
+	vs = append(vs, &OptionalUUIDIsPresent{Field: m.MTOShipmentID, Name: "MTOShipmentID"})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.ReServiceID, Name: "ReServiceID"})
+	vs = append(vs, &StringIsNilOrNotBlank{Field: m.Reason, Name: "Reason"})
+	vs = append(vs, &StringIsNilOrNotBlank{Field: m.PickupPostalCode, Name: "PickupPostalCode"})
+
 	return validate.Validate(vs...), nil
 }
 

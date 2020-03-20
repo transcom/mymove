@@ -79,7 +79,8 @@ describe('The document viewer', function() {
       cy.contains('Edit').click();
 
       cy.get('select[name="moveDocument.weight_ticket_set_type"]').select('CAR');
-      cy.get('input[name="moveDocument.vehicle_nickname"]').type('Herbie');
+      cy.get('input[name="moveDocument.vehicle_make"]').type('Herbie');
+      cy.get('input[name="moveDocument.vehicle_model"]').type('Hotrod');
       cy.get('input[name="moveDocument.empty_weight"]').type('1000');
       cy.get('input[name="moveDocument.full_weight"]').type('2000');
 
@@ -92,6 +93,7 @@ describe('The document viewer', function() {
 
       cy.contains('Car');
       cy.contains('Herbie');
+      cy.contains('Hotrod');
       cy.contains('1,000');
       cy.contains('2,000');
     });

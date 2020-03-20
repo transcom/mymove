@@ -11,35 +11,40 @@
 
 version: '2.1'
 
+# References for variables shared across the file
+references:
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
+  postgres: &postgres postgres:10.10
+
 executors:
   # `mymove_small` and `mymove_medium` use the `milmove/milmove-app` docker image with a checkout of the mymove code
   mymove_small:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
+      - image: *circleci-docker
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
+      - image: *circleci-docker
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
+      - image: *circleci-docker
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
+      - image: *circleci-docker
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
-      - image: postgres:10.10
+      - image: *circleci-docker
+      - image: *postgres
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -48,8 +53,8 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
-      - image: postgres:10.10
+      - image: *circleci-docker
+      - image: *postgres
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -71,11 +76,14 @@ commands:
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-migrations)' | tee -a "${BASH_ENV}"
+      - run:
           name: Snapshot database
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
       - run:
           name: Run migrations
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations@${ECR_DIGEST} $APP_ENVIRONMENT
           no_output_timeout: 60m
           environment:
             CHAMBER_RETRIES: 20
@@ -88,19 +96,22 @@ commands:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-tasks)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy fuel price data task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy post move email survey task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-post-move-survey "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy payment reminder email task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
@@ -120,9 +131,12 @@ commands:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - run:
           name: Health Check
@@ -151,9 +165,12 @@ commands:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app-client-tls service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - run:
           name: Health Check
@@ -199,8 +216,18 @@ commands:
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
       - run:
+          name: Record ECR Image Digest
+          command: |
+            mkdir -p /home/circleci/transcom/mymove/bin/sha
+            echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
+            cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
+      - run:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
+      - persist_to_workspace:
+          root: bin
+          paths:
+            - sha/
 
   server_tests_step:
     parameters:
@@ -361,7 +388,18 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
-      - run: make anti_virus
+      - run:
+          name: make anti_virus
+          command: make anti_virus
+          environment:
+            AV_DIR: /home/circleci/transcom/mymove
+            # WARNING: IGNORE FILES AT OUR PERIL. IF ADDING HERE ADD NOTES!
+            # - pkg/testdatagen/testdata/orders.pdf is a file used exclusively for testing
+            AV_IGNORE_FILES: pkg/testdatagen/testdata/orders.pdf
+            # WARNING: IGNORE SIGNATURES AT OUR PERIL. IF ADDING HERE ADD NOTES!
+            # - PUA.Pdf.Trojan.EmbeddedJavaScript-1 is ignored because we don't ship PDFs in any docker containers
+            # - orders.pdf.UNOFFICIAL is a finding based on the ignored file above of the same name
+            AV_IGNORE_SIGS: "PUA.Pdf.Trojan.EmbeddedJavaScript-1 orders.pdf.UNOFFICIAL"
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
@@ -555,6 +593,31 @@ jobs:
           repo: app
       - announce_failure
 
+  # `storybook_tests` runs the loki test suite against the current storybook code
+  storybook_tests:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - restore_cache:
+          keys:
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: make storybook_tests
+      - store_artifacts:
+          path: .loki/current
+          destination: current
+      - store_artifacts:
+          path: .loki/difference
+          destination: difference
+      - store_artifacts:
+          path: .loki/reference
+          destination: reference
+      - announce_failure
+
   # `build_storybook_app` builds the storybook application container and pushes to the container repository
   build_storybook_app:
     executor: mymove_medium
@@ -587,6 +650,67 @@ jobs:
           tag: ppp-migrations:dev
           repo: app-migrations
       - announce_failure
+
+  # `build_django_app` builds the django app container and pushes to container repository
+  build_milmove_admin_app:
+    executor: mymove_and_postgres_medium
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: sudo apt-get update && sudo apt-get install -yy postgresql-client
+      - run:
+          name: make db_test_reset for milmove_admin
+          command: make db_test_reset
+          environment:
+            APPLICATION: app
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+      - run:
+          name: make db_test_migrate for milmove_admin
+          command: make db_test_migrate
+          environment:
+            APPLICATION: app
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+      - run:
+          name: clone mymove_admin repo
+          command: git clone https://github.com/transcom/milmove_admin.git
+          working_directory: ~/transcom
+      - run:
+          name: generate models file for migrations
+          command: make generate_models_standalone
+          working_directory: ~/transcom/milmove_admin
+          environment:
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DJANGO_ALLOWED_HOSTS: 'localhost 127.0.0.1 [::1]'
+            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
+            LOGIN_GOV_CALLBACK_PROTOCOL: http
+            LOGIN_GOV_ENGADMIN_CLIENT_ID: 'urn:gov:gsa:openidconnect.profiles:sp:sso:dod:engadminmovemillocal'
+            LOCAL_HOST_NAME: engadminlocal
+            LOGIN_GOV_CALLBACK_PORT: 3000
+            LOGIN_GOV_KID_JWK: milmove_admin
+            LOGIN_GOV_JWK_SET_FILENAME: keyset.jwk
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
@@ -787,6 +911,10 @@ workflows:
 
       - pre_deps_yarn
 
+      - build_milmove_admin_app:
+          requires:
+            - pre_deps_golang
+
       - check_generated_code:
           requires:
             - pre_deps_golang
@@ -856,6 +984,7 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_yarn
+            - storybook_tests
 
       - build_tools:
           requires:
@@ -995,6 +1124,11 @@ workflows:
               only: master
               # Uncomment below if pushing a test branch. Also comment out approve_prod_deploy few lines above.
               #only: placeholder_branch_name
+
+      - storybook_tests:
+          requires:
+            - anti_virus
+            - pre_deps_yarn
 
 experimental:
   notify:

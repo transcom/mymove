@@ -576,7 +576,7 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 	claimedTime := time.Now()
 	invalidAccessCode := models.AccessCode{
 		Code:            code,
-		MoveType:        &selectedMoveType,
+		MoveType:        selectedMoveType,
 		ServiceMemberID: &sm.ID,
 		ClaimedAt:       &claimedTime,
 	}
@@ -584,7 +584,7 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 	code2 := "TEST10"
 	accessCode2 := models.AccessCode{
 		Code:     code2,
-		MoveType: &selectedMoveType,
+		MoveType: selectedMoveType,
 	}
 	suite.MustSave(&accessCode2)
 

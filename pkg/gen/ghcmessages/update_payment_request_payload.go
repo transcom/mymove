@@ -19,6 +19,9 @@ import (
 // swagger:model UpdatePaymentRequestPayload
 type UpdatePaymentRequestPayload struct {
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// proof of service package
 	ProofOfServicePackage *ProofOfServicePackage `json:"proofOfServicePackage,omitempty"`
 

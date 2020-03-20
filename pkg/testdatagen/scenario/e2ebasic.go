@@ -571,18 +571,16 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	/*
 	* Creates two valid, unclaimed access codes
 	 */
-	accessCodePPMMoveType := models.SelectedMoveTypeHHG
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
 		AccessCode: models.AccessCode{
 			Code:     "X3FQJK",
-			MoveType: &accessCodePPMMoveType,
+			MoveType: models.SelectedMoveTypeHHG,
 		},
 	})
-	accessCodeHHGMoveType := models.SelectedMoveTypePPM
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
 		AccessCode: models.AccessCode{
 			Code:     "ABC123",
-			MoveType: &accessCodeHHGMoveType,
+			MoveType: models.SelectedMoveTypePPM,
 		},
 	})
 	email = "accesscode@mail.com"
@@ -613,7 +611,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
 		AccessCode: models.AccessCode{
 			Code:            "ZYX321",
-			MoveType:        &accessCodeHHGMoveType,
+			MoveType:        models.SelectedMoveTypePPM,
 			ServiceMember:   sm,
 			ServiceMemberID: &sm.ID,
 		},

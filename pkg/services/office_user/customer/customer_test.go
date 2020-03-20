@@ -12,7 +12,7 @@ func (suite *CustomerServiceSuite) TestCustomerFetcher() {
 	suite.NoError(err)
 
 	suite.Equal(customer.ID, actualCustomer.ID)
-	suite.Equal(customer.DODID, actualCustomer.DODID)
+	suite.Equal(*customer.DODID, *actualCustomer.DODID)
 	suite.Equal(customer.UserID, actualCustomer.UserID)
 	suite.NotNil(customer.User)
 }

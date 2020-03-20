@@ -4,6 +4,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/gobuffalo/validate"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -12,10 +14,15 @@ import (
 
 type testMTOServiceItemQueryBuilder struct {
 	fakeCreateOne func(model interface{}) (*validate.Errors, error)
+	fakeFetchOne  func(model interface{}, filters []services.QueryFilter) error
 }
 
 func (t *testMTOServiceItemQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
 	return t.fakeCreateOne(model)
+}
+
+func (t *testMTOServiceItemQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
+	return t.fakeFetchOne(model, filters)
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
@@ -30,9 +37,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
 			return nil, nil
 		}
+		fakeFetchOne := func(model interface{}, filters []services.QueryFilter) error {
+			return nil
+		}
 
 		builder := &testMTOServiceItemQueryBuilder{
 			fakeCreateOne: fakeCreateOne,
+			fakeFetchOne:  fakeFetchOne,
 		}
 
 		creator := NewMTOServiceItemCreator(builder)
@@ -50,8 +61,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
 			return verrs, errors.New(expectedError)
 		}
+		fakeFetchOne := func(model interface{}, filters []services.QueryFilter) error {
+			return nil
+		}
 		builder := &testMTOServiceItemQueryBuilder{
 			fakeCreateOne: fakeCreateOne,
+			fakeFetchOne:  fakeFetchOne,
 		}
 
 		creator := NewMTOServiceItemCreator(builder)

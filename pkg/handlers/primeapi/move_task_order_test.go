@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandler() {
 	suite.Equal(1, len(moveTaskOrdersPayload))
 	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrdersPayload[0].ID.String())
 	suite.Equal(1, len(moveTaskOrdersPayload[0].PaymentRequests))
-	suite.Equal(1, len(moveTaskOrdersPayload[0].MtoServiceItems))
+	suite.Equal(1, len(moveTaskOrdersPayload[0].MtoServiceItems()))
 	suite.Equal(2, len(moveTaskOrdersPayload[0].MtoShipments))
 	suite.NotNil(moveTaskOrdersPayload[0].MtoShipments[0].ETag)
 }
@@ -132,6 +132,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		Body: movetaskorderops.UpdateMTOPostCounselingInformationBody{
 			PpmType:            ppmType,
 			PpmEstimatedWeight: 3000,
+			PointOfContact:     "user@prime.com",
 		},
 		IfMatch: eTag,
 	}
@@ -192,7 +193,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		).Return(nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
-		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationInternalServerError{}, response)
+		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationNotFound{}, response)
 	})
 
 	suite.T().Run("Patch failure - 422", func(t *testing.T) {
@@ -208,7 +209,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
-		).Return(nil, movetaskorder.ValidationError{Verrs: validate.NewErrors()})
+		).Return(nil, services.NewInvalidInputError(mto.ID, nil, validate.NewErrors(), ""))
 
 		response := handler.Handle(params)
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationUnprocessableEntity{}, response)

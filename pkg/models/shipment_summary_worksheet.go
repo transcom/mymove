@@ -162,10 +162,12 @@ type ShipmentSummaryFormData struct {
 	SignedCertification     SignedCertification
 }
 
-// Obligations an object representing the Max Obligation and Actual Obligation sections of the shipment summary worksheet
+// Obligations is an object representing the winning and non-winning Max Obligation and Actual Obligation sections of the shipment summary worksheet
 type Obligations struct {
-	MaxObligation    Obligation
-	ActualObligation Obligation
+	MaxObligation              Obligation
+	ActualObligation           Obligation
+	NonWinningMaxObligation    Obligation
+	NonWinningActualObligation Obligation
 }
 
 // Obligation an object representing the obligations section on the shipment summary worksheet

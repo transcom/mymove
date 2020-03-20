@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/services"
-	movetaskorderservice "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -14,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -69,20 +69,22 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	mtoID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	eTag := params.IfMatch
+	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
+
 	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(mtoID, params.Body, eTag)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
 		switch err.(type) {
-		case movetaskorderservice.NotFoundError:
+		case services.NotFoundError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound()
-		case movetaskorderservice.PreconditionFailedError:
-			return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed()
-		case movetaskorderservice.ValidationError:
+		case services.PreconditionFailedError:
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.InvalidInputError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity()
 		default:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError()
 		}
 	}
-	mtoPayload := payloads.MoveTaskOrderWithEtag(mto)
+	mtoPayload := payloads.MoveTaskOrder(mto)
 	return movetaskorderops.NewUpdateMTOPostCounselingInformationOK().WithPayload(mtoPayload)
 }

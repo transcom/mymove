@@ -37,22 +37,14 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		// Given: An office user
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-		//  A set of orders and a move belonging to those orders
-		order := testdatagen.MakeDefaultOrder(suite.DB())
-
-		moveShow := true
-		newMove := models.Move{
-			OrdersID: order.ID,
-			Status:   models.MoveStatus(status),
-			Show:     &moveShow,
-		}
-		suite.MustSave(&newMove)
-
 		// Make a PPM
-		testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		moveShow := true
+		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatus(status),
+				Show:   &moveShow,
+			},
 			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				Move:   newMove,
-				MoveID: newMove.ID,
 				Status: ppmStatus,
 			},
 		})
@@ -79,7 +71,8 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		// And: Returned query to include our added move
 		// The moveQueueItems are produced by joining Moves, Orders and ServiceMember to each other, so we check the
 		// furthest link in that chain
-		expectedCustomerName := fmt.Sprintf("%v, %v", *order.ServiceMember.LastName, *order.ServiceMember.FirstName)
+		serviceMember := ppm.Move.Orders.ServiceMember
+		expectedCustomerName := fmt.Sprintf("%v, %v", *serviceMember.LastName, *serviceMember.FirstName)
 		suite.Equal(expectedCustomerName, *moveQueueItem.CustomerName)
 		suite.Equal(string(ppmStatus), *moveQueueItem.Status)
 	}

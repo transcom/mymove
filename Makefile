@@ -31,9 +31,11 @@ endif
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
 GC_FLAGS=-trimpath=$(GOPATH)
 DB_PORT_DEV=5432
+DB_PORT_TEST=5433
 DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 ifdef CIRCLECI
+	DB_PORT_DEV=5432
 	DB_PORT_TEST=5432
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
@@ -125,10 +127,9 @@ test: client_test server_test e2e_test ## Run all tests
 diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on environment
 
 .PHONY: check_log_dir
-check_log_dir:
+check_log_dir: ## Make sure we have a log directory
 	mkdir -p log
 
-# Make sure we have a log directory
 #
 # ----- END CHECK TARGETS -----
 #
@@ -241,6 +242,9 @@ bin/generate-test-data:
 bin/ghc-pricing-parser:
 	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/ghc-pricing-parser
 
+bin/ghc-transit-time-parser:
+	go build -ldflags "$(LDFLAGS)" -o bin/ghc-transit-time-parser ./cmd/ghc-transit-time-parser
+
 bin/health-checker:
 	go build -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
 
@@ -303,13 +307,13 @@ server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
-# Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port 8080.
+# Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
 server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
 		--bin /bin/milmove_gin \
-		--laddr 127.0.0.1 --port 9001 \
+		--laddr 127.0.0.1 --port "$(GIN_PORT)" \
 		--excludeDir node_modules \
 		--immediate \
 		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
@@ -334,6 +338,7 @@ build_tools: bin/gin \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/ghc-pricing-parser \
+	bin/ghc-transit-time-parser \
 	bin/health-checker \
 	bin/iws \
 	bin/milmove-tasks \
@@ -877,13 +882,17 @@ spellcheck: ## Run interactive spellchecker
 storybook: ## Start the storybook server
 	yarn run storybook
 
+.PHONY: storybook_docker
+storybook_docker: ## Start the storybook server in a docker container
+	docker-compose -f docker-compose.storybook.yml up --build storybook
+
 .PHONY: storybook_build
 storybook_build: ## Build static storybook site
 	yarn run build-storybook
 
 .PHONY: storybook_tests
 storybook_tests: ## Run the Loki storybook tests to ensure no breaking changes
-	yarn run loki test
+	scripts/run-storybook-tests
 
 .PHONY: loki_approve_changes
 loki_approve_changes: ## Approves differences in Loki test results

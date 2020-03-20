@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/uploads"
@@ -39,6 +40,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.MtoServiceItemCreateMTOServiceItemHandler == nil {
+		api.MtoServiceItemCreateMTOServiceItemHandler = mto_service_item.CreateMTOServiceItemHandlerFunc(func(params mto_service_item.CreateMTOServiceItemParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.CreateMTOServiceItem has not yet been implemented")
+		})
+	}
 	if api.PaymentRequestsCreatePaymentRequestHandler == nil {
 		api.PaymentRequestsCreatePaymentRequestHandler = payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.CreatePaymentRequest has not yet been implemented")

@@ -26,6 +26,9 @@ type Address struct {
 	// Country
 	Country *string `json:"country,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
