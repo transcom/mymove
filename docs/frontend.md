@@ -107,7 +107,8 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
 ### Linting
 
 * CRA runs ESLint on the dev server, you can execute `yarn run lint` to execute linting on all files, otherwise pre-commit will run it for you on files changed.
-* We are using [rescripts](https://github.com/harrysolovay/rescripts) to configure eslint to use a security package, [eslint-plugin-security](https://github.com/nodesecurity/eslint-plugin-security), requested by the DOD.
+* We are using [EXTEND_ESLINT=true](https://create-react-app.dev/docs/advanced-configuration/) to customize the eslint configuration.
+* We are using an eslint security package, [eslint-plugin-security](https://github.com/nodesecurity/eslint-plugin-security), requested by the DOD.
 
 ### File Layout & Naming
 
