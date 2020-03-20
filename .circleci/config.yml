@@ -922,7 +922,7 @@ workflows:
       - anti_virus:
           filters:
             branches:
-              only: master
+              only: cg_abstract_anti_virus
 
       - pre_test:
           requires:
@@ -955,7 +955,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_abstract_anti_virus
 
       - client_test:
           requires:
@@ -963,7 +963,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_abstract_anti_virus
 
       - server_test:
           requires:
@@ -971,7 +971,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_abstract_anti_virus
 
       - build_app:
           requires:
