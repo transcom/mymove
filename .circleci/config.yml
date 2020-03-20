@@ -922,7 +922,7 @@ workflows:
       - anti_virus:
           filters:
             branches:
-              only: cg_skip_av_ignore
+              only: master
 
       - pre_test:
           requires:
