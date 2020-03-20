@@ -35,11 +35,11 @@
     "prop-types": "^15.7.2",
     "query-string": "6",
     "ra-data-simple-rest": "^2.9.9",
-    "react": "^16.13.0",
+    "react": "^16.13.1",
     "react-admin": "^3.3.1",
     "react-app-polyfill": "^1.0.6",
     "react-day-picker": "=7.4.0",
-    "react-dom": "^16.13.0",
+    "react-dom": "^16.13.1",
     "react-filepond": "^4.0.0",
     "react-form": "^4.0.1",
     "react-highlight-words": "^0.16.0",
@@ -54,7 +54,7 @@
     "react-router-tabs": "^1.1.1",
     "react-scripts": "^3.4.0",
     "react-select": "^3.0.8",
-    "react-table": "^6.11.5",
+    "react-table-6": "^6.11.0",
     "react-tabs": "^3.1.0",
     "react-window-size": "^1.0.1",
     "reduce-reducers": "^1.0.4",
@@ -63,12 +63,12 @@
     "redux-form": "^8.3.1",
     "redux-mock-store": "1.5.4",
     "redux-thunk": "^2.2.0",
-    "regenerator-runtime": "^0.13.2",
+    "regenerator-runtime": "^0.13.5",
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.10.0",
     "swagger-ui-dist": "^3.25.0",
-    "uswds": "2.5.1"
+    "uswds": "2.6.0"
   },
   "name": "client",
   "private": true,
@@ -86,9 +86,9 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "^7.8.7",
-    "@rescripts/cli": "^0.0.13",
-    "@rescripts/rescript-env": "^0.0.11",
+    "@babel/core": "^7.9.0",
+    "@rescripts/cli": "^0.0.14",
+    "@rescripts/rescript-env": "^0.0.12",
     "@storybook/addon-actions": "^5.3.17",
     "@storybook/addon-info": "^5.3.17",
     "@storybook/addon-knobs": "^5.3.17",
@@ -112,14 +112,14 @@
   "loki": {
     "configurations": {
       "chrome.laptop": {
-        "target": "chrome.docker",
+        "target": "chrome.app",
         "width": 1366,
         "height": 768,
         "deviceScaleFactor": 1,
         "mobile": false
       },
       "chrome.iphone7": {
-        "target": "chrome.docker",
+        "target": "chrome.app",
         "preset": "iPhone 7"
       }
     }

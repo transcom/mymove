@@ -55,6 +55,9 @@ type MTOShipment struct {
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
+	// Email or id of a contact person for this update
+	PointOfContact string `json:"pointOfContact,omitempty"`
+
 	// prime actual weight
 	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
 

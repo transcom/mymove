@@ -132,6 +132,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		Body: movetaskorderops.UpdateMTOPostCounselingInformationBody{
 			PpmType:            ppmType,
 			PpmEstimatedWeight: 3000,
+			PointOfContact:     "user@prime.com",
 		},
 		IfMatch: eTag,
 	}

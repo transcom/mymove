@@ -67,8 +67,13 @@ func (suite *PaperworkSuite) TestComputeObligationsParams() {
 	_, err3 := ppmComputer.ComputeObligations(missingActualMoveDate, route.NewTestingPlanner(10))
 
 	suite.NotNil(err1)
+	suite.Equal("missing ppm", err1.Error())
+
 	suite.NotNil(err2)
+	suite.Equal("missing required address parameter", err2.Error())
+
 	suite.NotNil(err3)
+	suite.Equal("missing required original move date parameter", err3.Error())
 }
 
 func (suite *PaperworkSuite) TestComputeObligations() {

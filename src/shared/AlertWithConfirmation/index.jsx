@@ -12,10 +12,10 @@ export function AlertWithConfirmation(props) {
             <div className="body--heading">
               <div>{props.heading && <h3 className="usa-alert__heading">{props.heading}</h3>}</div>
               <div className="grid-row grid-gap">
-                <div classNme="grid-col-9">
+                <div className="grid-col-9">
                   <div className="usa-alert__text">{props.message}</div>
                 </div>
-                <div classNme="grid-col-3 text-right">
+                <div className="grid-col-3 text-right">
                   <div className="cancel-or-ok-buttons">
                     <button
                       type="button"

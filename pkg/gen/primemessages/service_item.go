@@ -19,6 +19,9 @@ import (
 // swagger:model ServiceItem
 type ServiceItem struct {
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`

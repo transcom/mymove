@@ -22,6 +22,9 @@ type PaymentRequest struct {
 	// document package
 	DocumentPackage *ProofOfServicePackage `json:"documentPackage,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Read Only: true
 	// Format: uuid
