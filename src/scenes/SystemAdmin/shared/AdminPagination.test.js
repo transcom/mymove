@@ -13,7 +13,6 @@ describe('AdminPagination', () => {
     };
     const pagination = shallow(<AdminPagination {...props} />);
     const noResultsDiv = pagination.find('.no-results');
-    console.log(noResultsDiv.debug());
     expect(noResultsDiv).toHaveLength(1);
     pagination.setProps({
       total: 1,
