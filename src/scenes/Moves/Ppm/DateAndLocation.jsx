@@ -8,7 +8,13 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { createPPM, selectActivePPMForMove, updatePPM, updatePPMEstimate } from 'shared/Entities/modules/ppms';
+import {
+  loadPPMs,
+  createPPM,
+  selectActivePPMForMove,
+  updatePPM,
+  updatePPMEstimate,
+} from 'shared/Entities/modules/ppms';
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import { setInitialFormValues } from './ducks';
@@ -65,6 +71,11 @@ const validateDifferentZip = (value, formValues) => {
 };
 
 export class DateAndLocation extends Component {
+  componentDidMount() {
+    const moveId = this.props.match.params.moveId;
+    this.props.loadPPMs(moveId);
+  }
+
   state = { showInfo: false };
 
   openInfo = () => {
@@ -206,7 +217,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createPPM, updatePPM, setInitialFormValues, updatePPMEstimate }, dispatch);
+  return bindActionCreators({ loadPPMs, createPPM, updatePPM, setInitialFormValues, updatePPMEstimate }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
