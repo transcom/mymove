@@ -11,8 +11,6 @@ import {
 } from 'react-admin';
 
 const OfficeUserShowTitle = ({ record }) => {
-  console.log('THE RECORDS IS');
-  console.log(record);
   return <span>{`${record.firstName} ${record.lastName}`}</span>;
 };
 
