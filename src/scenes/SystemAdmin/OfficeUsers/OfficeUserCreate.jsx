@@ -5,12 +5,12 @@ import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, requi
 const OfficeUserCreate = props => (
   <Create {...props}>
     <SimpleForm>
-      <TextInput source="first_name" validate={required()} />
+      <TextInput source="firstName" validate={required()} />
       <TextInput source="middle_initial" />
-      <TextInput source="last_name" validate={required()} />
+      <TextInput source="lastName" validate={required()} />
       <TextInput source="email" validate={required()} />
       <TextInput source="telephone" validate={phoneValidators} />
-      <ReferenceInput label="Transportation Office" reference="offices" source="transportation_office_id" perPage={500}>
+      <ReferenceInput label="Transportation Office" reference="offices" source="transportationOfficeId" perPage={500}>
         <AutocompleteInput optionText="name" />
       </ReferenceInput>
     </SimpleForm>
