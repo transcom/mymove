@@ -2,7 +2,7 @@ import React from 'react';
 import { Show, SimpleShowLayout, TextField, BooleanField, DateField } from 'react-admin';
 
 const AdminUserShowTitle = ({ record }) => {
-  return <span>{`${record.first_name} ${record.last_name}`}</span>;
+  return <span>{`${record.firstName} ${record.lastName}`}</span>;
 };
 
 const AdminUserShow = props => {
@@ -11,12 +11,12 @@ const AdminUserShow = props => {
       <SimpleShowLayout>
         <TextField source="id" />
         <TextField source="email" />
-        <TextField source="first_name" />
-        <TextField source="last_name" />
-        <TextField source="organization_id" />
+        <TextField source="firstName" />
+        <TextField source="lastName" />
+        <TextField source="organizationId" />
         <BooleanField source="active" />
-        <DateField source="created_at" showTime />
-        <DateField source="updated_at" showTime />
+        <DateField source="createdAt" showTime />
+        <DateField source="updatedAt" showTime />
       </SimpleShowLayout>
     </Show>
   );

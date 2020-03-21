@@ -15,13 +15,13 @@ const AccessCodeList = props => (
   <List {...props} pagination={<AdminPagination />} perPage={25} filters={<MoveFilter />} sort={defaultSort}>
     <Datagrid>
       <TextField source="id" reference="moves" />
-      <TextField source="orders_id" reference="moves" />
-      <TextField source="service_member_id" reference="moves" />
+      <TextField source="ordersId" reference="moves" />
+      <TextField source="serviceMemberId" reference="moves" />
       <TextField source="locator" reference="moves" />
       <TextField source="status" reference="moves" />
       <TextField source="show" reference="moves" />
-      <DateField source="created_at" reference="moves" showTime />
-      <DateField source="updated_at" reference="moves" showTime />
+      <DateField source="createdAt" reference="moves" showTime />
+      <DateField source="updatedAt" reference="moves" showTime />
     </Datagrid>
   </List>
 );

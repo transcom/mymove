@@ -9,8 +9,8 @@ const AdminUserList = props => (
     <Datagrid rowClick="show">
       <TextField source="id" />
       <TextField source="email" />
-      <TextField source="first_name" />
-      <TextField source="last_name" />
+      <TextField source="firstName" />
+      <TextField source="lastName" />
       <BooleanField source="active" />
     </Datagrid>
   </List>

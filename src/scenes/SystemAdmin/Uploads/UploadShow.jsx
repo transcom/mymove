@@ -6,26 +6,26 @@ const UploadShow = props => (
     {controllerProps => (
       <ShowView {...props} {...controllerProps}>
         <SimpleShowLayout>
-          {controllerProps.record && controllerProps.record.service_member_id
+          {controllerProps.record && controllerProps.record.serviceMemberId
             ? [
-                <TextField source="service_member_id" label="Service Member ID" />,
-                <TextField source="service_member_first_name" label="Service Member First Name" />,
-                <TextField source="service_member_last_name" label="Service Member Last Name" />,
-                <TextField source="service_member_phone" label="Service Member Phone" />,
-                <TextField source="service_member_email" label="Service Member Email" />,
+                <TextField source="serviceMemberId" label="Service Member ID" />,
+                <TextField source="serviceMemberFirstName" label="Service Member First Name" />,
+                <TextField source="serviceMemberLastName" label="Service Member Last Name" />,
+                <TextField source="serviceMemberPhone" label="Service Member Phone" />,
+                <TextField source="serviceMemberEmail" label="Service Member Email" />,
               ]
             : [
-                <TextField source="office_user_id" label="Office User ID" />,
-                <TextField source="office_user_first_name" label="Office User First Name" />,
-                <TextField source="office_user_last_name" label="Office User Last Name" />,
-                <TextField source="office_user_phone" label="Office User Phone" />,
-                <TextField source="office_user_email" label="Office User Email" />,
+                <TextField source="officeUserId" label="Office User ID" />,
+                <TextField source="officeUserFirstName" label="Office User First Name" />,
+                <TextField source="officeUserLastName" label="Office User Last Name" />,
+                <TextField source="officeUserPhone" label="Office User Phone" />,
+                <TextField source="officeUserEmail" label="Office User Email" />,
               ]}
-          <TextField source="move_locator" label="Move Locator" />
+          <TextField source="moveLocator" label="Move Locator" />
           <TextField source="upload.filename" label="Upload Filename" />
           <TextField source="upload.size" label="Upload Size" />
-          <TextField source="upload.content_type" label="Upload Content Type" />
-          <DateField source="upload.created_at" showTime label="Created At" />
+          <TextField source="upload.contentType" label="Upload Content Type" />
+          <DateField source="upload.createdAt" showTime label="Created At" />
         </SimpleShowLayout>
       </ShowView>
     )}

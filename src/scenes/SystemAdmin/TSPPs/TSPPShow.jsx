@@ -10,25 +10,22 @@ const TSPPShow = props => {
     <Show {...props} title={<TSPPShowTitle />}>
       <SimpleShowLayout>
         <TextField source="id" reference="transportation_service_provider_performances" />
-        <TextField source="traffic_distribution_list_id" reference="transportation_service_provider_performances" />
-        <TextField
-          source="transportation_service_provider_id"
-          reference="transportation_service_provider_performances"
-        />
-        <DateField source="performance_period_start" reference="transportation_service_provider_performances" />
-        <DateField source="performance_period_end" reference="transportation_service_provider_performances" />
-        <DateField source="rate_cycle_start" reference="transportation_service_provider_performances" />
-        <DateField source="rate_cycle_end" reference="transportation_service_provider_performances" />
-        <TextField source="quality_band" reference="transportation_service_provider_performances" />
-        <NumberField source="offer_count" reference="transportation_service_provider_performances" />
-        <NumberField source="best_value_score" reference="transportation_service_provider_performances" />
+        <TextField source="trafficDistributionListId" reference="transportation_service_provider_performances" />
+        <TextField source="transportationServiceProviderId" reference="transportation_service_provider_performances" />
+        <DateField source="performancePeriodStart" reference="transportation_service_provider_performances" />
+        <DateField source="performancePeriodEnd" reference="transportation_service_provider_performances" />
+        <DateField source="rateCycleStart" reference="transportation_service_provider_performances" />
+        <DateField source="rateCycleEnd" reference="transportation_service_provider_performances" />
+        <TextField source="qualityBand" reference="transportation_service_provider_performances" />
+        <NumberField source="offerCount" reference="transportation_service_provider_performances" />
+        <NumberField source="bestValueScore" reference="transportation_service_provider_performances" />
         <NumberField
-          source="linehaul_rate"
+          source="linehaulRate"
           reference="transportation_service_provider_performances"
           options={{ style: 'percent', maximumFractionDigits: 2 }}
         />
         <NumberField
-          source="sit_rate"
+          source="sitRate"
           reference="transportation_service_provider_performances"
           options={{ style: 'percent', maximumFractionDigits: 2 }}
         />
