@@ -12,7 +12,7 @@ export function getRequestStatus(state, label) {
 
 // Get the last request for a provided label
 export function getLastRequest(state, label) {
-  const requests = filter(state.requests.byID, function(value, key) {
+  const requests = filter(state.requests.byID, function (value, key) {
     return value.label === label;
   });
   const sorted = sortBy(requests, ['start']);
