@@ -103,6 +103,9 @@
     "mockdate": "^2.0.2",
     "prettier": "=1.19.1"
   },
+  "resolutions": {
+    "@babel/preset-env": "^7.8.7"
+  },
   "browserslist": [
     ">0.2%",
     "not dead",
