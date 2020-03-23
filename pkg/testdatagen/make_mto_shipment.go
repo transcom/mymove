@@ -15,16 +15,13 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}
-	pickupAddress := assertions.MTOShipment.PickupAddress
-	if isZeroUUID(pickupAddress.ID) {
-		pickupAddress = MakeAddress(db, assertions)
-	}
-	destinationAddress := assertions.MTOShipment.DestinationAddress
-	if isZeroUUID(destinationAddress.ID) {
-		destinationAddress = MakeAddress2(db, assertions)
-	}
 
+	pickupAddress := MakeAddress(db, assertions)
+	destinationAddress := MakeAddress2(db, assertions)
+	secondaryPickupAddress := MakeAddress(db, assertions)
+	secondaryDeliveryAddress := MakeAddress(db, assertions)
 	shipmentType := models.MTOShipmentTypeHHG
+
 	if assertions.MTOShipment.ShipmentType != "" {
 		shipmentType = assertions.MTOShipment.ShipmentType
 	}
@@ -46,13 +43,13 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		ScheduledPickupDate:      &scheduledPickupDate,
 		RequestedPickupDate:      &requestedPickupDate,
 		CustomerRemarks:          &remarks,
-		PickupAddress:            pickupAddress,
-		PickupAddressID:          pickupAddress.ID,
-		DestinationAddress:       destinationAddress,
-		DestinationAddressID:     destinationAddress.ID,
+		PickupAddress:            &pickupAddress,
+		PickupAddressID:          &pickupAddress.ID,
+		DestinationAddress:       &destinationAddress,
+		DestinationAddressID:     &destinationAddress.ID,
 		PrimeActualWeight:        &actualWeight,
-		SecondaryPickupAddress:   &pickupAddress,
-		SecondaryDeliveryAddress: &destinationAddress,
+		SecondaryPickupAddress:   &secondaryPickupAddress,
+		SecondaryDeliveryAddress: &secondaryDeliveryAddress,
 		ShipmentType:             shipmentType,
 		Status:                   "SUBMITTED",
 		RejectionReason:          &rejectionReason,
