@@ -1017,8 +1017,7 @@ func init() {
         },
         "approvedDate": {
           "type": "string",
-          "format": "date",
-          "x-nullable": true
+          "format": "date"
         },
         "createdAt": {
           "type": "string",
@@ -1026,6 +1025,7 @@ func init() {
         },
         "customerRemarks": {
           "type": "string",
+          "x-nullable": true,
           "example": "handle with care"
         },
         "destinationAddress": {
@@ -1129,6 +1129,7 @@ func init() {
       "properties": {
         "confirmationNumber": {
           "type": "string",
+          "x-nullable": true,
           "example": "HYXFJF"
         },
         "customer": {
@@ -2581,8 +2582,7 @@ func init() {
         },
         "approvedDate": {
           "type": "string",
-          "format": "date",
-          "x-nullable": true
+          "format": "date"
         },
         "createdAt": {
           "type": "string",
@@ -2590,6 +2590,7 @@ func init() {
         },
         "customerRemarks": {
           "type": "string",
+          "x-nullable": true,
           "example": "handle with care"
         },
         "destinationAddress": {
@@ -2693,6 +2694,7 @@ func init() {
       "properties": {
         "confirmationNumber": {
           "type": "string",
+          "x-nullable": true,
           "example": "HYXFJF"
         },
         "customer": {
