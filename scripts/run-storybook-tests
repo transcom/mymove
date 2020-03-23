@@ -12,6 +12,8 @@ if [[ -z ${CIRCLECI-} ]]; then
   docker-compose -f docker-compose.storybook.yml -f docker-compose.storybook_local.yml up storybook_tests
 else
   # on CircleCI
+  # remove node_modules from dockerignore
+  sed -i='' '/^\/node_modules/d' .dockerignore
   docker-compose -f docker-compose.storybook.yml build --pull
   docker-compose -f docker-compose.storybook.yml up storybook_tests
 fi
