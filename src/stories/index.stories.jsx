@@ -11,8 +11,8 @@ const filterGroup = filter => Object.keys(colors).filter(color => color.indexOf(
 
 // Buttons
 
-const ButtonGroup = props => (
-  <div className={props.className} style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
+const ButtonGroup = ({ className }) => (
+  <div className={className} style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
     <Button onClick={action('clicked')}>
       <span>Button</span>
     </Button>
@@ -54,6 +54,14 @@ const ButtonGroup = props => (
     </Button>
   </div>
 );
+
+ButtonGroup.defaultProps = {
+  className: '',
+};
+
+ButtonGroup.propTypes = {
+  className: PropTypes.string,
+};
 
 storiesOf('Components|Button', module)
   .add('default', () => <ButtonGroup />)
