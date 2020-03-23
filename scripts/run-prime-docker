@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -eux -o pipefail
+set -eu -o pipefail
 
 # Set Defaults
 NETWORK="mymove_default" # Docker network
@@ -10,9 +10,6 @@ DOCKER_RUN="docker run -t"
 
 # Check that the docker process is running first
 docker system info >> /dev/null
-
-# Begin Setup
-make e2e_clean
 
 # Locally development requires that we build the container
 
@@ -75,3 +72,6 @@ $DOCKER_RUN \
   --entrypoint generate-test-data \
   tools:latest \
   --named-scenario e2e_basic
+
+# Signal this is good to go
+echo "READY FOR USE"
