@@ -12,8 +12,8 @@ import (
 	"strings"
 )
 
-// UpdateMTOServiceItemstatusURL generates an URL for the update m t o service itemstatus operation
-type UpdateMTOServiceItemstatusURL struct {
+// UpdateMTOServiceItemStatusURL generates an URL for the update m t o service item status operation
+type UpdateMTOServiceItemStatusURL struct {
 	MoveTaskOrderID  string
 	MtoServiceItemID string
 
@@ -25,7 +25,7 @@ type UpdateMTOServiceItemstatusURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *UpdateMTOServiceItemstatusURL) WithBasePath(bp string) *UpdateMTOServiceItemstatusURL {
+func (o *UpdateMTOServiceItemStatusURL) WithBasePath(bp string) *UpdateMTOServiceItemStatusURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -33,12 +33,12 @@ func (o *UpdateMTOServiceItemstatusURL) WithBasePath(bp string) *UpdateMTOServic
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *UpdateMTOServiceItemstatusURL) SetBasePath(bp string) {
+func (o *UpdateMTOServiceItemStatusURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *UpdateMTOServiceItemstatusURL) Build() (*url.URL, error) {
+func (o *UpdateMTOServiceItemStatusURL) Build() (*url.URL, error) {
 	var _result url.URL
 
 	var _path = "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status"
@@ -47,14 +47,14 @@ func (o *UpdateMTOServiceItemstatusURL) Build() (*url.URL, error) {
 	if moveTaskOrderID != "" {
 		_path = strings.Replace(_path, "{moveTaskOrderID}", moveTaskOrderID, -1)
 	} else {
-		return nil, errors.New("moveTaskOrderId is required on UpdateMTOServiceItemstatusURL")
+		return nil, errors.New("moveTaskOrderId is required on UpdateMTOServiceItemStatusURL")
 	}
 
 	mtoServiceItemID := o.MtoServiceItemID
 	if mtoServiceItemID != "" {
 		_path = strings.Replace(_path, "{mtoServiceItemID}", mtoServiceItemID, -1)
 	} else {
-		return nil, errors.New("mtoServiceItemId is required on UpdateMTOServiceItemstatusURL")
+		return nil, errors.New("mtoServiceItemId is required on UpdateMTOServiceItemStatusURL")
 	}
 
 	_basePath := o._basePath
@@ -67,7 +67,7 @@ func (o *UpdateMTOServiceItemstatusURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *UpdateMTOServiceItemstatusURL) Must(u *url.URL, err error) *url.URL {
+func (o *UpdateMTOServiceItemStatusURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -78,17 +78,17 @@ func (o *UpdateMTOServiceItemstatusURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *UpdateMTOServiceItemstatusURL) String() string {
+func (o *UpdateMTOServiceItemStatusURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *UpdateMTOServiceItemstatusURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *UpdateMTOServiceItemStatusURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on UpdateMTOServiceItemstatusURL")
+		return nil, errors.New("scheme is required for a full url on UpdateMTOServiceItemStatusURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on UpdateMTOServiceItemstatusURL")
+		return nil, errors.New("host is required for a full url on UpdateMTOServiceItemStatusURL")
 	}
 
 	base, err := o.Build()
@@ -102,6 +102,6 @@ func (o *UpdateMTOServiceItemstatusURL) BuildFull(scheme, host string) (*url.URL
 }
 
 // StringFull returns the string representation of a complete url
-func (o *UpdateMTOServiceItemstatusURL) StringFull(scheme, host string) string {
+func (o *UpdateMTOServiceItemStatusURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

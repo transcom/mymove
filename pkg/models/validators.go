@@ -365,10 +365,9 @@ type OptionalUUIDIsPresent struct {
 	Message string
 }
 
-// IsValid adds an error if the field is not a valid uuid or is nil
+// IsValid adds an error if the field is not a valid uuid
 func (v *OptionalUUIDIsPresent) IsValid(errors *validate.Errors) {
 	if v.Field == nil {
-		errors.Add(validators.GenerateKey(v.Name), v.Message)
 		return
 	}
 

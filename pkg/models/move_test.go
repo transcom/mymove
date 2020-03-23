@@ -15,6 +15,7 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 	move := &Move{}
 
 	expErrors := map[string][]string{
+		"locator":   {"Locator can not be blank."},
 		"orders_id": {"OrdersID can not be blank."},
 		"status":    {"Status can not be blank."},
 	}
@@ -185,7 +186,7 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 
-	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
+	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 

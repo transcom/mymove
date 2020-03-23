@@ -38,14 +38,14 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move orders",
+        "description": "Gets all move task orders",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move orders",
+        "summary": "Gets all move task orders",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
@@ -103,8 +103,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder",
-          "prime"
+          "moveTaskOrder"
         ],
         "summary": "Gets a the customer associated with a move task order ID",
         "operationId": "getMoveTaskOrderCustomer",
@@ -166,8 +165,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoShipment",
-          "prime"
+          "mtoShipment"
         ],
         "summary": "Updates mto shipment",
         "operationId": "updateMTOShipment",
@@ -189,6 +187,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -255,8 +254,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoServiceItem",
-          "prime"
+          "mtoServiceItem"
         ],
         "summary": "Creates mto service items",
         "operationId": "createMTOServiceItem",
@@ -328,8 +326,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder",
-          "prime"
+          "moveTaskOrder"
         ],
         "summary": "Updates move task order's post counseling information",
         "operationId": "updateMTOPostCounselingInformation",
@@ -341,10 +338,14 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
-                "ppm_estimated_weight": {
+                "pointOfContact": {
+                  "description": "Email or id of a contact person for this update",
+                  "type": "string"
+                },
+                "ppmEstimatedWeight": {
                   "type": "integer"
                 },
-                "ppm_type": {
+                "ppmType": {
                   "type": "string",
                   "enum": [
                     "FULL",
@@ -365,7 +366,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order post counseling information",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrderWithEtag"
+              "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "401": {
@@ -569,6 +570,9 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -742,6 +746,10 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
         "serviceItems": {
           "type": "array",
           "items": {
@@ -764,6 +772,9 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "dodID": {
+          "type": "string"
+        },
+        "eTag": {
           "type": "string"
         },
         "email": {
@@ -802,10 +813,13 @@ func init() {
         "address": {
           "$ref": "#/definitions/Address"
         },
-        "address_id": {
+        "addressId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -831,6 +845,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -952,6 +969,9 @@ func init() {
         "modelType"
       ],
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1096,6 +1116,10 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
         "primeActualWeight": {
           "type": "integer",
           "example": 4500
@@ -1183,6 +1207,9 @@ func init() {
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
+        "eTag": {
+          "type": "string"
+        },
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
         },
@@ -1213,14 +1240,17 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "required": [
-        "mto_shipments",
-        "mto_service_items",
-        "payment_requests"
+        "mtoShipments",
+        "mtoServiceItems",
+        "paymentRequests"
       ],
       "properties": {
         "createdAt": {
           "type": "string",
           "format": "date"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -1243,22 +1273,22 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "mto_service_items": {
+        "mtoServiceItems": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
           }
         },
-        "mto_shipments": {
+        "mtoShipments": {
           "$ref": "#/definitions/MTOShipments"
         },
-        "payment_requests": {
+        "paymentRequests": {
           "$ref": "#/definitions/PaymentRequests"
         },
-        "ppm_estimated_weight": {
+        "ppmEstimatedWeight": {
           "type": "integer"
         },
-        "ppm_type": {
+        "ppmType": {
           "type": "string",
           "enum": [
             "FULL",
@@ -1275,21 +1305,6 @@ func init() {
         }
       }
     },
-    "MoveTaskOrderWithEtag": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/MoveTaskOrder"
-        },
-        {
-          "type": "object"
-        }
-      ],
-      "properties": {
-        "eTag": {
-          "type": "string"
-        }
-      }
-    },
     "MoveTaskOrders": {
       "type": "array",
       "items": {
@@ -1299,6 +1314,9 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1416,6 +1434,9 @@ func init() {
     "ServiceItem": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1473,7 +1494,7 @@ func init() {
     },
     "ValidationError": {
       "required": [
-        "invalid_fields"
+        "invalidFields"
       ],
       "allOf": [
         {
@@ -1484,7 +1505,7 @@ func init() {
         }
       ],
       "properties": {
-        "invalid_fields": {
+        "invalidFields": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -1547,14 +1568,14 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move orders",
+        "description": "Gets all move task orders",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move orders",
+        "summary": "Gets all move task orders",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
@@ -1627,8 +1648,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder",
-          "prime"
+          "moveTaskOrder"
         ],
         "summary": "Gets a the customer associated with a move task order ID",
         "operationId": "getMoveTaskOrderCustomer",
@@ -1702,8 +1722,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoShipment",
-          "prime"
+          "mtoShipment"
         ],
         "summary": "Updates mto shipment",
         "operationId": "updateMTOShipment",
@@ -1725,6 +1744,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -1809,8 +1829,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "mtoServiceItem",
-          "prime"
+          "mtoServiceItem"
         ],
         "summary": "Creates mto service items",
         "operationId": "createMTOServiceItem",
@@ -1891,8 +1910,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder",
-          "prime"
+          "moveTaskOrder"
         ],
         "summary": "Updates move task order's post counseling information",
         "operationId": "updateMTOPostCounselingInformation",
@@ -1904,10 +1922,14 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
-                "ppm_estimated_weight": {
+                "pointOfContact": {
+                  "description": "Email or id of a contact person for this update",
+                  "type": "string"
+                },
+                "ppmEstimatedWeight": {
                   "type": "integer"
                 },
-                "ppm_type": {
+                "ppmType": {
                   "type": "string",
                   "enum": [
                     "FULL",
@@ -1928,7 +1950,7 @@ func init() {
           "200": {
             "description": "Successfully updated move task order post counseling information",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrderWithEtag"
+              "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "401": {
@@ -2177,6 +2199,9 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2350,6 +2375,10 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
         "serviceItems": {
           "type": "array",
           "items": {
@@ -2372,6 +2401,9 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "dodID": {
+          "type": "string"
+        },
+        "eTag": {
           "type": "string"
         },
         "email": {
@@ -2410,10 +2442,13 @@ func init() {
         "address": {
           "$ref": "#/definitions/Address"
         },
-        "address_id": {
+        "addressId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -2439,6 +2474,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -2560,6 +2598,9 @@ func init() {
         "modelType"
       ],
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2704,6 +2745,10 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
         "primeActualWeight": {
           "type": "integer",
           "example": 4500
@@ -2791,6 +2836,9 @@ func init() {
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
+        "eTag": {
+          "type": "string"
+        },
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
         },
@@ -2821,14 +2869,17 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "required": [
-        "mto_shipments",
-        "mto_service_items",
-        "payment_requests"
+        "mtoShipments",
+        "mtoServiceItems",
+        "paymentRequests"
       ],
       "properties": {
         "createdAt": {
           "type": "string",
           "format": "date"
+        },
+        "eTag": {
+          "type": "string"
         },
         "id": {
           "type": "string",
@@ -2851,22 +2902,22 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "mto_service_items": {
+        "mtoServiceItems": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
           }
         },
-        "mto_shipments": {
+        "mtoShipments": {
           "$ref": "#/definitions/MTOShipments"
         },
-        "payment_requests": {
+        "paymentRequests": {
           "$ref": "#/definitions/PaymentRequests"
         },
-        "ppm_estimated_weight": {
+        "ppmEstimatedWeight": {
           "type": "integer"
         },
-        "ppm_type": {
+        "ppmType": {
           "type": "string",
           "enum": [
             "FULL",
@@ -2883,21 +2934,6 @@ func init() {
         }
       }
     },
-    "MoveTaskOrderWithEtag": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/MoveTaskOrder"
-        },
-        {
-          "type": "object"
-        }
-      ],
-      "properties": {
-        "eTag": {
-          "type": "string"
-        }
-      }
-    },
     "MoveTaskOrders": {
       "type": "array",
       "items": {
@@ -2907,6 +2943,9 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -3024,6 +3063,9 @@ func init() {
     "ServiceItem": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -3081,7 +3123,7 @@ func init() {
     },
     "ValidationError": {
       "required": [
-        "invalid_fields"
+        "invalidFields"
       ],
       "allOf": [
         {
@@ -3092,7 +3134,7 @@ func init() {
         }
       ],
       "properties": {
-        "invalid_fields": {
+        "invalidFields": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
