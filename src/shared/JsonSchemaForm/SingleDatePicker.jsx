@@ -4,7 +4,7 @@ import { parseDate, formatDate, defaultDateFormat } from 'shared/dates';
 
 import 'react-day-picker/lib/style.css';
 
-const getDayPickerProps = disabledDays => {
+const getDayPickerProps = (disabledDays) => {
   return {
     modifiers: {
       disabled: disabledDays,

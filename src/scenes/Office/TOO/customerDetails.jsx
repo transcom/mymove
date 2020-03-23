@@ -23,10 +23,10 @@ class CustomerDetails extends Component {
     this.props.getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
       this.props.getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
         // TODO: would like to do batch fetching later
-        moveTaskOrder.forEach(item => this.props.getMTOServiceItems(item.id));
-        moveTaskOrder.forEach(item =>
+        moveTaskOrder.forEach((item) => this.props.getMTOServiceItems(item.id));
+        moveTaskOrder.forEach((item) =>
           this.props.getMTOShipments(item.id).then(({ response: { body: mtoShipments } }) => {
-            mtoShipments.forEach(shipment => this.props.getMTOAgentList(item.id, shipment.id));
+            mtoShipments.forEach((shipment) => this.props.getMTOAgentList(item.id, shipment.id));
           }),
         );
       });
@@ -153,7 +153,7 @@ class CustomerDetails extends Component {
                 </tr>
               </thead>
               <tbody>
-                {mtoShipments.map(items => (
+                {mtoShipments.map((items) => (
                   <Fragment key={items.id}>
                     <tr>
                       <td>{items.id}</td>
@@ -195,7 +195,7 @@ class CustomerDetails extends Component {
                               .patchMTOShipmentStatus(get(moveTaskOrder, 'id'), items.id, 'APPROVED', items.eTag)
                               .then(() => this.props.getMTOServiceItems(items.moveTaskOrderID))
                           }
-                          rejectBtnOnClick={rejectionReason =>
+                          rejectBtnOnClick={(rejectionReason) =>
                             this.props.patchMTOShipmentStatus(
                               get(moveTaskOrder, 'id'),
                               items.id,
@@ -225,7 +225,7 @@ class CustomerDetails extends Component {
                 </tr>
               </thead>
               <tbody>
-                {mtoAgents.map(shipmentAgent => (
+                {mtoAgents.map((shipmentAgent) => (
                   <Fragment key={get(shipmentAgent[0], 'id')}>
                     <tr>
                       <td>{get(shipmentAgent[0], 'id')}</td>
@@ -252,7 +252,7 @@ class CustomerDetails extends Component {
                 </tr>
               </thead>
               <tbody>
-                {mtoServiceItems.map(items => (
+                {mtoServiceItems.map((items) => (
                   <Fragment key={items.id}>
                     <tr>
                       <td>{items.id}</td>

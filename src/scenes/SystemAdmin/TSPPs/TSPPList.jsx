@@ -5,7 +5,7 @@ import styles from 'scenes/SystemAdmin/Home.module.scss';
 
 const defaultSort = { field: 'performance_period_start', order: 'DESC' };
 
-const TSPPFilter = props => (
+const TSPPFilter = (props) => (
   <Filter {...props} className={styles['system-admin-filters']}>
     <TextInput
       label="Traffic distribution list id"
@@ -20,7 +20,7 @@ const TSPPFilter = props => (
   </Filter>
 );
 
-const TSPPList = props => (
+const TSPPList = (props) => (
   <List
     {...props}
     pagination={<AdminPagination />}
