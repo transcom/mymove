@@ -6,20 +6,23 @@
   @include u-bg('white');
   @include u-padding('3');
   @include u-margin('3');
+  @include u-radius('05');
   &--gray {
     @include u-bg('base-lightest');
   }
   &--popout {
-    @include border-inset(2px, $base-light);
+    @include u-border('base-light');
+    @include u-border('2px');
     @include u-shadow(2);
   }
   &--accent {
-    @include u-shadow(2);
     &--blue {
       border-top: 8px solid $accent-blue;
+      @include u-shadow(2);
     }
     &--yellow {
       border-top: 8px solid $accent-yellow;
+      @include u-shadow(2);
     }
   }
 }
