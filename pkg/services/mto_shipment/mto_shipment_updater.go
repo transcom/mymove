@@ -265,7 +265,7 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 
 	if err != nil {
 		switch err.(type) {
-		case query.StaleIdentifierError:
+		case StaleIdentifierError:
 			return &models.MTOShipment{}, services.NewPreconditionFailedError(mtoShipment.ID, err)
 		default:
 			return &models.MTOShipment{}, err
