@@ -1,0 +1,2 @@
+ALTER TABLE moves
+    ALTER COLUMN locator SET NOT NULL;

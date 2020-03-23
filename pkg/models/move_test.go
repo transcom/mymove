@@ -15,6 +15,7 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 	move := &Move{}
 
 	expErrors := map[string][]string{
+		"locator":   {"Locator can not be blank."},
 		"orders_id": {"OrdersID can not be blank."},
 		"status":    {"Status can not be blank."},
 	}

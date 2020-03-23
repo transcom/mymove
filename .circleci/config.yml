@@ -388,7 +388,18 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
-      - run: make anti_virus
+      - run:
+          name: make anti_virus
+          command: make anti_virus
+          environment:
+            AV_DIR: /home/circleci/transcom/mymove
+            # WARNING: IGNORE FILES AT OUR PERIL. IF ADDING HERE ADD NOTES!
+            # - pkg/testdatagen/testdata/orders.pdf is a file used exclusively for testing
+            AV_IGNORE_FILES: pkg/testdatagen/testdata/orders.pdf
+            # WARNING: IGNORE SIGNATURES AT OUR PERIL. IF ADDING HERE ADD NOTES!
+            # - PUA.Pdf.Trojan.EmbeddedJavaScript-1 is ignored because we don't ship PDFs in any docker containers
+            # - orders.pdf.UNOFFICIAL is a finding based on the ignored file above of the same name
+            AV_IGNORE_SIGS: "PUA.Pdf.Trojan.EmbeddedJavaScript-1 orders.pdf.UNOFFICIAL"
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
