@@ -6,9 +6,9 @@ import PropTypes from 'prop-types';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
-import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from './ducks';
+import { getPpmWeightEstimate, getSelectedWeightInfo } from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
+import { loadPPMs, updatePPM, selectActivePPMForMove, updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
@@ -41,43 +41,47 @@ export class PpmWeight extends Component {
   }
 
   componentDidMount() {
-    const { currentPpm } = this.props;
-    if (currentPpm) {
+    const { currentPPM } = this.props;
+    const moveId = this.props.match.params.moveId;
+    this.props.loadPPMs(moveId);
+    if (currentPPM) {
       this.setState(
         {
           pendingPpmWeight:
-            currentPpm.weight_estimate && currentPpm.weight_estimate !== 0
-              ? currentPpm.weight_estimate
+            currentPPM.weight_estimate && currentPPM.weight_estimate !== 0
+              ? currentPPM.weight_estimate
               : this.getWeightClassMedian(),
         },
         this.updateIncentive,
       );
     }
   }
+
   componentDidUpdate(prevProps, prevState) {
-    const { currentPpm, hasLoadSuccess } = this.props;
-    if (!prevProps.hasLoadSuccess && hasLoadSuccess && currentPpm) {
+    const { currentPPM, hasLoadSuccess } = this.props;
+    if (!prevProps.hasLoadSuccess && hasLoadSuccess && currentPPM) {
       this.setState(
         {
           pendingPpmWeight:
-            currentPpm.weight_estimate && currentPpm.weight_estimate !== 0
-              ? currentPpm.weight_estimate
+            currentPPM.weight_estimate && currentPPM.weight_estimate !== 0
+              ? currentPPM.weight_estimate
               : this.getWeightClassMedian(),
         },
         this.updateIncentive,
       );
     }
   }
+
   // this method is used to set the incentive on page load
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
   updateIncentive() {
-    const { currentWeight, currentPpm, originDutyStationZip } = this.props;
+    const { currentWeight, currentPPM, originDutyStationZip } = this.props;
     const newWeight = currentWeight && currentWeight !== 0 ? currentWeight : this.state.pendingPpmWeight;
     this.onWeightSelecting(newWeight);
     this.props.getPpmWeightEstimate(
-      currentPpm.original_move_date,
-      currentPpm.pickup_postal_code,
+      currentPPM.original_move_date,
+      currentPPM.pickup_postal_code,
       originDutyStationZip,
       this.props.orders.id,
       newWeight,
@@ -93,8 +97,8 @@ export class PpmWeight extends Component {
       has_pro_gear_over_thousand: toUpper(this.state.isProgearMoreThan1000),
     };
     return this.props
-      .createOrUpdatePpm(moveId, ppmBody)
-      .then(({ payload }) => this.props.updatePPMEstimate(moveId, payload.id).catch(err => err));
+      .updatePPM(moveId, this.props.currentPPM.id, ppmBody)
+      .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch(err => err));
     // catch block returns error so that the wizard can continue on with its flow
   };
 
@@ -105,10 +109,10 @@ export class PpmWeight extends Component {
   };
 
   onWeightSelected() {
-    const { currentPpm, originDutyStationZip } = this.props;
+    const { currentPPM, originDutyStationZip } = this.props;
     this.props.getPpmWeightEstimate(
-      currentPpm.original_move_date,
-      currentPpm.pickup_postal_code,
+      currentPPM.original_move_date,
+      currentPPM.pickup_postal_code,
       originDutyStationZip,
       this.props.orders.id,
       this.state.pendingPpmWeight,
@@ -188,7 +192,6 @@ export class PpmWeight extends Component {
 
   chooseIncentiveRangeText(hasEstimateError) {
     const { incentive_estimate_min, incentive_estimate_max } = this.props;
-
     if (hasEstimateError) {
       return (
         <td className="incentive">
@@ -386,13 +389,16 @@ PpmWeight.propTypes = {
     incentive: PropTypes.string,
   }),
   hasLoadSuccess: PropTypes.bool.isRequired,
+  currentPPM: PropTypes.object.isRequired,
 };
 function mapStateToProps(state) {
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
   const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
+  const moveID = state.moves.currentMove.id;
 
   const props = {
     ...state.ppm,
+    currentPPM: selectActivePPMForMove(state, moveID),
     selectedWeightInfo: getSelectedWeightInfo(state),
     currentWeight: get(state, 'ppm.currentPpm.weight_estimate'),
     entitlement: loadEntitlementsFromState(state),
@@ -407,8 +413,9 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
+      loadPPMs,
       getPpmWeightEstimate,
-      createOrUpdatePpm,
+      updatePPM,
       updatePPMEstimate,
     },
     dispatch,
