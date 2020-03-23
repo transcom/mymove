@@ -45,12 +45,9 @@ describe('HomePage tests', () => {
             />
           </Provider>,
         );
-        console.log(wrapper.debug());
-
         const landing = wrapper.find(Landing).dive();
         const resumeMoveFn = jest.spyOn(landing.instance(), 'resumeMove');
         landing.setProps({ createdServiceMemberIsLoading: true });
-        console.log(wrapper.debug());
         expect(resumeMoveFn).toHaveBeenCalledTimes(1);
       });
     });

@@ -1124,17 +1124,10 @@
     core-js-pure "^3.0.0"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@7.9.0":
+"@babel/runtime@7.9.0", "@babel/runtime@^7.0.0", "@babel/runtime@^7.1.2", "@babel/runtime@^7.3.1", "@babel/runtime@^7.3.4", "@babel/runtime@^7.4.0", "@babel/runtime@^7.4.3", "@babel/runtime@^7.4.4", "@babel/runtime@^7.4.5", "@babel/runtime@^7.5.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.2", "@babel/runtime@^7.6.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.4", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7":
   version "7.9.0"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.9.0.tgz#337eda67401f5b066a6f205a3113d4ac18ba495b"
   integrity sha512-cTIudHnzuWLS56ik4DnRnqqNf8MkdUzV4iFFI1h7Jo9xvrpQROYaAnaSd2mHLQAzzZAPfATynX5ord6YlNYNMA==
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.1.2", "@babel/runtime@^7.3.1", "@babel/runtime@^7.3.4", "@babel/runtime@^7.4.0", "@babel/runtime@^7.4.3", "@babel/runtime@^7.4.4", "@babel/runtime@^7.4.5", "@babel/runtime@^7.5.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.2", "@babel/runtime@^7.6.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.4", "@babel/runtime@^7.7.6", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7":
-  version "7.8.7"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.8.7.tgz#8fefce9802db54881ba59f90bb28719b4996324d"
-  integrity sha512-+AATMUFppJDw6aiR5NVPHqIQBlV/Pj8wY/EZH+lmvRdUo9xBaz/rF3alAwFJQavvKfeOlPE7oaaDHVbcySbCsg==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -6065,10 +6058,10 @@ eslint-config-airbnb@^18.1.0:
     object.assign "^4.1.0"
     object.entries "^1.1.1"
 
-eslint-config-prettier@^6.10.0:
-  version "6.10.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-6.10.0.tgz#7b15e303bf9c956875c948f6b21500e48ded6a7f"
-  integrity sha512-AtndijGte1rPILInUdHjvKEGbIV06NuvPrqlIEaEaWtbtvJh464mDeyGMdZEQMsGvC0ZVkiex1fSNcC4HAbRGg==
+eslint-config-prettier@^6.10.1:
+  version "6.10.1"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-6.10.1.tgz#129ef9ec575d5ddc0e269667bf09defcd898642a"
+  integrity sha512-svTy6zh1ecQojvpbJSgH3aei/Rt7C6i090l5f2WQ4aB05lYHeZIR1qL4wZyyILTbtmnbHP5Yn8MrsOJMGa8RkQ==
   dependencies:
     get-stdin "^6.0.0"
 
@@ -6658,10 +6651,10 @@ filepond-plugin-file-validate-size@^2.2.0:
   resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-size/-/filepond-plugin-file-validate-size-2.2.0.tgz#89e393e4c757c38467b8b2f7049760682d036716"
   integrity sha512-Czlj4JLrxWRXBm50QO4rzvEVZVGfB4Gst0denBAGTKTZtuj566KB7vwDQy/daZoYtXOQdoVvfJgrJGifZ5n9KA==
 
-filepond-plugin-file-validate-type@^1.0.3:
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-type/-/filepond-plugin-file-validate-type-1.2.4.tgz#ce7f5f469dbc7ce0da12fdef7b0f24e4c263c410"
-  integrity sha512-K1qD8mfahJoz2zRlWWvYoHuy4k/8tHggsoGbm/blpTp63OyahOdJBzMN3VK7USYn5OZ58uOFdMTMyi8ibFpW/Q==
+filepond-plugin-file-validate-type@^1.2.5:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-type/-/filepond-plugin-file-validate-type-1.2.5.tgz#b3588088d2b0d5dbdf706d068c0ecdf28140a8e3"
+  integrity sha512-SsdYD6N+PDnetrPrBHfl13ZC9jRv5BuGdai5cORfANhuE/N32OwU/IclCNQ4qlpIa88hzqBg9dj6IINkiW+4HA==
 
 filepond-plugin-image-exif-orientation@^1.0.1:
   version "1.0.6"
@@ -12123,10 +12116,10 @@ ra-core@^2.9.9:
     redux-saga "~0.16.0"
     reselect "~3.0.0"
 
-ra-core@^3.3.1:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.3.1.tgz#9dadb53960f6687aaf49fddd0928523d34591073"
-  integrity sha512-tAUSVqh3cZmyIhipa1pS2voK4E5G+7c8WTLR3cxhTR+6qzw3miVmPChk2F0Xh5wmbHJPZy2nZVoUIB16A4vVug==
+ra-core@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.3.2.tgz#1ed824f533a7043c4f8a6247c1e1d5386c84252a"
+  integrity sha512-OXhsFb6yuqWACfR/DjHjt0tRVtXVGgqW2xeRdScIh5A2/x0H5KuMXbO5sE7KaBKIdKtWKZsebJCofi9c+x6tzg==
   dependencies:
     "@testing-library/react" "^8.0.7"
     classnames "~2.2.5"
@@ -12147,13 +12140,13 @@ ra-data-simple-rest@^2.9.9:
     query-string "~5.1.1"
     ra-core "^2.9.9"
 
-ra-i18n-polyglot@^3.3.1:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.3.1.tgz#2ed6bffb2ac9a849a61271e9160cbe003999caa3"
-  integrity sha512-MTC5xndJ+IfPEJcvLjSuyKVA/4wueyc11oj6jv+CDBN6xlL9+4gQQNJ64Y9vOkCnDI2LCSEEPmeinXkRsfoW7Q==
+ra-i18n-polyglot@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.3.2.tgz#846f9ff1d626827328c6d537dc07b7e672c44f9f"
+  integrity sha512-LOjyfxfgLDQJGuZyTw2NPW33TwlC/TSTQFPVYslzUt8RMn6d9qhxhcRWCsKJ/NHUsif1jjc40qBh7AdnoWKeqA==
   dependencies:
     node-polyglot "^2.2.2"
-    ra-core "^3.3.1"
+    ra-core "^3.3.2"
 
 ra-language-english@^2.9.9:
   version "2.9.9"
@@ -12165,10 +12158,10 @@ ra-language-english@^3.2.0:
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.2.0.tgz#2ca13b767d834b43fefd128f48e452449f812b61"
   integrity sha512-/XmwYWoQoB4MBkkzBCbg/ykCuRGjHQOHLk2ik6n1aM10AWHxiiJNyRw2aoLzH7Vc5rcp4BBJQCuhT+DgfYIJ2Q==
 
-ra-ui-materialui@^3.3.1:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.3.1.tgz#e88ea73eddef29357eff3a0a43cbc639f11ee892"
-  integrity sha512-MHVTP6XG5ylwOH21MUQFl17+L1/Qe7335FhFscuhy6kEX7U3UQKaAQu9xD3ij30P6gAEJSb8EI02TR2FvaEWVg==
+ra-ui-materialui@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.3.2.tgz#0d81fb56b7e7d2a4b52b8db23e3f0c4c09aa0420"
+  integrity sha512-2bTBxS58vWSI/CrJLWiGzi2CTx4I0qNmVtunjDOJevz00nHbhIGTGTi64bjdovnxv5ymouMM1IvnKmM6bzaBYQ==
   dependencies:
     autosuggest-highlight "^3.1.1"
     classnames "~2.2.5"
@@ -12261,10 +12254,10 @@ react-addons-create-fragment@^15.6.2:
     loose-envify "^1.3.1"
     object-assign "^4.1.0"
 
-react-admin@^3.3.1:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.3.1.tgz#8af1ffedbf07b97bdf7f2e256e44ca1c9d7ebb71"
-  integrity sha512-4tJRVhOmzqy6XGOoLzDDAxuFqx+y+W/Y+S9jpkIKAdG0cHRZtSSKvTiakuf3yCKYf6lBffLYQUmqifBpKupOCg==
+react-admin@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.3.2.tgz#a5498baa10ab8961d4e1568cbe1f1e479aa0cde6"
+  integrity sha512-w7eO5kXaeS7fsoWxBdVzAFmRxG1EZKHe+AtDd0nAB8x4JFBqkgHuDBGYFsyYDlu2hK+cLXgfe8BHv11E2XrvNQ==
   dependencies:
     "@material-ui/core" "^4.3.3"
     "@material-ui/icons" "^4.2.1"
@@ -12272,10 +12265,10 @@ react-admin@^3.3.1:
     connected-react-router "^6.5.2"
     final-form "^4.18.5"
     final-form-arrays "^3.0.1"
-    ra-core "^3.3.1"
-    ra-i18n-polyglot "^3.3.1"
+    ra-core "^3.3.2"
+    ra-i18n-polyglot "^3.3.2"
     ra-language-english "^3.2.0"
-    ra-ui-materialui "^3.3.1"
+    ra-ui-materialui "^3.3.2"
     react-final-form "^6.3.3"
     react-final-form-arrays "^3.1.1"
     react-redux "^7.1.0"
@@ -12789,10 +12782,10 @@ react-scripts@^3.4.1:
   optionalDependencies:
     fsevents "2.1.2"
 
-react-select@^3.0.8:
-  version "3.0.8"
-  resolved "https://registry.yarnpkg.com/react-select/-/react-select-3.0.8.tgz#06ff764e29db843bcec439ef13e196865242e0c1"
-  integrity sha512-v9LpOhckLlRmXN5A6/mGGEft4FMrfaBFTGAnuPHcUgVId7Je42kTq9y0Z+Ye5z8/j0XDT3zUqza8gaRaI1PZIg==
+react-select@^3.0.8, react-select@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/react-select/-/react-select-3.1.0.tgz#ab098720b2e9fe275047c993f0d0caf5ded17c27"
+  integrity sha512-wBFVblBH1iuCBprtpyGtd1dGMadsG36W5/t2Aj8OE6WbByDg5jIFyT7X5gT+l0qmT5TqWhxX+VsKJvCEl2uL9g==
   dependencies:
     "@babel/runtime" "^7.4.4"
     "@emotion/cache" "^10.0.9"
@@ -12801,7 +12794,7 @@ react-select@^3.0.8:
     memoize-one "^5.0.0"
     prop-types "^15.6.0"
     react-input-autosize "^2.2.2"
-    react-transition-group "^2.2.1"
+    react-transition-group "^4.3.0"
 
 react-sizeme@^2.6.7:
   version "2.6.12"
