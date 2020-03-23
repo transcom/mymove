@@ -13,7 +13,7 @@
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint-plugin-no-only-tests": "^2.4.0",
     "eslint-plugin-security": "^1.4.0",
-    "filepond-plugin-file-validate-size": "^2.2.0",
+    "filepond-plugin-file-validate-size": "^2.2.1",
     "filepond-plugin-file-validate-type": "^1.2.5",
     "filepond-plugin-image-exif-orientation": "^1.0.1",
     "filepond-plugin-image-preview": "https://github.com/transcom/filepond-plugin-image-preview",

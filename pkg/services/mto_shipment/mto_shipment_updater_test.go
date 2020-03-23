@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
@@ -219,6 +221,51 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
 		suite.NotNil(updatedMTOShipment.PrimeEstimatedWeightRecordedDate)
+	})
+
+	suite.T().Run("Successfully update MTO Agents", func(t *testing.T) {
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		mtoAgent1 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			MTOAgent: models.MTOAgent{
+				MTOShipment:   shipment,
+				MTOShipmentID: shipment.ID,
+				FirstName:     swag.String("Test"),
+				LastName:      swag.String("Agent"),
+				Email:         swag.String("test@test.email.com"),
+				MTOAgentType:  models.MTOAgentReleasing,
+			},
+		})
+		mtoAgent2 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			MTOAgent: models.MTOAgent{
+				MTOShipment:   shipment,
+				MTOShipmentID: shipment.ID,
+				FirstName:     swag.String("Test"),
+				LastName:      swag.String("Agent2"),
+				Email:         swag.String("test2@test.email.com"),
+				MTOAgentType:  models.MTOAgentReceiving,
+			},
+		})
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedAgents := make(models.MTOAgents, 2)
+		updatedAgents[0] = mtoAgent1
+		updatedAgents[1] = mtoAgent2
+		newFirstName := "hey this is new"
+		newLastName := "new thing"
+		updatedAgents[0].FirstName = &newFirstName
+		updatedAgents[1].LastName = &newLastName
+
+		updatedShipment := models.MTOShipment{
+			ID:        shipment.ID,
+			MTOAgents: updatedAgents,
+		}
+
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
+
+		suite.NoError(err)
+		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.Equal(*updatedMTOShipment.MTOAgents[0].FirstName, newFirstName)
+		suite.Equal(*updatedMTOShipment.MTOAgents[1].LastName, newLastName)
 	})
 }
 
