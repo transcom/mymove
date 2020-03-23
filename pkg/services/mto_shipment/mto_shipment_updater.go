@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/etag"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -33,7 +35,7 @@ func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBui
 	return &mtoShipmentUpdater{db, builder, fetch.NewFetcher(builder)}
 }
 
-// setNewShipmentFields validates the updated shipment
+// setNewShipmentFields validates the updated shipment and fills in oldShipment with updated fields user provides and retains unchanged values
 func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *models.MTOShipment) error {
 	if updatedShipment.RequestedPickupDate != nil {
 		requestedPickupDate := updatedShipment.RequestedPickupDate
@@ -101,7 +103,30 @@ func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *mode
 	}
 
 	if updatedShipment.MTOAgents != nil {
-		oldShipment.MTOAgents = updatedShipment.MTOAgents
+		for i, oldAgent := range oldShipment.MTOAgents {
+			for _, newAgentInfo := range updatedShipment.MTOAgents {
+				if oldAgent.ID == newAgentInfo.ID {
+					if newAgentInfo.MTOAgentType != "" && newAgentInfo.MTOAgentType != oldAgent.MTOAgentType {
+						oldShipment.MTOAgents[i].MTOAgentType = newAgentInfo.MTOAgentType
+					}
+
+					if newAgentInfo.FirstName != nil {
+						oldShipment.MTOAgents[i].FirstName = newAgentInfo.FirstName
+					}
+					if newAgentInfo.LastName != nil {
+						oldShipment.MTOAgents[i].LastName = newAgentInfo.LastName
+					}
+
+					if newAgentInfo.Email != nil {
+						oldShipment.MTOAgents[i].Email = newAgentInfo.Email
+					}
+
+					if newAgentInfo.Phone != nil {
+						oldShipment.MTOAgents[i].Phone = newAgentInfo.Phone
+					}
+				}
+			}
+		}
 	}
 
 	return nil
@@ -125,6 +150,15 @@ func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.T
 	return services.InvalidInputError{}
 }
 
+// StaleIdentifierError is used when optimistic locking determines that the identifier refers to stale data
+type StaleIdentifierError struct {
+	StaleIdentifier string
+}
+
+func (e StaleIdentifierError) Error() string {
+	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
+}
+
 //UpdateMTOShipment updates the mto shipment
 func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	queryFilters := []services.QueryFilter{
@@ -145,8 +179,15 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	var verrs *validate.Errors
 
 	err = f.db.Transaction(func(tx *pop.Connection) error {
-		// does initial optimistic locking for any fields that are updated on the mto_shipment table itself
-		verrs, err = f.builder.UpdateOne(&oldShipment, &eTag)
+		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
+		encodedUpdatedAt := etag.GenerateEtag(oldShipment.UpdatedAt)
+		if encodedUpdatedAt != eTag {
+			return StaleIdentifierError{StaleIdentifier: eTag}
+		}
+
+		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
+		params := generateMTOShipmentParams(oldShipment)
+		err = f.db.RawQuery(updateMTOShipmentQuery, params...).Exec()
 
 		if err != nil {
 			return err
@@ -203,7 +244,7 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 			agentQuery := `UPDATE mto_agents
 					SET
 				`
-			for _, agent := range mtoShipment.MTOAgents {
+			for _, agent := range oldShipment.MTOAgents {
 				updateAgentQuery := generateAgentQuery()
 				params := generateMTOAgentsParams(agent)
 				err = f.db.RawQuery(agentQuery+updateAgentQuery, params...).Exec()
@@ -239,6 +280,41 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	}
 
 	return &updatedShipment, nil
+}
+
+func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
+	return []interface{}{
+		mtoShipment.ScheduledPickupDate,
+		mtoShipment.RequestedPickupDate,
+		mtoShipment.CustomerRemarks,
+		mtoShipment.PrimeEstimatedWeight,
+		mtoShipment.PrimeEstimatedWeightRecordedDate,
+		mtoShipment.PrimeActualWeight,
+		mtoShipment.ShipmentType,
+		mtoShipment.ActualPickupDate,
+		mtoShipment.ApprovedDate,
+		mtoShipment.FirstAvailableDeliveryDate,
+		mtoShipment.ID,
+	}
+}
+
+func generateUpdateMTOShipmentQuery() string {
+	return `UPDATE mto_shipments
+		SET
+			updated_at = NOW(),
+			scheduled_pickup_date = ?,
+			requested_pickup_date = ?,
+			customer_remarks = ?,
+			prime_estimated_weight = ?,
+			prime_estimated_weight_recorded_date = ?,
+			prime_actual_weight = ?,
+			shipment_type = ?,
+			actual_pickup_date = ?,
+			approved_date = ?,
+			first_available_delivery_date = ?
+		WHERE
+			id = ?
+	`
 }
 
 func generateMTOAgentsParams(agent models.MTOAgent) []interface{} {
