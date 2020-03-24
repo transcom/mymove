@@ -102,8 +102,8 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	hhg := models.MTOShipment{
 		MoveTaskOrderID:      mto.ID,
 		RequestedPickupDate:  &requestedPickupDate,
-		PickupAddressID:      sm.DutyStation.AddressID,
-		DestinationAddressID: orders.NewDutyStation.AddressID,
+		PickupAddressID:      &sm.DutyStation.AddressID,
+		DestinationAddressID: &orders.NewDutyStation.AddressID,
 		ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 		Status:               models.MTOShipmentStatusSubmitted,
 		CreatedAt:            time.Now(),

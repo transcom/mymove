@@ -49,9 +49,9 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Gets all move orders
+      description: Gets all move task orders
       operationId: fetchMTOUpdates
-      summary: Gets all move orders
+      summary: Gets all move task orders
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
       - description: ID of move task order to use
@@ -71,13 +71,16 @@ paths:
           schema:
             type: object
             properties:
-              ppm_type:
+              ppmType:
                 type: string
                 enum:
                   - FULL
                   - PARTIAL
-              ppm_estimated_weight:
+              ppmEstimatedWeight:
                 type: integer
+              pointOfContact:
+                type: string
+                description: Email or id of a contact person for this update
         - in: header
           name: If-Match
           type: string
@@ -86,7 +89,7 @@ paths:
         '200':
           description: Successfully updated move task order post counseling information
           schema:
-            $ref: '#/definitions/MoveTaskOrderWithEtag'
+            $ref: '#/definitions/MoveTaskOrder'
         '401':
           description: The request was denied
           schema:
@@ -113,7 +116,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-        - prime
       description: Updates move task order's post counseling information
       operationId: updateMTOPostCounselingInformation
       summary: Updates move task order's post counseling information
@@ -155,7 +157,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-        - prime
       description: Gets a the customer associated with a move task order ID
       operationId: getMoveTaskOrderCustomer
       summary: Gets a the customer associated with a move task order ID
@@ -169,7 +170,6 @@ paths:
       operationId: updateMTOShipment
       tags:
         - mtoShipment
-        - prime
       parameters:
         - in: path
           name: moveTaskOrderID
@@ -183,6 +183,7 @@ paths:
           type: string
         - in: body
           name: body
+          required: true
           schema:
             $ref: '#/definitions/MTOShipment'
         - in: header
@@ -228,7 +229,6 @@ paths:
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
-        - prime
       parameters:
         - in: path
           name: moveTaskOrderID
@@ -499,6 +499,8 @@ definitions:
         x-nullable: true
         example: 'USA'
         default: USA
+      eTag:
+        type: string
     required:
       - streetAddress1
       - city
@@ -532,6 +534,9 @@ definitions:
         items:
           $ref: '#/definitions/ServiceItem'
         type: array
+      pointOfContact:
+        type: string
+        description: Email or id of a contact person for this update
   Customer:
     type: object
     properties:
@@ -557,7 +562,7 @@ definitions:
         example: Petrovna
       branch:
         type: string
-        example: "COAST_GUARD"
+        example: 'COAST_GUARD'
       phone:
         type: string
         format: telephone
@@ -566,6 +571,8 @@ definitions:
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: fake@example.com
+      eTag:
+        type: string
   DutyStation:
     type: object
     properties:
@@ -576,12 +583,14 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
-      address_id:
+      addressId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       address:
         $ref: '#/definitions/Address'
+      eTag:
+        type: string
   Entitlements:
     properties:
       id:
@@ -623,6 +632,8 @@ definitions:
       totalDependents:
         example: 2
         type: integer
+      eTag:
+        type: string
     type: object
   Error:
     properties:
@@ -655,24 +666,26 @@ definitions:
         $ref: '#/definitions/DutyStation'
       rank:
         type: string
-        example: "E_5"
+        example: 'E_5'
       reportByDate:
         type: string
         format: date
       confirmationNumber:
         type: string
-        example: "HYXFJF"
+        example: 'HYXFJF'
       orderNumber:
         type: string
       linesOfAccounting:
+        type: string
+      eTag:
         type: string
     type: object
   MoveTaskOrder:
     type: object
     required:
-      - mto_shipments
-      - mto_service_items
-      - payment_requests
+      - mtoShipments
+      - mtoServiceItems
+      - paymentRequests
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -699,33 +712,67 @@ definitions:
       updatedAt:
         format: date
         type: string
-      payment_requests:
+      paymentRequests:
         $ref: '#/definitions/PaymentRequests'
-      mto_service_items:
+      mtoServiceItems:
         type: array
         items:
           $ref: "#/definitions/MTOServiceItem"
-      mto_shipments:
+      mtoShipments:
         $ref: '#/definitions/MTOShipments'
-      ppm_type:
+      ppmType:
         type: string
         enum:
           - FULL
           - PARTIAL
-      ppm_estimated_weight:
+      ppmEstimatedWeight:
         type: integer
+      eTag:
+        type: string
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
-
-  MoveTaskOrderWithEtag:
-    allOf:
-      - $ref: '#/definitions/MoveTaskOrder'
-      - type: object
+  MTOAgents:
+    items:
+      $ref: '#/definitions/MTOAgent'
+    type: array
+  MTOAgent:
     properties:
-      eTag:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        readOnly: true
         type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date
+        type: string
+      updatedAt:
+        format: date
+        type: string
+      firstName:
+        type: string
+        x-nullable: true
+      lastName:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      agentType:
+        $ref: '#/definitions/MTOAgentType'
+    type: object
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -767,6 +814,8 @@ definitions:
       actualPickupDate:
         format: date
         type: string
+      agents:
+        $ref: '#/definitions/MTOAgents'
       customerRemarks:
         type: string
         example: handle with care
@@ -788,6 +837,9 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+      pointOfContact:
+        type: string
+        description: Email or id of a contact person for this update
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -819,6 +871,13 @@ definitions:
     enum:
       - MTOServiceItemBasic
       - MTOServiceItemDOFSIT
+  MTOAgentType:
+    type: string
+    title: MTO Agent Type
+    example: RELEASING_AGENT
+    enum: &MTOAGENTTYPE
+      - RELEASING_AGENT
+      - RECEIVING_AGENT
   MTOServiceItem:
     description: Polymorphic type. MTOServiceItem describes a base type of a service item
     type: object
@@ -844,6 +903,8 @@ definitions:
         type: string
       modelType: # Base type and sub-types of MTOServiceItem
         $ref: '#/definitions/MTOServiceItemModelType'
+      eTag:
+        type: string
     required:
       - modelType
   MTOServiceItemBasic:
@@ -908,6 +969,8 @@ definitions:
         example: 1234-5678-1
         readOnly: true
         type: string
+      eTag:
+        type: string
     type: object
   PaymentRequestStatus:
     enum:
@@ -939,6 +1002,8 @@ definitions:
               type: string
               example: Service Item Parameter Value
           type: object
+      eTag:
+        type: string
     type: object
   ReServiceCode:
     type: string
@@ -1020,12 +1085,12 @@ definitions:
       - $ref: '#/definitions/ClientError'
       - type: object
     properties:
-      invalid_fields:
+      invalidFields:
         type: object
         additionalProperties:
           type: string
     required:
-      - invalid_fields
+      - invalidFields
 responses:
   InvalidRequest:
     description: The request payload is invalid

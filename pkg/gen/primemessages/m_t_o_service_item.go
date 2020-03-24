@@ -24,6 +24,10 @@ import (
 type MTOServiceItem interface {
 	runtime.Validatable
 
+	// e tag
+	ETag() string
+	SetETag(string)
+
 	// id
 	// Format: uuid
 	ID() strfmt.UUID
@@ -55,6 +59,8 @@ type MTOServiceItem interface {
 }
 
 type mTOServiceItem struct {
+	eTagField string
+
 	idField strfmt.UUID
 
 	modelTypeField MTOServiceItemModelType
@@ -66,6 +72,16 @@ type mTOServiceItem struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
+}
+
+// ETag gets the e tag of this polymorphic type
+func (m *mTOServiceItem) ETag() string {
+	return m.eTagField
+}
+
+// SetETag sets the e tag of this polymorphic type
+func (m *mTOServiceItem) SetETag(val string) {
+	m.eTagField = val
 }
 
 // ID gets the id of this polymorphic type
