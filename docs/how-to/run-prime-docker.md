@@ -33,7 +33,23 @@ rm -f bin/prime-api-client
 make bin/prime-api-client
 prime-api-client --insecure fetch-mtos
 ```
-
+{
+  "createdAt": "2020-03-23",
+  "id": "c66e2e16-4b3c-467b-a3a8-c80e46135dd2",
+  "isAvailableToPrime": true,
+  "isCanceled": false,
+  "moveOrder": {
+    "confirmationNumber": "GBQP4Q",
+    "customer": {
+      "branch": "COAST_GUARD",
+      "currentAddress": {
+        "city": "",
+        "id": "00000000-0000-0000-0000-000000000000",
+        "postalCode": "",
+        "state": "",
+        "streetAddress1": ""
+      },
+      ...
 There will be more documentation on how to use the Prime API client soon.
 
 When you're finished, remember to shut down the server:
