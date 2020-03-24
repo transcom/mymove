@@ -719,7 +719,7 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: false
       - build_tag_push:
-          dockerfile: ~/transcom/milmove_admin/app/Dockerfile.prod
+          dockerfile: Dockerfile.prod
           tag: engadmin:dev
           repo: app-engadmin
           working_dir: ~/transcom/milmove_admin/app
