@@ -215,3 +215,49 @@ storiesOf('Components|Containers', module).add('all', () => (
     </div>
   </div>
 ));
+
+storiesOf('Components|Tables', module)
+  .add('Table Elements', () => (
+    <div style={{ padding: '20px' }}>
+      <code>cell-bg</code>
+      <table>
+        <tr>
+          <td>Type something</td>
+        </tr>
+      </table>
+      <code>td:hover</code>
+      <table>
+        <tr>
+          <td class="hover">Type something</td>
+        </tr>
+      </table>
+      <code>td:locked</code>
+      <table>
+        <tr>
+          <td class="locked">Type something</td>
+        </tr>
+      </table>
+      <code>td-numeric</code>
+      <table>
+        <tr>
+          <td>Type something</td>
+        </tr>
+      </table>
+      <code>th</code>
+      <table>
+        <tr>
+          <th>Type something</th>
+        </tr>
+      </table>
+    </div>
+  ))
+  .add('Basic Tables', () => (
+    <div style={{ padding: '20px' }}>
+      <p>placeholder</p>
+    </div>
+  ))
+  .add('Table Components', () => (
+    <div style={{ padding: '20px' }}>
+      <p>placeholder</p>
+    </div>
+  ));
