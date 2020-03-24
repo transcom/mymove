@@ -4,7 +4,7 @@ import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 const defaultSort = { field: 'name', order: 'ASC' };
 
-const OfficeList = props => (
+const OfficeList = (props) => (
   <List {...props} pagination={<AdminPagination />} perPage={25} sort={defaultSort}>
     <Datagrid>
       <TextField source="id" />

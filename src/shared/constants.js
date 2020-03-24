@@ -15,7 +15,7 @@ export const isOfficeSite = hostname.startsWith('office') || '';
 export const isAdminSite = hostname.startsWith('admin') || '';
 export const isSystemAdminSite = isAdminSite; // once we start building program admin, we can flesh this out
 
-export const titleCase = str => {
+export const titleCase = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 

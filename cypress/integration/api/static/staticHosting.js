@@ -13,9 +13,7 @@ describe('static file hosting', () => {
   });
 
   it('returns the correct status', () => {
-    cy.request('/downloads/direct_deposit_form.pdf')
-      .its('status')
-      .should('equal', 200);
+    cy.request('/downloads/direct_deposit_form.pdf').its('status').should('equal', 200);
   });
 
   it('rejects POST requests', () => {

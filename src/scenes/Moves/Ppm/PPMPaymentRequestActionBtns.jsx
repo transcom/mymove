@@ -11,7 +11,7 @@ class PPMPaymentRequestActionBtns extends Component {
     displayConfirmation: false,
   };
 
-  showConfirmationOrFinishLater = formValues => {
+  showConfirmationOrFinishLater = (formValues) => {
     const { history, hasConfirmation } = this.props;
 
     if (!hasConfirmation) {

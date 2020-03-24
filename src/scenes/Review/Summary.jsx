@@ -137,11 +137,11 @@ function mapStateToProps(state, ownProps) {
 }
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    onDidMount: function() {
+    onDidMount: function () {
       const moveID = ownProps.match.params.moveId;
       dispatch(loadMove(moveID, 'Summary.getMove'));
     },
-    onCheckEntitlement: moveId => {
+    onCheckEntitlement: (moveId) => {
       dispatch(checkEntitlement(moveId));
     },
   };
