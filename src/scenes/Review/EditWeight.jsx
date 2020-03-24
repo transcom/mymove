@@ -64,7 +64,6 @@ let EditWeightForm = props => {
     onWeightChange,
     initialValues,
   } = props;
-  console.log('initialValues in form', initialValues);
   // Error class if below advance amount, otherwise warn class if incentive has changed
   let incentiveClass = '';
   let fieldClass = dirty ? 'warn' : '';
@@ -324,9 +323,7 @@ class EditWeight extends Component {
 
 function mapStateToProps(state) {
   const moveID = state.moves.currentMove.id;
-  console.log('currentPPM', selectActivePPMForMove(state, moveID));
   return {
-    ...state.ppm,
     currentPPM: selectActivePPMForMove(state, moveID),
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
