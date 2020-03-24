@@ -3,6 +3,8 @@ package primeapi
 import (
 	"go.uber.org/zap"
 
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -11,8 +13,6 @@ import (
 	uploadop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/uploads"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
 
 func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload {
@@ -26,11 +26,11 @@ func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload 
 // CreateUploadHandler is the create upload handler
 type CreateUploadHandler struct {
 	handlers.HandlerContext
-	services.PaymentRequestUploadCreator
+	//services.PaymentRequestUploadCreator
 }
 
 // Handle creates uploads
-func (h *CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
+func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	// TODO https://dp3.atlassian.net/browse/MB-1969
 	var contractorID uuid.UUID // TODO not populated. Do not know how get from MTO to Contractor ID

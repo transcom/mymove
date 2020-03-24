@@ -18,13 +18,13 @@ import (
 
 type paymentRequestUploadCreator struct {
 	db            *pop.Connection
-	logger        storage.Logger
+	logger        Logger
 	fileStorer    storage.FileStorer
 	fileSizeLimit uploader.ByteSize
 }
 
 // NewPaymentRequestUploadCreator returns a new payment request upload creator
-func NewPaymentRequestUploadCreator(db *pop.Connection, logger storage.Logger, fileStorer storage.FileStorer) services.PaymentRequestUploadCreator {
+func NewPaymentRequestUploadCreator(db *pop.Connection, logger Logger, fileStorer storage.FileStorer) services.PaymentRequestUploadCreator {
 	return &paymentRequestUploadCreator{db, logger, fileStorer, uploader.MaxFileSizeLimit}
 }
 
