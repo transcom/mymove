@@ -9,30 +9,18 @@ This document aims to detail how to run the Prime Docker. The Prime Docker will 
   - docker
   - docker-compose
 - Have the required env variables in `.envrc.local` (What exactly the values should be will be covered in the future or a greater document that will point to this.)
-
-     `LOGIN_GOV_SECRET_KEY`
-
-     `MOVE_MIL_DOD_TLS_CER`
-
-     `MOVE_MIL_DOD_TLS_KEY`
-
-     `GEX_BASIC_AUTH_PASSWORD`
-
-     `DPS_AUTH_SECRET_KEY`
-
-     `DPS_AUTH_COOKIE_SECRET_KEY`
-
-     `CSRF_AUTH_KEY`
-
-     `EIA_KEY`
-
-     `HERE_MAPS_APP_ID`
-
-     `HERE_MAPS_APP_CODE`
-
-     `CLOUD_FRONT_PRIVATE_KEY`
-
-     `CLOUD_FRONT_KEY_ID`
+  - `LOGIN_GOV_SECRET_KEY`
+  - `MOVE_MIL_DOD_TLS_CER`
+  - `MOVE_MIL_DOD_TLS_KEY`
+  - `GEX_BASIC_AUTH_PASSWORD`
+  - `DPS_AUTH_SECRET_KEY`
+  - `DPS_AUTH_COOKIE_SECRET_KEY`
+  - `CSRF_AUTH_KEY`
+  - `EIA_KEY`
+  - `HERE_MAPS_APP_ID`
+  - `HERE_MAPS_APP_CODE`
+  - `CLOUD_FRONT_PRIVATE_KEY`
+  - `CLOUD_FRONT_KEY_ID`
 - Modify `/etc/hosts` to include the prime host.
 
 ```sh
