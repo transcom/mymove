@@ -2,24 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
-import { linkTo } from '@storybook/addon-links';
-import { Button, Welcome } from '@storybook/react/demo';
 import colors from '../shared/styles/colors.scss';
 
 const filterGroup = filter => Object.keys(colors).filter(color => color.indexOf(filter) === 0);
-
-storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
-
-storiesOf('Components/Button', module)
-  .add('with text', () => <Button onClick={action('clicked')}>Hello Button</Button>)
-  .add('with some emoji', () => (
-    <Button onClick={action('clicked')}>
-      <span role="img" aria-label="so cool">
-        😀 😎 👍 💯
-      </span>
-    </Button>
-  ));
 
 storiesOf('Global|Colors', module).add('all', () => (
   <div style={{ padding: '20px' }}>
@@ -182,3 +167,51 @@ storiesOf('Global|Typography', module)
       </small>
     </div>
   ));
+
+storiesOf('Components|Containers', module).add('all', () => (
+  <div id="containers" style={{ padding: '20px' }}>
+    <div className="container">
+      <code>
+        <b>Container Default</b>
+        <br />
+        .container
+      </code>
+    </div>
+    <div className="container container--gray">
+      <code>
+        <b>Container Gray</b>
+        <br />
+        .container
+        <br />
+        .container--gray
+      </code>
+    </div>
+    <div className="container container--popout">
+      <code>
+        <b>Container Popout</b>
+        <br />
+        .container
+        <br />
+        .container--popout
+      </code>
+    </div>
+    <div className="container container--accent--blue">
+      <code>
+        <b>Container Accent Blue</b>
+        <br />
+        .container
+        <br />
+        .container--accent--blue
+      </code>
+    </div>
+    <div className="container container--accent--yellow">
+      <code>
+        <b>Container Accent Yellow</b>
+        <br />
+        .container
+        <br />
+        .container--accent--yellow
+      </code>
+    </div>
+  </div>
+));
