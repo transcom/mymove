@@ -29,6 +29,7 @@ You should now be able to test the Prime API. You can do so with Postman or usin
 The latter can be quickly up and running with the following:
 
 ```sh
+rm -f bin/prime-api-client
 make bin/prime-api-client
 prime-api-client --insecure fetch-mtos
 ```
