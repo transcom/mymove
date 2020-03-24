@@ -722,7 +722,7 @@ jobs:
           dockerfile: ~/transcom/milmove_admin/app/Dockerfile.prod
           tag: engadmin:dev
           repo: app-engadmin
-          working_dir: ~/transcom/milmove_admin
+          working_dir: ~/transcom/milmove_admin/app
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
