@@ -4,7 +4,10 @@ This document aims to detail how to run the Prime Docker. The Prime Docker will 
 
 ## Assumptions
 
-- Installed everything the repo expects you to. (Covered in the repository's README.)
+- Install the following libraries:
+  - golang
+  - docker
+  - docker-compose
 - Have the required env variables in `.envrc.local` (What exactly the values should be will be covered in the future or a greater document that will point to this.)
 
      `LOGIN_GOV_SECRET_KEY`
