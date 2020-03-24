@@ -22,6 +22,16 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+// EventName is the name of the audit events we care about
+type EventName string
+
+const (
+	// PrimeFetchedUpdatedMTOs is the event name for when the Prime fetches updated MTOs
+	PrimeFetchedUpdatedMTOs EventName = "Prime Fetched Updated MTOs"
+	// MakeMTOAvailableToPrime is the event name for when the MTO is made available to the Prime
+	MakeMTOAvailableToPrime EventName = "Make MTO Available to the Prime"
+)
+
 // Auditor holds on to contextual information we need to create an AuditRecording
 type Auditor struct {
 	builder    *query.Builder
@@ -57,7 +67,7 @@ func (a *Auditor) SetRequestContext(request *http.Request) {
 }
 
 // Record creates an audit recording
-func (a *Auditor) Record(name string, model, payload interface{}) (*models.AuditRecording, error) {
+func (a *Auditor) Record(name EventName, model, payload interface{}) (*models.AuditRecording, error) {
 	modelMap := slices.Map{}
 	payloadMap := slices.Map{}
 	val := reflect.ValueOf(model)

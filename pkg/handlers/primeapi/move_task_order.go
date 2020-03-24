@@ -57,7 +57,7 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 	payload := payloads.MoveTaskOrders(&mtos)
 
-	h.auditor.Record("Testing for the Prime", nil, nil)
+	h.auditor.Record(audit.PrimeFetchedUpdatedMTOs, nil, nil)
 
 	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
 }
