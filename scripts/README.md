@@ -201,4 +201,4 @@ These scripts are primarily used for working with the Prime API
 
 | Script Name | Description |
 | --- | --- |
-| `run-prime-docker` Runs a docker container allowing access to the Prime API |
+| `run-prime-docker` | Runs a docker container allowing access to the Prime API |
