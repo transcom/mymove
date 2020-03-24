@@ -11,19 +11,8 @@ This document aims to detail how to run the Prime Docker. The Prime Docker will 
   - direnv
   - jq
   - yarn
-- Have the required env variables in `.envrc.local` (There will be a doc called `.envrc.local.template` in the future that this can be copied from.)
-  - `LOGIN_GOV_SECRET_KEY`
-  - `MOVE_MIL_DOD_TLS_CER`
-  - `MOVE_MIL_DOD_TLS_KEY`
-  - `GEX_BASIC_AUTH_PASSWORD`
-  - `DPS_AUTH_SECRET_KEY`
-  - `DPS_AUTH_COOKIE_SECRET_KEY`
-  - `CSRF_AUTH_KEY`
-  - `EIA_KEY`
-  - `HERE_MAPS_APP_ID`
-  - `HERE_MAPS_APP_CODE`
-  - `CLOUD_FRONT_PRIVATE_KEY`
-  - `CLOUD_FRONT_KEY_ID`
+- If don't already have `.envrc.local`, copy `.envrc.local.template` to `.envrc.local`.
+  - values will be added to this in a following story
 - Modify `/etc/hosts` to include the prime host.
 
 ```sh
