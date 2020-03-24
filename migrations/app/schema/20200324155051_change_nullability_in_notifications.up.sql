@@ -1,3 +1,3 @@
 -- Change nullability
-Alter table notifications
+ALTER TABLE notifications
     ALTER COLUMN service_member_id SET NOT NULL;
