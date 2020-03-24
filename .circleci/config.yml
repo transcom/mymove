@@ -711,6 +711,10 @@ jobs:
             LOGIN_GOV_CALLBACK_PORT: 3000
             LOGIN_GOV_KID_JWK: milmove_admin
             LOGIN_GOV_JWK_SET_FILENAME: keyset.jwk
+      - build_tag_push:
+          dockerfile: ~/transcom/milmove_admin/app/Dockerfile.prod
+          tag: engadmin:dev
+          repo: app-engadmin
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
