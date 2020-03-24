@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 import './index.css';
 
-export const ProgressTimelineStep = function(props) {
+export const ProgressTimelineStep = function (props) {
   let classes = classNames({
     step: true,
     completed: props.completed,
@@ -26,7 +26,7 @@ ProgressTimelineStep.propTypes = {
 
 // ProgressTimeline renders a subway-map-style timeline. Use ProgressTimelineStep
 // components as children to declaritively define the "stops" and their status.
-export const ProgressTimeline = function(props) {
+export const ProgressTimeline = function (props) {
   return <div className="progress-timeline">{props.children}</div>;
 };
 

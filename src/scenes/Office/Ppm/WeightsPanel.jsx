@@ -13,7 +13,7 @@ import { PanelField } from 'shared/EditablePanel';
 import { editablePanelify } from 'shared/EditablePanel';
 
 function sumWeights(moveDocs) {
-  return moveDocs.reduce(function(sum, { empty_weight, full_weight }) {
+  return moveDocs.reduce(function (sum, { empty_weight, full_weight }) {
     // empty_weight and full_weight can be blank
     empty_weight = empty_weight || 0;
     full_weight = full_weight || 0;

@@ -36,7 +36,7 @@ TabNav.propTypes = {
     if (React.Children.count(prop) === 0) {
       error = new Error(`\`${componentName}\` requires Children.`);
     }
-    React.Children.forEach(prop, el => {
+    React.Children.forEach(prop, (el) => {
       if (error) return;
       if (el.type.name !== 'TabNavPanel') {
         error = new Error(`\`${componentName}\` children must be \`TabNavPanel\`.`);
