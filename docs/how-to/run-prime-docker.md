@@ -33,7 +33,10 @@ rm -f bin/prime-api-client
 make bin/prime-api-client
 prime-api-client --insecure fetch-mtos
 ```
-{
+
+You should see something like this:
+
+```{
   "createdAt": "2020-03-23",
   "id": "c66e2e16-4b3c-467b-a3a8-c80e46135dd2",
   "isAvailableToPrime": true,
@@ -50,6 +53,8 @@ prime-api-client --insecure fetch-mtos
         "streetAddress1": ""
       },
       ...
+```
+
 There will be more documentation on how to use the Prime API client soon.
 
 When you're finished, remember to shut down the server:
