@@ -2,6 +2,11 @@
 
 set -eu -o pipefail
 
+scripts/ensure-application app
+
+# Setting REACT_APP_NODE_ENV to development enables the "Local Sign In" button
+export REACT_APP_NODE_ENV=development
+
 # Set Defaults
 NETWORK="mymove_default" # Docker network
 
