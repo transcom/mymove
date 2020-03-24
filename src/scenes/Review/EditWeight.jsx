@@ -9,8 +9,8 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
-import { createOrUpdatePpm, getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
+import { loadPPMs, updatePPM, selectActivePPMForMove, updatePPMEstimate } from 'shared/Entities/modules/ppms';
+import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
@@ -64,7 +64,7 @@ let EditWeightForm = props => {
     onWeightChange,
     initialValues,
   } = props;
-
+  console.log('initialValues in form', initialValues);
   // Error class if below advance amount, otherwise warn class if incentive has changed
   let incentiveClass = '';
   let fieldClass = dirty ? 'warn' : '';
@@ -188,20 +188,32 @@ EditWeightForm = reduxForm({
 })(EditWeightForm);
 
 class EditWeight extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { currentPPM: {} };
+  }
+
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
+    this.props.loadPPMs(this.props.match.params.moveId);
     scrollToTop();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.currentPPM !== this.props.currentPPM) {
+      this.setState({ currentPPM: this.props.currentPPM });
+    }
   }
 
   debouncedGetPpmWeightEstimate = debounce(this.props.getPpmWeightEstimate, weightEstimateDebounce);
 
-  onWeightChange = (e, newValue, oldValue, fieldName) => {
-    const { currentPpm, entitlement, originDutyStationZip, orders } = this.props;
+  onWeightChange = (e, newValue) => {
+    const { currentPPM, entitlement, originDutyStationZip, orders } = this.props;
     if (newValue > 0 && newValue <= entitlement.sum) {
       this.debouncedGetPpmWeightEstimate(
-        currentPpm.original_move_date,
-        currentPpm.pickup_postal_code,
+        currentPPM.original_move_date,
+        currentPPM.pickup_postal_code,
         originDutyStationZip,
         orders.id,
         newValue,
@@ -214,12 +226,12 @@ class EditWeight extends Component {
   updatePpm = (values, dispatch, props) => {
     const moveId = this.props.match.params.moveId;
     return this.props
-      .createOrUpdatePpm(moveId, {
+      .updatePPM(moveId, this.props.currentPPM.id, {
         weight_estimate: values.weight_estimate,
       })
-      .then(({ payload }) => {
+      .then(({ response }) => {
         this.props
-          .updatePPMEstimate(payload.move_id, payload.id)
+          .updatePPMEstimate(moveId, response.body.id)
           .then(() => {
             if (!this.props.hasSubmitError) {
               this.props.editSuccessful();
@@ -272,14 +284,13 @@ class EditWeight extends Component {
     const {
       error,
       schema,
-      currentPpm,
       entitlement,
       incentive_estimate_min,
       incentive_estimate_max,
       hasEstimateError,
       rateEngineError,
     } = this.props;
-
+    console.log('inside render state ppm', this.state.currentPPM);
     return (
       <div className="grid-container usa-prose">
         {error && (
@@ -301,7 +312,7 @@ class EditWeight extends Component {
         <div className="grid-row">
           <div className="grid-col-12">
             <EditWeightForm
-              initialValues={currentPpm}
+              initialValues={this.state.currentPPM}
               incentive_estimate_min={incentive_estimate_min}
               incentive_estimate_max={incentive_estimate_max}
               onSubmit={this.updatePpm}
@@ -317,8 +328,11 @@ class EditWeight extends Component {
 }
 
 function mapStateToProps(state) {
+  const moveID = state.moves.currentMove.id;
+  console.log('currentPPM', selectActivePPMForMove(state, moveID));
   return {
     ...state.ppm,
+    currentPPM: selectActivePPMForMove(state, moveID),
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     entitlement: loadEntitlementsFromState(state),
@@ -332,7 +346,8 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       push,
-      createOrUpdatePpm,
+      loadPPMs,
+      updatePPM,
       getPpmWeightEstimate,
       editBegin,
       editSuccessful,
