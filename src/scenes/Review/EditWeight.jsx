@@ -185,6 +185,7 @@ let EditWeightForm = props => {
 };
 EditWeightForm = reduxForm({
   form: editWeightFormName,
+  enableReinitialize: true,
 })(EditWeightForm);
 
 class EditWeight extends Component {
@@ -198,12 +199,6 @@ class EditWeight extends Component {
     this.props.entitlementChangeBegin();
     this.props.loadPPMs(this.props.match.params.moveId);
     scrollToTop();
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevProps.currentPPM !== this.props.currentPPM) {
-      this.setState({ currentPPM: this.props.currentPPM });
-    }
   }
 
   debouncedGetPpmWeightEstimate = debounce(this.props.getPpmWeightEstimate, weightEstimateDebounce);
@@ -289,8 +284,8 @@ class EditWeight extends Component {
       incentive_estimate_max,
       hasEstimateError,
       rateEngineError,
+      currentPPM,
     } = this.props;
-    console.log('inside render state ppm', this.state.currentPPM);
     return (
       <div className="grid-container usa-prose">
         {error && (
@@ -312,7 +307,7 @@ class EditWeight extends Component {
         <div className="grid-row">
           <div className="grid-col-12">
             <EditWeightForm
-              initialValues={this.state.currentPPM}
+              initialValues={currentPPM}
               incentive_estimate_min={incentive_estimate_min}
               incentive_estimate_max={incentive_estimate_max}
               onSubmit={this.updatePpm}
