@@ -902,6 +902,19 @@ jobs:
       - deploy_app_storybook:
           s3_bucket: storybook.move.mil
 
+  dangerjs_checks:
+    executor: mymove_small
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: yarn danger ci
+      - announce_failure
+
 workflows:
   version: 2
 
@@ -1126,6 +1139,11 @@ workflows:
               #only: placeholder_branch_name
 
       - storybook_tests:
+          requires:
+            - anti_virus
+            - pre_deps_yarn
+
+      - dangerjs_checks:
           requires:
             - anti_virus
             - pre_deps_yarn
