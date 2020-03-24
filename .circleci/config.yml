@@ -434,6 +434,8 @@ jobs:
             source $BASH_ENV
             mkdir -p tmp/test-results/pretest
             pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+      # adding danger checks here as they are similar to our pre-commit hooks
+      - run: yarn danger ci --failOnErrors
       # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
@@ -902,19 +904,6 @@ jobs:
       - deploy_app_storybook:
           s3_bucket: storybook.move.mil
 
-  dangerjs_checks:
-    executor: mymove_small
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: yarn danger ci
-      - announce_failure
-
 workflows:
   version: 2
 
@@ -1139,11 +1128,6 @@ workflows:
               #only: placeholder_branch_name
 
       - storybook_tests:
-          requires:
-            - anti_virus
-            - pre_deps_yarn
-
-      - dangerjs_checks:
           requires:
             - anti_virus
             - pre_deps_yarn
