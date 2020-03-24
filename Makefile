@@ -887,7 +887,8 @@ storybook: ## Start the storybook server
 
 .PHONY: storybook_docker
 storybook_docker: ## Start the storybook server in a docker container
-	docker-compose -f docker-compose.storybook.yml up --build storybook
+	docker-compose -f docker-compose.storybook.yml -f docker-compose.storybook_local.yml build --pull storybook
+	docker-compose -f docker-compose.storybook.yml -f docker-compose.storybook_local.yml up storybook
 
 .PHONY: storybook_build
 storybook_build: ## Build static storybook site
