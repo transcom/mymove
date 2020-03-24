@@ -26,7 +26,7 @@ If you wish to generate the static version of storybook run `make build_storyboo
 
 ### Running in a docker container
 
-If you don't have all the typical development tools installed this will walk you through running storybook without that. It does require docker to be installed you can get Docker CE for Mac from [here](https://download.docker.com/mac/stable/Docker.dmg).
+If you don't have all the typical development tools installed this will walk you through running storybook without that. It does require docker to be installed you can get Docker CE for Mac from [here](https://download.docker.com/mac/stable/Docker.dmg). Detailed instructions for installation can be found in the [Docker for Mac Documentation](https://docs.docker.com/docker-for-mac/install/)
 
 Once Docker CE for Mac is installed run the `make storybook_docker` command to start the storybook server. This will not automatically start your browser so once you see the below you can open [http://localhost:6006/](http://localhost:6006/) and view storybook.
 
