@@ -23,6 +23,9 @@ type MTOShipment struct {
 	// Format: date
 	ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
 
+	// agents
+	Agents MTOAgents `json:"agents,omitempty"`
+
 	// approved date
 	// Format: date
 	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
@@ -102,6 +105,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateAgents(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateApprovedDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -175,6 +182,22 @@ func (m *MTOShipment) validateActualPickupDate(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("actualPickupDate", "body", "date", m.ActualPickupDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateAgents(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Agents) { // not required
+		return nil
+	}
+
+	if err := m.Agents.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("agents")
+		}
 		return err
 	}
 

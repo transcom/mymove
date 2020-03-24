@@ -189,6 +189,38 @@ func Address(address *models.Address) *primemessages.Address {
 	}
 }
 
+// MTOAgent payload
+func MTOAgent(mtoAgent *models.MTOAgent) *primemessages.MTOAgent {
+	if mtoAgent == nil {
+		return nil
+	}
+
+	return &primemessages.MTOAgent{
+		AgentType:     primemessages.MTOAgentType(mtoAgent.MTOAgentType),
+		Email:         mtoAgent.Email,
+		FirstName:     mtoAgent.FirstName,
+		ID:            strfmt.UUID(mtoAgent.ID.String()),
+		LastName:      mtoAgent.LastName,
+		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
+		Phone:         mtoAgent.Phone,
+	}
+}
+
+// MTOAgents payload
+func MTOAgents(mtoAgents *models.MTOAgents) *primemessages.MTOAgents {
+	if mtoAgents == nil {
+		return nil
+	}
+
+	agents := make(primemessages.MTOAgents, len(*mtoAgents))
+
+	for i, m := range *mtoAgents {
+		agents[i] = MTOAgent(&m)
+	}
+
+	return &agents
+}
+
 // PaymentRequest payload
 func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.PaymentRequest {
 	return &primemessages.PaymentRequest{
@@ -216,12 +248,13 @@ func PaymentRequests(paymentRequests *models.PaymentRequests) *primemessages.Pay
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	payload := &primemessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
+		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             primemessages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		PickupAddress:            Address(&mtoShipment.PickupAddress),
+		PickupAddress:            Address(mtoShipment.PickupAddress),
 		Status:                   string(mtoShipment.Status),
-		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
+		DestinationAddress:       Address(mtoShipment.DestinationAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
@@ -253,7 +286,6 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
 		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
 	}
-
 	return payload
 }
 
