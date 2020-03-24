@@ -74,4 +74,5 @@ $DOCKER_RUN \
   --named-scenario e2e_basic
 
 # Signal this is good to go
+echo
 echo "READY FOR USE"
