@@ -8,7 +8,7 @@ This document aims to detail how to run the Prime Docker. The Prime Docker will 
   - golang
   - docker
   - docker-compose
-- Have the required env variables in `.envrc.local` (What exactly the values should be will be covered in the future or a greater document that will point to this.)
+- Have the required env variables in `.envrc.local` (There will be a doc called `.envrc.local.template` in the future that this can be copied from.)
   - `LOGIN_GOV_SECRET_KEY`
   - `MOVE_MIL_DOD_TLS_CER`
   - `MOVE_MIL_DOD_TLS_KEY`
