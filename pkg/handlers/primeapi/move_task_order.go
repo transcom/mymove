@@ -27,7 +27,6 @@ type FetchMTOUpdatesHandler struct {
 // Handle fetches all move task orders with the option to filter since a particular date
 func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	h.auditor.SetRequestContext(params.HTTPRequest)
 
 	var mtos models.MoveTaskOrders
 
@@ -57,7 +56,7 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 	payload := payloads.MoveTaskOrders(&mtos)
 
-	h.auditor.Record(audit.PrimeFetchedUpdatedMTOs, nil, nil)
+	h.auditor.Record(audit.PrimeFetchedUpdatedMTOs, params.HTTPRequest, audit.Payload(payload[0]), audit.Model(mtos[0]))
 
 	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
 }

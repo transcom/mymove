@@ -40,6 +40,8 @@ type Auditor struct {
 	session    *auth.Session
 	clientCert *models.ClientCert
 	request    *http.Request
+	model      interface{}
+	payload    interface{}
 }
 
 // NewAuditor instantiates a new Auditor
@@ -50,8 +52,24 @@ func NewAuditor(builder *query.Builder, hctx handlers.HandlerContext) Auditor {
 	}
 }
 
-// SetRequestContext adds the request to the Auditor struct for later use
-func (a *Auditor) SetRequestContext(request *http.Request) {
+// Payload returns a function that sets the Auditor's payload field
+func Payload(payload interface{}) func(*Auditor) error {
+	return func(a *Auditor) error {
+		a.payload = payload
+		return nil
+	}
+}
+
+// Model returns a function that sets the Auditor's model field
+func Model(model interface{}) func(*Auditor) error {
+	return func(a *Auditor) error {
+		a.model = model
+		return nil
+	}
+}
+
+// setRequestContext adds the request to the Auditor struct for later use
+func (a *Auditor) setRequestContext(request *http.Request) error {
 	a.request = request
 
 	clientCert := authentication.ClientCertFromRequestContext(request)
@@ -64,12 +82,25 @@ func (a *Auditor) SetRequestContext(request *http.Request) {
 		a.session, a.logger = a.hctx.SessionAndLoggerFromRequest(request)
 	}
 
+	return nil
 }
 
 // Record creates an audit recording
-func (a *Auditor) Record(name EventName, model, payload interface{}) (*models.AuditRecording, error) {
+func (a *Auditor) Record(name EventName, request *http.Request, options ...func(*Auditor) error) (*models.AuditRecording, error) {
+	a.setRequestContext(request)
+	for _, option := range options {
+		err := option(a)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	modelMap := slices.Map{}
 	payloadMap := slices.Map{}
+	model := a.model
+	payload := a.payload
+
 	val := reflect.ValueOf(model)
 
 	if model != nil {
@@ -134,7 +165,6 @@ func (a *Auditor) Record(name EventName, model, payload interface{}) (*models.Au
 		auditRecording.FirstName = &a.session.FirstName
 		auditRecording.LastName = &a.session.LastName
 		auditRecording.Email = &a.session.Email
-
 	}
 
 	_, err := a.builder.CreateOne(&auditRecording)
