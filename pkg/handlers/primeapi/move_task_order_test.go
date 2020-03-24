@@ -78,6 +78,8 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 }
 
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerMinimal() {
+	// Creates a move task order with one minimal shipment and no payment requests
+	// or service items
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
 			IsAvailableToPrime: true,

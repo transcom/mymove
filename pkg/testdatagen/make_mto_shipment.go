@@ -83,17 +83,15 @@ func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MT
 	requestedPickupDate := time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
 	MTOShipment := models.MTOShipment{
-		MoveTaskOrder:            moveTaskOrder,
-		MoveTaskOrderID:          moveTaskOrder.ID,
-		RequestedPickupDate:      &requestedPickupDate,
-		PickupAddress:            &pickupAddress,
-		PickupAddressID:          &pickupAddress.ID,
-		DestinationAddress:       &destinationAddress,
-		DestinationAddressID:     &destinationAddress.ID,
-		SecondaryPickupAddress:   &pickupAddress,
-		SecondaryDeliveryAddress: &destinationAddress,
-		ShipmentType:             shipmentType,
-		Status:                   "SUBMITTED",
+		MoveTaskOrder:        moveTaskOrder,
+		MoveTaskOrderID:      moveTaskOrder.ID,
+		RequestedPickupDate:  &requestedPickupDate,
+		PickupAddress:        &pickupAddress,
+		PickupAddressID:      &pickupAddress.ID,
+		DestinationAddress:   &destinationAddress,
+		DestinationAddressID: &destinationAddress.ID,
+		ShipmentType:         shipmentType,
+		Status:               "SUBMITTED",
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {

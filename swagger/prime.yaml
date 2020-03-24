@@ -672,7 +672,7 @@ definitions:
         format: date
       confirmationNumber:
         type: string
-        example: "HYXFJF"
+        example: 'HYXFJF'
         x-nullable: true
       orderNumber:
         type: string
