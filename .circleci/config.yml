@@ -711,6 +711,8 @@ jobs:
             LOGIN_GOV_CALLBACK_PORT: 3000
             LOGIN_GOV_KID_JWK: milmove_admin
             LOGIN_GOV_JWK_SET_FILENAME: keyset.jwk
+      - setup_remote_docker:
+          docker_layer_caching: false
       - build_tag_push:
           dockerfile: ~/transcom/milmove_admin/app/Dockerfile.prod
           tag: engadmin:dev
