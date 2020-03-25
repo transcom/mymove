@@ -5,7 +5,7 @@ import styles from 'scenes/SystemAdmin/Home.module.scss';
 
 const defaultSort = { field: 'code', order: 'DESC' };
 
-const AccessCodeFilter = props => (
+const AccessCodeFilter = (props) => (
   <Filter {...props} className={styles['system-admin-filters']}>
     <TextInput
       label="Access Code (don't include prefix)"
@@ -19,7 +19,7 @@ const AccessCodeFilter = props => (
   </Filter>
 );
 
-const AccessCodeList = props => (
+const AccessCodeList = (props) => (
   <List {...props} pagination={<AdminPagination />} perPage={25} filters={<AccessCodeFilter />} sort={defaultSort}>
     <Datagrid>
       <TextField source="id" reference="access_codes" />

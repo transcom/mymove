@@ -22,34 +22,34 @@ export function setPendingMoveType(value) {
 }
 
 export function updateMove(moveId, moveType) {
-  return function(dispatch) {
+  return function (dispatch) {
     const action = ReduxHelpers.generateAsyncActions(createOrUpdateMoveType);
     dispatch(action.start());
     return UpdateMove(moveId, { selected_move_type: moveType })
-      .then(item => dispatch(action.success(item)))
-      .catch(error => dispatch(action.error(error)));
+      .then((item) => dispatch(action.success(item)))
+      .catch((error) => dispatch(action.error(error)));
   };
 }
 
 export function loadMove(moveId) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(getMoveType);
     dispatch(action.start());
     return GetMove(moveId)
-      .then(item => dispatch(action.success(item)))
-      .catch(error => dispatch(action.error(error)));
+      .then((item) => dispatch(action.success(item)))
+      .catch((error) => dispatch(action.error(error)));
   };
 }
 
 export const SubmitForApproval = ReduxHelpers.generateAsyncActionCreator(submitForApprovalType, SubmitMoveForApproval);
 //selector
-export const moveIsApproved = state => get(state, 'moves.currentMove.status') === 'APPROVED';
+export const moveIsApproved = (state) => get(state, 'moves.currentMove.status') === 'APPROVED';
 
-export const lastMoveIsCanceled = state => get(state, 'moves.latestMove.status') === 'CANCELED';
+export const lastMoveIsCanceled = (state) => get(state, 'moves.latestMove.status') === 'CANCELED';
 
-export const selectedMoveType = state => get(state, 'moves.currentMove.selected_move_type');
+export const selectedMoveType = (state) => get(state, 'moves.currentMove.selected_move_type');
 
-export const isPpm = state => Boolean(get(state, 'ppm.currentPpm', false));
+export const isPpm = (state) => Boolean(get(state, 'ppm.currentPpm', false));
 
 // Reducer
 const initialState = {

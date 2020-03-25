@@ -9,7 +9,7 @@ export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 
 // ---- Parsers -----
 
-const parseNumberField = value => {
+const parseNumberField = (value) => {
   // Empty string will fail Swagger validation, so return null
   if (value === '') {
     return null;
@@ -46,7 +46,7 @@ const dropDownChildren = (swaggerField, filteredEnumListOverride, props) => {
   return (
     <Fragment>
       <option />
-      {(filteredEnumListOverride ? filteredEnumListOverride : swaggerField.enum).map(e => (
+      {(filteredEnumListOverride ? filteredEnumListOverride : swaggerField.enum).map((e) => (
         <option key={e} value={e}>
           {swaggerField['x-display-value'][e]}
         </option>
@@ -241,7 +241,7 @@ const renderInputField = ({
   );
 };
 
-export const SwaggerField = props => {
+export const SwaggerField = (props) => {
   const {
     fieldName,
     swagger,
