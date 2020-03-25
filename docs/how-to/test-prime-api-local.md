@@ -14,7 +14,7 @@ If you are using the Prime Docker via `make run_prime_docker`, this has already 
 
 If you are not, please generate the data through `make db_dev_e2e_populate`,
 
-## Subcommands
+## Sub-commands
 
 At this time, there are only two sub-commands to be used within the Prime client:
 

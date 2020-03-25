@@ -22,7 +22,7 @@ Download DoD certificates:
 5. Confirm in Keychain on your Mac that you have all the certificates.
 6. There will likely be a few certs that your Mac won't trust. You will need to manually enable `Always Trust` for these certificates.
 
-## Subcommands
+## Sub-commands
 
 At this time, there are only two sub-commands to be used within the Prime client:
 
