@@ -18,7 +18,7 @@ const DocumentList = ({
   moveId,
 }) => (
   <div>
-    {moveDocuments.map((doc) => {
+    {moveDocuments.map(doc => {
       const chosenDocument = currentMoveDocumentId === doc.id ? styles['chosen-document'] : 'usa-link link-blue';
       const status = renderStatusIcon(doc.status);
       const detailUrl = `${detailUrlPrefix}/${doc.id}`;

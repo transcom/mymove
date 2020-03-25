@@ -15,7 +15,7 @@ import { renderStatusIcon } from 'shared/utils';
 
 import './office.scss';
 
-const OrdersViewerDisplay = (props) => {
+const OrdersViewerDisplay = props => {
   const orders = props.orders;
   const currentDutyStation = get(props.serviceMember, 'current_station.name', '');
   const uploads = get(orders, 'uploaded_orders.uploads', []);
@@ -63,7 +63,7 @@ const OrdersViewerDisplay = (props) => {
   );
 };
 
-const OrdersViewerEdit = (props) => {
+const OrdersViewerEdit = props => {
   const orders = props.orders;
   const uploads = get(orders, 'uploaded_orders.uploads', []);
   const schema = props.ordersSchema;
@@ -135,7 +135,7 @@ function mapStateToProps(state, ownProps) {
     move: selectMove(state, moveId),
 
     // editablePanelify
-    getUpdateArgs: function () {
+    getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       return [orders.id, values.orders, serviceMember.id, values.serviceMember];
     },

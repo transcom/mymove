@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { withRouter } from 'react-router-dom';
 
-const SaveCancelButtons = (props) => {
+const SaveCancelButtons = props => {
   const { submitting, valid } = props;
   const goBack = props.history.goBack;
   return (

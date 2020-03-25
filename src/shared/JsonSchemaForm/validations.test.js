@@ -10,13 +10,13 @@ import { recursivelyValidateRequiredFields } from './index';
 import { mount } from 'enzyme';
 
 describe('SchemaField tests', () => {
-  const formHolster = (field) => {
-    return (props) => {
+  const formHolster = field => {
+    return props => {
       return <form className="default">{field}</form>;
     };
   };
 
-  const reduxHolster = (form) => {
+  const reduxHolster = form => {
     return reduxForm({ form: 'holster' })(formHolster(form));
   };
 
@@ -35,7 +35,7 @@ describe('SchemaField tests', () => {
     const testField = JsonSchemaField.createSchemaField('test_field', field, '');
     let subject = mountField(store, testField);
 
-    tests.forEach((testCase) => {
+    tests.forEach(testCase => {
       const [testValue, expectedValue, expectedError] = testCase;
 
       it(`${testValue} results in ${!expectedError ? 'no error' : `error: ${expectedError}`}`, () => {
@@ -149,7 +149,7 @@ describe('SchemaField tests', () => {
     });
   });
 
-  ['string', 'textarea'].forEach((fieldType) => {
+  ['string', 'textarea'].forEach(fieldType => {
     describe(fieldType + ' text field', () => {
       describe('with limits', () => {
         const textFieldWithLimits = {
@@ -437,7 +437,7 @@ describe('fields required tests', () => {
     [testData5, expectedError5, 'missing address is complete'],
   ];
 
-  tests.forEach((testCase) => {
+  tests.forEach(testCase => {
     const [testData, expectedError, name] = testCase;
     it(name, () => {
       const errors = recursivelyValidateRequiredFields(testData, testSchema);

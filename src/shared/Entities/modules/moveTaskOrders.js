@@ -30,7 +30,7 @@ export function selectMoveOrder(state, moveOrderId) {
 
 export function selectMoveTaskOrders(state, moveOrderId) {
   const mtos = get(state, 'entities.moveTaskOrder', {});
-  return filter(mtos, (mto) => mto.moveOrderID === moveOrderId);
+  return filter(mtos, mto => mto.moveOrderID === moveOrderId);
 }
 
 const getMoveTaskOrderLabel = 'moveTaskOrder.getMoveTaskOrder';

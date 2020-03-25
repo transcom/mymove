@@ -4,7 +4,7 @@ import rightRotation from 'shared/images/right-rotation.png';
 import PropTypes from 'prop-types';
 import styles from './RotationBar.module.scss';
 
-export const RotationBar = (props) => (
+export const RotationBar = props => (
   <div className={styles['rotation-bar']}>
     <button className="usa-button" onClick={props.onLeftButtonClick}>
       <img src={leftRotation} alt="rotate-left" />

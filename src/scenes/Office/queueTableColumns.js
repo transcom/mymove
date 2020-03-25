@@ -16,42 +16,42 @@ const createReactTableColumn = (header, accessor, options = {}) => ({
 
 const getReactSelectFilterSettings = (data = []) => ({
   Filter: ({ filter, onChange }) => {
-    const options = data.map((value) => ({ label: value, value: value }));
+    const options = data.map(value => ({ label: value, value: value }));
     return (
       <Select
         options={options}
-        onChange={(value) => {
+        onChange={value => {
           // value example: {label: "Fort Gordon", value: "Fort Gordon"}
           return onChange(value ? value : undefined);
         }}
         defaultValue={filter ? filter.value : undefined}
         styles={{
           // overriding styles to match other table filters
-          control: (baseStyles) => ({
+          control: baseStyles => ({
             ...baseStyles,
             height: '1.5rem',
             minHeight: '1.5rem',
             border: '1px solid rgba(0,0,0,0.1)',
           }),
-          indicatorsContainer: (baseStyles) => ({
+          indicatorsContainer: baseStyles => ({
             ...baseStyles,
             height: '1.5rem',
           }),
-          clearIndicator: (baseStyles) => ({
+          clearIndicator: baseStyles => ({
             ...baseStyles,
             padding: '0.2rem',
           }),
-          dropdownIndicator: (baseStyles) => ({
+          dropdownIndicator: baseStyles => ({
             ...baseStyles,
             padding: '0.2rem',
           }),
-          input: (baseStyles) => ({
+          input: baseStyles => ({
             ...baseStyles,
             margin: '0 2px',
             paddingTop: '0',
             paddingBottom: '0',
           }),
-          valueContainer: (baseStyles) => ({
+          valueContainer: baseStyles => ({
             ...baseStyles,
             padding: '0 8px',
           }),
@@ -73,24 +73,24 @@ const getReactSelectFilterSettings = (data = []) => ({
 
 // lodash memoize will prevent unnecessary rendering with the same state
 // this will re-render if the state changes
-const destination = memoize((destinationDutyStations) =>
+const destination = memoize(destinationDutyStations =>
   createReactTableColumn('Destination', 'destination_duty_station_name', {
-    Cell: (row) => <span>{row.value}</span>,
+    Cell: row => <span>{row.value}</span>,
     filterable: true,
     ...getReactSelectFilterSettings(destinationDutyStations),
   }),
 );
 
-const origin = memoize((originDutyStations) =>
+const origin = memoize(originDutyStations =>
   createReactTableColumn('Origin', 'origin_duty_station_name', {
-    Cell: (row) => <span>{row.value}</span>,
+    Cell: row => <span>{row.value}</span>,
     filterable: true,
     ...getReactSelectFilterSettings(originDutyStations),
   }),
 );
 
 const status = createReactTableColumn('Status', 'synthetic_status', {
-  Cell: (row) => (
+  Cell: row => (
     <span className="status" data-cy="status">
       {capitalize(row.value && row.value.replace('_', ' '))}
     </span>
@@ -102,18 +102,18 @@ const customerName = createReactTableColumn('Customer name', 'customer_name');
 const dodId = createReactTableColumn('DoD ID', 'edipi');
 
 const locator = createReactTableColumn('Locator #', 'locator', {
-  Cell: (row) => <span data-cy="locator">{row.value}</span>,
+  Cell: row => <span data-cy="locator">{row.value}</span>,
 });
 
 const dateFormat = 'DD-MMM-YY';
 const moveDate = createReactTableColumn('PPM start', 'move_date', {
-  Cell: (row) => <span className="move_date">{formatDate(row.value)}</span>,
+  Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
   Filter: ({ filter, onChange }) => {
     return (
       <div>
         <div>Before or on:</div>
         {SingleDatePicker({
-          onChange: (value) => {
+          onChange: value => {
             return onChange(formatDate(value));
           },
           inputClassName: 'queue-date-picker-filter',
@@ -141,9 +141,9 @@ const moveDate = createReactTableColumn('PPM start', 'move_date', {
 });
 
 const branchOfService = createReactTableColumn('Branch', 'branch_of_service', {
-  Cell: (row) => <span>{row.value}</span>,
+  Cell: row => <span>{row.value}</span>,
   Filter: ({ filter, onChange }) => (
-    <select onChange={(event) => onChange(event.target.value)} value={filter ? filter.value : 'all'}>
+    <select onChange={event => onChange(event.target.value)} value={filter ? filter.value : 'all'}>
       <option value="all">Show All</option>
       <option value="ARMY">Army</option>
       <option value="NAVY">Navy</option>
@@ -163,7 +163,7 @@ const branchOfService = createReactTableColumn('Branch', 'branch_of_service', {
 });
 
 // Columns used to display in react table
-export const defaultColumns = (component) => {
+export const defaultColumns = component => {
   return [
     status,
     customerName,

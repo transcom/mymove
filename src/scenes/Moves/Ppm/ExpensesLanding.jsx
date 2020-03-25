@@ -19,7 +19,7 @@ class ExpensesLanding extends Component {
     hasExpenses: '',
   };
 
-  handleRadioChange = (event) => {
+  handleRadioChange = event => {
     this.setState({
       [event.target.name]: event.target.value,
     });

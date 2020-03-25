@@ -2,7 +2,7 @@ import React from 'react';
 import { List, Datagrid, TextField, BooleanField, Filter, TextInput, ReferenceField } from 'react-admin';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
-const OfficeUserListFilter = (props) => (
+const OfficeUserListFilter = props => (
   <Filter {...props}>
     <TextInput source="search" alwaysOn />
   </Filter>
@@ -10,7 +10,7 @@ const OfficeUserListFilter = (props) => (
 
 const defaultSort = { field: 'last_name', order: 'ASC' };
 
-const OfficeUserList = (props) => (
+const OfficeUserList = props => (
   <List
     {...props}
     pagination={<AdminPagination />}

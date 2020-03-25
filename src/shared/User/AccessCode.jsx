@@ -17,7 +17,7 @@ const invalidAccessCodeMsg = 'This code is invalid';
 const claimAccessCodeErrorMsg = 'There was an error. Please reach out to DPS';
 
 class AccessCode extends React.Component {
-  validateAccessCodePattern = (code) => {
+  validateAccessCodePattern = code => {
     const validAccessCodePattern = RegExp('^(HHG|PPM)-[A-Z0-9]{6}$');
     const validAccessCode = validAccessCodePattern.test(code);
 
@@ -34,7 +34,7 @@ class AccessCode extends React.Component {
     this.validateAccessCodePattern(code);
 
     return validateAccessCode(code)
-      .then((res) => {
+      .then(res => {
         const { body: accessCode } = get(res, 'response');
         if (!accessCode.code) {
           throw new SubmissionError({
@@ -45,13 +45,13 @@ class AccessCode extends React.Component {
           .then(() => {
             window.location.reload();
           })
-          .catch((err) => {
+          .catch(err => {
             throw new SubmissionError({
               claim_access_code: claimAccessCodeErrorMsg,
             });
           });
       })
-      .catch((err) => {
+      .catch(err => {
         const errorMsg = get(err, 'errors.claim_access_code');
         throw new SubmissionError({
           claim_access_code: errorMsg,

@@ -73,7 +73,7 @@ TOO.propTypes = {
   moveOrders: arrayOf(customerMoveProps),
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     moveOrders: Object.values(get(state, 'entities.moveOrder', {})),
   };

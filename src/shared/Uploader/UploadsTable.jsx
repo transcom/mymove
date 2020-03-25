@@ -12,7 +12,7 @@ import moment from 'moment';
 import { UPLOAD_SCAN_STATUS } from 'shared/constants';
 
 export class UploadsTable extends Component {
-  getUploadUrl = (upload) => {
+  getUploadUrl = upload => {
     if (upload.status === UPLOAD_SCAN_STATUS.INFECTED) {
       return (
         <>
@@ -51,7 +51,7 @@ export class UploadsTable extends Component {
           </tr>
         </thead>
         <tbody>
-          {this.props.uploads.map((upload) => (
+          {this.props.uploads.map(upload => (
             <tr key={upload.id} className="vertical-align text-top">
               <td className="maxw-card" style={{ overflowWrap: 'break-word', wordWrap: 'break-word' }}>
                 {this.getUploadUrl(upload)}
@@ -59,7 +59,7 @@ export class UploadsTable extends Component {
               <td>{moment(upload.created_at).format('LLL')}</td>
               <td>{bytes(upload.bytes)}</td>
               <td>
-                <a href="" onClick={(e) => this.props.onDelete(e, upload.id)} className="usa-link">
+                <a href="" onClick={e => this.props.onDelete(e, upload.id)} className="usa-link">
                   Delete
                 </a>
               </td>

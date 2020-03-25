@@ -18,7 +18,7 @@ class PPMPaymentRequestIntro extends Component {
     ppmUpdateError: false,
   };
 
-  updatePpmDate = (formValues) => {
+  updatePpmDate = formValues => {
     const { history, moveId, currentPpm } = this.props;
     if (formValues.actual_move_date && currentPpm) {
       const updatedPpm = { ...currentPpm, actual_move_date: formValues.actual_move_date };

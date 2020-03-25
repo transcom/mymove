@@ -112,7 +112,7 @@ describe('getTabularExpenses', () => {
     };
     const result = getTabularExpenses(expenseData, schema);
     it('should fill in all categories', () => {
-      expect(result.map((r) => r.type)).toEqual([
+      expect(result.map(r => r.type)).toEqual([
         'Contracted Expense',
         'Rental Equipment',
         'Packing Materials',

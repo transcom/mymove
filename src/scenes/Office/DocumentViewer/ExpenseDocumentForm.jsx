@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-const ExpenseDocumentForm = (props) => {
+const ExpenseDocumentForm = props => {
   const moveDocSchema = props.moveDocSchema;
   return (
     <Fragment>

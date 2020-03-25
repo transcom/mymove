@@ -53,7 +53,7 @@ class OrdersInfo extends Component {
       <div className="grid-container-widescreen usa-prose">
         <div className="grid-row grid-gap">
           <div className="grid-col-8 document-contents">
-            {uploads.map((upload) => (
+            {uploads.map(upload => (
               <DocumentContent
                 key={upload.url}
                 url={upload.url}
@@ -98,6 +98,6 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => bindActionCreators({ loadMove, loadOrders, loadServiceMember }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ loadMove, loadOrders, loadServiceMember }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfo);

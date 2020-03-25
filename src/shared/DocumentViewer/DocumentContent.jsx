@@ -7,7 +7,7 @@ import { RotationBar } from 'shared/RotationBar/RotationBar';
 import Alert from 'shared/Alert';
 import { UPLOAD_SCAN_STATUS } from 'shared/constants';
 
-const DocumentContent = (props) => {
+const DocumentContent = props => {
   let { contentType, filename, url, status } = props;
 
   if (status === UPLOAD_SCAN_STATUS.INFECTED) {
@@ -48,7 +48,7 @@ const downloadOnlyView = (filename, url) => (
   </div>
 );
 
-export const PDFImage = (props) => {
+export const PDFImage = props => {
   return (
     <div className="document-contents">
       <div className="page">
@@ -83,7 +83,7 @@ export class NonPDFImage extends Component {
     maxWidth: 'auto',
   };
 
-  transformImage = (degrees) => {
+  transformImage = degrees => {
     const rotation = this.rotate(degrees);
     const sign = this.translateSign(rotation);
     const imageTranslationToApply = this.translateImage(sign);
@@ -98,7 +98,7 @@ export class NonPDFImage extends Component {
     });
   };
 
-  rotate = (degrees) => {
+  rotate = degrees => {
     return (this.state.rotation + degrees) % 360;
   };
 
@@ -116,14 +116,14 @@ export class NonPDFImage extends Component {
     return this.state.ImgWidth > this.state.ImgHeight ? -delta : delta;
   }
 
-  translateImage = (sign) => {
+  translateImage = sign => {
     return {
       Xt: this.delta * sign,
       Yt: -this.delta * sign,
     };
   };
 
-  translateContainer = (sign) => {
+  translateContainer = sign => {
     const { divHeight, divWidth } = this.state;
     //switch divWidth and divHeight
     return {
@@ -134,7 +134,7 @@ export class NonPDFImage extends Component {
   };
 
   // rotation dependent sign to be used with coordinate translations
-  translateSign = (rotation) => {
+  translateSign = rotation => {
     const radians = (rotation / 180) * Math.PI;
     return Math.abs(Math.sin(radians));
   };
@@ -152,7 +152,7 @@ export class NonPDFImage extends Component {
     return maxHeightWidth;
   };
 
-  formatMaxes = (max) => {
+  formatMaxes = max => {
     return max === 'none' ? 'none' : max + 'px';
   };
 

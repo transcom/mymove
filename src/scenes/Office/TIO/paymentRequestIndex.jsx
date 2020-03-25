@@ -24,7 +24,7 @@ class PaymentRequestIndex extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {this.props.paymentRequests.map((pr) => (
+            {this.props.paymentRequests.map(pr => (
               <tr key={pr.id}>
                 <td>
                   <Link to={`/payment_requests/${pr.id}`}>{pr.id}</Link>
@@ -42,10 +42,10 @@ class PaymentRequestIndex extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   paymentRequests: selectPaymentRequests(state),
 });
 
-const mapDispatchToProps = (dispatch) => bindActionCreators({ getPaymentRequestList }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ getPaymentRequestList }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequestIndex);

@@ -19,7 +19,7 @@ class EntitlementBar extends Component {
   render() {
     const props = this.props;
 
-    const entitlementText = mapValues(props.entitlement, (i) => i.toLocaleString());
+    const entitlementText = mapValues(props.entitlement, i => i.toLocaleString());
     const ppmSummaryHtml = () => {
       if (!props.entitlement) return <p />;
       if (props.entitlement.pro_gear_spouse > 0)

@@ -3,13 +3,13 @@ import { RolesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 import { Edit, SimpleForm, TextInput, SelectInput, required, Toolbar, SaveButton } from 'react-admin';
 
-const OfficeUserEditToolbar = (props) => (
+const OfficeUserEditToolbar = props => (
   <Toolbar {...props}>
     <SaveButton />
   </Toolbar>
 );
 
-const OfficeUserEdit = (props) => (
+const OfficeUserEdit = props => (
   <Edit {...props}>
     <SimpleForm toolbar={<OfficeUserEditToolbar />}>
       <TextInput source="id" disabled />

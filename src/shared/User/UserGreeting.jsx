@@ -16,7 +16,7 @@ UserGreeting.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   const user = selectCurrentUser(state);
   return {
     isLoggedIn: user.isLoggedIn,

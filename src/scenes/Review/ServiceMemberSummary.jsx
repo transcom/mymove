@@ -10,9 +10,9 @@ import './Review.css';
 
 function getFullName(serviceMember) {
   if (!serviceMember) return;
-  return `${serviceMember.first_name} ${serviceMember.middle_name || ''} ${serviceMember.last_name} ${
-    serviceMember.suffix || ''
-  }`;
+  return `${serviceMember.first_name} ${serviceMember.middle_name || ''} ${
+    serviceMember.last_name
+  } ${serviceMember.suffix || ''}`;
 }
 
 function getFullContactPreferences(serviceMember) {
@@ -22,7 +22,7 @@ function getFullContactPreferences(serviceMember) {
     email_is_preferred: 'Email',
   };
   const preferredMethods = [];
-  Object.keys(prefs).forEach((propertyName) => {
+  Object.keys(prefs).forEach(propertyName => {
     /* eslint-disable security/detect-object-injection */
     if (serviceMember[propertyName]) {
       preferredMethods.push(prefs[propertyName]);
@@ -191,7 +191,7 @@ function ServiceMemberSummary(props) {
               </tr>
             </tbody>
           </table>
-          {backupContacts.map((contact) => (
+          {backupContacts.map(contact => (
             <Fragment key={contact.id}>
               <p className="heading">
                 Backup Contact Info

@@ -75,9 +75,9 @@ class PaymentsTable extends Component {
     return this.props.moveDocuments.length < 1;
   };
 
-  startDownload = (docTypes) => {
+  startDownload = docTypes => {
     this.setState({ disableDownload: true });
-    this.props.downloadPPMAttachments(this.props.ppm.id, docTypes).then((response) => {
+    this.props.downloadPPMAttachments(this.props.ppm.id, docTypes).then(response => {
       const {
         response: {
           obj: { url },
@@ -329,7 +329,7 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       getSignedCertification,

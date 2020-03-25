@@ -33,7 +33,7 @@ function renderEntitlements(entitlements, orders) {
   );
 }
 
-const OrdersDisplay = (props) => {
+const OrdersDisplay = props => {
   const { entitlements, moveId, orders, ordersSchema, serviceMember } = props;
   const fieldProps = {
     schema: ordersSchema,
@@ -98,7 +98,7 @@ const OrdersDisplay = (props) => {
   );
 };
 
-const OrdersEdit = (props) => {
+const OrdersEdit = props => {
   const schema = props.ordersSchema;
   return (
     <React.Fragment>

@@ -18,7 +18,7 @@ const validateWeight = (value, formValues, props, fieldName) => {
   }
 };
 
-const EstimatesDisplay = (props) => {
+const EstimatesDisplay = props => {
   const ppm = props.PPMEstimate;
   const fieldProps = {
     schema: props.ppmSchema,
@@ -59,7 +59,7 @@ const EstimatesDisplay = (props) => {
   );
 };
 
-const EstimatesEdit = (props) => {
+const EstimatesEdit = props => {
   const ppm = props.PPMEstimate;
   const schema = props.ppmSchema;
 
@@ -124,7 +124,7 @@ function mapStateToProps(state, ownProps) {
     entitlement: calculateEntitlementsForMove(state, ownProps.moveId),
 
     // editablePanelify
-    getUpdateArgs: function () {
+    getUpdateArgs: function() {
       if (
         formValues.PPMEstimate.additional_pickup_postal_code !== '' &&
         formValues.PPMEstimate.additional_pickup_postal_code !== undefined

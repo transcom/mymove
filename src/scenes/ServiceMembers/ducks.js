@@ -52,14 +52,14 @@ export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
 // Action creation
 export function updateServiceMember(serviceMember) {
   const action = ReduxHelpers.generateAsyncActions('UPDATE_SERVICE_MEMBER');
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     dispatch(action.start());
     const state = getState();
     const { currentServiceMember } = state.serviceMember;
     if (currentServiceMember) {
       return UpdateServiceMember(currentServiceMember.id, serviceMember)
-        .then((item) => dispatch(action.success(Object.assign({}, currentServiceMember, item))))
-        .catch((error) => dispatch(action.error(error)));
+        .then(item => dispatch(action.success(Object.assign({}, currentServiceMember, item))))
+        .catch(error => dispatch(action.error(error)));
     } else {
       return Promise.reject();
     }
@@ -68,14 +68,14 @@ export function updateServiceMember(serviceMember) {
 
 export function loadServiceMember(serviceMemberId) {
   const action = ReduxHelpers.generateAsyncActions('GET_SERVICE_MEMBER');
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     dispatch(action.start);
     const state = getState();
     const { currentServiceMember } = state.serviceMember;
     if (!currentServiceMember) {
       return GetServiceMember(serviceMemberId)
-        .then((item) => dispatch(action.success(item)))
-        .catch((error) => dispatch(action.error(error)));
+        .then(item => dispatch(action.success(item)))
+        .catch(error => dispatch(action.error(error)));
     } else {
       return Promise.resolve();
     }
@@ -83,7 +83,7 @@ export function loadServiceMember(serviceMemberId) {
 }
 
 //this is similar to go service_member.IsProfileComplete and we should figure out how to use just one if possible
-export const isProfileComplete = (state) => {
+export const isProfileComplete = state => {
   const sm = get(state, 'serviceMember.currentServiceMember') || {};
   return every([
     sm.rank,
@@ -108,7 +108,7 @@ const initialState = {
   createBackupContactSuccess: false,
   updateBackupContactSuccess: false,
 };
-const reshape = (sm) => {
+const reshape = sm => {
   if (!sm) return null;
   return pick(sm, without(Object.keys(sm || {}), 'orders', 'backup_contacts'));
 };

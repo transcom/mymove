@@ -44,7 +44,10 @@ describe('basic alert with delete confirmation component', () => {
     );
     it('should render delete and ok buttons', () => {
       expect(wrapper.find('.usa-button')).toHaveLength(2);
-      wrapper.find('.usa-button').at(0).simulate('click');
+      wrapper
+        .find('.usa-button')
+        .at(0)
+        .simulate('click');
       expect(mockDeleteActionHandler).toHaveBeenCalled();
     });
   });

@@ -27,7 +27,7 @@ const calculateSliderPositions = (sliderOffset, tooltipWidth, numValue, min, max
 };
 
 class RangeSlider extends Component {
-  onInput = (event) => {
+  onInput = event => {
     const output = document.getElementById('output-' + this.props.id);
     const slider = document.getElementById(this.props.id);
 
@@ -50,7 +50,7 @@ class RangeSlider extends Component {
     }
   };
 
-  onChange = (value) => {
+  onChange = value => {
     if (detectIE11()) {
       this.onInput(value);
     }

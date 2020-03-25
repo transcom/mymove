@@ -36,7 +36,7 @@ export const RowBasedHeader = ({ title, isEditable, editEnabled, handleEditClick
   </div>
 );
 
-export const PanelField = (props) => {
+export const PanelField = props => {
   const { title, value, required } = props;
   const classes = classNames('panel-field', props.className);
   let component = (
@@ -67,7 +67,7 @@ PanelField.propTypes = {
   required: PropTypes.bool,
 };
 
-export const SwaggerValue = (props) => {
+export const SwaggerValue = props => {
   const { fieldName, schema, values } = props;
   let swaggerProps = {};
   if (schema.properties) {
@@ -96,7 +96,7 @@ SwaggerValue.propTypes = {
   values: PropTypes.object,
 };
 
-export const PanelSwaggerField = (props) => {
+export const PanelSwaggerField = props => {
   const { fieldName, className, required, schema, values } = props;
   const title = props.title || get(schema, `properties.${fieldName}.title`, fieldName);
   const classes = classNames(fieldName, className);
@@ -130,17 +130,17 @@ PanelSwaggerField.propTypes = {
 };
 
 export class EditablePanel extends Component {
-  handleEditClick = (e) => {
+  handleEditClick = e => {
     e.preventDefault();
     this.props.onEdit();
   };
 
-  handleCancelClick = (e) => {
+  handleCancelClick = e => {
     e.preventDefault();
     this.props.onCancel();
   };
 
-  handleSaveClick = (e) => {
+  handleSaveClick = e => {
     e.preventDefault();
     this.props.onSave();
   };

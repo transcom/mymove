@@ -73,7 +73,7 @@ describe('reduxHelpers', () => {
     });
     describe('when generateAsyncReducer is called', () => {
       const actions = helpers.generateAsyncActions(resourceName);
-      const onSuccessTransform = jest.fn().mockImplementation((foo) => ({ foo }));
+      const onSuccessTransform = jest.fn().mockImplementation(foo => ({ foo }));
       const reducer = helpers.generateAsyncReducer(resourceName, onSuccessTransform);
       it('random', () => {
         const initialState = {};

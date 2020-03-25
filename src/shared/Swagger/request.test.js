@@ -2,7 +2,7 @@ import * as request from './request';
 import * as schema from 'shared/Entities/schema';
 
 function mockGetClient(operationMock) {
-  return function () {
+  return function() {
     return Promise.resolve({
       apis: {
         shipments: {
@@ -50,9 +50,9 @@ function mockGetClient(operationMock) {
   };
 }
 
-describe('swaggerRequest', function () {
-  describe('making a request', function () {
-    it('makes a successful request', function () {
+describe('swaggerRequest', function() {
+  describe('making a request', function() {
+    it('makes a successful request', function() {
       expect.assertions(3);
 
       const dispatch = jest.fn();
@@ -67,8 +67,8 @@ describe('swaggerRequest', function () {
       };
 
       let resolveCallback;
-      const opMock = jest.fn(function () {
-        return new Promise(function (resolve, reject) {
+      const opMock = jest.fn(function() {
+        return new Promise(function(resolve, reject) {
           resolveCallback = resolve;
         });
       });
@@ -83,7 +83,7 @@ describe('swaggerRequest', function () {
       const result = action(dispatch, getState, { schema });
 
       // allow the client promise to resolve
-      process.nextTick(function () {
+      process.nextTick(function() {
         expect(dispatch).toHaveBeenLastCalledWith(
           expect.objectContaining({
             type: '@@swagger/shipments.getShipment/START',
@@ -113,14 +113,14 @@ describe('swaggerRequest', function () {
         },
       });
 
-      result.then(function (response) {
+      result.then(function(response) {
         expect(dispatch).toHaveBeenLastCalledWith(expected);
       });
 
       return expect(result).resolves.toEqual(expected);
     });
 
-    it('makes a failed request', function () {
+    it('makes a failed request', function() {
       expect.assertions(3);
 
       const dispatch = jest.fn();
@@ -138,8 +138,8 @@ describe('swaggerRequest', function () {
 
       let rejectCallback;
       let promise;
-      const opMock = jest.fn(function () {
-        promise = new Promise(function (resolve, reject) {
+      const opMock = jest.fn(function() {
+        promise = new Promise(function(resolve, reject) {
           rejectCallback = reject;
         });
         return promise;
@@ -155,7 +155,7 @@ describe('swaggerRequest', function () {
       const result = action(dispatch, getState, { schema });
 
       // allow the client promise to resolve
-      process.nextTick(function () {
+      process.nextTick(function() {
         expect(dispatch).toHaveBeenLastCalledWith(
           expect.objectContaining({
             type: '@@swagger/shipments.getShipment/START',
@@ -178,7 +178,7 @@ describe('swaggerRequest', function () {
         label: 'testRequest',
       });
 
-      result.catch(function (response) {
+      result.catch(function(response) {
         expect(dispatch).toHaveBeenLastCalledWith(failedAction);
       });
 

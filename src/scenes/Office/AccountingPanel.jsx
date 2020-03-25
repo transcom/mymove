@@ -9,7 +9,7 @@ import { updateOrders, selectOrdersForMove } from 'shared/Entities/modules/order
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 
-const AccountingDisplay = (props) => {
+const AccountingDisplay = props => {
   const fieldProps = {
     schema: props.ordersSchema,
     values: props.orders,
@@ -28,7 +28,7 @@ const AccountingDisplay = (props) => {
   );
 };
 
-const AccountingEdit = (props) => {
+const AccountingEdit = props => {
   const { ordersSchema } = props;
   return (
     <React.Fragment>
@@ -67,7 +67,7 @@ function mapStateToProps(state, ownProps) {
     orders: orders,
 
     // editablePanelify
-    getUpdateArgs: function () {
+    getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       values.new_duty_station_id = values.new_duty_station.id;
       return [orders.id, values];

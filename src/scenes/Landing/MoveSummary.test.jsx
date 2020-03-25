@@ -51,9 +51,14 @@ describe('MoveSummary', () => {
         resumeMoveFn,
       );
       expect(subComponent.find(DraftMoveSummary).length).toBe(1);
-      expect(subComponent.find(DraftMoveSummary).dive().find('.step').find('.title').html()).toEqual(
-        '<div class="title">Next Step: Finish setting up your move</div>',
-      );
+      expect(
+        subComponent
+          .find(DraftMoveSummary)
+          .dive()
+          .find('.step')
+          .find('.title')
+          .html(),
+      ).toEqual('<div class="title">Next Step: Finish setting up your move</div>');
     });
   });
   // PPM
@@ -77,7 +82,13 @@ describe('MoveSummary', () => {
         resumeMoveFn,
       );
       expect(subComponent.find(CanceledMoveSummary).length).toBe(1);
-      expect(subComponent.find(CanceledMoveSummary).dive().find('h2').html()).toEqual('<h2>New move</h2>');
+      expect(
+        subComponent
+          .find(CanceledMoveSummary)
+          .dive()
+          .find('h2')
+          .html(),
+      ).toEqual('<h2>New move</h2>');
     });
   });
   describe('when a move with a ppm is in submitted state', () => {
@@ -99,9 +110,15 @@ describe('MoveSummary', () => {
         resumeMoveFn,
       ).find(SubmittedPpmMoveSummary);
       expect(subComponent.find(SubmittedPpmMoveSummary).length).toBe(1);
-      expect(subComponent.find(SubmittedPpmMoveSummary).dive().find('.step').find('div.title').first().html()).toEqual(
-        '<div class="title">Next Step: Wait for approval &amp; get ready</div>',
-      );
+      expect(
+        subComponent
+          .find(SubmittedPpmMoveSummary)
+          .dive()
+          .find('.step')
+          .find('div.title')
+          .first()
+          .html(),
+      ).toEqual('<div class="title">Next Step: Wait for approval &amp; get ready</div>');
     });
   });
 
@@ -125,9 +142,15 @@ describe('MoveSummary', () => {
         resumeMoveFn,
       ).find(SubmittedPpmMoveSummary);
       expect(subComponent.find(SubmittedPpmMoveSummary).length).toBe(1);
-      expect(subComponent.find(SubmittedPpmMoveSummary).dive().find('.step').find('div.title').first().html()).toEqual(
-        '<div class="title">Next Step: Wait for approval &amp; get ready</div>',
-      );
+      expect(
+        subComponent
+          .find(SubmittedPpmMoveSummary)
+          .dive()
+          .find('.step')
+          .find('div.title')
+          .first()
+          .html(),
+      ).toEqual('<div class="title">Next Step: Wait for approval &amp; get ready</div>');
     });
   });
   describe('when a move and ppm are in approved state', () => {

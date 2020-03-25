@@ -10,9 +10,9 @@ class ExpenseTicketListItem extends Component {
     showDeleteConfirmation: false,
   };
 
-  areUploadsInfected = (uploads) => {
+  areUploadsInfected = uploads => {
     let isInfected = false;
-    forEach(uploads, function (upload) {
+    forEach(uploads, function(upload) {
       if (upload.status === UPLOAD_SCAN_STATUS.INFECTED) {
         isInfected = true;
       }

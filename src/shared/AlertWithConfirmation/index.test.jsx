@@ -44,7 +44,10 @@ describe('basic alert with confirmation component', () => {
     );
     it('should render cancel and ok buttons', () => {
       expect(wrapper.find('.usa-button')).toHaveLength(2);
-      wrapper.find('.usa-button').at(1).simulate('click');
+      wrapper
+        .find('.usa-button')
+        .at(1)
+        .simulate('click');
       expect(mockOkActionHandler).toHaveBeenCalled();
     });
   });

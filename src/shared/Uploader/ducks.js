@@ -11,23 +11,23 @@ export const createDocumentRequest = () => ({
   type: CREATE_DOCUMENT,
 });
 
-export const createDocumentSuccess = (item) => ({
+export const createDocumentSuccess = item => ({
   type: CREATE_DOCUMENT_SUCCESS,
   item,
 });
 
-export const createDocumentFailure = (error) => ({
+export const createDocumentFailure = error => ({
   type: CREATE_DOCUMENT_FAILURE,
   error,
 });
 
 // Action creator
 export function createDocument(fileUpload, serviceMemberId) {
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     dispatch(createDocumentRequest());
     return CreateDocument(fileUpload, serviceMemberId)
-      .then((item) => dispatch(createDocumentSuccess(item)))
-      .catch((error) => dispatch(createDocumentFailure(error)));
+      .then(item => dispatch(createDocumentSuccess(item)))
+      .catch(error => dispatch(createDocumentFailure(error)));
   };
 }
 

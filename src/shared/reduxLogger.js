@@ -3,7 +3,7 @@ const timer =
     ? performance
     : Date;
 export default function logger({ getState }) {
-  return (next) => (action) => {
+  return next => action => {
     const logEntry = {};
     let returnedValue;
     logEntry.started = timer.now();

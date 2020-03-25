@@ -78,7 +78,7 @@ export function approveReimbursement(reimbursementId, label = approveReimburseme
 }
 
 export function selectPPMForMove(state, moveId) {
-  const ppm = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
+  const ppm = Object.values(state.entities.personallyProcuredMoves).find(ppm => ppm.move_id === moveId);
   return ppm || {};
 }
 

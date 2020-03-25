@@ -9,7 +9,7 @@ import './shared.css';
 
 export const no_op = () => undefined;
 export const no_op_action = () => {
-  return function (dispatch) {
+  return function(dispatch) {
     dispatch({
       type: 'NO_OP_TYPE',
       item: null,
@@ -18,14 +18,14 @@ export const no_op_action = () => {
 };
 
 // Turn an array into an object with .reduce()
-export const objFromArray = (array) =>
+export const objFromArray = array =>
   array.reduce((accumulator, current) => {
     accumulator[current.id] = current;
     return accumulator;
   }, {});
 
 export const upsert = (arr, newValue) => {
-  const index = arr.findIndex((obj) => obj.id === newValue.id);
+  const index = arr.findIndex(obj => obj.id === newValue.id);
   if (index !== -1) {
     arr.splice(index, 1, newValue);
   } else {
@@ -34,20 +34,19 @@ export const upsert = (arr, newValue) => {
 };
 
 export function fetchActive(foos) {
-  return find(foos, (i) => includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'], get(i, 'status'))) || null;
+  return find(foos, i => includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'], get(i, 'status'))) || null;
 }
 
 export function fetchActivePPM(foos) {
   return (
-    find(foos, (i) =>
-      includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], get(i, 'status')),
-    ) || null
+    find(foos, i => includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], get(i, 'status'))) ||
+    null
   );
 }
 
 export function fetchActiveShipment(shipments) {
   return (
-    find(shipments, (i) =>
+    find(shipments, i =>
       includes(
         // For now, this include all statuses, but this may be re-evaluated in the future.
         ['DRAFT', 'SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'],
@@ -74,7 +73,7 @@ export function formatPayload(payload, def) {
   });
 }
 
-export const convertDollarsToCents = (dollars) => {
+export const convertDollarsToCents = dollars => {
   if (!dollars && dollars !== 0) {
     return;
   }
@@ -103,13 +102,13 @@ export function renderStatusIcon(status) {
 export function snakeCaseToCapitals(str) {
   return str
     .split('_')
-    .map((word) => capitalize(word))
+    .map(word => capitalize(word))
     .join(' ');
 }
 
 export function humanReadableError(errors) {
   return Object.entries(errors)
-    .map((error) => `${snakeCaseToCapitals(error[0])} ${error[1]}`)
+    .map(error => `${snakeCaseToCapitals(error[0])} ${error[1]}`)
     .join('/n');
 }
 
@@ -135,9 +134,8 @@ export function openLinkInNewWindow(url, windowName, window, relativeSize) {
     .open(
       url,
       windowName,
-      `resizable,scrollbars,status,noopener=true,noreferrer=true,width=${window.outerWidth * relativeSize},height=${
-        window.outerHeight * relativeSize
-      }`,
+      `resizable,scrollbars,status,noopener=true,noreferrer=true,width=${window.outerWidth *
+        relativeSize},height=${window.outerHeight * relativeSize}`,
     )
     .focus(); // required in IE to put re-used window on top
   return false;

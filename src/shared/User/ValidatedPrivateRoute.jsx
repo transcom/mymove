@@ -25,7 +25,7 @@ class ValidatedPrivateRouteContainer extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   const user = selectCurrentUser(state);
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
   const accessCodes = get(state, 'entities.accessCodes');
@@ -37,7 +37,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => bindActionCreators({ fetchAccessCode }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ fetchAccessCode }, dispatch);
 
 const ValidatedPrivateRoute = connect(mapStateToProps, mapDispatchToProps)(ValidatedPrivateRouteContainer);
 

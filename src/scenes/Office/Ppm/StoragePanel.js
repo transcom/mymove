@@ -13,7 +13,7 @@ import { formatCents } from '../../../shared/formatters';
 import { convertDollarsToCents } from '../../../shared/utils';
 import { getDocsByStatusAndType } from './ducks';
 
-const StorageDisplay = (props) => {
+const StorageDisplay = props => {
   const cost = props.ppm && props.ppm.total_sit_cost ? formatCents(props.ppm.total_sit_cost) : 0;
   const days = props.ppm && props.ppm.days_in_storage ? props.ppm.days_in_storage : 0;
 
@@ -51,7 +51,7 @@ const StorageDisplay = (props) => {
   );
 };
 
-const StorageEdit = (props) => {
+const StorageEdit = props => {
   const schema = props.ppmSchema;
 
   return (
@@ -102,7 +102,7 @@ function mapStateToProps(state, props) {
     awaitingStorageExpenses: getDocsByStatusAndType(storageExpenses, 'OK'),
 
     // editablePanelify
-    getUpdateArgs: function () {
+    getUpdateArgs: function() {
       const values = getFormValues(formName)(state);
       const adjustedValues = {
         total_sit_cost: convertDollarsToCents(values.total_sit_cost),

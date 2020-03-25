@@ -7,12 +7,12 @@ export const GET_DUTY_STATION_TRANSPORTATION_OFFICE = ReduxHelpers.generateAsync
   getDutyStationTransportationOfficeType,
 );
 
-export const loadDutyStationTransportationOffice = (dutyStationId) => (dispatch) => {
+export const loadDutyStationTransportationOffice = dutyStationId => dispatch => {
   const actions = ReduxHelpers.generateAsyncActions(getDutyStationTransportationOfficeType);
   dispatch(actions.start);
   return showDutyStationTransportationOffice(dutyStationId)
-    .then((transportationOffice) => dispatch(actions.success({ transportationOffice, dutyStationId })))
-    .catch((error) => dispatch(actions.error(error)));
+    .then(transportationOffice => dispatch(actions.success({ transportationOffice, dutyStationId })))
+    .catch(error => dispatch(actions.error(error)));
 };
 
 ReduxHelpers.generateAsyncActionCreator(getDutyStationTransportationOfficeType, showDutyStationTransportationOffice);

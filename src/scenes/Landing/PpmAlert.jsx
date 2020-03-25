@@ -2,7 +2,7 @@ import React from 'react';
 import Alert from 'shared/Alert';
 import { ppmInfoPacket } from 'shared/constants';
 
-const PpmAlert = (props) => {
+const PpmAlert = props => {
   return (
     <Alert type="success" heading={props.heading}>
       Next, wait for approval. Once approved:

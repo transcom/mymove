@@ -3,9 +3,12 @@ import { shallow } from 'enzyme';
 import EntitlementBar from '.';
 
 describe('EntitlementBar', () => {
-  const getSummaryHtml = (entitlement) => {
+  const getSummaryHtml = entitlement => {
     const wrapper = shallow(<EntitlementBar entitlement={entitlement} />);
-    const text = wrapper.find('p').last().html();
+    const text = wrapper
+      .find('p')
+      .last()
+      .html();
     return text;
   };
   it('when the entitlement is missing, there is no text', () => {

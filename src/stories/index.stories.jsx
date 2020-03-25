@@ -7,7 +7,7 @@ import { Button } from '@trussworks/react-uswds';
 import { ReactComponent as EditIcon } from 'shared/images/edit-24px.svg';
 import colors from '../shared/styles/colors.scss';
 
-const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
+const filterGroup = filter => Object.keys(colors).filter(color => color.indexOf(filter) === 0);
 
 // Buttons
 
@@ -129,18 +129,18 @@ storiesOf('Global|Colors', module).add('all', () => (
 ));
 
 // Convert the color key to the color variable name.
-const colorVariable = (color) => {
+const colorVariable = color => {
   const array = color.split('-')[1].split(/(?=[A-Z])/);
   return `$${array.join('-').toLowerCase()}`;
 };
 
 // Convert the color key to the color proper name.
-const colorName = (color) => {
+const colorName = color => {
   const array = color.split('-')[1].split(/(?=[A-Z])/);
   return `${array.join(' ').toLowerCase()}`;
 };
 
-const colorsHelper = (color) => {
+const colorsHelper = color => {
   if (Object.keys(colors).includes(color)) {
     // The use of colors[color] triggers a security warning from our eslint security plugin.
     // However, since we verify inputs against imported colors and this function is not used where
@@ -203,7 +203,7 @@ const ColorGroup = ({ group }) => (
       padding: '0px',
     }}
   >
-    {group.map((color) => {
+    {group.map(color => {
       return <Color color={color} key={color} />;
     })}
   </ul>

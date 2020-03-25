@@ -21,16 +21,16 @@ const schema = {
 };
 
 export class DPSAuthCookie extends Component {
-  sendRequest = (values) => {
+  sendRequest = values => {
     this.props
       .getCookieURL(values)
-      .then((response) => {
+      .then(response => {
         var cookieURL = get(response, 'payload.cookie_url', '');
         if (cookieURL) {
           window.location = cookieURL;
         }
       })
-      .catch((error) => {
+      .catch(error => {
         if (error.response.status === 403) {
           window.location = '/forbidden';
         } else {

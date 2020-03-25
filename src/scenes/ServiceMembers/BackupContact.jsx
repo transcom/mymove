@@ -131,7 +131,7 @@ class ContactForm extends Component {
 const validateContact = (values, form) => {
   let requiredErrors = {};
   /* eslint-disable security/detect-object-injection */
-  ['name', 'email'].forEach((requiredFieldName) => {
+  ['name', 'email'].forEach(requiredFieldName => {
     if (values[requiredFieldName] === undefined || values[requiredFieldName] === '') {
       requiredErrors[requiredFieldName] = 'Required.';
     }

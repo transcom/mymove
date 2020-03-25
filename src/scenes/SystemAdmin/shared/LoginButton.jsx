@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './LoginButton.module.scss';
 import { LogoutUser } from 'shared/User/api.js';
 
-export const LoginButton = (props) => {
+export const LoginButton = props => {
   if (!props.isLoggedIn) {
     return (
       <div className={styles['login-section']}>

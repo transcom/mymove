@@ -8,7 +8,7 @@
 
 import { parseDate } from 'shared/dates';
 
-const normalizePhone = (value) => {
+const normalizePhone = value => {
   if (!value) {
     return value;
   }
@@ -26,7 +26,7 @@ const normalizePhone = (value) => {
   return normalizedPhone;
 };
 
-const normalizeSSN = (value) => {
+const normalizeSSN = value => {
   if (!value) {
     return value;
   }
@@ -44,7 +44,7 @@ const normalizeSSN = (value) => {
   return normalizedSSN;
 };
 
-const normalizeZip = (value) => {
+const normalizeZip = value => {
   if (!value) {
     return value;
   }
@@ -62,12 +62,12 @@ const normalizeZip = (value) => {
   return normalizedZip;
 };
 
-const normalizeDates = (value) => {
+const normalizeDates = value => {
   return parseDate(value);
 };
 
-const createDigitNormalizer = (maxLength) => {
-  return (value) => {
+const createDigitNormalizer = maxLength => {
+  return value => {
     if (!value) {
       return value;
     }
@@ -78,8 +78,8 @@ const createDigitNormalizer = (maxLength) => {
   };
 };
 
-const createDecimalNormalizer = (decimalDigits) => {
-  return (value) => {
+const createDecimalNormalizer = decimalDigits => {
+  return value => {
     if (!value) {
       return value;
     }

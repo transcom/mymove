@@ -20,7 +20,7 @@ const subsetOfFields = [
   'email_is_preferred',
 ];
 
-const validateContactForm = (values) => {
+const validateContactForm = values => {
   let errors = {};
 
   let prefSelected = Boolean(values.phone_is_preferred || values.email_is_preferred);

@@ -2,34 +2,34 @@ import { isFinite, isInteger as rawIsInteger, memoize } from 'lodash';
 import { defaultDateFormat } from 'shared/dates';
 import moment from 'moment';
 
-const isRequired = (value) => (value ? undefined : 'Required');
+const isRequired = value => (value ? undefined : 'Required');
 // Why Memoize? Please see https://github.com/erikras/redux-form/issues/3288
 // Since we attach validators inside the render method, without memoization the
 // function is re-created on every render which is not handled by react form.
 // By memoizing it, it works.
-const maxLength = memoize((maxLength) => (value) => {
+const maxLength = memoize(maxLength => value => {
   if (value && value.length > maxLength) {
     return `Cannot exceed ${maxLength} characters.`;
   }
 });
-const minLength = memoize((minLength) => (value) => {
+const minLength = memoize(minLength => value => {
   if (value && value.length < minLength) {
     return `Must be at least ${minLength} characters long.`;
   }
 });
 
-const maximum = memoize((maximum) => (value) => {
+const maximum = memoize(maximum => value => {
   if (value && value > maximum) {
     return `Must be ${maximum} or less`;
   }
 });
-const minimum = memoize((minimum) => (value) => {
+const minimum = memoize(minimum => value => {
   if (value && value < minimum) {
     return `Must be ${minimum} or more`;
   }
 });
 
-const isNumber = (value) => {
+const isNumber = value => {
   if (value) {
     if (!isFinite(parseFloat(value))) {
       return 'Must be a number';
@@ -37,7 +37,7 @@ const isNumber = (value) => {
   }
 };
 
-const isInteger = (value) => {
+const isInteger = value => {
   if (value) {
     if (!rawIsInteger(value)) {
       return 'Must be an integer';
@@ -45,7 +45,7 @@ const isInteger = (value) => {
   }
 };
 
-const isDate = (value) => {
+const isDate = value => {
   if (value) {
     let parsed = moment(value, defaultDateFormat);
     if (!parsed.isValid()) {
@@ -56,7 +56,7 @@ const isDate = (value) => {
 
 const patternMatches = memoize((pattern, message) => {
   const regex = RegExp(pattern);
-  return (value) => {
+  return value => {
     if (value) {
       if (!regex.test(value)) {
         return message;
@@ -66,7 +66,7 @@ const patternMatches = memoize((pattern, message) => {
 });
 
 const minDateValidation = memoize((minDate = null, message) => {
-  return (value) => {
+  return value => {
     if (minDate && moment(value).isBefore(moment(minDate))) {
       return message;
     }
@@ -74,7 +74,7 @@ const minDateValidation = memoize((minDate = null, message) => {
 });
 
 const maxDateValidation = memoize((maxDate = null, message) => {
-  return (value) => {
+  return value => {
     if (maxDate && moment(value).isAfter(moment(maxDate))) {
       return message;
     }

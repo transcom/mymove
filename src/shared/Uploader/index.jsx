@@ -80,7 +80,7 @@ export class Uploader extends Component {
     }
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
-    const isIdle = every(existingFiles, (f) => {
+    const isIdle = every(existingFiles, f => {
       return includes(idleStatuses, f.status);
     });
 
@@ -95,13 +95,13 @@ export class Uploader extends Component {
     }
     this.setPondOptions();
 
-    this.pond._pond.on('processfile', (e) => {
+    this.pond._pond.on('processfile', e => {
       if (this.props.onChange) {
         this.props.onChange(this.state.files, this.isIdle());
       }
     });
 
-    this.pond._pond.on('addfilestart', (e) => {
+    this.pond._pond.on('addfilestart', e => {
       if (this.props.onAddFile) {
         this.props.onAddFile();
       }
@@ -120,7 +120,7 @@ export class Uploader extends Component {
     const self = this;
     const docID = document ? document.id : null;
     CreateUpload(file, docID, isPublic)
-      .then((item) => {
+      .then(item => {
         load(item.id);
         const newFiles = concat(self.state.files, item);
         self.setState({
@@ -135,9 +135,9 @@ export class Uploader extends Component {
   revertFile = (uploadId, load, error) => {
     const { onChange, isPublic } = this.props;
     DeleteUpload(uploadId, isPublic)
-      .then((item) => {
+      .then(item => {
         load(item);
-        const newFiles = reject(this.state.files, (upload) => upload.id === uploadId);
+        const newFiles = reject(this.state.files, upload => upload.id === uploadId);
         this.setState({
           files: newFiles,
         });
@@ -175,7 +175,7 @@ export class Uploader extends Component {
   render() {
     return (
       <div>
-        <FilePond ref={(ref) => (this.pond = ref)} oninit={() => this.handlePondInit()} />
+        <FilePond ref={ref => (this.pond = ref)} oninit={() => this.handlePondInit()} />
       </div>
     );
   }

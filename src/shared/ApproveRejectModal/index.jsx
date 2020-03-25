@@ -14,7 +14,7 @@ export class ApproveRejectModal extends Component {
     this.props.approveBtnOnClick();
   };
 
-  handleRejectionChange = (rejectionReason) => {
+  handleRejectionChange = rejectionReason => {
     this.setState({ rejectionReason });
 
     if (!rejectionReason) {
@@ -59,7 +59,7 @@ export class ApproveRejectModal extends Component {
             {this.state.showRejectionInput && (
               <label>
                 Rejection reason
-                <input name="rejectionReason" onChange={(event) => this.handleRejectionChange(event.target.value)} />
+                <input name="rejectionReason" onChange={event => this.handleRejectionChange(event.target.value)} />
                 <button onClick={this.handleRejectionClick} disabled={this.state.rejectBtnIsDisabled}>
                   Reject
                 </button>

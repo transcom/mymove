@@ -5,7 +5,7 @@ import TitleizedField from 'scenes/SystemAdmin/shared/TitleizedField';
 
 const defaultSort = { field: 'orders_number', order: 'DESC' };
 
-const ElectronicOrderList = (props) => (
+const ElectronicOrderList = props => (
   <List {...props} pagination={<AdminPagination />} sort={defaultSort} perPage={25}>
     <Datagrid>
       <TextField source="id" />

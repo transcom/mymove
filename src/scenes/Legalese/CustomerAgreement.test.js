@@ -30,7 +30,7 @@ describe('Customer Agreement', () => {
       expect(checkbox.props().checked).toBe(true);
     });
 
-    it('calls onChangeHandler on change events', function () {
+    it('calls onChangeHandler on change events', function() {
       const onChangeHandler = jest.fn();
       const wrapper = shallow(<CustomerAgreement {...props} onChange={onChangeHandler} />);
       const checkbox = wrapper.find({ type: 'checkbox' });

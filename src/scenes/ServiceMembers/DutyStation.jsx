@@ -39,7 +39,7 @@ export class DutyStation extends Component {
     this.stationOnChange = this.stationOnChange.bind(this);
   }
 
-  stationOnChange = (newStation) => {
+  stationOnChange = newStation => {
     this.setState({ value: newStation });
   };
 

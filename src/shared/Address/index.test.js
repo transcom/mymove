@@ -65,7 +65,11 @@ describe('Address component test', () => {
         .find(PanelField)
         .dive();
 
-      const address_2 = wrapper.find('.field-value').children().at(1).props().children[0];
+      const address_2 = wrapper
+        .find('.field-value')
+        .children()
+        .at(1)
+        .props().children[0];
 
       expect(address_2).toBe(address.street_address_2);
     });

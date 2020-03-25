@@ -16,7 +16,7 @@ class PrivateRouteContainer extends React.Component {
     else return <Route path={path} component={SignIn} />;
   }
 }
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   loginIsLoading: selectGetCurrentUserIsLoading(state),
   userIsLoggedIn: selectCurrentUser(state).isLoggedIn,
 });

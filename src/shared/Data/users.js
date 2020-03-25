@@ -12,13 +12,13 @@ export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(getLoggedInUs
 const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
 
 export function getCurrentUserInfo() {
-  return function (dispatch) {
+  return function(dispatch) {
     dispatch(getLoggedInActions.start());
     return GetIsLoggedIn()
-      .then((response) => {
+      .then(response => {
         if (response.isLoggedIn === true) {
           return GetLoggedInUser()
-            .then((response) => {
+            .then(response => {
               if (response.service_member) {
                 const data = normalize(response.service_member.orders, ordersArray);
 
@@ -29,16 +29,16 @@ export function getCurrentUserInfo() {
               }
               return dispatch(getLoggedInActions.success(response));
             })
-            .catch((error) => dispatch(getLoggedInActions.error(error)));
+            .catch(error => dispatch(getLoggedInActions.error(error)));
         }
         return dispatch(getLoggedInActions.error('User is not logged in'));
       })
-      .catch((error) => dispatch(getLoggedInActions.error(error)));
+      .catch(error => dispatch(getLoggedInActions.error(error)));
   };
 }
 
 export function setUserIsLoggedIn(isLoggedIn) {
-  return function (dispatch) {
+  return function(dispatch) {
     return dispatch({ type: setIsLoggedInType, isLoggedIn });
   };
 }

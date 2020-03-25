@@ -13,7 +13,7 @@ export const getPpmIncentive = ReduxHelpers.generateAsyncActionCreator(GET_PPM_I
 
 export const getExpenseSummaryActionType = ReduxHelpers.generateAsyncActionTypes(GET_PPM_EXPENSE_SUMMARY);
 export const getPpmExpenseSummary = ReduxHelpers.generateAsyncActionCreator(GET_PPM_EXPENSE_SUMMARY, GetExpenseSummary);
-const summaryReducer = ReduxHelpers.generateAsyncReducer(GET_PPM_EXPENSE_SUMMARY, (v) => {
+const summaryReducer = ReduxHelpers.generateAsyncReducer(GET_PPM_EXPENSE_SUMMARY, v => {
   return {
     summary: { ...v },
   };
@@ -23,8 +23,8 @@ export const clearPpmIncentive = () => ({ type: CLEAR_PPM_INCENTIVE });
 
 export const getTabularExpenses = (expenseData, movingExpenseSchema) => {
   if (!expenseData || !movingExpenseSchema) return [];
-  const expenses = movingExpenseSchema.enum.map((type) => {
-    const item = expenseData.categories.find((item) => item.category === type);
+  const expenses = movingExpenseSchema.enum.map(type => {
+    const item = expenseData.categories.find(item => item.category === type);
     if (!item)
       return {
         type: get(movingExpenseSchema['x-display-value'], type),
@@ -49,7 +49,7 @@ export const getTabularExpenses = (expenseData, movingExpenseSchema) => {
 };
 
 export const getDocsByStatusAndType = (documents, statusToExclude, typeToExclude) => {
-  return filter(documents, (expense) => {
+  return filter(documents, expense => {
     if (!statusToExclude) {
       return expense.move_document_type !== typeToExclude;
     }
@@ -68,7 +68,7 @@ function clearReducer(state, action) {
   if (action.type === CLEAR_PPM_INCENTIVE) return { ...state, calculation: null };
   return state;
 }
-const incentiveReducer = ReduxHelpers.generateAsyncReducer(GET_PPM_INCENTIVE, (v) => ({
+const incentiveReducer = ReduxHelpers.generateAsyncReducer(GET_PPM_INCENTIVE, v => ({
   calculation: { ...v },
 }));
 

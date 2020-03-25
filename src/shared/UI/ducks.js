@@ -36,7 +36,7 @@ export default function uiReducer(state = initialState, action) {
 }
 
 export function setCurrentShipmentID(shipmentID) {
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     return dispatch({ type: SET_CURRENT_SHIPMENT_ID, shipmentID });
   };
 }

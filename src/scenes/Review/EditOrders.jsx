@@ -26,7 +26,7 @@ import profileImage from './images/profile.png';
 const editOrdersFormName = 'edit_orders';
 const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
-let EditOrdersForm = (props) => {
+let EditOrdersForm = props => {
   const {
     onDelete,
     onUpload,
@@ -38,7 +38,7 @@ let EditOrdersForm = (props) => {
     existingUploads,
     deleteQueue,
   } = props;
-  const visibleUploads = reject(existingUploads, (upload) => {
+  const visibleUploads = reject(existingUploads, upload => {
     return includes(deleteQueue, upload.id);
   });
   return (
@@ -117,11 +117,11 @@ class EditOrders extends Component {
     this.setState({ deleteQueue: concat(this.state.deleteQueue, uploadId) });
   };
 
-  handleNewUpload = (uploads) => {
+  handleNewUpload = uploads => {
     this.setState({ newUploads: uploads });
   };
 
-  updateOrders = (fieldValues) => {
+  updateOrders = fieldValues => {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
     fieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
     let addUploads = this.props.addUploads(this.state.newUploads);

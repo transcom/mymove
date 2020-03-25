@@ -5,13 +5,13 @@ import { withRouter } from 'react-router-dom';
 import ExitIcon from '@material-ui/icons/PowerSettingsNew';
 import { LogoutUser } from 'shared/User/api';
 
-const Menu = (props) => {
+const Menu = props => {
   const resources = props.resources;
   return (
     <div>
       {resources
-        .filter((resource) => resource.hasList || resource.hasShow)
-        .map((resource) => (
+        .filter(resource => resource.hasList || resource.hasShow)
+        .map(resource => (
           <MenuItemLink
             key={resource.name}
             to={`/${resource.name}`}
@@ -22,7 +22,7 @@ const Menu = (props) => {
         to="/"
         primaryText="Logout"
         leftIcon={<ExitIcon />}
-        onClick={(e) => {
+        onClick={e => {
           e.preventDefault();
           LogoutUser();
         }}
@@ -31,7 +31,7 @@ const Menu = (props) => {
   );
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   resources: getResources(state),
 });
 

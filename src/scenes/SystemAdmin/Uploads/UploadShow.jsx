@@ -1,9 +1,9 @@
 import React from 'react';
 import { ShowController, ShowView, SimpleShowLayout, TextField, DateField } from 'react-admin';
 
-const UploadShow = (props) => (
+const UploadShow = props => (
   <ShowController {...props}>
-    {(controllerProps) => (
+    {controllerProps => (
       <ShowView {...props} {...controllerProps}>
         <SimpleShowLayout>
           {controllerProps.record && controllerProps.record.service_member_id

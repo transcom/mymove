@@ -7,8 +7,8 @@ function findMatchingRoute(paths, operationPath) {
   const [tagName, operationId] = operationPath.split('.');
 
   let routeDefinition;
-  Object.values(paths).some(function (path) {
-    return some(path, function (route, method) {
+  Object.values(paths).some(function(path) {
+    return some(path, function(route, method) {
       if (route.operationId === operationId && route.tags[0] === tagName) {
         routeDefinition = route;
         routeDefinition.method = method;
@@ -21,7 +21,7 @@ function findMatchingRoute(paths, operationPath) {
 }
 
 // assumes str passed in is title case (ex. SomeModelName => someModelName)
-const toCamelCase = (str) => str[0].toLowerCase() + str.slice(1);
+const toCamelCase = str => str[0].toLowerCase() + str.slice(1);
 
 // Given a route definition and a status code, return the lowercased
 // name for the defined return type. For example, a 200 response to
@@ -44,7 +44,7 @@ function successfulReturnType(routeDefinition, status) {
 // Call an operation defined in the Swagger API, dispatching
 // actions as its state changes.
 export function swaggerRequest(getClient, operationPath, params, options = {}) {
-  return async function (dispatch, getState, { schema }) {
+  return async function(dispatch, getState, { schema }) {
     const client = await getClient();
     const state = await getState();
     const operation = get(client, 'apis.' + operationPath);
@@ -91,7 +91,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
     }
 
     return request
-      .then((response) => {
+      .then(response => {
         const updatedRequestLog = Object.assign({}, requestLog, {
           ok: response.ok,
           end: new Date(),
@@ -141,7 +141,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         dispatch(action);
         return action;
       })
-      .catch((response) => {
+      .catch(response => {
         console.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
         const updatedRequestLog = Object.assign({}, requestLog, {
           ok: false,

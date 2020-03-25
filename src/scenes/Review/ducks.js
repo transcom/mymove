@@ -12,25 +12,25 @@ const entitlementChangeType = 'ENTITLEMENT_CHANGED';
 
 // Actions
 export function editBegin() {
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     dispatch({ type: editBeginType });
   };
 }
 
 export function editSuccessful() {
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     dispatch({ type: editSuccessfulType });
   };
 }
 
 export function entitlementChangeBegin() {
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     dispatch({ type: entitlementChangeBeginType });
   };
 }
 
 export function entitlementChanged() {
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     dispatch({ type: entitlementChangeType });
   };
 }

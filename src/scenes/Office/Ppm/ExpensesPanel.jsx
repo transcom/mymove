@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import Alert from 'shared/Alert';
 import { getDocsByStatusAndType } from './ducks';
 
-const dollar = (cents) => (cents ? '$' + formatCents(cents) : null);
+const dollar = cents => (cents ? '$' + formatCents(cents) : null);
 
 class ExpensesPanel extends Component {
   componentDidMount() {
@@ -57,7 +57,7 @@ class ExpensesPanel extends Component {
                   &nbsp;
                 </th>
               </tr>
-              {tabularData.map((row) => {
+              {tabularData.map(row => {
                 return (
                   <tr key={row.type}>
                     <td>{row.type}</td>
@@ -85,7 +85,7 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       getPpmExpenseSummary,

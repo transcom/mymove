@@ -11,7 +11,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelField, editablePanelify } from 'shared/EditablePanel';
 import { selectBackupContactForServiceMember } from 'shared/Entities/modules/serviceMembers';
 
-const BackupInfoDisplay = (props) => {
+const BackupInfoDisplay = props => {
   const backupAddress = props.backupMailingAddress;
   const backupContact = props.backupContact;
 
@@ -42,7 +42,7 @@ const BackupInfoDisplay = (props) => {
   );
 };
 
-const BackupInfoEdit = (props) => {
+const BackupInfoEdit = props => {
   let backupContactProps = {
     swagger: props.backupContactSchema,
     values: props.backupContact,
@@ -100,7 +100,7 @@ function mapStateToProps(state, ownProps) {
     backupContact: backupContact,
 
     // editablePanelify
-    getUpdateArgs: function () {
+    getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       return [
         serviceMember.id,

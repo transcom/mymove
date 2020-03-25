@@ -5,7 +5,7 @@ let client = null;
 let publicClient = null;
 let ghcClient = null;
 
-export const requestInterceptor = (req) => {
+export const requestInterceptor = req => {
   if (!req.loadSpec) {
     const token = Cookies.get('masked_gorilla_csrf');
     if (token) {

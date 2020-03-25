@@ -67,7 +67,7 @@ class PaymentReview extends Component {
     }
   }
 
-  handleOnAcceptTermsChange = (acceptTerms) => {
+  handleOnAcceptTermsChange = acceptTerms => {
     this.setState({ acceptTerms });
   };
 

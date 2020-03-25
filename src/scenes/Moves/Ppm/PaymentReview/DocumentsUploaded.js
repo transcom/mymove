@@ -133,7 +133,7 @@ export class DocumentsUploaded extends Component {
               {expenseDocs.length} expense{expenseDocs.length >= 0 ? 's' : ''}
             </h4>
             <div className="tickets">
-              {formatExpenseDocs(expenseDocs).map((expense) => (
+              {formatExpenseDocs(expenseDocs).map(expense => (
                 <ExpenseTicketListItem
                   key={expense.id}
                   showDelete={inReviewPage}

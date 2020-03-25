@@ -3,5 +3,5 @@ export function selectCustomer(state, customerId) {
     return {};
   }
 
-  return Object.values(state.entities.customer).filter((customer) => customerId === customer.id)[0] || {};
+  return Object.values(state.entities.customer).filter(customer => customerId === customer.id)[0] || {};
 }

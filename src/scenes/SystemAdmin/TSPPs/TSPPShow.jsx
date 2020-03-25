@@ -5,7 +5,7 @@ const TSPPShowTitle = ({ record }) => {
   return <span>{`TSPP ID: ${record.id}`}</span>;
 };
 
-const TSPPShow = (props) => {
+const TSPPShow = props => {
   return (
     <Show {...props} title={<TSPPShowTitle />}>
       <SimpleShowLayout>

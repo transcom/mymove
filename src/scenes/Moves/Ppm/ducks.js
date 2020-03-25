@@ -27,25 +27,25 @@ export function setPendingPpmWeight(value) {
 
 export function getPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     dispatch(action.start());
     return GetPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate)
-      .then((item) => dispatch(action.success(item)))
-      .catch((error) => dispatch(action.error(error)));
+      .then(item => dispatch(action.success(item)))
+      .catch(error => dispatch(action.error(error)));
   };
 }
 
 export function getPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightEstimate) {
   const action = ReduxHelpers.generateAsyncActions('GET_SIT_ESTIMATE');
   const canEstimate = every([moveDate, sitDays, originZip, destZip, weightEstimate]);
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     if (!canEstimate) {
       return dispatch(action.success({ estimate: null }));
     }
     dispatch(action.start());
     GetPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightEstimate)
-      .then((item) => dispatch(action.success(item)))
-      .catch((error) => dispatch(action.error(error)));
+      .then(item => dispatch(action.success(item)))
+      .catch(error => dispatch(action.error(error)));
   };
 }
 
@@ -55,24 +55,24 @@ export function clearPpmSitEstimate() {
 
 export function createOrUpdatePpm(moveId, ppm) {
   const action = ReduxHelpers.generateAsyncActions('CREATE_OR_UPDATE_PPM');
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     dispatch(action.start());
     const state = getState();
     const currentPpm = state.ppm.currentPpm;
     if (currentPpm) {
       return UpdatePpm(moveId, currentPpm.id, ppm)
-        .then((item) => dispatch(action.success(item)))
-        .catch((error) => dispatch(action.error(error)));
+        .then(item => dispatch(action.success(item)))
+        .catch(error => dispatch(action.error(error)));
     } else {
       return CreatePpm(moveId, ppm)
-        .then((item) => dispatch(action.success(item)))
-        .catch((error) => dispatch(action.error(error)));
+        .then(item => dispatch(action.success(item)))
+        .catch(error => dispatch(action.error(error)));
     }
   };
 }
 
 export function setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode) {
-  return function (dispatch) {
+  return function(dispatch) {
     dispatch(change('ppp_date_and_location', 'original_move_date', originalMoveDate));
     dispatch(change('ppp_date_and_location', 'pickup_postal_code', pickupPostalCode));
     dispatch(change('ppp_date_and_location', 'origin_duty_station_zip', originDutyStationZip));
@@ -82,14 +82,14 @@ export function setInitialFormValues(originalMoveDate, pickupPostalCode, originD
 
 export function loadPpm(moveId) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM');
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     dispatch(action.start);
     const state = getState();
     const currentPpm = state.ppm.currentPpm;
     if (!currentPpm) {
       return GetPpm(moveId)
-        .then((item) => dispatch(action.success(item)))
-        .catch((error) => dispatch(action.error(error)));
+        .then(item => dispatch(action.success(item)))
+        .catch(error => dispatch(action.error(error)));
     }
     return Promise.resolve();
   };
@@ -101,7 +101,7 @@ const REQUESTED_PAYMENT_ACTION = {
 
 export function submitExpenseDocs(state) {
   const updateAction = ReduxHelpers.generateAsyncActions('CREATE_OR_UPDATE_PPM');
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     dispatch(updateAction.start());
     const state = getState();
     const currentPpm = state.ppm.currentPpm;
@@ -110,11 +110,11 @@ export function submitExpenseDocs(state) {
       return Promise.reject();
     }
     return RequestPayment(currentPpm.id)
-      .then((item) => {
+      .then(item => {
         dispatch(updateAction.success(item));
         dispatch(REQUESTED_PAYMENT_ACTION);
       })
-      .catch((error) => {
+      .catch(error => {
         dispatch(updateAction.error(error));
         return Promise.reject();
       });
@@ -155,7 +155,7 @@ export function getSelectedWeightInfo(state) {
 export function getPPM(state) {
   const move = state.moves.currentMove || state.moves.latestMove || {};
   const moveId = move.id;
-  const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
+  const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find(ppm => ppm.move_id === moveId);
   return ppmFromEntities || state.ppm.currentPpm || {};
 }
 

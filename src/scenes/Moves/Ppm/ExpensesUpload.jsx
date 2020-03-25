@@ -61,7 +61,7 @@ class ExpensesUpload extends Component {
     this.props.getMoveDocumentsForMove(moveId);
   }
 
-  handleRadioChange = (event) => {
+  handleRadioChange = event => {
     this.setState({
       [event.target.name]: event.target.value,
     });
@@ -72,11 +72,11 @@ class ExpensesUpload extends Component {
     history.push(`/moves/${moveId}${nextPagePath}`);
   };
 
-  isStorageExpense = (formValues) => {
+  isStorageExpense = formValues => {
     return !isEmpty(formValues) && formValues.moving_expense_type === 'STORAGE';
   };
 
-  saveAndAddHandler = (formValues) => {
+  saveAndAddHandler = formValues => {
     const { moveId, currentPpm, history } = this.props;
     const { paymentMethod, missingReceipt, haveMoreExpenses } = this.state;
     const {
@@ -112,7 +112,7 @@ class ExpensesUpload extends Component {
           history.push(`/moves/${moveId}${nextPagePath}`);
         }
       })
-      .catch((e) => {
+      .catch(e => {
         this.setState({ moveDocumentCreateError: true });
       });
   };
@@ -137,7 +137,7 @@ class ExpensesUpload extends Component {
     });
   };
 
-  handleCheckboxChange = (event) => {
+  handleCheckboxChange = event => {
     this.setState({
       [event.target.name]: event.target.checked,
     });
@@ -240,7 +240,7 @@ class ExpensesUpload extends Component {
                   <Uploader
                     options={{ labelIdle: uploadReceipt }}
                     isPublic={isPublic}
-                    onRef={(ref) => (this.uploader = ref)}
+                    onRef={ref => (this.uploader = ref)}
                     onChange={this.onChange}
                     onAddFile={this.onAddFile}
                   />

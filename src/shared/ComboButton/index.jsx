@@ -20,7 +20,7 @@ class ComboButton extends Component {
     document.removeEventListener('mousedown', this.handleClickOutside);
   }
 
-  handleClickOutside = (event) => {
+  handleClickOutside = event => {
     if (this.container.current && !this.container.current.contains(event.target)) {
       this.setState({
         displayDropDown: false,
@@ -29,7 +29,7 @@ class ComboButton extends Component {
   };
 
   handleButtonClick = () => {
-    this.setState((state) => {
+    this.setState(state => {
       return {
         displayDropDown: !state.displayDropDown,
       };

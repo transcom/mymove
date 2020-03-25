@@ -80,7 +80,7 @@ export class OfficeWrapper extends Component {
           <Suspense fallback={<LoadingPlaceholder />}>{!userIsLoggedIn && <QueueHeader />}</Suspense>
           <ConditionalWrap
             condition={!userIsLoggedIn}
-            wrap={(children) => (
+            wrap={children => (
               <DivOrMainTag role="main" className="site__content">
                 {children}
               </DivOrMainTag>
@@ -105,7 +105,7 @@ export class OfficeWrapper extends Component {
                 />
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
-                  component={(props) => (
+                  component={props => (
                     <Suspense fallback={<LoadingPlaceholder />}>
                       <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
@@ -113,7 +113,7 @@ export class OfficeWrapper extends Component {
                 />
                 <PrivateRoute
                   path="/queues/:queueType"
-                  component={(props) => (
+                  component={props => (
                     <Suspense fallback={<LoadingPlaceholder />}>
                       <RenderWithOrWithoutHeader component={Queues} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
@@ -121,7 +121,7 @@ export class OfficeWrapper extends Component {
                 />
                 <PrivateRoute
                   path="/moves/:moveId/orders"
-                  component={(props) => (
+                  component={props => (
                     <Suspense fallback={<LoadingPlaceholder />}>
                       <RenderWithOrWithoutHeader
                         component={OrdersInfo}
@@ -134,7 +134,7 @@ export class OfficeWrapper extends Component {
                 />
                 <PrivateRoute
                   path="/moves/:moveId/documents/:moveDocumentId?"
-                  component={(props) => (
+                  component={props => (
                     <Suspense fallback={<LoadingPlaceholder />}>
                       <RenderWithOrWithoutHeader
                         component={DocumentViewer}
@@ -148,7 +148,7 @@ export class OfficeWrapper extends Component {
                 {!isProduction && (
                   <PrivateRoute
                     path="/playground"
-                    component={(props) => (
+                    component={props => (
                       <Suspense fallback={<LoadingPlaceholder />}>
                         <RenderWithOrWithoutHeader
                           component={ScratchPad}
@@ -189,7 +189,7 @@ OfficeWrapper.defaultProps = {
   loadPublicSchema: no_op,
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   const user = selectCurrentUser(state);
   return {
     swaggerError: state.swaggerInternal.hasErrored,
@@ -197,6 +197,6 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) =>
+const mapDispatchToProps = dispatch =>
   bindActionCreators({ loadInternalSchema, loadPublicSchema, getCurrentUserInfo }, dispatch);
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(OfficeWrapper));

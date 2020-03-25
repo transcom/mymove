@@ -49,7 +49,7 @@ export class DocumentUploader extends Component {
         reset();
         this.uploader.clearFiles();
       })
-      .catch((err) => {
+      .catch(err => {
         this.setState({
           moveDocumentCreateError: err,
         });
@@ -109,7 +109,7 @@ export class DocumentUploader extends Component {
             </div>
             <Uploader
               isPublic={isPublic}
-              onRef={(ref) => (this.uploader = ref)}
+              onRef={ref => (this.uploader = ref)}
               onChange={this.onChange}
               onAddFile={this.onAddFile}
             />

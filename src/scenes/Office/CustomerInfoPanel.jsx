@@ -21,7 +21,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
-const CustomerInfoDisplay = (props) => {
+const CustomerInfoDisplay = props => {
   const fieldProps = {
     schema: props.serviceMemberSchema,
     values: props.serviceMember,
@@ -63,7 +63,7 @@ const CustomerInfoDisplay = (props) => {
   );
 };
 
-const CustomerInfoEdit = (props) => {
+const CustomerInfoEdit = props => {
   const schema = props.serviceMemberSchema;
 
   return (
@@ -156,7 +156,7 @@ function mapStateToProps(state, ownProps) {
     isUpdating: false,
 
     // editablePanelify
-    getUpdateArgs: function () {
+    getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       let serviceMember = values.serviceMember;
       serviceMember.residential_address = values.address;
