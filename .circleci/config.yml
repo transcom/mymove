@@ -353,7 +353,10 @@ jobs:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           name: Install YARN dependencies
-          command: yarn install
+          # setting network concurrency to 1 because using the default failed with errors trying to extract package tar files saying they were corrupt.
+          # this was workaround that seemed to fix the issue See for details https://github.com/yarnpkg/yarn/issues/7212
+          # This is caused by a timing issue when using react-uswds branch. It can be removed once we switch to a released version
+          command: yarn install --network-concurrency 1
       # `v2-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
           key: v2-cache-yarn-v2-{{ checksum "yarn.lock" }}

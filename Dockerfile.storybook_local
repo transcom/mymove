@@ -16,9 +16,6 @@ COPY --chown=circleci:circleci [ \
   "/home/circleci/project/" \
 ]
 
-# we can copy node modules from previous build step
-COPY --chown=circleci:circleci node_modules/ /home/circleci/project/node_modules/
-
 # yarn needs to run from the project root
 WORKDIR /home/circleci/project
 

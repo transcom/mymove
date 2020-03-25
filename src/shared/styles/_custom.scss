@@ -1,0 +1,39 @@
+//Custom Components (not in USWDS)
+@import 'shared/styles/colors.scss';
+@import 'shared/styles/_mixins.scss';
+
+.container {
+  @include u-bg('white');
+  @include u-padding('3');
+  @include u-margin('3');
+  &--gray {
+    @include u-bg('base-lightest');
+  }
+  &--popout {
+    @include border-inset(2px, $base-light);
+    @include u-shadow(2);
+  }
+  &--accent {
+    @include u-shadow(2);
+    &--blue {
+      border-top: 8px solid $accent-blue;
+    }
+    &--yellow {
+      border-top: 8px solid $accent-yellow;
+    }
+  }
+}
+
+//for displaying the containers in Storybook
+#containers {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  #root & {
+    background-color: $base-lighter;
+  }
+  .container {
+    width: 300px;
+    height: 135px;
+  }
+}
