@@ -28,14 +28,14 @@ type MTOShipment struct {
 
 	// approved date
 	// Format: date
-	ApprovedDate *strfmt.Date `json:"approvedDate,omitempty"`
+	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
 
 	// created at
 	// Format: datetime
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// customer remarks
-	CustomerRemarks string `json:"customerRemarks,omitempty"`
+	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
