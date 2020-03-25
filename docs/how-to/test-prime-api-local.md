@@ -8,11 +8,11 @@ For how to test on staging and experimental, follow this [link](test-prime-api-s
 
 ## Requirements
 
-You must have data generated within your database.
+You must have data generated within your database and have the server running.
 
 If you are using the Prime Docker via `make run_prime_docker`, this has already been done for you.
 
-If you are not, please generate the data through `make db_dev_e2e_populate`,
+If you are not, please generate the data through `make db_dev_e2e_populate && server_run`,
 
 ## Sub-commands
 
