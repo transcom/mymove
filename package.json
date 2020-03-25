@@ -27,7 +27,7 @@
     "js-yaml": "^3.10.0",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.5",
-    "marked": "^0.8.0",
+    "marked": "^0.8.2",
     "moment": "^2.22.1",
     "node-sass": "^4.13.1",
     "normalizr": "^3.6.0",
@@ -101,7 +101,7 @@
     "loki": "^0.20.1",
     "mime-types": "^2.1.26",
     "mockdate": "^2.0.2",
-    "prettier": "=2.0.1"
+    "prettier": "=2.0.2"
   },
   "browserslist": [
     ">0.2%",
