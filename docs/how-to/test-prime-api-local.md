@@ -16,7 +16,7 @@ If you are not, please generate the data through `make db_dev_e2e_populate && se
 
 ## Sub-commands
 
-At this time, there are only two sub-commands to be used within the Prime client:
+At this time, there are only three sub-commands to be used within the Prime client:
 
 - `fetch-mtos` which will fetch all the move task orders available to the Prime
 - `update-mto-shipment` which will update an mto shipment with the data passed in
