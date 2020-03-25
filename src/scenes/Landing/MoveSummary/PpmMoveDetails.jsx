@@ -64,7 +64,7 @@ const mapStateToProps = (state, ownProps) => {
   const advance = selectReimbursement(state, ownProps.ppm.advance);
   const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.ppm.move_id, [
     'WEIGHT_TICKET_SET',
-  ]).some(doc => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
+  ]).some((doc) => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
   return { ppm: get(state, 'ppm', {}), advance, isMissingWeightTicketDocuments };
 };
 

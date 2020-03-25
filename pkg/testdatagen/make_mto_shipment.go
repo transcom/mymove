@@ -67,3 +67,42 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 
 	return MTOShipment
 }
+
+// MakeMTOShipmentMinimal creates a single MTOShipment with a minimal set of data as could be possible
+// through milmove UI.
+func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MTOShipment {
+	moveTaskOrder := assertions.MoveTaskOrder
+	if isZeroUUID(moveTaskOrder.ID) {
+		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
+	}
+	pickupAddress := MakeAddress(db, assertions)
+	destinationAddress := MakeAddress2(db, assertions)
+	shipmentType := models.MTOShipmentTypeHHG
+
+	// mock dates
+	requestedPickupDate := time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+
+	MTOShipment := models.MTOShipment{
+		MoveTaskOrder:        moveTaskOrder,
+		MoveTaskOrderID:      moveTaskOrder.ID,
+		RequestedPickupDate:  &requestedPickupDate,
+		PickupAddress:        &pickupAddress,
+		PickupAddressID:      &pickupAddress.ID,
+		DestinationAddress:   &destinationAddress,
+		DestinationAddressID: &destinationAddress.ID,
+		ShipmentType:         shipmentType,
+		Status:               "SUBMITTED",
+	}
+
+	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
+		approvedDate := time.Date(TestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
+		MTOShipment.ApprovedDate = &approvedDate
+	}
+
+	// Overwrite values with those from assertions
+	mergeModels(&MTOShipment, assertions.MTOShipment)
+
+	mustCreate(db, &MTOShipment)
+
+	return MTOShipment
+}

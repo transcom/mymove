@@ -16,13 +16,19 @@ COPY --chown=circleci:circleci [ \
   "/home/circleci/project/" \
 ]
 
+# we can copy node modules from previous build step
+COPY --chown=circleci:circleci node_modules/ /home/circleci/project/node_modules/
+
 # yarn needs to run from the project root
 WORKDIR /home/circleci/project
 
 # ENTRYPOINT is set by parent docker image, this is intentionally not overridden to allow support for running chrome in the container for loki tests.
 CMD yarn storybook --ci
 
-RUN yarn install
+# setting network concurrency to 1 because using the default failed with errors trying to extract package tar files saying they were corrupt.
+# this was workaround that seemed to fix the issue See for details https://github.com/yarnpkg/yarn/issues/7212
+# This is caused by a timing issue when using react-uswds branch. It can be removed once we switch to a released version
+RUN yarn install --network-concurrency 1
 
 COPY --chown=circleci:circleci .storybook/ /home/circleci/project/.storybook/
 

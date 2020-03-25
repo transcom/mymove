@@ -20,7 +20,7 @@ import scrollToTop from 'shared/scrollToTop';
 
 const sitEstimateDebounceTime = 300;
 
-let EditDateAndLocationForm = props => {
+let EditDateAndLocationForm = (props) => {
   const { handleSubmit, currentOrders, getSitEstimate, schema, valid, sitReimbursement, submitting } = props;
   return (
     <div className="grid-container usa-prose">
@@ -105,7 +105,7 @@ class EditDateAndLocation extends Component {
               scrollToTop();
             }
           })
-          .catch(err => {
+          .catch((err) => {
             // This promise resolves regardless of error.
             if (!this.props.hasSubmitError) {
               this.props.editSuccessful();

@@ -6,7 +6,7 @@ import { ADD_ENTITIES } from 'shared/Entities/actions';
 function mergeEntities(entities, newEntities) {
   // shallow clone to mutate
   let result = clone(entities);
-  each(newEntities, function(_value, key) {
+  each(newEntities, function (_value, key) {
     /* eslint-disable security/detect-object-injection */
     result[key] = {
       ...result[key],
@@ -20,7 +20,7 @@ function mergeEntities(entities, newEntities) {
 
 // deletes all items from entities with matching key, id in deleteEntities
 function deleteEntities(entities, deleteEntities) {
-  return mapValues(entities, function(value, key) {
+  return mapValues(entities, function (value, key) {
     // eslint-disable-next-line
     const idsToDelete = Object.keys(deleteEntities[key] || {});
     return omit(value, idsToDelete);
