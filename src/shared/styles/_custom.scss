@@ -11,6 +11,7 @@
   @include u-border('1px');
   &--gray {
     @include u-bg('base-lightest');
+    @include u-border(0);
   }
   &--popout {
     @include u-border('base-light');
@@ -35,7 +36,7 @@
   flex-wrap: wrap;
   flex-direction: row;
   #root & {
-    background-color: $base-lighter;
+    background-color: lighten($accent-blue, 50%);
   }
   .container {
     width: 300px;
