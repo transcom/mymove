@@ -27,7 +27,7 @@
     "js-yaml": "^3.10.0",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.5",
-    "marked": "^0.8.0",
+    "marked": "^0.8.2",
     "moment": "^2.22.1",
     "node-sass": "^4.13.1",
     "normalizr": "^3.6.0",
@@ -36,7 +36,7 @@
     "query-string": "6",
     "ra-data-simple-rest": "^2.9.9",
     "react": "^16.13.1",
-    "react-admin": "^3.3.2",
+    "react-admin": "^3.3.3",
     "react-app-polyfill": "^1.0.6",
     "react-day-picker": "=7.4.0",
     "react-dom": "^16.13.1",
@@ -101,7 +101,7 @@
     "loki": "^0.20.1",
     "mime-types": "^2.1.26",
     "mockdate": "^2.0.2",
-    "prettier": "=1.19.1"
+    "prettier": "=2.0.1"
   },
   "browserslist": [
     ">0.2%",

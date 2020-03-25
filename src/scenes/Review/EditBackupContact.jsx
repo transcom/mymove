@@ -18,7 +18,7 @@ import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 
 const editBackupContactFormName = 'edit_backup_contact';
 
-let EditBackupContactForm = props => {
+let EditBackupContactForm = (props) => {
   const { schema, handleSubmit, submitting, valid } = props;
   return (
     <div className="grid-container usa-prose">
@@ -60,7 +60,7 @@ class EditBackupContact extends Component {
     scrollToTop();
   }
 
-  updateContact = fieldValues => {
+  updateContact = (fieldValues) => {
     if (fieldValues.telephone === '') {
       fieldValues.telephone = null;
     }

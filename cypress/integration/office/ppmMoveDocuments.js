@@ -1,30 +1,28 @@
 /* global cy */
-describe('office user finds the shipment', function() {
+describe('office user finds the shipment', function () {
   beforeEach(() => {
     cy.signIntoOffice();
     cy.get('[data-cy=ppm-queue]').click();
   });
-  it('office user views ppm panel and goes to a ppm with a move document for awaiting review', function() {
+  it('office user views ppm panel and goes to a ppm with a move document for awaiting review', function () {
     officeUserViewsPpmPanel('PMTRVW');
     officeUserChecksExpensePanelForAlert(true);
   });
 });
 
 function officeUserViewsPpmPanel(locatorId) {
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
   // Find shipment and open it
   cy.selectQueueItemMoveLocator(locatorId);
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
-  cy.get('.nav-tab')
-    .contains('PPM')
-    .click();
+  cy.get('.nav-tab').contains('PPM').click();
 }
 
 function officeUserChecksExpensePanelForAlert(alertShown) {

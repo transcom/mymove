@@ -60,8 +60,8 @@ const PageNotInFlow = ({ location }) => (
 
 const always = () => true;
 // Todo: update this when moves can be completed
-const myFirstRodeo = props => !props.lastMoveIsCanceled;
-const notMyFirstRodeo = props => props.lastMoveIsCanceled;
+const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
+const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'PPM';
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
@@ -155,7 +155,7 @@ const pages = {
     },
   },
   '/moves/:moveId/ppm-start': {
-    isInFlow: state => state.selectedMoveType === 'PPM',
+    isInFlow: (state) => state.selectedMoveType === 'PPM',
     isComplete: ({ sm, orders, move, ppm }) => {
       return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
@@ -182,7 +182,7 @@ const pages = {
 };
 
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled, context }) =>
-  Object.keys(pages).filter(pageKey => {
+  Object.keys(pages).filter((pageKey) => {
     // eslint-disable-next-line security/detect-object-injection
     const page = pages[pageKey];
     return page.isInFlow({ selectedMoveType, lastMoveIsCanceled, context });
@@ -199,7 +199,7 @@ export const getNextIncompletePage = ({
 }) => {
   const rawPath = findKey(
     pages,
-    p =>
+    (p) =>
       p.isInFlow({ selectedMoveType, lastMoveIsCanceled }) &&
       !p.isComplete({ sm: serviceMember, orders, move, ppm, backupContacts }),
   );
@@ -210,10 +210,10 @@ export const getNextIncompletePage = ({
   return compiledPath;
 };
 
-export const getWorkflowRoutes = props => {
+export const getWorkflowRoutes = (props) => {
   const flowProps = pick(props, ['selectedMoveType', 'lastMoveIsCanceled', 'context']);
   const pageList = getPagesInFlow(flowProps);
-  return Object.keys(pages).map(key => {
+  return Object.keys(pages).map((key) => {
     // eslint-disable-next-line security/detect-object-injection
     const currPage = pages[key];
     if (currPage.isInFlow(flowProps)) {

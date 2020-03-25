@@ -19,7 +19,7 @@ import SaveCancelButtons from './SaveCancelButtons';
 
 const editContactFormName = 'edit_contact_info';
 
-let EditContactForm = props => {
+let EditContactForm = (props) => {
   const { serviceMemberSchema, addressSchema, handleSubmit, submitting, valid } = props;
   return (
     <div className="grid-container usa-prose">
@@ -56,11 +56,11 @@ let EditContactForm = props => {
   );
 };
 
-const validateEditContactFormBools = fields => {
+const validateEditContactFormBools = (fields) => {
   return (values, form) => {
     let errors = {};
     let prefSelected = false;
-    fields.forEach(fieldName => {
+    fields.forEach((fieldName) => {
       if (Boolean(get(values, fieldName))) {
         prefSelected = true;
       }
@@ -84,7 +84,7 @@ EditContactForm = reduxForm({
 })(EditContactForm);
 
 class EditContact extends Component {
-  updateContact = fieldValues => {
+  updateContact = (fieldValues) => {
     let serviceMember = fieldValues.serviceMember;
     serviceMember.residential_address = fieldValues.resAddress;
     serviceMember.backup_mailing_address = fieldValues.backupAddress;

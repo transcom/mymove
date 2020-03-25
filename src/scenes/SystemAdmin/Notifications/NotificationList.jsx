@@ -5,13 +5,13 @@ import styles from 'scenes/SystemAdmin/Home.module.scss';
 
 const defaultSort = { field: 'service_member_id', order: 'ASC' };
 
-const NotificationFilter = props => (
+const NotificationFilter = (props) => (
   <Filter {...props} className={styles['system-admin-filters']}>
     <TextInput label="Service Member ID" source="service_member_id" reference="notifications" alwaysOn />
   </Filter>
 );
 
-const NotificationList = props => (
+const NotificationList = (props) => (
   <List
     {...props}
     pagination={<AdminPagination />}

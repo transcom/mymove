@@ -2,7 +2,7 @@ import React from 'react';
 import { ProfileStatusTimeline } from 'scenes/Landing/StatusTimeline';
 import truck from 'shared/icon/truck-gray.svg';
 
-const DraftMoveSummary = props => {
+const DraftMoveSummary = (props) => {
   const { profile, resumeMove } = props;
   return (
     <div>

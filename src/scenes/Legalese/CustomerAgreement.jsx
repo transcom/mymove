@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 const CustomerAgreement = ({ onChange, link, checked, agreementText, className }) => {
-  const handleOnChange = e => {
+  const handleOnChange = (e) => {
     onChange(e.target.checked);
   };
 
-  const handleClick = e => {
+  const handleClick = (e) => {
     // Prevent this from checking the box after opening the alert.
     e.preventDefault();
     alert(agreementText);

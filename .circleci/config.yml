@@ -204,9 +204,12 @@ commands:
         type: string
       repo:
         type: string
+      working_dir:
+        type: string
     steps:
       - run:
           name: 'Build, tag, and push docker image << parameters.tag >> from Dockerfile << parameters.dockerfile >>'
+          working_directory: << parameters.working_dir >>
           command: |
             docker build -f << parameters.dockerfile >> -t << parameters.tag >> .
             aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
@@ -591,6 +594,7 @@ jobs:
           dockerfile: Dockerfile
           tag: ppp:web-dev
           repo: app
+          working_dir: ~/transcom/mymove
       - announce_failure
 
   # `storybook_tests` runs the loki test suite against the current storybook code
@@ -649,6 +653,7 @@ jobs:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev
           repo: app-migrations
+          working_dir: ~/transcom/mymove
       - announce_failure
 
   # `build_django_app` builds the django app container and pushes to container repository
@@ -711,6 +716,13 @@ jobs:
             LOGIN_GOV_CALLBACK_PORT: 3000
             LOGIN_GOV_KID_JWK: milmove_admin
             LOGIN_GOV_JWK_SET_FILENAME: keyset.jwk
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - build_tag_push:
+          dockerfile: Dockerfile.prod
+          tag: engadmin:dev
+          repo: app-engadmin
+          working_dir: ~/transcom/milmove_admin/app
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
@@ -730,6 +742,7 @@ jobs:
           dockerfile: Dockerfile.tasks
           tag: tasks:dev
           repo: app-tasks
+          working_dir: ~/transcom/mymove
       - announce_failure
 
   # `acceptance_tests_experimental` runs acceptance tests for the webserver against the experimental environment.
