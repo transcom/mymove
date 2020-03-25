@@ -110,7 +110,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 		OrderNumber:            moveOrder.OrderNumber,
 		LinesOfAccounting:      moveOrder.LinesOfAccounting,
 		Rank:                   moveOrder.Grade,
-		ConfirmationNumber:     *moveOrder.ConfirmationNumber,
+		ConfirmationNumber:     moveOrder.ConfirmationNumber,
 		ReportByDate:           reportByDate,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
 	}
@@ -251,9 +251,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             primemessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks:          *mtoShipment.CustomerRemarks,
-		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
-		ScheduledPickupDate:      strfmt.Date(*mtoShipment.ScheduledPickupDate),
+		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
 		Status:                   string(mtoShipment.Status),
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
@@ -264,9 +262,16 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
-	if mtoShipment.ApprovedDate != nil && !mtoShipment.ApprovedDate.IsZero() {
-		approvedDate := strfmt.Date(*mtoShipment.ApprovedDate)
-		payload.ApprovedDate = &approvedDate
+	if mtoShipment.ApprovedDate != nil {
+		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
+	}
+
+	if mtoShipment.ScheduledPickupDate != nil {
+		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
+	}
+
+	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
+		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
 	}
 
 	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
@@ -277,7 +282,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.FirstAvailableDeliveryDate = strfmt.Date(*mtoShipment.FirstAvailableDeliveryDate)
 	}
 
-	if mtoShipment.PrimeEstimatedWeight != nil {
+	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.PrimeEstimatedWeightRecordedDate != nil {
 		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
 		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
 	}
