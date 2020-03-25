@@ -1,25 +1,30 @@
 # How to Run Prime Docker
 
-This document aims to detail how to run the Prime Docker. The Prime Docker will be utilized by contractors to access and test both the Prime API and the web applications.
+This document aims to detail how to run the Prime Docker. The Prime Docker will be utilized by contractors to access and test both the Prime API and the web applications (MilMove and Office).
 
 ## Assumptions
 
-- Install the following libraries:
+- Copied the `mymove` repository on your machine.
+- Installed the following libraries:
   - go
   - docker
   - docker-compose
   - direnv
   - jq
   - yarn
-- If don't already have `.envrc.local`, copy `.envrc.local.template` to `.envrc.local`.
-  - values will be added to this in a following story
-- Modify `/etc/hosts` to include the prime, office, and milmove hosts.
+- Copied `.envrc.local.template` to `.envrc.local` if do not already have `.envrc.local`.
 
-```sh
-  echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
-```
+    ```sh
+        cp .envrc.local.template .envrc.local
+    ```
+
+- Modified `/etc/hosts` to include the prime, office, and milmove hosts.
+
+    ```sh
+      echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
+      echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
+      echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
+    ```
 
 ## Running Prime Docker
 
@@ -27,22 +32,20 @@ Please make sure you're in the `mymove` repository.
 
 In your terminal, run the following:
 
-```sh
-make run_prime_docker
-```
+  ```sh
+      make run_prime_docker
+  ```
 
 Please wait until the script is done running.
 
 ## Accessing Prime API
 
-You should now be able to test the Prime API. You can do so with [Postman](make-a-sample-prime-api-call.md) or using the Prime API client within the terminal.
+You should now be able to test the Prime API. You can do so with [Postman](make-a-sample-prime-api-call.md) or using the [Prime API client](test-prime-api-local.md) within the terminal.
 
 The latter can be quickly up and running with the following:
 
 ```sh
-rm -f bin/prime-api-client
-make bin/prime-api-client
-prime-api-client --insecure fetch-mtos
+go run ./cmd/prime-api-client --insecure fetch-mtos
 ```
 
 You should see something like this:
@@ -71,7 +74,7 @@ You should see something like this:
     ]
 ```
 
-There will be more documentation on how to use the Prime API client soon.
+For more commands and use cases around the Prime API Client, click [here](test-prime-api-local.md).
 
 ## Accessing Web Applications
 

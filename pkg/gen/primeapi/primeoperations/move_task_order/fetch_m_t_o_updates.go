@@ -31,9 +31,9 @@ func NewFetchMTOUpdates(ctx *middleware.Context, handler FetchMTOUpdatesHandler)
 
 /*FetchMTOUpdates swagger:route GET /move-task-orders moveTaskOrder fetchMTOUpdates
 
-Gets all move orders
+Gets all move task orders
 
-Gets all move orders
+Gets all move task orders
 
 */
 type FetchMTOUpdates struct {

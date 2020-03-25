@@ -21,8 +21,10 @@ type UpdateMTOShipmentHandler struct {
 // Handle handler that updates a mto shipment
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+
 	mtoShipment := payloads.MTOShipmentModel(params.Body)
 	eTag := params.IfMatch
+	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 
 	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
 	if err != nil {

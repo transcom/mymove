@@ -145,7 +145,10 @@ client_deps_update: .check_node_version.stamp ## Update client dependencies
 .PHONY: client_deps
 client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## Install client dependencies
 .client_deps.stamp: yarn.lock
-	yarn install
+	# setting network concurrency to 1 because using the default failed with errors trying to extract package tar files saying they were corrupt.
+	# this was workaround that seemed to fix the issue See for details https://github.com/yarnpkg/yarn/issues/7212
+	# This is caused by a timing issue when using react-uswds branch. It can be removed once we switch to a released version
+	yarn install --network-concurrency 1
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
 
@@ -242,6 +245,9 @@ bin/generate-test-data:
 bin/ghc-pricing-parser:
 	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/ghc-pricing-parser
 
+bin/ghc-transit-time-parser:
+	go build -ldflags "$(LDFLAGS)" -o bin/ghc-transit-time-parser ./cmd/ghc-transit-time-parser
+
 bin/health-checker:
 	go build -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
 
@@ -335,6 +341,7 @@ build_tools: bin/gin \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/ghc-pricing-parser \
+	bin/ghc-transit-time-parser \
 	bin/health-checker \
 	bin/iws \
 	bin/milmove-tasks \
@@ -892,7 +899,8 @@ storybook: ## Start the storybook server
 
 .PHONY: storybook_docker
 storybook_docker: ## Start the storybook server in a docker container
-	docker-compose -f docker-compose.storybook.yml up --build storybook
+	docker-compose -f docker-compose.storybook.yml -f docker-compose.storybook_local.yml build --pull storybook
+	docker-compose -f docker-compose.storybook.yml -f docker-compose.storybook_local.yml up storybook
 
 .PHONY: storybook_build
 storybook_build: ## Build static storybook site

@@ -33,7 +33,7 @@ const defaultReducers = {
   entities: entitiesReducer,
 };
 
-export const appReducer = history =>
+export const appReducer = (history) =>
   combineReducers({
     ...defaultReducers,
     router: connectRouter(history),
@@ -50,7 +50,7 @@ export const appReducer = history =>
     ppmIncentive: officePpmReducer,
   });
 
-export const adminAppReducer = history =>
+export const adminAppReducer = (history) =>
   combineReducers({
     ...defaultReducers,
     admin: adminReducer,

@@ -26,9 +26,14 @@ export function selectPaymentRequests(state) {
 }
 
 export function updatePaymentRequest(
-  { paymentRequestID, status, rejectionReason = '' },
+  { paymentRequestID, status, ifMatchETag, rejectionReason = '' },
   label = updatePaymentRequestLabel,
 ) {
   const swaggerTag = 'paymentRequests.updatePaymentRequestStatus';
-  return swaggerRequest(getGHCClient, swaggerTag, { paymentRequestID, body: { status, rejectionReason } }, { label });
+  return swaggerRequest(
+    getGHCClient,
+    swaggerTag,
+    { paymentRequestID, 'If-Match': ifMatchETag, body: { status, rejectionReason } },
+    { label },
+  );
 }

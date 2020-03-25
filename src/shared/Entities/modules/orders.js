@@ -53,7 +53,7 @@ export function selectUplodsForOrders(state, ordersId) {
   const orders = selectOrders(state, ordersId);
   const uploadedOrders = get(state, `entities.documents.${orders.uploaded_orders}`);
   if (uploadedOrders) {
-    return uploadedOrders.uploads.map(uploadId => get(state, `entities.uploads.${uploadId}`));
+    return uploadedOrders.uploads.map((uploadId) => get(state, `entities.uploads.${uploadId}`));
   } else {
     return [];
   }

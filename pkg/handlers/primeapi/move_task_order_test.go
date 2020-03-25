@@ -26,7 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestListMoveTaskOrdersHandler() {
+func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
 			IsAvailableToPrime: true,
@@ -74,6 +74,37 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandler() {
 	suite.Equal(1, len(moveTaskOrdersPayload[0].PaymentRequests))
 	suite.Equal(1, len(moveTaskOrdersPayload[0].MtoServiceItems()))
 	suite.Equal(2, len(moveTaskOrdersPayload[0].MtoShipments))
+	suite.NotNil(moveTaskOrdersPayload[0].MtoShipments[0].ETag)
+}
+
+func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerMinimal() {
+	// Creates a move task order with one minimal shipment and no payment requests
+	// or service items
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			IsAvailableToPrime: true,
+		},
+	})
+
+	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder,
+	})
+
+	request := httptest.NewRequest("GET", "/move-task-orders", nil)
+
+	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	// make the request
+	handler := FetchMTOUpdatesHandler{HandlerContext: context}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
+	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+	suite.Equal(1, len(moveTaskOrdersPayload))
+	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrdersPayload[0].ID.String())
 	suite.NotNil(moveTaskOrdersPayload[0].MtoShipments[0].ETag)
 }
 
@@ -132,6 +163,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		Body: movetaskorderops.UpdateMTOPostCounselingInformationBody{
 			PpmType:            ppmType,
 			PpmEstimatedWeight: 3000,
+			PointOfContact:     "user@prime.com",
 		},
 		IfMatch: eTag,
 	}
