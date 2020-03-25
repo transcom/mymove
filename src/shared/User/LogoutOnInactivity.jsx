@@ -81,7 +81,7 @@ LogoutOnInactivity.propTypes = {
   keepAliveEndpoint: PropTypes.string.isRequired,
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   return {
     isLoggedIn: user.isLoggedIn,

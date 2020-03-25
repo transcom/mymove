@@ -1,18 +1,18 @@
 /* global cy */
 import { milmoveAppName } from '../../support/constants';
 
-describe('The Home Page', function() {
+describe('The Home Page', function () {
   beforeEach(() => {
     cy.setupBaseUrl(milmoveAppName);
   });
-  it('creates new devlocal user', function() {
+  it('creates new devlocal user', function () {
     cy.signInAsNewMilMoveUser();
   });
-  it('successfully loads when not logged in', function() {
+  it('successfully loads when not logged in', function () {
     cy.logout();
     milmoveUserIsOnSignInPage();
   });
-  it('contains the link to customer service', function() {
+  it('contains the link to customer service', function () {
     cy.visit('/');
     cy.get('[data-cy=contact-footer]').contains('Contact Us');
     cy.get('address').within(() => {

@@ -39,7 +39,7 @@ import moment from 'moment';
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
-Cypress.Commands.add('signInAsNewUser', userType => {
+Cypress.Commands.add('signInAsNewUser', (userType) => {
   // make sure we visit all app urls and clear cookies
   cy.setBaseUrlAndClearAllCookies(userType);
 
@@ -68,11 +68,11 @@ Cypress.Commands.add('signInAsNewDPSUser', () => {
   cy.url().should('contain', 'milmovelocal');
 });
 
-Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
+Cypress.Commands.add('signIntoMyMoveAsUser', (userId) => {
   cy.signInAsUserPostRequest(milmoveAppName, userId);
 });
 
-Cypress.Commands.add('signIntoOfficeAsUser', userId => {
+Cypress.Commands.add('signIntoOfficeAsUser', (userId) => {
   cy.signInAsUserPostRequest(officeAppName, userId);
   cy.waitForReactTableLoad();
 });
@@ -87,7 +87,7 @@ Cypress.Commands.add('patientReload', () => {
 });
 
 // Visits a given URL but makes an attempt to wait for the loading screen to disappear
-Cypress.Commands.add('patientVisit', url => {
+Cypress.Commands.add('patientVisit', (url) => {
   cy.visit(url);
   cy.waitForLoadingScreen();
 });
@@ -106,12 +106,10 @@ Cypress.Commands.add('waitForReactTableLoad', () => {
 });
 
 // Attempts to double-click a given move locator in a shipment queue list
-Cypress.Commands.add('selectQueueItemMoveLocator', moveLocator => {
+Cypress.Commands.add('selectQueueItemMoveLocator', (moveLocator) => {
   cy.waitForReactTableLoad();
 
-  cy.get('div')
-    .contains(moveLocator)
-    .dblclick();
+  cy.get('div').contains(moveLocator).dblclick();
 
   cy.waitForLoadingScreen();
 });
@@ -148,7 +146,7 @@ Cypress.Commands.add(
         },
         form: true,
         failOnStatusCode: false,
-      }).then(resp => {
+      }).then((resp) => {
         cy.visit('/');
         // Default status code to check is 200
         expect(resp.status).to.eq(expectedStatusCode);
@@ -193,7 +191,7 @@ Cypress.Commands.add(
       sendRequest(userType);
     } else {
       // Send request with masked token
-      cy.getCookie('masked_gorilla_csrf').then(cookie => {
+      cy.getCookie('masked_gorilla_csrf').then((cookie) => {
         sendRequest(userType, cookie.value);
       });
     }
@@ -203,12 +201,12 @@ Cypress.Commands.add(
 Cypress.Commands.add('logout', () => {
   cy.patientVisit('/');
 
-  cy.getCookie('masked_gorilla_csrf').then(cookie => {
+  cy.getCookie('masked_gorilla_csrf').then((cookie) => {
     cy.request({
       url: '/auth/logout',
       method: 'POST',
       headers: { 'x-csrf-token': cookie.value },
-    }).then(resp => {
+    }).then((resp) => {
       expect(resp.status).to.equal(200);
     });
 
@@ -217,8 +215,8 @@ Cypress.Commands.add('logout', () => {
   });
 });
 
-Cypress.Commands.add('setBaseUrlAndClearAllCookies', userType => {
-  [milmoveBaseURL, officeBaseURL].forEach(url => {
+Cypress.Commands.add('setBaseUrlAndClearAllCookies', (userType) => {
+  [milmoveBaseURL, officeBaseURL].forEach((url) => {
     Cypress.config('baseUrl', url);
     cy.visit('/');
     cy.clearCookies();
@@ -229,9 +227,7 @@ Cypress.Commands.add('setBaseUrlAndClearAllCookies', userType => {
 });
 
 Cypress.Commands.add('nextPage', () => {
-  cy.get('button.next')
-    .should('be.enabled')
-    .click();
+  cy.get('button.next').should('be.enabled').click();
 });
 
 Cypress.Commands.add('nextPageAndCheckLocation', (dataCyValue, pageTitle, locationMatch) => {
@@ -239,7 +235,7 @@ Cypress.Commands.add('nextPageAndCheckLocation', (dataCyValue, pageTitle, locati
 
   cy.nextPage();
   cy.get(`[data-cy="${dataCyValue}"]`).contains(pageTitle);
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(locationRegex);
   });
 });
@@ -267,11 +263,11 @@ Cypress.Commands.add('upload_file', (selector, fileUrl) => {
   const rawType = mime.lookup(name);
   // mime returns false if lookup fails
   const type = rawType ? rawType : '';
-  return cy.window().then(win => {
+  return cy.window().then((win) => {
     return cy
       .fixture(fileUrl, 'base64')
       .then(Cypress.Blob.base64StringToBlob)
-      .then(blob => {
+      .then((blob) => {
         const testFile = new win.File([blob], name, { type });
         const event = {};
         event.dataTransfer = new win.DataTransfer();
@@ -291,31 +287,20 @@ function genericSelect(inputData, fieldName, classSelector) {
     .type(`{selectall}{backspace}${inputData}`, { force: true, delay: 75 });
 
   // Click on the first presented option
-  cy.get(classSelector)
-    .find('div[class*="option"]')
-    .first()
-    .click();
+  cy.get(classSelector).find('div[class*="option"]').first().click();
 }
 
 Cypress.Commands.add('typeInInput', ({ name, value }) => {
-  cy.get(`input[name="${name}"]`)
-    .clear()
-    .type(value)
-    .blur();
+  cy.get(`input[name="${name}"]`).clear().type(value).blur();
 });
 
 Cypress.Commands.add('clearInput', ({ name }) => {
-  cy.get(`input[name="${name}"]`)
-    .clear()
-    .blur();
+  cy.get(`input[name="${name}"]`).clear().blur();
 });
 
 // function typeInTextArea({ name, value }) {
 Cypress.Commands.add('typeInTextarea', ({ name, value }) => {
-  cy.get(`textarea[name="${name}"]`)
-    .clear()
-    .type(value)
-    .blur();
+  cy.get(`textarea[name="${name}"]`).clear().type(value).blur();
 });
 
 Cypress.Commands.add('selectDutyStation', (stationName, fieldName) => {
@@ -323,13 +308,13 @@ Cypress.Commands.add('selectDutyStation', (stationName, fieldName) => {
   genericSelect(stationName, fieldName, classSelector);
 });
 
-Cypress.Commands.add('selectTariff400ngItem', itemName => {
+Cypress.Commands.add('selectTariff400ngItem', (itemName) => {
   let classSelector = '.tariff400-select';
   let fieldName = 'tariff400ng_item';
   genericSelect(itemName, fieldName, classSelector);
 });
 
-Cypress.Commands.add('setupBaseUrl', appname => {
+Cypress.Commands.add('setupBaseUrl', (appname) => {
   // setup baseurl
   switch (appname) {
     case milmoveAppName:
@@ -348,7 +333,7 @@ Cypress.Commands.add('removeFetch', () => {
   // https://github.com/cypress-io/cypress/issues/95#issuecomment-347607198
   // delete window.fetch to force fallback to supported xhr.
   // https://github.com/cypress-io/cypress-example-recipes/tree/master/examples/stubbing-spying__window-fetch
-  cy.on('window:before:load', win => {
+  cy.on('window:before:load', (win) => {
     delete win.fetch;
   });
 });
@@ -356,8 +341,8 @@ Cypress.Commands.add('removeFetch', () => {
 // calls /internal/calendar/available_move_dates for a given start date
 // and returns an array of moment.js dates
 Cypress.Commands.add('nextAvailable', (startDate = moment().format('YYYY-MM-DD')) => {
-  return cy.request(`/internal/calendar/available_move_dates?startDate=${startDate}`).then(response => {
+  return cy.request(`/internal/calendar/available_move_dates?startDate=${startDate}`).then((response) => {
     expect(response.body).to.have.property('available');
-    return response.body.available.map(date => moment(date));
+    return response.body.available.map((date) => moment(date));
   });
 });

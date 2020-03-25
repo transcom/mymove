@@ -5,7 +5,7 @@ const AdminUserShowTitle = ({ record }) => {
   return <span>{`${record.first_name} ${record.last_name}`}</span>;
 };
 
-const AdminUserShow = props => {
+const AdminUserShow = (props) => {
   return (
     <Show {...props} title={<AdminUserShowTitle />}>
       <SimpleShowLayout>

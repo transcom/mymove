@@ -14,7 +14,7 @@ import styles from './DutyStationSearchBox.module.scss';
 
 const inputDebounceTime = 200;
 const minSearchLength = 2;
-const getOptionName = option => (option ? option.name : '');
+const getOptionName = (option) => (option ? option.name : '');
 
 export class DutyStationSearchBox extends Component {
   constructor(props) {
@@ -36,13 +36,13 @@ export class DutyStationSearchBox extends Component {
   loadOptions(inputValue, callback) {
     if (inputValue && inputValue.length >= minSearchLength) {
       return SearchDutyStations(inputValue)
-        .then(item => {
+        .then((item) => {
           this.setState({
             error: null,
           });
           callback(item);
         })
-        .catch(err => {
+        .catch((err) => {
           this.setState({
             error: err,
           });
@@ -64,7 +64,7 @@ export class DutyStationSearchBox extends Component {
 
   localOnChange(value) {
     if (value && value.id) {
-      return ShowAddress(value.address_id).then(item => {
+      return ShowAddress(value.address_id).then((item) => {
         value.address = item;
         this.props.input.onChange(value);
         return value;
@@ -112,7 +112,7 @@ export class DutyStationSearchBox extends Component {
     const title = this.props.title || defaultTitle;
     const uswdsBlack = '#565c65';
     const customStyles = {
-      control: provided => ({
+      control: (provided) => ({
         ...provided,
         borderRadius: '0px',
         borderColor: uswdsBlack,
@@ -123,7 +123,7 @@ export class DutyStationSearchBox extends Component {
           borderColor: uswdsBlack,
         },
       }),
-      dropdownIndicator: provided => ({
+      dropdownIndicator: (provided) => ({
         ...provided,
         color: uswdsBlack,
         ':hover': {
@@ -131,11 +131,11 @@ export class DutyStationSearchBox extends Component {
           color: uswdsBlack,
         },
       }),
-      indicatorSeparator: provided => ({
+      indicatorSeparator: (provided) => ({
         ...provided,
         backgroundColor: uswdsBlack,
       }),
-      placeholder: provided => ({
+      placeholder: (provided) => ({
         color: uswdsBlack,
       }),
     };

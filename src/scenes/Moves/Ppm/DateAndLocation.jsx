@@ -85,7 +85,7 @@ export class DateAndLocation extends Component {
       const moveId = this.props.match.params.moveId;
       return this.props
         .createOrUpdatePpm(moveId, pendingValues)
-        .then(({ payload }) => this.props.updatePPMEstimate(moveId, payload.id).catch(err => err));
+        .then(({ payload }) => this.props.updatePPMEstimate(moveId, payload.id).catch((err) => err));
       // catch block returns error so that the wizard can continue on with its flow
     }
   };
