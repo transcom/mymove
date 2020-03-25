@@ -146,6 +146,7 @@ class EditDateAndLocation extends Component {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
     this.props.loadPPMs(this.props.match.params.moveId);
+    scrollToTop();
   }
 
   render() {

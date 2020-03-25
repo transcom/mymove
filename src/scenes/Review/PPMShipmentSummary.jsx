@@ -87,21 +87,21 @@ export class PPMShipmentSummary extends Component {
             <table>
               <tbody>
                 <tr>
-                  <td> Move Date: </td>
+                  <td> Scheduled move date: </td>
                   <td>{formatDateSM(get(ppm, 'original_move_date'))}</td>
                 </tr>
                 <tr>
-                  <td> Pickup ZIP Code: </td>
+                  <td> Pickup ZIP: </td>
                   <td> {ppm && ppm.pickup_postal_code}</td>
                 </tr>
                 {ppm.has_additional_postal_code && (
                   <tr>
-                    <td> Additional Pickup: </td>
+                    <td> Additional pickup: </td>
                     <td> {ppm.additional_pickup_postal_code}</td>
                   </tr>
                 )}
                 <tr>
-                  <td> Delivery ZIP Code: </td>
+                  <td> Delivery ZIP: </td>
                   <td> {ppm && ppm.destination_postal_code}</td>
                 </tr>
                 <tr>
@@ -125,11 +125,11 @@ export class PPMShipmentSummary extends Component {
             <table>
               <tbody>
                 <tr>
-                  <td> Estimated Weight: </td>
+                  <td> Estimated weight: </td>
                   <td> {ppm.weight_estimate && ppm.weight_estimate.toLocaleString()} lbs</td>
                 </tr>
                 <tr>
-                  <td> Estimated PPM Incentive: </td>
+                  <td> Estimated PPM incentive: </td>
                   {this.chooseEstimateText(ppmEstimate)}
                 </tr>
                 {ppm.has_requested_advance && (
