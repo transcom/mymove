@@ -35,8 +35,6 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
-	payload.SetMtoServiceItems(*mtoServiceItems)
-
 	if moveTaskOrder.PPMEstimatedWeight != nil {
 		payload.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
 	}
