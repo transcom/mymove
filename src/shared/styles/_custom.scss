@@ -6,20 +6,26 @@
   @include u-bg('white');
   @include u-padding('3');
   @include u-margin('3');
+  @include u-radius('05');
+  @include u-border('base-lighter');
+  @include u-border('1px');
   &--gray {
     @include u-bg('base-lightest');
+    @include u-border(0);
   }
   &--popout {
-    @include border-inset(2px, $base-light);
+    @include u-border('base-light');
+    @include u-border('1px');
     @include u-shadow(2);
   }
   &--accent {
-    @include u-shadow(2);
     &--blue {
       border-top: 8px solid $accent-blue;
+      @include u-shadow(2);
     }
     &--yellow {
       border-top: 8px solid $accent-yellow;
+      @include u-shadow(2);
     }
   }
 }
@@ -30,7 +36,7 @@
   flex-wrap: wrap;
   flex-direction: row;
   #root & {
-    background-color: $base-lighter;
+    background-color: lighten($accent-blue, 50%);
   }
   .container {
     width: 300px;

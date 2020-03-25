@@ -1,24 +1,26 @@
 //Mixins
 
-// px to rem conversion
-
 // Function for converting a px based font-size to rem.
 @function calculateRem($size) {
   $remSize: $size / 16px;
-//Default font size on html element is 100%, equivalent to 16px;
+  //Default font size on html element is 100%, equivalent to 16px;
   @return #{$remSize}rem;
 }
 
 //mixin that makes an underline that wont cause changes in height to elements and will stick to the bottom of the parent container
-@mixin underline ($size,$color){
+@mixin underline($size, $color) {
   &:after {
     @include u-height($size);
     @include u-bg($color);
-    content: " ";
-    @include u-display('block') ;
+    content: ' ';
+    @include u-display('block');
     @include u-position('absolute');
     @include u-left(0);
     @include u-right(0);
     bottom: -4px;
   }
+}
+
+@mixin border-inset($size, $color) {
+  box-shadow: inset 0 0 0 $size $color;
 }
