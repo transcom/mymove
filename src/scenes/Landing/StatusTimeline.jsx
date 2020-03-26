@@ -6,7 +6,7 @@ import { displayDateRange } from 'shared/formatters';
 import './StatusTimeline.css';
 
 function getCurrentStatus(statuses) {
-  return findLast(statuses, function(status) {
+  return findLast(statuses, function (status) {
     return status.completed;
   });
 }
@@ -37,7 +37,7 @@ export class StatusTimeline extends PureComponent {
         name={status.name}
         code={status.code}
         key={status.code}
-        dates={filter(status.dates, date => {
+        dates={filter(status.dates, (date) => {
           return date;
         })}
         completed={status.completed}
@@ -48,7 +48,7 @@ export class StatusTimeline extends PureComponent {
 
   render() {
     const currentStatus = getCurrentStatus(this.props.statuses);
-    const statusBlocks = this.props.statuses.map(status => this.createStatusBlock(status, currentStatus));
+    const statusBlocks = this.props.statuses.map((status) => this.createStatusBlock(status, currentStatus));
 
     return (
       <div className="status_timeline">
@@ -63,7 +63,7 @@ StatusTimeline.propTypes = {
   statuses: PropTypes.array.isRequired,
 };
 
-export const StatusBlock = props => {
+export const StatusBlock = (props) => {
   const classes = ['status_block', props.code.toLowerCase()];
   if (props.completed) classes.push('status_completed');
   if (props.current) classes.push('status_current');

@@ -66,7 +66,7 @@ export class StorageReimbursementCalculator extends Component {
   componentWillUnmount() {
     this.reset();
   }
-  calculate = values => {
+  calculate = (values) => {
     const { pickup_postal_code, orders, days_in_storage, weight, move_date } = values;
     this.props.getPpmSitEstimate(move_date, days_in_storage, pickup_postal_code, orders.id, weight);
   };

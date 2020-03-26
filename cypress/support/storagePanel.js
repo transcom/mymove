@@ -1,23 +1,13 @@
 /* global cy */
 
 export function userSavesStorageDetails() {
-  cy.get('.storage')
-    .find('input[name="total_sit_cost"]')
-    .first()
-    .type('600');
+  cy.get('.storage').find('input[name="total_sit_cost"]').first().type('600');
 
-  cy.get('.storage')
-    .find('input[name="days_in_storage"]')
-    .first()
-    .type('60');
+  cy.get('.storage').find('input[name="days_in_storage"]').first().type('60');
 
-  cy.get('button')
-    .contains('Save')
-    .should('be.enabled');
+  cy.get('button').contains('Save').should('be.enabled');
 
-  cy.get('button')
-    .contains('Save')
-    .click();
+  cy.get('button').contains('Save').click();
 
   cy.patientReload();
 
@@ -26,23 +16,13 @@ export function userSavesStorageDetails() {
 }
 
 export function userCancelsStorageDetails() {
-  cy.get('.storage')
-    .find('input[name="total_sit_cost"]')
-    .first()
-    .type('600');
+  cy.get('.storage').find('input[name="total_sit_cost"]').first().type('600');
 
-  cy.get('.storage')
-    .find('input[name="days_in_storage"]')
-    .first()
-    .type('60');
+  cy.get('.storage').find('input[name="days_in_storage"]').first().type('60');
 
-  cy.get('button')
-    .contains('Cancel')
-    .should('be.enabled');
+  cy.get('button').contains('Cancel').should('be.enabled');
 
-  cy.get('button')
-    .contains('Cancel')
-    .click();
+  cy.get('button').contains('Cancel').click();
 
   cy.get('.total_sit_cost .field-value').contains('$0');
   cy.get('.days_in_storage .field-value').contains('0');
