@@ -14,9 +14,9 @@ const OfficeUserEdit = props => (
     <SimpleForm toolbar={<OfficeUserEditToolbar />}>
       <TextInput source="id" disabled />
       <TextInput source="email" disabled />
-      <TextInput source="first_name" validate={required()} />
-      <TextInput source="middle_initials" />
-      <TextInput source="last_name" validate={required()} />
+      <TextInput source="firstName" validate={required()} />
+      <TextInput source="middleInitials" />
+      <TextInput source="lastName" validate={required()} />
       <TextInput source="telephone" validate={phoneValidators} />
       <SelectInput
         source="active"
@@ -26,8 +26,8 @@ const OfficeUserEdit = props => (
         ]}
       />
       <RolesCheckboxInput source="roles" />
-      <TextInput source="created_at" disabled />
-      <TextInput source="updated_at" disabled />
+      <TextInput source="createdAt" disabled />
+      <TextInput source="updatedAt" disabled />
     </SimpleForm>
   </Edit>
 );
