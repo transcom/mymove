@@ -216,49 +216,102 @@ storiesOf('Components|Containers', module).add('all', () => (
   </div>
 ));
 
+// Tables
+
 storiesOf('Components|Tables', module)
   .add('Table Elements', () => (
     <div style={{ padding: '20px' }}>
-      <div className="sb-table-wrapper">
-        <code>cell-bg</code>
-        <table>
-          <tr>
-            <td>Table Cell Content</td>
-          </tr>
-        </table>
+      <div className="sb-section-wrapper">
+        <div className="sb-table-wrapper">
+          <code>cell-bg</code>
+          <table>
+            <tr>
+              <td>Table Cell Content</td>
+            </tr>
+          </table>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>td:hover</code>
+          <table>
+            <tr>
+              <td className="hover">Table Cell Content</td>
+            </tr>
+          </table>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>td:locked</code>
+          <table>
+            <tr>
+              <td className="locked">Table Cell Content</td>
+            </tr>
+          </table>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>td-numeric</code>
+          <table>
+            <tr>
+              <td>Table Cell Content</td>
+            </tr>
+          </table>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>th</code>
+          <table>
+            <tr>
+              <th>Table Cell Content</th>
+            </tr>
+          </table>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>th—sortAscending</code>
+          <table>
+            <tr>
+              <th className="sortAscending">Table Cell Content</th>
+            </tr>
+          </table>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>th—sortDescending</code>
+          <table>
+            <tr>
+              <th className="sortDescending">Table Cell Content</th>
+            </tr>
+          </table>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>th—numeric</code>
+          <table>
+            <tr>
+              <th>Table Cell Content</th>
+            </tr>
+          </table>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>th—small</code>
+          <table className="table--small">
+            <tr>
+              <th>Table Cell Content</th>
+            </tr>
+          </table>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>th—small—numeric</code>
+          <table className="table--small">
+            <tr>
+              <th className="--numeric">Table Cell Content</th>
+            </tr>
+          </table>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>td—filter</code>
+          <table>
+            <tr>
+              <td className="--filter">Table Cell Content</td>
+            </tr>
+          </table>
+        </div>
       </div>
-      <div className="sb-table-wrapper">
-        <code>td:hover</code>
-        <table>
-          <tr>
-            <td className="hover">Table Cell Content</td>
-          </tr>
-        </table>
-      </div>
-      <div className="sb-table-wrapper">
-        <code>td:locked</code>
-        <table>
-          <tr>
-            <td className="locked">Table Cell Content</td>
-          </tr>
-        </table>
-      </div>
-      <div className="sb-table-wrapper">
-        <code>td-numeric</code>
-        <table>
-          <tr>
-            <td>Table Cell Content</td>
-          </tr>
-        </table>
-      </div>
-      <div className="sb-table-wrapper">
-        <code>th</code>
-        <table>
-          <tr>
-            <th>Table Cell Content</th>
-          </tr>
-        </table>
-      </div>
+      <hr />
     </div>
   ))
   .add('Basic Tables', () => (
