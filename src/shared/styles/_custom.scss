@@ -58,23 +58,52 @@ table {
     @include u-text('left');
     @include u-bg('white');
     @include u-minw(200px);
-  }
-  td {
     @include u-border(0);
     @include u-border-bottom(1px);
     @include u-border('base-lighter');
+  }
+  td {
     &:hover,
     &.hover {
       background-color: $link-light;
+    }
+    &:focus,
+    &.focus {
+      @include u-outline('05', 'blue-40v');
     }
     &.locked {
       @include u-border-bottom(0);
       background-color: rgba(255, 255, 255, 0);
       @include u-text('gray-40');
     }
+    &.filter {
+      @include u-border(1px);
+      @include u-border('base-darkest');
+    }
   }
   th {
     @include u-text('normal');
+    &.sortAscending {
+      @include u-border-top('05');
+      @include u-border-top('black');
+    }
+    &.sortDescending {
+      @include u-border-bottom('05');
+      @include u-border-bottom('black');
+    }
+  }
+  &.table--small {
+    th,
+    td {
+      @include u-padding-x(1);
+      @include u-text('base-darker');
+      @include u-font('body', '3xs');
+    }
+    th {
+      @include u-text('bold');
+    }
+    td {
+    }
   }
 }
 
@@ -87,6 +116,7 @@ table {
     min-width: 173px;
     code {
       font-size: 12px;
+      color: $base-darkest;
     }
   }
 }

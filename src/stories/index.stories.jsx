@@ -319,7 +319,7 @@ storiesOf('Components|Tables', module)
           <table className="table--small">
             <thead>
               <tr>
-                <th className="--numeric">Table Cell Content</th>
+                <th className="numeric">Table Cell Content</th>
               </tr>
             </thead>
           </table>
@@ -329,7 +329,7 @@ storiesOf('Components|Tables', module)
           <table>
             <tbody>
               <tr>
-                <td className="--filter">Table Cell Content</td>
+                <td className="filter">Table Cell Content</td>
               </tr>
             </tbody>
           </table>
