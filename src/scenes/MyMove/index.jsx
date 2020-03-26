@@ -161,7 +161,7 @@ AppWrapper.defaultProps = {
   getCurrentUserInfo: no_op,
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
     lastMoveIsCanceled: lastMoveIsCanceled(state),
@@ -171,7 +171,7 @@ const mapStateToProps = state => {
     swaggerError: state.swaggerInternal.hasErrored,
   };
 };
-const mapDispatchToProps = dispatch =>
+const mapDispatchToProps = (dispatch) =>
   bindActionCreators({ goBack, push, loadInternalSchema, getCurrentUserInfo }, dispatch);
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(AppWrapper));

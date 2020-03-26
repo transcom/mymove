@@ -6,9 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/transcom/mymove/pkg/models"
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
+
+	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/services"
 
@@ -46,6 +49,28 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		DistanceMilesUpper: 10000,
 	}
 	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
+	testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment,
+			MTOShipmentID: mtoShipment.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
+	})
+
+	testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment,
+			MTOShipmentID: mtoShipment.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
 
 	builder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(builder)
@@ -142,6 +167,28 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	mto2 := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
+	})
+
+	testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment2,
+			MTOShipmentID: mtoShipment2.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
+	})
+
+	testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment2,
+			MTOShipmentID: mtoShipment2.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
 	})
 
 	payload := primemessages.MTOShipment{

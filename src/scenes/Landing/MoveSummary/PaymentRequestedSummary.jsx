@@ -7,7 +7,7 @@ import PPMStatusTimeline from 'scenes/Landing/PPMStatusTimeline';
 import FindWeightScales from 'scenes/Landing/MoveSummary/FindWeightScales';
 import PpmMoveDetails from 'scenes/Landing/MoveSummary/SubmittedPpmMoveDetails';
 
-const PaymentRequestedSummary = props => {
+const PaymentRequestedSummary = (props) => {
   const { ppm, requestPaymentSuccess } = props;
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
   return (

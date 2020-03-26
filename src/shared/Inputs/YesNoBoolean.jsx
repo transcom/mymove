@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { uniqueId } from 'lodash';
 
-const YesNoBoolean = props => {
+const YesNoBoolean = (props) => {
   let value, onChange;
   if (props.input) {
     value = Boolean(props.input.value);
@@ -13,7 +13,7 @@ const YesNoBoolean = props => {
   }
   const yesId = uniqueId('yes_no_');
   const noId = uniqueId('yes_no_');
-  const localOnChange = event => {
+  const localOnChange = (event) => {
     onChange(event.target.value === 'yes');
   };
 

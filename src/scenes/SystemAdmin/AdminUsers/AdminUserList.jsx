@@ -4,7 +4,7 @@ import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 const defaultSort = { field: 'last_name', order: 'ASC' };
 
-const AdminUserList = props => (
+const AdminUserList = (props) => (
   <List {...props} pagination={<AdminPagination />} perPage={25} sort={defaultSort} bulkActionButtons={false}>
     <Datagrid rowClick="show">
       <TextField source="id" />

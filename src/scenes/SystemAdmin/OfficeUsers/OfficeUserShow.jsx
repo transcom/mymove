@@ -14,7 +14,7 @@ const OfficeUserShowTitle = ({ record }) => {
   return <span>{`${record.first_name} ${record.last_name}`}</span>;
 };
 
-const OfficeUserShow = props => {
+const OfficeUserShow = (props) => {
   return (
     <Show {...props} title={<OfficeUserShowTitle />}>
       <SimpleShowLayout>

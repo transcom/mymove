@@ -9,4 +9,4 @@ export const getCookieURL = helpers.generateAsyncActionCreator(resource, GetCook
 
 const initialStateMixin = { schema: {} };
 
-export const dpsAuthCookieReducer = helpers.generateAsyncReducer(resource, v => null, initialStateMixin);
+export const dpsAuthCookieReducer = helpers.generateAsyncReducer(resource, (v) => null, initialStateMixin);
