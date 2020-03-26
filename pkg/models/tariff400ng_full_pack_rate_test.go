@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"testing"
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
@@ -8,12 +9,30 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+func (suite *ModelSuite) TestTariff400ngFullPackRateValidations() {
+	now := time.Now()
+	suite.T().Run("test valid Tariff400ngFullPackRate", func(t *testing.T) {
+		validTariff400ngFullPackRate := Tariff400ngFullPackRate{
+			Schedule:           1,
+			WeightLbsLower:     100,
+			WeightLbsUpper:     200,
+			RateCents:          100,
+			EffectiveDateLower: now,
+			EffectiveDateUpper: now.AddDate(1, 0, 0),
+		}
+		expErrors := map[string][]string{}
+		suite.verifyValidationErrors(&validTariff400ngFullPackRate, expErrors)
+	})
+}
+
 func (suite *ModelSuite) Test_EffectiveDateValidation() {
 	now := time.Now()
 
 	validPackRate := Tariff400ngFullPackRate{
+		Schedule:           1,
 		WeightLbsLower:     100,
 		WeightLbsUpper:     200,
+		RateCents:          100,
 		EffectiveDateLower: now,
 		EffectiveDateUpper: now.AddDate(1, 0, 0),
 	}
@@ -22,8 +41,10 @@ func (suite *ModelSuite) Test_EffectiveDateValidation() {
 	suite.verifyValidationErrors(&validPackRate, expErrors)
 
 	invalidPackRate := Tariff400ngFullPackRate{
+		Schedule:           1,
 		WeightLbsLower:     100,
 		WeightLbsUpper:     200,
+		RateCents:          100,
 		EffectiveDateLower: now,
 		EffectiveDateUpper: now.AddDate(-1, 0, 0),
 	}
@@ -35,17 +56,27 @@ func (suite *ModelSuite) Test_EffectiveDateValidation() {
 }
 
 func (suite *ModelSuite) Test_WeightValidation() {
+	now := time.Now()
+
 	validPackRate := Tariff400ngFullPackRate{
-		WeightLbsLower: 100,
-		WeightLbsUpper: 200,
+		Schedule:           1,
+		WeightLbsLower:     100,
+		WeightLbsUpper:     200,
+		RateCents:          100,
+		EffectiveDateLower: now,
+		EffectiveDateUpper: now.AddDate(1, 0, 0),
 	}
 
 	expErrors := map[string][]string{}
 	suite.verifyValidationErrors(&validPackRate, expErrors)
 
 	invalidPackRate := Tariff400ngFullPackRate{
-		WeightLbsLower: 200,
-		WeightLbsUpper: 100,
+		Schedule:           1,
+		WeightLbsLower:     200,
+		WeightLbsUpper:     100,
+		RateCents:          100,
+		EffectiveDateLower: now,
+		EffectiveDateUpper: now.AddDate(1, 0, 0),
 	}
 
 	expErrors = map[string][]string{
@@ -55,19 +86,27 @@ func (suite *ModelSuite) Test_WeightValidation() {
 }
 
 func (suite *ModelSuite) Test_RateValidation() {
+	now := time.Now()
+
 	validPackRate := Tariff400ngFullPackRate{
-		RateCents:      100,
-		WeightLbsLower: 100,
-		WeightLbsUpper: 200,
+		Schedule:           1,
+		RateCents:          100,
+		WeightLbsLower:     100,
+		WeightLbsUpper:     200,
+		EffectiveDateLower: now,
+		EffectiveDateUpper: now.AddDate(1, 0, 0),
 	}
 
 	expErrors := map[string][]string{}
 	suite.verifyValidationErrors(&validPackRate, expErrors)
 
 	invalidPackRate := Tariff400ngFullPackRate{
-		RateCents:      -1,
-		WeightLbsLower: 100,
-		WeightLbsUpper: 200,
+		Schedule:           1,
+		RateCents:          -1,
+		WeightLbsLower:     100,
+		WeightLbsUpper:     200,
+		EffectiveDateLower: now,
+		EffectiveDateUpper: now.AddDate(1, 0, 0),
 	}
 
 	expErrors = map[string][]string{

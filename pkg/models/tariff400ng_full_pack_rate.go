@@ -32,6 +32,11 @@ type Tariff400ngFullPackRates []Tariff400ngFullPackRate
 // This method is not required and may be deleted.
 func (t *Tariff400ngFullPackRate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
+		&validators.IntIsPresent{Field: t.Schedule, Name: "Schedule"},
+		&validators.IntIsPresent{Field: t.WeightLbsUpper.Int(), Name: "Weight Lbs Upper"},
+		&validators.IntIsPresent{Field: t.RateCents.Int(), Name: "Rate Cents"},
+		&validators.TimeIsPresent{Field: t.EffectiveDateLower, Name: "Effective Date Lower"},
+		&validators.TimeIsPresent{Field: t.EffectiveDateUpper, Name: "Effective Date Upper"},
 		&validators.IntIsGreaterThan{Field: t.RateCents.Int(), Name: "RateCents", Compared: -1},
 		&validators.IntIsLessThan{Field: t.WeightLbsLower.Int(), Name: "WeightLbsLower",
 			Compared: t.WeightLbsUpper.Int()},
