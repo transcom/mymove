@@ -21,14 +21,14 @@ type AdminUserCreatePayload struct {
 	Email string `json:"email,omitempty"`
 
 	// First Name
-	FirstName string `json:"first_name,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
 
 	// Last Name
-	LastName string `json:"last_name,omitempty"`
+	LastName string `json:"lastName,omitempty"`
 
-	// organization id
+	// organization Id
 	// Format: uuid
-	OrganizationID strfmt.UUID `json:"organization_id,omitempty"`
+	OrganizationID strfmt.UUID `json:"organizationId,omitempty"`
 }
 
 // Validate validates this admin user create payload
@@ -51,7 +51,7 @@ func (m *AdminUserCreatePayload) validateOrganizationID(formats strfmt.Registry)
 		return nil
 	}
 
-	if err := validate.FormatOf("organization_id", "body", "uuid", m.OrganizationID.String(), formats); err != nil {
+	if err := validate.FormatOf("organizationId", "body", "uuid", m.OrganizationID.String(), formats); err != nil {
 		return err
 	}
 

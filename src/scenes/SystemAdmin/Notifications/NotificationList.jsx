@@ -7,7 +7,7 @@ const defaultSort = { field: 'service_member_id', order: 'ASC' };
 
 const NotificationFilter = (props) => (
   <Filter {...props} className={styles['system-admin-filters']}>
-    <TextInput label="Service Member ID" source="service_member_id" reference="notifications" alwaysOn />
+    <TextInput label="Service Member ID" source="serviceMemberId" reference="notifications" alwaysOn />
   </Filter>
 );
 
@@ -23,10 +23,10 @@ const NotificationList = (props) => (
     <Datagrid rowClick="show">
       <TextField source="id" />
       <TextField source="email" />
-      <TextField source="service_member_id" />
-      <TextField source="ses_message_id" />
-      <TextField source="notification_type" />
-      <DateField source="created_at" showTime />
+      <TextField source="serviceMemberId" />
+      <TextField source="sesMessageId" />
+      <TextField source="notificationType" />
+      <DateField source="createdAt" showTime />
     </Datagrid>
   </List>
 );
