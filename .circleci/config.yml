@@ -20,7 +20,7 @@ executors:
   # `mymove_small` and `mymove_medium` use the `milmove/milmove-app` docker image with a checkout of the mymove code
   av_medium:
     resource_class: medium
-    working_directory: /root
+    working_directory: /root/project
     docker:
       - image: mk0x/docker-clamav:alpine
   mymove_small:
