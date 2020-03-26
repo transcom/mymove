@@ -49,6 +49,7 @@
 //
 
 table {
+  @include u-font('body', 'xs');
 }
 
 //for displaying the tables in Storybook
