@@ -1093,12 +1093,56 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+	mtoShipment2 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MoveTaskOrder: mto2,
 	})
 
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment2,
+			MTOShipmentID: mtoShipment2.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment2,
+			MTOShipmentID: mtoShipment2.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
+	})
+
+	mtoShipment3 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MoveTaskOrder: mto2,
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment3,
+			MTOShipmentID: mtoShipment3.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment3,
+			MTOShipmentID: mtoShipment3.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
 	})
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
