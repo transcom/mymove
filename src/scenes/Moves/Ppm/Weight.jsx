@@ -106,11 +106,11 @@ export class PpmWeight extends Component {
     };
     return this.props
       .updatePPM(moveId, this.props.currentPPM.id, ppmBody)
-      .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch(err => err));
+      .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch((err) => err));
     // catch block returns error so that the wizard can continue on with its flow
   };
 
-  onWeightSelecting = value => {
+  onWeightSelecting = (value) => {
     this.setState({
       pendingPpmWeight: value,
     });
@@ -311,7 +311,7 @@ export class PpmWeight extends Component {
                 value="Yes"
                 name="includesProgear"
                 checked={includesProgear === 'Yes'}
-                onChange={event => this.handleChange(event, 'includesProgear')}
+                onChange={(event) => this.handleChange(event, 'includesProgear')}
               />
 
               <RadioButton
@@ -321,7 +321,7 @@ export class PpmWeight extends Component {
                 value="No"
                 name="includesProgear"
                 checked={includesProgear === 'No'}
-                onChange={event => this.handleChange(event, 'includesProgear')}
+                onChange={(event) => this.handleChange(event, 'includesProgear')}
               />
               <RadioButton
                 inputClassName="usa-radio__input inline_radio"
@@ -330,7 +330,7 @@ export class PpmWeight extends Component {
                 value="Not Sure"
                 name="includesProgear"
                 checked={includesProgear === 'Not Sure'}
-                onChange={event => this.handleChange(event, 'includesProgear')}
+                onChange={(event) => this.handleChange(event, 'includesProgear')}
               />
               <p>
                 Books, papers, and equipment needed for official duties. <a href="#">What counts as pro-gear?</a>{' '}
@@ -352,7 +352,7 @@ export class PpmWeight extends Component {
                     value="Yes"
                     name="isProgearMoreThan1000"
                     checked={isProgearMoreThan1000 === 'Yes'}
-                    onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
+                    onChange={(event) => this.handleChange(event, 'isProgearMoreThan1000')}
                   />
                   <RadioButton
                     inputClassName="usa-radio__input inline_radio"
@@ -361,7 +361,7 @@ export class PpmWeight extends Component {
                     value="No"
                     name="isProgearMoreThan1000"
                     checked={isProgearMoreThan1000 === 'No'}
-                    onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
+                    onChange={(event) => this.handleChange(event, 'isProgearMoreThan1000')}
                   />
                   <RadioButton
                     inputClassName="usa-radio__input inline_radio"
@@ -370,7 +370,7 @@ export class PpmWeight extends Component {
                     value="Not Sure"
                     name="isProgearMoreThan1000"
                     checked={isProgearMoreThan1000 === 'Not Sure'}
-                    onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
+                    onChange={(event) => this.handleChange(event, 'isProgearMoreThan1000')}
                   />
                 </div>
               </>

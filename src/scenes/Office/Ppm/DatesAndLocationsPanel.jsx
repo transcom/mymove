@@ -8,7 +8,7 @@ import { editablePanelify, PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { selectActivePPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
 
-const DatesAndLocationDisplay = props => {
+const DatesAndLocationDisplay = (props) => {
   const fieldProps = {
     schema: props.ppmSchema,
     values: props.ppm,
@@ -22,7 +22,7 @@ const DatesAndLocationDisplay = props => {
   );
 };
 
-const DatesAndLocationEdit = props => {
+const DatesAndLocationEdit = (props) => {
   const schema = props.ppmSchema;
   return (
     <div className="editable-panel-column">
@@ -75,7 +75,7 @@ function mapStateToProps(state, props) {
     isUpdating: false,
 
     // editablePanelify
-    getUpdateArgs: function() {
+    getUpdateArgs: function () {
       const values = getFormValues(formName)(state);
       return [props.moveId, ppm.id, values];
     },

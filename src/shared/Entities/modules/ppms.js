@@ -100,7 +100,7 @@ export function approveReimbursement(reimbursementId, label = approveReimburseme
 
 export function selectActivePPMForMove(state, moveId) {
   const ppms = Object.values(state.entities.personallyProcuredMoves);
-  filter(ppms, ppm => ppm.moveId === moveId);
+  filter(ppms, (ppm) => ppm.moveId === moveId);
   const activePPM = fetchActivePPM(ppms);
   return activePPM || {};
 }

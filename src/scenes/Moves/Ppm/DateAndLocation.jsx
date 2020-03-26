@@ -97,11 +97,11 @@ export class DateAndLocation extends Component {
       if (isEmpty(this.props.currentPPM)) {
         return this.props
           .createPPM(moveId, pendingValues)
-          .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch(err => err));
+          .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch((err) => err));
       } else {
         return this.props
           .updatePPM(moveId, this.props.currentPPM.id, pendingValues)
-          .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch(err => err));
+          .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch((err) => err));
       }
     }
   };
