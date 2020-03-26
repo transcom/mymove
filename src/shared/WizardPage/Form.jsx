@@ -33,7 +33,7 @@ export class WizardFormPage extends Component {
     if (this.props.additionalValues) {
       /* eslint-disable security/detect-object-injection */
 
-      Object.keys(this.props.additionalValues).forEach(key => {
+      Object.keys(this.props.additionalValues).forEach((key) => {
         if (this.props.additionalValues[key] !== prevProps.additionalValues[key]) {
           this.props.change(key, this.props.additionalValues[key]);
         }

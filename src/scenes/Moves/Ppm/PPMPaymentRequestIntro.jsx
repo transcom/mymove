@@ -23,7 +23,7 @@ class PPMPaymentRequestIntro extends Component {
     this.props.loadPPMs(this.props.moveID);
   }
 
-  updatePpmDate = formValues => {
+  updatePpmDate = (formValues) => {
     const { history, moveID, currentPPM } = this.props;
     if (formValues.actual_move_date && currentPPM) {
       const updatedPPM = { ...currentPPM, actual_move_date: formValues.actual_move_date };

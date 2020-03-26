@@ -48,7 +48,7 @@ function mapStateToProps(state, props) {
     moveDocument,
 
     // editablePanelify
-    getUpdateArgs: function() {
+    getUpdateArgs: function () {
       // Make a copy of values to not modify moveDocument
       let values = cloneDeep(getFormValues(formName)(state));
       values.moveDocument.personally_procured_move_id = selectActivePPMForMove(state, props.moveId).id;

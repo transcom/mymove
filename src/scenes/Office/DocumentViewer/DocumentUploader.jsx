@@ -69,7 +69,7 @@ export class DocumentUploader extends Component {
           reset();
           this.uploader.clearFiles();
         })
-        .catch(err => {
+        .catch((err) => {
           this.setState({
             moveDocumentCreateError: err,
           });
@@ -88,7 +88,7 @@ export class DocumentUploader extends Component {
           reset();
           this.uploader.clearFiles();
         })
-        .catch(err => {
+        .catch((err) => {
           this.setState({
             moveDocumentCreateError: err,
           });
@@ -146,7 +146,7 @@ export class DocumentUploader extends Component {
               <p>Upload a PDF or take a picture of each page and upload the images.</p>
               <p>{documentSizeLimitMsg}</p>
             </div>
-            <Uploader onRef={ref => (this.uploader = ref)} onChange={this.onChange} onAddFile={this.onAddFile} />
+            <Uploader onRef={(ref) => (this.uploader = ref)} onChange={this.onChange} onAddFile={this.onAddFile} />
             <div className="hint">(Each page must be clear and legible)</div>
           </div>
           <button className="usa-button submit" disabled={!isValid}>
