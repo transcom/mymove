@@ -135,13 +135,7 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
         }
         return {
           data: json,
-          total: parseInt(
-            headers
-              .get('content-range')
-              .split('/')
-              .pop(),
-            10,
-          ),
+          total: parseInt(headers.get('content-range').split('/').pop(), 10),
         };
       case CREATE:
         return {
@@ -172,30 +166,30 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
     // simple-rest doesn't handle filters on UPDATE route, so we fallback to calling UPDATE n times instead
     if (type === UPDATE_MANY) {
       return Promise.all(
-        params.ids.map(id =>
+        params.ids.map((id) =>
           httpClient(`${apiUrl}/${resource}/${id}`, {
             method: 'PATCH',
             body: JSON.stringify(params.data),
           }),
         ),
-      ).then(responses => ({
-        data: responses.map(response => response.json),
+      ).then((responses) => ({
+        data: responses.map((response) => response.json),
       }));
     }
     // simple-rest doesn't handle filters on DELETE route, so we fallback to calling DELETE n times instead
     if (type === DELETE_MANY) {
       return Promise.all(
-        params.ids.map(id =>
+        params.ids.map((id) =>
           httpClient(`${apiUrl}/${resource}/${id}`, {
             method: 'DELETE',
           }),
         ),
-      ).then(responses => ({
-        data: responses.map(response => response.json),
+      ).then((responses) => ({
+        data: responses.map((response) => response.json),
       }));
     }
 
     const { url, options } = convertDataRequestToHTTP(type, resource, params);
-    return httpClient(url, options).then(response => convertHTTPResponse(response, type, resource, params));
+    return httpClient(url, options).then((response) => convertHTTPResponse(response, type, resource, params));
   };
 };
