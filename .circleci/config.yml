@@ -733,6 +733,12 @@ jobs:
           tag: engadmin:dev
           repo: app-engadmin
           working_dir: ~/transcom/milmove_admin/app
+      - build_tag_push:
+          dockerfile: Dockerfile
+          tag: engadmin-nginx:dev
+          repo: app-engadmin-nginx
+          working_dir: ~/transcom/milmove_admin/nginx
+      - announce_failure
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
