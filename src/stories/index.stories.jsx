@@ -220,7 +220,9 @@ storiesOf('Components|Containers', module).add('all', () => (
 
 storiesOf('Components|Tables', module)
   .add('Table Elements', () => (
-    <div style={{ padding: '20px' }}>
+    <div id="sb-tables" style={{ padding: '20px' }}>
+      <hr />
+      <h3>Table - default</h3>
       <div className="sb-section-wrapper">
         <div className="sb-table-wrapper">
           <code>cell-bg</code>

@@ -51,6 +51,31 @@
 table {
   @include u-font('body', 'xs');
   color: $base-darkest;
+  td,
+  th {
+    @include u-padding-y(1);
+    @include u-padding-x(1.5);
+    @include u-text('left');
+    @include u-bg('white');
+    @include u-minw(200px);
+  }
+  td {
+    @include u-border(0);
+    @include u-border-bottom(1px);
+    @include u-border('base-lighter');
+    &:hover,
+    &.hover {
+      background-color: $link-light;
+    }
+    &.locked {
+      @include u-border-bottom(0);
+      background-color: rgba(255, 255, 255, 0);
+      @include u-text('gray-40');
+    }
+  }
+  th {
+    @include u-text('normal');
+  }
 }
 
 //for displaying the tables in Storybook
@@ -59,8 +84,12 @@ table {
   flex-wrap: wrap;
   .sb-table-wrapper {
     margin: 20px;
+    min-width: 173px;
     code {
       font-size: 12px;
     }
   }
+}
+#root #sb-tables {
+  background-color: lighten($mm-blue, 78%);
 }
