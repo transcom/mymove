@@ -334,6 +334,7 @@ jobs:
       - run:
           name: Install dependencies
           command: for i in $(seq 1 5); do go get ./... && s=0 && break || s=$? && sleep 5; done; (exit $s)
+      - run: scripts/check-generated-code go.sum
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
