@@ -5,6 +5,11 @@ import { shallow } from 'enzyme';
 describe('Weight', () => {
   const minProps = {
     hasLoadSuccess: true,
+    match: { params: { moveId: 'someID' } },
+    orders: { id: 1 },
+    loadPPMs: jest.fn(),
+    currentPPM: {},
+    getPpmWeightEstimate: jest.fn(),
     entitlement: {
       weight: 0,
       pro_gear: 0,
@@ -18,29 +23,30 @@ describe('Weight', () => {
   describe('Test estimate icon', () => {
     let wrapper;
     const iconAndTextProps = {
-      currentPpm: {},
+      currentPPM: {},
       orders: { id: 1 },
       getPpmWeightEstimate: jest.fn(),
     };
+    const match = { params: { moveId: 'someID' } };
     describe('Move under 500 lbs', () => {
       it('Should show car icon for 499 lbs', () => {
-        wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={499} />);
+        wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={499} match={match} />);
         expect(wrapper.find({ 'data-cy': 'vehicleIcon' }).prop('src')).toEqual('car-gray.svg');
       });
     });
     describe('Move between 500 lbs and 1499 lbs', () => {
       it('Should show trailer icon for 500 lbs', () => {
-        wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={500} />);
+        wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={500} match={match} />);
         expect(wrapper.find({ 'data-cy': 'vehicleIcon' }).prop('src')).toEqual('trailer-gray.svg');
       });
       it('Should show trailer icon for 1499 lbs', () => {
-        wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={1499} />);
+        wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={1499} match={match} />);
         expect(wrapper.find({ 'data-cy': 'vehicleIcon' }).prop('src')).toEqual('trailer-gray.svg');
       });
     });
     describe('Move 1500 lbs or greater', () => {
       it('Should show truck icon for 1500 lbs', () => {
-        wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={1500} />);
+        wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={1500} match={match} />);
         expect(wrapper.find({ 'data-cy': 'vehicleIcon' }).prop('src')).toEqual('truck-gray.svg');
       });
     });
@@ -53,6 +59,7 @@ describe('Weight', () => {
       orders: { id: 1 },
       getPpmWeightEstimate: jest.fn(),
     };
+
     describe('Move under 500 lbs', () => {
       it('Should show text for 499 lbs', () => {
         wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} currentWeight={499} />);
@@ -169,14 +176,19 @@ describe('Weight', () => {
 
   describe('Incentive estimate errors', () => {
     let wrapper;
+    const iconAndTextProps = {
+      currentPPM: {},
+      orders: { id: 1 },
+      getPpmWeightEstimate: jest.fn(),
+    };
     it('Should not show an estimate error', () => {
-      wrapper = shallow(<PpmWeight {...minProps} />);
+      wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} />);
       expect(wrapper.find('.error-message').exists()).toBe(false);
       expect(wrapper.find('ReduxForm').props().readyToSubmit).toEqual(true);
     });
     describe('Short Haul Error', () => {
       it('Should show short haul error and next button disabled', () => {
-        wrapper = shallow(<PpmWeight {...minProps} rateEngineError={{ statusCode: 409 }} />);
+        wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} rateEngineError={{ statusCode: 409 }} />);
         expect(wrapper.find('.error-message').exists()).toBe(true);
         expect(wrapper.find('Alert').dive().text()).toMatch(
           /MilMove does not presently support short-haul PPM moves. Please contact your PPPO./,
@@ -186,7 +198,7 @@ describe('Weight', () => {
     });
     describe('No rate data error', () => {
       it('Should show estimate error and next button not disabled', () => {
-        wrapper = shallow(<PpmWeight {...minProps} rateEngineError={{ statusCode: 404 }} />);
+        wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} rateEngineError={{ statusCode: 404 }} />);
         expect(wrapper.find('.error-message').exists()).toBe(true);
         expect(wrapper.find('Alert').dive().text()).toMatch(
           /There was an issue retrieving an estimate for your incentive./,
@@ -195,7 +207,7 @@ describe('Weight', () => {
       });
     });
     it('Should show estimate not retrieved error', () => {
-      wrapper = shallow(<PpmWeight {...minProps} hasEstimateError={true} />);
+      wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} hasEstimateError={true} />);
       expect(wrapper.find('.error-message').exists()).toBe(true);
       expect(wrapper.find('Alert').dive().text()).toMatch(
         /There was an issue retrieving an estimate for your incentive./,
