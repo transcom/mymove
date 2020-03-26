@@ -24,9 +24,7 @@ export function parseDate(str, _format, locale = 'en') {
 }
 
 export function formatDate(date, format = defaultDateFormat, locale = 'en') {
-  return moment(date, allowedDateFormats, locale, true)
-    .locale(locale)
-    .format(format);
+  return moment(date, allowedDateFormats, locale, true).locale(locale).format(format);
 }
 
 export function formatDateForSwagger(dateString) {

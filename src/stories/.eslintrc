@@ -15,4 +15,12 @@
       "import/no-extraneous-dependencies": "off",
     }
   }],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "paths": ["src"],
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
+  },
 }

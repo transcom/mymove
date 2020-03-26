@@ -38,24 +38,18 @@ const onlyVehicle = ({ weight_ticket_set_type }) => weight_ticket_set_type !== W
 
 // Common combinations of MoveDocument filters
 export function findOKedVehicleWeightTickets(moveDocs) {
-  return moveDocs
-    .filter(onlyWeightTickets)
-    .filter(onlyVehicle)
-    .filter(onlyOKed);
+  return moveDocs.filter(onlyWeightTickets).filter(onlyVehicle).filter(onlyOKed);
 }
 export function findOKedProgearWeightTickets(moveDocs) {
-  return moveDocs
-    .filter(onlyWeightTickets)
-    .filter(onlyProgear)
-    .filter(onlyOKed);
+  return moveDocs.filter(onlyWeightTickets).filter(onlyProgear).filter(onlyOKed);
 }
 export function findPendingWeightTickets(moveDocs) {
   return moveDocs.filter(onlyWeightTickets).filter(onlyPending);
 }
 
 // Actions
-export const getMoveDocumentsForMove = moveId => {
-  return async function(dispatch, getState, { schema }) {
+export const getMoveDocumentsForMove = (moveId) => {
+  return async function (dispatch, getState, { schema }) {
     const client = await getClient();
     const response = await client.apis.move_docs.indexMoveDocuments({
       moveId,
@@ -69,7 +63,7 @@ export const getMoveDocumentsForMove = moveId => {
 };
 
 export function createMoveDocument({ moveId, personallyProcuredMoveId, uploadIds, title, moveDocumentType, notes }) {
-  return async function(dispatch, getState, { schema }) {
+  return async function (dispatch, getState, { schema }) {
     const client = await getClient();
     const response = await client.apis.move_docs.createGenericMoveDocument({
       moveId,
@@ -89,7 +83,7 @@ export function createMoveDocument({ moveId, personallyProcuredMoveId, uploadIds
 }
 
 export const updateMoveDocument = (moveId, moveDocumentId, payload) => {
-  return async function(dispatch, getState, { schema }) {
+  return async function (dispatch, getState, { schema }) {
     const client = await getClient();
     const response = await client.apis.move_docs.updateMoveDocument({
       moveId,
@@ -118,7 +112,7 @@ export const selectMoveDocument = (state, id) => {
 };
 
 export const selectAllDocumentsForMove = (state, id) => {
-  const moveDocs = filter(state.entities.moveDocuments, doc => {
+  const moveDocs = filter(state.entities.moveDocuments, (doc) => {
     return doc.move_id === id;
   });
   return denormalize(map(moveDocs, 'id'), moveDocuments, state.entities);

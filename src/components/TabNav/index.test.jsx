@@ -27,24 +27,9 @@ describe('TabNav', () => {
         <TabNavPanel>Body Of Tab 3</TabNavPanel>
       </TabNav>,
     );
-    expect(
-      wrapper
-        .find('.tab-title')
-        .first()
-        .text(),
-    ).toBe('Option 1');
+    expect(wrapper.find('.tab-title').first().text()).toBe('Option 1');
     expect(wrapper.find(Tag).length).toBe(1);
-    expect(
-      wrapper
-        .find(Tag)
-        .children()
-        .text(),
-    ).toBe('2');
-    expect(
-      wrapper
-        .find('.tab-title')
-        .last()
-        .text(),
-    ).toBe('Option 3');
+    expect(wrapper.find(Tag).children().text()).toBe('2');
+    expect(wrapper.find('.tab-title').last().text()).toBe('Option 3');
   });
 });

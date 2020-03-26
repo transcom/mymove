@@ -48,7 +48,7 @@ export class Landing extends Component {
       }
     }
   }
-  startMove = values => {
+  startMove = (values) => {
     const { serviceMember } = this.props;
     if (isEmpty(serviceMember)) {
       console.error('With no service member, you should have been redirected already.');
@@ -56,7 +56,7 @@ export class Landing extends Component {
     this.props.push(`service-member/${serviceMember.id}/create`);
   };
 
-  editMove = move => {
+  editMove = (move) => {
     this.props.push(`moves/${move.id}/edit`);
   };
 
@@ -144,7 +144,7 @@ export class Landing extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),

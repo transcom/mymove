@@ -28,7 +28,7 @@ export function getSignedCertification(moveId, label = getSignedCertificationsLa
 }
 
 export function selectPaymentRequestCertificationForMove(state, moveId) {
-  const signedCertifications = filter(state.entities.signedCertifications, cert => {
+  const signedCertifications = filter(state.entities.signedCertifications, (cert) => {
     return cert.certification_type === 'PPM_PAYMENT' && cert.move_id === moveId;
   });
   if (!signedCertifications.length) {

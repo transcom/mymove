@@ -26,7 +26,7 @@ export function createMovingExpenseDocument({
   storage_start_date,
   storage_end_date,
 }) {
-  return async function(dispatch, getState, { schema }) {
+  return async function (dispatch, getState, { schema }) {
     const client = await getClient();
     const response = await client.apis.move_docs.createMovingExpenseDocument({
       moveId,
@@ -59,7 +59,7 @@ export const selectPPMCloseoutDocumentsForMove = (
   if (!id) {
     return [];
   }
-  const movingExpenseDocs = filter(state.entities.moveDocuments, doc => {
+  const movingExpenseDocs = filter(state.entities.moveDocuments, (doc) => {
     return doc.move_id === id && selectedDocumentTypes.includes(doc.move_document_type);
   });
   return denormalize(map(movingExpenseDocs, 'id'), moveDocuments, state.entities);
