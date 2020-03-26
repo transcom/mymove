@@ -804,6 +804,18 @@ run_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Exp
 #
 
 #
+# ----- START PRIME TARGETS -----
+#
+
+.PHONY: run_prime_docker
+run_prime_docker: ## Runs the docker that spins up the Prime API and data to test with
+	scripts/run-prime-docker
+
+#
+# ----- END PRIME TARGETS -----
+#
+
+#
 # ----- START MAKE TEST TARGETS -----
 #
 

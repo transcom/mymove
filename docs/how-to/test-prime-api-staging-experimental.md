@@ -4,6 +4,8 @@
 
 In order to properly test the Prime API, you will need the ability to access it on staging and experimental.
 
+To test locally, follow this [link](test-prime-api-local.md).
+
 ## Requirements
 
 You will first have to complete steps to create CAC [access](https://github.com/transcom/mymove/blob/master/docs/how-to/use-mtls-with-cac.md).
@@ -162,3 +164,24 @@ Before creating a new MTO service item, you need to figure out the ID and the MT
           "reServiceID": "998beda7-e390-4a83-b15e-578a24326937"
         }
       ```
+
+## Quick Tricks
+
+You've seen this at the beginning of each command:
+
+```sh
+go run ./cmd/prime-api-client
+```
+
+You can shorten it by doing the following
+
+```sh
+rm -f bin/prime-api-client
+make bin/prime-api-client
+```
+
+Then every time you see `go run ./cmd/prime-api-client` you can replace it with simply `prime-api-client`. For example:
+
+```shell script
+prime-api-client --insecure fetch-mtos
+   ```
