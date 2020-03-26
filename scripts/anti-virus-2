@@ -1,10 +1,31 @@
 #! /usr/bin/env bash
 
 set -eu -o pipefail
+#
+# Title: Anti Virus Scanning of Source Code
+#
+# Example:
+#
+#   AV_IGNORE_DIR=./anti-virus/ anti-virus
+#
+# More information about the docker setup is found here: https://github.com/mko-x/docker-clamav
+#
+# Environment Variables that modify behavior:
+#
+# - AV_IGNORE_DIR: The full path to the directory where new ignore files will be created (no default)
+# - AV_DATABASE_DIR: The directory inside the container to store AV database files (default: /tmp/store)
+# - AV_DOCKER_IMAGE: The docker image used which runs ClamAV (default: mk0x/docker-clamav:alpine)
+# - AV_MOUNT_DIR: The directory in the container used to mount files for scanning (default: /project)
+#
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-readonly DIR
-echo "$DIR"
+IGNORE_DIR="${AV_IGNORE_DIR:-}"
+readonly IGNORE_DIR
+
+if [[ -n "${IGNORE_DIR}" && ! -d "${IGNORE_DIR}" ]]; then
+  echo "The AV_IGNORE_DIR environment variable must be a directory that exists on the filesystem."
+  echo "The directory '${IGNORE_DIR}' does not exist!"
+  exit 1
+fi
 
 DATABASE_DIR=${AV_DATABASE_DIR:-/tmp/store}
 readonly DATABASE_DIR
@@ -14,13 +35,22 @@ MOUNT_DIR=${AV_MOUNT_DIR:-/root/project}
 readonly MOUNT_DIR
 
 function echo_line() {
-echo
-echo "********************************************************************************"
-echo
+  echo
+  echo "********************************************************************************"
+  echo
+}
+
+function msg_now() {
+  msg=$1
+  echo -e "\n$msg: $(date +"%Y-%m-%dT%H:%M:%S %Z")"
 }
 
 # Get latest image
 docker pull "${DOCKER_IMAGE}"
+echo_line
+
+# Print the version
+docker run --rm -it -v "${DATABASE_DIR}:${DATABASE_DIR}" "${DOCKER_IMAGE}" clamscan --version
 echo_line
 
 echo "Make or Clean ${DATABASE_DIR}"
@@ -29,15 +59,16 @@ rm -vf "${DATABASE_DIR}"/*.{cvd,fp,ign2}
 echo_line
 
 echo "Update DB definitions"
-cp -v "${DIR}"/anti-virus/whitelist-*.{fp,ign2} "${DATABASE_DIR}"
-docker run -it -v "${DATABASE_DIR}:${DATABASE_DIR}" "${DOCKER_IMAGE}" freshclam --version
-docker run -it -v "${DATABASE_DIR}:${DATABASE_DIR}" "${DOCKER_IMAGE}" freshclam --config-file /etc/clamav/freshclam.conf --datadir="${DATABASE_DIR}"
+if [[ -d "${IGNORE_DIR}" ]]; then
+  cp -v "${IGNORE_DIR}"whitelist-*.{fp,ign2} "${DATABASE_DIR}"
+fi
+docker run --rm -it -v "${DATABASE_DIR}:${DATABASE_DIR}" "${DOCKER_IMAGE}" freshclam --config-file /etc/clamav/freshclam.conf --datadir="${DATABASE_DIR}"
 ls -alh "${DATABASE_DIR}"
 echo_line
 
 echo "Run ClamAV scan of ${MOUNT_DIR}"
-docker run -it -v "${DATABASE_DIR}:${DATABASE_DIR}" "${DOCKER_IMAGE}" clamscan --version
-docker run -it \
+msg_now "Scan Start Time"
+docker run --rm -it \
   -v "${DATABASE_DIR}:${DATABASE_DIR}" \
   -v "${PWD}:${MOUNT_DIR}" \
   "${DOCKER_IMAGE}" \
@@ -55,3 +86,4 @@ docker run -it \
     --database="${DATABASE_DIR}" \
     "${MOUNT_DIR}" \
     "${DATABASE_DIR}"
+msg_now "Scan End Time"

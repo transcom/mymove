@@ -397,12 +397,25 @@ jobs:
     executor: av_medium
     steps:
       - checkout
+      - run: clamscan --version
       - run: mkdir -p /tmp/store
       - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /tmp/store
-      - run: freshclam --version
       - run: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/tmp/store
-      - run: clamscan --version
-      - run: clamscan --recursive --infected --detect-pua=yes --exclude-pua=NetTool --exclude-pua=PWTool --max-scansize=300M --max-filesize=100M --max-recursion=30 --max-files=50000 --tempdir=/tmp --database=/tmp/store /root/project /tmp/store
+      - run: >
+          clamscan \
+            --recursive \
+            --infected \
+            --detect-pua=yes \
+            --exclude-pua=NetTool \
+            --exclude-pua=PWTool \
+            --max-scansize=300M \
+            --max-filesize=100M \
+            --max-recursion=30 \
+            --max-files=50000 \
+            --tempdir=/tmp \
+            --database=/tmp/store \
+            /root/project \
+            /tmp/store
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.

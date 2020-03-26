@@ -583,5 +583,10 @@ docker-clamav#39
 TabNav
 jq
 mto
+whitelist
+whitelist-files
+whitelist-signatures
+fp
+ign2
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md
