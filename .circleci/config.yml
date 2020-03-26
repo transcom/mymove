@@ -18,6 +18,11 @@ references:
 
 executors:
   # `mymove_small` and `mymove_medium` use the `milmove/milmove-app` docker image with a checkout of the mymove code
+  av_medium:
+    resource_class: medium
+    working_directory: /root
+    docker:
+      - image: mk0x/docker-clamav:alpine
   mymove_small:
     resource_class: small
     working_directory: ~/transcom/mymove
@@ -389,23 +394,15 @@ jobs:
 
   # `anti_virus` uses virus detection software to scan the source code
   anti_virus:
-    executor: mymove_medium
+    executor: av_medium
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - run:
-          name: make anti_virus
-          command: make anti_virus
-          environment:
-            AV_DIR: /home/circleci/transcom/mymove
-            # WARNING: IGNORE FILES AT OUR PERIL. IF ADDING HERE ADD NOTES!
-            # - pkg/testdatagen/testdata/orders.pdf is a file used exclusively for testing
-            AV_IGNORE_FILES: pkg/testdatagen/testdata/orders.pdf
-            # WARNING: IGNORE SIGNATURES AT OUR PERIL. IF ADDING HERE ADD NOTES!
-            # - PUA.Pdf.Trojan.EmbeddedJavaScript-1 is ignored because we don't ship PDFs in any docker containers
-            # - orders.pdf.UNOFFICIAL is a finding based on the ignored file above of the same name
-            AV_IGNORE_SIGS: "PUA.Pdf.Trojan.EmbeddedJavaScript-1 orders.pdf.UNOFFICIAL"
+      - run: mkdir -p /tmp/store
+      - run: cp -v /root/mymove/anti-virus/whitelist-*.{fp,ign2} /tmp/store
+      - run: freshclam --version
+      - run: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/tmp/store
+      - run: clamscan --version
+      - run: clamscan --recursive --infected --detect-pua=yes --exclude-pua=NetTool --exclude-pua=PWTool --max-scansize=300M --max-filesize=100M --max-recursion=30 --max-files=50000 --tempdir=/tmp --database=/tmp/store /root /tmp/store
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
@@ -951,7 +948,7 @@ workflows:
       - anti_virus:
           filters:
             branches:
-              only: master
+              only: cg_simplify_anti_virus
 
       - pre_test:
           requires:
@@ -984,7 +981,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_simplify_anti_virus
 
       - client_test:
           requires:
@@ -992,7 +989,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_simplify_anti_virus
 
       - server_test:
           requires:
@@ -1000,7 +997,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_simplify_anti_virus
 
       - build_app:
           requires:

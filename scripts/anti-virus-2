@@ -1,0 +1,57 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+readonly DIR
+echo "$DIR"
+
+DATABASE_DIR=${AV_DATABASE_DIR:-/tmp/store}
+readonly DATABASE_DIR
+DOCKER_IMAGE=${AV_DOCKER_IMAGE:-mk0x/docker-clamav:alpine}
+readonly DOCKER_IMAGE
+MOUNT_DIR=${AV_MOUNT_DIR:-/root/project}
+readonly MOUNT_DIR
+
+function echo_line() {
+echo
+echo "********************************************************************************"
+echo
+}
+
+# Get latest image
+docker pull "${DOCKER_IMAGE}"
+echo_line
+
+echo "Make or Clean ${DATABASE_DIR}"
+mkdir -p "${DATABASE_DIR}"
+rm -vf "${DATABASE_DIR}"/*.{cvd,fp,ign2}
+echo_line
+
+echo "Update DB definitions"
+cp -v "${DIR}"/anti-virus/whitelist-*.{fp,ign2} "${DATABASE_DIR}"
+docker run -it -v "${DATABASE_DIR}:${DATABASE_DIR}" "${DOCKER_IMAGE}" freshclam --version
+docker run -it -v "${DATABASE_DIR}:${DATABASE_DIR}" "${DOCKER_IMAGE}" freshclam --config-file /etc/clamav/freshclam.conf --datadir="${DATABASE_DIR}"
+ls -alh "${DATABASE_DIR}"
+echo_line
+
+echo "Run ClamAV scan of ${MOUNT_DIR}"
+docker run -it -v "${DATABASE_DIR}:${DATABASE_DIR}" "${DOCKER_IMAGE}" clamscan --version
+docker run -it \
+  -v "${DATABASE_DIR}:${DATABASE_DIR}" \
+  -v "${PWD}:${MOUNT_DIR}" \
+  "${DOCKER_IMAGE}" \
+  clamscan \
+    --recursive \
+    --infected \
+    --detect-pua=yes \
+    --exclude-pua=NetTool \
+    --exclude-pua=PWTool \
+    --max-scansize=300M \
+    --max-filesize=100M \
+    --max-recursion=30 \
+    --max-files=50000 \
+    --tempdir=/tmp \
+    --database="${DATABASE_DIR}" \
+    "${MOUNT_DIR}" \
+    "${DATABASE_DIR}"

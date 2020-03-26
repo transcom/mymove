@@ -194,6 +194,7 @@ These scripts are used to do vulnerability scanning on our code
 | Script Name | Description |
 | --- | --- |
 | `anti-virus` | Scan the source code for viruses |
+| `anti-virus-2` | Scan the source code for viruses |
 
 ### Prime Scripts
 
