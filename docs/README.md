@@ -117,5 +117,6 @@ If you are looking to understand choices made in this project, see the list of [
 * 0041 [Front End Form Library](adr/0041-front-end-form-library.md#front-end-form-library)
 * 0042 [Use If-Match / E-tags for optimistic locking](adr/0042-optimistic-locking.md#use-if-match-e-tags-for-optimistic-locking)
 * 0043 [*Handling time in the Prime API*](adr/0043-prime-time.md#handling-time-in-the-prime-api)
+* 0044 [Use camelCase for API params](adr/0044-params-styling.md#use-camelcase-for-api-params)
 
 <!--endindex-->
