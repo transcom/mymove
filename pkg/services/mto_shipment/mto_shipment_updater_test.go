@@ -180,6 +180,83 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	})
 
+	suite.T().Run("Successful case if in Alaska, should add an extra 10 days to required delivery date", func(t *testing.T) {
+		tenDaysFromNow := now.AddDate(0, 0, 11)
+		akAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				PostalCode: "12345",
+				State:      "AK",
+			},
+		})
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:               "APPROVED",
+				ApprovedDate:         &now,
+				DestinationAddress:   akAddress,
+				DestinationAddressID: akAddress.ID,
+			},
+		})
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		updatedShipment := models.MTOShipment{
+			ID:                   oldShipment.ID,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+			ScheduledPickupDate:  &tenDaysFromNow,
+			DestinationAddress:   akAddress,
+			DestinationAddressID: akAddress.ID,
+		}
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
+		suite.NoError(err)
+		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.NotNil(updatedMTOShipment.RequiredDeliveryDate)
+
+		// Let's double check our maths.
+		expectedRDD := updatedShipment.ScheduledPickupDate.AddDate(0, 0, 22)
+		actualRDD := *updatedMTOShipment.RequiredDeliveryDate
+		suite.Equal(expectedRDD.Year(), actualRDD.Year())
+		suite.Equal(expectedRDD.Month(), actualRDD.Month())
+		suite.Equal(expectedRDD.Day(), actualRDD.Day())
+
+	})
+
+	suite.T().Run("Successful case in Adak, Alaska, should add 20 days to required delivery date", func(t *testing.T) {
+		tenDaysFromNow := now.AddDate(0, 0, 11)
+		adakAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				PostalCode: "99546",
+				State:      "AK",
+				City:       "Adak",
+			},
+		})
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:               "APPROVED",
+				ApprovedDate:         &now,
+				DestinationAddress:   adakAddress,
+				DestinationAddressID: adakAddress.ID,
+			},
+		})
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		updatedShipment := models.MTOShipment{
+			ID:                   oldShipment.ID,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+			ScheduledPickupDate:  &tenDaysFromNow,
+			DestinationAddress:   adakAddress,
+			DestinationAddressID: adakAddress.ID,
+		}
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
+		suite.NoError(err)
+		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.NotNil(updatedMTOShipment.RequiredDeliveryDate)
+
+		// Let's double check our maths.
+		expectedRDD := updatedShipment.ScheduledPickupDate.AddDate(0, 0, 32)
+		actualRDD := *updatedMTOShipment.RequiredDeliveryDate
+		suite.Equal(expectedRDD.Year(), actualRDD.Year())
+		suite.Equal(expectedRDD.Month(), actualRDD.Month())
+		suite.Equal(expectedRDD.Day(), actualRDD.Day())
+
+	})
+
 	suite.T().Run("Failed case if approved date is 3-9 days from scheduled move date but estimated weight recorded date isn't at least 3 days prior to scheduled move date", func(t *testing.T) {
 		twoDaysFromNow := now.AddDate(0, 0, 2)
 		twoDaysBefore := now.AddDate(0, 0, -2)
