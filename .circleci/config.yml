@@ -14,7 +14,7 @@ version: '2.1'
 # References for variables shared across the file
 references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
-  postgres: &postgres postgres:10.10
+  postgres: &postgres postgres:10.12
 
 executors:
   # `mymove_small` and `mymove_medium` use the `milmove/milmove-app` docker image with a checkout of the mymove code
