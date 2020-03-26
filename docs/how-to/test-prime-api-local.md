@@ -1,28 +1,18 @@
-# How to Test Prime API on staging and experimental
+# How to Test Prime API locally
 
 ## Overview
 
-In order to properly test the Prime API, you will need the ability to access it on staging and experimental.
+This document details how to test the Prime API locally.
 
-To test locally, follow this [link](test-prime-api-local.md).
+For how to test on staging and experimental, follow this [link](test-prime-api-staging-experimental.md).
 
 ## Requirements
 
-You will first have to complete steps to create CAC [access](https://github.com/transcom/mymove/blob/master/docs/how-to/use-mtls-with-cac.md).
+You must have data generated within your database and have the server running.
 
+If you are using the [Prime Docker](run-prime-docker.md) via `make run_prime_docker`, this has already been done for you.
 
-Additionally, those changes must be deployed to each environment. Merging to master will deploy to Staging. But you need to explicitly deploy to Experimental to get access there, otherwise you won't have access.
-
-## Prerequisites
-
-Download DoD certificates:
-
-1. Go to this military CAC [website](https://militarycac.com/macnotes.htm#which_exact_CAC).
-2. If you are a Safari or Chrome user scroll down to step 5.
-3. If you are a Firefox user scroll down to step 5a.
-4. Download the required files.
-5. Confirm in Keychain on your Mac that you have all the certificates.
-6. There will likely be a few certs that your Mac won't trust. You will need to manually enable `Always Trust` for these certificates.
+If you are not, please generate the data through `make db_dev_e2e_populate && server_run`,
 
 ## Sub-commands
 
@@ -34,21 +24,13 @@ At this time, there are only three sub-commands to be used within the Prime clie
 
 ## Testing Prime API: Fetch MTOS
 
-1. If testing on staging, run this command:
+1. Run this command:
 
     ```sh
-    go run ./cmd/prime-api-client --cac --hostname api.staging.move.mil --port 443 fetch-mtos | jq
+    go run ./cmd/prime-api-client --insecure fetch-mtos | jq
     ```
 
-2. If testing on experimental, run this command:
-
-    ```sh
-    go run ./cmd/prime-api-client --cac --hostname api.experimental.move.mil --port 443 fetch-mtos | jq
-    ```
-
-3. You will be prompted to enter your CAC pin. This will be the same pin you created when picking up your CAC.
-
-4. If successful you should receive a response similar to:
+2. If successful you should receive a response similar to:
 
     ```json
     [
@@ -80,21 +62,13 @@ Before updating a shipment, you need to figure out the ID, the MTO ID, and the E
 }
 ```
 
-1. If testing on staging, run this command:
+1. Run this command:
 
     ```sh
-    go run ./cmd/prime-api-client --cac --hostname api.staging.move.mil --port 443 update-mto-shipment --etag {ETAG} --filename {PATH TO FILE} | jq
+    go run ./cmd/prime-api-client --insecure update-mto-shipment --etag {ETAG} --filename {PATH TO FILE} | jq
     ```
 
-2. If testing on experimental, run this command:
-
-    ```sh
-    go run ./cmd/prime-api-client --cac --hostname api.experimental.move.mil --port 443 fetch-mtos update-mto-shipment --etag {ETAG} --filename {PATH TO FILE} | jq
-    ```
-
-3. You will be prompted to enter your CAC pin. This will be the same pin you created when picking up your CAC.
-
-4. If successful you should receive a response similar to:
+2. If successful you should receive a response similar to:
 
     ```json
          {
@@ -136,21 +110,13 @@ Before creating a new MTO service item, you need to figure out the ID and the MT
  }
   ```
 
-  1. If testing on staging, run this command:
+  1. Run this command:
 
       ```sh
-      go run ./cmd/prime-api-client --cac --hostname api.staging.move.mil --port 443 create-mto-service-item --filename {PATH TO FILE} | jq
+      go run ./cmd/prime-api-client --insecure create-mto-service-item --filename {PATH TO FILE} | jq
       ```
 
-  2. If testing on experimental, run this command:
-
-      ```sh
-      go run ./cmd/prime-api-client --cac --hostname api.experimental.move.mil --port 443 create-mto-service-item --filename {PATH TO FILE} | jq
-      ```
-
-  3. You will be prompted to enter your CAC pin. This will be the same pin you created when picking up your CAC.
-
-  4. If successful you should receive a response similar to:
+  2. If successful you should receive a response similar to:
 
       ```json
         {
@@ -164,6 +130,7 @@ Before creating a new MTO service item, you need to figure out the ID and the MT
           "reServiceID": "998beda7-e390-4a83-b15e-578a24326937"
         }
       ```
+
 
 ## Quick Tricks
 
@@ -184,4 +151,4 @@ Then every time you see `go run ./cmd/prime-api-client` you can replace it with 
 
 ```shell script
 prime-api-client --insecure fetch-mtos
-   ```
+```

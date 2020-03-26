@@ -353,7 +353,10 @@ jobs:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           name: Install YARN dependencies
-          command: yarn install
+          # setting network concurrency to 1 because using the default failed with errors trying to extract package tar files saying they were corrupt.
+          # this was workaround that seemed to fix the issue See for details https://github.com/yarnpkg/yarn/issues/7212
+          # This is caused by a timing issue when using react-uswds branch. It can be removed once we switch to a released version
+          command: yarn install --network-concurrency 1
       # `v2-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
           key: v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -437,6 +440,13 @@ jobs:
             source $BASH_ENV
             mkdir -p tmp/test-results/pretest
             pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+      # adding danger checks here as they are similar to our pre-commit hooks
+      # TODO: This step is commented out until we have a GITHUB TOKEN See https://dp3.atlassian.net/browse/MB-2059
+      # - run:
+      #     name: Run DangerJS checks
+      #     command: yarn danger ci --failOnErrors
+      #     environment:
+      #       DANGER_GITHUB_API_TOKEN: 1
       # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
