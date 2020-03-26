@@ -1,14 +1,12 @@
-import { get, every, isNull, isNumber, isEmpty } from 'lodash';
+import { get, every, isNumber } from 'lodash';
 import { CreatePpm, UpdatePpm, GetPpm, GetPpmWeightEstimate, GetPpmSitEstimate, RequestPayment } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive, fetchActivePPM } from 'shared/utils';
-import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
 import { change } from 'redux-form';
 
 // Types
-export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
 export const SET_PENDING_PPM_WEIGHT = 'SET_PENDING_PPM_WEIGHT';
 const CLEAR_SIT_ESTIMATE = 'CLEAR_SIT_ESTIMATE';
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
@@ -17,14 +15,9 @@ export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_PPM_E
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_SIT_ESTIMATE');
 
 // Action creation
-export function setPendingPpmSize(value) {
-  return { type: SET_PENDING_PPM_SIZE, payload: value };
-}
-
 export function setPendingPpmWeight(value) {
   return { type: SET_PENDING_PPM_WEIGHT, payload: value };
 }
-
 export function getPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
   return function(dispatch, getState) {
@@ -122,34 +115,11 @@ export function submitExpenseDocs(state) {
 }
 
 // Selectors
-export function getRawWeightInfo(state) {
-  const entitlement = loadEntitlementsFromState(state);
-  if (isEmpty(entitlement)) {
-    return null;
-  }
-
-  return {
-    defaultSize: {
-      min: 1500,
-      max: entitlement.sum,
-    },
-  };
-}
-
 export function getMaxAdvance(state) {
   const maxIncentive = get(state, 'ppm.incentive_estimate_max');
   // we are using 20000000 since it is the largest number MacRae found that could be stored in table
   // and we don't want to block the user from requesting an advance if the rate engine fails
   return maxIncentive ? 0.6 * maxIncentive : 20000000;
-}
-
-export function getSelectedWeightInfo(state) {
-  const weightInfo = getRawWeightInfo(state);
-  const ppm = get(state, 'ppm.currentPpm', null);
-  if (isNull(weightInfo) || isNull(ppm)) {
-    return null;
-  }
-  return weightInfo.defaultSize; // eslint-disable-line security/detect-object-injection
 }
 
 export function getPPM(state) {

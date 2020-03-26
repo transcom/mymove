@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { get, toUpper } from 'lodash';
+import { get, isNull, toUpper } from 'lodash';
 import PropTypes from 'prop-types';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
-import { getPpmWeightEstimate, getSelectedWeightInfo } from './ducks';
+import { getPpmWeightEstimate } from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { loadPPMs, updatePPM, selectActivePPMForMove, updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
@@ -35,9 +35,17 @@ export class PpmWeight extends Component {
     this.onWeightSelected = this.onWeightSelected.bind(this);
   }
 
-  getWeightClassMedian() {
-    const { selectedWeightInfo } = this.props;
-    return selectedWeightInfo.min + (selectedWeightInfo.max - selectedWeightInfo.min) / 2;
+  getDefaultWeightClassMedian() {
+    const { entitlement, currentPPM } = this.props;
+    if (isNull(entitlement) || isNull(currentPPM)) {
+      return null;
+    }
+    const defaultWeightRange = {
+      min: 1500,
+      max: entitlement.sum,
+    };
+
+    return defaultWeightRange.min + (defaultWeightRange.max - defaultWeightRange.min) / 2;
   }
 
   componentDidMount() {
@@ -50,7 +58,7 @@ export class PpmWeight extends Component {
           pendingPpmWeight:
             currentPPM.weight_estimate && currentPPM.weight_estimate !== 0
               ? currentPPM.weight_estimate
-              : this.getWeightClassMedian(),
+              : this.getDefaultWeightClassMedian(),
         },
         this.updateIncentive,
       );
@@ -65,7 +73,7 @@ export class PpmWeight extends Component {
           pendingPpmWeight:
             currentPPM.weight_estimate && currentPPM.weight_estimate !== 0
               ? currentPPM.weight_estimate
-              : this.getWeightClassMedian(),
+              : this.getDefaultWeightClassMedian(),
         },
         this.updateIncentive,
       );
@@ -399,7 +407,6 @@ function mapStateToProps(state) {
   const props = {
     ...state.ppm,
     currentPPM: selectActivePPMForMove(state, moveID),
-    selectedWeightInfo: getSelectedWeightInfo(state),
     currentWeight: get(state, 'ppm.currentPpm.weight_estimate'),
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
