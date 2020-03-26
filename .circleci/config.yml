@@ -201,6 +201,38 @@ commands:
           name: Push StoryBook build to S3
           command: scripts/push-storybook-assets "<< parameters.s3_bucket>>"
 
+  deploy_app_engadmin_steps:
+    parameters:
+      compare_host:
+        type: string
+      health_check_hosts:
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: Compare against deployed commit
+          command: |
+            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - attach_workspace:
+          at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-engadmin)' | tee -a "${BASH_ENV}"
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST_NGINX=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-engadmin-nginx)' | tee -a "${BASH_ENV}"
+      - deploy:
+          name: Deploy app service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-multi-containers app-engadmin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-engadmin@${ECR_DIGEST}" "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-engadmin-nginx@${ECR_DIGEST_NGINX}" "${APP_ENVIRONMENT}"
+          no_output_timeout: 20m
+      - run:
+          name: Health Check
+          command: bin/health-checker --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
+      - announce_failure
+
   build_tag_push:
     parameters:
       dockerfile:
@@ -877,6 +909,16 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
+
+  # 'deploy_experiment_engadmin_app' updates the engadmin service in the experimental environment
+  deploy_experiment_engadmin_app:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'experimental'
+    steps:
+      - deploy_app_engadmin_steps:
+          compare_host: "" # leave blank since we want experimental to be able to roll back
+          health_check_hosts: engadmin.experimental.move.mil
 
   check_circle_against_staging_sha:
     executor: mymove_small

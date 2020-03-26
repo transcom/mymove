@@ -79,6 +79,7 @@ These scripts are primarily used for CircleCI workflows.
 | `do-exclusively` | CircleCI's current recommendation for roughly serializing a subset of build commands for a given branch |
 | `ecr-describe-image-scan-findings` | Checks an uploaded image scan results |
 | `ecs-deploy-service-container` | Updates the named service with the given name, image, and environment. |
+| `ecs-deploy-service-multi-containers` | Updates the named service with the given name, image, and environment and supports side car image|
 | `ecs-deploy-task-container` | Updates the named task with the given name, image, and environment. |
 | `ecs-restart-services` | Restarted the ECS services associated with the given environment. |
 | `ecs-run-app-migrations-container` | Creates and runs a migration task using the given container definition. |
