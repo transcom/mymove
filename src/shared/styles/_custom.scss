@@ -2,6 +2,9 @@
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/_mixins.scss';
 
+//
+//Containers
+//
 .container {
   @include u-bg('white');
   @include u-padding('3');
@@ -38,5 +41,24 @@
   .container {
     width: 300px;
     height: 135px;
+  }
+}
+
+//
+//Tables
+//
+
+table {
+}
+
+//for displaying the tables in Storybook
+#root .sb-section-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  .sb-table-wrapper {
+    margin: 20px;
+    code {
+      font-size: 12px;
+    }
   }
 }
