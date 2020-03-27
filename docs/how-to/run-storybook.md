@@ -1,5 +1,27 @@
 # How to Use and Run Storybook
 
+## Table of Contents
+
+<!-- toc -->
+
+* [What is Storybook](#what-is-storybook)
+* [Basics](#basics)
+  * [Option A: Running with tooling installed locally](#option-a-running-with-tooling-installed-locally)
+    * [Dependencies](#dependencies)
+    * [How to run storybook server locally](#how-to-run-storybook-server-locally)
+    * [How to generate static storybook site files](#how-to-generate-static-storybook-site-files)
+  * [Option B: Running in a docker container](#option-b-running-in-a-docker-container)
+* [Adding Stories](#adding-stories)
+  * [Addons](#addons)
+    * [Actions](#actions)
+    * [Knobs](#knobs)
+  * [Testing Stories](#testing-stories)
+  * [Story changes require approval of Design](#story-changes-require-approval-of-design)
+
+Regenerate with "pre-commit run -a markdown-toc"
+
+<!-- tocstop -->
+
 ## What is Storybook
 
 Storybook is a user interface development environment and playground for UI components. The tool enables developers to create components independently and showcase components interactively in an isolated development environment. [Read more here](https://storybook.js.org/docs/basics/introduction/)
@@ -8,7 +30,7 @@ Storybook is a user interface development environment and playground for UI comp
 
 Storybook expects _stories_ to be defined for each component to be showcased. These stories are defined in the stories directory `src/stories`
 
-### Running with tooling installed locally
+### Option A: Running with tooling installed locally
 
 This is the flow that most engineers will likely take since they probably have all the dependencies installed already.
 
@@ -24,9 +46,9 @@ To see the components locally simply run `make storybook` and the server will st
 
 If you wish to generate the static version of storybook run `make build_storybook` and the command will generate the files in `storybook-static`
 
-### Running in a docker container
+### Option B: Running in a docker container
 
-If you don't have all the typical development tools installed this will walk you through running storybook without that. It does require docker to be installed you can get Docker CE for Mac from [here](https://download.docker.com/mac/stable/Docker.dmg).
+If you don't have all the typical development tools installed this will walk you through running storybook without that. It does require docker to be installed you can get Docker CE for Mac from [here](https://download.docker.com/mac/stable/Docker.dmg). Detailed instructions for installation can be found in the [Docker for Mac Documentation](https://docs.docker.com/docker-for-mac/install/)
 
 Once Docker CE for Mac is installed run the `make storybook_docker` command to start the storybook server. This will not automatically start your browser so once you see the below you can open [http://localhost:6006/](http://localhost:6006/) and view storybook.
 

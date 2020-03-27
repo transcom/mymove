@@ -997,7 +997,7 @@ func init() {
           "type": "string",
           "example": "11232"
         },
-        "move_type": {
+        "moveType": {
           "type": "string",
           "title": "Selected Move Type",
           "enum": [
@@ -1015,10 +1015,10 @@ func init() {
     "Address": {
       "type": "object",
       "required": [
-        "street_address_1",
+        "streetAddress1",
         "state",
         "city",
-        "postal_code"
+        "postalCode"
       ],
       "properties": {
         "city": {
@@ -1033,7 +1033,7 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
-        "postal_code": {
+        "postalCode": {
           "description": "zip code, international allowed",
           "type": "string",
           "format": "zip",
@@ -1150,18 +1150,18 @@ func init() {
             "WY": "WY"
           }
         },
-        "street_address_1": {
+        "streetAddress1": {
           "type": "string",
           "title": "Address line 1",
           "example": "123 Main Ave"
         },
-        "street_address_2": {
+        "streetAddress2": {
           "type": "string",
           "title": "Address line 2",
           "x-nullable": true,
           "example": "Apartment 9000"
         },
-        "street_address_3": {
+        "streetAddress3": {
           "type": "string",
           "title": "Address line 3",
           "x-nullable": true,
@@ -1173,20 +1173,20 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "first_name",
-        "last_name",
+        "firstName",
+        "lastName",
         "email",
-        "user_id",
-        "organization_id",
+        "userId",
+        "organizationId",
         "active",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
         "active": {
           "type": "boolean"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "datetime"
         },
@@ -1195,7 +1195,7 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
-        "first_name": {
+        "firstName": {
           "type": "string"
         },
         "id": {
@@ -1203,18 +1203,18 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "last_name": {
+        "lastName": {
           "type": "string"
         },
-        "organization_id": {
+        "organizationId": {
           "type": "string",
           "format": "uuid"
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "datetime"
         },
-        "user_id": {
+        "userId": {
           "type": "string",
           "format": "uuid"
         }
@@ -1228,15 +1228,15 @@ func init() {
           "title": "Email",
           "example": "user@userdomain.com"
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "title": "First Name"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
           "title": "Last Name"
         },
-        "organization_id": {
+        "organizationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -1250,12 +1250,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "title": "First Name",
           "x-nullable": true
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
           "title": "Last Name",
           "x-nullable": true
@@ -1293,12 +1293,12 @@ func init() {
       "required": [
         "id",
         "issuer",
-        "orders_number",
-        "created_at",
-        "updated_at"
+        "ordersNumber",
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "datetime",
           "title": "Created at"
@@ -1311,11 +1311,11 @@ func init() {
         "issuer": {
           "$ref": "#/definitions/Issuer"
         },
-        "orders_number": {
+        "ordersNumber": {
           "type": "string",
           "title": "Orders Number"
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "datetime",
           "title": "Updated at"
@@ -1361,13 +1361,13 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "orders_id",
+        "ordersId",
         "locator",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -1380,12 +1380,12 @@ func init() {
           "type": "string",
           "example": "12432"
         },
-        "orders_id": {
+        "ordersId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "service_member_id": {
+        "serviceMemberId": {
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -1397,7 +1397,7 @@ func init() {
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -1430,13 +1430,13 @@ func init() {
       "required": [
         "id",
         "email",
-        "service_member_id",
-        "ses_message_id",
-        "notification_type",
-        "created_at"
+        "serviceMemberId",
+        "sesMessageId",
+        "notificationType",
+        "createdAt"
       ],
       "properties": {
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "datetime"
         },
@@ -1448,18 +1448,18 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "notification_type": {
+        "notificationType": {
           "type": "string",
           "enum": [
             "MOVE_REVIEWED_EMAIL",
             "MOVE_PAYMENT_REMINDER_EMAIL"
           ]
         },
-        "service_member_id": {
+        "serviceMemberId": {
           "type": "string",
           "format": "uuid"
         },
-        "ses_message_id": {
+        "sesMessageId": {
           "type": "string"
         }
       }
@@ -1474,22 +1474,22 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "first_name",
-        "middle_initials",
-        "last_name",
+        "firstName",
+        "middleInitials",
+        "lastName",
         "email",
         "telephone",
-        "transportation_office_id",
+        "transportationOfficeId",
         "active",
         "roles",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
         "active": {
           "type": "boolean"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "datetime"
         },
@@ -1498,7 +1498,7 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
-        "first_name": {
+        "firstName": {
           "type": "string"
         },
         "id": {
@@ -1506,10 +1506,10 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "last_name": {
+        "lastName": {
           "type": "string"
         },
-        "middle_initials": {
+        "middleInitials": {
           "type": "string"
         },
         "roles": {
@@ -1523,11 +1523,11 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         },
-        "transportation_office_id": {
+        "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "datetime"
         }
@@ -1541,15 +1541,15 @@ func init() {
           "title": "Email",
           "example": "user@userdomain.com"
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "title": "First Name"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
           "title": "Last Name"
         },
-        "middle_initials": {
+        "middleInitials": {
           "type": "string",
           "title": "Middle Initials",
           "x-nullable": true,
@@ -1561,7 +1561,7 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "example": "212-555-5555"
         },
-        "transportation_office_id": {
+        "transportationOfficeId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -1592,17 +1592,17 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "title": "First Name",
           "x-nullable": true
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
           "title": "Last Name",
           "x-nullable": true
         },
-        "middle_initials": {
+        "middleInitials": {
           "type": "string",
           "title": "Middle Initials",
           "x-nullable": true,
@@ -1634,11 +1634,11 @@ func init() {
       "required": [
         "id",
         "name",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "datetime",
           "title": "Created at"
@@ -1664,7 +1664,7 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "datetime",
           "title": "Updated at"
@@ -1720,14 +1720,14 @@ func init() {
         "id",
         "name",
         "address",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
         "address": {
           "$ref": "#/definitions/Address"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -1755,7 +1755,7 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
-        "phone_lines": {
+        "phoneLines": {
           "type": "array",
           "items": {
             "type": "string",
@@ -1764,7 +1764,7 @@ func init() {
             "example": "212-555-5555"
           }
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -1780,25 +1780,25 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "traffic_distribution_list_id",
-        "transportation_service_provider_id",
-        "performance_period_start",
-        "performance_period_end",
-        "rate_cycle_start",
-        "rate_cycle_end",
-        "best_value_score",
-        "linehaul_rate",
-        "sit_rate",
-        "offer_count",
-        "created_at",
-        "updated_at"
+        "trafficDistributionListId",
+        "transportationServiceProviderId",
+        "performancePeriodStart",
+        "performancePeriodEnd",
+        "rateCycleStart",
+        "rateCycleEnd",
+        "bestValueScore",
+        "linehaulRate",
+        "sitRate",
+        "offerCount",
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
-        "best_value_score": {
+        "bestValueScore": {
           "type": "number",
           "example": 98.01
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -1807,50 +1807,50 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "linehaul_rate": {
+        "linehaulRate": {
           "type": "number",
           "example": 0.26085695149376986
         },
-        "offer_count": {
+        "offerCount": {
           "type": "integer",
           "example": 1
         },
-        "performance_period_end": {
+        "performancePeriodEnd": {
           "type": "string",
           "format": "date-time"
         },
-        "performance_period_start": {
+        "performancePeriodStart": {
           "type": "string",
           "format": "date-time"
         },
-        "quality_band": {
+        "qualityBand": {
           "type": "integer",
           "x-nullable": true,
           "example": 29
         },
-        "rate_cycle_end": {
+        "rateCycleEnd": {
           "type": "string",
           "format": "date-time"
         },
-        "rate_cycle_start": {
+        "rateCycleStart": {
           "type": "string",
           "format": "date-time"
         },
-        "sit_rate": {
+        "sitRate": {
           "type": "number",
           "example": 0.26085695149376986
         },
-        "traffic_distribution_list_id": {
+        "trafficDistributionListId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "transportation_service_provider_id": {
+        "transportationServiceProviderId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -1865,7 +1865,7 @@ func init() {
     "Upload": {
       "type": "object",
       "properties": {
-        "content_type": {
+        "contentType": {
           "type": "string",
           "enum": [
             "application/pdf",
@@ -1873,7 +1873,7 @@ func init() {
             "image/png"
           ]
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "datetime",
           "title": "Created at"
@@ -1895,52 +1895,52 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "move_locator": {
+        "moveLocator": {
           "type": "string",
           "x-nullable": true,
           "example": "12432"
         },
-        "office_user_email": {
+        "officeUserEmail": {
           "type": "string",
           "x-nullable": true
         },
-        "office_user_first_name": {
+        "officeUserFirstName": {
           "type": "string",
           "x-nullable": true
         },
-        "office_user_id": {
+        "officeUserId": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "office_user_last_name": {
+        "officeUserLastName": {
           "type": "string",
           "x-nullable": true
         },
-        "office_user_phone": {
+        "officeUserPhone": {
           "type": "string",
           "x-nullable": true
         },
-        "service_member_email": {
+        "serviceMemberEmail": {
           "type": "string",
           "x-nullable": true
         },
-        "service_member_first_name": {
+        "serviceMemberFirstName": {
           "type": "string",
           "x-nullable": true
         },
-        "service_member_id": {
+        "serviceMemberId": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "service_member_last_name": {
+        "serviceMemberLastName": {
           "type": "string",
           "x-nullable": true
         },
-        "service_member_phone": {
+        "serviceMemberPhone": {
           "type": "string",
           "x-nullable": true
         },
@@ -1951,7 +1951,7 @@ func init() {
     },
     "ValidationError": {
       "required": [
-        "invalid_fields"
+        "invalidFields"
       ],
       "allOf": [
         {
@@ -1962,7 +1962,7 @@ func init() {
         }
       ],
       "properties": {
-        "invalid_fields": {
+        "invalidFields": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -2952,7 +2952,7 @@ func init() {
           "type": "string",
           "example": "11232"
         },
-        "move_type": {
+        "moveType": {
           "type": "string",
           "title": "Selected Move Type",
           "enum": [
@@ -2970,10 +2970,10 @@ func init() {
     "Address": {
       "type": "object",
       "required": [
-        "street_address_1",
+        "streetAddress1",
         "state",
         "city",
-        "postal_code"
+        "postalCode"
       ],
       "properties": {
         "city": {
@@ -2988,7 +2988,7 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
-        "postal_code": {
+        "postalCode": {
           "description": "zip code, international allowed",
           "type": "string",
           "format": "zip",
@@ -3105,18 +3105,18 @@ func init() {
             "WY": "WY"
           }
         },
-        "street_address_1": {
+        "streetAddress1": {
           "type": "string",
           "title": "Address line 1",
           "example": "123 Main Ave"
         },
-        "street_address_2": {
+        "streetAddress2": {
           "type": "string",
           "title": "Address line 2",
           "x-nullable": true,
           "example": "Apartment 9000"
         },
-        "street_address_3": {
+        "streetAddress3": {
           "type": "string",
           "title": "Address line 3",
           "x-nullable": true,
@@ -3128,20 +3128,20 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "first_name",
-        "last_name",
+        "firstName",
+        "lastName",
         "email",
-        "user_id",
-        "organization_id",
+        "userId",
+        "organizationId",
         "active",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
         "active": {
           "type": "boolean"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "datetime"
         },
@@ -3150,7 +3150,7 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
-        "first_name": {
+        "firstName": {
           "type": "string"
         },
         "id": {
@@ -3158,18 +3158,18 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "last_name": {
+        "lastName": {
           "type": "string"
         },
-        "organization_id": {
+        "organizationId": {
           "type": "string",
           "format": "uuid"
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "datetime"
         },
-        "user_id": {
+        "userId": {
           "type": "string",
           "format": "uuid"
         }
@@ -3183,15 +3183,15 @@ func init() {
           "title": "Email",
           "example": "user@userdomain.com"
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "title": "First Name"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
           "title": "Last Name"
         },
-        "organization_id": {
+        "organizationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -3205,12 +3205,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "title": "First Name",
           "x-nullable": true
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
           "title": "Last Name",
           "x-nullable": true
@@ -3248,12 +3248,12 @@ func init() {
       "required": [
         "id",
         "issuer",
-        "orders_number",
-        "created_at",
-        "updated_at"
+        "ordersNumber",
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "datetime",
           "title": "Created at"
@@ -3266,11 +3266,11 @@ func init() {
         "issuer": {
           "$ref": "#/definitions/Issuer"
         },
-        "orders_number": {
+        "ordersNumber": {
           "type": "string",
           "title": "Orders Number"
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "datetime",
           "title": "Updated at"
@@ -3317,13 +3317,13 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "orders_id",
+        "ordersId",
         "locator",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -3336,12 +3336,12 @@ func init() {
           "type": "string",
           "example": "12432"
         },
-        "orders_id": {
+        "ordersId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "service_member_id": {
+        "serviceMemberId": {
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -3353,7 +3353,7 @@ func init() {
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -3386,13 +3386,13 @@ func init() {
       "required": [
         "id",
         "email",
-        "service_member_id",
-        "ses_message_id",
-        "notification_type",
-        "created_at"
+        "serviceMemberId",
+        "sesMessageId",
+        "notificationType",
+        "createdAt"
       ],
       "properties": {
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "datetime"
         },
@@ -3404,18 +3404,18 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "notification_type": {
+        "notificationType": {
           "type": "string",
           "enum": [
             "MOVE_REVIEWED_EMAIL",
             "MOVE_PAYMENT_REMINDER_EMAIL"
           ]
         },
-        "service_member_id": {
+        "serviceMemberId": {
           "type": "string",
           "format": "uuid"
         },
-        "ses_message_id": {
+        "sesMessageId": {
           "type": "string"
         }
       }
@@ -3430,22 +3430,22 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "first_name",
-        "middle_initials",
-        "last_name",
+        "firstName",
+        "middleInitials",
+        "lastName",
         "email",
         "telephone",
-        "transportation_office_id",
+        "transportationOfficeId",
         "active",
         "roles",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
         "active": {
           "type": "boolean"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "datetime"
         },
@@ -3454,7 +3454,7 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
-        "first_name": {
+        "firstName": {
           "type": "string"
         },
         "id": {
@@ -3462,10 +3462,10 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "last_name": {
+        "lastName": {
           "type": "string"
         },
-        "middle_initials": {
+        "middleInitials": {
           "type": "string"
         },
         "roles": {
@@ -3479,11 +3479,11 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         },
-        "transportation_office_id": {
+        "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "datetime"
         }
@@ -3497,15 +3497,15 @@ func init() {
           "title": "Email",
           "example": "user@userdomain.com"
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "title": "First Name"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
           "title": "Last Name"
         },
-        "middle_initials": {
+        "middleInitials": {
           "type": "string",
           "title": "Middle Initials",
           "x-nullable": true,
@@ -3517,7 +3517,7 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "example": "212-555-5555"
         },
-        "transportation_office_id": {
+        "transportationOfficeId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -3548,17 +3548,17 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "title": "First Name",
           "x-nullable": true
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
           "title": "Last Name",
           "x-nullable": true
         },
-        "middle_initials": {
+        "middleInitials": {
           "type": "string",
           "title": "Middle Initials",
           "x-nullable": true,
@@ -3590,11 +3590,11 @@ func init() {
       "required": [
         "id",
         "name",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "datetime",
           "title": "Created at"
@@ -3620,7 +3620,7 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "datetime",
           "title": "Updated at"
@@ -3676,14 +3676,14 @@ func init() {
         "id",
         "name",
         "address",
-        "created_at",
-        "updated_at"
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
         "address": {
           "$ref": "#/definitions/Address"
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -3711,7 +3711,7 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
-        "phone_lines": {
+        "phoneLines": {
           "type": "array",
           "items": {
             "type": "string",
@@ -3720,7 +3720,7 @@ func init() {
             "example": "212-555-5555"
           }
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -3736,25 +3736,25 @@ func init() {
       "type": "object",
       "required": [
         "id",
-        "traffic_distribution_list_id",
-        "transportation_service_provider_id",
-        "performance_period_start",
-        "performance_period_end",
-        "rate_cycle_start",
-        "rate_cycle_end",
-        "best_value_score",
-        "linehaul_rate",
-        "sit_rate",
-        "offer_count",
-        "created_at",
-        "updated_at"
+        "trafficDistributionListId",
+        "transportationServiceProviderId",
+        "performancePeriodStart",
+        "performancePeriodEnd",
+        "rateCycleStart",
+        "rateCycleEnd",
+        "bestValueScore",
+        "linehaulRate",
+        "sitRate",
+        "offerCount",
+        "createdAt",
+        "updatedAt"
       ],
       "properties": {
-        "best_value_score": {
+        "bestValueScore": {
           "type": "number",
           "example": 98.01
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -3763,50 +3763,50 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "linehaul_rate": {
+        "linehaulRate": {
           "type": "number",
           "example": 0.26085695149376986
         },
-        "offer_count": {
+        "offerCount": {
           "type": "integer",
           "example": 1
         },
-        "performance_period_end": {
+        "performancePeriodEnd": {
           "type": "string",
           "format": "date-time"
         },
-        "performance_period_start": {
+        "performancePeriodStart": {
           "type": "string",
           "format": "date-time"
         },
-        "quality_band": {
+        "qualityBand": {
           "type": "integer",
           "x-nullable": true,
           "example": 29
         },
-        "rate_cycle_end": {
+        "rateCycleEnd": {
           "type": "string",
           "format": "date-time"
         },
-        "rate_cycle_start": {
+        "rateCycleStart": {
           "type": "string",
           "format": "date-time"
         },
-        "sit_rate": {
+        "sitRate": {
           "type": "number",
           "example": 0.26085695149376986
         },
-        "traffic_distribution_list_id": {
+        "trafficDistributionListId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "transportation_service_provider_id": {
+        "transportationServiceProviderId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         }
@@ -3821,7 +3821,7 @@ func init() {
     "Upload": {
       "type": "object",
       "properties": {
-        "content_type": {
+        "contentType": {
           "type": "string",
           "enum": [
             "application/pdf",
@@ -3829,7 +3829,7 @@ func init() {
             "image/png"
           ]
         },
-        "created_at": {
+        "createdAt": {
           "type": "string",
           "format": "datetime",
           "title": "Created at"
@@ -3851,52 +3851,52 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "move_locator": {
+        "moveLocator": {
           "type": "string",
           "x-nullable": true,
           "example": "12432"
         },
-        "office_user_email": {
+        "officeUserEmail": {
           "type": "string",
           "x-nullable": true
         },
-        "office_user_first_name": {
+        "officeUserFirstName": {
           "type": "string",
           "x-nullable": true
         },
-        "office_user_id": {
+        "officeUserId": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "office_user_last_name": {
+        "officeUserLastName": {
           "type": "string",
           "x-nullable": true
         },
-        "office_user_phone": {
+        "officeUserPhone": {
           "type": "string",
           "x-nullable": true
         },
-        "service_member_email": {
+        "serviceMemberEmail": {
           "type": "string",
           "x-nullable": true
         },
-        "service_member_first_name": {
+        "serviceMemberFirstName": {
           "type": "string",
           "x-nullable": true
         },
-        "service_member_id": {
+        "serviceMemberId": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "service_member_last_name": {
+        "serviceMemberLastName": {
           "type": "string",
           "x-nullable": true
         },
-        "service_member_phone": {
+        "serviceMemberPhone": {
           "type": "string",
           "x-nullable": true
         },
@@ -3907,7 +3907,7 @@ func init() {
     },
     "ValidationError": {
       "required": [
-        "invalid_fields"
+        "invalidFields"
       ],
       "allOf": [
         {
@@ -3918,7 +3918,7 @@ func init() {
         }
       ],
       "properties": {
-        "invalid_fields": {
+        "invalidFields": {
           "type": "object",
           "additionalProperties": {
             "type": "string"

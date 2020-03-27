@@ -21,11 +21,11 @@ type Upload struct {
 
 	// content type
 	// Enum: [application/pdf image/jpeg image/png]
-	ContentType string `json:"content_type,omitempty"`
+	ContentType string `json:"contentType,omitempty"`
 
 	// Created at
 	// Format: datetime
-	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// filename
 	Filename string `json:"filename,omitempty"`
@@ -91,7 +91,7 @@ func (m *Upload) validateContentType(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := m.validateContentTypeEnum("content_type", "body", m.ContentType); err != nil {
+	if err := m.validateContentTypeEnum("contentType", "body", m.ContentType); err != nil {
 		return err
 	}
 
@@ -104,7 +104,7 @@ func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("created_at", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 

@@ -13,8 +13,8 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
-  postgres: &postgres postgres:10.10
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ce60239ffca056a033af6330daf922a5a9635066
+  postgres: &postgres postgres:10.12
 
 executors:
   # `mymove_small` and `mymove_medium` use the `milmove/milmove-app` docker image with a checkout of the mymove code
@@ -334,6 +334,7 @@ jobs:
       - run:
           name: Install dependencies
           command: for i in $(seq 1 5); do go get ./... && s=0 && break || s=$? && sleep 5; done; (exit $s)
+      - run: scripts/check-generated-code go.sum
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
@@ -357,6 +358,7 @@ jobs:
           # this was workaround that seemed to fix the issue See for details https://github.com/yarnpkg/yarn/issues/7212
           # This is caused by a timing issue when using react-uswds branch. It can be removed once we switch to a released version
           command: yarn install --network-concurrency 1
+      - run: scripts/check-generated-code yarn.lock
       # `v2-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
           key: v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -380,7 +382,7 @@ jobs:
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
-      - run: scripts/check-generated-code
+      - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "mocks" -exec echo -n '{} ' \;)
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
@@ -440,6 +442,13 @@ jobs:
             source $BASH_ENV
             mkdir -p tmp/test-results/pretest
             pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+      # adding danger checks here as they are similar to our pre-commit hooks
+      # TODO: This step is commented out until we have a GITHUB TOKEN See https://dp3.atlassian.net/browse/MB-2059
+      # - run:
+      #     name: Run DangerJS checks
+      #     command: yarn danger ci --failOnErrors
+      #     environment:
+      #       DANGER_GITHUB_API_TOKEN: 1
       # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
@@ -450,8 +459,8 @@ jobs:
           destination: test-results
       - announce_failure
 
-  # `acceptance_tests_local` runs acceptance tests for the webserver against a local environment.
-  acceptance_tests_local:
+  # `acceptance_tests` runs acceptance tests for the webserver against the local, experimental, and staging environments.
+  acceptance_tests:
     executor: mymove_medium
     steps:
       - checkout
@@ -459,7 +468,7 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run:
-          name: Run acceptance tests
+          name: Run Local acceptance tests
           command: |
             echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
             echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
@@ -470,7 +479,7 @@ jobs:
             echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
             source $BASH_ENV
-            make webserver_test
+            make acceptance_test
           environment:
             CHAMBER_RETRIES: 20
             DB_REGION: us-west-2
@@ -483,6 +492,35 @@ jobs:
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
+      - run:
+          name: Run Experimental acceptance tests
+          command: make acceptance_test
+          environment:
+            CHAMBER_RETRIES: 20
+            DB_REGION: us-west-2
+            DB_RETRY_INTERVAL: 5s
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            ENV: test
+            ENVIRONMENT: experimental
+            NO_TLS_ENABLED: true
+            PWD: /home/circleci/transcom/mymove
+            TEST_ACC_ENV: experimental
+      - run:
+          name: Run Staging acceptance tests
+          command: make acceptance_test
+          environment:
+            CHAMBER_RETRIES: 20
+            DB_REGION: us-west-2
+            DB_RETRY_INTERVAL: 5s
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            ENV: test
+            ENVIRONMENT: staging
+            NO_TLS_ENABLED: true
+            PWD: /home/circleci/transcom/mymove
+            TEST_ACC_ENV: staging
+      - run: echo "Prod acceptance tests are prohibited in CircleCI"
       - announce_failure
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
@@ -726,6 +764,12 @@ jobs:
           tag: engadmin:dev
           repo: app-engadmin
           working_dir: ~/transcom/milmove_admin/app
+      - build_tag_push:
+          dockerfile: Dockerfile
+          tag: engadmin-nginx:dev
+          repo: app-engadmin-nginx
+          working_dir: ~/transcom/milmove_admin/nginx
+      - announce_failure
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
@@ -746,30 +790,6 @@ jobs:
           tag: tasks:dev
           repo: app-tasks
           working_dir: ~/transcom/mymove
-      - announce_failure
-
-  # `acceptance_tests_experimental` runs acceptance tests for the webserver against the experimental environment.
-  acceptance_tests_experimental:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run:
-          name: Run acceptance tests
-          command: make webserver_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DB_REGION: us-west-2
-            DB_RETRY_INTERVAL: 5s
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: test
-            ENVIRONMENT: experimental
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: experimental
       - announce_failure
 
   # `deploy_experimental_migrations` deploys migrations to the experimental environment
@@ -815,30 +835,6 @@ jobs:
       - run:
           name: Halt workflow to prevent old master deploying to staging
           command: scripts/compare-deployed-commit my.staging.move.mil $CIRCLE_SHA1
-
-  # `acceptance_tests_staging` runs acceptance tests for the webserver against the staging environment.
-  acceptance_tests_staging:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run:
-          name: Run acceptance tests
-          command: make webserver_test
-          environment:
-            CHAMBER_RETRIES: 20
-            DB_REGION: us-west-2
-            DB_RETRY_INTERVAL: 5s
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
-            ENV: test
-            ENVIRONMENT: staging
-            NO_TLS_ENABLED: true
-            PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: staging
-      - announce_failure
 
   # `deploy_staging_migrations` deploys migrations to the staging environment
   deploy_staging_migrations:
@@ -945,20 +941,9 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - acceptance_tests_local:
+      - acceptance_tests:
           requires:
             - pre_deps_golang
-            - pre_deps_yarn
-
-      - acceptance_tests_experimental:
-          requires:
-            - pre_deps_golang
-            - pre_deps_yarn
-
-      - acceptance_tests_staging:
-          requires:
-            - pre_deps_golang
-            - pre_deps_yarn
 
       - integration_tests:
           requires:
@@ -967,7 +952,7 @@ workflows:
             - check_generated_code
             - build_app
             - build_migrations
-            - acceptance_tests_local
+            - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
@@ -994,7 +979,7 @@ workflows:
             - anti_virus
             - pre_deps_golang
             - pre_deps_yarn
-            - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
+            - acceptance_tests # don't bother building and pushing the application if it won't even start properly
 
       - build_storybook_app:
           requires:
@@ -1021,8 +1006,7 @@ workflows:
             - pre_test
             - client_test
             - server_test
-            - acceptance_tests_local
-            - acceptance_tests_experimental
+            - acceptance_tests
             - build_app
             - build_tools
             - build_tasks
@@ -1061,8 +1045,7 @@ workflows:
             - build_tools
             - build_migrations
             - build_tasks
-            - acceptance_tests_local
-            - acceptance_tests_staging
+            - acceptance_tests
             - integration_tests
           filters:
             branches:
