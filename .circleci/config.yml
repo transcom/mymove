@@ -946,7 +946,7 @@ workflows:
       - anti_virus:
           filters:
             branches:
-              only: cg_simplify_anti_virus
+              only: master
 
       - pre_test:
           requires:
