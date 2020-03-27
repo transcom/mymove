@@ -23,6 +23,19 @@ func (suite *ModelSuite) TestTariff400ngFullPackRateValidations() {
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validTariff400ngFullPackRate, expErrors)
 	})
+
+	suite.T().Run("test empty Tariff400ngFullPackRate", func(t *testing.T) {
+		emptyTariff400ngFullPackRate := Tariff400ngFullPackRate{}
+		expErrors := map[string][]string{
+			"schedule":             {"Schedule can not be blank."},
+			"weight_lbs_lower":     {"0 is not less than 0."},
+			"weight_lbs_upper":     {"WeightLbsUpper can not be blank."},
+			"rate_cents":           {"RateCents can not be blank."},
+			"effective_date_lower": {"EffectiveDateLower can not be blank."},
+			"effective_date_upper": {"EffectiveDateUpper can not be blank."},
+		}
+		suite.verifyValidationErrors(&emptyTariff400ngFullPackRate, expErrors)
+	})
 }
 
 func (suite *ModelSuite) Test_EffectiveDateValidation() {
