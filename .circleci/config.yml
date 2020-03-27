@@ -14,7 +14,7 @@ version: '2.1'
 # References for variables shared across the file
 references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db
-  postgres: &postgres postgres:10.10
+  postgres: &postgres postgres:10.12
 
 executors:
   # `mymove_small` and `mymove_medium` use the `milmove/milmove-app` docker image with a checkout of the mymove code
@@ -334,6 +334,7 @@ jobs:
       - run:
           name: Install dependencies
           command: for i in $(seq 1 5); do go get ./... && s=0 && break || s=$? && sleep 5; done; (exit $s)
+      - run: scripts/check-generated-code go.sum
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
@@ -357,6 +358,7 @@ jobs:
           # this was workaround that seemed to fix the issue See for details https://github.com/yarnpkg/yarn/issues/7212
           # This is caused by a timing issue when using react-uswds branch. It can be removed once we switch to a released version
           command: yarn install --network-concurrency 1
+      - run: scripts/check-generated-code yarn.lock
       # `v2-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
           key: v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -380,7 +382,7 @@ jobs:
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
-      - run: scripts/check-generated-code
+      - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "mocks" -exec echo -n '{} ' \;)
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
@@ -733,6 +735,12 @@ jobs:
           tag: engadmin:dev
           repo: app-engadmin
           working_dir: ~/transcom/milmove_admin/app
+      - build_tag_push:
+          dockerfile: Dockerfile
+          tag: engadmin-nginx:dev
+          repo: app-engadmin-nginx
+          working_dir: ~/transcom/milmove_admin/nginx
+      - announce_failure
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:

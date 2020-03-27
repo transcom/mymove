@@ -1,6 +1,8 @@
 package converthelper_test
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services/converthelper"
@@ -48,4 +50,9 @@ func (suite *ConvertSuite) TestConvert() {
 
 	var mtoShipment models.MTOShipment
 	suite.FatalNoError(suite.DB().Eager().Where("move_task_order_id = ?", mto.ID).First(&mtoShipment))
+
+	suite.NotNil(mtoShipment.ScheduledPickupDate)
+
+	expectedNilTime := time.Time{}
+	suite.NotEqual(expectedNilTime, *mtoShipment.ScheduledPickupDate)
 }

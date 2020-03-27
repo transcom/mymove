@@ -20,7 +20,7 @@ type Move struct {
 	// created at
 	// Required: true
 	// Format: date-time
-	CreatedAt *strfmt.DateTime `json:"created_at"`
+	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// id
 	// Required: true
@@ -31,15 +31,15 @@ type Move struct {
 	// Required: true
 	Locator *string `json:"locator"`
 
-	// orders id
+	// orders Id
 	// Required: true
 	// Format: uuid
-	OrdersID *strfmt.UUID `json:"orders_id"`
+	OrdersID *strfmt.UUID `json:"ordersId"`
 
-	// service member id
+	// service member Id
 	// Read Only: true
 	// Format: uuid
-	ServiceMemberID strfmt.UUID `json:"service_member_id,omitempty"`
+	ServiceMemberID strfmt.UUID `json:"serviceMemberId,omitempty"`
 
 	// show
 	Show bool `json:"show,omitempty"`
@@ -50,7 +50,7 @@ type Move struct {
 	// updated at
 	// Required: true
 	// Format: date-time
-	UpdatedAt *strfmt.DateTime `json:"updated_at"`
+	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
 }
 
 // Validate validates this move
@@ -93,11 +93,11 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 
 func (m *Move) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("created_at", "body", m.CreatedAt); err != nil {
+	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -128,11 +128,11 @@ func (m *Move) validateLocator(formats strfmt.Registry) error {
 
 func (m *Move) validateOrdersID(formats strfmt.Registry) error {
 
-	if err := validate.Required("orders_id", "body", m.OrdersID); err != nil {
+	if err := validate.Required("ordersId", "body", m.OrdersID); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("orders_id", "body", "uuid", m.OrdersID.String(), formats); err != nil {
+	if err := validate.FormatOf("ordersId", "body", "uuid", m.OrdersID.String(), formats); err != nil {
 		return err
 	}
 
@@ -145,7 +145,7 @@ func (m *Move) validateServiceMemberID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("service_member_id", "body", "uuid", m.ServiceMemberID.String(), formats); err != nil {
+	if err := validate.FormatOf("serviceMemberId", "body", "uuid", m.ServiceMemberID.String(), formats); err != nil {
 		return err
 	}
 
@@ -170,11 +170,11 @@ func (m *Move) validateStatus(formats strfmt.Registry) error {
 
 func (m *Move) validateUpdatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("updated_at", "body", m.UpdatedAt); err != nil {
+	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("updated_at", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

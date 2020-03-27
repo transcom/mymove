@@ -31,7 +31,7 @@ type AccessCode struct {
 
 	// Selected Move Type
 	// Enum: [PPM]
-	MoveType string `json:"move_type,omitempty"`
+	MoveType string `json:"moveType,omitempty"`
 }
 
 // Validate validates this access code
@@ -98,7 +98,7 @@ func (m *AccessCode) validateMoveType(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := m.validateMoveTypeEnum("move_type", "body", m.MoveType); err != nil {
+	if err := m.validateMoveTypeEnum("moveType", "body", m.MoveType); err != nil {
 		return err
 	}
 
