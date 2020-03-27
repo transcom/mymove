@@ -194,3 +194,11 @@ These scripts are used to do vulnerability scanning on our code
 | Script Name | Description |
 | --- | --- |
 | `anti-virus` | Scan the source code for viruses |
+
+### Prime Scripts
+
+These scripts are primarily used for working with the Prime API
+
+| Script Name | Description |
+| --- | --- |
+| `run-prime-docker` | Runs a docker container allowing access to the Prime API |

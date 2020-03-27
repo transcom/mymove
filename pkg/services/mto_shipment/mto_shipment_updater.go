@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/route"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -26,15 +29,16 @@ type mtoShipmentUpdater struct {
 	db      *pop.Connection
 	builder UpdateMTOShipmentQueryBuilder
 	services.Fetcher
+	planner route.Planner
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher) services.MTOShipmentUpdater {
-	return &mtoShipmentUpdater{db, builder, fetch.NewFetcher(builder)}
+func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner) services.MTOShipmentUpdater {
+	return &mtoShipmentUpdater{db, builder, fetch.NewFetcher(builder), planner}
 }
 
 // setNewShipmentFields validates the updated shipment
-func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *models.MTOShipment) error {
+func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment *models.MTOShipment, updatedShipment *models.MTOShipment) error {
 	if updatedShipment.RequestedPickupDate != nil {
 		requestedPickupDate := updatedShipment.RequestedPickupDate
 		// if requestedPickupDate isn't valid then return InvalidInputError
@@ -60,6 +64,12 @@ func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *mode
 	if updatedShipment.ScheduledPickupDate != nil {
 		scheduledPickupTime = *updatedShipment.ScheduledPickupDate
 		oldShipment.ScheduledPickupDate = &scheduledPickupTime
+		requiredDeliveryDate, err := calculateRequiredDeliveryDate(planner, db, *oldShipment.PickupAddress,
+			*oldShipment.DestinationAddress, *updatedShipment.ScheduledPickupDate, updatedShipment.PrimeEstimatedWeight.Int())
+		if err != nil {
+			return err
+		}
+		oldShipment.RequiredDeliveryDate = requiredDeliveryDate
 	}
 
 	if updatedShipment.PrimeEstimatedWeight != nil {
@@ -67,21 +77,23 @@ func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *mode
 			return services.InvalidInputError{}
 		}
 		now := time.Now()
-		err := validatePrimeEstimatedWeightRecordedDate(now, scheduledPickupTime, *oldShipment.ApprovedDate)
-		if err != nil {
-			errorMessage := "The time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight."
-			return services.NewInvalidInputError(oldShipment.ID, err, nil, errorMessage)
+		if oldShipment.ApprovedDate != nil {
+			err := validatePrimeEstimatedWeightRecordedDate(now, scheduledPickupTime, *oldShipment.ApprovedDate)
+			if err != nil {
+				errorMessage := "The time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight."
+				return services.NewInvalidInputError(oldShipment.ID, err, nil, errorMessage)
+			}
 		}
 		oldShipment.PrimeEstimatedWeight = updatedShipment.PrimeEstimatedWeight
 		oldShipment.PrimeEstimatedWeightRecordedDate = &now
 	}
 
-	if updatedShipment.PickupAddressID != uuid.Nil {
+	if updatedShipment.PickupAddress != nil {
 		pickupAddress := updatedShipment.PickupAddress
 		oldShipment.PickupAddress = pickupAddress
 	}
 
-	if updatedShipment.DestinationAddressID != uuid.Nil {
+	if updatedShipment.DestinationAddress != nil {
 		destinationAddress := updatedShipment.DestinationAddress
 		oldShipment.DestinationAddress = destinationAddress
 	}
@@ -99,6 +111,34 @@ func setNewShipmentFields(oldShipment *models.MTOShipment, updatedShipment *mode
 	if updatedShipment.ShipmentType != "" {
 		oldShipment.ShipmentType = updatedShipment.ShipmentType
 	}
+
+	if updatedShipment.MTOAgents != nil {
+		for i, oldAgent := range oldShipment.MTOAgents {
+			for _, newAgentInfo := range updatedShipment.MTOAgents {
+				if oldAgent.ID == newAgentInfo.ID {
+					if newAgentInfo.MTOAgentType != "" && newAgentInfo.MTOAgentType != oldAgent.MTOAgentType {
+						oldShipment.MTOAgents[i].MTOAgentType = newAgentInfo.MTOAgentType
+					}
+
+					if newAgentInfo.FirstName != nil {
+						oldShipment.MTOAgents[i].FirstName = newAgentInfo.FirstName
+					}
+					if newAgentInfo.LastName != nil {
+						oldShipment.MTOAgents[i].LastName = newAgentInfo.LastName
+					}
+
+					if newAgentInfo.Email != nil {
+						oldShipment.MTOAgents[i].Email = newAgentInfo.Email
+					}
+
+					if newAgentInfo.Phone != nil {
+						oldShipment.MTOAgents[i].Phone = newAgentInfo.Phone
+					}
+				}
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -120,6 +160,15 @@ func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.T
 	return services.InvalidInputError{}
 }
 
+// StaleIdentifierError is used when optimistic locking determines that the identifier refers to stale data
+type StaleIdentifierError struct {
+	StaleIdentifier string
+}
+
+func (e StaleIdentifierError) Error() string {
+	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
+}
+
 //UpdateMTOShipment updates the mto shipment
 func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	queryFilters := []services.QueryFilter{
@@ -131,12 +180,91 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
-
-	err = setNewShipmentFields(&oldShipment, mtoShipment)
+	err = setNewShipmentFields(f.planner, f.db, &oldShipment, mtoShipment)
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
-	verrs, err := f.builder.UpdateOne(&oldShipment, &eTag)
+
+	var verrs *validate.Errors
+
+	err = f.db.Transaction(func(tx *pop.Connection) error {
+		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
+		encodedUpdatedAt := etag.GenerateEtag(oldShipment.UpdatedAt)
+		if encodedUpdatedAt != eTag {
+			return StaleIdentifierError{StaleIdentifier: eTag}
+		}
+
+		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
+		params := generateMTOShipmentParams(oldShipment)
+		err = f.db.RawQuery(updateMTOShipmentQuery, params...).Exec()
+
+		if err != nil {
+			return err
+		}
+
+		if mtoShipment.DestinationAddress != nil || mtoShipment.PickupAddress != nil || mtoShipment.SecondaryPickupAddress != nil || mtoShipment.SecondaryDeliveryAddress != nil {
+
+			addressBaseQuery := `UPDATE addresses
+				SET
+			`
+
+			if mtoShipment.DestinationAddress != nil {
+				destinationAddressQuery := generateAddressQuery()
+				params := generateAddressParams(mtoShipment.DestinationAddress)
+				err = f.db.RawQuery(addressBaseQuery+destinationAddressQuery, params...).Exec()
+			}
+
+			if err != nil {
+				return err
+			}
+
+			if mtoShipment.PickupAddress != nil {
+				pickupAddressQuery := generateAddressQuery()
+				params := generateAddressParams(mtoShipment.PickupAddress)
+				err = f.db.RawQuery(addressBaseQuery+pickupAddressQuery, params...).Exec()
+			}
+
+			if err != nil {
+				return err
+			}
+
+			if mtoShipment.SecondaryDeliveryAddress != nil {
+				secondaryDeliveryAddressQuery := generateAddressQuery()
+				params := generateAddressParams(mtoShipment.SecondaryDeliveryAddress)
+				err = f.db.RawQuery(addressBaseQuery+secondaryDeliveryAddressQuery, params...).Exec()
+			}
+
+			if err != nil {
+				return err
+			}
+
+			if mtoShipment.SecondaryPickupAddress != nil {
+				secondaryPickupAddressQuery := generateAddressQuery()
+				params := generateAddressParams(mtoShipment.SecondaryPickupAddress)
+				err = f.db.RawQuery(addressBaseQuery+secondaryPickupAddressQuery, params...).Exec()
+			}
+
+			if err != nil {
+				return err
+			}
+		}
+
+		if mtoShipment.MTOAgents != nil {
+			agentQuery := `UPDATE mto_agents
+					SET
+				`
+			for _, agent := range oldShipment.MTOAgents {
+				updateAgentQuery := generateAgentQuery()
+				params := generateMTOAgentsParams(agent)
+				err = f.db.RawQuery(agentQuery+updateAgentQuery, params...).Exec()
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	})
 
 	if verrs != nil && verrs.HasAny() {
 		invalidInputError := services.NewInvalidInputError(oldShipment.ID, nil, verrs, "There was an issue with validating the updates")
@@ -146,7 +274,7 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 
 	if err != nil {
 		switch err.(type) {
-		case query.StaleIdentifierError:
+		case StaleIdentifierError:
 			return &models.MTOShipment{}, services.NewPreconditionFailedError(mtoShipment.ID, err)
 		default:
 			return &models.MTOShipment{}, err
@@ -159,14 +287,170 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
-
 	return &updatedShipment, nil
+}
+
+func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
+	return []interface{}{
+		mtoShipment.ScheduledPickupDate,
+		mtoShipment.RequestedPickupDate,
+		mtoShipment.CustomerRemarks,
+		mtoShipment.PrimeEstimatedWeight,
+		mtoShipment.PrimeEstimatedWeightRecordedDate,
+		mtoShipment.PrimeActualWeight,
+		mtoShipment.ShipmentType,
+		mtoShipment.ActualPickupDate,
+		mtoShipment.ApprovedDate,
+		mtoShipment.FirstAvailableDeliveryDate,
+		mtoShipment.RequiredDeliveryDate,
+		mtoShipment.ID,
+	}
+}
+
+func generateUpdateMTOShipmentQuery() string {
+	return `UPDATE mto_shipments
+		SET
+			updated_at = NOW(),
+			scheduled_pickup_date = ?,
+			requested_pickup_date = ?,
+			customer_remarks = ?,
+			prime_estimated_weight = ?,
+			prime_estimated_weight_recorded_date = ?,
+			prime_actual_weight = ?,
+			shipment_type = ?,
+			actual_pickup_date = ?,
+			approved_date = ?,
+			first_available_delivery_date = ?,
+			required_delivery_date = ?
+		WHERE
+			id = ?
+	`
+}
+
+func generateMTOAgentsParams(agent models.MTOAgent) []interface{} {
+	agentID := agent.ID
+	agentType := agent.MTOAgentType
+	firstName := agent.FirstName
+	lastName := agent.LastName
+	email := agent.Email
+	phoneNo := agent.Phone
+
+	paramsArr := []interface{}{
+		agentID,
+		agentID,
+		agentType,
+		agentID,
+		firstName,
+		agentID,
+		lastName,
+		agentID,
+		email,
+		agentID,
+		phoneNo,
+	}
+
+	return paramsArr
+}
+
+func generateAgentQuery() string {
+	return `
+		updated_at =
+			CASE
+			   WHEN id = ? THEN NOW() ELSE updated_at
+			END,
+		agent_type =
+			CASE
+			   WHEN id = ? THEN ? ELSE agent_type
+			END,
+		first_name =
+			CASE
+			   WHEN id = ? THEN ? ELSE first_name
+			END,
+		last_name =
+			CASE
+			   WHEN id = ? THEN ? ELSE last_name
+			END,
+		email =
+			CASE
+			   WHEN id = ? THEN ? ELSE email
+			END,
+		phone =
+			CASE
+			   WHEN id = ? THEN ? ELSE phone
+			END;
+	`
+}
+
+func generateAddressQuery() string {
+	return `
+		updated_at =
+			CASE
+			   WHEN id = ? THEN NOW() ELSE updated_at
+			END,
+		city =
+			CASE
+			   WHEN id = ? THEN ? ELSE city
+			END,
+		country =
+			CASE
+			   WHEN id = ? THEN ? ELSE country
+			END,
+		postal_code =
+			CASE
+			   WHEN id = ? THEN ? ELSE postal_code
+			END,
+		state =
+			CASE
+			   WHEN id = ? THEN ? ELSE state
+			END,
+		street_address_1 =
+			CASE
+			   WHEN id = ? THEN ? ELSE street_address_1
+			END,
+		street_address_2 =
+			CASE
+			   WHEN id = ? THEN ? ELSE street_address_2
+			END,
+		street_address_3 =
+			CASE
+			   WHEN id = ? THEN ? ELSE street_address_3
+			END;
+	`
+}
+
+func generateAddressParams(address *models.Address) []interface{} {
+	destinationAddressID := address.ID
+	city := address.City
+	country := address.Country
+	postalCode := address.PostalCode
+	state := address.State
+	streetAddress1 := address.StreetAddress1
+	streetAddress2 := address.StreetAddress2
+	streetAddress3 := address.StreetAddress3
+	paramArr := []interface{}{
+		destinationAddressID,
+		destinationAddressID,
+		city,
+		destinationAddressID,
+		country,
+		destinationAddressID,
+		postalCode,
+		destinationAddressID,
+		state,
+		destinationAddressID,
+		streetAddress1,
+		destinationAddressID,
+		streetAddress2,
+		destinationAddressID,
+		streetAddress3}
+	return paramArr
 }
 
 type mtoShipmentStatusUpdater struct {
 	db        *pop.Connection
 	builder   UpdateMTOShipmentQueryBuilder
 	siCreator services.MTOServiceItemCreator
+	planner   route.Planner
 }
 
 // UpdateMTOShipmentStatus updates MTO Shipment Status
@@ -194,6 +478,17 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	if shipment.Status == models.MTOShipmentStatusApproved {
 		approvedDate := time.Now()
 		shipment.ApprovedDate = &approvedDate
+
+		if shipment.ScheduledPickupDate != nil &&
+			shipment.RequiredDeliveryDate == nil &&
+			shipment.PrimeEstimatedWeight != nil {
+			requiredDeliveryDate, calcErr := calculateRequiredDeliveryDate(o.planner, o.db, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
+			if calcErr != nil {
+				return nil, calcErr
+			}
+			shipment.RequiredDeliveryDate = requiredDeliveryDate
+		}
+
 	}
 
 	verrs, err := o.builder.UpdateOne(&shipment, &eTag)
@@ -326,9 +621,60 @@ func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServ
 	return serviceItems
 }
 
+// This private function is used to get a distance calculation using the pickup and destination addresses. It then uses
+// the value returned to make a fetch on the ghc_domestic_transit_times table and returns a required delivery date
+// based on the max_days_transit_time.
+func calculateRequiredDeliveryDate(planner route.Planner, db *pop.Connection, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int) (*time.Time, error) {
+	// Okay, so this is something to get us able to take care of the 20 day condition over in the gdoc linked in this
+	// story: https://dp3.atlassian.net/browse/MB-1141
+	// We unfortunately didn't get a lot of guidance regarding vicinity. So for now we're taking zip codes that are the
+	// explicitly mentioned 20 day cities and those in the same county (that I've manually compiled together here).
+	// If a move is in that group it adds 20 days, if it's not in that group, but is in Alaska it adds 10 days.
+	// Else it will not do either of those things.
+	// The cities for 20 days are: Adak, Kodiak, Juneau, Ketchikan, and Sitka. As well as others in their 'vicinity.'
+	twentyDayAKZips := [28]string{"99546", "99547", "99591", "99638", "99660", "99685", "99692", "99550", "99608",
+		"99615", "99619", "99624", "99643", "99644", "99697", "99650", "99801", "99802", "99803", "99811", "99812",
+		"99950", "99824", "99850", "99901", "99928", "99950", "99835"}
+
+	// Get a distance calculation between pickup and destination addresses.
+	distance, err := planner.TransitDistance(&pickupAddress, &destinationAddress)
+	if err != nil {
+		return nil, err
+	}
+	// Query the ghc_domestic_transit_times table for the max transit time
+	var ghcDomesticTransitTime models.GHCDomesticTransitTime
+	err = db.Where("distance_miles_lower <= ? "+
+		"AND distance_miles_upper >= ? "+
+		"AND weight_lbs_lower <= ? "+
+		"AND (weight_lbs_upper >= ? OR weight_lbs_upper = 0)",
+		distance, distance, weight, weight).First(&ghcDomesticTransitTime)
+
+	if err != nil {
+		return nil, err
+	}
+	// Add the max transit time to the pickup date to get the new required delivery date
+	requiredDeliveryDate := pickupDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
+
+	// Let's add some days if we're dealing with an alaska shipment.
+	if destinationAddress.State == "AK" {
+		for _, zip := range twentyDayAKZips {
+			if destinationAddress.PostalCode == zip {
+				// Add an extra 10 days here, so that after we add the 10 for being in AK we wind up with a total of 20
+				requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, 10)
+				break
+			}
+		}
+		// Add an extra 10 days for being in AK
+		requiredDeliveryDate = requiredDeliveryDate.AddDate(0, 0, 10)
+	}
+
+	// return the value
+	return &requiredDeliveryDate, nil
+}
+
 // NewMTOShipmentStatusUpdater creates a new MTO Shipment Status Updater
-func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, siCreator services.MTOServiceItemCreator) services.MTOShipmentStatusUpdater {
-	return &mtoShipmentStatusUpdater{db, builder, siCreator}
+func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, siCreator services.MTOServiceItemCreator, planner route.Planner) services.MTOShipmentStatusUpdater {
+	return &mtoShipmentStatusUpdater{db, builder, siCreator, planner}
 }
 
 // ConflictStatusError returns an error for a conflict in status

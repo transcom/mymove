@@ -74,12 +74,7 @@ describe('MoveDocumentView', () => {
     const name = 'Doe, Jane';
     const serviceMember = { name, edipi: '' };
     const documentView = renderMoveDocumentView({ serviceMember });
-    expect(
-      documentView
-        .find('.usa-width-one-third')
-        .find('h3')
-        .text(),
-    ).toEqual(name);
+    expect(documentView.find('.usa-width-one-third').find('h3').text()).toEqual(name);
   });
 
   it('renders the move locator', () => {
@@ -101,13 +96,7 @@ describe('MoveDocumentView', () => {
 
     it('renders the All Documents tab header', () => {
       const documentView = renderMoveDocumentView({ moveDocuments });
-      expect(
-        documentView
-          .find('Tab')
-          .at(0)
-          .dive()
-          .text(),
-      ).toEqual('All Documents (3)');
+      expect(documentView.find('Tab').at(0).dive().text()).toEqual('All Documents (3)');
     });
 
     it('renders a DocumentList with the appropriate props', () => {
@@ -116,10 +105,7 @@ describe('MoveDocumentView', () => {
         documentDetailUrlPrefix,
         moveDocuments,
       });
-      const documentList = documentView
-        .find('TabPanel')
-        .at(0)
-        .find('DocumentList');
+      const documentList = documentView.find('TabPanel').at(0).find('DocumentList');
       expect(documentList.prop('detailUrlPrefix')).toEqual(documentDetailUrlPrefix);
       expect(documentList.prop('moveDocuments')).toEqual(moveDocuments);
     });
@@ -128,13 +114,7 @@ describe('MoveDocumentView', () => {
   describe('Details tab', () => {
     it('renders the Details tab', () => {
       const documentView = renderMoveDocumentView({});
-      expect(
-        documentView
-          .find('Tab')
-          .at(1)
-          .dive()
-          .text(),
-      ).toEqual('Details');
+      expect(documentView.find('Tab').at(1).dive().text()).toEqual('Details');
     });
 
     it('renders a DocumentDetailPanelView with the appropriate props', () => {
@@ -147,10 +127,7 @@ describe('MoveDocumentView', () => {
         moveDocumentSchema,
         moveDocument,
       });
-      const documentDetail = documentView
-        .find('TabPanel')
-        .at(1)
-        .find('DocumentDetailPanelView');
+      const documentDetail = documentView.find('TabPanel').at(1).find('DocumentDetailPanelView');
       expect(documentDetail.prop('title')).toEqual('My Document');
       expect(documentDetail.prop('schema')).toEqual(moveDocumentSchema);
     });

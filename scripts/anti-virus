@@ -65,7 +65,7 @@ readonly WHITELIST_FILES
 WHITELIST_SIGS=${AV_WHITELIST_SIGS:-whitelist-signatures.ign2}
 readonly WHITELIST_SIGS
 
-if [ -n "${CIRCLECI+x}" ]; then
+if [[ -n "${CIRCLECI+x}" ]]; then
   echo "RUNNING IN CIRCLECI"
 fi
 
@@ -158,47 +158,57 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   docker cp "${DIR}" "${CONTAINER_NAME}:${MOUNT_DIR}"
 fi
 
-# Create a whitelist of files to ignore
+# Create a whitelist of files and signatures to ignore
 # The whitelisting is done using `sigtool` to create an md5 hash and placing it in a file
 # See https://www.clamav.net/documents/whitelist-databases
 # See https://owlbearconsulting.com/doku.php?id=linux_wiki:clamav#whitelist_a_file
 # See https://www.clamav.net/documents/file-hash-signatures
-echo
-echo "Creating whitelist of files to ignore:"
+if [[ -n "${IGNORE_FILES}" ]]; then
+  echo
+  echo "Creating whitelist of files to ignore:"
+  rm -f "${WHITELIST_FILES}"
+  touch "${WHITELIST_FILES}"
+  for file in ${IGNORE_FILES}; do
+    # This step verifies the ignore file exists and also details some info for debugging
+    docker exec -it "${CONTAINER_NAME}" ls -alh "${MOUNT_DIR}/${file}"
+    # Sigtool format is "MD5sum:Filesize:Comment"
+    docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}" | tee -a "${WHITELIST_FILES}"
+  done
 
-rm -f "${WHITELIST_FILES}"
-touch "${WHITELIST_FILES}"
-for file in ${IGNORE_FILES}; do
-  # This step verifies the ignore file exists and also details some info for debugging
-  docker exec -it "${CONTAINER_NAME}" ls -alh "${MOUNT_DIR}/${file}"
-  # Sigtool format is "MD5sum:Filesize:Comment"
-  docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}" | tee -a "${WHITELIST_FILES}"
-done
-echo
-echo "Creating whitelist of signatures to ignore:"
-rm -f "${WHITELIST_SIGS}"
-touch "${WHITELIST_SIGS}"
-for sig in ${IGNORE_SIGS}; do
-  echo "${sig}" | tee -a "${WHITELIST_SIGS}"
-done
+  # Copy the ignore list into the container in the same directory as the virus database
+  echo
+  echo "Copying the ignore list into the container:"
+  docker cp "${WHITELIST_FILES}" "${CONTAINER_NAME}:/store/"
+  docker exec -it "${CONTAINER_NAME}" chown root:root "/store/${WHITELIST_FILES}"
 
-# Copy the ignore list into the container in the same directory as the virus database
-echo
-echo "Copying the ignore list into the container:"
-docker cp "${WHITELIST_FILES}" "${CONTAINER_NAME}:/store/"
-docker cp "${WHITELIST_SIGS}" "${CONTAINER_NAME}:/store/"
-docker exec -it "${CONTAINER_NAME}" chown root:root "/store/${WHITELIST_FILES}" "/store/${WHITELIST_SIGS}"
+  echo
+  echo "********************************************************************************"
+  echo "WARNING: Ignoring these specific files in sigtool format:"
+  cat "${WHITELIST_FILES}"
+  echo "********************************************************************************"
+fi
 
-echo
-echo "********************************************************************************"
-echo "WARNING: Ignoring these specific files in sigtool format:"
-cat "${WHITELIST_FILES}"
-echo "********************************************************************************"
-echo
-echo "********************************************************************************"
-echo "WARNING: Ignoring these specific virus signatures:"
-cat "${WHITELIST_SIGS}"
-echo "********************************************************************************"
+if [[ -n "${IGNORE_SIGS}" ]]; then
+  echo
+  echo "Creating whitelist of signatures to ignore:"
+  rm -f "${WHITELIST_SIGS}"
+  touch "${WHITELIST_SIGS}"
+  for sig in ${IGNORE_SIGS}; do
+    echo "${sig}" | tee -a "${WHITELIST_SIGS}"
+  done
+
+  # Copy the ignore list into the container in the same directory as the virus database
+  echo
+  echo "Copying the ignore signatures into the container:"
+  docker cp "${WHITELIST_SIGS}" "${CONTAINER_NAME}:/store/"
+  docker exec -it "${CONTAINER_NAME}" chown root:root "/store/${WHITELIST_SIGS}"
+
+  echo
+  echo "********************************************************************************"
+  echo "WARNING: Ignoring these specific virus signatures:"
+  cat "${WHITELIST_SIGS}"
+  echo "********************************************************************************"
+fi
 
 echo
 echo "Look at all ClamAV files:"

@@ -39,7 +39,7 @@ const httpClient = (url, options = {}) => {
 };
 
 const dataProvider = restProvider('/admin/v1', httpClient);
-const AdminLayout = props => <Layout {...props} menu={Menu} />;
+const AdminLayout = (props) => <Layout {...props} menu={Menu} />;
 const history = createBrowserHistory({ basename: '/system' });
 
 const Home = () => (

@@ -64,6 +64,6 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const mapDispatchToProps = dispatch => bindActionCreators({ getPaymentRequest, updatePaymentRequest }, dispatch);
+const mapDispatchToProps = (dispatch) => bindActionCreators({ getPaymentRequest, updatePaymentRequest }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequestShow);

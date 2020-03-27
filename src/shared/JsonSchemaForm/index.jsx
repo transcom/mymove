@@ -21,7 +21,7 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
     return (
       <fieldset className="usa-fieldset" key={fieldName}>
         <p htmlFor={fieldName}>{group.title}</p>
-        {keys.map(f => renderGroupOrField(f, fields, uiSchema, nameSpace))}
+        {keys.map((f) => renderGroupOrField(f, fields, uiSchema, nameSpace))}
       </fieldset>
     );
   } else if (isCustom) {
@@ -61,7 +61,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
   let requiredErrors = {};
   // first, check that all required fields are present
   if (spec.required) {
-    spec.required.forEach(requiredFieldName => {
+    spec.required.forEach((requiredFieldName) => {
       if (values[requiredFieldName] === undefined || values[requiredFieldName] === '') {
         // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
         let schemaForKey = spec.properties[requiredFieldName];
@@ -82,7 +82,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
   }
 
   // now go through every existing value, if its an object, we must recurse to see if its required properties are there.
-  Object.keys(values).forEach(function(key) {
+  Object.keys(values).forEach(function (key) {
     let schemaForKey = spec.properties[key];
     if (schemaForKey) {
       if (schemaForKey.type === 'object') {
@@ -110,10 +110,10 @@ export const validateRequiredFields = (values, form) => {
   return requiredErrors;
 };
 
-export const validateAdditionalFields = additionalFields => {
+export const validateAdditionalFields = (additionalFields) => {
   return (values, form) => {
     let errors = {};
-    additionalFields.forEach(fieldName => {
+    additionalFields.forEach((fieldName) => {
       if (values[fieldName] === undefined || values[fieldName] === '' || values[fieldName] === null) {
         errors[fieldName] = 'Required.';
       }
@@ -125,9 +125,9 @@ export const validateAdditionalFields = additionalFields => {
 
 // Always Required Fields are fields that are marked as required in swagger, and if they are objects, their sub-required fields.
 // Fields like Addresses may not be required, so even though they have required subfields they are not annotated.
-export const recursivelyAnnotateRequiredFields = schema => {
+export const recursivelyAnnotateRequiredFields = (schema) => {
   if (schema.required) {
-    schema.required.forEach(requiredFieldName => {
+    schema.required.forEach((requiredFieldName) => {
       // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
       let schemaForKey = schema.properties[requiredFieldName];
       if (schemaForKey) {
@@ -148,7 +148,7 @@ export const renderSchema = (schema, uiSchema, nameSpace = '') => {
     recursivelyAnnotateRequiredFields(schema);
 
     const fields = schema.properties || {};
-    return uiSchema.order.map(i => renderGroupOrField(i, fields, uiSchema, nameSpace));
+    return uiSchema.order.map((i) => renderGroupOrField(i, fields, uiSchema, nameSpace));
   }
 };
 
@@ -159,7 +159,7 @@ export const addUiSchemaRequiredFields = (schema, uiSchema) => {
   schema.required = uniq(schema.required.concat(uiSchema.requiredFields));
 };
 
-export const JsonSchemaFormBody = props => {
+export const JsonSchemaFormBody = (props) => {
   const { schema, uiSchema } = props;
 
   addUiSchemaRequiredFields(schema, uiSchema);
@@ -191,7 +191,7 @@ JsonSchemaFormBody.defaultProps = {
   className: 'default',
 };
 
-const JsonSchemaForm = props => {
+const JsonSchemaForm = (props) => {
   const { className } = props;
   const { handleSubmit, schema, uiSchema } = props;
   return (
@@ -211,4 +211,4 @@ JsonSchemaForm.defaultProps = {
   className: 'default',
 };
 
-export const reduxifyForm = name => reduxForm({ form: name, validate: validateRequiredFields })(JsonSchemaForm);
+export const reduxifyForm = (name) => reduxForm({ form: name, validate: validateRequiredFields })(JsonSchemaForm);

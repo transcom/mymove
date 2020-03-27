@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import './dropdown.css';
 
-export const DropDown = props => {
+export const DropDown = (props) => {
   return <div className="dropdown">{props.children}</div>;
 };
 

@@ -36,7 +36,7 @@ export function flagsFromURL(search) {
   const params = queryString.parse(search);
   let flags = {};
 
-  forEach(params, function(value, key) {
+  forEach(params, function (value, key) {
     let [prefix, name] = key.split(':');
     if (prefix === 'flag' && name.length > 0) {
       if (validateFlag(name)) {

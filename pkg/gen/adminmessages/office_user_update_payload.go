@@ -23,13 +23,13 @@ type OfficeUserUpdatePayload struct {
 	Active *bool `json:"active,omitempty"`
 
 	// First Name
-	FirstName *string `json:"first_name,omitempty"`
+	FirstName *string `json:"firstName,omitempty"`
 
 	// Last Name
-	LastName *string `json:"last_name,omitempty"`
+	LastName *string `json:"lastName,omitempty"`
 
 	// Middle Initials
-	MiddleInitials *string `json:"middle_initials,omitempty"`
+	MiddleInitials *string `json:"middleInitials,omitempty"`
 
 	// roles
 	Roles []*OfficeUserRole `json:"roles"`

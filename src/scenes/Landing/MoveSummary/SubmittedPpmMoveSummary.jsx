@@ -5,7 +5,7 @@ import PPMStatusTimeline from 'scenes/Landing/PPMStatusTimeline';
 import FindWeightScales from 'scenes/Landing/MoveSummary/FindWeightScales';
 import PpmMoveDetails from 'scenes/Landing/MoveSummary/SubmittedPpmMoveDetails';
 
-const SubmittedPpmMoveSummary = props => {
+const SubmittedPpmMoveSummary = (props) => {
   const { ppm } = props;
   return (
     <div className="shipment_box">
