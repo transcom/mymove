@@ -24,7 +24,7 @@ type AdminUser struct {
 	// created at
 	// Required: true
 	// Format: datetime
-	CreatedAt *strfmt.DateTime `json:"created_at"`
+	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// email
 	// Required: true
@@ -33,7 +33,7 @@ type AdminUser struct {
 
 	// first name
 	// Required: true
-	FirstName *string `json:"first_name"`
+	FirstName *string `json:"firstName"`
 
 	// id
 	// Required: true
@@ -42,22 +42,22 @@ type AdminUser struct {
 
 	// last name
 	// Required: true
-	LastName *string `json:"last_name"`
+	LastName *string `json:"lastName"`
 
-	// organization id
+	// organization Id
 	// Required: true
 	// Format: uuid
-	OrganizationID *strfmt.UUID `json:"organization_id"`
+	OrganizationID *strfmt.UUID `json:"organizationId"`
 
 	// updated at
 	// Required: true
 	// Format: datetime
-	UpdatedAt *strfmt.DateTime `json:"updated_at"`
+	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
 
-	// user id
+	// user Id
 	// Required: true
 	// Format: uuid
-	UserID *strfmt.UUID `json:"user_id"`
+	UserID *strfmt.UUID `json:"userId"`
 }
 
 // Validate validates this admin user
@@ -117,11 +117,11 @@ func (m *AdminUser) validateActive(formats strfmt.Registry) error {
 
 func (m *AdminUser) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("created_at", "body", m.CreatedAt); err != nil {
+	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("created_at", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -143,7 +143,7 @@ func (m *AdminUser) validateEmail(formats strfmt.Registry) error {
 
 func (m *AdminUser) validateFirstName(formats strfmt.Registry) error {
 
-	if err := validate.Required("first_name", "body", m.FirstName); err != nil {
+	if err := validate.Required("firstName", "body", m.FirstName); err != nil {
 		return err
 	}
 
@@ -165,7 +165,7 @@ func (m *AdminUser) validateID(formats strfmt.Registry) error {
 
 func (m *AdminUser) validateLastName(formats strfmt.Registry) error {
 
-	if err := validate.Required("last_name", "body", m.LastName); err != nil {
+	if err := validate.Required("lastName", "body", m.LastName); err != nil {
 		return err
 	}
 
@@ -174,11 +174,11 @@ func (m *AdminUser) validateLastName(formats strfmt.Registry) error {
 
 func (m *AdminUser) validateOrganizationID(formats strfmt.Registry) error {
 
-	if err := validate.Required("organization_id", "body", m.OrganizationID); err != nil {
+	if err := validate.Required("organizationId", "body", m.OrganizationID); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("organization_id", "body", "uuid", m.OrganizationID.String(), formats); err != nil {
+	if err := validate.FormatOf("organizationId", "body", "uuid", m.OrganizationID.String(), formats); err != nil {
 		return err
 	}
 
@@ -187,11 +187,11 @@ func (m *AdminUser) validateOrganizationID(formats strfmt.Registry) error {
 
 func (m *AdminUser) validateUpdatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("updated_at", "body", m.UpdatedAt); err != nil {
+	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("updated_at", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -200,11 +200,11 @@ func (m *AdminUser) validateUpdatedAt(formats strfmt.Registry) error {
 
 func (m *AdminUser) validateUserID(formats strfmt.Registry) error {
 
-	if err := validate.Required("user_id", "body", m.UserID); err != nil {
+	if err := validate.Required("userId", "body", m.UserID); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("user_id", "body", "uuid", m.UserID.String(), formats); err != nil {
+	if err := validate.FormatOf("userId", "body", "uuid", m.UserID.String(), formats); err != nil {
 		return err
 	}
 

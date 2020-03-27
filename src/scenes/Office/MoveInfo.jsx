@@ -55,7 +55,7 @@ import {
 import { formatDate } from 'shared/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
-const BasicsTabContent = props => {
+const BasicsTabContent = (props) => {
   return (
     <div className="office-tab">
       <OrdersPanel title="Orders" moveId={props.moveId} />
@@ -66,7 +66,7 @@ const BasicsTabContent = props => {
   );
 };
 
-const PPMTabContent = props => {
+const PPMTabContent = (props) => {
   return (
     <div className="office-tab">
       <PaymentsPanel title="Payments" moveId={props.moveId} />
@@ -84,7 +84,7 @@ const PPMTabContent = props => {
   );
 };
 
-const ReferrerQueueLink = props => {
+const ReferrerQueueLink = (props) => {
   const pathname = props.history.location.state ? props.history.location.state.referrerPathname : '';
   switch (pathname) {
     case '/queues/ppm':
@@ -163,7 +163,7 @@ class MoveInfo extends Component {
     this.props.approvePPM(this.props.ppm.id, approveDate);
   };
 
-  cancelMoveAndRedirect = cancelReason => {
+  cancelMoveAndRedirect = (cancelReason) => {
     const messageLines = [
       `Move #${this.props.move.locator} for ${this.props.serviceMember.last_name}, ${this.props.serviceMember.first_name} has been canceled`,
       'An email confirmation has been sent to the customer.',
@@ -472,7 +472,7 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-const mapDispatchToProps = dispatch =>
+const mapDispatchToProps = (dispatch) =>
   bindActionCreators(
     {
       getMoveDocumentsForMove,

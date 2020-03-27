@@ -99,9 +99,14 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	// create HHG -> house hold goods
 	// mto shipment of type HHG
 	requestedPickupDate := time.Now()
+	scheduledPickupDate := time.Now()
+	// add 7 days from requested pickup to scheduled pickup
+	h, _ := time.ParseDuration("168h")
+	scheduledPickupDate.Add(h)
 	hhg := models.MTOShipment{
 		MoveTaskOrderID:      mto.ID,
 		RequestedPickupDate:  &requestedPickupDate,
+		ScheduledPickupDate:  &scheduledPickupDate,
 		PickupAddressID:      &sm.DutyStation.AddressID,
 		DestinationAddressID: &orders.NewDutyStation.AddressID,
 		ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,

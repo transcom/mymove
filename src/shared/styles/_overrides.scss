@@ -1,0 +1,114 @@
+//USWDS Overrides
+//many of the components in our system use the USWDS cpmonents as a starting point, but divert a little. Here we will store any ovverrriding scss.
+@import 'shared/styles/colors.scss';
+
+.usa-button {
+  @include u-bg('primary-vivid');
+  @include u-padding-x('3');
+  @include u-padding-y('105');
+  @include u-font-size('body', 'xs');
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  @include u-margin('1');
+  .icon svg path {
+    fill: white;
+  }
+  &:hover,
+  &:focus,
+  .hover &,
+  .focus & {
+    @include u-bg('primary-dark');
+  }
+  .focus & {
+    outline: 0.26667rem solid #2491ff;
+    outline-offset: 0.26667rem;
+  }
+  &:active,
+  .active & {
+    @include u-bg('primary-darker');
+  }
+  &--secondary {
+    @include u-radius('md');
+    @include u-text('primary-vivid');
+    @include u-bg('transparent');
+    box-shadow: inset 0 0 0 2px color('primary-vivid');
+    .icon svg path {
+      fill: $primary;
+    }
+    &:hover,
+    &:focus,
+    .hover &,
+    .focus & {
+      @include u-text('primary-dark');
+      @include u-bg('transparent');
+      box-shadow: inset 0 0 0 2px color('primary-dark');
+      .icon svg path {
+        fill: $primary-dark;
+      }
+    }
+    &:active,
+    .active & {
+      @include u-text('primary-darker');
+      @include u-bg('transparent');
+      box-shadow: inset 0 0 0 2px color('primary-darker');
+      .icon svg path {
+        fill: $primary-darker;
+      }
+    }
+    &:disabled,
+    .disabled & {
+      @include u-text('base-light');
+      @include u-bg('transparent');
+      box-shadow: inset 0 0 0 2px color('base-light');
+      .icon svg path {
+        fill: $base-light;
+      }
+    }
+  } //close &--secondary
+  &--icon {
+    .icon {
+      @include u-padding-right('1');
+    }
+  }
+  &--small {
+    @include u-padding-x('105');
+    @include u-padding-y('1');
+    @include u-font-size('body', '2xs');
+    height: 34px;
+  }
+  &.usa-button--unstyled {
+    @include u-bg('transparent');
+    @include u-text('primary-vivid');
+    @include u-text('no-underline');
+    .icon {
+      @include u-padding-right('1');
+      svg path {
+        fill: $primary;
+      }
+    }
+    &:hover,
+    &:focus,
+    .hover &,
+    .focus & {
+      @include u-text('primary-dark');
+      .icon svg path {
+        fill: $primary-dark;
+      }
+    }
+    &:disabled {
+      @include u-text('base-light');
+      .icon svg path {
+        fill: $base-light;
+      }
+    }
+    &:active,
+    .active & {
+      @include u-text('primary-darker');
+      .icon svg path {
+        fill: $primary-darker;
+      }
+    }
+  }
+} //close usa-button

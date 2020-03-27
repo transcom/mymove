@@ -7,7 +7,7 @@ import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 
 //this is taken from https://designsystem.digital.gov/components/alerts/
-const Alert = props => (
+const Alert = (props) => (
   <div className={`usa-alert usa-alert--${props.type}`}>
     <div className="usa-alert__body">
       <div className="body--heading">

@@ -26,7 +26,7 @@ type OfficeUser struct {
 	// created at
 	// Required: true
 	// Format: datetime
-	CreatedAt *strfmt.DateTime `json:"created_at"`
+	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// email
 	// Required: true
@@ -35,7 +35,7 @@ type OfficeUser struct {
 
 	// first name
 	// Required: true
-	FirstName *string `json:"first_name"`
+	FirstName *string `json:"firstName"`
 
 	// id
 	// Required: true
@@ -44,11 +44,11 @@ type OfficeUser struct {
 
 	// last name
 	// Required: true
-	LastName *string `json:"last_name"`
+	LastName *string `json:"lastName"`
 
 	// middle initials
 	// Required: true
-	MiddleInitials *string `json:"middle_initials"`
+	MiddleInitials *string `json:"middleInitials"`
 
 	// roles
 	// Required: true
@@ -59,15 +59,15 @@ type OfficeUser struct {
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone *string `json:"telephone"`
 
-	// transportation office id
+	// transportation office Id
 	// Required: true
 	// Format: uuid
-	TransportationOfficeID *strfmt.UUID `json:"transportation_office_id"`
+	TransportationOfficeID *strfmt.UUID `json:"transportationOfficeId"`
 
 	// updated at
 	// Required: true
 	// Format: datetime
-	UpdatedAt *strfmt.DateTime `json:"updated_at"`
+	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
 }
 
 // Validate validates this office user
@@ -135,11 +135,11 @@ func (m *OfficeUser) validateActive(formats strfmt.Registry) error {
 
 func (m *OfficeUser) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("created_at", "body", m.CreatedAt); err != nil {
+	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("created_at", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -161,7 +161,7 @@ func (m *OfficeUser) validateEmail(formats strfmt.Registry) error {
 
 func (m *OfficeUser) validateFirstName(formats strfmt.Registry) error {
 
-	if err := validate.Required("first_name", "body", m.FirstName); err != nil {
+	if err := validate.Required("firstName", "body", m.FirstName); err != nil {
 		return err
 	}
 
@@ -183,7 +183,7 @@ func (m *OfficeUser) validateID(formats strfmt.Registry) error {
 
 func (m *OfficeUser) validateLastName(formats strfmt.Registry) error {
 
-	if err := validate.Required("last_name", "body", m.LastName); err != nil {
+	if err := validate.Required("lastName", "body", m.LastName); err != nil {
 		return err
 	}
 
@@ -192,7 +192,7 @@ func (m *OfficeUser) validateLastName(formats strfmt.Registry) error {
 
 func (m *OfficeUser) validateMiddleInitials(formats strfmt.Registry) error {
 
-	if err := validate.Required("middle_initials", "body", m.MiddleInitials); err != nil {
+	if err := validate.Required("middleInitials", "body", m.MiddleInitials); err != nil {
 		return err
 	}
 
@@ -239,11 +239,11 @@ func (m *OfficeUser) validateTelephone(formats strfmt.Registry) error {
 
 func (m *OfficeUser) validateTransportationOfficeID(formats strfmt.Registry) error {
 
-	if err := validate.Required("transportation_office_id", "body", m.TransportationOfficeID); err != nil {
+	if err := validate.Required("transportationOfficeId", "body", m.TransportationOfficeID); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("transportation_office_id", "body", "uuid", m.TransportationOfficeID.String(), formats); err != nil {
+	if err := validate.FormatOf("transportationOfficeId", "body", "uuid", m.TransportationOfficeID.String(), formats); err != nil {
 		return err
 	}
 
@@ -252,11 +252,11 @@ func (m *OfficeUser) validateTransportationOfficeID(formats strfmt.Registry) err
 
 func (m *OfficeUser) validateUpdatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("updated_at", "body", m.UpdatedAt); err != nil {
+	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("updated_at", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

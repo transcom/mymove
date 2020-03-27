@@ -51,7 +51,7 @@ const validateWeight = (value, formValues, props, fieldName) => {
   }
 };
 
-let EditWeightForm = props => {
+let EditWeightForm = (props) => {
   const {
     schema,
     handleSubmit,
@@ -165,7 +165,7 @@ let EditWeightForm = props => {
                     </tr>
                   </thead>
                   <tbody>
-                    {examples.map(ex => (
+                    {examples.map((ex) => (
                       <tr key={ex.weight}>
                         <td>{ex.weight.toLocaleString()}</td>
                         <td>{ex.incentive}</td>

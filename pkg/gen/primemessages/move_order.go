@@ -18,7 +18,7 @@ import (
 type MoveOrder struct {
 
 	// confirmation number
-	ConfirmationNumber string `json:"confirmationNumber,omitempty"`
+	ConfirmationNumber *string `json:"confirmationNumber,omitempty"`
 
 	// customer
 	Customer *Customer `json:"customer,omitempty"`

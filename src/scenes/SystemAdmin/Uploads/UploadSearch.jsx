@@ -12,7 +12,7 @@ export class UploadSearch extends Component {
     };
   }
 
-  setUploadIDinState = e => {
+  setUploadIDinState = (e) => {
     this.setState({ uploadID: e.target.value });
   };
 
