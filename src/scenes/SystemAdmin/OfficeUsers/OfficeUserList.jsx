@@ -22,9 +22,9 @@ const OfficeUserList = (props) => (
     <Datagrid rowClick="show">
       <TextField source="id" />
       <TextField source="email" />
-      <TextField source="first_name" />
-      <TextField source="last_name" />
-      <ReferenceField label="Transportation Office" source="transportation_office_id" reference="offices">
+      <TextField source="firstName" />
+      <TextField source="lastName" />
+      <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices">
         <TextField source="name" />
       </ReferenceField>
       <BooleanField source="active" />
