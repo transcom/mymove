@@ -26,7 +26,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 	var stmt strings.Builder
 
 	i := 0
-	var hasCopyStatment []string
+	inCopyStatement := false
 	for {
 		// Get previous and current characters
 		char, err := in.Index(i)
@@ -48,6 +48,30 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			continue
 		}
 
+		if inCopyStatement && char == '\n' {
+			twoPrevChars, err := in.Range(i-2, i)
+			if err != nil {
+				if err == ErrWait {
+					time.Sleep(wait)
+					continue
+				} else {
+					close(statements)
+					return
+				}
+			} else if twoPrevChars == "\\." {
+				str := strings.TrimSpace(stmt.String())
+				copyStmts := strings.Split(str, "\n")
+				for _, dataStmt := range copyStmts {
+					statements <- dataStmt
+					stmt.Reset()
+				}
+
+				inCopyStatement = false
+				i++ // eat 1 character
+				continue
+			}
+		}
+
 		// If not in block not quoted and on semicolon, then split statement.
 		if blocks.Empty() && quoted == 0 && char == ';' {
 			str := strings.TrimSpace(stmt.String() + ";")
@@ -56,10 +80,8 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 				stmt.Reset()
 			}
 
-			// check for copy statement in statements, we only need to do this once
-			if hasCopyStatment == nil {
-				hasCopyStatment = copyStdinPattern.FindStringSubmatch(str)
-			}
+			// check for copy statement in statements
+			inCopyStatement = copyStdinPattern.MatchString(str)
 			i++ // eat 1 character
 			continue
 		}
@@ -222,16 +244,8 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 	if stmt.Len() > 0 {
 		str := strings.TrimSpace(stmt.String())
 		if len(str) > 0 {
-			// if we found COPY statement in statements anywhere, we assume last rows are data rows. Split them on newline
-			if hasCopyStatment != nil {
-				copyStmts := strings.Split(str, "\n")
-				for _, dataStmt := range copyStmts {
-					statements <- dataStmt
-				}
-			} else {
-				statements <- str
-				stmt.Reset()
-			}
+			statements <- str
+			stmt.Reset()
 		}
 	}
 	close(statements)
