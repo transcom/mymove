@@ -41,11 +41,12 @@ export class PpmWeight extends Component {
       return null;
     }
     const defaultWeightRange = {
-      min: 1500,
-      max: entitlement.sum,
+      min: 500,
+      max: 2500,
     };
 
-    return defaultWeightRange.min + (defaultWeightRange.max - defaultWeightRange.min) / 2;
+    const median = defaultWeightRange.min + (defaultWeightRange.max - defaultWeightRange.min) / 2;
+    return median;
   }
 
   componentDidMount() {
@@ -84,16 +85,21 @@ export class PpmWeight extends Component {
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
   updateIncentive() {
-    const { currentPPM, originDutyStationZip } = this.props;
+    const { currentPPM, originDutyStationZip, tempOriginalMoveDate, tempPickupPostalCode } = this.props;
     const weight = this.state.pendingPpmWeight;
 
-    this.props.getPpmWeightEstimate(
-      currentPPM.original_move_date,
-      currentPPM.pickup_postal_code,
-      originDutyStationZip,
-      this.props.orders.id,
-      weight,
-    );
+    // TODO this is a work around till we refactor more SM data...
+    const origMoveDate =
+      currentPPM && currentPPM.hasOwnProperty('original_move_date')
+        ? currentPPM.original_move_date
+        : tempOriginalMoveDate;
+    // TODO this is a work around till we refactor more SM data...
+    const pickupPostalCode =
+      currentPPM && currentPPM.hasOwnProperty('pickup_postal_code')
+        ? currentPPM.pickup_postal_code
+        : tempPickupPostalCode;
+
+    this.props.getPpmWeightEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight);
   }
 
   handleSubmit = () => {
@@ -278,7 +284,7 @@ export class PpmWeight extends Component {
                 max={this.props.entitlement.weight}
                 step={this.props.entitlement.weight <= 2500 ? 100 : 500}
                 min={0}
-                defaultValue={500}
+                defaultValue={1500}
                 prependTooltipText="about"
                 appendTooltipText="lbs"
                 onChange={this.onWeightSelected}
@@ -404,6 +410,9 @@ function mapStateToProps(state) {
     schema: schema,
     originDutyStationZip,
     orders: get(state, 'orders.currentOrders', {}),
+    // TODO this is a work around till we refactor more SM data...
+    tempOriginalMoveDate: get(state, 'ppm.currentPpm.original_move_date'),
+    tempPickupPostalCode: get(state, 'ppm.currentPpm.pickup_postal_code'),
   };
 
   return props;
