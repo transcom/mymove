@@ -398,7 +398,7 @@ jobs:
   anti_virus:
     executor: av_medium
     steps:
-      - run: apk update && apk add --no-cache git
+      - run: apk update && apk add --no-cache git openssh
       - checkout
       - run: clamscan --version
       - run: mkdir -p /tmp/store
