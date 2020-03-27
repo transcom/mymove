@@ -401,11 +401,10 @@ jobs:
       - run: apk update && apk add --no-cache git openssh
       - checkout
       - run: clamscan --version
-      - run: mkdir -p /tmp/store
-      - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /tmp/store
+      - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /store
       - run:
-          name: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/tmp/store
-          command: for i in $(seq 1 5); do freshclam --config-file /etc/clamav/freshclam.conf --datadir=/tmp/store && s=0 && break || s=$? && sleep 5; done; (exit $s)
+          name: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store
+          command: for i in $(seq 1 5); do freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store && s=0 && break || s=$? && sleep 5; done; (exit $s)
       - run: >
           clamscan \
             --recursive \
@@ -418,9 +417,9 @@ jobs:
             --max-recursion=30 \
             --max-files=50000 \
             --tempdir=/tmp \
-            --database=/tmp/store \
+            --database=/store \
             /root/project \
-            /tmp/store
+            /store
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
