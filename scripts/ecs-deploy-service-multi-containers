@@ -85,7 +85,7 @@ green_task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --aws-region us-west-2 \
   --service "${name}" \
   --environment "${environment}" \
-  --primary-image "${primaryImage}" \
+  --image "${primaryImage}" \
   --sidecar-image "${sidecarImage}" \
   --variables-file "${DIR}/../config/env/${environment}.${name}.env" \
   --entrypoint "milmove_admin.wsgi:application --name milmove_admin --bind 0.0.0.0:8000 --workers 3 --log-level info --error-logfile ''-' --access-logfile '-'" \

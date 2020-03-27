@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -113,6 +114,7 @@ func (e *errInvalidFile) Error() string {
 const (
 	serviceFlag       string = "service"
 	imageURIFlag      string = "image"
+	sidecarImageURIFlag string = "sidecar-image"
 	variablesFileFlag string = "variables-file"
 	entryPointFlag    string = "entrypoint"
 	cpuFlag           string = "cpu"
@@ -222,6 +224,7 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	flag.String(serviceFlag, "app", fmt.Sprintf("The service name (choose %q)", services))
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
 	flag.String(imageURIFlag, "", "The URI of the container image to use in the task definition")
+	flag.String(sidecarImageURIFlag, "", "The URI of the sidecar container image to use in the task definition")
 	flag.String(variablesFileFlag, "", "A file containing variables for the task definiton")
 	flag.String(entryPointFlag, fmt.Sprintf("%s serve", binMilMove), "The entryPoint for the container")
 	flag.Int(cpuFlag, int(512), "The CPU reservation")
@@ -308,6 +311,13 @@ func checkTaskDefConfig(v *viper.Viper) error {
 	if len(image) == 0 {
 		return fmt.Errorf("%q is invalid: %w", imageURIFlag, &errInvalidImage{Image: image})
 	}
+
+	sidecarImage := v.GetString(sidecarImageURIFlag)
+	if len(sidecarImage) > 0 {
+		//todo: validate format url@digest
+		//regexp.MatchString()
+	}
+
 
 	if variablesFile := v.GetString(variablesFileFlag); len(variablesFile) > 0 {
 		if _, err := os.Stat(variablesFile); err != nil {
@@ -486,6 +496,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	environmentName := v.GetString(environmentFlag)
 	serviceName := v.GetString(serviceFlag)
 	imageURI := v.GetString(imageURIFlag)
+	sidecarImageURI := v.GetString(sidecarImageURIFlag)
 	variablesFile := v.GetString(variablesFileFlag)
 
 	// Short service name needed for RDS, CloudWatch Logs, and SSM
@@ -496,6 +507,16 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	ecrImage, errECRImage := NewECRImage(imageURI)
 	if errECRImage != nil {
 		quit(logger, nil, fmt.Errorf("unable to recognize image URI %q: %w", imageURI, errECRImage))
+	}
+
+	var ecrSidecarImage *ECRImage
+	var errSECRImage *error
+
+	if len(sidecarImageURI) > 0 {
+		ecrSidecarImage, errSECRImage = NewECRImage(sidecarImageURI)
+		if errSECRImage != nil {
+			quit(logger, nil, fmt.Errorf("unable to recognize sidecar image URI %q: %w", sidecarImageURI, errSECRImage))
+		}
 	}
 
 	errValidateImage := ecrImage.Validate(serviceECR)
@@ -607,6 +628,8 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		RequiresCompatibilities: []*string{aws.String("FARGATE")},
 		TaskRoleArn:             aws.String(taskRoleArn),
 	}
+
+	// todo: add sidecar container to task def
 
 	// Registration is never allowed by default and requires a flag
 	if v.GetBool(dryRunFlag) {
