@@ -49,7 +49,6 @@ export class PpmWeight extends Component {
   }
 
   componentDidMount() {
-    console.log('did mount');
     const { currentPPM } = this.props;
     const moveId = this.props.match.params.moveId;
     this.props.loadPPMs(moveId);
@@ -67,7 +66,6 @@ export class PpmWeight extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('did update');
     const { currentPPM, hasLoadSuccess } = this.props;
     if (!prevProps.hasLoadSuccess && hasLoadSuccess && currentPPM) {
       this.setState(
@@ -86,17 +84,15 @@ export class PpmWeight extends Component {
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
   updateIncentive() {
-    // const { currentWeight, currentPPM, originDutyStationZip } = this.props;
     const { currentPPM, originDutyStationZip } = this.props;
-    // const newWeight = currentWeight && currentWeight !== 0 ? currentWeight : this.state.pendingPpmWeight;
+    const weight = this.state.pendingPpmWeight;
 
-    // this.onWeightSelecting(newWeight);
     this.props.getPpmWeightEstimate(
       currentPPM.original_move_date,
       currentPPM.pickup_postal_code,
       originDutyStationZip,
       this.props.orders.id,
-      this.state.pendingPpmWeight,
+      weight,
     );
   }
 
@@ -123,22 +119,6 @@ export class PpmWeight extends Component {
       () => this.updateIncentive(),
     );
   };
-  // onWeightSelecting = (value) => {
-  //   this.setState({
-  //     pendingPpmWeight: value,
-  //   });
-  // };
-
-  // onWeightSelected() {
-  //   const { currentPPM, originDutyStationZip } = this.props;
-  //   this.props.getPpmWeightEstimate(
-  //     currentPPM.original_move_date,
-  //     currentPPM.pickup_postal_code,
-  //     originDutyStationZip,
-  //     this.props.orders.id,
-  //     this.state.pendingPpmWeight,
-  //   );
-  // }
 
   chooseVehicleIcon(currentEstimate) {
     if (currentEstimate < 500) {
