@@ -22,15 +22,15 @@ type Zip5Fixture struct {
 	RateArea string `csv:"rate_area"`
 }
 
-func (gre *GHCRateEngineImporter) mapZipsToRateAreas(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) mapZipsToRateAreas(dbTx *pop.Connection, zip3FixturePath string, zip5RateAreasFixturePath string) error {
 	// Maps re_zip3s to re_rate_areas based on tariff400ng_zip3s_fixture.csv
-	err := gre.mapZip3s(dbTx)
+	err := gre.mapZip3s(dbTx, zip3FixturePath)
 	if err != nil {
 		return fmt.Errorf("mapZip3s failed: %w", err)
 	}
 
 	// Creates re_zip5_rate_areas records from tariff400ng_zip5_rate_areas_fixture.csv
-	err = gre.createZip5s(dbTx)
+	err = gre.createZip5s(dbTx, zip5RateAreasFixturePath)
 	if err != nil {
 		return fmt.Errorf("createZip5s failed: %w", err)
 	}
@@ -38,8 +38,8 @@ func (gre *GHCRateEngineImporter) mapZipsToRateAreas(dbTx *pop.Connection) error
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection) error {
-	csvFile, err := os.OpenFile("pkg/services/ghcimport/fixtures/tariff400ng_zip3s_fixture.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection, fixturePath string) error {
+	csvFile, err := os.OpenFile(fixturePath, os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
@@ -93,8 +93,8 @@ func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection) error {
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) createZip5s(dbTx *pop.Connection) error {
-	csvFile, err := os.OpenFile("pkg/services/ghcimport/fixtures/tariff400ng_zip5_rate_areas_fixture.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+func (gre *GHCRateEngineImporter) createZip5s(dbTx *pop.Connection, fixturePath string) error {
+	csvFile, err := os.OpenFile(fixturePath, os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
