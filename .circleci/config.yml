@@ -398,16 +398,14 @@ jobs:
   anti_virus:
     executor: av_medium
     steps:
+      - run: apk update && apk add --no-cache git
       - checkout
       - run: clamscan --version
       - run: mkdir -p /tmp/store
       - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /tmp/store
-      - run: >
-          for i in $(seq 1 5); do \
-            freshclam --config-file /etc/clamav/freshclam.conf --datadir=/tmp/store \
-              && s=0 && break || s=$? && sleep 5; \
-          done; \
-          (exit $s)
+      - run:
+          name: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/tmp/store
+          command: for i in $(seq 1 5); do freshclam --config-file /etc/clamav/freshclam.conf --datadir=/tmp/store && s=0 && break || s=$? && sleep 5; done; (exit $s)
       - run: >
           clamscan \
             --recursive \
