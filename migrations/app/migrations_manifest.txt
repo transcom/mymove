@@ -474,6 +474,7 @@
 20200302220909_donald_cac.up.sql
 20200306232322_service_item_dom_origin_sit_update.up.sql
 20200309224754_ren_cac.up.sql
+20200310163230_add-required-delivery-date-mto-shipment.up.sql
 20200312023106_shimona_cac.up.sql
 20200312145322_change_nullability_in_client_certs.up.sql
 20200313162229_change_nullability_in_customers.up.sql

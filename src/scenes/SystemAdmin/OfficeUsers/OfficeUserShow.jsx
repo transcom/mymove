@@ -11,7 +11,7 @@ import {
 } from 'react-admin';
 
 const OfficeUserShowTitle = ({ record }) => {
-  return <span>{`${record.first_name} ${record.last_name}`}</span>;
+  return <span>{`${record.firstName} ${record.lastName}`}</span>;
 };
 
 const OfficeUserShow = (props) => {
@@ -20,9 +20,9 @@ const OfficeUserShow = (props) => {
       <SimpleShowLayout>
         <TextField source="id" />
         <TextField source="email" />
-        <TextField source="first_name" />
-        <TextField source="middle_initials" />
-        <TextField source="last_name" />
+        <TextField source="firstName" />
+        <TextField source="middleInitials" />
+        <TextField source="lastName" />
         <TextField source="telephone" />
         <BooleanField source="active" />
         <ArrayField source="roles">
@@ -30,16 +30,11 @@ const OfficeUserShow = (props) => {
             <TextField source="roleName" />
           </Datagrid>
         </ArrayField>
-        <ReferenceField
-          label="Transportation Office"
-          source="transportation_office_id"
-          reference="offices"
-          sortBy="name"
-        >
+        <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices" sortBy="name">
           <TextField component="pre" source="name" />
         </ReferenceField>
-        <DateField source="created_at" showTime />
-        <DateField source="updated_at" showTime />
+        <DateField source="createdAt" showTime />
+        <DateField source="updatedAt" showTime />
       </SimpleShowLayout>
     </Show>
   );
