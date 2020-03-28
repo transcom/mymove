@@ -2,15 +2,15 @@
 
 ## Overview
 
-This document details how to test the prime-api locally.
+This document details how to test the Prime API locally.
 
-For how to test on staging and experimental, follow this [link](test-prime-api-staging-experimental).
+For how to test on staging and experimental, follow this [link](test-prime-api-staging-experimental.md).
 
 ## Requirements
 
 You must have data generated within your database and have the server running.
 
-If you are using the Prime Docker via `make run_prime_docker`, this has already been done for you.
+If you are using the [Prime Docker](run-prime-docker.md) via `make run_prime_docker`, this has already been done for you.
 
 If you are not, please generate the data through `make db_dev_e2e_populate && server_run`,
 
@@ -130,3 +130,25 @@ Before creating a new MTO service item, you need to figure out the ID and the MT
           "reServiceID": "998beda7-e390-4a83-b15e-578a24326937"
         }
       ```
+
+
+## Quick Tricks
+
+You've seen this at the beginning of each command:
+
+```sh
+go run ./cmd/prime-api-client
+```
+
+You can shorten it by doing the following
+
+```sh
+rm -f bin/prime-api-client
+make bin/prime-api-client
+```
+
+Then every time you see `go run ./cmd/prime-api-client` you can replace it with simply `prime-api-client`. For example:
+
+```shell script
+prime-api-client --insecure fetch-mtos
+```

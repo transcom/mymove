@@ -10,8 +10,8 @@ const ElectronicOrderList = (props) => (
     <Datagrid>
       <TextField source="id" />
       <TitleizedField source="issuer" />
-      <TextField source="orders_number" />
-      <TextField source="created_at" />
+      <TextField source="ordersNumber" />
+      <TextField source="createdAt" />
     </Datagrid>
   </List>
 );

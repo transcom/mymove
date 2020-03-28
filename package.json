@@ -86,7 +86,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.8.7",
+    "@babel/core": "~7.9.0",
     "@rescripts/cli": "^0.0.14",
     "@rescripts/rescript-env": "^0.0.12",
     "@storybook/addon-actions": "^5.3.17",
@@ -95,6 +95,7 @@
     "@storybook/addon-links": "^5.3.17",
     "@storybook/addons": "^5.3.17",
     "@storybook/react": "^5.3.17",
+    "danger": "^9.3.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-prettier": "^3.1.2",

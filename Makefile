@@ -7,7 +7,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
-DB_DOCKER_CONTAINER_IMAGE = postgres:10.10
+DB_DOCKER_CONTAINER_IMAGE = postgres:10.12
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
@@ -357,10 +357,10 @@ build_tools: bin/gin \
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
 
-# webserver_test runs a few acceptance tests against a local or remote environment.
+# acceptance_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
-.PHONY: webserver_test
-webserver_test: bin/rds-ca-2019-root.pem ## Run acceptance tests
+.PHONY: acceptance_test
+acceptance_test: bin/rds-ca-2019-root.pem ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -801,6 +801,18 @@ run_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Exp
 
 #
 # ----- END PROD_MIGRATION TARGETS -----
+#
+
+#
+# ----- START PRIME TARGETS -----
+#
+
+.PHONY: run_prime_docker
+run_prime_docker: ## Runs the docker that spins up the Prime API and data to test with
+	scripts/run-prime-docker
+
+#
+# ----- END PRIME TARGETS -----
 #
 
 #
