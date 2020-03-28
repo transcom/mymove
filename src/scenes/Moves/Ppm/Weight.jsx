@@ -51,8 +51,6 @@ export class PpmWeight extends Component {
 
   componentDidMount() {
     const { currentPPM } = this.props;
-    const moveId = this.props.match.params.moveId;
-    this.props.loadPPMs(moveId);
     if (currentPPM) {
       this.setState(
         {
@@ -85,33 +83,37 @@ export class PpmWeight extends Component {
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
   updateIncentive() {
-    const { currentPPM, originDutyStationZip, tempOriginalMoveDate, tempPickupPostalCode } = this.props;
+    const { currentPPM, originDutyStationZip, tempCurrentPPM } = this.props;
     const weight = this.state.pendingPpmWeight;
 
     // TODO this is a work around till we refactor more SM data...
     const origMoveDate =
       currentPPM && currentPPM.hasOwnProperty('original_move_date')
         ? currentPPM.original_move_date
-        : tempOriginalMoveDate;
+        : tempCurrentPPM.original_move_date;
     // TODO this is a work around till we refactor more SM data...
     const pickupPostalCode =
       currentPPM && currentPPM.hasOwnProperty('pickup_postal_code')
         ? currentPPM.pickup_postal_code
-        : tempPickupPostalCode;
+        : tempCurrentPPM.pickup_postal_code;
 
     this.props.getPpmWeightEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight);
   }
 
   handleSubmit = () => {
-    const moveId = this.props.match.params.moveId;
     const ppmBody = {
-      weight_estimate: this.state.pendingPpmWeight,
+      weight_estimate: parseInt(this.state.pendingPpmWeight),
       has_requested_advance: false,
       has_pro_gear: toUpper(this.state.includesProgear),
       has_pro_gear_over_thousand: toUpper(this.state.isProgearMoreThan1000),
     };
+
+    // TODO this is a work around till we refactor more SM data...
+    const ppmId = this.props.currentPPM.id ? this.props.currentPPM.id : this.props.tempCurrentPPM.id;
+    // TODO this is a work around till we refactor more SM data...
+    const moveId = this.props.currentPPM.move_id ? this.props.currentPPM.move_id : this.props.tempCurrentPPM.move_id;
     return this.props
-      .updatePPM(moveId, this.props.currentPPM.id, ppmBody)
+      .updatePPM(moveId, ppmId, ppmBody)
       .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch((err) => err));
     // catch block returns error so that the wizard can continue on with its flow
   };
@@ -284,7 +286,7 @@ export class PpmWeight extends Component {
                 max={this.props.entitlement.weight}
                 step={this.props.entitlement.weight <= 2500 ? 100 : 500}
                 min={0}
-                defaultValue={1500}
+                defaultValue={this.state.pendingPpmWeight}
                 prependTooltipText="about"
                 appendTooltipText="lbs"
                 onChange={this.onWeightSelected}
@@ -388,7 +390,6 @@ export class PpmWeight extends Component {
 }
 
 PpmWeight.propTypes = {
-  currentWeight: PropTypes.number,
   currentPpm: PropTypes.shape({
     id: PropTypes.string,
     weight: PropTypes.number,
@@ -405,14 +406,12 @@ function mapStateToProps(state) {
   const props = {
     ...state.ppm,
     currentPPM: selectActivePPMForMove(state, moveID),
-    currentWeight: get(state, 'ppm.currentPpm.weight_estimate'),
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
     originDutyStationZip,
     orders: get(state, 'orders.currentOrders', {}),
     // TODO this is a work around till we refactor more SM data...
-    tempOriginalMoveDate: get(state, 'ppm.currentPpm.original_move_date'),
-    tempPickupPostalCode: get(state, 'ppm.currentPpm.pickup_postal_code'),
+    tempCurrentPPM: get(state, 'ppm.currentPpm'),
   };
 
   return props;
