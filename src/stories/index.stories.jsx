@@ -6,6 +6,8 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { Button } from '@trussworks/react-uswds';
 import { ReactComponent as EditIcon } from 'shared/images/edit-24px.svg';
+import { ReactComponent as ChevronLeft } from 'shared/icon/chevron-left.svg';
+import { ReactComponent as ChevronRight } from 'shared/icon/chevron-right.svg';
 import colors from '../shared/styles/colors.scss';
 
 const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
@@ -486,7 +488,7 @@ storiesOf('Components|Tables', module)
         <div className="tcontrol--pagination">
           <Button className="usa-button--unstyled" onClick={action('clicked')}>
             <span className="icon">
-              <EditIcon />
+              <ChevronLeft />
             </span>
             <span>Prev</span>
           </Button>
@@ -498,7 +500,7 @@ storiesOf('Components|Tables', module)
           <Button className="usa-button--unstyled" onClick={action('clicked')}>
             <span>Next</span>
             <span className="icon">
-              <EditIcon />
+              <ChevronRight />
             </span>
           </Button>
         </div>
