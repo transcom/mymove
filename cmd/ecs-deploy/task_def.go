@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -112,14 +111,14 @@ func (e *errInvalidFile) Error() string {
 }
 
 const (
-	serviceFlag       string = "service"
-	imageURIFlag      string = "image"
+	serviceFlag         string = "service"
+	imageURIFlag        string = "image"
 	sidecarImageURIFlag string = "sidecar-image"
-	variablesFileFlag string = "variables-file"
-	entryPointFlag    string = "entrypoint"
-	cpuFlag           string = "cpu"
-	memFlag           string = "memory"
-	registerFlag      string = "register"
+	variablesFileFlag   string = "variables-file"
+	entryPointFlag      string = "entrypoint"
+	cpuFlag             string = "cpu"
+	memFlag             string = "memory"
+	registerFlag        string = "register"
 )
 
 // ECRImage represents an ECR Image tag broken into its constituent parts
@@ -312,13 +311,6 @@ func checkTaskDefConfig(v *viper.Viper) error {
 		return fmt.Errorf("%q is invalid: %w", imageURIFlag, &errInvalidImage{Image: image})
 	}
 
-	sidecarImage := v.GetString(sidecarImageURIFlag)
-	if len(sidecarImage) > 0 {
-		//todo: validate format url@digest
-		//regexp.MatchString()
-	}
-
-
 	if variablesFile := v.GetString(variablesFileFlag); len(variablesFile) > 0 {
 		if _, err := os.Stat(variablesFile); err != nil {
 			return fmt.Errorf("%q is invalid: %w", variablesFileFlag, &errInvalidFile{File: variablesFile})
@@ -509,16 +501,6 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		quit(logger, nil, fmt.Errorf("unable to recognize image URI %q: %w", imageURI, errECRImage))
 	}
 
-	var ecrSidecarImage *ECRImage
-	var errSECRImage *error
-
-	if len(sidecarImageURI) > 0 {
-		ecrSidecarImage, errSECRImage = NewECRImage(sidecarImageURI)
-		if errSECRImage != nil {
-			quit(logger, nil, fmt.Errorf("unable to recognize sidecar image URI %q: %w", sidecarImageURI, errSECRImage))
-		}
-	}
-
 	errValidateImage := ecrImage.Validate(serviceECR)
 	if errValidateImage != nil {
 		quit(logger, nil, fmt.Errorf("unable to validate image %v: %w", ecrImage, errValidateImage))
@@ -629,7 +611,33 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		TaskRoleArn:             aws.String(taskRoleArn),
 	}
 
-	// todo: add sidecar container to task def
+	//if sidecar container is present then add it to container defintion
+	if len(sidecarImageURI) > 0 {
+		ecrSidecarImage, errSECRImage := NewECRImage(sidecarImageURI)
+		if errSECRImage != nil {
+			quit(logger, nil, fmt.Errorf("unable to recognize sidecar image URI %q: %w", sidecarImageURI, errSECRImage))
+		}
+		sideCarContainer := ecs.ContainerDefinition{
+			Name:        aws.String(containerDefName),
+			Image:       aws.String(ecrSidecarImage.ImageURI),
+			Essential:   aws.Bool(true),
+			EntryPoint:  aws.StringSlice(entryPointList),
+			Command:     []*string{},
+			Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName),
+			Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
+			LogConfiguration: &ecs.LogConfiguration{
+				LogDriver: aws.String("awslogs"),
+				Options: map[string]*string{
+					"awslogs-group":         aws.String(awsLogsGroup),
+					"awslogs-region":        aws.String(awsRegion),
+					"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
+				},
+			},
+			PortMappings:           portMappings,
+			ReadonlyRootFilesystem: aws.Bool(true),
+		}
+		newTaskDefInput.ContainerDefinitions = append(newTaskDefInput.ContainerDefinitions, &sideCarContainer)
+	}
 
 	// Registration is never allowed by default and requires a flag
 	if v.GetBool(dryRunFlag) {
