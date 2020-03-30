@@ -369,6 +369,14 @@ storiesOf('Components|Tables', module)
           </table>
         </div>
       </div>
+      <hr />
+      <h3>Table controls</h3>
+      <div className="sb-table-wrapper">
+        <code>pagination</code>
+      </div>
+      <div className="sb-table-wrapper">
+        <code>rows per page</code>
+      </div>
     </div>
   ))
   .add('Basic Tables', () => (
