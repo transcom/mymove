@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents } from 'shared/formatters';
 import { formatIncentiveRange } from 'shared/incentive';
@@ -17,7 +17,7 @@ const SubmittedPpmMoveDetails = (props) => {
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
   const incentiveRange = formatIncentiveRange(ppm);
 
-  const weightEstimate = currentPPM ? currentPPM.weight_estimate : tempCurrentPPM.weight_estimate;
+  const weightEstimate = isEmpty(currentPPM) ? tempCurrentPPM.weight_estimate : currentPPM.weight_estimate;
 
   return (
     <div className="titled_block">
