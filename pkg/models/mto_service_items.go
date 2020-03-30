@@ -20,6 +20,7 @@ type MTOServiceItem struct {
 	ReServiceID      uuid.UUID     `db:"re_service_id"`
 	Reason           *string       `db:"reason"`
 	PickupPostalCode *string       `db:"pickup_postal_code"`
+	Description      *string       `db:"description"`
 	CreatedAt        time.Time     `db:"created_at"`
 	UpdatedAt        time.Time     `db:"updated_at"`
 }
