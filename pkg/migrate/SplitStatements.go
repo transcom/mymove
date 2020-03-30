@@ -28,7 +28,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 	i := 0
 	inCopyStatement := false
 	for {
-		// Get previous and current characters
+		// Get current character
 		char, err := in.Index(i)
 		if err != nil {
 			if err == io.EOF {
@@ -42,12 +42,13 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			}
 		}
 
-		// if statement is empty, don't prefix with spaces
+		// If statement is empty, don't prefix with spaces
 		if stmt.Len() == 0 && byteIsSpace(char) {
 			i++
 			continue
 		}
 
+		// If we're in a COPY statement, see if we've reached the end stdin marker
 		if inCopyStatement && char == '\n' {
 			twoPrevChars, err := in.Range(i-2, i)
 			if err != nil {
@@ -59,6 +60,8 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 					return
 				}
 			} else if twoPrevChars == "\\." {
+				// Found the end stdin marker, so slice the string into lines, send to the
+				// channel, and reset our copy statement boolean.
 				str := strings.TrimSpace(stmt.String())
 				copyStmts := strings.Split(str, "\n")
 				for _, dataStmt := range copyStmts {
@@ -80,7 +83,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 				stmt.Reset()
 			}
 
-			// check for copy statement in statements
+			// Check to see if this was a COPY statement
 			inCopyStatement = copyStdinPattern.MatchString(str)
 			i++ // eat 1 character
 			continue
@@ -118,7 +121,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			continue
 		}
 
-		// If not quoted and there's a quote.
+		// If not quoted and there's a quote, increase our quote level.
 		if char == '\'' {
 			str, err := in.Range(i, i+2)
 			if err != nil {
@@ -143,6 +146,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			continue
 		}
 
+		// Look for blocks of code such as "DO"
 		if isAfterSpace(in, i) {
 			str, err := in.Range(i, i+3)
 			if err != nil {
@@ -214,7 +218,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			}
 		}
 
-		// let's see if we match the last block
+		// Let's see if we match the last block
 		if !blocks.Empty() {
 			lastBlock := strings.ToUpper(blocks.Last())
 			str, err := in.Range(i, i+len(lastBlock))
@@ -235,7 +239,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			}
 		}
 
-		// if nothing special simply add the character and increment the cursor
+		// If nothing special, simply add the character and increment the cursor
 		stmt.WriteByte(char)
 		i++
 	}
