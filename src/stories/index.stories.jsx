@@ -483,6 +483,25 @@ storiesOf('Components|Tables', module)
       <h3>Table controls</h3>
       <div className="sb-table-wrapper">
         <code>pagination</code>
+        <div className="tcontrol--pagination">
+          <Button className="usa-button--unstyled" onClick={action('clicked')}>
+            <span className="icon">
+              <EditIcon />
+            </span>
+            <span>Prev</span>
+          </Button>
+          <select className="usa-select" name="table-pagination">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+          <Button className="usa-button--unstyled" onClick={action('clicked')}>
+            <span>Next</span>
+            <span className="icon">
+              <EditIcon />
+            </span>
+          </Button>
+        </div>
       </div>
       <div className="sb-table-wrapper">
         <code>rows per page</code>
