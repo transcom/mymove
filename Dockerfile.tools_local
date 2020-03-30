@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-e955f6e90454414cf3848e17786c41f614ef50db as builder
+FROM milmove/circleci-docker:milmove-app-ce60239ffca056a033af6330daf922a5a9635066 as builder
 
 ENV CIRCLECI=true
 
@@ -18,7 +18,7 @@ RUN rm -f bin/generate-test-data && make bin/generate-test-data
 # FINAL #
 #########
 
-FROM alpine:3.11.3
+FROM alpine:3.11.5
 
 COPY --from=builder --chown=root:root /home/circleci/project/bin/generate-test-data /bin/generate-test-data
 COPY pkg/testdatagen/testdata/test.pdf /bin/pkg/testdatagen/testdata/test.pdf

@@ -10,12 +10,15 @@
   @include u-padding('3');
   @include u-margin('3');
   @include u-radius('05');
+  @include u-border('base-lighter');
+  @include u-border('1px');
   &--gray {
     @include u-bg('base-lightest');
+    @include u-border(0);
   }
   &--popout {
     @include u-border('base-light');
-    @include u-border('2px');
+    @include u-border('1px');
     @include u-shadow(2);
   }
   &--accent {
@@ -36,7 +39,7 @@
   flex-wrap: wrap;
   flex-direction: row;
   #root & {
-    background-color: $base-lighter;
+    background-color: lighten($accent-blue, 50%);
   }
   .container {
     width: 300px;

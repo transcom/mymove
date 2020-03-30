@@ -16,11 +16,11 @@ describe('StatusTimeline', () => {
       const ppm = { status: 'SUBMITTED' };
       const wrapper = mount(<PPMStatusTimeline ppm={ppm} getSignedCertification={jest.fn()} />);
 
-      const completed = wrapper.findWhere(b => b.prop('completed'));
+      const completed = wrapper.findWhere((b) => b.prop('completed'));
       expect(completed).toHaveLength(1);
       expect(completed.prop('code')).toEqual('SUBMITTED');
 
-      const current = wrapper.findWhere(b => b.prop('current'));
+      const current = wrapper.findWhere((b) => b.prop('current'));
       expect(current).toHaveLength(1);
       expect(current.prop('code')).toEqual('SUBMITTED');
     });
@@ -29,11 +29,11 @@ describe('StatusTimeline', () => {
       const ppm = { status: 'APPROVED', original_move_date: '2019-03-20' };
       const wrapper = mount(<PPMStatusTimeline ppm={ppm} getSignedCertification={jest.fn()} />);
 
-      const completed = wrapper.findWhere(b => b.prop('completed'));
+      const completed = wrapper.findWhere((b) => b.prop('completed'));
       expect(completed).toHaveLength(3);
-      expect(completed.map(b => b.prop('code'))).toEqual(['SUBMITTED', 'PPM_APPROVED', 'IN_PROGRESS']);
+      expect(completed.map((b) => b.prop('code'))).toEqual(['SUBMITTED', 'PPM_APPROVED', 'IN_PROGRESS']);
 
-      const current = wrapper.findWhere(b => b.prop('current'));
+      const current = wrapper.findWhere((b) => b.prop('current'));
       expect(current).toHaveLength(1);
       expect(current.prop('code')).toEqual('IN_PROGRESS');
     });
@@ -46,11 +46,11 @@ describe('StatusTimeline', () => {
 
       expect(wrapper.find(StatusBlock)).toHaveLength(4);
 
-      const completed = wrapper.findWhere(b => b.prop('completed'));
+      const completed = wrapper.findWhere((b) => b.prop('completed'));
       expect(completed).toHaveLength(2);
-      expect(completed.map(b => b.prop('code'))).toEqual(['PROFILE', 'ORDERS']);
+      expect(completed.map((b) => b.prop('code'))).toEqual(['PROFILE', 'ORDERS']);
 
-      const current = wrapper.findWhere(b => b.prop('current'));
+      const current = wrapper.findWhere((b) => b.prop('current'));
       expect(current).toHaveLength(1);
       expect(current.prop('code')).toEqual('ORDERS');
     });

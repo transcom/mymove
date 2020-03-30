@@ -22,39 +22,39 @@ type UploadInformation struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// move locator
-	MoveLocator *string `json:"move_locator,omitempty"`
+	MoveLocator *string `json:"moveLocator,omitempty"`
 
 	// office user email
-	OfficeUserEmail *string `json:"office_user_email,omitempty"`
+	OfficeUserEmail *string `json:"officeUserEmail,omitempty"`
 
 	// office user first name
-	OfficeUserFirstName *string `json:"office_user_first_name,omitempty"`
+	OfficeUserFirstName *string `json:"officeUserFirstName,omitempty"`
 
-	// office user id
+	// office user Id
 	// Format: uuid
-	OfficeUserID *strfmt.UUID `json:"office_user_id,omitempty"`
+	OfficeUserID *strfmt.UUID `json:"officeUserId,omitempty"`
 
 	// office user last name
-	OfficeUserLastName *string `json:"office_user_last_name,omitempty"`
+	OfficeUserLastName *string `json:"officeUserLastName,omitempty"`
 
 	// office user phone
-	OfficeUserPhone *string `json:"office_user_phone,omitempty"`
+	OfficeUserPhone *string `json:"officeUserPhone,omitempty"`
 
 	// service member email
-	ServiceMemberEmail *string `json:"service_member_email,omitempty"`
+	ServiceMemberEmail *string `json:"serviceMemberEmail,omitempty"`
 
 	// service member first name
-	ServiceMemberFirstName *string `json:"service_member_first_name,omitempty"`
+	ServiceMemberFirstName *string `json:"serviceMemberFirstName,omitempty"`
 
-	// service member id
+	// service member Id
 	// Format: uuid
-	ServiceMemberID *strfmt.UUID `json:"service_member_id,omitempty"`
+	ServiceMemberID *strfmt.UUID `json:"serviceMemberId,omitempty"`
 
 	// service member last name
-	ServiceMemberLastName *string `json:"service_member_last_name,omitempty"`
+	ServiceMemberLastName *string `json:"serviceMemberLastName,omitempty"`
 
 	// service member phone
-	ServiceMemberPhone *string `json:"service_member_phone,omitempty"`
+	ServiceMemberPhone *string `json:"serviceMemberPhone,omitempty"`
 
 	// upload
 	Upload *Upload `json:"upload,omitempty"`
@@ -105,7 +105,7 @@ func (m *UploadInformation) validateOfficeUserID(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.FormatOf("office_user_id", "body", "uuid", m.OfficeUserID.String(), formats); err != nil {
+	if err := validate.FormatOf("officeUserId", "body", "uuid", m.OfficeUserID.String(), formats); err != nil {
 		return err
 	}
 
@@ -118,7 +118,7 @@ func (m *UploadInformation) validateServiceMemberID(formats strfmt.Registry) err
 		return nil
 	}
 
-	if err := validate.FormatOf("service_member_id", "body", "uuid", m.ServiceMemberID.String(), formats); err != nil {
+	if err := validate.FormatOf("serviceMemberId", "body", "uuid", m.ServiceMemberID.String(), formats); err != nil {
 		return err
 	}
 

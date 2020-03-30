@@ -673,6 +673,7 @@ definitions:
       confirmationNumber:
         type: string
         example: 'HYXFJF'
+        x-nullable: true
       orderNumber:
         type: string
       linesOfAccounting:
@@ -792,7 +793,6 @@ definitions:
       approvedDate:
         format: date
         type: string
-        x-nullable: true
       scheduledPickupDate:
         format: date
         type: string
@@ -819,6 +819,7 @@ definitions:
       customerRemarks:
         type: string
         example: handle with care
+        x-nullable: true
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       pickupAddress:
