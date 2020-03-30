@@ -336,6 +336,39 @@ storiesOf('Components|Tables', module)
         </div>
       </div>
       <hr />
+      <h3>Table - stacked</h3>
+      <div className="sb-section-wrapper">
+        <div className="sb-table-wrapper">
+          <code>td</code>
+          <table className="stacked">
+            <tbody>
+              <tr>
+                <td>Table Cell Content</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>th</code>
+          <table className="stacked">
+            <tbody>
+              <tr>
+                <th>Table Cell Content</th>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>th: error</code>
+          <table className="stacked">
+            <tbody>
+              <tr>
+                <th className="error">Table Cell Content</th>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   ))
   .add('Basic Tables', () => (

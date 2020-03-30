@@ -67,10 +67,6 @@ table {
     &.hover {
       background-color: $link-light;
     }
-    &:focus,
-    &.focus {
-      @include u-outline('05', 'blue-40v');
-    }
     &.locked {
       @include u-border-bottom(0);
       background-color: rgba(255, 255, 255, 0);
