@@ -101,6 +101,18 @@ table {
     td {
     }
   }
+  &.table--stacked {
+    td,
+    th {
+      @include u-border(0);
+      @include u-border-top(1px);
+      @include u-border('base-lighter');
+    }
+    .error {
+      @include u-border-left(2px);
+      @include u-border-left('error');
+    }
+  }
 }
 
 //for displaying the tables in Storybook

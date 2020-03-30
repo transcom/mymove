@@ -340,7 +340,7 @@ storiesOf('Components|Tables', module)
       <div className="sb-section-wrapper">
         <div className="sb-table-wrapper">
           <code>td</code>
-          <table className="stacked">
+          <table className="table--stacked">
             <tbody>
               <tr>
                 <td>Table Cell Content</td>
@@ -350,7 +350,7 @@ storiesOf('Components|Tables', module)
         </div>
         <div className="sb-table-wrapper">
           <code>th</code>
-          <table className="stacked">
+          <table className="table--stacked">
             <tbody>
               <tr>
                 <th>Table Cell Content</th>
@@ -360,7 +360,7 @@ storiesOf('Components|Tables', module)
         </div>
         <div className="sb-table-wrapper">
           <code>th: error</code>
-          <table className="stacked">
+          <table className="table--stacked">
             <tbody>
               <tr>
                 <th className="error">Table Cell Content</th>
