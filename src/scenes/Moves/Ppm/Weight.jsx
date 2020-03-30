@@ -51,6 +51,9 @@ export class PpmWeight extends Component {
 
   componentDidMount() {
     const { currentPPM } = this.props;
+    const moveId = this.props.match.params.moveId;
+    this.props.loadPPMs(moveId);
+
     if (currentPPM) {
       this.setState(
         {
