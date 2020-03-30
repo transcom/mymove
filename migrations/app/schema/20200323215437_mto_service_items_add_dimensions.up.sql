@@ -1,3 +1,9 @@
+-- description to support crating and uncrating
+ALTER TABLE mto_service_items
+    ADD COLUMN description text;
+COMMENT ON COLUMN "mto_service_items"."description" IS 'Description of a service item. Eg. Decorated horse head needs to be crated.';
+
+
 -- create dimensions table
 -- row is deleted if the mto_service_item is deleted
 -- mto service item can only have an item or crate dimension
