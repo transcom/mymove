@@ -86,7 +86,7 @@ export class PaymentRequest extends Component {
     return this.props.createSignedCertification(this.props.match.params.moveId, certificate);
   };
 
-  handleOnAcceptTermsChange = acceptTerms => {
+  handleOnAcceptTermsChange = (acceptTerms) => {
     this.setState({ acceptTerms });
   };
 
@@ -167,7 +167,7 @@ export class PaymentRequest extends Component {
           </div>
           <div className="grid-col-4">
             <h4 className="doc-list-title">All Documents ({numMoveDocs})</h4>
-            {(moveDocuments || []).map(doc => {
+            {(moveDocuments || []).map((doc) => {
               return (
                 <div className="panel-field" key={doc.id}>
                   <span>{doc.title}</span>

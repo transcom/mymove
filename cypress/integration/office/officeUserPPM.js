@@ -1,55 +1,53 @@
 /* global cy */
 import { userCancelsStorageDetails, userSavesStorageDetails } from '../../support/storagePanel';
 
-describe('office user finds the move', function() {
+describe('office user finds the move', function () {
   beforeEach(() => {
     cy.signIntoOffice();
   });
 
-  it('office user views moves in queue new moves', function() {
+  it('office user views moves in queue new moves', function () {
     officeUserViewsMoves();
   });
-  it('office user verifies the orders tab', function() {
+  it('office user verifies the orders tab', function () {
     officeUserVerifiesOrders('VGHEIS');
   });
 
-  it('office user verifies the accounting tab', function() {
+  it('office user verifies the accounting tab', function () {
     officeUserVerifiesAccounting();
   });
 
-  it('office user approves move, verifies and approves PPM', function() {
+  it('office user approves move, verifies and approves PPM', function () {
     officeUserApprovesMoveAndPPM('VGHEIS');
     officeUserVerifiesPPM();
   });
-  it('office user approves move, approves PPM with no advance', function() {
+  it('office user approves move, approves PPM with no advance', function () {
     const moveLocator = 'NOADVC';
     officeUserVerifiesOrders(moveLocator);
     cy.patientVisit('/');
     officeUserApprovesMoveAndPPM(moveLocator);
 
     // Make sure the page hasn't exploded
-    cy.get('.combo-button .btn__approve--green')
-      .contains('Approved')
-      .should('be.disabled');
+    cy.get('.combo-button .btn__approve--green').contains('Approved').should('be.disabled');
   });
-  it('office user can not see storage, weight, expenses, and locations panels if payment has not been requested', function() {
+  it('office user can not see storage, weight, expenses, and locations panels if payment has not been requested', function () {
     officeUserGoesToPPMPanel('APPROV');
     cy.get('.weights').should('not.exist');
     cy.get('.dates').should('not.exist');
     cy.get('.storage').should('not.exist');
     cy.get('.expense-panel').should('not.exist');
   });
-  it('office user views actual move date', function() {
+  it('office user views actual move date', function () {
     officeUserGoesToPPMPanel('PAYMNT');
-    cy.get('.actual_move_date').should($div => {
+    cy.get('.actual_move_date').should(($div) => {
       const text = $div.text();
       expect(text).to.include('Departure date');
       expect(text).to.include('11-Nov-18');
     });
   });
-  it('edits missing text when the actual move date is not set', function() {
+  it('edits missing text when the actual move date is not set', function () {
     officeUserGoesToPPMPanel('FDXTIU');
-    cy.get('.actual_move_date').should($div => {
+    cy.get('.actual_move_date').should(($div) => {
       const text = $div.text();
       expect(text).to.include('Departure date');
       expect(text).to.include('missing');
@@ -59,34 +57,30 @@ describe('office user finds the move', function() {
 
     officeUserEditsDatesAndLocationsPanel(actualDate);
 
-    cy.get('.actual_move_date').should($div => {
+    cy.get('.actual_move_date').should(($div) => {
       const text = $div.text();
       expect(text).to.include('Departure date');
       expect(text).to.include('20-Nov-18');
     });
   });
 
-  it('download all attachments button is disabled when there are no attachments to download', function() {
+  it('download all attachments button is disabled when there are no attachments to download', function () {
     officeUserGoesToPPMPanel('FDXTIU');
-    cy.get('a')
-      .contains('Create payment paperwork')
-      .click();
-    cy.get('button')
-      .contains('Download All Attachments (PDF)')
-      .should('be.disabled');
+    cy.get('a').contains('Create payment paperwork').click();
+    cy.get('button').contains('Download All Attachments (PDF)').should('be.disabled');
   });
 
-  it('edits pickup and destination zip codes in estimates panel and these values are reflected in the storage and incentive calculators', function() {
+  it('edits pickup and destination zip codes in estimates panel and these values are reflected in the storage and incentive calculators', function () {
     officeUserGoesToPPMPanel('FDXTIU');
     officeUserEditsEstimatesPanel(60606, 72018, 6000);
   });
 
-  it('office user completes storage panel', function() {
+  it('office user completes storage panel', function () {
     officeUserGoesToStoragePanel('STORAG');
     userSavesStorageDetails();
   });
 
-  it('office user cancels storage panel', function() {
+  it('office user cancels storage panel', function () {
     officeUserGoesToStoragePanel('NOSTRG');
     userCancelsStorageDetails();
   });
@@ -94,28 +88,28 @@ describe('office user finds the move', function() {
 
 function officeUserViewsMoves() {
   // Open new moves queue
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move and open it
   cy.selectQueueItemMoveLocator('VGHEIS');
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 }
 
 function officeUserVerifiesOrders(moveLocator) {
   // Open new moves queue
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
@@ -129,22 +123,15 @@ function officeUserVerifiesOrders(moveLocator) {
     .and('match', /^\/moves\/[^/]+\/orders/);
 
   // Click on edit orders
-  cy.get('.editable-panel-header')
-    .contains('Orders')
-    .siblings()
-    .click();
+  cy.get('.editable-panel-header').contains('Orders').siblings().click();
 
   // Enter details in form and save orders
   cy.get('input[name="orders.orders_number"]').type('666666');
   cy.get('select[name="orders.orders_type_detail"]').select('DELAYED_APPROVAL');
 
-  cy.get('button')
-    .contains('Save')
-    .should('be.enabled');
+  cy.get('button').contains('Save').should('be.enabled');
 
-  cy.get('button')
-    .contains('Save')
-    .click();
+  cy.get('button').contains('Save').click();
 
   // Verify data has been saved in the UI
   cy.get('span').contains('666666');
@@ -153,28 +140,19 @@ function officeUserVerifiesOrders(moveLocator) {
   cy.get('.combo-button button').should('be.disabled');
 
   // Click on edit orders
-  cy.get('.editable-panel-header')
-    .contains('Accounting')
-    .siblings()
-    .click();
+  cy.get('.editable-panel-header').contains('Accounting').siblings().click();
 
   cy.get('input[name="sac"]').type('SAC');
 
-  cy.get('button')
-    .contains('Save')
-    .should('be.enabled');
+  cy.get('button').contains('Save').should('be.enabled');
 
-  cy.get('button')
-    .contains('Save')
-    .click();
+  cy.get('button').contains('Save').click();
 
   // Refresh browser and make sure changes persist
   cy.patientReload();
 
   cy.get('.combo-button').click();
-  cy.get('.combo-button .dropdown')
-    .contains('Approve PPM')
-    .should('have.class', 'disabled');
+  cy.get('.combo-button .dropdown').contains('Approve PPM').should('have.class', 'disabled');
   cy.get('.combo-button').click();
 
   cy.get('span').contains('666666');
@@ -183,34 +161,27 @@ function officeUserVerifiesOrders(moveLocator) {
 
 function officeUserVerifiesAccounting() {
   // Open new moves queue
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move and open it
   cy.selectQueueItemMoveLocator('VGHEIS');
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
   // Enter details in form and save
-  cy.get('.editable-panel-header')
-    .contains('Accounting')
-    .siblings()
-    .click();
+  cy.get('.editable-panel-header').contains('Accounting').siblings().click();
 
   cy.get('input[name="tac"]').type('6789');
   cy.get('select[name="department_indicator"]').select('AIR_FORCE');
   cy.get('input[name="sac"]').type('N002214CSW32Y9');
 
-  cy.get('button')
-    .contains('Save')
-    .should('be.enabled');
+  cy.get('button').contains('Save').should('be.enabled');
 
-  cy.get('button')
-    .contains('Save')
-    .click();
+  cy.get('button').contains('Save').click();
 
   // Verify data has been saved in the UI
   // added '.tac' as an additional selector since
@@ -221,9 +192,7 @@ function officeUserVerifiesAccounting() {
   // Refresh browser and make sure changes persist
   cy.patientReload();
   cy.get('.combo-button').click();
-  cy.get('.combo-button .dropdown')
-    .contains('Approve PPM')
-    .should('have.class', 'disabled');
+  cy.get('.combo-button .dropdown').contains('Approve PPM').should('have.class', 'disabled');
   cy.get('.combo-button').click();
 
   cy.get('span').contains('6789');
@@ -233,60 +202,52 @@ function officeUserVerifiesAccounting() {
 
 function officeUserApprovesMoveAndPPM(moveLocator) {
   // Open new moves queue
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
   // Approve the move
   cy.get('.combo-button').click();
 
-  cy.get('.combo-button .dropdown')
-    .contains('Approve PPM')
-    .should('have.class', 'disabled');
+  cy.get('.combo-button .dropdown').contains('Approve PPM').should('have.class', 'disabled');
 
-  cy.get('.combo-button .dropdown')
-    .contains('Approve Basics')
-    .click();
+  cy.get('.combo-button .dropdown').contains('Approve Basics').click();
 
-  cy.get('.combo-button .dropdown')
-    .contains('Approve PPM')
-    .should('not.have.class', 'disabled');
+  cy.get('.combo-button .dropdown').contains('Approve PPM').should('not.have.class', 'disabled');
 
   cy.get('.combo-button').click();
 
   // Open new moves queue
   cy.patientVisit('/');
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
   // Click on PPM tab
   cy.get('[data-cy="ppm-tab"]').click();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
   });
 
   cy.get('.combo-button').click();
 
   // Approve PPM
-  cy.get('.combo-button .dropdown')
-    .contains('Approve PPM')
-    .click();
+  cy.get('.combo-button .dropdown').contains('Approve PPM').click();
 
   cy.get('.combo-button').click();
 }
@@ -298,19 +259,13 @@ function officeUserVerifiesPPM() {
   // Approve advance
   cy.get('.payment-table').within(() => {
     // Verify the status icon
-    cy.get('td svg:first')
-      .should('have.attr', 'title')
-      .and('eq', 'Awaiting Review');
+    cy.get('td svg:first').should('have.attr', 'title').and('eq', 'Awaiting Review');
     // Verify the approve checkmark
-    cy.get('td svg:last')
-      .should('have.attr', 'title')
-      .and('eq', 'Approve');
+    cy.get('td svg:last').should('have.attr', 'title').and('eq', 'Approve');
 
     // Approve advance and verify icon change
     cy.get('td svg:last').click();
-    cy.get('td svg:first')
-      .should('have.attr', 'title')
-      .and('eq', 'Approved');
+    cy.get('td svg:first').should('have.attr', 'title').and('eq', 'Approved');
   });
 }
 
@@ -318,97 +273,70 @@ function officeUserGoesToPPMPanel(locator) {
   // Open ppm queue
   cy.patientVisit('/queues/all');
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
   // Find shipment and open it
   cy.selectQueueItemMoveLocator(locator);
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
   cy.get('[data-cy="ppm-tab"]').click();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
   });
 }
 
 function officeUserEditsDatesAndLocationsPanel(date) {
-  cy.get('.editable-panel-header')
-    .contains('Dates & Locations')
-    .siblings()
-    .click();
+  cy.get('.editable-panel-header').contains('Dates & Locations').siblings().click();
 
-  cy.get('input[name="actual_move_date"]')
-    .first()
-    .clear()
-    .type(date)
-    .blur();
+  cy.get('input[name="actual_move_date"]').first().clear().type(date).blur();
 
-  cy.get('button')
-    .contains('Save')
-    .should('be.enabled');
+  cy.get('button').contains('Save').should('be.enabled');
 
-  cy.get('button')
-    .contains('Save')
-    .click();
+  cy.get('button').contains('Save').click();
 }
 
 function officeUserEditsEstimatesPanel(destinationPostalCode, pickupPostalCode, weightEstimate) {
-  cy.get('.editable-panel-header')
-    .contains('Estimates')
-    .siblings()
-    .click();
+  cy.get('.editable-panel-header').contains('Estimates').siblings().click();
 
   cy.get('.estimates').within(() => {
-    cy.get('input[name="PPMEstimate.destination_postal_code"]')
-      .clear()
-      .type(destinationPostalCode);
+    cy.get('input[name="PPMEstimate.destination_postal_code"]').clear().type(destinationPostalCode);
 
-    cy.get('input[name="PPMEstimate.pickup_postal_code"]')
-      .clear()
-      .type(pickupPostalCode);
+    cy.get('input[name="PPMEstimate.pickup_postal_code"]').clear().type(pickupPostalCode);
 
-    cy.get('input[name="PPMEstimate.weight_estimate"]')
-      .clear()
-      .type(weightEstimate);
+    cy.get('input[name="PPMEstimate.weight_estimate"]').clear().type(weightEstimate);
   });
 
-  cy.get('button')
-    .contains('Save')
-    .should('be.enabled');
+  cy.get('button').contains('Save').should('be.enabled');
 
-  cy.get('button')
-    .contains('Save')
-    .click();
+  cy.get('button').contains('Save').click();
 }
 
 function officeUserGoesToStoragePanel(locator) {
   cy.patientVisit('/queues/all');
 
   // Open all moves queue
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
   // Find shipment and open it
   cy.selectQueueItemMoveLocator(locator);
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
   cy.get('[data-cy="ppm-tab"]').click();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
   });
 
-  cy.get('.editable-panel-header')
-    .contains('Storage')
-    .siblings()
-    .click();
+  cy.get('.editable-panel-header').contains('Storage').siblings().click();
 }

@@ -21,21 +21,21 @@ type OfficeUserCreatePayload struct {
 	Email string `json:"email,omitempty"`
 
 	// First Name
-	FirstName string `json:"first_name,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
 
 	// Last Name
-	LastName string `json:"last_name,omitempty"`
+	LastName string `json:"lastName,omitempty"`
 
 	// Middle Initials
-	MiddleInitials *string `json:"middle_initials,omitempty"`
+	MiddleInitials *string `json:"middleInitials,omitempty"`
 
 	// telephone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone string `json:"telephone,omitempty"`
 
-	// transportation office id
+	// transportation office Id
 	// Format: uuid
-	TransportationOfficeID strfmt.UUID `json:"transportation_office_id,omitempty"`
+	TransportationOfficeID strfmt.UUID `json:"transportationOfficeId,omitempty"`
 }
 
 // Validate validates this office user create payload
@@ -75,7 +75,7 @@ func (m *OfficeUserCreatePayload) validateTransportationOfficeID(formats strfmt.
 		return nil
 	}
 
-	if err := validate.FormatOf("transportation_office_id", "body", "uuid", m.TransportationOfficeID.String(), formats); err != nil {
+	if err := validate.FormatOf("transportationOfficeId", "body", "uuid", m.TransportationOfficeID.String(), formats); err != nil {
 		return err
 	}
 

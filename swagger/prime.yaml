@@ -562,7 +562,7 @@ definitions:
         example: Petrovna
       branch:
         type: string
-        example: "COAST_GUARD"
+        example: 'COAST_GUARD'
       phone:
         type: string
         format: telephone
@@ -666,13 +666,14 @@ definitions:
         $ref: '#/definitions/DutyStation'
       rank:
         type: string
-        example: "E_5"
+        example: 'E_5'
       reportByDate:
         type: string
         format: date
       confirmationNumber:
         type: string
-        example: "HYXFJF"
+        example: 'HYXFJF'
+        x-nullable: true
       orderNumber:
         type: string
       linesOfAccounting:
@@ -733,6 +734,46 @@ definitions:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
+  MTOAgents:
+    items:
+      $ref: '#/definitions/MTOAgent'
+    type: array
+  MTOAgent:
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        readOnly: true
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date
+        type: string
+      updatedAt:
+        format: date
+        type: string
+      firstName:
+        type: string
+        x-nullable: true
+      lastName:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      agentType:
+        $ref: '#/definitions/MTOAgentType'
+    type: object
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -752,7 +793,6 @@ definitions:
       approvedDate:
         format: date
         type: string
-        x-nullable: true
       scheduledPickupDate:
         format: date
         type: string
@@ -774,9 +814,12 @@ definitions:
       actualPickupDate:
         format: date
         type: string
+      agents:
+        $ref: '#/definitions/MTOAgents'
       customerRemarks:
         type: string
         example: handle with care
+        x-nullable: true
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       pickupAddress:
@@ -857,6 +900,13 @@ definitions:
     enum:
       - MTOServiceItemBasic
       - MTOServiceItemDOFSIT
+  MTOAgentType:
+    type: string
+    title: MTO Agent Type
+    example: RELEASING_AGENT
+    enum: &MTOAGENTTYPE
+      - RELEASING_AGENT
+      - RECEIVING_AGENT
   MTOServiceItem:
     description: Polymorphic type. MTOServiceItem describes a base type of a service item
     type: object

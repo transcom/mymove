@@ -35,8 +35,6 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
-	payload.SetMtoServiceItems(*mtoServiceItems)
-
 	if moveTaskOrder.PPMEstimatedWeight != nil {
 		payload.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
 	}
@@ -110,7 +108,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 		OrderNumber:            moveOrder.OrderNumber,
 		LinesOfAccounting:      moveOrder.LinesOfAccounting,
 		Rank:                   moveOrder.Grade,
-		ConfirmationNumber:     *moveOrder.ConfirmationNumber,
+		ConfirmationNumber:     moveOrder.ConfirmationNumber,
 		ReportByDate:           reportByDate,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
 	}
@@ -189,6 +187,38 @@ func Address(address *models.Address) *primemessages.Address {
 	}
 }
 
+// MTOAgent payload
+func MTOAgent(mtoAgent *models.MTOAgent) *primemessages.MTOAgent {
+	if mtoAgent == nil {
+		return nil
+	}
+
+	return &primemessages.MTOAgent{
+		AgentType:     primemessages.MTOAgentType(mtoAgent.MTOAgentType),
+		Email:         mtoAgent.Email,
+		FirstName:     mtoAgent.FirstName,
+		ID:            strfmt.UUID(mtoAgent.ID.String()),
+		LastName:      mtoAgent.LastName,
+		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
+		Phone:         mtoAgent.Phone,
+	}
+}
+
+// MTOAgents payload
+func MTOAgents(mtoAgents *models.MTOAgents) *primemessages.MTOAgents {
+	if mtoAgents == nil {
+		return nil
+	}
+
+	agents := make(primemessages.MTOAgents, len(*mtoAgents))
+
+	for i, m := range *mtoAgents {
+		agents[i] = MTOAgent(&m)
+	}
+
+	return &agents
+}
+
 // PaymentRequest payload
 func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.PaymentRequest {
 	return &primemessages.PaymentRequest{
@@ -216,14 +246,13 @@ func PaymentRequests(paymentRequests *models.PaymentRequests) *primemessages.Pay
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	payload := &primemessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
+		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             primemessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks:          *mtoShipment.CustomerRemarks,
-		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
-		ScheduledPickupDate:      strfmt.Date(*mtoShipment.ScheduledPickupDate),
-		PickupAddress:            Address(&mtoShipment.PickupAddress),
+		CustomerRemarks:          mtoShipment.CustomerRemarks,
+		PickupAddress:            Address(mtoShipment.PickupAddress),
 		Status:                   string(mtoShipment.Status),
-		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
+		DestinationAddress:       Address(mtoShipment.DestinationAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
@@ -231,9 +260,16 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
-	if mtoShipment.ApprovedDate != nil && !mtoShipment.ApprovedDate.IsZero() {
-		approvedDate := strfmt.Date(*mtoShipment.ApprovedDate)
-		payload.ApprovedDate = &approvedDate
+	if mtoShipment.ApprovedDate != nil {
+		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
+	}
+
+	if mtoShipment.ScheduledPickupDate != nil {
+		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
+	}
+
+	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
+		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
 	}
 
 	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
@@ -244,11 +280,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.FirstAvailableDeliveryDate = strfmt.Date(*mtoShipment.FirstAvailableDeliveryDate)
 	}
 
-	if mtoShipment.PrimeEstimatedWeight != nil {
+	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.PrimeEstimatedWeightRecordedDate != nil {
 		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
 		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
 	}
-
 	return payload
 }
 

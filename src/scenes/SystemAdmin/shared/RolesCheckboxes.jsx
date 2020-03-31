@@ -9,7 +9,7 @@ const choices = [
   { roleType: 'ppm_office_users', name: 'PPM Office Users' },
 ];
 
-const makeRoleTypeArray = roles => {
+const makeRoleTypeArray = (roles) => {
   if (!roles || roles.length === 0) {
     return;
   }
@@ -21,14 +21,14 @@ const makeRoleTypeArray = roles => {
   }, []);
 };
 
-const parseCheckboxInput = input => {
+const parseCheckboxInput = (input) => {
   return input.reduce((rolesArray, role) => {
-    rolesArray.push(choices.find(choice => choice.roleType === role));
+    rolesArray.push(choices.find((choice) => choice.roleType === role));
     return rolesArray;
   }, []);
 };
 
-const RolesCheckboxInput = props => (
+const RolesCheckboxInput = (props) => (
   <CheckboxGroupInput
     source="roles"
     format={makeRoleTypeArray}
