@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/csrf"
@@ -33,19 +34,15 @@ const (
 type UserListHandler struct {
 	db *pop.Connection
 	Context
-	clientAuthSecretKey string
-	noSessionTimeout    bool
-	useSecureCookie     bool
+	sessionManager *scs.SessionManager
 }
 
 // NewUserListHandler returns a new UserListHandler
-func NewUserListHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) UserListHandler {
+func NewUserListHandler(ac Context, db *pop.Connection, sessionManager *scs.SessionManager) UserListHandler {
 	handler := UserListHandler{
-		Context:             ac,
-		db:                  db,
-		clientAuthSecretKey: clientAuthSecretKey,
-		noSessionTimeout:    noSessionTimeout,
-		useSecureCookie:     useSecureCookie,
+		Context:        ac,
+		db:             db,
+		sessionManager: sessionManager,
 	}
 	return handler
 }
@@ -57,9 +54,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// User is already authenticated, so clear out their current session and have
 		// them try again. This the issue where a developer will get stuck with a stale
 		// session and have to manually clear cookies to get back to the login page.
-		session.IDToken = ""
-		session.UserID = uuid.Nil
-		auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+		h.sessionManager.Destroy(r.Context())
 		auth.DeleteCSRFCookies(w)
 
 		http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
@@ -199,25 +194,21 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 type devlocalAuthHandler struct {
 	Context
-	db                  *pop.Connection
-	appnames            auth.ApplicationServername
-	clientAuthSecretKey string
-	noSessionTimeout    bool
-	useSecureCookie     bool
+	db             *pop.Connection
+	appnames       auth.ApplicationServername
+	sessionManager *scs.SessionManager
 }
 
 // AssignUserHandler logs a user in directly
 type AssignUserHandler devlocalAuthHandler
 
 // NewAssignUserHandler creates a new AssignUserHandler
-func NewAssignUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) AssignUserHandler {
+func NewAssignUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername, sessionManager *scs.SessionManager) AssignUserHandler {
 	handler := AssignUserHandler{
-		Context:             ac,
-		db:                  db,
-		appnames:            appnames,
-		clientAuthSecretKey: clientAuthSecretKey,
-		noSessionTimeout:    noSessionTimeout,
-		useSecureCookie:     useSecureCookie,
+		Context:        ac,
+		db:             db,
+		appnames:       appnames,
+		sessionManager: sessionManager,
 	}
 	return handler
 }
@@ -269,14 +260,12 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateUserHandler devlocalAuthHandler
 
 // NewCreateUserHandler creates a new CreateUserHandler
-func NewCreateUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateUserHandler {
+func NewCreateUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername, sessionManager *scs.SessionManager) CreateUserHandler {
 	handler := CreateUserHandler{
-		Context:             ac,
-		db:                  db,
-		appnames:            appnames,
-		clientAuthSecretKey: clientAuthSecretKey,
-		noSessionTimeout:    noSessionTimeout,
-		useSecureCookie:     useSecureCookie,
+		Context:        ac,
+		db:             db,
+		appnames:       appnames,
+		sessionManager: sessionManager,
 	}
 	return handler
 }
@@ -302,14 +291,12 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateAndLoginUserHandler devlocalAuthHandler
 
 // NewCreateAndLoginUserHandler creates a new CreateAndLoginUserHandler
-func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateAndLoginUserHandler {
+func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername, sessionManager *scs.SessionManager) CreateAndLoginUserHandler {
 	handler := CreateAndLoginUserHandler{
-		Context:             ac,
-		db:                  db,
-		appnames:            appnames,
-		clientAuthSecretKey: clientAuthSecretKey,
-		noSessionTimeout:    noSessionTimeout,
-		useSecureCookie:     useSecureCookie,
+		Context:        ac,
+		db:             db,
+		appnames:       appnames,
+		sessionManager: sessionManager,
 	}
 	return handler
 }
@@ -535,10 +522,10 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	session.LastName = userIdentity.LastName()
 	session.Middle = userIdentity.Middle()
 
+	h.sessionManager.Cookie.Name = auth.SessionCookieName(session)
+	h.sessionManager.Put(r.Context(), "session", session)
 	// Writing out the session cookie logs in the user
 	h.logger.Info("logged in", zap.Any("session", session))
-	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
-
 	return session, nil
 }
 
