@@ -140,7 +140,6 @@ table {
   }
 }
 .table--data-point {
-  width: 290px;
   @include u-border(0);
   td {
     @include u-border(0);
@@ -148,18 +147,16 @@ table {
   td,
   th {
     background-color: rgba(255, 255, 255, 0);
+    min-width: 290px;
   }
 }
 .table--data-pair {
+  width: 600px;
   @include u-padding(2px);
   @include u-bg('gray-2');
   @include u-border('base-lighter');
   @include u-border('1px');
   @include u-radius('05');
-  .table--data-point td,
-  .table--data-point th {
-    width: 278px;
-  }
 }
 
 //for displaying the tables in Storybook
