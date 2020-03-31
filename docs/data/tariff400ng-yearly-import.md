@@ -70,7 +70,7 @@ area for the import, then use `pg_dump` to create the migration after we're done
 The next phase is to transform the temporary tables into the format expected by our `tariff400ng_*` tables.
 To do so, you can run the script below.  Save it as `tariff400ng_cleanup.sql` and run it in psql: `\i tariff400ng_cleanup.sql`
 
-```postgresql
+```sql
 -- Pack rates
 INSERT INTO tariff400ng_full_pack_rates
 SELECT
@@ -157,7 +157,7 @@ From the `Geographical Schedule` sheet, copy the service area number, 185A, 185B
 transform it into the `SELECT` statements in the template below.  Save this completed template to a
 `tariff400ng_fix_service_areas.sql` file.
 
-```postgresql
+```sql
 CREATE FUNCTION update_sit_rates(
     service_area_number text,
     sit_185a_rate_cents integer,
@@ -221,7 +221,7 @@ There are a few item rates whose values are not correctly interpreted correctly 
 fixed by running this SQL script against your local database (alternatively, you could address this in the spreadsheet
 prior to inserting it into the database):
 
-```postgresql
+```sql
 -- These charges are subject to a min of 1,000lbs, so that rate should apply to weights < 1,000 also
 UPDATE tariff400ng_item_rates
 SET weight_lbs_lower = 0
@@ -266,7 +266,7 @@ any corrections/additions/deletions need to be made.
 This query may be helpful in getting the current table into a format that's similar to the spreadsheet to make
 diffs easier:
 
-```postgresql
+```sql
 select basepoint_city, state, service_area, string_agg(zip3, ',' order by zip3)
 from tariff400ng_zip3s
 group by basepoint_city, state, service_area
