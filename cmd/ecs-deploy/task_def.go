@@ -580,64 +580,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	cpu := strconv.Itoa(v.GetInt(cpuFlag))
 	mem := strconv.Itoa(v.GetInt(memFlag))
 
-	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
-		ContainerDefinitions: []*ecs.ContainerDefinition{
-			{
-				Name:        aws.String(containerDefName),
-				Image:       aws.String(ecrImage.ImageURI),
-				Essential:   aws.Bool(true),
-				EntryPoint:  aws.StringSlice(entryPointList),
-				Command:     []*string{},
-				Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName),
-				Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
-				LogConfiguration: &ecs.LogConfiguration{
-					LogDriver: aws.String("awslogs"),
-					Options: map[string]*string{
-						"awslogs-group":         aws.String(awsLogsGroup),
-						"awslogs-region":        aws.String(awsRegion),
-						"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
-					},
-				},
-				PortMappings:           portMappings,
-				ReadonlyRootFilesystem: aws.Bool(true),
-			},
-		},
-		Cpu:                     aws.String(cpu),
-		ExecutionRoleArn:        aws.String(executionRoleArn),
-		Family:                  aws.String(family),
-		Memory:                  aws.String(mem),
-		NetworkMode:             aws.String("awsvpc"),
-		RequiresCompatibilities: []*string{aws.String("FARGATE")},
-		TaskRoleArn:             aws.String(taskRoleArn),
-	}
-
-	//if sidecar container is present then add it to container defintion
-	if len(sidecarImageURI) > 0 {
-		ecrSidecarImage, errSECRImage := NewECRImage(sidecarImageURI)
-		if errSECRImage != nil {
-			quit(logger, nil, fmt.Errorf("unable to recognize sidecar image URI %q: %w", sidecarImageURI, errSECRImage))
-		}
-		sideCarContainer := ecs.ContainerDefinition{
-			Name:        aws.String(containerDefName),
-			Image:       aws.String(ecrSidecarImage.ImageURI),
-			Essential:   aws.Bool(true),
-			EntryPoint:  aws.StringSlice(entryPointList),
-			Command:     []*string{},
-			Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName),
-			Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
-			LogConfiguration: &ecs.LogConfiguration{
-				LogDriver: aws.String("awslogs"),
-				Options: map[string]*string{
-					"awslogs-group":         aws.String(awsLogsGroup),
-					"awslogs-region":        aws.String(awsRegion),
-					"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
-				},
-			},
-			PortMappings:           portMappings,
-			ReadonlyRootFilesystem: aws.Bool(true),
-		}
-		newTaskDefInput.ContainerDefinitions = append(newTaskDefInput.ContainerDefinitions, &sideCarContainer)
-	}
+	newTaskDefInput := generateTaskDefinition(containerDefName, ecrImage, entryPointList, serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName, dbHost, variablesFile, awsLogsGroup, awsLogsStreamPrefix, portMappings, cpu, executionRoleArn, family, mem, taskRoleArn, sidecarImageURI, logger)
 
 	// Registration is never allowed by default and requires a flag
 	if v.GetBool(dryRunFlag) {
@@ -661,4 +604,84 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func generateTaskDefinition(containerDefName string, ecrImage *ECRImage, entryPointList []string, serviceSSM *ssm.SSM, awsRegion string, awsAccountID string, serviceNameShort string, environmentName string, dbHost string, variablesFile string, awsLogsGroup string, awsLogsStreamPrefix string, portMappings []*ecs.PortMapping, cpu string, executionRoleArn string, family string, mem string, taskRoleArn string, sidecarImageURI string, logger *log.Logger) ecs.RegisterTaskDefinitionInput {
+	var sideCarLink []*string
+	sideCarContainerName := fmt.Sprintf("%s-sidecar", containerDefName)
+	networkMode := "awsvpc"
+
+	//create port mapping for containers
+	sideCarPort := portMappings
+	containerPort := portMappings
+
+	//if side car container exists create a link and set container port to nil because sidecar should be primary
+	if len(sidecarImageURI) > 0 {
+		sideCarLink = append(sideCarLink, &sideCarContainerName)
+		containerPort = nil
+		networkMode = "bridge"
+
+	}
+
+	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
+		ContainerDefinitions: []*ecs.ContainerDefinition{
+			{
+				Name:        aws.String(containerDefName),
+				Image:       aws.String(ecrImage.ImageURI),
+				Essential:   aws.Bool(true),
+				EntryPoint:  aws.StringSlice(entryPointList),
+				Command:     []*string{},
+				Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName),
+				Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
+				LogConfiguration: &ecs.LogConfiguration{
+					LogDriver: aws.String("awslogs"),
+					Options: map[string]*string{
+						"awslogs-group":         aws.String(awsLogsGroup),
+						"awslogs-region":        aws.String(awsRegion),
+						"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
+					},
+				},
+				PortMappings:           containerPort,
+				ReadonlyRootFilesystem: aws.Bool(true),
+				Links:                  sideCarLink,
+			},
+		},
+		Cpu:                     aws.String(cpu),
+		ExecutionRoleArn:        aws.String(executionRoleArn),
+		Family:                  aws.String(family),
+		Memory:                  aws.String(mem),
+		NetworkMode:             aws.String(networkMode),
+		RequiresCompatibilities: []*string{aws.String("FARGATE")},
+		TaskRoleArn:             aws.String(taskRoleArn),
+	}
+
+	//if sidecar container is present then add it to container definition
+	if len(sidecarImageURI) > 0 {
+		ecrSidecarImage, errSECRImage := NewECRImage(sidecarImageURI)
+		if errSECRImage != nil {
+			quit(logger, nil, fmt.Errorf("unable to recognize sidecar image URI %q: %w", sidecarImageURI, errSECRImage))
+		}
+		sideCarContainer := ecs.ContainerDefinition{
+			Name:        aws.String(sideCarContainerName),
+			Image:       aws.String(ecrSidecarImage.ImageURI),
+			Essential:   aws.Bool(true),
+			EntryPoint:  aws.StringSlice(entryPointList),
+			Command:     []*string{},
+			Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName),
+			Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
+			LogConfiguration: &ecs.LogConfiguration{
+				LogDriver: aws.String("awslogs"),
+				Options: map[string]*string{
+					"awslogs-group":         aws.String(awsLogsGroup),
+					"awslogs-region":        aws.String(awsRegion),
+					"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
+				},
+			},
+			PortMappings:           sideCarPort,
+			ReadonlyRootFilesystem: aws.Bool(true),
+			Links:                  []*string{&containerDefName},
+		}
+		newTaskDefInput.ContainerDefinitions = append(newTaskDefInput.ContainerDefinitions, &sideCarContainer)
+	}
+	return newTaskDefInput
 }
