@@ -23,10 +23,10 @@ class CustomerDetails extends Component {
     this.props.getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
       this.props.getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
         // TODO: would like to do batch fetching later
-        moveTaskOrder.forEach(item => this.props.getMTOServiceItems(item.id));
-        moveTaskOrder.forEach(item =>
+        moveTaskOrder.forEach((item) => this.props.getMTOServiceItems(item.id));
+        moveTaskOrder.forEach((item) =>
           this.props.getMTOShipments(item.id).then(({ response: { body: mtoShipments } }) => {
-            mtoShipments.forEach(shipment => this.props.getMTOAgentList(item.id, shipment.id));
+            mtoShipments.forEach((shipment) => this.props.getMTOAgentList(item.id, shipment.id));
           }),
         );
       });
@@ -153,7 +153,7 @@ class CustomerDetails extends Component {
                 </tr>
               </thead>
               <tbody>
-                {mtoShipments.map(items => (
+                {mtoShipments.map((items) => (
                   <Fragment key={items.id}>
                     <tr>
                       <td>{items.id}</td>
@@ -191,48 +191,50 @@ class CustomerDetails extends Component {
                         <ApproveRejectModal
                           showModal={items.status === 'SUBMITTED'}
                           approveBtnOnClick={() =>
-                            this.props.patchMTOShipmentStatus(
-                              get(moveTaskOrder, 'id'),
-                              items.id,
-                              'APPROVED',
-                              items.updatedAt,
-                            )
+                            this.props
+                              .patchMTOShipmentStatus(get(moveTaskOrder, 'id'), items.id, 'APPROVED', items.eTag)
+                              .then(() => this.props.getMTOServiceItems(items.moveTaskOrderID))
                           }
-                          rejectBtnOnClick={rejectionReason =>
+                          rejectBtnOnClick={(rejectionReason) =>
                             this.props.patchMTOShipmentStatus(
                               get(moveTaskOrder, 'id'),
                               items.id,
                               'REJECTED',
-                              items.updatedAt,
+                              items.eTag,
                               rejectionReason,
                             )
                           }
                         />
                       </td>
                     </tr>
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+
+            <h2>Shipment Agents</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>id</th>
+                  <th>Agent Type</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mtoAgents.map((shipmentAgent) => (
+                  <Fragment key={get(shipmentAgent[0], 'id')}>
                     <tr>
-                      <h3>Shipment Agents</h3>
+                      <td>{get(shipmentAgent[0], 'id')}</td>
+                      <td>{get(shipmentAgent[0], 'agentType')}</td>
+                      <td>{get(shipmentAgent[0], 'firstName')}</td>
+                      <td>{get(shipmentAgent[0], 'lastName')}</td>
+                      <td>{get(shipmentAgent[0], 'email')}</td>
+                      <td>{get(shipmentAgent[0], 'phone')}</td>
                     </tr>
-                    {mtoAgents.map(shipmentAgent => (
-                      <Fragment key={shipmentAgent.id}>
-                        <tr>
-                          <th>id</th>
-                          <th>Agent Type</th>
-                          <th>First Name</th>
-                          <th>Last Name</th>
-                          <th>Email</th>
-                          <th>Phone</th>
-                        </tr>
-                        <tr>
-                          <td>{shipmentAgent[0].id}</td>
-                          <td>{shipmentAgent[0].agentType}</td>
-                          <td>{shipmentAgent[0].firstName}</td>
-                          <td>{shipmentAgent[0].lastName}</td>
-                          <td>{shipmentAgent[0].email}</td>
-                          <td>{shipmentAgent[0].phone}</td>
-                        </tr>
-                      </Fragment>
-                    ))}
                   </Fragment>
                 ))}
               </tbody>
@@ -250,7 +252,7 @@ class CustomerDetails extends Component {
                 </tr>
               </thead>
               <tbody>
-                {mtoServiceItems.map(items => (
+                {mtoServiceItems.map((items) => (
                   <Fragment key={items.id}>
                     <tr>
                       <td>{items.id}</td>
@@ -265,7 +267,9 @@ class CustomerDetails extends Component {
             </table>
 
             <div>
-              <button onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id)}>Send to Prime</button>
+              <button onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id, moveTaskOrder.eTag)}>
+                Send to Prime
+              </button>
             </div>
           </>
         )}

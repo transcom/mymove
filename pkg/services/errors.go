@@ -28,18 +28,20 @@ func (e PreconditionFailedError) Error() string {
 
 //NotFoundError is returned when a given struct is not found
 type NotFoundError struct {
-	id uuid.UUID
+	id      uuid.UUID
+	message string
 }
 
 // NewNotFoundError returns an error for when a struct can not be found
-func NewNotFoundError(id uuid.UUID) NotFoundError {
+func NewNotFoundError(id uuid.UUID, message string) NotFoundError {
 	return NotFoundError{
-		id: id,
+		id:      id,
+		message: message,
 	}
 }
 
 func (e NotFoundError) Error() string {
-	return fmt.Sprintf("id: %s not found", e.id.String())
+	return fmt.Sprintf("id: %s not found %s", e.id.String(), e.message)
 }
 
 //InvalidInputError is returned when an update fails a validation rule

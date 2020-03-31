@@ -12,6 +12,7 @@ class PaymentRequestShow extends React.Component {
   updatePaymentRequest = (paymentRequest = {}) => {
     paymentRequest.status = 'REVIEWED';
     paymentRequest.paymentRequestID = this.props.id;
+    paymentRequest.ifMatchETag = this.props.paymentRequest.eTag;
     this.props.updatePaymentRequest(paymentRequest);
   };
 
@@ -63,6 +64,6 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const mapDispatchToProps = dispatch => bindActionCreators({ getPaymentRequest, updatePaymentRequest }, dispatch);
+const mapDispatchToProps = (dispatch) => bindActionCreators({ getPaymentRequest, updatePaymentRequest }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequestShow);

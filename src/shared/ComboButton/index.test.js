@@ -88,7 +88,7 @@ describe('ComboButton tests', () => {
         expect(enabledComboButton.state().displayDropDown).toBe(false);
       });
 
-      it('state.displayDropDown is toggled on click', function() {
+      it('state.displayDropDown is toggled on click', function () {
         const newButtonProps = { toolTipText: 'toolTipText', disabled: false, buttonText: 'buttonText' };
         const enabledComboButton = renderComboButton(newButtonProps);
         enabledComboButton.setState({ displayDropDown: true });

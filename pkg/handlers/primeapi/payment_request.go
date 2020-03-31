@@ -10,18 +10,10 @@ import (
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
-
-func payloadForPaymentRequestModel(pr models.PaymentRequest) *primemessages.PaymentRequest {
-	return &primemessages.PaymentRequest{
-		ID:              *handlers.FmtUUID(pr.ID),
-		MoveTaskOrderID: *handlers.FmtUUID(pr.MoveTaskOrderID),
-		IsFinal:         &pr.IsFinal,
-		RejectionReason: pr.RejectionReason,
-	}
-}
 
 // CreatePaymentRequestHandler is the handler for creating payment requests
 type CreatePaymentRequestHandler struct {
@@ -41,6 +33,8 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		logger.Error("Invalid payment request: params Body is nil")
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
+
+	logger.Info("primeapi.CreatePaymentRequestHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 
 	moveTaskOrderIDString := payload.MoveTaskOrderID.String()
 	mtoID, err := uuid.FromString(moveTaskOrderIDString)
@@ -81,7 +75,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		// TODO add ProofOfService object to log
 	)
 
-	returnPayload := payloadForPaymentRequestModel(*createdPaymentRequest)
+	returnPayload := payloads.PaymentRequest(createdPaymentRequest)
 	return paymentrequestop.NewCreatePaymentRequestCreated().WithPayload(returnPayload)
 }
 

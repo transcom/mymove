@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/cli"
-
-	"github.com/spf13/cobra"
 )
 
 const (
@@ -71,6 +70,7 @@ func main() {
 		RunE:         fetchMTOs,
 		SilenceUsage: true,
 	}
+	initFetchMTOsFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
 
 	updateMTOShipmentCommand := &cobra.Command{
@@ -82,6 +82,16 @@ func main() {
 	}
 	initUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
 	root.AddCommand(updateMTOShipmentCommand)
+
+	createMTOServiceItemCommand := &cobra.Command{
+		Use:          "create-mto-service-item",
+		Short:        "Create mto service item",
+		Long:         "Create move task order service item for move task order and/or shipment",
+		RunE:         createMTOServiceItem,
+		SilenceUsage: true,
+	}
+	initCreateMTOServiceItemFlags(createMTOServiceItemCommand.Flags())
+	root.AddCommand(createMTOServiceItemCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",

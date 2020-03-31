@@ -18,6 +18,7 @@ echo "$0 $*"
 
 set -u
 
+# name also describes the service
 readonly name=$1
 readonly image=$2
 readonly environment=$3
@@ -25,36 +26,39 @@ readonly environment=$3
 readonly RESERVATION_CPU=512
 readonly RESERVATION_MEM=2048
 
-readonly cluster=app-${environment}
+# The cluster name is always `app-ENV`
+# Needs to support `app` and `app-client-tls` on the same cluster.
+# So don't overload `$name` and use it here.
+readonly cluster="app-${environment}"
 
 check_arn() {
     local arn=$1
-    [[ $arn = arn:* ]] || { echo "Error: Bad ARN: $arn"; exit 1; }
+    [[ $arn = arn:* ]] || { echo "Error: Bad ARN: ${arn}"; exit 1; }
 }
 
 update_service() {
     local arn="$1"
-    echo "* Updating services with ARN ${arn}"
+    echo "* Updating service ${name} with ARN ${arn}"
 
     local network_config
-    network_config=$(aws ecs describe-services --services "$name" --cluster "$cluster" --query 'services[0].networkConfiguration')
+    network_config=$(aws ecs describe-services --services "${name}" --cluster "${cluster}" --query 'services[0].networkConfiguration')
 
     echo "* Waiting for service to be stable before updating"
-    time aws ecs wait services-stable --services "$name" --cluster "$cluster"
+    time aws ecs wait services-stable --services "${name}" --cluster "${cluster}"
     echo "* Currently running ECS tasks:"
-    aws ecs list-tasks --service app --cluster app-experimental --desired-status=RUNNING
-    echo "* Updating $name service to use $arn"
-    aws ecs update-service --cluster "$cluster" --service "$name" --task-definition "$arn" --query 'service.deployments' --network-configuration "$network_config" || return 1
+    aws ecs list-tasks --service "${name}" --cluster "${cluster}" --desired-status=RUNNING
+    echo "* Updating ${name} service to use ${arn}"
+    aws ecs update-service --cluster "${cluster}" --service "${name}" --task-definition "${arn}" --query 'service.deployments' --network-configuration "${network_config}" || return 1
     echo "* Newly started ECS tasks:"
-    aws ecs list-tasks --service app --cluster app-experimental --desired-status=PENDING
+    aws ecs list-tasks --service "${name}" --cluster "${cluster}" --desired-status=PENDING
     echo "* Waiting for service to stabilize (this takes a while)"
-    time aws ecs wait services-stable --services "$name" --cluster "$cluster"
+    time aws ecs wait services-stable --services "${name}" --cluster "${cluster}"
     local exit_code=$?
 
     # show event log
     echo
     echo "Last 5 service events:"
-    aws ecs describe-services --service "$name" --cluster "$cluster" --query 'services[].events[:5]'
+    aws ecs describe-services --service "${name}" --cluster "${cluster}" --query 'services[].events[:5]'
     echo
 
     return $exit_code
@@ -70,7 +74,7 @@ put_metric() {
 }
 
 # get current task definiton (for rollback)
-blue_task_def_arn=$(aws ecs describe-services --services "$name" --cluster "$cluster" --query 'services[0].taskDefinition' | jq -r .)
+blue_task_def_arn=$(aws ecs describe-services --services "${name}" --cluster "${cluster}" --query 'services[0].taskDefinition' | jq -r .)
 
 # create new task definition with the given image
 echo "* Registering new task definition"
@@ -95,23 +99,23 @@ check_arn "$green_task_def_arn"
 
 if update_service "$green_task_def_arn"; then
     echo "Success."
-    put_metric DeployCount "${name}-${environment}"
+    put_metric DeployCount "${cluster}"
     exit 0
 fi
 echo "Service failed to stabilize!"
-put_metric DeployFail "${name}-${environment}"
+put_metric DeployFail "${cluster}"
 
 echo
 echo "Showing logs from recently stopped tasks:"
-"$DIR"/../bin/ecs-service-logs show --cluster "app-${environment}" --service "${name}" --environment "${environment}" --status "STOPPED" --verbose
+"$DIR"/../bin/ecs-service-logs show --cluster "${cluster}" --service "${name}" --environment "${environment}" --status "STOPPED" --verbose
 echo
 
 echo "* Rolling back to $blue_task_def_arn"
 if update_service "$blue_task_def_arn"; then
     echo "Rollback complete."
-    put_metric RollbackCount "${name}-${environment}"
+    put_metric RollbackCount "${cluster}"
     exit 1
 fi
 echo "Rollback failed!"
-put_metric RollbackFail "${name}-${environment}"
+put_metric RollbackFail "${cluster}"
 exit 1

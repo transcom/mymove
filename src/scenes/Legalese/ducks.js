@@ -35,7 +35,7 @@ export function dateToTimestamp(dt) {
 }
 
 export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned, _ppmId, submitDate) => {
-  return async function(dispatch, getState) {
+  return async function (dispatch, getState) {
     const dateTimeSigned = dateToTimestamp(dateSigned);
     dispatch(signAndSubmitForApprovalActions.start());
     try {
@@ -69,7 +69,7 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
 
 // this function signature needs to match signAndSubmitForApproval
 export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId, ppmSubmitDate) => {
-  return async function(dispatch) {
+  return async function (dispatch) {
     const dateTimeSigned = dateToTimestamp(dateSigned);
     dispatch(signAndSubmitPpmForApprovalActions.start());
     try {

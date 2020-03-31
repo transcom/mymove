@@ -19,7 +19,7 @@ $ make db_test_reset && make db_test_migrate
 If you're adding a feature that requires new or modified configuration, it's a good idea to run acceptance tests against our environments before you merge into master.  You can run acceptance tests against an environment with:
 
 ```console
-$ TEST_ACC_ENV=experimental make webserver_test
+$ TEST_ACC_ENV=experimental make acceptance_test
 ```
 
 This command will first load the variables from the `config/env/*.env` file and then run `chamber exec` to pull the environments from AWS.  You can run acceptance tests for the database connection, DOD certificates, and Honeycomb through environment variables with `TEST_ACC_INIT_DATABASE=1` and `TEST_ACC_DOD_CERTIFICATES=1`, respectively.
@@ -27,7 +27,7 @@ This command will first load the variables from the `config/env/*.env` file and 
 For example to run acceptance tests against staging, including DOD certificate parsing, use:
 
 ```console
-$ TEST_ACC_ENV=staging TEST_ACC_DOD_CERTIFICATES=1 make webserver_test
+$ TEST_ACC_ENV=staging TEST_ACC_DOD_CERTIFICATES=1 make acceptance_test
 ```
 
 ### Run All Tests in a Single Package

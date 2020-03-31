@@ -79,21 +79,25 @@ class WeightTicket extends Component {
     return this.state.weightTicketSetType === WEIGHT_TICKET_SET_TYPE.CAR_TRAILER;
   }
 
+  get isCar() {
+    return this.state.weightTicketSetType === WEIGHT_TICKET_SET_TYPE.CAR;
+  }
+
   get isProGear() {
     return this.state.weightTicketSetType === WEIGHT_TICKET_SET_TYPE.PRO_GEAR;
   }
 
-  hasWeightTicket = uploaderRef => {
+  hasWeightTicket = (uploaderRef) => {
     return !!(uploaderRef && !uploaderRef.isEmpty());
   };
 
-  invalidState = uploader => {
+  invalidState = (uploader) => {
     if (uploader.isMissingChecked()) {
       return true;
     } else return !this.hasWeightTicket(uploader.uploaderRef);
   };
 
-  carTrailerText = isValidTrailer => {
+  carTrailerText = (isValidTrailer) => {
     if (this.isCarTrailer && isValidTrailer === 'Yes') {
       return (
         <div style={{ marginBottom: '1em' }}>
@@ -124,19 +128,19 @@ class WeightTicket extends Component {
     this.setState({ [type]: event.target.value });
   };
 
-  handleCheckboxChange = event => {
+  handleCheckboxChange = (event) => {
     this.setState({
       [event.target.name]: event.target.checked,
     });
   };
 
-  onAddFile = uploaderName => () => {
+  onAddFile = (uploaderName) => () => {
     this.setState({
       uploaderIsIdle: { ...this.state.uploaderIsIdle, [uploaderName]: false },
     });
   };
 
-  onUploadChange = uploaderName => uploaderIsIdle => {
+  onUploadChange = (uploaderName) => (uploaderIsIdle) => {
     this.setState({
       uploaderIsIdle: { ...this.state.uploaderIsIdle, [uploaderName]: uploaderIsIdle },
     });
@@ -151,11 +155,11 @@ class WeightTicket extends Component {
     const uploadersKeys = Object.keys(this.uploaders);
     return uploadersKeys.filter(
       // eslint-disable-next-line security/detect-object-injection
-      key => this.uploaders[key].uploaderRef && !this.uploaders[key].uploaderRef.isEmpty(),
+      (key) => this.uploaders[key].uploaderRef && !this.uploaders[key].uploaderRef.isEmpty(),
     );
   }
 
-  saveAndAddHandler = formValues => {
+  saveAndAddHandler = (formValues) => {
     const { moveId, currentPpm, history } = this.props;
     const { additionalWeightTickets } = this.state;
 
@@ -173,6 +177,8 @@ class WeightTicket extends Component {
       upload_ids: uploadIds,
       weight_ticket_set_type: formValues.weight_ticket_set_type,
       vehicle_nickname: formValues.vehicle_nickname,
+      vehicle_make: formValues.vehicle_make,
+      vehicle_model: formValues.vehicle_model,
       empty_weight_ticket_missing: this.state.missingEmptyWeightTicket,
       empty_weight: formValues.empty_weight,
       full_weight_ticket_missing: this.state.missingFullWeightTicket,
@@ -191,7 +197,7 @@ class WeightTicket extends Component {
           history.push(nextPage);
         }
       })
-      .catch(e => {
+      .catch((e) => {
         this.setState({ weightTicketSubmissionError: true });
       });
   };
@@ -263,20 +269,41 @@ class WeightTicket extends Component {
                 <SwaggerField
                   fieldName="weight_ticket_set_type"
                   swagger={schema}
-                  onChange={event => this.handleChange(event, 'weightTicketSetType')}
+                  onChange={(event) => this.handleChange(event, 'weightTicketSetType')}
                   value={weightTicketSetType}
                   required
                 />
-                <SwaggerField
-                  fieldName="vehicle_nickname"
-                  title={
-                    this.isProGear
-                      ? "Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
-                      : "Vehicle nickname (ex. 'My car')"
-                  }
-                  swagger={schema}
-                  required
-                />
+                {weightTicketSetType &&
+                  (this.isCarTrailer || this.isCar ? (
+                    <>
+                      <SwaggerField
+                        fieldName="vehicle_make"
+                        data-cy="vehicle_make"
+                        title="Vehicle make"
+                        swagger={schema}
+                        required={this.isCarTrailer || this.isCar}
+                      />
+                      <SwaggerField
+                        fieldName="vehicle_model"
+                        data-cy="vehicle_model"
+                        title="Vehicle model"
+                        swagger={schema}
+                        required={this.isCarTrailer || this.isCar}
+                      />
+                    </>
+                  ) : (
+                    <SwaggerField
+                      fieldName="vehicle_nickname"
+                      data-cy="vehicle_nickname"
+                      title={
+                        this.isProGear
+                          ? "Pro-gear type (ex. 'My pro-gear', 'Spouse pro-gear', 'Both')"
+                          : "Vehicle nickname (ex. 'Large box truck')"
+                      }
+                      swagger={schema}
+                      required={!this.isCarTrailer && !this.isCar}
+                    />
+                  ))}
                 {weightTicketSetType && this.isCarTrailer && (
                   <>
                     <div className="radio-group-wrapper normalize-margins">
@@ -294,7 +321,7 @@ class WeightTicket extends Component {
                         value="Yes"
                         name="isValidTrailer"
                         checked={isValidTrailer === 'Yes'}
-                        onChange={event => this.handleChange(event, 'isValidTrailer')}
+                        onChange={(event) => this.handleChange(event, 'isValidTrailer')}
                       />
 
                       <RadioButton
@@ -304,7 +331,7 @@ class WeightTicket extends Component {
                         value="No"
                         name="isValidTrailer"
                         checked={isValidTrailer === 'No'}
-                        onChange={event => this.handleChange(event, 'isValidTrailer')}
+                        onChange={(event) => this.handleChange(event, 'isValidTrailer')}
                       />
                     </div>
                     {isValidTrailer === 'Yes' && (
@@ -316,7 +343,7 @@ class WeightTicket extends Component {
                         <span data-cy="trailer-upload">
                           <Uploader
                             options={{ labelIdle: uploadTrailerProofOfOwnership }}
-                            onRef={ref => (this.uploaders.trailer.uploaderRef = ref)}
+                            onRef={(ref) => (this.uploaders.trailer.uploaderRef = ref)}
                             onChange={this.onUploadChange('trailer')}
                             onAddFile={this.onAddFile('trailer')}
                           />
@@ -382,7 +409,7 @@ class WeightTicket extends Component {
                             <span data-cy="empty-weight-upload">
                               <Uploader
                                 options={{ labelIdle: uploadEmptyTicketLabel }}
-                                onRef={ref => (this.uploaders.emptyWeight.uploaderRef = ref)}
+                                onRef={(ref) => (this.uploaders.emptyWeight.uploaderRef = ref)}
                                 onChange={this.onUploadChange('emptyWeight')}
                                 onAddFile={this.onAddFile('emptyWeight')}
                               />
@@ -431,7 +458,7 @@ class WeightTicket extends Component {
                         <div data-cy="full-weight-upload">
                           <Uploader
                             options={{ labelIdle: uploadFullTicketLabel }}
-                            onRef={ref => (this.uploaders.fullWeight.uploaderRef = ref)}
+                            onRef={(ref) => (this.uploaders.fullWeight.uploaderRef = ref)}
                             onChange={this.onUploadChange('fullWeight')}
                             onAddFile={this.onAddFile('fullWeight')}
                           />
@@ -472,7 +499,7 @@ class WeightTicket extends Component {
                         value="Yes"
                         name="additional_weight_ticket"
                         checked={additionalWeightTickets === 'Yes'}
-                        onChange={event => this.handleChange(event, 'additionalWeightTickets')}
+                        onChange={(event) => this.handleChange(event, 'additionalWeightTickets')}
                       />
 
                       <RadioButton
@@ -482,7 +509,7 @@ class WeightTicket extends Component {
                         value="No"
                         name="additional_weight_ticket"
                         checked={additionalWeightTickets === 'No'}
-                        onChange={event => this.handleChange(event, 'additionalWeightTickets')}
+                        onChange={(event) => this.handleChange(event, 'additionalWeightTickets')}
                       />
                     </div>
                   </>

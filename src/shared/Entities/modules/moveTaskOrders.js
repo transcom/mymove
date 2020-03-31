@@ -3,9 +3,19 @@ import { getGHCClient } from 'shared/Swagger/api';
 import { get, filter } from 'lodash';
 
 const updateMoveTaskOrders = 'moveTaskOrder.updateMoveTaskOrderStatus';
-export function updateMoveTaskOrderStatus(moveTaskOrderID, isAvailableToPrime, label = updateMoveTaskOrders) {
+export function updateMoveTaskOrderStatus(
+  moveTaskOrderID,
+  ifMatchETag,
+  isAvailableToPrime,
+  label = updateMoveTaskOrders,
+) {
   const swaggerTag = 'moveTaskOrder.updateMoveTaskOrderStatus';
-  return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { updateMoveTaskOrders }, { label });
+  return swaggerRequest(
+    getGHCClient,
+    swaggerTag,
+    { moveTaskOrderID, 'If-Match': ifMatchETag },
+    { updateMoveTaskOrders },
+  );
 }
 
 const getMoveOrderLabel = 'moveOrder.getMoveOrder';
@@ -20,7 +30,7 @@ export function selectMoveOrder(state, moveOrderId) {
 
 export function selectMoveTaskOrders(state, moveOrderId) {
   const mtos = get(state, 'entities.moveTaskOrder', {});
-  return filter(mtos, mto => mto.moveOrderID === moveOrderId);
+  return filter(mtos, (mto) => mto.moveOrderID === moveOrderId);
 }
 
 const getMoveTaskOrderLabel = 'moveTaskOrder.getMoveTaskOrder';

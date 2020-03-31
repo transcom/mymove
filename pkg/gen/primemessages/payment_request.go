@@ -17,6 +17,9 @@ import (
 // swagger:model PaymentRequest
 type PaymentRequest struct {
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Read Only: true
 	// Format: uuid
@@ -28,6 +31,10 @@ type PaymentRequest struct {
 	// move task order ID
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+
+	// payment request number
+	// Read Only: true
+	PaymentRequestNumber string `json:"paymentRequestNumber,omitempty"`
 
 	// proof of service docs
 	ProofOfServiceDocs *ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`

@@ -1,5 +1,42 @@
-//colors should primarily come from https://designsystem.digital.gov/components/colors/
+// Defining color variables.
+//Group 1: Brand Colors
+$mm-blue: #252f3e;
+$mm-gold: #ffbe2e;
+$mm-periwinkle: #8cafea;
 
+//Group 2: Background Colors
+$bg-white: #fff;
+$bg-gray: #f9f9f9;
+
+//Group 3: Base colors
+$base-lightest: #f0f0f0;
+$base-lighter: #dcdee0;
+$base-light: #a9aeb1;
+$base: #71767a;
+$base-dark: #565c65;
+$base-darker: #3d4551;
+$base-darkest: #171717;
+
+//Group 4: Form State colors
+$error: #d63e04;
+$error-light: #f4e3db;
+$warning: #ffbe2e;
+$warning-light: #faf3d1;
+$success: #0ca900;
+$success-light: #ecf3ec;
+
+//Group 5 Accents
+$link: #0050d8;
+$link-light: #d9e8f6;
+$accent-blue: #0096f4;
+$accent-yellow: #face00;
+
+//USWDS Colorrs that need to be added
+$primary: #0050d8;
+$primary-dark: #1a4480;
+$primary-darker: #162e51;
+
+//Last Group: these were here when I got here.
 $color-gold: #fdb81e;
 $color-icon-gray: #ababab;
 $color-gray-lightest: #f1f1f1;
@@ -7,3 +44,39 @@ $color-gray-medium: #a2a2a2;
 $color-gray-light: #b2b2b2;
 $color-red: #cd3504;
 $color-blue: #005ea2;
+
+// This section is for Storybook purposes only. It exports color variables for use in Webpack. the name in front is going to print as our color name in storybook, and the color variable we refernce will get inserted into the color swatch.
+:export {
+  brand: {
+    mmblue: $mm-blue;
+    mmgold: $mm-gold;
+    mmperiwinkle: $mm-periwinkle;
+  }
+  background: {
+    bgwhite: $bg-white;
+    bggray: $bg-gray;
+  }
+  base: {
+    baselightest: $base-lightest;
+    baselighter: $base-lighter;
+    baselight: $base-light;
+    base: $base;
+    basedark: $base-dark;
+    basedarker: $base-darker;
+    basedarkest: $base-darkest;
+  }
+  alert: {
+    error: $error;
+    errorlight: $error-light;
+    warning: $warning;
+    warninglight: $warning-light;
+    success: $success;
+    successlight: $success-light;
+  }
+  accent: {
+    link: $link;
+    linklight: $link-light;
+    accentblue: $accent-blue;
+    accentyellow: $accent-yellow;
+  }
+}

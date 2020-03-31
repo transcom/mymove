@@ -6,7 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/services/audit"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
@@ -37,9 +37,14 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		&auditor,
 	}
 
+	primeAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
+		context,
+		mtoserviceitem.NewMTOServiceItemCreator(builder),
+	}
+
 	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		context,
-		mtoshipment.NewMTOShipmentUpdater(context.DB(), builder, fetcher),
+		mtoshipment.NewMTOShipmentUpdater(context.DB(), builder, fetcher, context.Planner()),
 	}
 
 	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{

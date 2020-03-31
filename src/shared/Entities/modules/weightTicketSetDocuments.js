@@ -7,6 +7,8 @@ export const createWeightTicketSetDocumentLabel = 'weightTicketDocumentSet.creat
 //     upload_ids,
 //     weight_ticket_set_type,
 //     vehicle_nickname,
+//     vehicle_make,
+//     vehicle_model,
 //     empty_weight_ticket_missing,
 //     empty_weight,
 //     full_weight_ticket_missing,

@@ -15,7 +15,7 @@ export function patchMTOShipmentStatus(
   moveTaskOrderID,
   shipmentID,
   shipmentStatus,
-  ifUnmodifiedSince,
+  ifMatchETag,
   rejectionReason,
   label = patchMTOShipmentStatusOperation,
   schemaKey = mtoShipmentSchemaKey,
@@ -26,7 +26,7 @@ export function patchMTOShipmentStatus(
     {
       moveTaskOrderID,
       shipmentID,
-      'If-Unmodified-Since': ifUnmodifiedSince,
+      'If-Match': ifMatchETag,
       body: { status: shipmentStatus, rejectionReason },
     },
     { label, schemaKey },
@@ -35,5 +35,5 @@ export function patchMTOShipmentStatus(
 
 export function selectMTOShipments(state, moveOrderId) {
   const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
-  return filter(state.entities.mtoShipments, item => moveTaskOrders.find(mto => mto.id === item.moveTaskOrderID));
+  return filter(state.entities.mtoShipments, (item) => moveTaskOrders.find((mto) => mto.id === item.moveTaskOrderID));
 }

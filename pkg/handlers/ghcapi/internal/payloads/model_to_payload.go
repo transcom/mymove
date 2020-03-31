@@ -2,6 +2,7 @@ package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -23,6 +24,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
+		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 	return payload
 }
@@ -33,16 +35,17 @@ func Customer(customer *models.Customer) *ghcmessages.Customer {
 		return nil
 	}
 	payload := ghcmessages.Customer{
-		Agency:             customer.Agency,
+		Agency:             swag.StringValue(customer.Agency),
 		CurrentAddress:     Address(&customer.CurrentAddress),
 		DestinationAddress: Address(&customer.DestinationAddress),
-		DodID:              customer.DODID,
+		DodID:              swag.StringValue(customer.DODID),
 		Email:              customer.Email,
-		FirstName:          customer.FirstName,
+		FirstName:          swag.StringValue(customer.FirstName),
 		ID:                 strfmt.UUID(customer.ID.String()),
-		LastName:           customer.LastName,
+		LastName:           swag.StringValue(customer.LastName),
 		Phone:              customer.PhoneNumber,
 		UserID:             strfmt.UUID(customer.UserID.String()),
+		ETag:               etag.GenerateEtag(customer.UpdatedAt),
 	}
 	return &payload
 }
@@ -65,13 +68,14 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 		OrderTypeDetail:        moveOrder.OrderTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
+		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
 	}
 
 	if moveOrder.Customer != nil {
-		payload.Agency = moveOrder.Customer.Agency
+		payload.Agency = swag.StringValue(moveOrder.Customer.Agency)
 		payload.CustomerID = strfmt.UUID(moveOrder.CustomerID.String())
-		payload.FirstName = moveOrder.Customer.FirstName
-		payload.LastName = moveOrder.Customer.LastName
+		payload.FirstName = swag.StringValue(moveOrder.Customer.FirstName)
+		payload.LastName = swag.StringValue(moveOrder.Customer.LastName)
 	}
 	if moveOrder.ReportByDate != nil {
 		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
@@ -127,6 +131,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		StorageInTransit:      sit,
 		TotalDependents:       totalDependents,
 		TotalWeight:           totalWeight,
+		ETag:                  etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -141,6 +146,7 @@ func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
 		AddressID: address.ID,
 		ID:        strfmt.UUID(dutyStation.ID.String()),
 		Name:      dutyStation.Name,
+		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
 	}
 	return &payload
 }
@@ -159,6 +165,7 @@ func Address(address *models.Address) *ghcmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
 
@@ -173,12 +180,13 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		Status:                   string(mtoShipment.Status),
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		RejectionReason:          mtoShipment.RejectionReason,
-		PickupAddress:            Address(&mtoShipment.PickupAddress),
+		PickupAddress:            Address(mtoShipment.PickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
-		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
+		DestinationAddress:       Address(mtoShipment.DestinationAddress),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
 	if mtoShipment.RequestedPickupDate != nil {
@@ -192,29 +200,12 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	return payload
 }
 
-// MTOShipmentWithEtag payload
-func MTOShipmentWithEtag(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipmentWithEtag {
-	return &ghcmessages.MTOShipmentWithEtag{
-		MTOShipment: ghcmessages.MTOShipment{
-			ID:                  strfmt.UUID(mtoShipment.ID.String()),
-			MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-			ShipmentType:        "HHG",
-			Status:              string(mtoShipment.Status),
-			CustomerRemarks:     mtoShipment.CustomerRemarks,
-			RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
-			CreatedAt:           strfmt.DateTime(mtoShipment.CreatedAt),
-			UpdatedAt:           strfmt.DateTime(mtoShipment.UpdatedAt),
-		},
-		ETag: etag.GenerateEtag(mtoShipment.UpdatedAt),
-	}
-}
-
 // MTOShipments payload
 func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
-		payload[i] = MTOShipmentWithEtag(&m)
+		payload[i] = MTOShipment(&m)
 	}
 	return &payload
 }
@@ -231,6 +222,7 @@ func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
 		AgentType:     string(mtoAgent.MTOAgentType),
 		Email:         mtoAgent.Email,
 		Phone:         mtoAgent.Phone,
+		ETag:          etag.GenerateEtag(mtoAgent.UpdatedAt),
 	}
 	return payload
 }
@@ -242,4 +234,17 @@ func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 		payload[i] = MTOAgent(&m)
 	}
 	return &payload
+}
+
+// PaymentRequest payload
+func PaymentRequest(pr *models.PaymentRequest) *ghcmessages.PaymentRequest {
+	return &ghcmessages.PaymentRequest{
+		ID:                   *handlers.FmtUUID(pr.ID),
+		IsFinal:              &pr.IsFinal,
+		MoveTaskOrderID:      *handlers.FmtUUID(pr.MoveTaskOrderID),
+		PaymentRequestNumber: pr.PaymentRequestNumber,
+		RejectionReason:      pr.RejectionReason,
+		Status:               ghcmessages.PaymentRequestStatus(pr.Status),
+		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
+	}
 }

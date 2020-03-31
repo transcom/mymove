@@ -29,19 +29,19 @@ export const showServiceMemberOrders = ReduxHelpers.generateAsyncActionCreator(
 );
 
 export function createOrders(ordersPayload) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(createOrUpdateOrdersType);
     const moveAction = ReduxHelpers.generateAsyncActions(createOrUpdateMoveType);
     const state = getState();
     const currentOrders = state.orders.currentOrders;
     if (!currentOrders) {
       return CreateOrders(ordersPayload)
-        .then(item => {
+        .then((item) => {
           const newMove = get(item, 'moves.0', null);
           dispatch(action.success(item));
           dispatch(moveAction.success(newMove));
         })
-        .catch(error => dispatch(action.error(error)));
+        .catch((error) => dispatch(action.error(error)));
     } else {
       return Promise.reject();
     }
@@ -54,13 +54,13 @@ export const loadOrders = ReduxHelpers.generateAsyncActionCreator(getOrdersType,
 
 // Deletes a single upload
 export function deleteUpload(uploadId) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
     const state = getState();
     if (state.orders.currentOrders) {
       return DeleteUploads(uploadId)
         .then(() => dispatch(action.success([uploadId])))
-        .catch(err => action.error(err));
+        .catch((err) => action.error(err));
     } else {
       return Promise.resolve();
     }
@@ -69,13 +69,13 @@ export function deleteUpload(uploadId) {
 
 // Deletes an array of uploads
 export function deleteUploads(uploadIds) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
     const state = getState();
     if (state.orders.currentOrders && uploadIds.length) {
       return DeleteUploads(uploadIds)
         .then(() => dispatch(action.success(uploadIds)))
-        .catch(err => action.error(err));
+        .catch((err) => action.error(err));
     } else {
       return Promise.resolve();
     }
@@ -83,7 +83,7 @@ export function deleteUploads(uploadIds) {
 }
 
 export function addUploads(uploads) {
-  return function(dispatch, getState) {
+  return function (dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(addUploadsType);
     const state = getState();
     if (state.orders.currentOrders) {
@@ -120,7 +120,7 @@ function reshapeOrders(orders) {
 }
 const removeUploads = (uploadIds, state) => {
   const newState = cloneDeep(state);
-  newState.currentOrders.uploaded_orders.uploads = reject(state.currentOrders.uploaded_orders.uploads, upload => {
+  newState.currentOrders.uploaded_orders.uploads = reject(state.currentOrders.uploaded_orders.uploads, (upload) => {
     return includes(uploadIds, upload.id);
   });
   return newState;

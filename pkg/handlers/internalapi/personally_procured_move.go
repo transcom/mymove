@@ -38,7 +38,6 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		MoveID:                        *handlers.FmtUUID(personallyProcuredMove.MoveID),
 		CreatedAt:                     handlers.FmtDateTime(personallyProcuredMove.CreatedAt),
 		UpdatedAt:                     handlers.FmtDateTime(personallyProcuredMove.UpdatedAt),
-		Size:                          personallyProcuredMove.Size,
 		WeightEstimate:                handlers.FmtPoundPtr(personallyProcuredMove.WeightEstimate),
 		OriginalMoveDate:              handlers.FmtDatePtr(personallyProcuredMove.OriginalMoveDate),
 		ActualMoveDate:                handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
@@ -118,7 +117,6 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 	}
 
 	newPPM, verrs, err := move.CreatePPM(h.DB(),
-		payload.Size,
 		handlers.PoundPtrFromInt64Ptr(payload.WeightEstimate),
 		(*time.Time)(payload.OriginalMoveDate),
 		payload.PickupPostalCode,
@@ -176,9 +174,6 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 
 func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalmessages.PatchPersonallyProcuredMovePayload) {
 
-	if payload.Size != nil {
-		ppm.Size = payload.Size
-	}
 	if payload.WeightEstimate != nil {
 		ppm.WeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.WeightEstimate)
 	}
@@ -395,7 +390,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 		return err
 	}
 
-	cost, err := re.ComputeLowestCostPPMMove(
+	costDetails, err := re.ComputePPMMoveCosts(
 		unit.Pound(*ppm.WeightEstimate),
 		*ppm.PickupPostalCode,
 		originDutyStationZip,
@@ -408,6 +403,8 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 	if err != nil {
 		return err
 	}
+
+	cost := rateengine.GetWinningCostMove(costDetails)
 
 	// Update SIT estimate
 	if ppm.HasSit != nil && *ppm.HasSit {

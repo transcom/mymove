@@ -25,7 +25,7 @@ type PatchMTOShipmentStatusOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.MTOShipmentWithEtag `json:"body,omitempty"`
+	Payload *ghcmessages.MTOShipment `json:"body,omitempty"`
 }
 
 // NewPatchMTOShipmentStatusOK creates PatchMTOShipmentStatusOK with default headers values
@@ -35,13 +35,13 @@ func NewPatchMTOShipmentStatusOK() *PatchMTOShipmentStatusOK {
 }
 
 // WithPayload adds the payload to the patch m t o shipment status o k response
-func (o *PatchMTOShipmentStatusOK) WithPayload(payload *ghcmessages.MTOShipmentWithEtag) *PatchMTOShipmentStatusOK {
+func (o *PatchMTOShipmentStatusOK) WithPayload(payload *ghcmessages.MTOShipment) *PatchMTOShipmentStatusOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the patch m t o shipment status o k response
-func (o *PatchMTOShipmentStatusOK) SetPayload(payload *ghcmessages.MTOShipmentWithEtag) {
+func (o *PatchMTOShipmentStatusOK) SetPayload(payload *ghcmessages.MTOShipment) {
 	o.Payload = payload
 }
 

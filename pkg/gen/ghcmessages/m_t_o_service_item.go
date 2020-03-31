@@ -34,6 +34,9 @@ type MTOServiceItem struct {
 	// description
 	Description string `json:"description,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// fee type
 	// Enum: [COUNSELING CRATING TRUCKING SHUTTLE]
 	FeeType string `json:"feeType,omitempty"`
@@ -42,15 +45,6 @@ type MTOServiceItem struct {
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
-
-	// meta ID
-	// Required: true
-	// Format: uuid
-	MetaID *strfmt.UUID `json:"metaID"`
-
-	// meta type
-	// Required: true
-	MetaType *string `json:"metaType"`
 
 	// move task order ID
 	// Required: true
@@ -122,14 +116,6 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateMetaID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateMetaType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -270,28 +256,6 @@ func (m *MTOServiceItem) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateMetaID(formats strfmt.Registry) error {
-
-	if err := validate.Required("metaID", "body", m.MetaID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("metaID", "body", "uuid", m.MetaID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateMetaType(formats strfmt.Registry) error {
-
-	if err := validate.Required("metaType", "body", m.MetaType); err != nil {
 		return err
 	}
 

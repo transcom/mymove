@@ -31,10 +31,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 	suite.T().Run("successful create payment request", func(t *testing.T) {
 		returnedPaymentRequest := models.PaymentRequest{
-			ID:              paymentRequestID,
-			MoveTaskOrderID: moveTaskOrderID,
-			CreatedAt:       time.Now(),
-			UpdatedAt:       time.Now(),
+			ID:                   paymentRequestID,
+			MoveTaskOrderID:      moveTaskOrderID,
+			PaymentRequestNumber: "1234-5678-1",
+			CreatedAt:            time.Now(),
+			UpdatedAt:            time.Now(),
 		}
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
@@ -79,6 +80,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 						},
 					},
 				},
+				PointOfContact: "user@prime.com",
 			},
 		}
 		response := handler.Handle(params)
@@ -90,6 +92,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			suite.Equal(returnedPaymentRequest.IsFinal, *typedResponse.Payload.IsFinal)
 		}
 		suite.Equal(returnedPaymentRequest.MoveTaskOrderID.String(), typedResponse.Payload.MoveTaskOrderID.String())
+		suite.Equal(returnedPaymentRequest.PaymentRequestNumber, typedResponse.Payload.PaymentRequestNumber)
 	})
 
 	suite.T().Run("failed create payment request -- nil body", func(t *testing.T) {
@@ -131,6 +134,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				PointOfContact:  "user@prime.com",
 			},
 		}
 
@@ -183,6 +187,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				PointOfContact:  "user@prime.com",
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: badFormatID,
@@ -213,6 +218,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				PointOfContact:  "user@prime.com",
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(serviceItemID1),

@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MoveDocumentType Document Type
+// MoveDocumentType Document type
 // swagger:model MoveDocumentType
 type MoveDocumentType string
 

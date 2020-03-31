@@ -5,22 +5,22 @@ import styles from 'scenes/SystemAdmin/Home.module.scss';
 
 const defaultSort = { field: 'performance_period_start', order: 'DESC' };
 
-const TSPPFilter = props => (
+const TSPPFilter = (props) => (
   <Filter {...props} className={styles['system-admin-filters']}>
     <TextInput
       label="Traffic distribution list id"
-      source="traffic_distribution_list_id"
+      source="trafficDistributionListId"
       reference="transportation_service_provider_performances"
     />
     <TextInput
       label="Transportation service provider id"
-      source="transportation_service_provider_id"
+      source="transportationServiceProviderId"
       reference="transportation_service_provider_performances"
     />
   </Filter>
 );
 
-const TSPPList = props => (
+const TSPPList = (props) => (
   <List
     {...props}
     pagination={<AdminPagination />}
@@ -31,12 +31,12 @@ const TSPPList = props => (
   >
     <Datagrid rowClick="show">
       <TextField source="id" reference="transportation_service_provider_performances" />
-      <TextField source="traffic_distribution_list_id" reference="transportation_service_provider_performances" />
-      <TextField source="transportation_service_provider_id" reference="transportation_service_provider_performances" />
-      <DateField source="performance_period_start" reference="transportation_service_provider_performances" />
-      <DateField source="performance_period_end" reference="transportation_service_provider_performances" />
-      <DateField source="rate_cycle_start" reference="transportation_service_provider_performances" />
-      <DateField source="rate_cycle_end" reference="transportation_service_provider_performances" />
+      <TextField source="trafficDistributionListId" reference="transportation_service_provider_performances" />
+      <TextField source="transportationServiceProviderId" reference="transportation_service_provider_performances" />
+      <DateField source="performancePeriodStart" reference="transportation_service_provider_performances" />
+      <DateField source="performancePeriodEnd" reference="transportation_service_provider_performances" />
+      <DateField source="rateCycleStart" reference="transportation_service_provider_performances" />
+      <DateField source="rateCycleEnd" reference="transportation_service_provider_performances" />
     </Datagrid>
   </List>
 );

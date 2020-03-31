@@ -27,12 +27,12 @@ type ppmComputerParams struct {
 }
 
 type mockPPMComputer struct {
-	costComputation   rateengine.CostComputation
+	costDetails       rateengine.CostDetails
 	err               error
 	ppmComputerParams []ppmComputerParams
 }
 
-func (mppmc *mockPPMComputer) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostComputation, err error) {
+func (mppmc *mockPPMComputer) ComputePPMMoveCosts(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostDetails, err error) {
 	mppmc.ppmComputerParams = append(mppmc.ppmComputerParams, ppmComputerParams{
 		Weight:                                weight,
 		OriginPickupZip5:                      originPickupZip5,
@@ -43,7 +43,7 @@ func (mppmc *mockPPMComputer) ComputeLowestCostPPMMove(weight unit.Pound, origin
 		Date:                                  date,
 		DaysInSIT:                             daysInSit,
 	})
-	return mppmc.costComputation, mppmc.err
+	return mppmc.costDetails, mppmc.err
 }
 
 func (mppmc *mockPPMComputer) CalledWith() []ppmComputerParams {
@@ -67,11 +67,16 @@ func (suite *PaperworkSuite) TestComputeObligationsParams() {
 	_, err3 := ppmComputer.ComputeObligations(missingActualMoveDate, route.NewTestingPlanner(10))
 
 	suite.NotNil(err1)
+	suite.Equal("missing ppm", err1.Error())
+
 	suite.NotNil(err2)
+	suite.Equal("missing required address parameter", err2.Error())
+
 	suite.NotNil(err3)
+	suite.Equal("missing required original move date parameter", err3.Error())
 }
 
-func (suite *PaperworkSuite) TestTestComputeObligations() {
+func (suite *PaperworkSuite) TestComputeObligations() {
 	miles := 100
 	totalWeightEntitlement := unit.Pound(1000)
 	ppmRemainingEntitlement := unit.Pound(2000)
@@ -126,8 +131,18 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 		Order:                   order,
 	}
 	suite.Run("TestComputeObligations", func() {
+		var costDetails = make(rateengine.CostDetails)
+		costDetails["pickupLocation"] = &rateengine.CostDetail{
+			Cost:      rateengine.CostComputation{GCC: 100, SITMax: 20000},
+			IsWinning: true,
+		}
+		costDetails["originDutyStation"] = &rateengine.CostDetail{
+			Cost:      rateengine.CostComputation{GCC: 200, SITMax: 30000},
+			IsWinning: true,
+		}
+
 		mockComputer := mockPPMComputer{
-			costComputation: rateengine.CostComputation{GCC: 100, SITMax: 20000},
+			costDetails: costDetails,
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		expectMaxObligationParams := ppmComputerParams{
@@ -160,8 +175,17 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 	})
 
 	suite.Run("TestComputeObligations when actual PPM SIT exceeds MaxSIT", func() {
+		var costDetails = make(rateengine.CostDetails)
+		costDetails["pickupLocation"] = &rateengine.CostDetail{
+			Cost:      rateengine.CostComputation{SITMax: unit.Cents(500)},
+			IsWinning: true,
+		}
+		costDetails["originDutyStation"] = &rateengine.CostDetail{
+			Cost:      rateengine.CostComputation{SITMax: unit.Cents(600)},
+			IsWinning: false,
+		}
 		mockComputer := mockPPMComputer{
-			costComputation: rateengine.CostComputation{SITMax: unit.Cents(500)},
+			costDetails: costDetails,
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		obligations, err := ppmComputer.ComputeObligations(params, planner)
@@ -171,6 +195,19 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 	})
 
 	suite.Run("TestComputeObligations when there is no actual PPM SIT", func() {
+		var costDetails = make(rateengine.CostDetails)
+		costDetails["pickupLocation"] = &rateengine.CostDetail{
+			Cost:      rateengine.CostComputation{SITMax: unit.Cents(500)},
+			IsWinning: true,
+		}
+		costDetails["originDutyStation"] = &rateengine.CostDetail{
+			Cost:      rateengine.CostComputation{SITMax: unit.Cents(600)},
+			IsWinning: false,
+		}
+		mockComputer := mockPPMComputer{
+			costDetails: costDetails,
+		}
+
 		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{
 				OriginalMoveDate:      &origMoveDate,
@@ -185,9 +222,6 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			CurrentDutyStation:      currentDutyStation,
 			Order:                   order,
-		}
-		mockComputer := mockPPMComputer{
-			costComputation: rateengine.CostComputation{SITMax: unit.Cents(500)},
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		obligations, err := ppmComputer.ComputeObligations(shipmentSummaryFormParams, planner)
