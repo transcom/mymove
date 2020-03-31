@@ -486,7 +486,7 @@ storiesOf('Components|Tables', module)
       <div className="sb-table-wrapper">
         <code>pagination</code>
         <div className="tcontrol--pagination">
-          <Button className="usa-button--unstyled" onClick={action('clicked')}>
+          <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
             <span className="icon">
               <ChevronLeft />
             </span>
