@@ -620,7 +620,6 @@ func generateTaskDefinition(containerDefName string, ecrImage *ECRImage, entryPo
 		sideCarLink = append(sideCarLink, &sideCarContainerName)
 		containerPort = nil
 		networkMode = "bridge"
-
 	}
 
 	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
