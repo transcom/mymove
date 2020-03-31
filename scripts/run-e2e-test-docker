@@ -16,6 +16,7 @@ MILMOVEHOST=milmovelocal
 OFFICEHOST=officelocal
 ADMINHOST=adminlocal
 ORDERSHOST=orderslocal
+PRIMEHOST=primelocal
 
 # Set Defaults
 HTTP_PORT=4000
@@ -148,6 +149,7 @@ $DOCKER_RUN \
   --add-host "${OFFICEHOST}:${E2E_IP}" \
   --add-host "${ADMINHOST}:${E2E_IP}" \
   --add-host "${ORDERSHOST}:${E2E_IP}" \
+  --add-host "${PRIMEHOST}:${E2E_IP}" \
   --name="${CONTAINER_CYPRESS}" \
   --link="${CONTAINER}" \
   --net "${NETWORK}" \
