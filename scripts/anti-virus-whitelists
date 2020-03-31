@@ -1,0 +1,116 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Title: Anti Virus Scanning of Source Code
+#
+# Example:
+#
+#   export AV_DIR=$PWD
+#   export AV_IGNORE_DIR=./anti-virus/
+#   export AV_IGNORE_FILES=pkg/testdatagen/testdata/orders.pdf
+#   export AV_IGNORE_SIGS="PUA.Pdf.Trojan.EmbeddedJavaScript-1 orders.pdf.UNOFFICIAL"
+#   anti-virus-whitelists
+#
+# More information about the docker setup is found here: https://github.com/mko-x/docker-clamav
+#
+# Environment Variables that modify behavior:
+#
+# - AV_DIR: The full path to the directory that will mounted (required, no default)
+# - AV_DOCKER_IMAGE: The docker image used which runs ClamAV (default: mk0x/docker-clamav:alpine)
+# - AV_IGNORE_DIR: The full path to the directory where new ignore files will be created (required, no default)
+# - AV_IGNORE_FILES: Specific files to ignore when scanning in a space-separated list
+# - AV_IGNORE_SIGS: Specific signatures to ignore when scanning in a space-separated list
+# - AV_MOUNT_DIR: The directory in the container used to mount files for scanning (default: /project)
+# - AV_WHITELIST_FILES: The database file used for whitelisted files (default: whitelist-files.fp)
+# - AV_WHITELIST_SIGS: The database file used for whitelisted signatures (default: whitelist-signatures.ign2)
+#
+
+DIR="${AV_DIR:-}"
+readonly DIR
+if [[ -z "${DIR+x}" ]]; then
+  echo "Must set AV_DIR environment variable to run this script"
+  exit 1
+fi
+
+if [[ ! -d "${DIR}" ]]; then
+  echo "The AV_DIR environment variable must be a directory that exists on the filesystem."
+  echo "The directory '${DIR}' does not exist!"
+  exit 1
+else
+  echo
+  echo "Mounting code from ${DIR}"
+fi
+
+IGNORE_DIR="${AV_IGNORE_DIR:-}"
+readonly IGNORE_DIR
+if [[ -z "${IGNORE_DIR+x}" ]]; then
+  echo "Must set AV_IGNORE_DIR environment variable to run this script"
+  exit 1
+fi
+
+if [[ ! -d "${IGNORE_DIR}" ]]; then
+  echo "The AV_IGNORE_DIR environment variable must be a directory that exists on the filesystem."
+  echo "The directory '${IGNORE_DIR}' does not exist!"
+  exit 1
+else
+  echo
+  echo "Creating AV Ignore Files for ${IGNORE_DIR}"
+fi
+
+
+DOCKER_IMAGE=${AV_DOCKER_IMAGE:-mk0x/docker-clamav:alpine}
+readonly DOCKER_IMAGE
+MOUNT_DIR=${AV_MOUNT_DIR:-/root/project}
+readonly MOUNT_DIR
+IGNORE_FILES=${AV_IGNORE_FILES:-}
+readonly IGNORE_FILES
+IGNORE_SIGS=${AV_IGNORE_SIGS:-}
+readonly IGNORE_SIGS
+# *.fp is preferred over *.hsb
+WHITELIST_FILES=${AV_WHITELIST_FILES:-whitelist-files.fp}
+readonly WHITELIST_FILES
+# *.ign2 replaces *.ign files
+WHITELIST_SIGS=${AV_WHITELIST_SIGS:-whitelist-signatures.ign2}
+readonly WHITELIST_SIGS
+
+docker pull "${DOCKER_IMAGE}"
+
+# Create a whitelist of files and signatures to ignore
+# The whitelisting is done using `sigtool` to create an md5 hash and placing it in a file
+# See https://www.clamav.net/documents/whitelist-databases
+# See https://owlbearconsulting.com/doku.php?id=linux_wiki:clamav#whitelist_a_file
+# See https://www.clamav.net/documents/file-hash-signatures
+if [[ -n "${IGNORE_FILES}" ]]; then
+  echo
+  echo "Creating whitelist of files to ignore:"
+  rm -f "${IGNORE_DIR}/${WHITELIST_FILES}"
+  touch "${IGNORE_DIR}/${WHITELIST_FILES}"
+  for file in ${IGNORE_FILES}; do
+    # Sigtool format is "MD5sum:Filesize:Comment"
+    docker run -v "${DIR}:${MOUNT_DIR}" -it "${DOCKER_IMAGE}" sigtool --md5 "${MOUNT_DIR}/${file}" | tee -a "${IGNORE_DIR}/${WHITELIST_FILES}"
+  done
+
+  echo
+  echo "********************************************************************************"
+  echo "WARNING: Ignoring these specific files in sigtool format:"
+  cat "${IGNORE_DIR}/${WHITELIST_FILES}"
+  echo "********************************************************************************"
+fi
+
+if [[ -n "${IGNORE_SIGS}" ]]; then
+  echo
+  echo "Creating whitelist of signatures to ignore:"
+  rm -f "${IGNORE_DIR}/${WHITELIST_SIGS}"
+  touch "${IGNORE_DIR}/${WHITELIST_SIGS}"
+  for sig in ${IGNORE_SIGS}; do
+    echo "${sig}" | tee -a "${IGNORE_DIR}/${WHITELIST_SIGS}"
+  done
+
+  echo
+  echo "********************************************************************************"
+  echo "WARNING: Ignoring these specific virus signatures:"
+  cat "${IGNORE_DIR}/${WHITELIST_SIGS}"
+  echo "********************************************************************************"
+fi
