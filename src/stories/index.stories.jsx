@@ -483,30 +483,58 @@ storiesOf('Components|Tables', module)
       </div>
       <hr />
       <h3>Table controls</h3>
-      <div className="sb-table-wrapper">
-        <code>pagination</code>
-        <div className="tcontrol--pagination">
-          <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
-            <span className="icon">
-              <ChevronLeft />
-            </span>
-            <span>Prev</span>
-          </Button>
-          <select className="usa-select" name="table-pagination">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-          <Button className="usa-button--unstyled" onClick={action('clicked')}>
-            <span>Next</span>
-            <span className="icon">
-              <ChevronRight />
-            </span>
-          </Button>
+      <div className="sb-section-wrapper">
+        <div className="sb-table-wrapper">
+          <code>pagination</code>
+          <div className="tcontrol--pagination">
+            <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
+              <span className="icon">
+                <ChevronLeft />
+              </span>
+              <span>Prev</span>
+            </Button>
+            <select className="usa-select" name="table-pagination">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+            <Button className="usa-button--unstyled" onClick={action('clicked')}>
+              <span>Next</span>
+              <span className="icon">
+                <ChevronRight />
+              </span>
+            </Button>
+          </div>
+        </div>
+        <div className="sb-table-wrapper">
+          <code>rows per page</code>
+          <div className="tcontrol--rows-per-page">
+            <select className="usa-select" name="table-rows-per-page">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+            <p>rows per page</p>
+          </div>
         </div>
       </div>
-      <div className="sb-table-wrapper">
-        <code>rows per page</code>
+      <hr />
+      <h3>Data points</h3>
+      <div className="sb-section-wrapper">
+        <div className="sb-table-wrapper">
+          <table className="table--data-point">
+            <thead className="table--small">
+              <tr>
+                <th>Label</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Table Cell Content</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   ))

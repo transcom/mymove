@@ -88,7 +88,8 @@ table {
       @include u-border-bottom('black');
     }
   }
-  &.table--small {
+  &.table--small,
+  .table--small {
     th,
     td {
       @include u-padding-x(1);
@@ -117,16 +118,31 @@ table {
 .tcontrol--pagination {
   display: flex;
   align-items: center;
+  @include u-margin-y(1);
   .usa-select {
     width: 89px;
     height: 38px;
-    @include u-padding-x(0);
     @include u-margin(0);
     @include u-margin-x('105');
   }
   .usa-button--unstyled {
     @include u-margin(0);
     @include u-padding-x(0);
+  }
+}
+.tcontrol--rows-per-page {
+  display: flex;
+  align-items: center;
+  .usa-select {
+    width: 89px;
+    height: 38px;
+    @include u-margin-right('105');
+  }
+}
+.table--data-point {
+  width: 290px;
+  td {
+    @include u-border(0);
   }
 }
 
