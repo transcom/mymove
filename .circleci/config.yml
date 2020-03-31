@@ -956,7 +956,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_postgres_11.7
 
       - client_test:
           requires:
@@ -964,7 +964,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_postgres_11.7
 
       - server_test:
           requires:
@@ -972,7 +972,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_postgres_11.7
 
       - build_app:
           requires:
@@ -1013,28 +1013,28 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_postgres_11.7
 
       - deploy_experimental_tasks:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_postgres_11.7
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_postgres_11.7
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_postgres_11.7
 
       - check_circle_against_staging_sha:
           requires:
