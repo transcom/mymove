@@ -357,10 +357,10 @@ build_tools: bin/gin \
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
 
-# webserver_test runs a few acceptance tests against a local or remote environment.
+# acceptance_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
-.PHONY: webserver_test
-webserver_test: bin/rds-ca-2019-root.pem ## Run acceptance tests
+.PHONY: acceptance_test
+acceptance_test: bin/rds-ca-2019-root.pem ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
