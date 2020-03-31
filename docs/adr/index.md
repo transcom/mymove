@@ -48,6 +48,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0041](0041-front-end-form-library.md) - Front End Form Library
 - [ADR-0042](0042-optimistic-locking.md) - Use If-Match / E-tags for optimistic locking
 - [ADR-0043](0043-prime-time.md) - *Handling time in the Prime API*
+- [ADR-0044](0044-params-styling.md) - Use camelCase for API params
 
 <!-- adrlogstop -->
 

@@ -3,6 +3,10 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
+
 	"github.com/gofrs/uuid"
 )
 
@@ -28,3 +32,10 @@ type Notification struct {
 
 // Notifications is a slice of notification structs
 type Notifications []Notification
+
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+func (n *Notification) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.Validate(
+		&validators.UUIDIsPresent{Field: n.ServiceMemberID, Name: "ServiceMemberID"},
+	), nil
+}
