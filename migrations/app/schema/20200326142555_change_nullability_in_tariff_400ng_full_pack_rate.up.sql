@@ -1,5 +1,5 @@
 -- Change nullability
-Alter TABLE tariff400ng_full_pack_rates
+ALTER TABLE tariff400ng_full_pack_rates
     ALTER COLUMN schedule SET NOT NULL,
     ALTER COLUMN weight_lbs_lower SET NOT NULL,
     ALTER COLUMN weight_lbs_upper SET NOT NULL,
