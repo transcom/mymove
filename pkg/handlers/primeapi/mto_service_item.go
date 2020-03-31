@@ -29,7 +29,8 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	// THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS
 	// restrict creation to a list
 	allowedMap := map[primemessages.MTOServiceItemModelType]bool{
-		primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT: true,
+		primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:          true,
+		primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating: true,
 	}
 	if _, ok := allowedMap[params.Body.ModelType()]; !ok {
 		// throw error if modelType() not on the list

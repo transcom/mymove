@@ -877,14 +877,21 @@ definitions:
         description: Length in thousandth inches. 1000 thou = 1 inch.
         example: 1000
         type: integer
+        format: int32
       width:
         description: Width in thousandth inches. 1000 thou = 1 inch.
         example: 1000
         type: integer
+        format: int32
       height:
         description: Height in thousandth inches. 1000 thou = 1 inch.
         example: 1000
         type: integer
+        format: int32
+    required:
+      - length
+      - width
+      - height
   MTOServiceItemStatus:
     properties:
       status:
@@ -900,6 +907,7 @@ definitions:
     enum:
       - MTOServiceItemBasic
       - MTOServiceItemDOFSIT
+      - MTOServiceItemDomesticCrating
   MTOAgentType:
     type: string
     title: MTO Agent Type

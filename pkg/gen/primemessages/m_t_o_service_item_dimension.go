@@ -18,27 +18,38 @@ import (
 type MTOServiceItemDimension struct {
 
 	// Height in thousandth inches. 1000 thou = 1 inch.
-	Height int64 `json:"height,omitempty"`
+	// Required: true
+	Height *int32 `json:"height"`
 
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// Length in thousandth inches. 1000 thou = 1 inch.
-	Length int64 `json:"length,omitempty"`
+	// Required: true
+	Length *int32 `json:"length"`
 
 	// type
 	Type DimensionType `json:"type,omitempty"`
 
 	// Width in thousandth inches. 1000 thou = 1 inch.
-	Width int64 `json:"width,omitempty"`
+	// Required: true
+	Width *int32 `json:"width"`
 }
 
 // Validate validates this m t o service item dimension
 func (m *MTOServiceItemDimension) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateHeight(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLength(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -46,9 +57,22 @@ func (m *MTOServiceItemDimension) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateWidth(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MTOServiceItemDimension) validateHeight(formats strfmt.Registry) error {
+
+	if err := validate.Required("height", "body", m.Height); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -65,6 +89,15 @@ func (m *MTOServiceItemDimension) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOServiceItemDimension) validateLength(formats strfmt.Registry) error {
+
+	if err := validate.Required("length", "body", m.Length); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItemDimension) validateType(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Type) { // not required
@@ -75,6 +108,15 @@ func (m *MTOServiceItemDimension) validateType(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("type")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDimension) validateWidth(formats strfmt.Registry) error {
+
+	if err := validate.Required("width", "body", m.Width); err != nil {
 		return err
 	}
 

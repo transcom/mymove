@@ -1061,10 +1061,16 @@ func init() {
     "MTOServiceItemDimension": {
       "description": "Describes a dimension object for the MTOServiceItem",
       "type": "object",
+      "required": [
+        "length",
+        "width",
+        "height"
+      ],
       "properties": {
         "height": {
           "description": "Height in thousandth inches. 1000 thou = 1 inch.",
           "type": "integer",
+          "format": "int32",
           "example": 1000
         },
         "id": {
@@ -1075,6 +1081,7 @@ func init() {
         "length": {
           "description": "Length in thousandth inches. 1000 thou = 1 inch.",
           "type": "integer",
+          "format": "int32",
           "example": 1000
         },
         "type": {
@@ -1083,6 +1090,7 @@ func init() {
         "width": {
           "description": "Width in thousandth inches. 1000 thou = 1 inch.",
           "type": "integer",
+          "format": "int32",
           "example": 1000
         }
       }
@@ -1129,7 +1137,8 @@ func init() {
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
-        "MTOServiceItemDOFSIT"
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemDomesticCrating"
       ]
     },
     "MTOServiceItemStatus": {
@@ -2765,10 +2774,16 @@ func init() {
     "MTOServiceItemDimension": {
       "description": "Describes a dimension object for the MTOServiceItem",
       "type": "object",
+      "required": [
+        "length",
+        "width",
+        "height"
+      ],
       "properties": {
         "height": {
           "description": "Height in thousandth inches. 1000 thou = 1 inch.",
           "type": "integer",
+          "format": "int32",
           "example": 1000
         },
         "id": {
@@ -2779,6 +2794,7 @@ func init() {
         "length": {
           "description": "Length in thousandth inches. 1000 thou = 1 inch.",
           "type": "integer",
+          "format": "int32",
           "example": 1000
         },
         "type": {
@@ -2787,6 +2803,7 @@ func init() {
         "width": {
           "description": "Width in thousandth inches. 1000 thou = 1 inch.",
           "type": "integer",
+          "format": "int32",
           "example": 1000
         }
       }
@@ -2833,7 +2850,8 @@ func init() {
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
-        "MTOServiceItemDOFSIT"
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemDomesticCrating"
       ]
     },
     "MTOServiceItemStatus": {

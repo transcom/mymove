@@ -151,6 +151,25 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) *models.MT
 		model.ReService.Code = models.ReServiceCodeDOFSIT
 		model.Reason = dofsit.Reason
 		model.PickupPostalCode = dofsit.PickupPostalCode
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
+		domesticCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticCrating)
+		// have to get code from payload
+		model.ReService.Code = models.ReServiceCode(*domesticCrating.ReServiceCode)
+		model.Description = domesticCrating.Description
+		model.Dimensions = models.MTOServiceItemDimensions{
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeItem,
+				Length: unit.ThousandthInches(*domesticCrating.Item.Length),
+				Height: unit.ThousandthInches(*domesticCrating.Item.Height),
+				Width:  unit.ThousandthInches(*domesticCrating.Item.Width),
+			},
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeCrate,
+				Length: unit.ThousandthInches(*domesticCrating.Crate.Length),
+				Height: unit.ThousandthInches(*domesticCrating.Crate.Height),
+				Width:  unit.ThousandthInches(*domesticCrating.Crate.Width),
+			},
+		}
 	default:
 		// assume basic service item, take in provided re service code
 		basic := mtoServiceItem.(*primemessages.MTOServiceItemBasic)

@@ -27,9 +27,13 @@ func (t *testMTOServiceItemQueryBuilder) FetchOne(model interface{}, filters []s
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	dimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{})
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: moveTaskOrder.ID,
 		MoveTaskOrder:   moveTaskOrder,
+		Dimensions: models.MTOServiceItemDimensions{
+			dimension,
+		},
 	}
 
 	// Happy path
@@ -48,9 +52,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		creator := NewMTOServiceItemCreator(builder)
 		createdServiceItem, verrs, err := creator.CreateMTOServiceItem(&serviceItem)
+
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(createdServiceItem)
+		suite.NotEmpty(createdServiceItem.Dimensions)
 	})
 
 	// Bad data which could be IDs that doesn't exist (MoveTaskOrderID or REServiceID)
