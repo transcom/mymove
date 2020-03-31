@@ -141,8 +141,24 @@ table {
 }
 .table--data-point {
   width: 290px;
+  @include u-border(0);
   td {
     @include u-border(0);
+  }
+  td,
+  th {
+    background-color: rgba(255, 255, 255, 0);
+  }
+}
+.table--data-pair {
+  @include u-padding(2px);
+  @include u-bg('gray-2');
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-radius('05');
+  .table--data-point td,
+  .table--data-point th {
+    width: 278px;
   }
 }
 
