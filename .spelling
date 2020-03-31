@@ -581,8 +581,16 @@ unix
 mko-x
 docker-clamav#39
 TabNav
+camelCase
 jq
 mto
+whitelist
+whitelist-files
+whitelist-signatures
+fp
+ign2
+freshclam
+clamav
 zip3s
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md
