@@ -2294,9 +2294,10 @@
     "@babel/runtime" "^7.5.5"
     "@testing-library/dom" "^5.6.1"
 
-"@trussworks/react-uswds@https://github.com/trussworks/react-uswds.git#develop":
-  version "1.0.0"
-  resolved "https://github.com/trussworks/react-uswds.git#a479ac3bc15ffc8423d85ea7b3e8cef1524649cc"
+"@trussworks/react-uswds@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-1.1.0.tgz#a38e8bb1639be307bd4dba8551c4f37bf99357c6"
+  integrity sha512-L64N6ClB/WTCEN6IhKhdjI6g/MpNvmQgt9mWkKQ4zA6/rmtz3fzwhwVEepWhAE9C5Ml8h6+i3R7fDLuWwhO2Bg==
   dependencies:
     classnames "^2.2.6"
     react "^16.10.0"
