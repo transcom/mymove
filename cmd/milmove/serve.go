@@ -18,15 +18,17 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
-	"github.com/transcom/mymove/pkg/handlers/supportapi"
-
+	"github.com/alexedwards/scs/redisstore"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
+
+	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -51,6 +53,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
+	"github.com/transcom/mymove/pkg/handlers/supportapi"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/middleware"
@@ -139,6 +142,12 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// Service Flags
 	cli.InitServiceFlags(flag)
+
+	// Redis Flags
+	cli.InitRedisFlags(flag)
+
+	// SessionFlags
+	cli.InitSessionFlags(flag)
 
 	// Sort command line flags
 	flag.SortFlags = true
@@ -248,6 +257,14 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
+	if err := cli.CheckRedis(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckSession(v); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -298,11 +315,28 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 	}
 }
 
+func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]interface{}) map[string]interface{} {
+	conn := pool.Get()
+	defer conn.Close()
+
+	pong, err := redis.String(conn.Do("PING"))
+	if err != nil {
+		logger.Error("Failed to ping Redis during health check", zap.Error(err))
+	}
+	logger.Info("Health check Redis ping", zap.String("ping_response", pong))
+
+	data["redis"] = err == nil
+
+	return data
+}
+
 func serveFunction(cmd *cobra.Command, args []string) error {
 
 	var logger *zap.Logger
 	var dbConnection *pop.Connection
 	dbClose := &sync.Once{}
+	var redisPool *redis.Pool
+	redisClose := &sync.Once{}
 
 	defer func() {
 		if logger != nil {
@@ -314,6 +348,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 					logger.Info("closing database connections")
 					if err := dbConnection.Close(); err != nil {
 						logger.Error("error closing database connections", zap.Error(err))
+					}
+				})
+			}
+			if redisPool != nil {
+				redisClose.Do(func() {
+					logger.Info("closing redis connections")
+					if err := redisPool.Close(); err != nil {
+						logger.Error("error closing redis connections", zap.Error(err))
 					}
 				})
 			}
@@ -462,6 +504,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// Create a connection to Redis
+	redisPool, errRedisConnection := cli.InitRedis(v, logger)
+	if errRedisConnection != nil {
+		logger.Fatal("Invalid Redis Configuration", zap.Error(errRedisConnection))
+	}
+
 	// Collect the servernames into a handy struct
 	appnames := auth.ApplicationServername{
 		MilServername:    v.GetString(cli.HTTPMyServerNameFlag),
@@ -480,9 +528,17 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	useSecureCookie := !isDevOrTest
+	redisEnabled := v.GetBool(cli.RedisEnabledFlag)
+	sessionStore := redisstore.New(redisPool)
+	idleTimeout := v.GetDuration(cli.SessionIdleTimeoutInMinutesFlag) * time.Minute
+	lifetime := v.GetDuration(cli.SessionLifetimeInHoursFlag) * time.Hour
+	sessionManagers := auth.SetupSessionManagers(redisEnabled, sessionStore, useSecureCookie, idleTimeout, lifetime)
+	milSession := sessionManagers[0]
+	adminSession := sessionManagers[1]
+	officeSession := sessionManagers[2]
+
 	// Session management and authentication middleware
-	noSessionTimeout := v.GetBool(cli.NoSessionTimeoutFlag)
-	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, appnames, useSecureCookie)
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, appnames, sessionManagers)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 	if v.GetBool(cli.FeatureFlagRoleBasedAuth) {
@@ -493,12 +549,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	roleAuthMiddleware := authentication.RoleAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+	handlerContext.SetSessionManagers(sessionManagers)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
 	handlerContext.SetUseSecureCookie(useSecureCookie)
-	if noSessionTimeout {
-		handlerContext.SetNoSessionTimeout()
-	}
-
 	handlerContext.SetAppNames(appnames)
 
 	// Email
@@ -628,12 +681,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Stub health check
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
-
 		data := map[string]interface{}{
 			"gitBranch": gitBranch,
 			"gitCommit": gitCommit,
 		}
-
 		// Check and see if we should disable DB query with '?database=false'
 		// Disabling the DB is useful for Route53 health checks which require the TLS
 		// handshake be less than 4 seconds and the status code return in less than
@@ -642,13 +693,16 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 		// Always show DB unless key set to "false"
 		if !ok || (ok && showDB[0] != "false") {
+			logger.Info("connecting to the DB for health check")
 			dbErr := dbConnection.RawQuery("SELECT 1;").Exec()
 			if dbErr != nil {
 				logger.Error("Failed database health check", zap.Error(dbErr))
 			}
 			data["database"] = dbErr == nil
+			if redisEnabled {
+				data = redisHealthCheck(redisPool, logger, data)
+			}
 		}
-
 		newEncoderErr := json.NewEncoder(w).Encode(data)
 		if newEncoderErr != nil {
 			logger.Error("Failed encoding health check response", zap.Error(newEncoderErr))
@@ -834,7 +888,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/"), csrf.CookieName(auth.GorillaCSRFToken)))
 	root.Use(maskedCSRFMiddleware)
 
-	site.Handle(pat.New("/*"), root)
+	site.Handle(
+		pat.New("/*"),
+		milSession.LoadAndSave(adminSession.LoadAndSave(officeSession.LoadAndSave(root))))
 
 	if v.GetBool(cli.ServeAPIInternalFlag) {
 		internalMux := goji.SubMux()
@@ -902,7 +958,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
+	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
 	authContext.SetFeatureFlag(
 		authentication.FeatureFlag{
 			Name:   cli.FeatureFlagRoleBasedAuth,
@@ -911,18 +967,18 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext, UseSecureCookie: useSecureCookie})
-	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
-	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
+	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
+	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection))
+	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext))
 
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
-		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
-		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
-		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
-		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
+		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
+		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, appnames))
+		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames))
+		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames))
 
 		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")
@@ -1058,6 +1114,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		dbCloseErr = dbConnection.Close()
 	})
 
+	var redisCloseErr error
+	redisClose.Do(func() {
+		logger.Info("closing redis connections")
+		redisCloseErr = redisPool.Close()
+	})
+
 	shutdownError := false
 	shutdownErrors.Range(func(key, value interface{}) bool {
 		if srv, ok := key.(*server.NamedServer); ok {
@@ -1073,6 +1135,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	if dbCloseErr != nil {
 		logger.Error("error closing database connections", zap.Error(dbCloseErr))
+	}
+
+	if redisCloseErr != nil {
+		logger.Error("error closing redis connections", zap.Error(redisCloseErr))
 	}
 
 	logger.Sync()
