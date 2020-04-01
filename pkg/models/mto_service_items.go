@@ -46,7 +46,7 @@ func (m MTOServiceItem) TableName() string {
 	return "mto_service_items"
 }
 
-// GetItemDimension will get the dimension of an ITEM type
+// GetItemDimension will get the first dimension of an ITEM type
 func (m MTOServiceItem) GetItemDimension() *MTOServiceItemDimension {
 	if len(m.Dimensions) == 0 {
 		return nil
@@ -61,7 +61,7 @@ func (m MTOServiceItem) GetItemDimension() *MTOServiceItemDimension {
 	return nil
 }
 
-// GetCrateDimension will get the dimension of an CRATE type
+// GetCrateDimension will get the first dimension of an CRATE type
 func (m MTOServiceItem) GetCrateDimension() *MTOServiceItemDimension {
 	if len(m.Dimensions) == 0 {
 		return nil
