@@ -61,7 +61,7 @@ func (m MTOServiceItem) GetItemDimension() *MTOServiceItemDimension {
 	return nil
 }
 
-// GetCrateDimension will get the first dimension of an CRATE type
+// GetCrateDimension will get the first dimension of a CRATE type
 func (m MTOServiceItem) GetCrateDimension() *MTOServiceItemDimension {
 	if len(m.Dimensions) == 0 {
 		return nil
