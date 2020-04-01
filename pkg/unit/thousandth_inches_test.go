@@ -5,7 +5,7 @@ import (
 )
 
 func Test_ThousandthInches(t *testing.T) {
-	// Test int -> int64
+	// Test int -> int32
 	thous := ThousandthInches(1000)
 	expected := int32(1000)
 	result := *thous.Int32Ptr()
