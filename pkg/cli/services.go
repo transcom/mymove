@@ -23,6 +23,8 @@ const (
 	ServeGHCFlag string = "serve-api-ghc"
 	// ServePrimeFlag is the prime api flag
 	ServePrimeFlag string = "serve-api-prime"
+	// ServeSupportFlag is the support api flag
+	ServeSupportFlag string = "server-api-support"
 )
 
 // InitServiceFlags initializes the service command line flags
@@ -45,6 +47,7 @@ func CheckServices(v *viper.Viper) error {
 	internalAPIEnabled := v.GetBool(ServeAPIInternalFlag)
 	ghcAPIEnabled := v.GetBool(ServeGHCFlag)
 	primeAPIEnabled := v.GetBool(ServePrimeFlag)
+	supportAPIEnabled := v.GetBool(ServeSupportFlag)
 
 	// Oops none of the flags used
 	if (!adminEnabled) &&
@@ -53,7 +56,8 @@ func CheckServices(v *viper.Viper) error {
 		(!dpsEnabled) &&
 		(!internalAPIEnabled) &&
 		(!ghcAPIEnabled) &&
-		(!primeAPIEnabled) {
+		(!primeAPIEnabled) &&
+		(!supportAPIEnabled) {
 		return errors.New("no service was enabled")
 	}
 
@@ -71,7 +75,11 @@ func CheckServices(v *viper.Viper) error {
 		if primeAPIEnabled && !mutualTLSEnabled {
 			return errors.New(fmt.Sprintf("for prime service to be enabled both %s and the %s flags must be in use", ServePrimeFlag, MutualTLSListenerFlag))
 		}
-		if mutualTLSEnabled && !(dpsEnabled || ordersEnabled || primeAPIEnabled) {
+
+		if supportAPIEnabled && !mutualTLSEnabled {
+			return errors.New(fmt.Sprintf("for support  service to be enabled both %s and the %s flags must be in use", ServeSupportFlag, MutualTLSListenerFlag))
+		}
+		if mutualTLSEnabled && !(dpsEnabled || ordersEnabled || primeAPIEnabled || supportAPIEnabled) {
 			return errors.New("either dps, orders or prime service must be enabled for mutualTSL to be enabled")
 		}
 	}

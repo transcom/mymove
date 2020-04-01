@@ -49,6 +49,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
+	"github.com/transcom/mymove/pkg/handlers/supportapi"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/middleware"
@@ -462,13 +463,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Collect the servernames into a handy struct
 	appnames := auth.ApplicationServername{
-		MilServername:    v.GetString(cli.HTTPMyServerNameFlag),
-		OfficeServername: v.GetString(cli.HTTPOfficeServerNameFlag),
-		AdminServername:  v.GetString(cli.HTTPAdminServerNameFlag),
-		OrdersServername: v.GetString(cli.HTTPOrdersServerNameFlag),
-		DpsServername:    v.GetString(cli.HTTPDPSServerNameFlag),
-		SddcServername:   v.GetString(cli.HTTPSDDCServerNameFlag),
-		PrimeServername:  v.GetString(cli.HTTPPrimeServerNameFlag),
+		MilServername:     v.GetString(cli.HTTPMyServerNameFlag),
+		OfficeServername:  v.GetString(cli.HTTPOfficeServerNameFlag),
+		AdminServername:   v.GetString(cli.HTTPAdminServerNameFlag),
+		OrdersServername:  v.GetString(cli.HTTPOrdersServerNameFlag),
+		DpsServername:     v.GetString(cli.HTTPDPSServerNameFlag),
+		SddcServername:    v.GetString(cli.HTTPSDDCServerNameFlag),
+		PrimeServername:   v.GetString(cli.HTTPPrimeServerNameFlag),
+		SupportServername: v.GetString(cli.HTTPSupportServerNameFlag),
 	}
 
 	// Register Login.gov authentication provider for My.(move.mil)
@@ -771,6 +773,24 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 		primeMux.Handle(pat.New("/*"), primeapi.NewPrimeAPIHandler(handlerContext))
 		site.Handle(pat.New("/prime/v1/*"), primeMux)
+	}
+
+	if v.GetBool(cli.ServeSupportFlag) {
+		supportMux := goji.SubMux()
+		supportDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.SupportServername)
+		supportMux.Use(supportDetectionMiddleware)
+		supportMux.Use(clientCertMiddleware)
+		supportMux.Use(authentication.PrimeAuthorizationMiddleware(logger))
+		supportMux.Use(middleware.NoCache(logger))
+		supportMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.SupportSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("Support  API Swagger UI serving is enabled")
+			supportMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "support.html")))
+		} else {
+			supportMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+		supportMux.Handle(pat.New("/*"), supportapi.NewSupportAPIHandler(handlerContext))
+		site.Handle(pat.New("/support/v1/*"), supportMux)
 	}
 
 	// Handlers under mutual TLS need to go before this section that sets up middleware that shouldn't be enabled for mutual TLS (such as CSRF)

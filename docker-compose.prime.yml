@@ -73,6 +73,7 @@ services:
       - HTTP_MY_SERVER_NAME=milmovelocal
       - HTTP_OFFICE_SERVER_NAME=officelocal
       - HTTP_PRIME_SERVER_NAME=primelocal
+      - HTTP_SUPPORT_SERVER_NAME=supportlocal
       - IWS_RBS_HOST
       - LOCAL_STORAGE_ROOT=/tmp
       - LOCAL_STORAGE_WEB_ROOT=storage
@@ -93,6 +94,7 @@ services:
       - SERVE_API_GHC=true
       - SERVE_API_INTERNAL=true
       - SERVE_API_PRIME=true
+      - SERVE_API_SUPPORT=true
       - STORAGE_BACKEND=local
     volumes:
       - ./tmp:/tmp

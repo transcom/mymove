@@ -1,0 +1,1115 @@
+swagger: '2.0'
+info:
+  contact:
+    email: dp3@truss.works
+  description: The Support API for move.mil
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+  title: move.mil API
+  version: 0.0.1
+basePath: /support/v1
+schemes:
+  - http
+paths:
+  /move-task-orders:
+    get:
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: since
+          type: integer
+          format: timestamp
+          description: Only return MTOs updated since this time
+      responses:
+        '200':
+          description: Successfully retrieved all move task orders
+          schema:
+            $ref: '#/definitions/MoveTaskOrders'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Gets all move task orders
+      operationId: fetchMTOUpdates
+      summary: Gets all move task orders
+  '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
+    parameters:
+      - description: ID of move task order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              ppmType:
+                type: string
+                enum:
+                  - FULL
+                  - PARTIAL
+              ppmEstimatedWeight:
+                type: integer
+              pointOfContact:
+                type: string
+                description: Email or id of a contact person for this update
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully updated move task order post counseling information
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Updates move task order's post counseling information
+      operationId: updateMTOPostCounselingInformation
+      summary: Updates move task order's post counseling information
+  '/move-task-orders/{moveTaskOrderID}/customer':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved customer associated with move task order
+          schema:
+            $ref: '#/definitions/Customer'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Gets a the customer associated with a move task order ID
+      operationId: getMoveTaskOrderCustomer
+      summary: Gets a the customer associated with a move task order ID
+  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}':
+    put:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Updates mto shipment
+      operationId: updateMTOShipment
+      tags:
+        - mtoShipment
+      parameters:
+        - in: path
+          name: moveTaskOrderID
+          required: true
+          format: uuid
+          type: string
+        - in: path
+          name: mtoShipmentID
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated instance of mto shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '500':
+          description: internal server error
+          schema:
+            $ref: '#/responses/ServerError'
+  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items':
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Creates mto service items
+      operationId: createMTOServiceItem
+      tags:
+        - mtoServiceItem
+      parameters:
+        - in: path
+          name: moveTaskOrderID
+          required: true
+          format: uuid
+          type: string
+        - in: path
+          name: mtoShipmentID
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          name: body
+          schema:
+            description: This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.
+            $ref: '#/definitions/MTOServiceItem'
+      responses:
+        '200':
+          description: created instance of a mto service item
+          schema:
+            $ref: '#/definitions/MTOServiceItem'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: internal server error
+          schema:
+            $ref: '#/responses/ServerError'
+  /payment-requests:
+    post:
+      consumes:
+        # Change until ProofOfService documents are ready to be passed in
+        # - multipart/form-data
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreatePaymentRequestPayload'
+      responses:
+        '201':
+          description: created instance of payment request
+          schema:
+            $ref: '#/definitions/PaymentRequest'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+      description: Creates a payment request
+      operationId: createPaymentRequest
+      summary: Creates a payment request
+  /payment-requests/{paymentRequestID}/uploads:
+    post:
+      summary: Create a new upload for a payment request
+      description: Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
+      operationId: createUpload
+      tags:
+        - uploads
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: paymentRequestID
+          type: string
+          description: ID of payment request to use
+          required: true
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload
+          required: true
+      responses:
+        '201':
+          description: Created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: Invalid request
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+definitions:
+  Address:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      streetAddress1:
+        type: string
+        example: 123 Main Ave
+        title: Street address 1
+      streetAddress2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Street address 2
+      streetAddress3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postalCode:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: 'USA'
+        default: USA
+      eTag:
+        type: string
+    required:
+      - streetAddress1
+      - city
+      - state
+      - postalCode
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
+  CreatePaymentRequestPayload:
+    type: object
+    properties:
+      isFinal:
+        default: false
+        type: boolean
+      moveTaskOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      serviceItems:
+        items:
+          $ref: '#/definitions/ServiceItem'
+        type: array
+      pointOfContact:
+        type: string
+        description: Email or id of a contact person for this update
+  Customer:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      dodID:
+        type: string
+      userID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      currentAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      firstName:
+        type: string
+        example: Vanya
+      lastName:
+        type: string
+        example: Petrovna
+      branch:
+        type: string
+        example: 'COAST_GUARD'
+      phone:
+        type: string
+        format: telephone
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: fake@example.com
+      eTag:
+        type: string
+  DutyStation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      addressId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
+        $ref: '#/definitions/Address'
+      eTag:
+        type: string
+  Entitlements:
+    properties:
+      id:
+        example: 571008b1-b0de-454d-b843-d71be9f02c04
+        format: uuid
+        type: string
+      authorizedWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      dependentsAuthorized:
+        example: true
+        type: boolean
+        x-nullable: true
+      nonTemporaryStorage:
+        example: false
+        type: boolean
+        x-nullable: true
+      privatelyOwnedVehicle:
+        example: false
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+      proGearWeightSpouse:
+        example: 500
+        type: integer
+        x-formatting: weight
+      storageInTransit:
+        example: 90
+        type: integer
+      totalWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      totalDependents:
+        example: 2
+        type: integer
+      eTag:
+        type: string
+    type: object
+  Error:
+    properties:
+      message:
+        type: string
+    required:
+      - message
+    type: object
+  MoveOrder:
+    required:
+      - orderNumber
+      - rank
+      - linesOfAccounting
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      customer:
+        $ref: '#/definitions/Customer'
+      customerID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      entitlement:
+        $ref: '#/definitions/Entitlements'
+      destinationDutyStation:
+        $ref: '#/definitions/DutyStation'
+      originDutyStation:
+        $ref: '#/definitions/DutyStation'
+      rank:
+        type: string
+        example: 'E_5'
+      reportByDate:
+        type: string
+        format: date
+      confirmationNumber:
+        type: string
+        example: 'HYXFJF'
+        x-nullable: true
+      orderNumber:
+        type: string
+      linesOfAccounting:
+        type: string
+      eTag:
+        type: string
+    type: object
+  MoveTaskOrder:
+    type: object
+    required:
+      - mtoShipments
+      - mtoServiceItems
+      - paymentRequests
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date
+        type: string
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      moveOrder:
+        $ref: '#/definitions/MoveOrder'
+      referenceId:
+        example: 1001-3456
+        type: string
+      isAvailableToPrime:
+        type: boolean
+        x-nullable: true
+      isCanceled:
+        type: boolean
+        x-nullable: true
+      updatedAt:
+        format: date
+        type: string
+      paymentRequests:
+        $ref: '#/definitions/PaymentRequests'
+      mtoServiceItems:
+        type: array
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+      mtoShipments:
+        $ref: '#/definitions/MTOShipments'
+      ppmType:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      ppmEstimatedWeight:
+        type: integer
+      eTag:
+        type: string
+  MoveTaskOrders:
+    items:
+      $ref: '#/definitions/MoveTaskOrder'
+    type: array
+  MTOAgents:
+    items:
+      $ref: '#/definitions/MTOAgent'
+    type: array
+  MTOAgent:
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        readOnly: true
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date
+        type: string
+      updatedAt:
+        format: date
+        type: string
+      firstName:
+        type: string
+        x-nullable: true
+      lastName:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      agentType:
+        $ref: '#/definitions/MTOAgentType'
+    type: object
+  MTOShipment:
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: datetime
+        type: string
+      updatedAt:
+        format: datetime
+        type: string
+      approvedDate:
+        format: date
+        type: string
+      scheduledPickupDate:
+        format: date
+        type: string
+      requestedPickupDate:
+        format: date
+        type: string
+      firstAvailableDeliveryDate:
+        format: date
+        type: string
+      primeActualWeight:
+        type: integer
+        example: 4500
+      primeEstimatedWeight:
+        type: integer
+        example: 4500
+      primeEstimatedWeightRecordedDate:
+        format: date
+        type: string
+      actualPickupDate:
+        format: date
+        type: string
+      agents:
+        $ref: '#/definitions/MTOAgents'
+      customerRemarks:
+        type: string
+        example: handle with care
+        x-nullable: true
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        $ref: '#/definitions/Address'
+      eTag:
+        type: string
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
+      pointOfContact:
+        type: string
+        description: Email or id of a contact person for this update
+  MTOShipments:
+    items:
+      $ref: '#/definitions/MTOShipment'
+    type: array
+  MTOShipmentType:
+    type: string
+    title: Shipment Type
+    example: HHG
+    enum: &MTOSHIPMENTTYPE
+      - HHG
+      - INTERNATIONAL_HHG
+      - INTERNATIONAL_UB
+    x-display-value:
+      HHG: HHG
+      INTERNATIONAL_HHG: International HHG
+      INTERNATIONAL_UB: International UB
+  MTOServiceItemStatus:
+    properties:
+      status:
+        enum:
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
+        type: string
+    type: object
+  MTOServiceItemModelType:
+    description: Describes all model sub-types for a MTOServiceItem model
+    type: string
+    enum:
+      - MTOServiceItemBasic
+      - MTOServiceItemDOFSIT
+  MTOAgentType:
+    type: string
+    title: MTO Agent Type
+    example: RELEASING_AGENT
+    enum: &MTOAGENTTYPE
+      - RELEASING_AGENT
+      - RECEIVING_AGENT
+  MTOServiceItem:
+    description: Polymorphic type. MTOServiceItem describes a base type of a service item
+    type: object
+    discriminator: modelType
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceName:
+        type: string
+      modelType: # Base type and sub-types of MTOServiceItem
+        $ref: '#/definitions/MTOServiceItemModelType'
+      eTag:
+        type: string
+    required:
+      - modelType
+  MTOServiceItemBasic:
+    description: Describes a basic service item subtype of a MTOServiceItem
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            $ref: '#/definitions/ReServiceCode'
+        required:
+          - reServiceCode
+  MTOServiceItemDOFSIT:
+    description: Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            $ref: '#/definitions/ReServiceCode'
+          reason:
+            type: string
+            example: Storage items need to be picked up
+          pickupPostalCode:
+            type: string
+            format: zip
+            example: 90210
+            pattern: '^(\d{5}([\-]\d{4})?)$'
+        required:
+          - reason
+          - pickupPostalCode
+  ProofOfServiceDocs:
+    properties:
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
+    type: object
+  PaymentRequest:
+    properties:
+      proofOfServiceDocs:
+        $ref: '#/definitions/ProofOfServiceDocs'
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      isFinal:
+        default: false
+        type: boolean
+      moveTaskOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+      paymentRequestNumber:
+        example: 1234-5678-1
+        readOnly: true
+        type: string
+      eTag:
+        type: string
+    type: object
+  PaymentRequestStatus:
+    enum:
+      - PENDING
+      - REVIEWED
+      - SENT_TO_GEX
+      - RECEIVED_BY_GEX
+      - PAID
+    title: Payment Request Status
+    type: string
+  PaymentRequests:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentRequest'
+  ServiceItem:
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      params:
+        type: array
+        items:
+          properties:
+            key:
+              type: string
+              example: Service Item Parameter Name
+            value:
+              type: string
+              example: Service Item Parameter Value
+          type: object
+      eTag:
+        type: string
+    type: object
+  ReServiceCode:
+    type: string
+    enum:
+      - CS
+      - DBHF
+      - DBTF
+      - DCRT
+      - DDASIT
+      - DDDSIT
+      - DDFSIT
+      - DDP
+      - DDSHUT
+      - DLH
+      - DMHF
+      - DNPKF
+      - DOASIT
+      - DOFSIT
+      - DOP
+      - DOPSIT
+      - DOSHUT
+      - DPK
+      - DSH
+      - DUCRT
+      - DUPK
+      - FSC
+      - IBHF
+      - IBTF
+      - ICOLH
+      - ICOUB
+      - ICRT
+      - IDASIT
+      - IDDSIT
+      - IDFSIT
+      - IDSHUT
+      - IHPK
+      - IHUPK
+      - INPKF
+      - IOASIT
+      - IOCLH
+      - IOCUB
+      - IOFSIT
+      - IOOLH
+      - IOOUB
+      - IOPSIT
+      - IOSHUT
+      - IUBPK
+      - IUBUPK
+      - IUCRT
+      - MS
+      - NSTH
+      - NSTUB
+  Upload:
+    type: object
+    properties:
+      bytes:
+        type: integer
+      contentType:
+        type: string
+        format: mime-type
+        example: application/pdf
+      filename:
+        example: filename.pdf
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+      updatedAt:
+        format: date-time
+        type: string
+    required:
+      - filename
+      - contentType
+      - bytes
+      - createdAt
+      - updatedAt
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+    properties:
+      invalidFields:
+        type: object
+        additionalProperties:
+          type: string
+    required:
+      - invalidFields
+responses:
+  InvalidRequest:
+    description: The request payload is invalid
+    schema:
+      $ref: '#/definitions/Error'
+  NotFound:
+    description: The requested resource wasn't found
+    schema:
+      $ref: '#/definitions/Error'
+  PermissionDenied:
+    description: The request was denied
+    schema:
+      $ref: '#/definitions/Error'
+  ServerError:
+    description: A server error occurred
+    schema:
+      $ref: '#/definitions/Error'
+  PreconditionFailed:
+    description: Precondition failed
+    schema:
+      $ref: '#/definitions/Error'

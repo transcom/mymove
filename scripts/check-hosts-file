@@ -27,3 +27,4 @@ check_host orderslocal
 check_host adminlocal
 check_host engadminlocal
 check_host primelocal
+check_host supportlocal

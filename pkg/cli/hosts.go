@@ -20,7 +20,8 @@ const (
 	HTTPOrdersServerNameFlag string = "http-orders-server-name"
 	// HTTPPrimeServerNameFlag is the HTTP GHC Prime Server Name Flag
 	HTTPPrimeServerNameFlag string = "http-prime-server-name"
-
+	// HTTPSupportServerNameFlag is the HTTP GHC Prime Server Name Flag
+	HTTPSupportServerNameFlag string = "http-support-server-name"
 	// HTTPMyServerNameLocal is the HTTP My Server Name for Local
 	HTTPMyServerNameLocal string = "milmovelocal"
 	// HTTPOfficeServerNameLocal is the HTTP Office Server Name for Local
@@ -31,6 +32,8 @@ const (
 	HTTPOrdersServerNameLocal string = "orderslocal"
 	// HTTPPrimeServerNameLocal is the HTTP GHC Prime Server Name for Local
 	HTTPPrimeServerNameLocal string = "primelocal"
+	// HTTPSupportServerNameLocal is the HTTP Support Server Name for Local
+	HTTPSupportServerNameLocal string = "supportlocal"
 )
 
 type errInvalidHost struct {
@@ -48,6 +51,7 @@ func InitHostFlags(flag *pflag.FlagSet) {
 	flag.String(HTTPAdminServerNameFlag, HTTPAdminServerNameLocal, "Hostname according to environment.")
 	flag.String(HTTPOrdersServerNameFlag, HTTPOrdersServerNameLocal, "Hostname according to environment.")
 	flag.String(HTTPPrimeServerNameFlag, HTTPPrimeServerNameLocal, "Hostname according to environment.")
+	flag.String(HTTPSupportServerNameFlag, HTTPSupportServerNameLocal, "Hostname according to environment")
 }
 
 // CheckHosts validates the Hosts command line flags
@@ -59,6 +63,7 @@ func CheckHosts(v *viper.Viper) error {
 		HTTPAdminServerNameFlag,
 		HTTPOrdersServerNameFlag,
 		HTTPPrimeServerNameFlag,
+		HTTPSupportServerNameFlag,
 	}
 
 	for _, c := range hostVars {
