@@ -3,10 +3,11 @@ package query
 import (
 	"errors"
 	"fmt"
-	"github.com/transcom/mymove/pkg/etag"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/gobuffalo/flect"
 	"github.com/gobuffalo/pop"
