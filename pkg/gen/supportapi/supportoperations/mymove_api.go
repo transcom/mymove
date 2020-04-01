@@ -20,55 +20,32 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
-	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
-	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
-	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
-	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/uploads"
 )
 
 // NewMymoveAPI creates a new Mymove instance
 func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	return &MymoveAPI{
-		handlers:              make(map[string]map[string]http.Handler),
-		formats:               strfmt.Default,
-		defaultConsumes:       "application/json",
-		defaultProduces:       "application/json",
-		customConsumers:       make(map[string]runtime.Consumer),
-		customProducers:       make(map[string]runtime.Producer),
-		ServerShutdown:        func() {},
-		spec:                  spec,
-		ServeError:            errors.ServeError,
-		BasicAuthenticator:    security.BasicAuth,
-		APIKeyAuthenticator:   security.APIKeyAuth,
-		BearerAuthenticator:   security.BearerAuth,
-		JSONConsumer:          runtime.JSONConsumer(),
-		MultipartformConsumer: runtime.DiscardConsumer,
-		JSONProducer:          runtime.JSONProducer(),
-		MtoServiceItemCreateMTOServiceItemHandler: mto_service_item.CreateMTOServiceItemHandlerFunc(func(params mto_service_item.CreateMTOServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation MtoServiceItemCreateMTOServiceItem has not yet been implemented")
-		}),
-		PaymentRequestsCreatePaymentRequestHandler: payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
-			return middleware.NotImplemented("operation PaymentRequestsCreatePaymentRequest has not yet been implemented")
-		}),
-		UploadsCreateUploadHandler: uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
-			return middleware.NotImplemented("operation UploadsCreateUpload has not yet been implemented")
-		}),
-		MoveTaskOrderFetchMTOUpdatesHandler: move_task_order.FetchMTOUpdatesHandlerFunc(func(params move_task_order.FetchMTOUpdatesParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderFetchMTOUpdates has not yet been implemented")
-		}),
-		MoveTaskOrderGetMoveTaskOrderCustomerHandler: move_task_order.GetMoveTaskOrderCustomerHandlerFunc(func(params move_task_order.GetMoveTaskOrderCustomerParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrderCustomer has not yet been implemented")
-		}),
-		MoveTaskOrderUpdateMTOPostCounselingInformationHandler: move_task_order.UpdateMTOPostCounselingInformationHandlerFunc(func(params move_task_order.UpdateMTOPostCounselingInformationParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderUpdateMTOPostCounselingInformation has not yet been implemented")
-		}),
-		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
-			return middleware.NotImplemented("operation MtoShipmentUpdateMTOShipment has not yet been implemented")
+		handlers:            make(map[string]map[string]http.Handler),
+		formats:             strfmt.Default,
+		defaultConsumes:     "application/json",
+		defaultProduces:     "application/json",
+		customConsumers:     make(map[string]runtime.Consumer),
+		customProducers:     make(map[string]runtime.Producer),
+		ServerShutdown:      func() {},
+		spec:                spec,
+		ServeError:          errors.ServeError,
+		BasicAuthenticator:  security.BasicAuth,
+		APIKeyAuthenticator: security.APIKeyAuth,
+		BearerAuthenticator: security.BearerAuth,
+		JSONConsumer:        runtime.JSONConsumer(),
+		JSONProducer:        runtime.JSONProducer(),
+		MoveTaskOrderUpdateMoveTaskOrderStatusHandler: move_task_order.UpdateMoveTaskOrderStatusHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderStatus has not yet been implemented")
 		}),
 	}
 }
 
-/*MymoveAPI The Support API for move.mil */
+/*MymoveAPI The API for move.mil */
 type MymoveAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context
@@ -92,26 +69,12 @@ type MymoveAPI struct {
 
 	// JSONConsumer registers a consumer for a "application/json" mime type
 	JSONConsumer runtime.Consumer
-	// MultipartformConsumer registers a consumer for a "multipart/form-data" mime type
-	MultipartformConsumer runtime.Consumer
 
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
-	// MtoServiceItemCreateMTOServiceItemHandler sets the operation handler for the create m t o service item operation
-	MtoServiceItemCreateMTOServiceItemHandler mto_service_item.CreateMTOServiceItemHandler
-	// PaymentRequestsCreatePaymentRequestHandler sets the operation handler for the create payment request operation
-	PaymentRequestsCreatePaymentRequestHandler payment_requests.CreatePaymentRequestHandler
-	// UploadsCreateUploadHandler sets the operation handler for the create upload operation
-	UploadsCreateUploadHandler uploads.CreateUploadHandler
-	// MoveTaskOrderFetchMTOUpdatesHandler sets the operation handler for the fetch m t o updates operation
-	MoveTaskOrderFetchMTOUpdatesHandler move_task_order.FetchMTOUpdatesHandler
-	// MoveTaskOrderGetMoveTaskOrderCustomerHandler sets the operation handler for the get move task order customer operation
-	MoveTaskOrderGetMoveTaskOrderCustomerHandler move_task_order.GetMoveTaskOrderCustomerHandler
-	// MoveTaskOrderUpdateMTOPostCounselingInformationHandler sets the operation handler for the update m t o post counseling information operation
-	MoveTaskOrderUpdateMTOPostCounselingInformationHandler move_task_order.UpdateMTOPostCounselingInformationHandler
-	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
-	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
+	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
+	MoveTaskOrderUpdateMoveTaskOrderStatusHandler move_task_order.UpdateMoveTaskOrderStatusHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -171,40 +134,12 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
 
-	if o.MultipartformConsumer == nil {
-		unregistered = append(unregistered, "MultipartformConsumer")
-	}
-
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.MtoServiceItemCreateMTOServiceItemHandler == nil {
-		unregistered = append(unregistered, "mto_service_item.CreateMTOServiceItemHandler")
-	}
-
-	if o.PaymentRequestsCreatePaymentRequestHandler == nil {
-		unregistered = append(unregistered, "payment_requests.CreatePaymentRequestHandler")
-	}
-
-	if o.UploadsCreateUploadHandler == nil {
-		unregistered = append(unregistered, "uploads.CreateUploadHandler")
-	}
-
-	if o.MoveTaskOrderFetchMTOUpdatesHandler == nil {
-		unregistered = append(unregistered, "move_task_order.FetchMTOUpdatesHandler")
-	}
-
-	if o.MoveTaskOrderGetMoveTaskOrderCustomerHandler == nil {
-		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderCustomerHandler")
-	}
-
-	if o.MoveTaskOrderUpdateMTOPostCounselingInformationHandler == nil {
-		unregistered = append(unregistered, "move_task_order.UpdateMTOPostCounselingInformationHandler")
-	}
-
-	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
-		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
+	if o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {
+		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderStatusHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -242,9 +177,6 @@ func (o *MymoveAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consume
 
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
-
-		case "multipart/form-data":
-			result["multipart/form-data"] = o.MultipartformConsumer
 
 		}
 
@@ -308,40 +240,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items"] = mto_service_item.NewCreateMTOServiceItem(o.context, o.MtoServiceItemCreateMTOServiceItemHandler)
-
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/payment-requests"] = payment_requests.NewCreatePaymentRequest(o.context, o.PaymentRequestsCreatePaymentRequestHandler)
-
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/payment-requests/{paymentRequestID}/uploads"] = uploads.NewCreateUpload(o.context, o.UploadsCreateUploadHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/move-task-orders"] = move_task_order.NewFetchMTOUpdates(o.context, o.MoveTaskOrderFetchMTOUpdatesHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/customer"] = move_task_order.NewGetMoveTaskOrderCustomer(o.context, o.MoveTaskOrderGetMoveTaskOrderCustomerHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/post-counseling-info"] = move_task_order.NewUpdateMTOPostCounselingInformation(o.context, o.MoveTaskOrderUpdateMTOPostCounselingInformationHandler)
-
-	if o.handlers["PUT"] == nil {
-		o.handlers["PUT"] = make(map[string]http.Handler)
-	}
-	o.handlers["PUT"]["/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/status"] = move_task_order.NewUpdateMoveTaskOrderStatus(o.context, o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler)
 
 }
 

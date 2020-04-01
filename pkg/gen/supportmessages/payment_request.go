@@ -6,6 +6,8 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"strconv"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -16,6 +18,9 @@ import (
 // PaymentRequest payment request
 // swagger:model PaymentRequest
 type PaymentRequest struct {
+
+	// document package
+	DocumentPackage *ProofOfServicePackage `json:"documentPackage,omitempty"`
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
@@ -36,11 +41,11 @@ type PaymentRequest struct {
 	// Read Only: true
 	PaymentRequestNumber string `json:"paymentRequestNumber,omitempty"`
 
-	// proof of service docs
-	ProofOfServiceDocs *ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`
-
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
+
+	// service item i ds
+	ServiceItemIDs []strfmt.UUID `json:"serviceItemIDs"`
 
 	// status
 	Status PaymentRequestStatus `json:"status,omitempty"`
@@ -50,6 +55,10 @@ type PaymentRequest struct {
 func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateDocumentPackage(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -58,7 +67,7 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateProofOfServiceDocs(formats); err != nil {
+	if err := m.validateServiceItemIDs(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -69,6 +78,24 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *PaymentRequest) validateDocumentPackage(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DocumentPackage) { // not required
+		return nil
+	}
+
+	if m.DocumentPackage != nil {
+		if err := m.DocumentPackage.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("documentPackage")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -98,19 +125,18 @@ func (m *PaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *PaymentRequest) validateProofOfServiceDocs(formats strfmt.Registry) error {
+func (m *PaymentRequest) validateServiceItemIDs(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ProofOfServiceDocs) { // not required
+	if swag.IsZero(m.ServiceItemIDs) { // not required
 		return nil
 	}
 
-	if m.ProofOfServiceDocs != nil {
-		if err := m.ProofOfServiceDocs.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("proofOfServiceDocs")
-			}
+	for i := 0; i < len(m.ServiceItemIDs); i++ {
+
+		if err := validate.FormatOf("serviceItemIDs"+"."+strconv.Itoa(i), "body", "uuid", m.ServiceItemIDs[i].String(), formats); err != nil {
 			return err
 		}
+
 	}
 
 	return nil

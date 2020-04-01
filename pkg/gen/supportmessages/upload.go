@@ -6,6 +6,8 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -32,12 +34,23 @@ type Upload struct {
 
 	// filename
 	// Required: true
-	Filename *string `json:"filename"`
+	// Format: binary
+	Filename io.ReadCloser `json:"filename"`
+
+	// id
+	// Required: true
+	// Format: uuid
+	ID *strfmt.UUID `json:"id"`
 
 	// updated at
 	// Required: true
 	// Format: date-time
 	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
+
+	// url
+	// Required: true
+	// Format: uri
+	URL *strfmt.URI `json:"url"`
 }
 
 // Validate validates this upload
@@ -60,7 +73,15 @@ func (m *Upload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateURL(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -103,7 +124,20 @@ func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 
 func (m *Upload) validateFilename(formats strfmt.Registry) error {
 
-	if err := validate.Required("filename", "body", m.Filename); err != nil {
+	if err := validate.Required("filename", "body", io.ReadCloser(m.Filename)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) validateID(formats strfmt.Registry) error {
+
+	if err := validate.Required("id", "body", m.ID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
 	}
 
@@ -117,6 +151,19 @@ func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) validateURL(formats strfmt.Registry) error {
+
+	if err := validate.Required("url", "body", m.URL); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("url", "body", "uri", m.URL.String(), formats); err != nil {
 		return err
 	}
 

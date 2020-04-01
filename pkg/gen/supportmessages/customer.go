@@ -17,14 +17,14 @@ import (
 // swagger:model Customer
 type Customer struct {
 
-	// branch
-	Branch string `json:"branch,omitempty"`
+	// Agency customer is affilated with
+	Agency string `json:"agency,omitempty"`
 
 	// current address
-	CurrentAddress *Address `json:"currentAddress,omitempty"`
+	CurrentAddress *Address `json:"current_address,omitempty"`
 
 	// destination address
-	DestinationAddress *Address `json:"destinationAddress,omitempty"`
+	DestinationAddress *Address `json:"destination_address,omitempty"`
 
 	// dod ID
 	DodID string `json:"dodID,omitempty"`
@@ -34,20 +34,21 @@ type Customer struct {
 
 	// email
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-	Email string `json:"email,omitempty"`
+	Email *string `json:"email,omitempty"`
 
 	// first name
-	FirstName string `json:"firstName,omitempty"`
+	FirstName string `json:"first_name,omitempty"`
 
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// last name
-	LastName string `json:"lastName,omitempty"`
+	LastName string `json:"last_name,omitempty"`
 
 	// phone
-	Phone string `json:"phone,omitempty"`
+	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+	Phone *string `json:"phone,omitempty"`
 
 	// user ID
 	// Format: uuid
@@ -74,6 +75,10 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validatePhone(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateUserID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -93,7 +98,7 @@ func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
 	if m.CurrentAddress != nil {
 		if err := m.CurrentAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("currentAddress")
+				return ve.ValidateName("current_address")
 			}
 			return err
 		}
@@ -111,7 +116,7 @@ func (m *Customer) validateDestinationAddress(formats strfmt.Registry) error {
 	if m.DestinationAddress != nil {
 		if err := m.DestinationAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationAddress")
+				return ve.ValidateName("destination_address")
 			}
 			return err
 		}
@@ -126,7 +131,7 @@ func (m *Customer) validateEmail(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -140,6 +145,19 @@ func (m *Customer) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Customer) validatePhone(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Phone) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("phone", "body", string(*m.Phone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 

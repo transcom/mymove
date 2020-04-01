@@ -12,19 +12,28 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
-// ProofOfServiceDocs proof of service docs
-// swagger:model ProofOfServiceDocs
-type ProofOfServiceDocs struct {
+// ProofOfServicePackage proof of service package
+// swagger:model ProofOfServicePackage
+type ProofOfServicePackage struct {
+
+	// id
+	// Format: uuid
+	ID strfmt.UUID `json:"id,omitempty"`
 
 	// uploads
 	Uploads []*Upload `json:"uploads"`
 }
 
-// Validate validates this proof of service docs
-func (m *ProofOfServiceDocs) Validate(formats strfmt.Registry) error {
+// Validate validates this proof of service package
+func (m *ProofOfServicePackage) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateUploads(formats); err != nil {
 		res = append(res, err)
@@ -36,7 +45,20 @@ func (m *ProofOfServiceDocs) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ProofOfServiceDocs) validateUploads(formats strfmt.Registry) error {
+func (m *ProofOfServicePackage) validateID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ProofOfServicePackage) validateUploads(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Uploads) { // not required
 		return nil
@@ -62,7 +84,7 @@ func (m *ProofOfServiceDocs) validateUploads(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *ProofOfServiceDocs) MarshalBinary() ([]byte, error) {
+func (m *ProofOfServicePackage) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -70,8 +92,8 @@ func (m *ProofOfServiceDocs) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *ProofOfServiceDocs) UnmarshalBinary(b []byte) error {
-	var res ProofOfServiceDocs
+func (m *ProofOfServicePackage) UnmarshalBinary(b []byte) error {
+	var res ProofOfServicePackage
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@ package query
 import (
 	"errors"
 	"fmt"
+	"github.com/transcom/mymove/pkg/etag"
 	"reflect"
 	"strings"
 	"time"
@@ -13,7 +14,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/lib/pq"
 
-	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/services"
 )
 

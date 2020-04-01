@@ -2,7 +2,7 @@
 
 /*
 Package supportapi move.mil API
-The Support API for move.mil
+The API for move.mil
 
 
     Schemes:
@@ -15,7 +15,6 @@ The Support API for move.mil
 
     Consumes:
     - application/json
-    - multipart/form-data
 
     Produces:
     - application/json

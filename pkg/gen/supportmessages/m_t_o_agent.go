@@ -6,6 +6,8 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -18,11 +20,15 @@ import (
 type MTOAgent struct {
 
 	// agent type
-	AgentType MTOAgentType `json:"agentType,omitempty"`
+	// Enum: [RELEASING_AGENT RECEIVING_AGENT]
+	AgentType string `json:"agentType,omitempty"`
 
 	// created at
 	// Format: date
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+
+	// e tag
+	ETag string `json:"eTag,omitempty"`
 
 	// email
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
@@ -90,16 +96,43 @@ func (m *MTOAgent) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+var mTOAgentTypeAgentTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["RELEASING_AGENT","RECEIVING_AGENT"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mTOAgentTypeAgentTypePropEnum = append(mTOAgentTypeAgentTypePropEnum, v)
+	}
+}
+
+const (
+
+	// MTOAgentAgentTypeRELEASINGAGENT captures enum value "RELEASING_AGENT"
+	MTOAgentAgentTypeRELEASINGAGENT string = "RELEASING_AGENT"
+
+	// MTOAgentAgentTypeRECEIVINGAGENT captures enum value "RECEIVING_AGENT"
+	MTOAgentAgentTypeRECEIVINGAGENT string = "RECEIVING_AGENT"
+)
+
+// prop value enum
+func (m *MTOAgent) validateAgentTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, mTOAgentTypeAgentTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (m *MTOAgent) validateAgentType(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.AgentType) { // not required
 		return nil
 	}
 
-	if err := m.AgentType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("agentType")
-		}
+	// value enum
+	if err := m.validateAgentTypeEnum("agentType", "body", m.AgentType); err != nil {
 		return err
 	}
 

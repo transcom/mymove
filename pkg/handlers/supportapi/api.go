@@ -4,7 +4,11 @@ import (
 	"log"
 	"net/http"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	"github.com/go-openapi/loads"
+
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/gen/supportapi"
 	supportops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
@@ -13,19 +17,20 @@ import (
 
 // NewSupportAPIHandler returns a handler for the Prime API
 func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
-	// builder := query.NewQueryBuilder(context.DB())
+	queryBuilder := query.NewQueryBuilder(context.DB())
 	// fetcher := fetch.NewFetcher(builder)
 
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
 	}
-	supportAPI := supportops.NewMymoveAPI(supportSpec)
-	// queryBuilder := query.NewQueryBuilder(context.DB())
 
-	// supportAPI.MoveTaskOrderFetchMTOUpdatesHandler = FetchMTOUpdatesHandler{
-	// 	context,
-	// }
+	supportAPI := supportops.NewMymoveAPI(supportSpec)
+
+	supportAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
+	}
 
 	return supportAPI.Serve(nil)
 }
