@@ -30,8 +30,6 @@ const (
 	HTTPOrdersServerNameLocal string = "orderslocal"
 	// HTTPPrimeServerNameLocal is the HTTP GHC Prime Server Name for Local
 	HTTPPrimeServerNameLocal string = "primelocal"
-	// HTTPSupportServerNameLocal is the HTTP Support Server Name for Local
-	HTTPSupportServerNameLocal string = "supportlocal"
 )
 
 type errInvalidHost struct {
