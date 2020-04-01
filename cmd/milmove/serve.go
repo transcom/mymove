@@ -756,6 +756,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		primeMux.Use(clientCertMiddleware)
 		primeMux.Use(authentication.PrimeAuthorizationMiddleware(logger))
 		primeMux.Use(middleware.NoCache(logger))
+		primeMux.Use(middleware.Recovery(logger))
 		primeMux.Use(middleware.RequestLogger(logger))
 		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
