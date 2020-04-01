@@ -417,7 +417,7 @@ func (v ItemCanFitInsideCrate) IsValid(errors *validate.Errors) {
 		return
 	}
 
-	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s dimensions can not be greater than %s dimensions.", v.Name, v.NameCompared))
+	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s dimensions can not be greater than or equal to %s dimensions.", v.Name, v.NameCompared))
 }
 
 // ValidateableModel is here simply because `validateable` is private to `pop`

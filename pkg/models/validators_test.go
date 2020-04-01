@@ -479,15 +479,20 @@ func Test_ItemCanFitInsideCrate_IsValid(t *testing.T) {
 		}
 	})
 
-	t.Run("item dimensions greater than crate dimensions fails", func(t *testing.T) {
-		crate.Length = makeInt32(0)
-		crate.Width = makeInt32(0)
-		crate.Height = makeInt32(0)
+	t.Run("item dimensions greater than or equal to crate dimensions fails", func(t *testing.T) {
 		v := models.ItemCanFitInsideCrate{
-			Name:         "Item",
-			Item:         &item,
+			Name: "Item",
+			Item: &primemessages.MTOServiceItemDimension{
+				Height: makeInt32(0),
+				Length: makeInt32(0),
+				Width:  makeInt32(0),
+			},
 			NameCompared: "Crate",
-			Crate:        &crate,
+			Crate: &primemessages.MTOServiceItemDimension{
+				Height: makeInt32(0),
+				Length: makeInt32(0),
+				Width:  makeInt32(0),
+			},
 		}
 		errs := validate.NewErrors()
 		v.IsValid(errs)
