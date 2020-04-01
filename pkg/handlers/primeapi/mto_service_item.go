@@ -46,7 +46,12 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 	params.Body.SetMoveTaskOrderID(params.MoveTaskOrderID)
 	params.Body.SetMtoShipmentID(params.MtoShipmentID)
-	mtoServiceItem := payloads.MTOServiceItemModel(params.Body)
+	// validation errors passed back if any
+	mtoServiceItem, verrs := payloads.MTOServiceItemModel(params.Body)
+	if verrs != nil && verrs.HasAny() {
+		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+			"Model validation error", verrs.Error(), h.GetTraceID(), verrs))
+	}
 
 	mtoServiceItem, verrs, err := h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
 	if verrs != nil && verrs.HasAny() {
