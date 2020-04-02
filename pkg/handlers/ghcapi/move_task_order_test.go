@@ -77,7 +77,8 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 	auditor := audit.NewAuditor(queryBuilder, context)
 
 	// make the request
-	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
+	handler := UpdateMoveTaskOrderStatusHandlerFunc{
+		context,
 		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder),
 		&auditor,
 	}
@@ -105,10 +106,13 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
+	auditor := audit.NewAuditor(queryBuilder, context)
 
 	// make the request
-	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
+	handler := UpdateMoveTaskOrderStatusHandlerFunc{
+		context,
 		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder),
+		&auditor,
 	}
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusPreconditionFailed{}, response)

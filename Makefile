@@ -281,6 +281,9 @@ bin/send-to-gex: pkg/gen/
 bin/tls-checker:
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
+bin/audit-checker:
+	go build -ldflags "$(LDFLAGS)" -o bin/audit-checker ./cmd/audit-checker
+
 pkg/assets/assets.go:
 	scripts/gen-assets
 
@@ -352,7 +355,8 @@ build_tools: bin/gin \
 	bin/read-alb-logs \
 	bin/report-ecs \
 	bin/send-to-gex \
-	bin/tls-checker ## Build all tools
+	bin/tls-checker \
+	bin/audit-checker ## Build all tools
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
