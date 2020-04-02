@@ -26,10 +26,12 @@ storiesOf('Samples|Form', module).add('personal info', () => (
           <TextInput name="firstName" label="First Name" type="text" />
           <TextInput name="lastName" label="Last Name" type="text" />
           <TextInput name="email" label="Email Address" type="email" />
-          <Button type="submit">Submit</Button>
-          <Button type="reset" secondary>
-            Cancel
-          </Button>
+          <div className="display-flex">
+            <Button type="submit">Submit</Button>
+            <Button type="reset" secondary>
+              Cancel
+            </Button>
+          </div>
         </Form>
       </Formik>
     </div>
