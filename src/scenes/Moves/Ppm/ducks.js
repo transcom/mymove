@@ -1,5 +1,5 @@
 import { get, every, isNumber } from 'lodash';
-import { CreatePpm, UpdatePpm, GetPpm, GetPpmWeightEstimate, GetPpmSitEstimate, RequestPayment } from './api.js';
+import { GetPpm, GetPpmWeightEstimate, GetPpmSitEstimate, RequestPayment } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive, fetchActivePPM } from 'shared/utils';
@@ -44,24 +44,6 @@ export function getPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightE
 
 export function clearPpmSitEstimate() {
   return { type: CLEAR_SIT_ESTIMATE };
-}
-
-export function createOrUpdatePpm(moveId, ppm) {
-  const action = ReduxHelpers.generateAsyncActions('CREATE_OR_UPDATE_PPM');
-  return function (dispatch, getState) {
-    dispatch(action.start());
-    const state = getState();
-    const currentPpm = state.ppm.currentPpm;
-    if (currentPpm) {
-      return UpdatePpm(moveId, currentPpm.id, ppm)
-        .then((item) => dispatch(action.success(item)))
-        .catch((error) => dispatch(action.error(error)));
-    } else {
-      return CreatePpm(moveId, ppm)
-        .then((item) => dispatch(action.success(item)))
-        .catch((error) => dispatch(action.error(error)));
-    }
-  };
 }
 
 export function setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode) {
