@@ -872,6 +872,7 @@ definitions:
     enum:
       - MTOServiceItemBasic
       - MTOServiceItemDOFSIT
+      - MTOServiceItemShuttle
   MTOAgentType:
     type: string
     title: MTO Agent Type
@@ -937,6 +938,19 @@ definitions:
         required:
           - reason
           - pickupPostalCode
+  MTOServiceItemShuttle:
+    description: Describes a shuttle service item
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            $ref: '#/definitions/ReServiceCode'
+          reason:
+            type: string
+            example: Storage items need to be picked up
+        required:
+          - reason
   ProofOfServiceDocs:
     properties:
       uploads:

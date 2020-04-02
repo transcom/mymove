@@ -77,4 +77,35 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(verrs, verrs)
 		suite.Equal(expectedError, err.Error())
 	})
+
+	// If the service item we're trying to create is shuttle service and there is no estimated weight, it fails.
+	suite.T().Run("If we try to create a shuttle service without the estimated weight it fails", func(t *testing.T) {
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+
+		serviceItemNoWeight := models.MTOServiceItem{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			MoveTaskOrder:   moveTaskOrder,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDSHUT,
+			},
+		}
+
+		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+			return nil, nil
+		}
+		fakeFetchOne := func(model interface{}, filters []services.QueryFilter) error {
+			return nil
+		}
+		builder := &testMTOServiceItemQueryBuilder{
+			fakeCreateOne: fakeCreateOne,
+			fakeFetchOne:  fakeFetchOne,
+		}
+
+		creator := NewMTOServiceItemCreator(builder)
+		createdServiceItem, _, err := creator.CreateMTOServiceItem(&serviceItemNoWeight)
+		suite.Error(err)
+		suite.Nil(createdServiceItem)
+	})
 }

@@ -1055,7 +1055,31 @@ func init() {
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
-        "MTOServiceItemDOFSIT"
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemShuttle"
+      ]
+    },
+    "MTOServiceItemShuttle": {
+      "description": "Describes a shuttle service item",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            },
+            "reason": {
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            }
+          }
+        }
       ]
     },
     "MTOServiceItemStatus": {
@@ -2685,7 +2709,31 @@ func init() {
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
-        "MTOServiceItemDOFSIT"
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemShuttle"
+      ]
+    },
+    "MTOServiceItemShuttle": {
+      "description": "Describes a shuttle service item",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            },
+            "reason": {
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            }
+          }
+        }
       ]
     },
     "MTOServiceItemStatus": {

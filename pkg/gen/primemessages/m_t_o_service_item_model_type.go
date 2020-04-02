@@ -25,6 +25,9 @@ const (
 
 	// MTOServiceItemModelTypeMTOServiceItemDOFSIT captures enum value "MTOServiceItemDOFSIT"
 	MTOServiceItemModelTypeMTOServiceItemDOFSIT MTOServiceItemModelType = "MTOServiceItemDOFSIT"
+
+	// MTOServiceItemModelTypeMTOServiceItemShuttle captures enum value "MTOServiceItemShuttle"
+	MTOServiceItemModelTypeMTOServiceItemShuttle MTOServiceItemModelType = "MTOServiceItemShuttle"
 )
 
 // for schema
@@ -32,7 +35,7 @@ var mTOServiceItemModelTypeEnum []interface{}
 
 func init() {
 	var res []MTOServiceItemModelType
-	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemDOFSIT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemDOFSIT","MTOServiceItemShuttle"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
