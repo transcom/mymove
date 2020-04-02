@@ -21,7 +21,7 @@ type MTOServiceItem struct {
 	Reason           *string                  `db:"reason"`
 	PickupPostalCode *string                  `db:"pickup_postal_code"`
 	Description      *string                  `db:"description"`
-	Dimensions       MTOServiceItemDimensions `has_many:"mto_service_item_dimensions"`
+	Dimensions       MTOServiceItemDimensions `has_many:"mto_service_item_dimensions" fk_id:"mto_service_item_id"`
 	CreatedAt        time.Time                `db:"created_at"`
 	UpdatedAt        time.Time                `db:"updated_at"`
 }
@@ -37,6 +37,7 @@ func (m *MTOServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) 
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.ReServiceID, Name: "ReServiceID"})
 	vs = append(vs, &StringIsNilOrNotBlank{Field: m.Reason, Name: "Reason"})
 	vs = append(vs, &StringIsNilOrNotBlank{Field: m.PickupPostalCode, Name: "PickupPostalCode"})
+	vs = append(vs, &StringIsNilOrNotBlank{Field: m.Description, Name: "Description"})
 
 	return validate.Validate(vs...), nil
 }

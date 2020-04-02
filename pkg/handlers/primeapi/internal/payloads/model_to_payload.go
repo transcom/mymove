@@ -313,7 +313,13 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		fallthrough
 	case models.ReServiceCodeDUCRT:
 		item := mtoServiceItem.GetItemDimension()
+		if item == nil {
+			item = &models.MTOServiceItemDimension{}
+		}
 		crate := mtoServiceItem.GetCrateDimension()
+		if crate == nil {
+			crate = &models.MTOServiceItemDimension{}
+		}
 		payload = &primemessages.MTOServiceItemDomesticCrating{
 			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Item: &primemessages.MTOServiceItemDimension{
