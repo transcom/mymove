@@ -70,6 +70,9 @@
     "swagger-ui-dist": "^3.25.0",
     "uswds": "2.6.0"
   },
+  "resolutions": {
+    "kind-of": "^6.0.2"
+  },
   "name": "client",
   "private": true,
   "scripts": {
