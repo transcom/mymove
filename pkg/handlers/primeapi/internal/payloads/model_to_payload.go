@@ -309,9 +309,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			PickupPostalCode: mtoServiceItem.PickupPostalCode,
 			Reason:           mtoServiceItem.Reason,
 		}
-	case models.ReServiceCodeDCRT:
-		fallthrough
-	case models.ReServiceCodeDUCRT:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
 		item := mtoServiceItem.GetItemDimension()
 		if item == nil {
 			item = &models.MTOServiceItemDimension{}
