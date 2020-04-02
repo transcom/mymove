@@ -126,7 +126,34 @@ export function getPPM(state) {
   const move = state.moves.currentMove || state.moves.latestMove || {};
   const moveId = move.id;
   const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
-  return ppmFromEntities || state.ppm.currentPpm || {};
+  const tempPPM = state.ppm.currentPpm;
+
+  // temp fix while redux refactor is in progress when statuses aren't updated on ppms from both places
+  const ppmStates = ['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'CANCELED'];
+
+  if (ppmFromEntities && tempPPM) {
+    const entitiesPPMStatus = ppmFromEntities.status;
+    const tempPPMStatus = tempPPM.status;
+    const indexOfEntitiesPPMStatus = ppmStates.indexOf(entitiesPPMStatus);
+    const indexOfTempPPMStatus = ppmStates.indexOf(tempPPMStatus);
+
+    if (entitiesPPMStatus === 'CANCELED') {
+      return ppmFromEntities;
+    } else if (tempPPMStatus === 'CANCELED') {
+      return tempPPM;
+    }
+
+    if (indexOfEntitiesPPMStatus > indexOfTempPPMStatus) {
+      return ppmFromEntities;
+    }
+    if (indexOfEntitiesPPMStatus < indexOfTempPPMStatus) {
+      return tempPPM;
+    }
+    return ppmFromEntities;
+  } else if (tempPPM) {
+    return tempPPM;
+  }
+  return {};
 }
 
 // Reducer
