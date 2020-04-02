@@ -2295,8 +2295,9 @@
     "@testing-library/dom" "^5.6.1"
 
 "@trussworks/react-uswds@https://github.com/trussworks/react-uswds.git#develop":
-  version "1.0.0"
-  resolved "https://github.com/trussworks/react-uswds.git#a479ac3bc15ffc8423d85ea7b3e8cef1524649cc"
+  version "1.1.0"
+  uid "39cabe31e25226c92b2207cbf741f4eee599e42a"
+  resolved "https://github.com/trussworks/react-uswds.git#39cabe31e25226c92b2207cbf741f4eee599e42a"
   dependencies:
     classnames "^2.2.6"
     react "^16.10.0"
