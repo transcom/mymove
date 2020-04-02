@@ -622,6 +622,7 @@ jobs:
             - mockery # for generating mocks
             - renderer # for rendering ECS task definition
             - tls-checker # for confirming app won't respond to invalid TLS settings.
+            - prime-api-client #for running Prime API integration tests
       - announce_failure
 
   # `build_app` builds the application container and pushes to the container repository

@@ -160,7 +160,7 @@ $DOCKER_RUN \
 #Integration test for Prime API
 #Return mtos from the fetch-mto endpoint where is_available_for_prime is true
 mtos=$(go run ./cmd/prime-api-client --insecure fetch-mtos)
-#Returns mtoShipments from the fetch-mto response, needed to run return etag below
+#Returns mtoShipments from the fetch-mto response, needed to return etag below
 mtoShipments=$(echo "$mtos" | jq '.[0] | .mtoShipments')
 #Returns etag for the first mtoShipment, needed to run update-mto-shipment below
 etag=$(echo "$mtoShipments" | jq '.[0] | .eTag' |  tr -d '"')
