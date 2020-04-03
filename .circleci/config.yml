@@ -1129,7 +1129,7 @@ workflows:
 
       - deploy_experimental_app_client_tls:
           requires:
-            - deploy_experimental_migrations
+            - build_milmove_admin_app
           filters:
             branches:
               only: rd-ecs-deploy-sidecar-friendly
