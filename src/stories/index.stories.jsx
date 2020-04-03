@@ -5,7 +5,7 @@ import { storiesOf } from '@storybook/react';
 
 import { action } from '@storybook/addon-actions';
 import { Button, Tag } from '@trussworks/react-uswds';
-import { ReactComponent as EditIcon } from 'shared/icon/edit.svg';
+import { EditButton } from '../components/form';
 import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 
 import colors from '../shared/styles/colors.scss';
@@ -17,56 +17,38 @@ const filterGroup = (filter) => Object.keys(colors).filter((color) => color.inde
 
 // Buttons
 
-const ButtonGroup = ({ className }) => (
+const ButtonGroup = ({ className, disabled }) => (
   <div className={className} style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
-    <Button onClick={action('clicked')}>
+    <Button disabled={disabled} onClick={action('Button clicked')}>
       <span>Button</span>
     </Button>
-    <Button className="usa-button--icon" onClick={action('clicked')}>
-      <span className="icon">
-        <EditIcon />
-      </span>
+    <EditButton disabled={disabled} onClick={action('Edit Button clicked')} />
+    <Button disabled={disabled} secondary onClick={action('clicked')}>
       <span>Button</span>
     </Button>
-    <Button secondary onClick={action('clicked')}>
+    <Button disabled={disabled} className="usa-button--small" onClick={action('clicked')}>
       <span>Button</span>
     </Button>
-    <Button className="usa-button--small" onClick={action('clicked')}>
+    <EditButton disabled={disabled} small onClick={action('Small Edit Button clicked')} />
+    <Button disabled={disabled} secondary className="usa-button--small" onClick={action('clicked')}>
       <span>Button</span>
     </Button>
-    <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-      <span className="icon">
-        <EditIcon />
-      </span>
+    <EditButton disabled={disabled} secondary small onClick={action('Secondary Small Edit Button clicked')} />
+    <Button disabled={disabled} className="usa-button--unstyled" onClick={action('clicked')}>
       <span>Button</span>
     </Button>
-    <Button secondary className="usa-button--small" onClick={action('clicked')}>
-      <span>Button</span>
-    </Button>
-    <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-      <span className="icon">
-        <EditIcon />
-      </span>
-      <span>Button</span>
-    </Button>
-    <Button className="usa-button--unstyled" onClick={action('clicked')}>
-      <span>Button</span>
-    </Button>
-    <Button className="usa-button--unstyled" onClick={action('clicked')}>
-      <span className="icon">
-        <EditIcon />
-      </span>
-      <span>Button</span>
-    </Button>
+    <EditButton disabled={disabled} unstyled onClick={action('Unstyled Edit Button clicked')} />
   </div>
 );
 
 ButtonGroup.defaultProps = {
   className: '',
+  disabled: false,
 };
 
 ButtonGroup.propTypes = {
   className: PropTypes.string,
+  disabled: PropTypes.bool,
 };
 
 storiesOf('Components|Button', module)
@@ -74,50 +56,18 @@ storiesOf('Components|Button', module)
   .add('active', () => <ButtonGroup className="active" />)
   .add('hover', () => <ButtonGroup className="hover" />)
   .add('focus', () => <ButtonGroup className="focus" />)
-  .add('disabled', () => (
-    <div className="disabled" style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
-      <Button disabled onClick={action('clicked')}>
-        <span>Button</span>
-      </Button>
-      <Button disabled className="usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">
-          <EditIcon />
-        </span>
-        <span>Button</span>
-      </Button>
-      <Button disabled secondary onClick={action('clicked')}>
-        <span>Button</span>
-      </Button>
-      <Button disabled className="usa-button--small" onClick={action('clicked')}>
-        <span>Button</span>
-      </Button>
-      <Button disabled className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-        <span className="icon">
-          <EditIcon />
-        </span>
-        <span>Button</span>
-      </Button>
-      <Button disabled secondary className="usa-button--small" onClick={action('clicked')}>
-        <span>Button</span>
-      </Button>
-      <Button disabled secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">
-          <EditIcon />
-        </span>
-        <span>Button</span>
-      </Button>
-      <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
-        <span>Button</span>
-      </Button>
-      <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
-        <span className="icon">
-          <EditIcon />
-        </span>
-        <span>Button</span>
-      </Button>
-    </div>
-  ));
+  .add('disabled', () => <ButtonGroup disabled />);
 
+storiesOf('Components|Icon Buttons', module).add('edit', () => (
+  <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
+    <EditButton onClick={action('Edit button clicked')} />
+    <EditButton small onClick={action('Edit button clicked')} />
+    <EditButton secondary onClick={action('Edit button clicked')} />
+    <EditButton secondary small onClick={action('Edit button clicked')} />
+    <EditButton unstyled onClick={action('Edit button clicked')} />
+    <EditButton disabled onClick={action('Edit button clicked')} />
+  </div>
+));
 // Colors
 
 storiesOf('Global|Colors', module).add('all', () => (
