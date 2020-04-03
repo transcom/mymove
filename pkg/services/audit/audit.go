@@ -97,9 +97,9 @@ func (a *Auditor) Record(name EventName, request *http.Request, options ...func(
 	}
 
 	modelMap := slices.Map{}
-	payloadMap := slices.Map{}
+	// payloadMap := slices.Map{}
 	model := a.model
-	payload := a.payload
+	// payload := a.payload
 
 	val := reflect.ValueOf(model)
 
@@ -127,19 +127,19 @@ func (a *Auditor) Record(name EventName, request *http.Request, options ...func(
 		}
 	}
 
-	if payload != nil {
-		payloadVal := reflect.ValueOf(payload).Elem()
-		for i := 0; i < payloadVal.NumField(); i++ {
-			fieldFromType := payloadVal.Type().Field(i)
-			fieldFromValue := payloadVal.Field(i)
-			fieldName := flect.Underscore(fieldFromType.Name)
-
-			if !fieldFromValue.IsZero() {
-				payloadMap[fieldName] = fieldFromValue.Interface()
-			}
-		}
-
-	}
+	// if payload != nil {
+	// 	payloadVal := reflect.ValueOf(payload).Elem()
+	// 	for i := 0; i < payloadVal.NumField(); i++ {
+	// 		fieldFromType := payloadVal.Type().Field(i)
+	// 		fieldFromValue := payloadVal.Field(i)
+	// 		fieldName := flect.Underscore(fieldFromType.Name)
+	//
+	// 		if !fieldFromValue.IsZero() {
+	// 			payloadMap[fieldName] = fieldFromValue.Interface()
+	// 		}
+	// 	}
+	//
+	// }
 
 	metadata := slices.Map{
 		"milmove_trace_id": a.hctx.GetTraceID(),
@@ -152,7 +152,6 @@ func (a *Auditor) Record(name EventName, request *http.Request, options ...func(
 		EventName:  "MYNAME",
 		RecordType: "type",
 		RecordData: modelMap,
-		Payload:    payloadMap,
 		Metadata:   metadata,
 	}
 

@@ -121,6 +121,15 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("second decoding data failed: %w", err)
 		}
 		serviceItem = &serviceItemSubtype
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
+		var serviceItemSubtype primemessages.MTOServiceItemDomesticCrating
+
+		jsonDecoder = json.NewDecoder(getFileReader(filename, args, logger))
+		err = jsonDecoder.Decode(&serviceItemSubtype)
+		if err != nil {
+			return fmt.Errorf("second decoding data failed: %w", err)
+		}
+		serviceItem = &serviceItemSubtype
 	default:
 		return fmt.Errorf("unexpected MTOServiceItem type: %s \n\nexpected model types: %v",
 			gt.ModelType, reflect.ValueOf(allowedMap).MapKeys())

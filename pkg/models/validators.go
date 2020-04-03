@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/gobuffalo/validate"
@@ -382,6 +384,40 @@ func (v *OptionalUUIDIsPresent) IsValid(errors *validate.Errors) {
 	}
 
 	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+}
+
+// ItemCanFitInsideCrate is a structure for determining if an Item Dimension can fit inside a Crate Dimension
+type ItemCanFitInsideCrate struct {
+	Name         string
+	NameCompared string
+	Item         *primemessages.MTOServiceItemDimension
+	Crate        *primemessages.MTOServiceItemDimension
+	Message      string
+}
+
+// IsValid adds an error if the Item can not fit inside a Crate
+func (v ItemCanFitInsideCrate) IsValid(errors *validate.Errors) {
+	if v.Item == nil || v.Crate == nil {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s or %s can not be nil.", v.Name, v.NameCompared))
+		return
+	}
+
+	if v.Item.Height == nil || v.Item.Length == nil || v.Item.Width == nil ||
+		v.Crate.Height == nil || v.Crate.Length == nil || v.Crate.Width == nil {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s or %s has missing dimensions.", v.Name, v.NameCompared))
+		return
+	}
+
+	if *v.Item.Length < *v.Crate.Length && *v.Item.Width < *v.Crate.Width && *v.Item.Height < *v.Crate.Height {
+		return
+	}
+
+	if len(v.Message) > 0 {
+		errors.Add(validators.GenerateKey(v.Name), v.Message)
+		return
+	}
+
+	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s dimensions can not be greater than or equal to %s dimensions.", v.Name, v.NameCompared))
 }
 
 // ValidateableModel is here simply because `validateable` is private to `pop`

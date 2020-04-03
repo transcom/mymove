@@ -34,6 +34,7 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 		"PaymentRequests",
 		"MTOServiceItems",
 		"MTOServiceItems.ReService",
+		"MTOServiceItems.Dimensions",
 		"MTOShipments",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
