@@ -26,6 +26,8 @@ import (
 type EventName string
 
 const (
+	// GeneralAuditingEvent is the event name for "capture all the things!" auditing
+	GeneralAuditingEvent EventName = "This is a general auditing event to keep track of a database record changing."
 	// PrimeFetchedUpdatedMTOs is the event name for when the Prime fetches updated MTOs
 	PrimeFetchedUpdatedMTOs EventName = "Prime Fetched Updated MTOs"
 	// MakeMTOAvailableToPrime is the event name for when the MTO is made available to the Prime
