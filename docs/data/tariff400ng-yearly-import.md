@@ -61,8 +61,9 @@ area for the import, then use `pg_dump` to create the migration after we're done
 1. Reset your local database: `make db_dev_reset db_dev_migrate`.
 1. Drop the contents of the tariff tables we're going to be importing (so we can later `pg_dump` their entire contents):
     1. Run `psql-dev`
-    1. In psql, run: `truncate tariff400ng_full_pack_rates, tariff400ng_full_unpack_rates, tariff400ng_linehaul_rates, tariff400ng_service_areas, tariff400ng_shorthaul_rates`
+    1. In psql, run: `truncate tariff400ng_full_pack_rates, tariff400ng_full_unpack_rates, tariff400ng_item_rates, tariff400ng_linehaul_rates, tariff400ng_service_areas, tariff400ng_shorthaul_rates;`
 1. Import the data you dumped from the Ruby-generated database by doing: `\i path/to/400ng_temp_tables.sql`
+    1. If the above command fails with an "unrecognized configuration parameter", try commenting out the corresponding `SET` line near the top of the SQL file. You may have a mismatch between the Postgres version used for the export and the one used for the import.
 1. You should now have both the MilMove `tariff400ng_*` tables (empty) as well as the new temp tables generated above.
 
 #### Transform to our schema
@@ -199,19 +200,20 @@ Spot check the `tariff400ng_service_areas` table to make sure the data is as exp
 ### Transform data from `xlsx` file
 
 We're going to make use of the work that Patrick Stanger delivered in [this PR](https://github.com/transcom/mymove/pull/1286).
-Note that the 2020 spreadsheet did not include data for 125B or 125D unlike previous years.
 
 1. Open [this google sheet](https://docs.google.com/spreadsheets/d/1Zp--NWMr6VYrRlCn8Bi4_Ab4wXFKjxYl/edit#gid=1235758365) alongside the 400ng data you have received for the upcoming year.
-2. Visit the `Accessorials` tab in both spreadsheets.
-3. In the new data sheet, within the main section and the Alaska waterhaul section, copy all the values to the left of where it says "weight". Start with the cells marked in the screenshot below:
+1. Visit the `Accessorials` tab in both spreadsheets.
+1. In the new data sheet, within the main section and the Alaska waterhaul section, copy all the values to the left of where it says "weight". Start with the cells marked in the screenshot below:
     ![accessorials sheet](./accessorials_spreadsheet.png)
-4. Paste those values into the corresponding `Accessorials` tab in the other sheet.
-5. Repeat this same process for the `Additonal Rates` tab. Starting at the cell marked in the screenshot below:
+1. Paste those values into the corresponding `Accessorials` tab in the other sheet.
+1. Repeat this same process for the `Additional Rates` tab. Starting at the cell marked in the screenshot below:
     ![additional rates sheet](./additional_rates_spreadsheet.png)
-6. Head over to the `migration work` tab. Here, you'll find that queries have been generated for you to insert records into the `milmove` database.
-7. Copy all of the values in the `query` column for both the `Additional Rates` table at the top of the sheet and the `Accessorials` table below it to
-a file called `tariff400ng_item_rates.sql`.
-8. Run `tariff400ng_item_rates.sql` against your local database as you've done with other SQL files.
+1. Head over to the `migration work` tab. Here, you'll find that queries have been generated for you to insert records into the `milmove` database.
+1. Change the `effective_date_lower` and `effective_date_upper` in row 2 to be the correct dates.
+1. Copy all of the values in the `query` column for both the `Additional Rates` table at the top of the sheet and the `Accessorials` table below it to
+a file called `tariff400ng_item_rates.sql`.  A few rows may have "#REF!" errors due to 125B/125D no longer being included on the `Accessorials` tab unlike
+previous years; you should skip those.
+1. Run `tariff400ng_item_rates.sql` against your local database as you've done with other SQL files.
 
 Spot check the `tariff400ng_item_rates` table to make sure the data is as expected.
 
