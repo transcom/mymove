@@ -82,6 +82,7 @@ export function getPpmWeightEstimate(
   label = getPPMEstimateLabel,
 ) {
   const swaggerTag = 'ppm.showPPMEstimate';
+  const schemaKey = 'ppmEstimateRange';
   return swaggerRequest(
     getClient,
     swaggerTag,
@@ -92,7 +93,7 @@ export function getPpmWeightEstimate(
       orders_id: ordersId,
       weight_estimate: weightEstimate,
     },
-    { label },
+    { label, schemaKey },
   );
 }
 
