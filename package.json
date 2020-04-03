@@ -36,7 +36,7 @@
     "query-string": "6",
     "ra-data-simple-rest": "^2.9.9",
     "react": "^16.13.1",
-    "react-admin": "^3.3.3",
+    "react-admin": "^3.4.0",
     "react-app-polyfill": "^1.0.6",
     "react-day-picker": "=7.4.0",
     "react-dom": "^16.13.1",
@@ -60,7 +60,7 @@
     "reduce-reducers": "^1.0.4",
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.2",
-    "redux-form": "^8.3.1",
+    "redux-form": "^8.3.2",
     "redux-mock-store": "1.5.4",
     "redux-thunk": "^2.2.0",
     "regenerator-runtime": "^0.13.5",
@@ -69,6 +69,9 @@
     "swagger-client": "^3.10.0",
     "swagger-ui-dist": "^3.25.0",
     "uswds": "2.6.0"
+  },
+  "resolutions": {
+    "kind-of": "^6.0.2"
   },
   "name": "client",
   "private": true,
@@ -95,7 +98,7 @@
     "@storybook/addon-links": "^5.3.18",
     "@storybook/addons": "^5.3.17",
     "@storybook/react": "^5.3.18",
-    "danger": "^9.3.0",
+    "danger": "^10.0.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-prettier": "^3.1.2",
