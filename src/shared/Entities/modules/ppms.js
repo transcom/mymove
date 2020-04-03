@@ -74,10 +74,10 @@ export function updatePPM(
 }
 
 export function getPpmWeightEstimate(
-  moveId,
+  moveDate,
   originZip,
   originDutyStationZip,
-  destZip,
+  ordersId,
   weightEstimate,
   label = getPPMEstimateLabel,
 ) {
@@ -86,11 +86,11 @@ export function getPpmWeightEstimate(
     getClient,
     swaggerTag,
     {
-      moveId,
-      originZip,
-      originDutyStationZip,
-      destZip,
-      weightEstimate,
+      original_move_date: moveDate,
+      origin_zip: originZip,
+      origin_duty_station_zip: originDutyStationZip,
+      orders_id: ordersId,
+      weight_estimate: weightEstimate,
     },
     { label },
   );

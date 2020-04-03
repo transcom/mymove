@@ -7,7 +7,8 @@ import TransportationOfficeContactInfo from 'shared/TransportationOffices/Transp
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { calcNetWeight } from 'scenes/Moves/Ppm/utility';
-import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
+// import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
+import { getPpmWeightEstimate } from 'shared/Entities/modules/ppms';
 
 import ApprovedMoveSummary from 'scenes/Landing/MoveSummary/ApprovedMoveSummary';
 import CanceledMoveSummary from 'scenes/Landing/MoveSummary/CanceledMoveSummary';
