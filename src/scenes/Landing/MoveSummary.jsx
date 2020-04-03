@@ -7,7 +7,6 @@ import TransportationOfficeContactInfo from 'shared/TransportationOffices/Transp
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { calcNetWeight } from 'scenes/Moves/Ppm/utility';
-// import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 import { getPpmWeightEstimate } from 'shared/Entities/modules/ppms';
 
 import ApprovedMoveSummary from 'scenes/Landing/MoveSummary/ApprovedMoveSummary';
@@ -62,13 +61,15 @@ export class MoveSummaryComponent extends React.Component {
         if (netWeight === 0) {
           netWeight = this.props.ppm.weight_estimate;
         }
-        this.props.getPpmWeightEstimate(
-          this.props.ppm.original_move_date,
-          this.props.ppm.pickup_postal_code,
-          this.props.originDutyStationZip,
-          this.props.orders.id,
-          netWeight,
-        );
+        if (!isEmpty(this.props.ppm)) {
+          this.props.getPpmWeightEstimate(
+            this.props.ppm.original_move_date,
+            this.props.ppm.pickup_postal_code,
+            this.props.originDutyStationZip,
+            this.props.orders.id,
+            netWeight,
+          );
+        }
       });
     }
   }
