@@ -127,7 +127,7 @@ $DOCKER_RUN \
     --net "${NETWORK}" \
     --rm \
     --entrypoint prime-api-client \
-    e2e:latest \
+    tools:latest \
     --insecure \
     --hostname primelocal \
     --port 9443 \
