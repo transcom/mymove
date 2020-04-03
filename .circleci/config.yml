@@ -327,6 +327,21 @@ commands:
             HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
 
+  e2e_tests_mtls:
+    steps:
+      - run:
+          name: make e2e_mtls_test_docker
+          command: |
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_MTLS_CERT=$(cat /home/circleci/transcom/config/tls/devlocal-mtls.cer)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_MTLS_KEY=$(cat /home/circleci/transcom/config/tls/devlocal-mtls.key)' >> $BASH_ENV
+            source $BASH_ENV
+            make e2e_mtls_test_docker
+          environment:
+            # Env vars needed for the webserver to run inside docker
+            APPLICATION: app
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
@@ -558,6 +573,7 @@ jobs:
       - run: make server_generate
       - run: rm -f bin/generate-test-data && make bin/generate-test-data
       - run: rm -f bin/prime-api-client && make bin/prime-api-client
+      - e2e_tests_mtls
       - e2e_tests
       - store_artifacts:
           path: cypress/videos

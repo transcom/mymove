@@ -7,19 +7,11 @@ scripts/ensure-application app
 # Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
 export REACT_APP_NODE_ENV=development
 
+# Set Defaults
+NETWORK="mymove_default" # Docker network
+
 # Set the container default name
 CONTAINER=mymove_milmove_1
-CONTAINER_CYPRESS=cypress
-
-# Set hostnames
-MILMOVEHOST=milmovelocal
-OFFICEHOST=officelocal
-ADMINHOST=adminlocal
-ORDERSHOST=orderslocal
-
-# Set Defaults
-HTTP_PORT=4000
-NETWORK="mymove_default" # Docker network
 
 # When running locally enable TTY
 DOCKER_RUN="docker run -t"
@@ -58,7 +50,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   # Start everything up
   docker-compose up -d --no-recreate --remove-orphans
 
-  # Build a small tools dockerfile
+  # Build a small e2e dockerfile
   docker build -f Dockerfile.tools --tag tools:latest .
 else
   # Locally development requires that we build the container
@@ -74,10 +66,10 @@ else
 
   # Build a small tools dockerfile
   docker build -f Dockerfile.tools_local --tag tools:latest .
-fi
 
-# Following the logs should block any more actions until migrations are completed and the container exits
-docker-compose logs -f milmove_migrate
+  # Following the logs should block any more actions until migrations are completed and the container exits
+  docker-compose logs -f milmove_migrate
+fi
 
 # Need to wait not just for DB but also migrations to finish
 while true; do
@@ -124,50 +116,43 @@ $DOCKER_RUN \
   tools:latest \
   --named-scenario e2e_basic
 
-# Grab the IP address of the running container
-E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
+#
+# INTEGRATION TESTS START
+#
 
-# Run the cypress tests
-docker build -f cypress/Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest ./cypress
+  function prime_api_client () {
+  # Cannot mount directories in CircleCI so certificates and data are built into the container
+  $DOCKER_RUN \
+    --link="${CONTAINER}" \
+    --net "${NETWORK}" \
+    --rm \
+    --entrypoint prime-api-client \
+    e2e:latest \
+    --insecure \
+    --hostname primelocal \
+    --port 9443 \
+    "$@"
+}
 
-# Confirm app container is still running before running tests
-# See note above about what to do if you need to debug
-DOCKER_PID=$(docker ps -qf name=${CONTAINER})
-if [ -z "${DOCKER_PID}" ]; then
-  echo
-  echo "Docker container ${CONTAINER} exited unexpectedly. No tests will be run."
-  exit 1
-fi
+#Integration test for Prime API
+#Return mtos from the fetch-mto endpoint where is_available_for_prime is true
+prime_api_client fetch-mtos
+mtos=$(prime_api_client fetch-mtos)
+#mtos=$(go run ./cmd/prime-api-client --insecure fetch-mtos)
+#Returns mtoShipments from the fetch-mto response, needed to return etag below
+mtoShipments=$(echo "$mtos" | jq '.[0] | .mtoShipments')
+#Returns etag for the first mtoShipment, needed to run update-mto-shipment below
+etag=$(echo "$mtoShipments" | jq '.[0] | .eTag' |  tr -d '"')
+#Tests update-shipment endpoint
+go run ./cmd/prime-api-client --insecure update-mto-shipment --etag "${etag}" --filename ./pkg/testdatagen/testdata/update_mto_shipment.json
 
-readonly spec="${SPEC:-cypress/integration/**/*}"
-echo "Testing this SPEC: ${spec}"
-
-$DOCKER_RUN \
-  -e CYPRESS_baseUrl="http://${MILMOVEHOST}:${HTTP_PORT}" \
-  --add-host "${MILMOVEHOST}:${E2E_IP}" \
-  --add-host "${OFFICEHOST}:${E2E_IP}" \
-  --add-host "${ADMINHOST}:${E2E_IP}" \
-  --add-host "${ORDERSHOST}:${E2E_IP}" \
-  --name="${CONTAINER_CYPRESS}" \
-  --link="${CONTAINER}" \
-  --net "${NETWORK}" \
-  --ipc=host \
-  --detach \
-  ${CONTAINER_CYPRESS}:latest run --spec "${spec}"
-
-# Tail the logs so users can follow along
-docker logs -f ${CONTAINER_CYPRESS}
+#
+# INTEGRATION TESTS END
+#
 
 # Stop the app container to release the DB connection
-docker stop ${CONTAINER}
-
-# Copy out the results
-docker cp ${CONTAINER_CYPRESS}:/cypress/results cypress/ 2>/dev/null || echo "No cypress results copied"
-docker cp ${CONTAINER_CYPRESS}:/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
-docker cp ${CONTAINER_CYPRESS}:/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
-
-# Grab the exit code from the test container
-EXIT_STATUS=$(docker inspect ${CONTAINER_CYPRESS} --format='{{.State.ExitCode}}')
-
-# Exit with the status from tests
-exit "${EXIT_STATUS}"
+if [[ -n "${CIRCLECI+x}" ]]; then
+  docker-compose -f docker-compose.branch.yml down --remove-orphans || true
+else
+  docker-compose -f docker-compose.local.yml down --remove-orphans || true
+fi
