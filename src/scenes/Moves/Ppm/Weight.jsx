@@ -6,9 +6,15 @@ import PropTypes from 'prop-types';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
-import { getPpmWeightEstimate } from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { loadPPMs, updatePPM, selectActivePPMForMove, updatePPMEstimate } from 'shared/Entities/modules/ppms';
+import {
+  loadPPMs,
+  updatePPM,
+  selectActivePPMForMove,
+  updatePPMEstimate,
+  getPpmWeightEstimate,
+  selectPPMEstimateRange,
+} from 'shared/Entities/modules/ppms';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
@@ -206,16 +212,16 @@ export class PpmWeight extends Component {
     const { incentive_estimate_min, incentive_estimate_max } = this.props;
     if (hasEstimateError) {
       return (
-        <td className="incentive">
+        <div className="incentive">
           Not ready yet{' '}
           <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
-        </td>
+        </div>
       );
     } else {
       return (
-        <td data-cy="incentive-range-values" className="incentive">
+        <div data-cy="incentive-range-values" className="incentive">
           {formatCentsRange(incentive_estimate_min, incentive_estimate_max)}
-        </td>
+        </div>
       );
     }
   }
@@ -408,6 +414,8 @@ function mapStateToProps(state) {
 
   const props = {
     ...state.ppm,
+    incentive_estimate_min: selectPPMEstimateRange(state).range_min,
+    incentive_estimate_max: selectPPMEstimateRange(state).range_max,
     currentPPM: selectActivePPMForMove(state, moveID),
     entitlement: loadEntitlementsFromState(state),
     schema: schema,

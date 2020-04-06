@@ -130,6 +130,13 @@ export function selectActivePPMForMove(state, moveId) {
   return activePPM || {};
 }
 
+export function selectPPMEstimateRange(state) {
+  if (state.entities.ppmEstimateRanges) {
+    return state.entities.ppmEstimateRanges.undefined;
+  }
+  return {};
+}
+
 export function selectReimbursement(state, reimbursementId) {
   const advanceFromEntities = get(state, `entities.reimbursements.${reimbursementId}`);
   const advanceFromPpmReducer = get(state, 'ppm.currentPpm.advance');
