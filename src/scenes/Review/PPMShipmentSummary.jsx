@@ -7,29 +7,11 @@ import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { selectActivePPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
-import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 import { hasShortHaulError } from 'shared/incentive';
 
 import './Review.css';
 
 export class PPMShipmentSummary extends Component {
-  componentDidUpdate() {
-    if (
-      !this.props.ppmEstimate.hasEstimateInProgress &&
-      !this.props.ppmEstimate.hasEstimateSuccess &&
-      !this.props.ppmEstimate.hasEstimateError &&
-      !this.props.ppmEstimate.rateEngineError
-    ) {
-      this.props.getPpmWeightEstimate(
-        this.props.ppm.original_move_date,
-        this.props.ppm.pickup_postal_code,
-        this.props.ppmEstimate.originDutyStationZip,
-        this.props.orders.id,
-        this.props.ppm.weight_estimate,
-      );
-    }
-  }
-
   chooseEstimateText(ppmEstimate) {
     if (hasShortHaulError(ppmEstimate.rateEngineError)) {
       return (
@@ -185,8 +167,4 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-const mapDispatchToProps = {
-  getPpmWeightEstimate,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(PPMShipmentSummary);
+export default connect(mapStateToProps)(PPMShipmentSummary);
