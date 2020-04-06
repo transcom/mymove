@@ -319,7 +319,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			crate = &models.MTOServiceItemDimension{}
 		}
 		payload = &primemessages.MTOServiceItemDomesticCrating{
-			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			ReServiceCode: primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
 			Item: &primemessages.MTOServiceItemDimension{
 				ID:     strfmt.UUID(item.ID.String()),
 				Type:   primemessages.DimensionType(item.Type),
@@ -335,6 +335,12 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 				Width:  crate.Width.Int32Ptr(),
 			},
 			Description: mtoServiceItem.Description,
+		}
+	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
+		payload = &primemessages.MTOServiceItemShuttle{
+			Description:   mtoServiceItem.Description,
+			ReServiceCode: primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
+			Reason:        mtoServiceItem.Reason,
 		}
 	default:
 		// otherwise, basic service item

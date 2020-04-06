@@ -43,10 +43,13 @@ type MTOServiceItemDomesticCrating struct {
 	// Required: true
 	Item *MTOServiceItemDimension `json:"item"`
 
-	// Describes available re service code for domestic crating
+	// re service code
 	// Required: true
+	ReServiceCode ReServiceCode `json:"reServiceCode"`
+
+	// reason
 	// Enum: [DCRT DUCRT]
-	ReServiceCode *string `json:"reServiceCode"`
+	Reason string `json:"reason,omitempty"`
 }
 
 // ETag gets the e tag of this subtype
@@ -127,6 +130,8 @@ func (m *MTOServiceItemDomesticCrating) SetReServiceName(val string) {
 
 // ReServiceCode gets the re service code of this subtype
 
+// Reason gets the reason of this subtype
+
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 	var data struct {
@@ -143,10 +148,13 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		Item *MTOServiceItemDimension `json:"item"`
 
-		// Describes available re service code for domestic crating
+		// re service code
 		// Required: true
+		ReServiceCode ReServiceCode `json:"reServiceCode"`
+
+		// reason
 		// Enum: [DCRT DUCRT]
-		ReServiceCode *string `json:"reServiceCode"`
+		Reason string `json:"reason,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -208,6 +216,8 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 
 	result.ReServiceCode = data.ReServiceCode
 
+	result.Reason = data.Reason
+
 	*m = result
 
 	return nil
@@ -231,10 +241,13 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Item *MTOServiceItemDimension `json:"item"`
 
-		// Describes available re service code for domestic crating
+		// re service code
 		// Required: true
+		ReServiceCode ReServiceCode `json:"reServiceCode"`
+
+		// reason
 		// Enum: [DCRT DUCRT]
-		ReServiceCode *string `json:"reServiceCode"`
+		Reason string `json:"reason,omitempty"`
 	}{
 
 		Crate: m.Crate,
@@ -244,6 +257,8 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		Item: m.Item,
 
 		ReServiceCode: m.ReServiceCode,
+
+		Reason: m.Reason,
 	},
 	)
 	if err != nil {
@@ -320,6 +335,10 @@ func (m *MTOServiceItemDomesticCrating) Validate(formats strfmt.Registry) error 
 	}
 
 	if err := m.validateReServiceCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -426,7 +445,19 @@ func (m *MTOServiceItemDomesticCrating) validateItem(formats strfmt.Registry) er
 	return nil
 }
 
-var mTOServiceItemDomesticCratingTypeReServiceCodePropEnum []interface{}
+func (m *MTOServiceItemDomesticCrating) validateReServiceCode(formats strfmt.Registry) error {
+
+	if err := m.ReServiceCode.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("reServiceCode")
+		}
+		return err
+	}
+
+	return nil
+}
+
+var mTOServiceItemDomesticCratingTypeReasonPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -434,26 +465,26 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		mTOServiceItemDomesticCratingTypeReServiceCodePropEnum = append(mTOServiceItemDomesticCratingTypeReServiceCodePropEnum, v)
+		mTOServiceItemDomesticCratingTypeReasonPropEnum = append(mTOServiceItemDomesticCratingTypeReasonPropEnum, v)
 	}
 }
 
 // property enum
-func (m *MTOServiceItemDomesticCrating) validateReServiceCodeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemDomesticCratingTypeReServiceCodePropEnum); err != nil {
+func (m *MTOServiceItemDomesticCrating) validateReasonEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, mTOServiceItemDomesticCratingTypeReasonPropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *MTOServiceItemDomesticCrating) validateReServiceCode(formats strfmt.Registry) error {
+func (m *MTOServiceItemDomesticCrating) validateReason(formats strfmt.Registry) error {
 
-	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
-		return err
+	if swag.IsZero(m.Reason) { // not required
+		return nil
 	}
 
 	// value enum
-	if err := m.validateReServiceCodeEnum("reServiceCode", "body", *m.ReServiceCode); err != nil {
+	if err := m.validateReasonEnum("reason", "body", m.Reason); err != nil {
 		return err
 	}
 

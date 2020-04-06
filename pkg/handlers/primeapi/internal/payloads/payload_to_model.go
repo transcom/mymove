@@ -153,6 +153,12 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.ReService.Code = models.ReServiceCodeDOFSIT
 		model.Reason = dofsit.Reason
 		model.PickupPostalCode = dofsit.PickupPostalCode
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
+		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.Description = shuttleService.Description
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
 		domesticCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticCrating)
 
@@ -163,7 +169,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		}
 
 		// have to get code from payload
-		model.ReService.Code = models.ReServiceCode(*domesticCrating.ReServiceCode)
+		model.ReService.Code = models.ReServiceCode(domesticCrating.ReServiceCode)
 		model.Description = domesticCrating.Description
 		model.Dimensions = models.MTOServiceItemDimensions{
 			models.MTOServiceItemDimension{
