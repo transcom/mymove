@@ -492,3 +492,4 @@
 20200324155051_change_nullability_in_notifications.up.sql
 20200326142555_change_nullability_in_tariff_400ng_full_pack_rate.up.sql
 20200327154306_shauna_cac.up.sql
+20200406200751_support_destination_first_day_sit.up.sql
