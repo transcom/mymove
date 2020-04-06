@@ -1137,6 +1137,7 @@ workflows:
       - deploy_experiment_engadmin_app:
           requires:
             - deploy_experimental_migrations
+            - build_milmove_admin_app
           filters:
             branches:
               only: rd-ecs-deploy-sidecar-friendly
