@@ -1154,9 +1154,15 @@ func init() {
         {
           "type": "object",
           "required": [
-            "reason"
+            "reason",
+            "reServiceCode",
+            "description"
           ],
           "properties": {
+            "description": {
+              "type": "string",
+              "example": "Things to be moved to the place by shuttle."
+            },
             "reServiceCode": {
               "$ref": "#/definitions/ReServiceCode"
             },
@@ -2894,9 +2900,15 @@ func init() {
         {
           "type": "object",
           "required": [
-            "reason"
+            "reason",
+            "reServiceCode",
+            "description"
           ],
           "properties": {
+            "description": {
+              "type": "string",
+              "example": "Things to be moved to the place by shuttle."
+            },
             "reServiceCode": {
               "$ref": "#/definitions/ReServiceCode"
             },

@@ -31,8 +31,13 @@ type MTOServiceItemShuttle struct {
 
 	reServiceNameField string
 
+	// description
+	// Required: true
+	Description *string `json:"description"`
+
 	// re service code
-	ReServiceCode ReServiceCode `json:"reServiceCode,omitempty"`
+	// Required: true
+	ReServiceCode ReServiceCode `json:"reServiceCode"`
 
 	// reason
 	// Required: true
@@ -109,6 +114,8 @@ func (m *MTOServiceItemShuttle) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// Description gets the description of this subtype
+
 // ReServiceCode gets the re service code of this subtype
 
 // Reason gets the reason of this subtype
@@ -117,8 +124,13 @@ func (m *MTOServiceItemShuttle) SetReServiceName(val string) {
 func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
+		// description
+		// Required: true
+		Description *string `json:"description"`
+
 		// re service code
-		ReServiceCode ReServiceCode `json:"reServiceCode,omitempty"`
+		// Required: true
+		ReServiceCode ReServiceCode `json:"reServiceCode"`
 
 		// reason
 		// Required: true
@@ -176,6 +188,8 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 
 	result.reServiceNameField = base.ReServiceName
 
+	result.Description = data.Description
+
 	result.ReServiceCode = data.ReServiceCode
 
 	result.Reason = data.Reason
@@ -191,13 +205,20 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
+		// description
+		// Required: true
+		Description *string `json:"description"`
+
 		// re service code
-		ReServiceCode ReServiceCode `json:"reServiceCode,omitempty"`
+		// Required: true
+		ReServiceCode ReServiceCode `json:"reServiceCode"`
 
 		// reason
 		// Required: true
 		Reason *string `json:"reason"`
 	}{
+
+		Description: m.Description,
 
 		ReServiceCode: m.ReServiceCode,
 
@@ -262,6 +283,10 @@ func (m *MTOServiceItemShuttle) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDescription(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -331,11 +356,16 @@ func (m *MTOServiceItemShuttle) validateReServiceID(formats strfmt.Registry) err
 	return nil
 }
 
-func (m *MTOServiceItemShuttle) validateReServiceCode(formats strfmt.Registry) error {
+func (m *MTOServiceItemShuttle) validateDescription(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ReServiceCode) { // not required
-		return nil
+	if err := validate.Required("description", "body", m.Description); err != nil {
+		return err
 	}
+
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) validateReServiceCode(formats strfmt.Registry) error {
 
 	if err := m.ReServiceCode.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

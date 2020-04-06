@@ -985,8 +985,13 @@ definitions:
           reason:
             type: string
             example: Storage items need to be picked up
+          description:
+            type: string
+            example: Things to be moved to the place by shuttle.
         required:
           - reason
+          - reServiceCode
+          - description
   MTOServiceItemDomesticCrating:
     description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem
     allOf:
