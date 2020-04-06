@@ -11,20 +11,25 @@ import { connect } from 'react-redux';
 import Alert from 'shared/Alert';
 import { reduxForm } from 'redux-form';
 import styles from './PPMPaymentRequestIntro.module.scss';
-import { createOrUpdatePpm } from './ducks';
+import { loadPPMs, updatePPM, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { bindActionCreators } from 'redux';
 
 class PPMPaymentRequestIntro extends Component {
   state = {
     ppmUpdateError: false,
   };
 
+  componentDidMount() {
+    this.props.loadPPMs(this.props.moveID);
+  }
+
   updatePpmDate = (formValues) => {
-    const { history, moveId, currentPpm } = this.props;
-    if (formValues.actual_move_date && currentPpm) {
-      const updatedPpm = { ...currentPpm, actual_move_date: formValues.actual_move_date };
+    const { history, moveID, currentPPM } = this.props;
+    if (formValues.actual_move_date && currentPPM) {
+      const updatedPPM = { ...currentPPM, actual_move_date: formValues.actual_move_date };
       this.props
-        .createOrUpdatePpm(moveId, updatedPpm)
-        .then(() => history.push(`/moves/${moveId}/ppm-weight-ticket`))
+        .updatePPM(moveID, updatedPPM.id, updatedPPM)
+        .then(() => history.push(`/moves/${moveID}/ppm-weight-ticket`))
         .catch(() => {
           this.setState({ ppmUpdateError: true });
         });
@@ -62,6 +67,7 @@ class PPMPaymentRequestIntro extends Component {
                   <li>storage</li>
                   <li>tolls & weighing fees</li>
                   <li>rental equipment</li>
+                  <li>fees for movers you hired</li>
                 </ul>
               </li>
             </ul>
@@ -98,19 +104,25 @@ PPMPaymentRequestIntro = reduxForm({
 })(PPMPaymentRequestIntro);
 
 function mapStateToProps(state, ownProps) {
-  const moveId = ownProps.match.params.moveId;
-  const currentPpm = get(state, 'ppm.currentPpm');
-  const actualMoveDate = currentPpm.actual_move_date ? currentPpm.actual_move_date : null;
+  const moveID = ownProps.match.params.moveId;
+  const currentPPM = selectActivePPMForMove(state, moveID);
+  const actualMoveDate = currentPPM.actual_move_date ? currentPPM.actual_move_date : null;
   return {
-    moveId: moveId,
-    currentPpm: currentPpm,
+    moveID: moveID,
+    currentPPM: currentPPM,
     schema: get(state, 'swaggerInternal.spec.definitions.PatchPersonallyProcuredMovePayload'),
     initialValues: { actual_move_date: actualMoveDate },
   };
 }
 
-const mapDispatchToProps = {
-  createOrUpdatePpm,
-};
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators(
+    {
+      loadPPMs,
+      updatePPM,
+    },
+    dispatch,
+  );
+}
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(PPMPaymentRequestIntro));
