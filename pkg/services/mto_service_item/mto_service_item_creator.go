@@ -74,6 +74,16 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return nil, verrs, err
 	}
 
+	// create dimensions if any
+	for index := range serviceItem.Dimensions {
+		createDimension := &serviceItem.Dimensions[index]
+		createDimension.MTOServiceItemID = serviceItem.ID
+		verrs, err := o.builder.CreateOne(createDimension)
+		if verrs != nil || err != nil {
+			return nil, verrs, err
+		}
+	}
+
 	return serviceItem, nil, nil
 }
 

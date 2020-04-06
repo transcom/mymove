@@ -857,6 +857,41 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
+  DimensionType:
+    description: Describes a dimension type for a MTOServiceItemDimension
+    type: string
+    enum:
+      - ITEM
+      - CRATE
+  MTOServiceItemDimension:
+    description: Describes a dimension object for the MTOServiceItem
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      type:
+        $ref: '#/definitions/DimensionType'
+      length:
+        description: Length in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      width:
+        description: Width in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      height:
+        description: Height in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+    required:
+      - length
+      - width
+      - height
   MTOServiceItemStatus:
     properties:
       status:
@@ -873,6 +908,7 @@ definitions:
       - MTOServiceItemBasic
       - MTOServiceItemDOFSIT
       - MTOServiceItemShuttle
+      - MTOServiceItemDomesticCrating
   MTOAgentType:
     type: string
     title: MTO Agent Type
@@ -951,6 +987,32 @@ definitions:
             example: Storage items need to be picked up
         required:
           - reason
+  MTOServiceItemDomesticCrating:
+    description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            $ref: '#/definitions/ReServiceCode'
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            enum:
+              - DCRT # Domestic Crating
+              - DUCRT # Domestic Uncrating
+          item:
+            $ref: '#/definitions/MTOServiceItemDimension'
+          crate:
+            $ref: '#/definitions/MTOServiceItemDimension'
+          description:
+            type: string
+            example: Decorated horse head to be crated.
+        required:
+          - reServiceCode
+          - item
+          - crate
+          - description
   ProofOfServiceDocs:
     properties:
       uploads:
