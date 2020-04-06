@@ -67,6 +67,7 @@ class PPMPaymentRequestIntro extends Component {
                   <li>storage</li>
                   <li>tolls & weighing fees</li>
                   <li>rental equipment</li>
+                  <li>fees for movers you hired</li>
                 </ul>
               </li>
             </ul>

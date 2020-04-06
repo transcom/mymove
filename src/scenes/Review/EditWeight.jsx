@@ -40,7 +40,7 @@ const examples = [
   {
     weight: 5000,
     incentive: '$3,100 - 3,700',
-    description: 'Renting a moving truck yourself',
+    description: 'A moving truck',
   },
   { weight: 10000, incentive: '$5,900 - 6,800' },
 ];

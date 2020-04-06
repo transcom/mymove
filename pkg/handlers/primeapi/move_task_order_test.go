@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/validate"
@@ -39,9 +41,41 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 		},
 	})
 
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+	reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: "DCRT",
+			Name: "Dom. Crating",
+		},
+	})
+
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			MoveTaskOrderID: moveTaskOrder.ID,
+		},
+		ReService: reService,
+	})
+
+	testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+		MTOServiceItemDimension: models.MTOServiceItemDimension{
+			Type:      models.DimensionTypeItem,
+			Length:    1000,
+			Height:    1000,
+			Width:     1000,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+		},
+		MTOServiceItem: mtoServiceItem,
+	})
+
+	testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+		MTOServiceItemDimension: models.MTOServiceItemDimension{
+			MTOServiceItemID: mtoServiceItem.ID,
+			Type:             models.DimensionTypeCrate,
+			Length:           2000,
+			Height:           2000,
+			Width:            2000,
+			CreatedAt:        time.Time{},
+			UpdatedAt:        time.Time{},
 		},
 	})
 
@@ -73,6 +107,8 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrdersPayload[0].ID.String())
 	suite.Equal(1, len(moveTaskOrdersPayload[0].PaymentRequests))
 	suite.Equal(1, len(moveTaskOrdersPayload[0].MtoServiceItems()))
+	suite.NotEmpty(moveTaskOrdersPayload[0].MtoServiceItems()[0].(*primemessages.MTOServiceItemDomesticCrating).Crate.ID)
+	suite.NotEmpty(moveTaskOrdersPayload[0].MtoServiceItems()[0].(*primemessages.MTOServiceItemDomesticCrating).Item.ID)
 	suite.Equal(2, len(moveTaskOrdersPayload[0].MtoShipments))
 	suite.NotNil(moveTaskOrdersPayload[0].MtoShipments[0].ETag)
 }
