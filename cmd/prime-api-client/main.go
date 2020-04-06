@@ -93,6 +93,16 @@ func main() {
 	initCreateMTOServiceItemFlags(createMTOServiceItemCommand.Flags())
 	root.AddCommand(createMTOServiceItemCommand)
 
+	makeAvailableToPrimeCommand := &cobra.Command{
+		Use:          "make-available-to-prime",
+		Short:        "Make mto available to prime",
+		Long:         "Makes an mto available to the prime for prime-api consumption",
+		RunE:         updateMTOStatus,
+		SilenceUsage: true,
+	}
+	initUpdateMTOStatusFlags(makeAvailableToPrimeCommand.Flags())
+	root.AddCommand(makeAvailableToPrimeCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
