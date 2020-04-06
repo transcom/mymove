@@ -11,19 +11,20 @@ import (
 
 // MTOServiceItem is an object representing service items for a move task order.
 type MTOServiceItem struct {
-	ID               uuid.UUID                `db:"id"`
-	MoveTaskOrder    MoveTaskOrder            `belongs_to:"move_task_orders"`
-	MoveTaskOrderID  uuid.UUID                `db:"move_task_order_id"`
-	MTOShipment      MTOShipment              `belongs_to:"mto_shipments"`
-	MTOShipmentID    *uuid.UUID               `db:"mto_shipment_id"`
-	ReService        ReService                `belongs_to:"re_services"`
-	ReServiceID      uuid.UUID                `db:"re_service_id"`
-	Reason           *string                  `db:"reason"`
-	PickupPostalCode *string                  `db:"pickup_postal_code"`
-	Description      *string                  `db:"description"`
-	Dimensions       MTOServiceItemDimensions `has_many:"mto_service_item_dimensions" fk_id:"mto_service_item_id"`
-	CreatedAt        time.Time                `db:"created_at"`
-	UpdatedAt        time.Time                `db:"updated_at"`
+	ID               uuid.UUID                      `db:"id"`
+	MoveTaskOrder    MoveTaskOrder                  `belongs_to:"move_task_orders"`
+	MoveTaskOrderID  uuid.UUID                      `db:"move_task_order_id"`
+	MTOShipment      MTOShipment                    `belongs_to:"mto_shipments"`
+	MTOShipmentID    *uuid.UUID                     `db:"mto_shipment_id"`
+	ReService        ReService                      `belongs_to:"re_services"`
+	ReServiceID      uuid.UUID                      `db:"re_service_id"`
+	Reason           *string                        `db:"reason"`
+	PickupPostalCode *string                        `db:"pickup_postal_code"`
+	Description      *string                        `db:"description"`
+	Dimensions       MTOServiceItemDimensions       `has_many:"mto_service_item_dimensions" fk_id:"mto_service_item_id"`
+	CustomerContacts MTOServiceItemCustomerContacts `has_many:"mto_service_item_customer_contacts" fk_id:"mto_service_item_id"`
+	CreatedAt        time.Time                      `db:"created_at"`
+	UpdatedAt        time.Time                      `db:"updated_at"`
 }
 
 // MTOServiceItems is a slice containing MTOServiceItems
@@ -71,6 +72,36 @@ func (m MTOServiceItem) GetCrateDimension() *MTOServiceItemDimension {
 	for _, dimension := range m.Dimensions {
 		if dimension.Type == DimensionTypeCrate {
 			return &dimension
+		}
+	}
+
+	return nil
+}
+
+// GetFirstCustomerContact will get the first customer contact for destination 1st day SIT
+func (m MTOServiceItem) GetFirstCustomerContact() *MTOServiceItemCustomerContact {
+	if len(m.CustomerContacts) == 0 {
+		return nil
+	}
+
+	for _, customerContact := range m.CustomerContacts {
+		if customerContact.Type == CustomerContactTypeFirst {
+			return &customerContact
+		}
+	}
+
+	return nil
+}
+
+// GetSecondCustomerContact will get the second customer contact for destination 1st day SIT
+func (m MTOServiceItem) GetSecondCustomerContact() *MTOServiceItemCustomerContact {
+	if len(m.CustomerContacts) == 0 {
+		return nil
+	}
+
+	for _, customerContact := range m.CustomerContacts {
+		if customerContact.Type == CustomerContactTypeSecond {
+			return &customerContact
 		}
 	}
 

@@ -23,3 +23,61 @@ func (suite *ModelSuite) TestMTOServiceItemValidation() {
 		suite.verifyValidationErrors(&validMTOServiceItem, expErrors)
 	})
 }
+
+func (suite *ModelSuite) TestMTOServiceItemGetDimension() {
+	mtoServiceItem := models.MTOServiceItem{
+		Dimensions: models.MTOServiceItemDimensions{
+			models.MTOServiceItemDimension{
+				Type: models.DimensionTypeItem,
+			},
+			models.MTOServiceItemDimension{
+				Type: models.DimensionTypeCrate,
+			},
+		},
+	}
+
+	suite.T().Run("test valid ITEM dimension exists", func(t *testing.T) {
+		dimension := mtoServiceItem.GetItemDimension()
+		suite.IsType(models.DimensionTypeItem, dimension.Type)
+	})
+
+	suite.T().Run("test valid CRATE dimension exists", func(t *testing.T) {
+		dimension := mtoServiceItem.GetCrateDimension()
+		suite.IsType(models.DimensionTypeCrate, dimension.Type)
+	})
+
+	suite.T().Run("test return nil if list is empty", func(t *testing.T) {
+		mtoServiceItem = models.MTOServiceItem{}
+		suite.Nil(mtoServiceItem.GetItemDimension())
+		suite.Nil(mtoServiceItem.GetCrateDimension())
+	})
+}
+
+func (suite *ModelSuite) TestMTOServiceItemGetCustomerContact() {
+	mtoServiceItem := models.MTOServiceItem{
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type: models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				Type: models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	suite.T().Run("test valid first customer contact exists", func(t *testing.T) {
+		customerContact := mtoServiceItem.GetFirstCustomerContact()
+		suite.IsType(models.CustomerContactTypeFirst, customerContact.Type)
+	})
+
+	suite.T().Run("test valid second customer contact exists", func(t *testing.T) {
+		customerContact := mtoServiceItem.GetSecondCustomerContact()
+		suite.IsType(models.CustomerContactTypeSecond, customerContact.Type)
+	})
+
+	suite.T().Run("test return nil if list is empty", func(t *testing.T) {
+		mtoServiceItem = models.MTOServiceItem{}
+		suite.Nil(mtoServiceItem.GetFirstCustomerContact())
+		suite.Nil(mtoServiceItem.GetSecondCustomerContact())
+	})
+}
