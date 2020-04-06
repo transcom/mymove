@@ -37,7 +37,7 @@ import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
-import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { approvePPM, loadPPMs, selectActivePPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import { openLinkInNewWindow } from 'shared/utils';
@@ -443,7 +443,7 @@ MoveInfo.propTypes = {
 const mapStateToProps = (state, ownProps) => {
   const moveId = ownProps.match.params.moveId;
   const move = selectMove(state, moveId);
-  const ppm = selectPPMForMove(state, moveId);
+  const ppm = selectActivePPMForMove(state, moveId);
   const ordersId = move.orders_id;
   const orders = selectOrders(state, ordersId);
   const serviceMemberId = move.service_member_id;
