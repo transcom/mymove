@@ -9,7 +9,7 @@ export const TextInput = ({ label, id, name, ...props }) => {
   /* eslint-disable react/jsx-props-no-spreading */
   const [field, meta] = useField({ id, name, ...props });
   const hasError = meta.touched && !!meta.error;
-  return id || name ? (
+  return (
     <FormGroup error={hasError}>
       <Label error={hasError} htmlFor={id || name}>
         {label}
@@ -17,7 +17,7 @@ export const TextInput = ({ label, id, name, ...props }) => {
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
       <UswdsTextInput id={id} name={name} {...field} {...props} />
     </FormGroup>
-  ) : null;
+  );
   /* eslint-enable react/jsx-props-no-spreading */
 };
 

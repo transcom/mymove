@@ -72,16 +72,18 @@ describe('TextInput', () => {
       expect(textInput.prop('id')).toBe('lastName');
     });
   });
+
   describe('with no id or name prop', () => {
     const spy = jest.spyOn(global.console, 'error');
-    const wrapper = shallow(<TextInput className="sample-class" label="Some Name" type="text" />);
+    shallow(<TextInput className="sample-class" label="Some Name" type="text" />);
 
-    it('should not render', () => {
-      expect(wrapper.find(FormGroup).length).toBe(0);
+    it('should call useField', () => {
+      expect(mock.useField).toHaveBeenCalled();
     });
+
     it('should render console error', () => {
       expect(spy).toHaveBeenCalledWith(
-        "Warning: Failed prop type: id or name required on 'TextInput'\n    in TextInput (at TextInput.test.jsx:77)",
+        expect.stringMatching(/Warning: Failed prop type: id or name required on 'TextInput'/),
       );
     });
   });
