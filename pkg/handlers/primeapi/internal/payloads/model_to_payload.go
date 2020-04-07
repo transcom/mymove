@@ -309,6 +309,39 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			PickupPostalCode: mtoServiceItem.PickupPostalCode,
 			Reason:           mtoServiceItem.Reason,
 		}
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
+		item := mtoServiceItem.GetItemDimension()
+		if item == nil {
+			item = &models.MTOServiceItemDimension{}
+		}
+		crate := mtoServiceItem.GetCrateDimension()
+		if crate == nil {
+			crate = &models.MTOServiceItemDimension{}
+		}
+		payload = &primemessages.MTOServiceItemDomesticCrating{
+			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Item: &primemessages.MTOServiceItemDimension{
+				ID:     strfmt.UUID(item.ID.String()),
+				Type:   primemessages.DimensionType(item.Type),
+				Height: item.Height.Int32Ptr(),
+				Length: item.Length.Int32Ptr(),
+				Width:  item.Width.Int32Ptr(),
+			},
+			Crate: &primemessages.MTOServiceItemDimension{
+				ID:     strfmt.UUID(crate.ID.String()),
+				Type:   primemessages.DimensionType(crate.Type),
+				Height: crate.Height.Int32Ptr(),
+				Length: crate.Length.Int32Ptr(),
+				Width:  crate.Width.Int32Ptr(),
+			},
+			Description: mtoServiceItem.Description,
+		}
+	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
+		payload = &primemessages.MTOServiceItemShuttle{
+			Description:   mtoServiceItem.Description,
+			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:        mtoServiceItem.Reason,
+		}
 	default:
 		// otherwise, basic service item
 		payload = &primemessages.MTOServiceItemBasic{

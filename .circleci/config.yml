@@ -455,12 +455,9 @@ jobs:
             mkdir -p tmp/test-results/pretest
             pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
       # adding danger checks here as they are similar to our pre-commit hooks
-      # TODO: This step is commented out until we have a GITHUB TOKEN See https://dp3.atlassian.net/browse/MB-2059
-      # - run:
-      #     name: Run DangerJS checks
-      #     command: yarn danger ci --failOnErrors
-      #     environment:
-      #       DANGER_GITHUB_API_TOKEN: 1
+      - run:
+          name: Run DangerJS checks
+          command: yarn danger ci --failOnErrors
       # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
