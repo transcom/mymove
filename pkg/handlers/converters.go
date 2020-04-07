@@ -193,3 +193,16 @@ func FmtMilliCentsPtr(c *unit.Millicents) *int64 {
 	cost := c.Int64()
 	return &cost
 }
+
+// DerefStringTypes dereference string types
+func DerefStringTypes(st interface{}) string {
+	switch v := st.(type) {
+	case *string:
+		if v != nil {
+			return *v
+		}
+	case string:
+		return v
+	}
+	return ""
+}

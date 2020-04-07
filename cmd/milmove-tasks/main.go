@@ -57,6 +57,16 @@ func main() {
 	initPaymentReminderFlags(sendPaymentReminderCommand.Flags())
 	root.AddCommand(sendPaymentReminderCommand)
 
+	fetchCloseoutDataCommand := &cobra.Command{
+		Use:          "fetch-closeout-data",
+		Short:        "fetch close out data",
+		Long:         "fetch close out data",
+		RunE:         fetchCloseoutData,
+		SilenceUsage: true,
+	}
+	initFetchCloseoutDataFlags(fetchCloseoutDataCommand.Flags())
+	root.AddCommand(fetchCloseoutDataCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
