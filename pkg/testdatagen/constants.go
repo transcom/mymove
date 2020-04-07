@@ -97,3 +97,9 @@ const DefaultContractCode = "TEST"
 
 // DefaultServiceCode is the default service code for testing
 const DefaultServiceCode = "STEST"
+
+// DefaultContractName name used for contractor in testing
+const DefaultContractName = "Default contractor name for test"
+
+// DefaultContractType default prime type is Prime for testing
+const DefaultContractType = "Prime"
