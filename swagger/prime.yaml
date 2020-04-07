@@ -981,7 +981,10 @@ definitions:
       - type: object
         properties:
           reServiceCode:
-            $ref: '#/definitions/ReServiceCode'
+            type: string
+            enum:
+              - DOSHUT # Domestic Origin Shuttle Service
+              - DDSHUT # Domestic Destination Shuttle Service
           reason:
             type: string
             example: Storage items need to be picked up
@@ -999,13 +1002,13 @@ definitions:
       - type: object
         properties:
           reServiceCode:
-            $ref: '#/definitions/ReServiceCode'
-          reason:
             type: string
-            example: Storage items need to be picked up
             enum:
               - DCRT # Domestic Crating
               - DUCRT # Domestic Uncrating
+          reason:
+            type: string
+            example: Storage items need to be picked up
           item:
             $ref: '#/definitions/MTOServiceItemDimension'
           crate:

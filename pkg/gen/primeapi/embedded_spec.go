@@ -1121,14 +1121,14 @@ func init() {
               "$ref": "#/definitions/MTOServiceItemDimension"
             },
             "reServiceCode": {
-              "$ref": "#/definitions/ReServiceCode"
-            },
-            "reason": {
               "type": "string",
               "enum": [
                 "DCRT",
                 "DUCRT"
-              ],
+              ]
+            },
+            "reason": {
+              "type": "string",
               "example": "Storage items need to be picked up"
             }
           }
@@ -1164,7 +1164,11 @@ func init() {
               "example": "Things to be moved to the place by shuttle."
             },
             "reServiceCode": {
-              "$ref": "#/definitions/ReServiceCode"
+              "type": "string",
+              "enum": [
+                "DOSHUT",
+                "DDSHUT"
+              ]
             },
             "reason": {
               "type": "string",
@@ -2867,14 +2871,14 @@ func init() {
               "$ref": "#/definitions/MTOServiceItemDimension"
             },
             "reServiceCode": {
-              "$ref": "#/definitions/ReServiceCode"
-            },
-            "reason": {
               "type": "string",
               "enum": [
                 "DCRT",
                 "DUCRT"
-              ],
+              ]
+            },
+            "reason": {
+              "type": "string",
               "example": "Storage items need to be picked up"
             }
           }
@@ -2910,7 +2914,11 @@ func init() {
               "example": "Things to be moved to the place by shuttle."
             },
             "reServiceCode": {
-              "$ref": "#/definitions/ReServiceCode"
+              "type": "string",
+              "enum": [
+                "DOSHUT",
+                "DDSHUT"
+              ]
             },
             "reason": {
               "type": "string",
