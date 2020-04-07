@@ -53,6 +53,8 @@ describe('TextInput', () => {
       const textInput = wrapper.find(FormGroup).find(UswdsTextInput);
       expect(textInput.length).toBe(1);
       expect(textInput.prop('onChange').getMockName()).toBe('onChange');
+      textInput.simulate('change', { value: 'sample' });
+      expect(textInput.prop('onChange')).toHaveBeenCalledWith({ value: 'sample' });
       expect(textInput.prop('className')).toBe('sample-class');
       expect(textInput.prop('type')).toBe('text');
     });
