@@ -309,6 +309,8 @@ Also, look at the data in the context of previous year's data to see if the form
 
 1. `select * from tariff400ng_item_rates where schedule is null order by code, schedule, weight_lbs_lower, effective_date_lower;`
 
+1. `select * from tariff400ng_item_rates where schedule is not null order by code, schedule, weight_lbs_lower, effective_date_lower;`
+
 1. `select * from tariff400ng_linehaul_rates order by distance_miles_lower, weight_lbs_lower, type, effective_date_lower;`
 
 1. `select * from tariff400ng_service_areas order by service_area, effective_date_lower;`
