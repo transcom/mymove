@@ -2295,8 +2295,9 @@
     "@testing-library/dom" "^5.6.1"
 
 "@trussworks/react-uswds@https://github.com/trussworks/react-uswds.git#develop":
-  version "1.0.0"
-  resolved "https://github.com/trussworks/react-uswds.git#a479ac3bc15ffc8423d85ea7b3e8cef1524649cc"
+  version "1.1.0"
+  uid "39cabe31e25226c92b2207cbf741f4eee599e42a"
+  resolved "https://github.com/trussworks/react-uswds.git#39cabe31e25226c92b2207cbf741f4eee599e42a"
   dependencies:
     classnames "^2.2.6"
     react "^16.10.0"
@@ -12065,10 +12066,10 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@=2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.0.2.tgz#1ba8f3eb92231e769b7fcd7cb73ae1b6b74ade08"
-  integrity sha512-5xJQIPT8BraI7ZnaDwSbu5zLrB6vvi8hVV58yHQ+QK64qrY40dULy0HSRlQ2/2IdzeBpjhDkqdcFBnFeDEMVdg==
+prettier@=2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.0.4.tgz#2d1bae173e355996ee355ec9830a7a1ee05457ef"
+  integrity sha512-SVJIQ51spzFDvh4fIbCLvciiDMCrRhlN3mbZvv/+ycjvmF5E73bKdGfU8QDLNmjYJf+lsGnDBC4UUnvTe5OO0w==
 
 pretty-bytes@^5.1.0:
   version "5.3.0"
@@ -12316,9 +12317,9 @@ qs@~6.5.2:
   integrity sha512-N5ZAX4/LxJmF+7wN74pUD6qAh9/wnvdQcjq9TZjevvXzSUo7bfmw91saqMjzGS2xq91/odN2dW/WOl7qQHNDGA==
 
 query-string@6, query-string@^6.8.2:
-  version "6.11.1"
-  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.11.1.tgz#ab021f275d463ce1b61e88f0ce6988b3e8fe7c2c"
-  integrity sha512-1ZvJOUl8ifkkBxu2ByVM/8GijMIPx+cef7u3yroO3Ogm4DOdZcF5dcrWTIlSHe3Pg/mtlt6/eFjObDfJureZZA==
+  version "6.12.0"
+  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.12.0.tgz#fa0fe5b3ddf4d040d1236b80672949ab33d5cf80"
+  integrity sha512-aoiFW9ZU7jP8Itjqfpw80Qe7RoyCIhFrW522sdsp9LG92pat6CCG3d8qNZBaUi71FsEjIfLjx9Ky347FtVoqXA==
   dependencies:
     decode-uri-component "^0.2.0"
     split-on-first "^1.0.0"

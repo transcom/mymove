@@ -1121,12 +1121,15 @@ func init() {
               "$ref": "#/definitions/MTOServiceItemDimension"
             },
             "reServiceCode": {
-              "description": "Describes available re service code for domestic crating",
               "type": "string",
               "enum": [
                 "DCRT",
                 "DUCRT"
               ]
+            },
+            "reason": {
+              "type": "string",
+              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -1138,7 +1141,41 @@ func init() {
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemDOFSIT",
+        "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating"
+      ]
+    },
+    "MTOServiceItemShuttle": {
+      "description": "Describes a shuttle service item",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode",
+            "description"
+          ],
+          "properties": {
+            "description": {
+              "type": "string",
+              "example": "Things to be moved to the place by shuttle."
+            },
+            "reServiceCode": {
+              "type": "string",
+              "enum": [
+                "DOSHUT",
+                "DDSHUT"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            }
+          }
+        }
       ]
     },
     "MTOServiceItemStatus": {
@@ -2834,12 +2871,15 @@ func init() {
               "$ref": "#/definitions/MTOServiceItemDimension"
             },
             "reServiceCode": {
-              "description": "Describes available re service code for domestic crating",
               "type": "string",
               "enum": [
                 "DCRT",
                 "DUCRT"
               ]
+            },
+            "reason": {
+              "type": "string",
+              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -2851,7 +2891,41 @@ func init() {
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemDOFSIT",
+        "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating"
+      ]
+    },
+    "MTOServiceItemShuttle": {
+      "description": "Describes a shuttle service item",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode",
+            "description"
+          ],
+          "properties": {
+            "description": {
+              "type": "string",
+              "example": "Things to be moved to the place by shuttle."
+            },
+            "reServiceCode": {
+              "type": "string",
+              "enum": [
+                "DOSHUT",
+                "DDSHUT"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            }
+          }
+        }
       ]
     },
     "MTOServiceItemStatus": {
