@@ -2296,8 +2296,8 @@
 
 "@trussworks/react-uswds@https://github.com/trussworks/react-uswds.git#develop":
   version "1.1.0"
-  uid "39cabe31e25226c92b2207cbf741f4eee599e42a"
-  resolved "https://github.com/trussworks/react-uswds.git#39cabe31e25226c92b2207cbf741f4eee599e42a"
+  uid "89c1496211b880fd20f3862dd38178a1398003d8"
+  resolved "https://github.com/trussworks/react-uswds.git#89c1496211b880fd20f3862dd38178a1398003d8"
   dependencies:
     classnames "^2.2.6"
     react "^16.10.0"
