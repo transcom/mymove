@@ -209,7 +209,7 @@ export class PpmWeight extends Component {
   }
 
   chooseIncentiveRangeText(hasEstimateError) {
-    const { incentive_estimate_min, incentive_estimate_max } = this.props;
+    const { incentiveEstimateMin, incentiveEstimateMax } = this.props;
     if (hasEstimateError) {
       return (
         <div className="incentive">
@@ -220,7 +220,7 @@ export class PpmWeight extends Component {
     } else {
       return (
         <div data-cy="incentive-range-values" className="incentive">
-          {formatCentsRange(incentive_estimate_min, incentive_estimate_max)}
+          {formatCentsRange(incentiveEstimateMin, incentiveEstimateMax)}
         </div>
       );
     }
@@ -262,8 +262,8 @@ export class PpmWeight extends Component {
 
   render() {
     const {
-      incentive_estimate_min,
-      incentive_estimate_max,
+      incentiveEstimateMin,
+      incentiveEstimateMax,
       pages,
       pageKey,
       hasEstimateInProgress,
@@ -283,7 +283,7 @@ export class PpmWeight extends Component {
             serverError={error}
             additionalValues={{
               hasEstimateInProgress,
-              incentive_estimate_max,
+              incentiveEstimateMax,
             }}
             readyToSubmit={!hasShortHaulError(rateEngineError)}
           >
@@ -349,7 +349,7 @@ export class PpmWeight extends Component {
               <>
                 <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
                   You can be paid for moving up to 2,500 lbs of pro-gear, in addition to your weight entitlement of{' '}
-                  {formatCentsRange(incentive_estimate_min, incentive_estimate_max)}.
+                  {formatCentsRange(incentiveEstimateMin, incentiveEstimateMax)}.
                 </div>
                 <div className="radio-group-wrapper normalize-margins">
                   <h3>Do you think your pro-gear weighs 1000 lbs or more?</h3>
@@ -414,8 +414,8 @@ function mapStateToProps(state) {
 
   const props = {
     ...state.ppm,
-    incentive_estimate_min: selectPPMEstimateRange(state).range_min,
-    incentive_estimate_max: selectPPMEstimateRange(state).range_max,
+    incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
+    incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
     currentPPM: selectActivePPMForMove(state, moveID),
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
