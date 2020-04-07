@@ -27,6 +27,7 @@ import {
   selectPPMEstimateRange,
   getPpmWeightEstimate,
   updatePPMEstimate,
+  updatePPM,
 } from 'shared/Entities/modules/ppms';
 
 const nextBtnLabel = 'Submit Request';
@@ -35,6 +36,7 @@ class PaymentReview extends Component {
   state = {
     acceptTerms: false,
     moveSubmissionError: false,
+    calculatedNetWeight: 0,
   };
 
   componentDidMount() {
@@ -46,6 +48,7 @@ class PaymentReview extends Component {
         const weightTicketNetWeight = calcNetWeight(documents);
         const netWeight =
           weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+        this.setState({ calculatedNetWeight: netWeight });
         this.props.getPpmWeightEstimate(
           original_move_date,
           pickup_postal_code,
@@ -66,6 +69,7 @@ class PaymentReview extends Component {
           const weightTicketNetWeight = calcNetWeight(documents);
           const netWeight =
             weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+          this.setState({ calculatedNetWeight: netWeight });
           this.props.getPpmWeightEstimate(
             original_move_date,
             pickup_postal_code,
@@ -93,7 +97,8 @@ class PaymentReview extends Component {
       certification_type: 'PPM_PAYMENT',
     };
     return this.props
-      .updatePPMEstimate(moveId, currentPPM.id)
+      .updatePPM(moveId, currentPPM.id, { weight_estimate: this.state.calculatedNetWeight })
+      .then(this.props.updatePPMEstimate(moveId, currentPPM.id))
       .then(() => this.props.createSignedCertification(moveId, certificate))
       .catch((err) => err);
   };
@@ -218,6 +223,7 @@ const mapDispatchToProps = {
   getMoveDocumentsForMove,
   getPpmWeightEstimate,
   loadPPMs,
+  updatePPM,
   updatePPMEstimate,
 };
 
