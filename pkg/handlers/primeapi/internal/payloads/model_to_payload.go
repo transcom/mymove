@@ -309,6 +309,22 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			PickupPostalCode: mtoServiceItem.PickupPostalCode,
 			Reason:           mtoServiceItem.Reason,
 		}
+	case models.ReServiceCodeDDFSIT:
+		firstContact := mtoServiceItem.GetFirstCustomerContact()
+		if firstContact == nil {
+			firstContact = &models.MTOServiceItemCustomerContact{}
+		}
+		secondContact := mtoServiceItem.GetSecondCustomerContact()
+		if secondContact == nil {
+			secondContact = &models.MTOServiceItemCustomerContact{}
+		}
+		payload = &primemessages.MTOServiceItemDDFSIT{
+			ReServiceCode:               primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
+			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
+			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
+			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
+			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
+		}
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
 		item := mtoServiceItem.GetItemDimension()
 		if item == nil {
