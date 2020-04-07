@@ -33,24 +33,17 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 		logger.Error("supportapi.MoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
 		case services.NotFoundError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.InvalidInputError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusBadRequest()
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusBadRequest().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		}
 	}
 
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
-
-	// Audit attempt to make MTO available to prime
-	//_, err = audit.Capture(mto, moveTaskOrderPayload, logger, session, params.HTTPRequest)
-	//if err != nil {
-	//	logger.Error("Auditing service error for making MTO available to Prime.", zap.Error(err))
-	//	return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
-	//}
 
 	return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
 }
