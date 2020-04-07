@@ -685,6 +685,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	staticMux := goji.SubMux()
 	staticMux.Use(middleware.ValidMethodsStatic(logger))
+	staticMux.Use(middleware.RequestLogger(logger))
 	staticMux.Handle(pat.Get("/*"), clientHandler)
 	// Needed to serve static paths (like favicon)
 	staticMux.Handle(pat.Get(""), clientHandler)
@@ -709,6 +710,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ordersMux.Use(ordersDetectionMiddleware)
 		ordersMux.Use(middleware.NoCache(logger))
 		ordersMux.Use(clientCertMiddleware)
+		ordersMux.Use(middleware.RequestLogger(logger))
 		ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.OrdersSwaggerFlag)))
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
 			logger.Info("Orders API Swagger UI serving is enabled")
@@ -725,6 +727,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		dpsMux.Use(dpsDetectionMiddleware)
 		dpsMux.Use(middleware.NoCache(logger))
 		dpsMux.Use(clientCertMiddleware)
+		dpsMux.Use(middleware.RequestLogger(logger))
 		dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.DPSSwaggerFlag)))
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
 			logger.Info("DPS API Swagger UI serving is enabled")
@@ -741,6 +744,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.SddcServername)
 		sddcDPSMux.Use(sddcDetectionMiddleware)
 		sddcDPSMux.Use(middleware.NoCache(logger))
+		sddcDPSMux.Use(middleware.RequestLogger(logger))
 		site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
 		sddcDPSMux.Handle(pat.Get("/set_cookie"),
 			dpsauth.NewSetCookieHandler(logger,
