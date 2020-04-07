@@ -37,7 +37,8 @@ type MTOServiceItemShuttle struct {
 
 	// re service code
 	// Required: true
-	ReServiceCode ReServiceCode `json:"reServiceCode"`
+	// Enum: [DOSHUT DDSHUT]
+	ReServiceCode *string `json:"reServiceCode"`
 
 	// reason
 	// Required: true
@@ -130,7 +131,8 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 
 		// re service code
 		// Required: true
-		ReServiceCode ReServiceCode `json:"reServiceCode"`
+		// Enum: [DOSHUT DDSHUT]
+		ReServiceCode *string `json:"reServiceCode"`
 
 		// reason
 		// Required: true
@@ -211,7 +213,8 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 
 		// re service code
 		// Required: true
-		ReServiceCode ReServiceCode `json:"reServiceCode"`
+		// Enum: [DOSHUT DDSHUT]
+		ReServiceCode *string `json:"reServiceCode"`
 
 		// reason
 		// Required: true
@@ -365,12 +368,34 @@ func (m *MTOServiceItemShuttle) validateDescription(formats strfmt.Registry) err
 	return nil
 }
 
+var mTOServiceItemShuttleTypeReServiceCodePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DOSHUT","DDSHUT"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mTOServiceItemShuttleTypeReServiceCodePropEnum = append(mTOServiceItemShuttleTypeReServiceCodePropEnum, v)
+	}
+}
+
+// property enum
+func (m *MTOServiceItemShuttle) validateReServiceCodeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, mTOServiceItemShuttleTypeReServiceCodePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (m *MTOServiceItemShuttle) validateReServiceCode(formats strfmt.Registry) error {
 
-	if err := m.ReServiceCode.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("reServiceCode")
-		}
+	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
+		return err
+	}
+
+	// value enum
+	if err := m.validateReServiceCodeEnum("reServiceCode", "body", *m.ReServiceCode); err != nil {
 		return err
 	}
 
