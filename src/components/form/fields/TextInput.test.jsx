@@ -24,12 +24,12 @@ describe('TextInput', () => {
   // eslint-disable-next-line global-require
   const { TextInput } = require('.');
 
-  it('should call useField', () => {
-    expect(mock.useField).toHaveBeenCalled();
-  });
-
   describe('with name prop', () => {
     const wrapper = shallow(<TextInput className="sample-class" name="firstName" label="First Name" type="text" />);
+
+    it('should call useField', () => {
+      expect(mock.useField).toHaveBeenCalled();
+    });
 
     it('should render a FormGroup', () => {
       const group = wrapper.find(FormGroup);
@@ -62,6 +62,10 @@ describe('TextInput', () => {
 
   describe('with id prop', () => {
     const wrapper = shallow(<TextInput className="sample-class" id="lastName" label="Last Name" type="text" />);
+
+    it('should call useField', () => {
+      expect(mock.useField).toHaveBeenCalled();
+    });
 
     it('should render a Label', () => {
       const label = wrapper.find(FormGroup).find(Label);
