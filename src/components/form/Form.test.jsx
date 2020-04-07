@@ -21,18 +21,30 @@ describe('Form', () => {
   // eslint-disable-next-line global-require
   const { Form } = require('.');
 
-  it('should render the USWDS Form', () => {
-    const wrapper = shallow(
-      <Form className="sample-class">
-        <Button type="submit">Submit</Button>
-      </Form>,
-    );
+  const wrapper = shallow(
+    <Form className="sample-class">
+      <Button type="submit">Submit</Button>
+      <Button type="reset">Reset</Button>
+    </Form>,
+  );
 
-    expect(wrapper.find(UswdsForm).length).toBe(1);
-    expect(wrapper.find(Button).length).toBe(1);
+  it('calls useFormikContext', () => {
     expect(mock.useFormikContext).toHaveBeenCalled();
+  });
+
+  it('should render the USWDS Form', () => {
+    expect(wrapper.find(UswdsForm).length).toBe(1);
     expect(wrapper.prop('onSubmit').getMockName()).toBe('handleSubmit');
     expect(wrapper.prop('onReset').getMockName()).toBe('handleReset');
     expect(wrapper.prop('className')).toBe('sample-class');
+    expect(wrapper.find(Button).length).toBe(2);
+  });
+
+  it('should call handlers', () => {
+    wrapper.simulate('submit');
+    expect(wrapper.prop('onSubmit')).toHaveBeenCalled();
+    expect(wrapper.prop('onReset')).not.toHaveBeenCalled();
+    wrapper.simulate('reset');
+    expect(wrapper.prop('onReset')).toHaveBeenCalled();
   });
 });
