@@ -1177,10 +1177,6 @@ func init() {
                 "DCRT",
                 "DUCRT"
               ]
-            },
-            "reason": {
-              "type": "string",
-              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -2990,8 +2986,8 @@ func init() {
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemDOFSIT",
-        "MTOServiceItemShuttle",
         "MTOServiceItemDDFSIT",
+        "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating"
       ]
     },
