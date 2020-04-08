@@ -27,9 +27,13 @@ func (t *testMTOServiceItemQueryBuilder) FetchOne(model interface{}, filters []s
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	dimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{})
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: moveTaskOrder.ID,
 		MoveTaskOrder:   moveTaskOrder,
+		Dimensions: models.MTOServiceItemDimensions{
+			dimension,
+		},
 	}
 
 	// Happy path
@@ -48,9 +52,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		creator := NewMTOServiceItemCreator(builder)
 		createdServiceItem, verrs, err := creator.CreateMTOServiceItem(&serviceItem)
+
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(createdServiceItem)
+		suite.NotEmpty(createdServiceItem.Dimensions)
 	})
 
 	// Bad data which could be IDs that doesn't exist (MoveTaskOrderID or REServiceID)
@@ -76,5 +82,36 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Nil(createdServiceItem)
 		suite.Equal(verrs, verrs)
 		suite.Equal(expectedError, err.Error())
+	})
+
+	// If the service item we're trying to create is shuttle service and there is no estimated weight, it fails.
+	suite.T().Run("If we try to create a shuttle service without the estimated weight it fails", func(t *testing.T) {
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+
+		serviceItemNoWeight := models.MTOServiceItem{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			MoveTaskOrder:   moveTaskOrder,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDSHUT,
+			},
+		}
+
+		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+			return nil, nil
+		}
+		fakeFetchOne := func(model interface{}, filters []services.QueryFilter) error {
+			return nil
+		}
+		builder := &testMTOServiceItemQueryBuilder{
+			fakeCreateOne: fakeCreateOne,
+			fakeFetchOne:  fakeFetchOne,
+		}
+
+		creator := NewMTOServiceItemCreator(builder)
+		createdServiceItem, _, err := creator.CreateMTOServiceItem(&serviceItemNoWeight)
+		suite.Error(err)
+		suite.Nil(createdServiceItem)
 	})
 }

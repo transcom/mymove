@@ -62,9 +62,26 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	// set re service for service item
 	serviceItem.ReServiceID = reService.ID
 
+	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
+		if mtoShipment.PrimeEstimatedWeight == nil {
+			return nil, nil, services.NewInvalidInputError(mtoShipmentID, nil, nil,
+				fmt.Sprintf("MTOShipment with id: %s is missing the estimated weight required for this service item", mtoShipmentID))
+		}
+	}
+
 	verrs, err := o.builder.CreateOne(serviceItem)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
+	}
+
+	// create dimensions if any
+	for index := range serviceItem.Dimensions {
+		createDimension := &serviceItem.Dimensions[index]
+		createDimension.MTOServiceItemID = serviceItem.ID
+		verrs, err := o.builder.CreateOne(createDimension)
+		if verrs != nil || err != nil {
+			return nil, verrs, err
+		}
 	}
 
 	return serviceItem, nil, nil
