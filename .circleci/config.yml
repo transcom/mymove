@@ -819,7 +819,7 @@ jobs:
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
       - run:
           name: clone mymove_admin repo
-          command: git clone https://github.com/transcom/milmove_admin.git
+          command: git clone -b rd-enable-iam-auth --single-branch https://github.com/transcom/milmove_admin.git
           working_directory: ~/transcom
       - run:
           name: generate models file for migrations
@@ -851,6 +851,11 @@ jobs:
           tag: engadmin-nginx:dev
           repo: app-engadmin-nginx
           working_dir: ~/transcom/milmove_admin/nginx
+      - build_tag_push:
+          dockerfile: Dockerfile.migrations
+          tag: engadmin-migrations:dev
+          repo: app-engadmin-migrations
+          working_dir: ~/transcom/milmove_admin/app
       - announce_failure
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
