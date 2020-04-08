@@ -1,26 +1,23 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { Form as UswdsForm, Button } from '@trussworks/react-uswds';
+import { Form } from '.';
+
+const mockHandleReset = jest.fn();
+const mockHandleSubmit = jest.fn();
+// mock out formik hook as we are not testing formik
+// needs to be before first describe
+jest.mock('formik', () => {
+  return {
+    ...jest.requireActual('formik'),
+    useFormikContext: () => ({
+      handleReset: mockHandleReset,
+      handleSubmit: mockHandleSubmit,
+    }),
+  };
+});
 
 describe('Form', () => {
-  // mock out formik hook as we are not testing formik
-  // needs to be before first describe
-  jest.mock('formik', () => {
-    return {
-      useFormikContext: jest.fn().mockReturnValue({
-        handleReset: jest.fn().mockName('handleReset'),
-        handleSubmit: jest.fn().mockName('handleSubmit'),
-      }),
-    };
-  });
-  // require the above mock for expectations
-  // eslint-disable-next-line global-require
-  const mock = require('formik');
-
-  // import component we are testing after mock created
-  // eslint-disable-next-line global-require
-  const { Form } = require('.');
-
   const wrapper = shallow(
     <Form className="sample-class">
       <Button type="submit">Submit</Button>
@@ -28,23 +25,30 @@ describe('Form', () => {
     </Form>,
   );
 
-  it('calls useFormikContext', () => {
-    expect(mock.useFormikContext).toHaveBeenCalled();
-  });
-
   it('should render the USWDS Form', () => {
     expect(wrapper.find(UswdsForm).length).toBe(1);
-    expect(wrapper.prop('onSubmit').getMockName()).toBe('handleSubmit');
-    expect(wrapper.prop('onReset').getMockName()).toBe('handleReset');
+  });
+
+  it('should accept onSubmit method', () => {
+    expect(wrapper.prop('onSubmit')).toBe(mockHandleSubmit);
+  });
+
+  it('should accept onReset method', () => {
+    expect(wrapper.prop('onReset')).toBe(mockHandleReset);
+  });
+
+  it('should accept className', () => {
     expect(wrapper.prop('className')).toBe('sample-class');
     expect(wrapper.find(Button).length).toBe(2);
   });
 
-  it('should call handlers', () => {
+  it('should call submit handler', () => {
     wrapper.simulate('submit');
-    expect(wrapper.prop('onSubmit')).toHaveBeenCalled();
-    expect(wrapper.prop('onReset')).not.toHaveBeenCalled();
+    expect(mockHandleSubmit).toHaveBeenCalled();
+  });
+
+  it('should call reset handler', () => {
     wrapper.simulate('reset');
-    expect(wrapper.prop('onReset')).toHaveBeenCalled();
+    expect(mockHandleReset).toHaveBeenCalled();
   });
 });
