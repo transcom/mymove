@@ -5043,6 +5043,18 @@ func init() {
           "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
           "x-nullable": true
         },
+        "incentive_estimate_max": {
+          "type": "integer",
+          "title": "Incentive Estimate Max",
+          "minimum": 1,
+          "x-nullable": true
+        },
+        "incentive_estimate_min": {
+          "type": "integer",
+          "title": "Incentive Estimate Min",
+          "minimum": 1,
+          "x-nullable": true
+        },
         "net_weight": {
           "type": "integer",
           "title": "Net Weight",
@@ -11251,6 +11263,18 @@ func init() {
         "has_sit": {
           "type": "boolean",
           "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "x-nullable": true
+        },
+        "incentive_estimate_max": {
+          "type": "integer",
+          "title": "Incentive Estimate Max",
+          "minimum": 1,
+          "x-nullable": true
+        },
+        "incentive_estimate_min": {
+          "type": "integer",
+          "title": "Incentive Estimate Min",
+          "minimum": 1,
           "x-nullable": true
         },
         "net_weight": {

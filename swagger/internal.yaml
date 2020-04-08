@@ -382,6 +382,16 @@ definitions:
         minimum: 1
         title: Net Weight
         x-nullable: true
+      incentive_estimate_max:
+        type: integer
+        minimum: 1
+        title: Incentive Estimate Max
+        x-nullable: true
+      incentive_estimate_min:
+        type: integer
+        minimum: 1
+        title: Incentive Estimate Min
+        x-nullable: true
       has_requested_advance:
         type: boolean
         default: false
