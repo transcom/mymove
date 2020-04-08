@@ -38,6 +38,19 @@ const (
 	debugFlag  string = "debug"
 )
 
+// SswPageData holds all ssw page data formatted for inserting into the ssw pdf
+type SswPageData struct {
+	page1 models.ShipmentSummaryWorksheetPage1Values
+	page2 models.ShipmentSummaryWorksheetPage2Values
+	page3 models.ShipmentSummaryWorksheetPage3Values
+}
+
+func noErr(err error) {
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
 func checkCloseoutDataConfig(v *viper.Viper, logger logger) error {
 
 	logger.Debug("checking config")
@@ -174,8 +187,21 @@ func fetchCloseoutData(cmd *cobra.Command, args []string) error {
 		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}
 
+	page1Data, page2Data, page3Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
+	noErr(err)
+
+	fmt.Println("------------------------------")
+	fmt.Println("------------------------------")
+
+	sswPageData := SswPageData{page1Data, page2Data, page3Data}
+	fmt.Printf("%+v\n", sswPageData)
+
+	// this didn't want to work - idk...
+	// file, _ := json.MarshalIndent(sswPageData, "", " ")
+	// fmt.Println(file)
+
 	file, _ := json.MarshalIndent(ssfd, "", " ")
-	ioutil.WriteFile("pptas1.json", file, 0644)
+	ioutil.WriteFile("pptas.json", file, 0644)
 
 	return nil
 }
