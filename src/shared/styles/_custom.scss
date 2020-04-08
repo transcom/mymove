@@ -179,10 +179,24 @@ table {
 //Stacked Tables
 
 .table--stacked {
+  table {
+    border-collapse: collapse;
+  }
+  @include u-padding(1);
   caption {
     @include u-text('left');
   }
-  th {
+  table th {
     @include u-text('bold');
+  }
+  td,
+  th {
+    @include u-border-top(1px);
+  }
+  &-wbuttons {
+    td {
+      display: flex;
+      justify-content: space-between;
+    }
   }
 }

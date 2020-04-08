@@ -14,19 +14,19 @@ const StackedTableExample = () => (
       <col style={{ width: '25%' }} />
       <col style={{ width: '75%' }} />
       <StackedTableRow>
-        <StackedTableHeader>Table Header</StackedTableHeader>
-        <StackedTableData>Table Data</StackedTableData>
+        <StackedTableHeader>Orders number</StackedTableHeader>
+        <StackedTableData>999999999</StackedTableData>
       </StackedTableRow>
       <StackedTableRow>
-        <StackedTableHeader>Table Header</StackedTableHeader>
-        <StackedTableData>Table Data</StackedTableData>
+        <StackedTableHeader>Authorized Entitlement</StackedTableHeader>
+        <StackedTableData>999999999</StackedTableData>
       </StackedTableRow>
     </StackedTable>
   </div>
 );
 
 const StackedTableWithButtons = () => (
-  <div className="table--stacked-wbuttons">
+  <div className="table--stacked table--stacked-wbuttons">
     <StackedTable fullWidth>
       <caption>
         <h4>Orders</h4>
@@ -34,9 +34,9 @@ const StackedTableWithButtons = () => (
       <col style={{ width: '25%' }} />
       <col style={{ width: '75%' }} />
       <StackedTableRow>
-        <StackedTableHeader>Table Header</StackedTableHeader>
+        <StackedTableHeader>Orders number</StackedTableHeader>
         <StackedTableData>
-          Table Data
+          999999999
           <Button className="usa-button--unstyled" onClick={action('should open edit form')}>
             <span className="icon">
               <EditIcon />
@@ -46,9 +46,9 @@ const StackedTableWithButtons = () => (
         </StackedTableData>
       </StackedTableRow>
       <StackedTableRow>
-        <StackedTableHeader>Table Header</StackedTableHeader>
+        <StackedTableHeader>Orders number</StackedTableHeader>
         <StackedTableData>
-          Table Data
+          999999999
           <Button className="usa-button--unstyled" onClick={action('should open edit form')}>
             <span className="icon">
               <EditIcon />
@@ -58,9 +58,9 @@ const StackedTableWithButtons = () => (
         </StackedTableData>
       </StackedTableRow>
       <StackedTableRow>
-        <StackedTableHeader>Table Header</StackedTableHeader>
+        <StackedTableHeader>Orders number</StackedTableHeader>
         <StackedTableData>
-          Table Data
+          999999999
           <Button className="usa-button--unstyled" onClick={action('should open edit form')}>
             <span className="icon">
               <EditIcon />
