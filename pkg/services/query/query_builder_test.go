@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -395,6 +397,71 @@ func (suite *QueryBuilderSuite) TestCreateOne() {
 		suite.Error(err, "Model should be a pointer to a struct")
 	})
 
+}
+
+func (suite *QueryBuilderSuite) TestTransaction() {
+	builder := NewQueryBuilder(suite.DB())
+
+	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+	userInfo := models.OfficeUser{
+		LastName:               "Spaceman",
+		FirstName:              "Leo",
+		Email:                  "spaceman@leo.org",
+		TransportationOfficeID: transportationOffice.ID,
+		Telephone:              "312-111-1111",
+		TransportationOffice:   transportationOffice,
+	}
+
+	suite.T().Run("Successfully creates a record in a transaction", func(t *testing.T) {
+		var verrs *validate.Errors
+		var err error
+		txErr := builder.Transaction(func(tx *pop.Connection) error {
+			txBuilder := NewQueryBuilder(tx)
+			verrs, err = txBuilder.CreateOne(&userInfo)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("%#v %e", verrs, err)
+			}
+
+			return nil
+		})
+
+		suite.Nil(verrs)
+		suite.Nil(err)
+		suite.Nil(txErr)
+		suite.NotZero(userInfo.ID)
+	})
+
+	suite.T().Run("Unsuccessfully creates a record in a transaction", func(t *testing.T) {
+		var verrs *validate.Errors
+		var err error
+
+		userInfo := models.OfficeUser{
+			LastName:               "Spaceman",
+			FirstName:              "Leo",
+			Email:                  "testman@test.com",
+			TransportationOfficeID: transportationOffice.ID,
+			Telephone:              "312-111-1111",
+			TransportationOffice:   transportationOffice,
+		}
+
+		// rollback intentionally with a successful create
+		txErr := builder.Transaction(func(tx *pop.Connection) error {
+			txBuilder := NewQueryBuilder(tx)
+			verrs, err = txBuilder.CreateOne(&userInfo)
+
+			suite.Nil(verrs)
+			suite.Nil(err)
+
+			return fmt.Errorf("failed on for testing")
+		})
+
+		suite.NotNil(txErr)
+
+		// id gets generated but it should not have saved
+		suite.NotZero(userInfo.ID)
+		err = suite.DB().Find(&userInfo, userInfo.ID)
+		suite.NotNil(err)
+	})
 }
 
 func (suite *QueryBuilderSuite) TestUpdateOne() {
