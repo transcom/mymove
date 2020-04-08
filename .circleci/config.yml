@@ -106,7 +106,7 @@ commands:
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
       - run:
           name: Run engadmin migrations
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-engadmin-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations@${ENGADMIN_ECR_DIGEST} $APP_ENVIRONMENT
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-engadmin-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-engadmin-migrations@${ENGADMIN_ECR_DIGEST} $APP_ENVIRONMENT
           no_output_timeout: 60m
           environment:
             CHAMBER_RETRIES: 20
