@@ -1,13 +1,13 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import { ErrorMessage as UswdsErrorMessage } from '@trussworks/react-uswds';
 import { ErrorMessage } from '.';
 
 describe('ErrorMessage', () => {
   describe('with error and display true', () => {
-    const wrapper = mount(
+    const wrapper = shallow(
       <ErrorMessage display className="sample-class">
-        Error
+        This field is required
       </ErrorMessage>,
     );
 
@@ -20,14 +20,14 @@ describe('ErrorMessage', () => {
     });
 
     it('should display the error message', () => {
-      expect(wrapper.text()).toBe('Error');
+      expect(wrapper.dive().text()).toBe('This field is required');
     });
   });
   describe('with display false', () => {
     it('should NOT render the USWDS ErrorMessage', () => {
       const wrapper = shallow(
         <ErrorMessage display={false} className="sample-class">
-          Error
+          This field is required
         </ErrorMessage>,
       );
 
