@@ -1,0 +1,109 @@
+#! /usr/bin/env bash
+#
+#   Creates and runs a migration task using the given name, image, and environment.
+#
+set -eo pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
+usage() {
+    echo "$0 <image> <environment>"
+    exit 1
+}
+[[ -z $1 || -z $2 ]] && usage
+
+set -u
+
+readonly name=app-migrations
+readonly image=$1
+readonly environment=$2
+
+readonly RESERVATION_CPU=256
+readonly RESERVATION_MEM=512
+
+readonly log_prefix="${name}"
+readonly container_name="${name}-${environment}"
+readonly cluster=app-${environment}
+
+check_arn() {
+    local arn=$1
+    [[ $arn = arn:* ]] || { echo "Error: Bad ARN: $arn"; exit 1; }
+}
+
+show_logs() {
+    local arn=$1
+    local task_id
+    echo "Attempting to get CloudWatch logs for ${arn}:"
+    task_id=$(echo "${arn}" | grep -Eo ":task/${cluster}/([[:alnum:]-]+)$" | cut -d / -f 3)
+    echo "Found task_id ${task_id} for cluster ${cluster}"
+    echo
+    aws logs get-log-events --log-group-name "ecs-tasks-$cluster" --log-stream-name "$log_prefix/$container_name/$task_id" --query 'events[].message' || true
+    echo
+}
+
+# Put a dimensionless metric into cloudwatch
+put_metric() {
+    local metric_name="$1"
+    local namespace="$2"
+    local timestamp
+    timestamp=$(date +"%Y-%m-%dT%H:%M:%SZ")
+    aws cloudwatch put-metric-data --metric-name "${metric_name}" --namespace "${namespace}" --value 1 --timestamp "${timestamp}"
+}
+
+# create new task definition with the given image
+echo "* Registering new task definition"
+set +e
+task_definition_arn=$("${DIR}/../bin/ecs-deploy" task-def \
+  --aws-account-id "${AWS_ACCOUNT_ID}" \
+  --aws-region us-west-2 \
+  --service "${name}" \
+  --environment "${environment}" \
+  --image "${image}" \
+  --variables-file "${DIR}/../config/env/${environment}.engadmin.migrations.env" \
+  --entrypoint "python app/manage.py migrate" \
+  --cpu "${RESERVATION_CPU}" \
+  --memory "${RESERVATION_MEM}" \
+  --register)
+
+# shellcheck disable=SC2181
+if [ "$?" != "0" ]; then echo "$task_definition_arn"; exit 1; fi
+set -e
+
+readonly task_definition_arn
+check_arn "$task_definition_arn"
+
+echo "Obtaining the current network configuration"
+network_configuration=$(aws ecs describe-services --services app --cluster "$cluster" --query 'services[0].networkConfiguration')
+readonly network_configuration
+
+echo "Running migration with task definition $task_definition_arn ..."
+task_arn=$(aws ecs run-task --launch-type FARGATE --network-configuration "$network_configuration" --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --output text)
+readonly task_arn
+check_arn "$task_arn"
+echo
+echo "Wait for tasks to stop for ${task_arn}"
+time aws ecs wait tasks-stopped --tasks "$task_arn" --cluster "$cluster"
+
+# Show logs immediately after wait because if they don't exist they throw a confusing error
+# If there is an error it will be in the ecs task description
+show_logs "$task_arn"
+echo
+aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster"
+
+echo
+echo "Check for successful deploy of ${task_arn}"
+exit_code=$(aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster" --query 'tasks[].containers[].exitCode' --output text)
+
+if [[ $exit_code = "0" ]]; then
+    echo "Task $task_arn finished."
+    put_metric MigrationCount "${container_name}"
+    exit 0
+fi
+
+# announce task run failure
+put_metric MigrationFail "${container_name}"
+echo "Task $task_arn failed!"
+echo
+echo "If the log stream does not exist check the task description above for 'tasks[].stoppedReason'"
+exit 1

@@ -30,17 +30,20 @@ import (
 )
 
 const (
-	binMilMove      string = "/bin/milmove"
-	binMilMoveTasks string = "/bin/milmove-tasks"
-	binOrders       string = "/bin/orders"
-	digestSeparator string = "@"
-	tagSeparator    string = ":"
+	binMilMove         string = "/bin/milmove"
+	binMilMoveTasks    string = "/bin/milmove-tasks"
+	binOrders          string = "/bin/orders"
+	engadminMigrations string = "app/manage.py"
+	digestSeparator    string = "@"
+	tagSeparator       string = ":"
 )
 
 // Valid services names
 var services = []string{
 	"app",
 	"app-client-tls",
+	"app-engadmin",
+	"app-engadmin-migrations",
 	"app-migrations",
 	"app-tasks",
 	"orders",
@@ -50,9 +53,10 @@ var services = []string{
 // Services mapped to Entry Points
 // This prevents using an illegal entry point against a service
 var servicesToEntryPoints = map[string][]string{
-	"app":            {fmt.Sprintf("%s serve", binMilMove)},
-	"app-client-tls": {fmt.Sprintf("%s serve", binMilMove)},
-	"app-migrations": {fmt.Sprintf("%s migrate", binMilMove)},
+	"app":                     {fmt.Sprintf("%s serve", binMilMove)},
+	"app-client-tls":          {fmt.Sprintf("%s serve", binMilMove)},
+	"app-engadmin-migrations": {fmt.Sprintf("python %s migrate", engadminMigrations)},
+	"app-migrations":          {fmt.Sprintf("%s migrate", binMilMove)},
 	"app-tasks": {
 		fmt.Sprintf("%s save-fuel-price-data", binMilMoveTasks),
 		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
@@ -67,6 +71,7 @@ var servicesToEntryPoints = map[string][]string{
 var servicesToAppPorts = map[string]int64{
 	"app":            int64(8443),
 	"app-client-tls": int64(9443),
+	"app-engadmin":   int64(8443),
 	"orders":         int64(9443),
 }
 

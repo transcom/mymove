@@ -93,6 +93,24 @@ commands:
           environment:
             CHAMBER_RETRIES: 20
       - announce_failure
+  deploy_engadmin_migrations_steps:
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-engadmin-migrations)' | tee -a "${BASH_ENV}"
+      - run:
+          name: Snapshot database for engadmin
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
+      - run:
+          name: Run migrations
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-engadmin-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations@${ECR_DIGEST} $APP_ENVIRONMENT
+          no_output_timeout: 60m
+          environment:
+            CHAMBER_RETRIES: 20
+      - announce_failure
   deploy_tasks_steps:
     steps:
       - checkout
