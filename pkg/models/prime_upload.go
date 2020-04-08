@@ -57,18 +57,6 @@ func (u *PrimeUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-// BeforeCreate ensure ID is assigned
-/*
-func (u *PrimeUpload) BeforeCreate(tx *pop.Connection) error {
-	// Populate ID if not exists
-	if u.ID == uuid.Nil {
-		u.ID = uuid.Must(uuid.NewV4())
-	}
-	return nil
-}
-
-*/
-
 // FetchPrimeUpload returns an PrimeUpload if the contractor has access to that upload
 func FetchPrimeUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (PrimeUpload, error) {
 	var primeUpload PrimeUpload

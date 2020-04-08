@@ -68,17 +68,6 @@ func (u *UserUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-// BeforeCreate ensure an ID is created
-/*
-func (u *UserUpload) BeforeCreate(tx *pop.Connection) error {
-	// Populate ID if not exists
-	if u.ID == uuid.Nil {
-		u.ID = uuid.Must(uuid.NewV4())
-	}
-	return nil
-}
-*/
-
 // FetchUserUpload returns an UserUpload if the user has access to that upload
 func FetchUserUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (UserUpload, error) {
 	var userUpload UserUpload
