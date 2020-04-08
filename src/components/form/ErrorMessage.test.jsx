@@ -1,20 +1,26 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import { ErrorMessage as UswdsErrorMessage } from '@trussworks/react-uswds';
 import { ErrorMessage } from '.';
 
 describe('ErrorMessage', () => {
   describe('with error and display true', () => {
-    it('should render the USWDS ErrorMessage', () => {
-      const wrapper = shallow(
-        <ErrorMessage display className="sample-class">
-          Error
-        </ErrorMessage>,
-      );
+    const wrapper = mount(
+      <ErrorMessage display className="sample-class">
+        Error
+      </ErrorMessage>,
+    );
 
+    it('should render the USWDS ErrorMessage', () => {
       expect(wrapper.find(UswdsErrorMessage).length).toBe(1);
+    });
+
+    it('should accept className', () => {
       expect(wrapper.prop('className')).toBe('sample-class');
-      expect(wrapper.html()).toContain('>Error<');
+    });
+
+    it('should display the error message', () => {
+      expect(wrapper.text()).toBe('Error');
     });
   });
   describe('with display false', () => {
