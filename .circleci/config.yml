@@ -81,13 +81,13 @@ commands:
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run:
-          name: Get Digest from filesystem
+          name: Get app migrations image digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-migrations)' | tee -a "${BASH_ENV}"
       - run:
-          name: Snapshot database
+          name: Snapshot database for app
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
       - run:
-          name: Run migrations
+          name: Run app migrations
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations@${ECR_DIGEST} $APP_ENVIRONMENT
           no_output_timeout: 60m
           environment:
@@ -99,14 +99,14 @@ commands:
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run:
-          name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-engadmin-migrations)' | tee -a "${BASH_ENV}"
+          name: Get engadmin migrations image digest from filesystem
+          command: echo 'export ENGADMIN_ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-engadmin-migrations)' | tee -a "${BASH_ENV}"
       - run:
           name: Snapshot database for engadmin
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
       - run:
-          name: Run migrations
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-engadmin-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations@${ECR_DIGEST} $APP_ENVIRONMENT
+          name: Run engadmin migrations
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-engadmin-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations@${ENGADMIN_ECR_DIGEST} $APP_ENVIRONMENT
           no_output_timeout: 60m
           environment:
             CHAMBER_RETRIES: 20
@@ -904,7 +904,7 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_migrations_steps
-      - deploy_engadmin_migrations_steps
+      - deploy_engadmin_migrations_steps # duplicated steps but keeping modules independent for incremental build
 
   # `deploy_experimental_tasks` deploys scheduled tasks to the experimental environment
   deploy_experimental_tasks:
@@ -1133,6 +1133,7 @@ workflows:
             - build_tools
             - build_tasks
             - build_migrations
+            - build_milmove_admin_app
           filters:
             branches:
               only: rd-ecs-deploy-sidecar-friendly
