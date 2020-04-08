@@ -336,6 +336,12 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			},
 			Description: mtoServiceItem.Description,
 		}
+	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
+		payload = &primemessages.MTOServiceItemShuttle{
+			Description:   mtoServiceItem.Description,
+			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:        mtoServiceItem.Reason,
+		}
 	default:
 		// otherwise, basic service item
 		payload = &primemessages.MTOServiceItemBasic{

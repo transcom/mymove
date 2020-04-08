@@ -30,6 +30,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	// restrict creation to a list
 	allowedMap := map[primemessages.MTOServiceItemModelType]bool{
 		primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:          true,
+		primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:         true,
 		primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating: true,
 	}
 	if _, ok := allowedMap[params.Body.ModelType()]; !ok {

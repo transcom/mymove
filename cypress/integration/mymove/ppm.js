@@ -93,7 +93,7 @@ function SMSubmitsMove() {
   cy.get('.wizard-header').should('not.exist');
 
   // todo: should probably have test suite for review and edit screens
-  cy.get('[data-cy="sit-display"]').contains('30 days').contains('$2328.64');
+  cy.get('[data-cy="sit-display"]').contains('30 days').contains('$726.76');
 
   cy.get('[data-cy="edit-ppm-dates"]').click();
 
@@ -101,11 +101,11 @@ function SMSubmitsMove() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review\/edit-date-and-location/);
   });
 
-  cy.get('[data-cy="storage-estimate"]').contains('$2328.64');
+  cy.get('[data-cy="storage-estimate"]').contains('$726.76');
 
   cy.get('input[name="days_in_storage"]').clear().type('35');
 
-  cy.get('[data-cy="storage-estimate"]').contains('$2328.64');
+  cy.get('[data-cy="storage-estimate"]').contains('$726.76');
 
   cy.get('button').contains('Save').click();
 
@@ -113,7 +113,7 @@ function SMSubmitsMove() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
 
-  cy.get('[data-cy="sit-display"]').contains('35 days').contains('$2405.14');
+  cy.get('[data-cy="sit-display"]').contains('35 days').contains('$745.88');
 
   cy.nextPage();
 

@@ -16,9 +16,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemDomesticCrating Describes a domestic crating/uncrating service item subtype of a MTOServiceItem
-// swagger:model MTOServiceItemDomesticCrating
-type MTOServiceItemDomesticCrating struct {
+// MTOServiceItemShuttle Describes a shuttle service item
+// swagger:model MTOServiceItemShuttle
+type MTOServiceItemShuttle struct {
 	eTagField string
 
 	idField strfmt.UUID
@@ -31,130 +31,112 @@ type MTOServiceItemDomesticCrating struct {
 
 	reServiceNameField string
 
-	// crate
-	// Required: true
-	Crate *MTOServiceItemDimension `json:"crate"`
-
 	// description
 	// Required: true
 	Description *string `json:"description"`
 
-	// item
-	// Required: true
-	Item *MTOServiceItemDimension `json:"item"`
-
 	// re service code
 	// Required: true
-	// Enum: [DCRT DUCRT]
+	// Enum: [DOSHUT DDSHUT]
 	ReServiceCode *string `json:"reServiceCode"`
 
 	// reason
-	Reason string `json:"reason,omitempty"`
+	// Required: true
+	Reason *string `json:"reason"`
 }
 
 // ETag gets the e tag of this subtype
-func (m *MTOServiceItemDomesticCrating) ETag() string {
+func (m *MTOServiceItemShuttle) ETag() string {
 	return m.eTagField
 }
 
 // SetETag sets the e tag of this subtype
-func (m *MTOServiceItemDomesticCrating) SetETag(val string) {
+func (m *MTOServiceItemShuttle) SetETag(val string) {
 	m.eTagField = val
 }
 
 // ID gets the id of this subtype
-func (m *MTOServiceItemDomesticCrating) ID() strfmt.UUID {
+func (m *MTOServiceItemShuttle) ID() strfmt.UUID {
 	return m.idField
 }
 
 // SetID sets the id of this subtype
-func (m *MTOServiceItemDomesticCrating) SetID(val strfmt.UUID) {
+func (m *MTOServiceItemShuttle) SetID(val strfmt.UUID) {
 	m.idField = val
 }
 
 // ModelType gets the model type of this subtype
-func (m *MTOServiceItemDomesticCrating) ModelType() MTOServiceItemModelType {
-	return "MTOServiceItemDomesticCrating"
+func (m *MTOServiceItemShuttle) ModelType() MTOServiceItemModelType {
+	return "MTOServiceItemShuttle"
 }
 
 // SetModelType sets the model type of this subtype
-func (m *MTOServiceItemDomesticCrating) SetModelType(val MTOServiceItemModelType) {
+func (m *MTOServiceItemShuttle) SetModelType(val MTOServiceItemModelType) {
 
 }
 
 // MoveTaskOrderID gets the move task order ID of this subtype
-func (m *MTOServiceItemDomesticCrating) MoveTaskOrderID() strfmt.UUID {
+func (m *MTOServiceItemShuttle) MoveTaskOrderID() strfmt.UUID {
 	return m.moveTaskOrderIdField
 }
 
 // SetMoveTaskOrderID sets the move task order ID of this subtype
-func (m *MTOServiceItemDomesticCrating) SetMoveTaskOrderID(val strfmt.UUID) {
+func (m *MTOServiceItemShuttle) SetMoveTaskOrderID(val strfmt.UUID) {
 	m.moveTaskOrderIdField = val
 }
 
 // MtoShipmentID gets the mto shipment ID of this subtype
-func (m *MTOServiceItemDomesticCrating) MtoShipmentID() strfmt.UUID {
+func (m *MTOServiceItemShuttle) MtoShipmentID() strfmt.UUID {
 	return m.mtoShipmentIdField
 }
 
 // SetMtoShipmentID sets the mto shipment ID of this subtype
-func (m *MTOServiceItemDomesticCrating) SetMtoShipmentID(val strfmt.UUID) {
+func (m *MTOServiceItemShuttle) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
 }
 
 // ReServiceID gets the re service ID of this subtype
-func (m *MTOServiceItemDomesticCrating) ReServiceID() strfmt.UUID {
+func (m *MTOServiceItemShuttle) ReServiceID() strfmt.UUID {
 	return m.reServiceIdField
 }
 
 // SetReServiceID sets the re service ID of this subtype
-func (m *MTOServiceItemDomesticCrating) SetReServiceID(val strfmt.UUID) {
+func (m *MTOServiceItemShuttle) SetReServiceID(val strfmt.UUID) {
 	m.reServiceIdField = val
 }
 
 // ReServiceName gets the re service name of this subtype
-func (m *MTOServiceItemDomesticCrating) ReServiceName() string {
+func (m *MTOServiceItemShuttle) ReServiceName() string {
 	return m.reServiceNameField
 }
 
 // SetReServiceName sets the re service name of this subtype
-func (m *MTOServiceItemDomesticCrating) SetReServiceName(val string) {
+func (m *MTOServiceItemShuttle) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
-// Crate gets the crate of this subtype
-
 // Description gets the description of this subtype
-
-// Item gets the item of this subtype
 
 // ReServiceCode gets the re service code of this subtype
 
 // Reason gets the reason of this subtype
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
-func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
+func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
-
-		// crate
-		// Required: true
-		Crate *MTOServiceItemDimension `json:"crate"`
 
 		// description
 		// Required: true
 		Description *string `json:"description"`
 
-		// item
-		// Required: true
-		Item *MTOServiceItemDimension `json:"item"`
-
 		// re service code
 		// Required: true
-		// Enum: [DCRT DUCRT]
+		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// reason
-		Reason string `json:"reason,omitempty"`
+		// Required: true
+		Reason *string `json:"reason"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -189,7 +171,7 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		return err
 	}
 
-	var result MTOServiceItemDomesticCrating
+	var result MTOServiceItemShuttle
 
 	result.eTagField = base.ETag
 
@@ -208,11 +190,7 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 
 	result.reServiceNameField = base.ReServiceName
 
-	result.Crate = data.Crate
-
 	result.Description = data.Description
-
-	result.Item = data.Item
 
 	result.ReServiceCode = data.ReServiceCode
 
@@ -224,37 +202,26 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 }
 
 // MarshalJSON marshals this object with a polymorphic type to a JSON structure
-func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
+func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
-
-		// crate
-		// Required: true
-		Crate *MTOServiceItemDimension `json:"crate"`
 
 		// description
 		// Required: true
 		Description *string `json:"description"`
 
-		// item
-		// Required: true
-		Item *MTOServiceItemDimension `json:"item"`
-
 		// re service code
 		// Required: true
-		// Enum: [DCRT DUCRT]
+		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// reason
-		Reason string `json:"reason,omitempty"`
+		// Required: true
+		Reason *string `json:"reason"`
 	}{
 
-		Crate: m.Crate,
-
 		Description: m.Description,
-
-		Item: m.Item,
 
 		ReServiceCode: m.ReServiceCode,
 
@@ -302,8 +269,8 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 	return swag.ConcatJSON(b1, b2, b3), nil
 }
 
-// Validate validates this m t o service item domestic crating
-func (m *MTOServiceItemDomesticCrating) Validate(formats strfmt.Registry) error {
+// Validate validates this m t o service item shuttle
+func (m *MTOServiceItemShuttle) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
@@ -322,19 +289,15 @@ func (m *MTOServiceItemDomesticCrating) Validate(formats strfmt.Registry) error 
 		res = append(res, err)
 	}
 
-	if err := m.validateCrate(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDescription(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateItem(formats); err != nil {
+	if err := m.validateReServiceCode(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateReServiceCode(formats); err != nil {
+	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -344,7 +307,7 @@ func (m *MTOServiceItemDomesticCrating) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *MTOServiceItemDomesticCrating) validateID(formats strfmt.Registry) error {
+func (m *MTOServiceItemShuttle) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID()) { // not required
 		return nil
@@ -357,7 +320,7 @@ func (m *MTOServiceItemDomesticCrating) validateID(formats strfmt.Registry) erro
 	return nil
 }
 
-func (m *MTOServiceItemDomesticCrating) validateMoveTaskOrderID(formats strfmt.Registry) error {
+func (m *MTOServiceItemShuttle) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MoveTaskOrderID()) { // not required
 		return nil
@@ -370,7 +333,7 @@ func (m *MTOServiceItemDomesticCrating) validateMoveTaskOrderID(formats strfmt.R
 	return nil
 }
 
-func (m *MTOServiceItemDomesticCrating) validateMtoShipmentID(formats strfmt.Registry) error {
+func (m *MTOServiceItemShuttle) validateMtoShipmentID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MtoShipmentID()) { // not required
 		return nil
@@ -383,7 +346,7 @@ func (m *MTOServiceItemDomesticCrating) validateMtoShipmentID(formats strfmt.Reg
 	return nil
 }
 
-func (m *MTOServiceItemDomesticCrating) validateReServiceID(formats strfmt.Registry) error {
+func (m *MTOServiceItemShuttle) validateReServiceID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ReServiceID()) { // not required
 		return nil
@@ -396,25 +359,7 @@ func (m *MTOServiceItemDomesticCrating) validateReServiceID(formats strfmt.Regis
 	return nil
 }
 
-func (m *MTOServiceItemDomesticCrating) validateCrate(formats strfmt.Registry) error {
-
-	if err := validate.Required("crate", "body", m.Crate); err != nil {
-		return err
-	}
-
-	if m.Crate != nil {
-		if err := m.Crate.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("crate")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemDomesticCrating) validateDescription(formats strfmt.Registry) error {
+func (m *MTOServiceItemShuttle) validateDescription(formats strfmt.Registry) error {
 
 	if err := validate.Required("description", "body", m.Description); err != nil {
 		return err
@@ -423,45 +368,27 @@ func (m *MTOServiceItemDomesticCrating) validateDescription(formats strfmt.Regis
 	return nil
 }
 
-func (m *MTOServiceItemDomesticCrating) validateItem(formats strfmt.Registry) error {
-
-	if err := validate.Required("item", "body", m.Item); err != nil {
-		return err
-	}
-
-	if m.Item != nil {
-		if err := m.Item.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("item")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-var mTOServiceItemDomesticCratingTypeReServiceCodePropEnum []interface{}
+var mTOServiceItemShuttleTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DCRT","DUCRT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DOSHUT","DDSHUT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
-		mTOServiceItemDomesticCratingTypeReServiceCodePropEnum = append(mTOServiceItemDomesticCratingTypeReServiceCodePropEnum, v)
+		mTOServiceItemShuttleTypeReServiceCodePropEnum = append(mTOServiceItemShuttleTypeReServiceCodePropEnum, v)
 	}
 }
 
 // property enum
-func (m *MTOServiceItemDomesticCrating) validateReServiceCodeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemDomesticCratingTypeReServiceCodePropEnum); err != nil {
+func (m *MTOServiceItemShuttle) validateReServiceCodeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, mTOServiceItemShuttleTypeReServiceCodePropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *MTOServiceItemDomesticCrating) validateReServiceCode(formats strfmt.Registry) error {
+func (m *MTOServiceItemShuttle) validateReServiceCode(formats strfmt.Registry) error {
 
 	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
 		return err
@@ -475,8 +402,17 @@ func (m *MTOServiceItemDomesticCrating) validateReServiceCode(formats strfmt.Reg
 	return nil
 }
 
+func (m *MTOServiceItemShuttle) validateReason(formats strfmt.Registry) error {
+
+	if err := validate.Required("reason", "body", m.Reason); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
-func (m *MTOServiceItemDomesticCrating) MarshalBinary() ([]byte, error) {
+func (m *MTOServiceItemShuttle) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -484,8 +420,8 @@ func (m *MTOServiceItemDomesticCrating) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *MTOServiceItemDomesticCrating) UnmarshalBinary(b []byte) error {
-	var res MTOServiceItemDomesticCrating
+func (m *MTOServiceItemShuttle) UnmarshalBinary(b []byte) error {
+	var res MTOServiceItemShuttle
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

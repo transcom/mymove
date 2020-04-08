@@ -1,14 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { get, toUpper } from 'lodash';
+import { get, isNull, toUpper } from 'lodash';
 import PropTypes from 'prop-types';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
-import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from './ducks';
+import { getPpmWeightEstimate } from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
+import { loadPPMs, updatePPM, selectActivePPMForMove, updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
@@ -35,85 +35,101 @@ export class PpmWeight extends Component {
     this.onWeightSelected = this.onWeightSelected.bind(this);
   }
 
-  getWeightClassMedian() {
-    const { selectedWeightInfo } = this.props;
-    return selectedWeightInfo.min + (selectedWeightInfo.max - selectedWeightInfo.min) / 2;
+  getDefaultWeightClassMedian() {
+    const { entitlement, currentPPM } = this.props;
+    if (isNull(entitlement) || isNull(currentPPM)) {
+      return null;
+    }
+    const defaultWeightRange = {
+      min: 500,
+      max: 2500,
+    };
+
+    const median = defaultWeightRange.min + (defaultWeightRange.max - defaultWeightRange.min) / 2;
+    return median;
   }
 
   componentDidMount() {
-    const { currentPpm } = this.props;
-    if (currentPpm) {
+    const { currentPPM } = this.props;
+    const moveId = this.props.match.params.moveId;
+    this.props.loadPPMs(moveId);
+
+    if (currentPPM) {
       this.setState(
         {
           pendingPpmWeight:
-            currentPpm.weight_estimate && currentPpm.weight_estimate !== 0
-              ? currentPpm.weight_estimate
-              : this.getWeightClassMedian(),
+            currentPPM.weight_estimate && currentPPM.weight_estimate !== 0
+              ? currentPPM.weight_estimate
+              : this.getDefaultWeightClassMedian(),
         },
         this.updateIncentive,
       );
     }
   }
+
   componentDidUpdate(prevProps, prevState) {
-    const { currentPpm, hasLoadSuccess } = this.props;
-    if (!prevProps.hasLoadSuccess && hasLoadSuccess && currentPpm) {
+    const { currentPPM, hasLoadSuccess } = this.props;
+    if (!prevProps.hasLoadSuccess && hasLoadSuccess && currentPPM) {
       this.setState(
         {
           pendingPpmWeight:
-            currentPpm.weight_estimate && currentPpm.weight_estimate !== 0
-              ? currentPpm.weight_estimate
-              : this.getWeightClassMedian(),
+            currentPPM.weight_estimate && currentPPM.weight_estimate !== 0
+              ? currentPPM.weight_estimate
+              : this.getDefaultWeightClassMedian(),
         },
         this.updateIncentive,
       );
     }
   }
+
   // this method is used to set the incentive on page load
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
   updateIncentive() {
-    const { currentWeight, currentPpm, originDutyStationZip } = this.props;
-    const newWeight = currentWeight && currentWeight !== 0 ? currentWeight : this.state.pendingPpmWeight;
-    this.onWeightSelecting(newWeight);
-    this.props.getPpmWeightEstimate(
-      currentPpm.original_move_date,
-      currentPpm.pickup_postal_code,
-      originDutyStationZip,
-      this.props.orders.id,
-      newWeight,
-    );
+    const { currentPPM, originDutyStationZip, tempCurrentPPM } = this.props;
+    const weight = this.state.pendingPpmWeight;
+
+    // TODO this is a work around till we refactor more SM data...
+    const origMoveDate =
+      currentPPM && currentPPM.hasOwnProperty('original_move_date')
+        ? currentPPM.original_move_date
+        : tempCurrentPPM.original_move_date;
+    // TODO this is a work around till we refactor more SM data...
+    const pickupPostalCode =
+      currentPPM && currentPPM.hasOwnProperty('pickup_postal_code')
+        ? currentPPM.pickup_postal_code
+        : tempCurrentPPM.pickup_postal_code;
+
+    this.props.getPpmWeightEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight);
   }
 
   handleSubmit = () => {
-    const moveId = this.props.match.params.moveId;
     const ppmBody = {
-      weight_estimate: this.state.pendingPpmWeight,
+      weight_estimate: parseInt(this.state.pendingPpmWeight),
       has_requested_advance: false,
       has_pro_gear: toUpper(this.state.includesProgear),
       has_pro_gear_over_thousand: toUpper(this.state.isProgearMoreThan1000),
     };
+
+    // TODO this is a work around till we refactor more SM data...
+    const ppmId = this.props.currentPPM.id ? this.props.currentPPM.id : this.props.tempCurrentPPM.id;
+    // TODO this is a work around till we refactor more SM data...
+    const moveId = this.props.currentPPM.move_id ? this.props.currentPPM.move_id : this.props.tempCurrentPPM.move_id;
     return this.props
-      .createOrUpdatePpm(moveId, ppmBody)
-      .then(({ payload }) => this.props.updatePPMEstimate(moveId, payload.id).catch((err) => err));
+      .updatePPM(moveId, ppmId, ppmBody)
+      .then(({ response }) => this.props.updatePPMEstimate(moveId, response.body.id).catch((err) => err));
     // catch block returns error so that the wizard can continue on with its flow
   };
 
-  onWeightSelecting = (value) => {
-    this.setState({
-      pendingPpmWeight: value,
-    });
-  };
-
-  onWeightSelected() {
-    const { currentPpm, originDutyStationZip } = this.props;
-    this.props.getPpmWeightEstimate(
-      currentPpm.original_move_date,
-      currentPpm.pickup_postal_code,
-      originDutyStationZip,
-      this.props.orders.id,
-      this.state.pendingPpmWeight,
+  onWeightSelected = (event) => {
+    const weight = event.target.value;
+    this.setState(
+      {
+        pendingPpmWeight: weight,
+      },
+      () => this.updateIncentive(),
     );
-  }
+  };
 
   chooseVehicleIcon(currentEstimate) {
     if (currentEstimate < 500) {
@@ -188,7 +204,6 @@ export class PpmWeight extends Component {
 
   chooseIncentiveRangeText(hasEstimateError) {
     const { incentive_estimate_min, incentive_estimate_max } = this.props;
-
     if (hasEstimateError) {
       return (
         <td className="incentive">
@@ -274,10 +289,9 @@ export class PpmWeight extends Component {
                 max={this.props.entitlement.weight}
                 step={this.props.entitlement.weight <= 2500 ? 100 : 500}
                 min={0}
-                defaultValue={500}
+                defaultValue={this.state.pendingPpmWeight}
                 prependTooltipText="about"
                 appendTooltipText="lbs"
-                stateChangeFunc={this.onWeightSelecting}
                 onChange={this.onWeightSelected}
               />
               {this.chooseEstimateErrorText(hasEstimateError, rateEngineError)}
@@ -379,26 +393,28 @@ export class PpmWeight extends Component {
 }
 
 PpmWeight.propTypes = {
-  currentWeight: PropTypes.number,
   currentPpm: PropTypes.shape({
     id: PropTypes.string,
     weight: PropTypes.number,
     incentive: PropTypes.string,
   }),
   hasLoadSuccess: PropTypes.bool.isRequired,
+  currentPPM: PropTypes.object.isRequired,
 };
 function mapStateToProps(state) {
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
   const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
+  const moveID = state.moves.currentMove.id;
 
   const props = {
     ...state.ppm,
-    selectedWeightInfo: getSelectedWeightInfo(state),
-    currentWeight: get(state, 'ppm.currentPpm.weight_estimate'),
+    currentPPM: selectActivePPMForMove(state, moveID),
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
     originDutyStationZip,
     orders: get(state, 'orders.currentOrders', {}),
+    // TODO this is a work around till we refactor more SM data...
+    tempCurrentPPM: get(state, 'ppm.currentPpm'),
   };
 
   return props;
@@ -407,8 +423,9 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
+      loadPPMs,
       getPpmWeightEstimate,
-      createOrUpdatePpm,
+      updatePPM,
       updatePPMEstimate,
     },
     dispatch,
