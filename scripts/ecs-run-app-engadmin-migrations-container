@@ -15,7 +15,7 @@ usage() {
 
 set -u
 
-readonly name=app-migrations
+readonly name=app-engadmin-migrations
 readonly image=$1
 readonly environment=$2
 
