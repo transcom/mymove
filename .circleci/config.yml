@@ -904,6 +904,7 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_migrations_steps
+      - deploy_engadmin_migrations_steps
 
   # `deploy_experimental_tasks` deploys scheduled tasks to the experimental environment
   deploy_experimental_tasks:
