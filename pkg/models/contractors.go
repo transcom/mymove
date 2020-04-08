@@ -17,7 +17,6 @@ type Contractor struct {
 	Type           string    `json:"type" db:"type"`
 	ContractNumber string    `json:"contract_number" db:"contract_number"`
 	CreatedAt      time.Time `json:"created_at" db:"created_at"`
-	//ClaimedAt      *time.Time `json:"claimed_at" db:"claimed_at"`
 }
 
 // Contractors is a slice of Contractor objects
@@ -48,9 +47,9 @@ func (c *Contractor) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error
 // FetchGHCPrimeTestContractor returns a test contractor for dev
 func FetchGHCPrimeTestContractor(db *pop.Connection) (*Contractor, error) {
 	var contractor Contractor
-	err := db.Q().Where("contract_number='HTC111-11-1-1111'").Eager().First(&contractor)
+	err := db.Q().Where("contract_number='HTC111-11-1-1111'").First(&contractor)
 	if err != nil {
-		err = db.Q().Where(`contract_number = $1`, "TEST").Eager().First(&contractor)
+		err = db.Q().Where(`contract_number = $1`, "TEST").First(&contractor)
 		if err != nil {
 			if errors.Cause(err).Error() == RecordNotFoundErrorString {
 				return nil, errors.Wrap(ErrFetchNotFound, "error fetching contractor")

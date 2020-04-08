@@ -35,7 +35,7 @@ func UploadsFromUserUploads(db *pop.Connection, userUploads UserUploads) (Upload
 	var uploads Uploads
 	for _, userUpload := range userUploads {
 		var upload Upload
-		err := db.Q().Where("uploads.deleted_at is null").Eager().Find(&upload, userUpload.UploadID)
+		err := db.Q().Where("uploads.deleted_at is null").Find(&upload, userUpload.UploadID)
 		if err != nil {
 			if errors.Cause(err).Error() == RecordNotFoundErrorString {
 				return Uploads{}, errors.Wrap(ErrFetchNotFound, "error fetching upload")
@@ -48,6 +48,19 @@ func UploadsFromUserUploads(db *pop.Connection, userUploads UserUploads) (Upload
 	return uploads, nil
 }
 
+// UploadsFromUserUploadsNoDatabase returns a slice of Uploads given a slice of UserUploads
+func UploadsFromUserUploadsNoDatabase(userUploads UserUploads) (Uploads, error) {
+	var uploads Uploads
+	for _, userUpload := range userUploads {
+		if userUpload.UploadID != nil && *userUpload.UploadID != uuid.Nil && userUpload.Upload != nil {
+			uploads = append(uploads, *userUpload.Upload)
+		} else {
+			return Uploads{}, errors.New("error invalid UploadID in UserUpload")
+		}
+	}
+	return uploads, nil
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (u *UserUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
@@ -56,6 +69,7 @@ func (u *UserUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // BeforeCreate ensure an ID is created
+/*
 func (u *UserUpload) BeforeCreate(tx *pop.Connection) error {
 	// Populate ID if not exists
 	if u.ID == uuid.Nil {
@@ -63,12 +77,13 @@ func (u *UserUpload) BeforeCreate(tx *pop.Connection) error {
 	}
 	return nil
 }
+*/
 
 // FetchUserUpload returns an UserUpload if the user has access to that upload
 func FetchUserUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (UserUpload, error) {
 	var userUpload UserUpload
 	err := db.Q().
-		Where("deleted_at is null").Eager().Find(&userUpload, id)
+		Where("deleted_at is null").Eager("Document", "Upload").Find(&userUpload, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return UserUpload{}, errors.Wrap(ErrFetchNotFound, "error fetching user_uploads")
@@ -95,7 +110,7 @@ func FetchUserUploadFromUploadID(ctx context.Context, db *pop.Connection, sessio
 	var userUpload UserUpload
 	err := db.Q().
 		Join("uploads AS ups", "ups.id = user_uploads.upload_id").
-		Where("ups.ID = $1 and user_uploads.deleted_at is null", uploadID).Eager().First(&userUpload)
+		Where("ups.ID = $1 and user_uploads.deleted_at is null", uploadID).Eager("Document", "Upload").First(&userUpload)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return UserUpload{}, errors.Wrap(ErrFetchNotFound, "error fetching user_uploads")

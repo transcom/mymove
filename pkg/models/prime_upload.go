@@ -17,7 +17,7 @@ import (
 // An PrimeUpload represents an user uploaded file, such as an image or PDF.
 type PrimeUpload struct {
 	ID                  uuid.UUID         `db:"id"`
-	ProofOfServiceDocID *uuid.UUID        `db:"proof_of_service_docs_id"`
+	ProofOfServiceDocID uuid.UUID         `db:"proof_of_service_docs_id"`
 	ProofOfServiceDoc   ProofOfServiceDoc `belongs_to:"proof_of_service_docs"`
 	ContractorID        uuid.UUID         `db:"contractor_id"`
 	Contractor          Contractor        `belongs_to:"contractors"`
@@ -36,7 +36,7 @@ func UploadsFromPrimeUploads(db *pop.Connection, primeUploads PrimeUploads) (Upl
 	var uploads Uploads
 	for _, PrimeUpload := range primeUploads {
 		var upload Upload
-		err := db.Q().Where("uploads.deleted_at is null").Eager().Find(&upload, PrimeUpload.UploadID)
+		err := db.Q().Where("uploads.deleted_at is null").Eager("ProofOfServiceDoc", "Contractor", "Upload").Find(&upload, PrimeUpload.UploadID)
 		if err != nil {
 			if errors.Cause(err).Error() == RecordNotFoundErrorString {
 				return Uploads{}, errors.Wrap(ErrFetchNotFound, "error fetching upload")
@@ -53,10 +53,12 @@ func UploadsFromPrimeUploads(db *pop.Connection, primeUploads PrimeUploads) (Upl
 func (u *PrimeUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: u.ContractorID, Name: "ContractorID"},
+		&validators.UUIDIsPresent{Field: u.ProofOfServiceDocID, Name: "ProofOfServiceDocID"},
 	), nil
 }
 
 // BeforeCreate ensure ID is assigned
+/*
 func (u *PrimeUpload) BeforeCreate(tx *pop.Connection) error {
 	// Populate ID if not exists
 	if u.ID == uuid.Nil {
@@ -65,12 +67,14 @@ func (u *PrimeUpload) BeforeCreate(tx *pop.Connection) error {
 	return nil
 }
 
+*/
+
 // FetchPrimeUpload returns an PrimeUpload if the contractor has access to that upload
 func FetchPrimeUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (PrimeUpload, error) {
 	var primeUpload PrimeUpload
 	err := db.Q().
 		Join("uploads AS ups", "ups.id = prime_uploads.upload_id").
-		Where("ups.deleted_at is null").Eager().Find(&primeUpload, id)
+		Where("ups.deleted_at is null and prime_uploads.deleted_at is null").Eager("ProofOfServiceDoc", "Contractor", "Upload").Find(&primeUpload, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return PrimeUpload{}, errors.Wrap(ErrFetchNotFound, "error fetching prime_uploads")
@@ -99,7 +103,8 @@ func FetchPrimeUploadFromUploadID(ctx context.Context, db *pop.Connection, sessi
 	var primeUpload PrimeUpload
 	err := db.Q().
 		Join("uploads AS ups", "ups.id = prime_uploads.upload_id").
-		Where("ups.ID = $1", uploadID).Eager().First(&primeUpload)
+		Where("ups.ID = $1 and ups.deleted_at is null and prime_uploads.deleted_at is null", uploadID).
+		Eager("ProofOfServiceDoc", "Contractor", "Upload").First(&primeUpload)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return PrimeUpload{}, errors.Wrap(ErrFetchNotFound, "error fetching prime_uploads")

@@ -60,6 +60,8 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 			return fmt.Errorf("could not prepare file for uploader: %w", err)
 		}
 
+		newUploader.SetUploadStorageKey(fileName)
+
 		var paymentRequest models.PaymentRequest
 		err = tx.Find(&paymentRequest, paymentRequestID)
 		if err != nil {

@@ -16,7 +16,7 @@ import (
 // MakePrimeUpload creates a single PrimeUpload.
 func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUpload {
 	posDoc := assertions.PrimeUpload.ProofOfServiceDoc
-	if assertions.PrimeUpload.ProofOfServiceDocID == nil || isZeroUUID(*assertions.PrimeUpload.ProofOfServiceDocID) {
+	if isZeroUUID(assertions.PrimeUpload.ProofOfServiceDocID) {
 		if isZeroUUID(assertions.ProofOfServiceDoc.ID) {
 			posDoc = MakeProofOfServiceDoc(db, assertions)
 		} else {
@@ -54,7 +54,7 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 		upload := MakeUpload(db, assertions)
 
 		primeUpload = &models.PrimeUpload{
-			ProofOfServiceDocID: &posDoc.ID,
+			ProofOfServiceDocID: posDoc.ID,
 			ProofOfServiceDoc:   posDoc,
 			ContractorID:        contractor.ID,
 			Upload:              &upload,

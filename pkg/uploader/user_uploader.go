@@ -49,7 +49,7 @@ func (u *UserUploader) createAndStore(documentID *uuid.UUID, userID uuid.UUID, f
 		u.uploader.DefaultStorageKey = path.Join("user", userID.String())
 	}
 
-	newUpload, verrs, err := u.uploader.CreateUploadForDocument(File{File: file}, allowedTypes)
+	newUpload, verrs, err := u.uploader.CreateUpload(File{File: file}, allowedTypes)
 	if verrs.HasAny() || err != nil {
 		u.logger.Error("error creating and storing new upload for user", zap.Error(err))
 		return nil, verrs, err

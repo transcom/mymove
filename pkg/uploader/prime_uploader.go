@@ -49,7 +49,7 @@ func (u *PrimeUploader) createAndStore(posID *uuid.UUID, contractorID uuid.UUID,
 		u.uploader.DefaultStorageKey = path.Join("prime", contractorID.String())
 	}
 
-	newUpload, verrs, err := u.uploader.CreateUploadForDocument(File{File: file}, allowedTypes)
+	newUpload, verrs, err := u.uploader.CreateUpload(File{File: file}, allowedTypes)
 	if verrs.HasAny() || err != nil {
 		u.logger.Error("error creating and storing new upload for prime", zap.Error(err))
 		return nil, verrs, err
@@ -59,7 +59,7 @@ func (u *PrimeUploader) createAndStore(posID *uuid.UUID, contractorID uuid.UUID,
 
 	newUploadForUser := &models.PrimeUpload{
 		ID:                  id,
-		ProofOfServiceDocID: posID,
+		ProofOfServiceDocID: *posID,
 		ContractorID:        contractorID,
 		UploadID:            &newUpload.ID,
 		Upload:              newUpload,
@@ -97,15 +97,6 @@ func (u *PrimeUploader) CreatePrimeUploadForDocument(posID *uuid.UUID, contracto
 		}
 
 		return primeUpload, verrs, uploadError
-		/*
-			var err error
-			PrimeUpload, verrs, err = u.createAndStore(documentID, userID, file, allowedTypes)
-			if err != nil {
-				u.logger.Error("error creating new prime upload", zap.Error(err))
-				return nil, verrs,fmt.Errorf("error creating upload %w", err)
-			}
-			return PrimeUpload, &validate.Errors{}, nil
-		*/
 	}
 
 	txError := u.db.Transaction(func(db *pop.Connection) error {
@@ -124,14 +115,6 @@ func (u *PrimeUploader) CreatePrimeUploadForDocument(posID *uuid.UUID, contracto
 	}
 
 	return primeUpload, &validate.Errors{}, nil
-}
-
-// CreatePrimeUpload stores PrimeUpload but does not assign a Document
-func (u *PrimeUploader) CreatePrimeUpload(contractorID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.PrimeUpload, *validate.Errors, error) {
-	if u.uploader == nil {
-		return nil, &validate.Errors{}, errors.New("Did not call NewUserUploader before calling this function")
-	}
-	return u.CreatePrimeUploadForDocument(nil, contractorID, file, allowedTypes)
 }
 
 // DeletePrimeUpload removes an PrimeUpload from the database and deletes its file from the

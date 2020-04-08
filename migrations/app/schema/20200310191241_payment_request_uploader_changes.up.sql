@@ -4,7 +4,6 @@ create type upload_type as enum (
     );
 
 alter table uploads
-    alter column document_id drop not null,
     alter column uploader_id drop not null,
     add column upload_type upload_type,
     drop constraint uploads_document_id_fkey,
@@ -58,8 +57,8 @@ create table contractors
     type varchar(80) not null
 );
 
-INSERT INTO contractors (id, created_at, updated_at, name,  contract_number, type)
-SELECT id, created_at, updated_at, name,  contract_number, type FROM contractor;
+insert into contractors (id, created_at, updated_at, name,  contract_number, type)
+select id, created_at, updated_at, name,  contract_number, type from contractor;
 
 create table prime_uploads
 (
@@ -85,18 +84,21 @@ create index if not exists prime_uploads_contractor_id_idx
 create index prime_uploads_deleted_at_idx
     on prime_uploads (deleted_at);
 
-INSERT INTO user_uploads (id, document_id, uploader_id, upload_id, created_at, updated_at)
-SELECT uuid_generate_v4(), uploads.document_id, uploads.uploader_id, uploads.id, now(), now() FROM uploads;
+insert into user_uploads (id, document_id, uploader_id, upload_id, created_at, updated_at, deleted_at)
+select uuid_generate_v4(), uploads.document_id, uploads.uploader_id, uploads.id, created_at, updated_at, deleted_at from uploads;
 
-UPDATE uploads
-    SET uploader_id = uuid_nil();
+update uploads
+    set uploader_id = null;
 
-INSERT INTO prime_uploads (id, proof_of_service_docs_id, contractor_id, upload_id, created_at, updated_at)
-SELECT uuid_generate_v4(), proof_of_service_docs.id, uuid_nil() ,proof_of_service_docs.upload_id, now(), now() FROM proof_of_service_docs;
+insert into prime_uploads (id, proof_of_service_docs_id, contractor_id, upload_id, created_at, updated_at)
+select uuid_generate_v4(), proof_of_service_docs.id, null ,proof_of_service_docs.upload_id, created_at, updated_at from proof_of_service_docs;
 
 alter table invoices
     drop constraint invoices_uploads_id_fk,
     add column user_uploads_id uuid null constraint invoices_user_uploads_id_fkey references user_uploads on delete restrict;
+
+update invoices
+    set user_uploads_id = invoices.upload_id;
 
 alter table proof_of_service_docs
     drop constraint proof_of_service_docs_upload_id_fkey;

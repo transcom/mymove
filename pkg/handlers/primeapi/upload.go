@@ -37,16 +37,19 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	contractor, err := models.FetchGHCPrimeTestContractor(h.DB())
 	if err != nil {
 		logger.Error("error getting TEST GHC Prime Contractor", zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
 	}
 	if contractor != nil {
 		contractorID = contractor.ID
 	} else {
 		logger.Error("error with TEST GHC Prime Contractor value is nil")
+		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID)
 	if err != nil {
 		logger.Error("error creating uuid from string", zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	uploadCreator := paymentrequest.NewPaymentRequestUploadCreator(h.DB(), logger, h.FileStorer())

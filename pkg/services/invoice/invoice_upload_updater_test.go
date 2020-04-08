@@ -60,7 +60,7 @@ func (suite *InvoiceServiceSuite) helperCreateUserUpload(storer *storage.FileSto
 	if userUpload == nil {
 		suite.T().Fatalf("failed to create a user upload object: %s", err)
 	}
-	// Call Close on file after CreateUploadForDocument is complete
+	// Call Close on file after CreateUpload is complete
 	testFile.Close()
 	return userUpload
 }

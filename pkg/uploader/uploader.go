@@ -135,10 +135,10 @@ func (u *Uploader) createAndPushUploadToS3(txConn *pop.Connection, file File, up
 	return upload, verrs, nil
 }
 
-// CreateUploadForDocument creates a new Upload by performing validations, storing the specified
+// CreateUpload creates a new Upload by performing validations, storing the specified
 // file using the supplied storer, and saving an Upload object to the database containing
 // the file's metadata.
-func (u *Uploader) CreateUploadForDocument(file File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
+func (u *Uploader) CreateUpload(file File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 
 	info, fileStatErr := file.Stat()
@@ -227,11 +227,6 @@ func (u *Uploader) CreateUploadForDocument(file File, allowedTypes AllowedFileTy
 	}
 
 	return newUpload, responseVErrors, nil
-}
-
-// CreateUpload stores Upload but does not assign a Document
-func (u *Uploader) CreateUpload(userID uuid.UUID, file File, allowedFileTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
-	return u.CreateUploadForDocument(file, allowedFileTypes)
 }
 
 // PresignedURL returns a URL that can be used to access an Upload's file.

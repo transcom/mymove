@@ -152,7 +152,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		Join("documents as d", "orders.uploaded_orders_id = d.id").
 		LeftJoin("user_uploads as uu", "d.id = uu.document_id").
 		LeftJoin("uploads as u", "uu.upload_id = u.id").
-		Where("u.deleted_at is null").
+		Where("u.deleted_at is null and uu.deleted_at is null").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

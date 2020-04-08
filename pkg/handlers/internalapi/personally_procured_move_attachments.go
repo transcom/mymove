@@ -66,7 +66,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 
 	// Flatten out uploads into a slice
 	for _, moveDoc := range moveDocs {
-		moveDocUploads, moveDocUploadsErr := models.UploadsFromUserUploads(h.DB(), moveDoc.Document.UserUploads)
+		moveDocUploads, moveDocUploadsErr := models.UploadsFromUserUploadsNoDatabase(moveDoc.Document.UserUploads)
 		if moveDocUploadsErr != nil {
 			logger.Error("failed to get uploads for moveDoc.Document.UserUploads", zap.Error(moveDocUploadsErr))
 			return ppmop.NewCreatePPMAttachmentsFailedDependency()

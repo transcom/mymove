@@ -1,8 +1,6 @@
 package uploader_test
 
 import (
-	"io"
-
 	"github.com/transcom/mymove/pkg/storage/test"
 
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -95,42 +93,4 @@ func (suite *UploaderSuite) TestPrimeUploadStorerCalledWithTags() {
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
-}
-
-func (suite *UploaderSuite) TestCreatePrimeUploadNoDocument() {
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
-
-	primeUploader, err := uploader.NewPrimeUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB)
-	suite.NoError(err)
-	file := suite.fixture("test.pdf")
-	fixtureFileInfo, err := file.Stat()
-	suite.NoError(err)
-
-	// Create file and upload
-	primeUpload, verrs, err := primeUploader.CreatePrimeUpload(contractor.ID, uploader.File{File: file}, uploader.AllowedTypesPDF)
-	suite.Nil(err, "failed to create upload")
-	suite.Empty(verrs.Error(), "verrs returned error")
-	suite.NotNil(primeUpload, "failed to create upload structure")
-	file.Close()
-
-	// Download file and test size
-	download, err := primeUploader.Download(primeUpload)
-	suite.NoError(err)
-	defer download.Close()
-
-	outputFile, err := suite.helperNewTempFile()
-	suite.NoError(err)
-	defer outputFile.Close()
-
-	written, err := io.Copy(outputFile, download)
-	suite.NoError(err)
-	suite.NotEqual(0, written)
-
-	info, err := outputFile.Stat()
-	suite.Equal(fixtureFileInfo.Size(), info.Size())
-	suite.NoError(err)
-
-	// Delete file previously uploaded
-	err = primeUploader.DeletePrimeUpload(primeUpload)
-	suite.NoError(err)
 }
