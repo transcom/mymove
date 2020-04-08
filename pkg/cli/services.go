@@ -24,7 +24,7 @@ const (
 	// ServePrimeFlag is the prime api flag
 	ServePrimeFlag string = "serve-api-prime"
 	// ServeSupportFlag is the support api flag
-	ServeSupportFlag string = "server-api-support"
+	ServeSupportFlag string = "serve-api-support"
 )
 
 // InitServiceFlags initializes the service command line flags
