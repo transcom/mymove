@@ -457,3 +457,8 @@ func (p *Builder) QueryForAssociations(model interface{}, associations services.
 func associatedQuery(query *pop.Query, associations services.QueryAssociations, model interface{}) *pop.Query {
 	return query.Eager(associations.StringGetAssociations()...)
 }
+
+// Transaction will start a new transaction on the pop connection.
+func (p *Builder) Transaction(fn func(db *pop.Connection) error) error {
+	return p.db.Transaction(fn)
+}
