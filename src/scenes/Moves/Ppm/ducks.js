@@ -1,4 +1,4 @@
-import { get, every, isNumber } from 'lodash';
+import { get, every, isNumber, isEmpty } from 'lodash';
 import { GetPpm, GetPpmWeightEstimate, GetPpmSitEstimate, RequestPayment } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
@@ -109,11 +109,10 @@ export function getPPM(state) {
   const moveId = move.id;
   const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
   const tempPPM = state.ppm.currentPpm;
-
   // temp fix while redux refactor is in progress when statuses aren't updated on ppms from both places
   const ppmStates = ['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'CANCELED'];
 
-  if (ppmFromEntities && tempPPM) {
+  if (!isEmpty(ppmFromEntities) && !isEmpty(tempPPM)) {
     const entitiesPPMStatus = ppmFromEntities.status;
     const tempPPMStatus = tempPPM.status;
     const indexOfEntitiesPPMStatus = ppmStates.indexOf(entitiesPPMStatus);
