@@ -10,13 +10,13 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-//Zip3Fixture stores zip and rate and area information from tariff400ng_zip3s_fixture.csv
+// Zip3Fixture stores zip and rate and area information from tariff400ng_zip3s_fixture.csv
 type Zip3Fixture struct {
 	Zip      string `csv:"zip3"`
 	RateArea string `csv:"rate_area"`
 }
 
-//Zip5Fixture stores zip and rate and area information from tariff400ng_zip5_rate_areas_fixture.csv
+// Zip5Fixture stores zip and rate and area information from tariff400ng_zip5_rate_areas_fixture.csv
 type Zip5Fixture struct {
 	Zip      string `csv:"zip5"`
 	RateArea string `csv:"rate_area"`
@@ -39,13 +39,13 @@ func (gre *GHCRateEngineImporter) mapZipsToRateAreas(dbTx *pop.Connection, zip3F
 }
 
 func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection, fixturePath string) error {
-	csvFile, err := os.OpenFile(fixturePath, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	csvFile, err := os.Open(fixturePath)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer csvFile.Close()
 
-	zip3RateAreas := []*Zip3Fixture{}
+	var zip3RateAreas []*Zip3Fixture
 
 	err = gocsv.UnmarshalFile(csvFile, &zip3RateAreas)
 	if err != nil {
@@ -66,10 +66,10 @@ func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection, fixturePath str
 
 			verrs, err := dbTx.ValidateAndUpdate(&reZip3)
 			if err != nil {
-				return fmt.Errorf("failed to update %v: %v", reZip3, err)
+				return fmt.Errorf("failed to update ReZip3 %v: %w", reZip3, err)
 			}
 			if verrs.HasAny() {
-				return fmt.Errorf("failed to validate %v: %v", reZip3, verrs)
+				return fmt.Errorf("failed to validate ReZip3 %v: %w", reZip3, verrs)
 			}
 		} else {
 			rateAreaID, found := gre.domesticRateAreaToIDMap[zip3RateArea.RateArea]
@@ -82,10 +82,10 @@ func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection, fixturePath str
 
 			verrs, err := dbTx.ValidateAndUpdate(&reZip3)
 			if err != nil {
-				return fmt.Errorf("failed to update zip: %v: %v", reZip3.Zip3, err)
+				return fmt.Errorf("failed to update ReZip3: %v: %w", reZip3.Zip3, err)
 			}
 			if verrs.HasAny() {
-				return fmt.Errorf("failed to validate zip: %v: %v", reZip3.Zip3, verrs)
+				return fmt.Errorf("failed to validate ReZip3: %v: %w", reZip3.Zip3, verrs)
 			}
 		}
 	}
@@ -94,13 +94,13 @@ func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection, fixturePath str
 }
 
 func (gre *GHCRateEngineImporter) createZip5s(dbTx *pop.Connection, fixturePath string) error {
-	csvFile, err := os.OpenFile(fixturePath, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	csvFile, err := os.Open(fixturePath)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer csvFile.Close()
 
-	zip5RateAreas := []*Zip5Fixture{}
+	var zip5RateAreas []*Zip5Fixture
 
 	err = gocsv.UnmarshalFile(csvFile, &zip5RateAreas)
 	if err != nil {
@@ -120,10 +120,10 @@ func (gre *GHCRateEngineImporter) createZip5s(dbTx *pop.Connection, fixturePath 
 
 		verrs, err := dbTx.ValidateAndCreate(&reZip5)
 		if err != nil {
-			return fmt.Errorf("failed to update zip: %v: %v", reZip5.Zip5, err)
+			return fmt.Errorf("failed to update ReZip5RateArea: %v: %w", reZip5.Zip5, err)
 		}
 		if verrs.HasAny() {
-			return fmt.Errorf("failed to validate zip: %v: %v", reZip5.Zip5, verrs)
+			return fmt.Errorf("failed to validate ReZip5RateArea: %v: %w", reZip5.Zip5, verrs)
 		}
 	}
 
