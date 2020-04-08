@@ -503,6 +503,7 @@
 20200410162529_add_contract_id_to_re_zip5_rate_areas_table.up.sql
 20200410194345_change_nullability_in_tariff400ng_shorthaul_rate.up.sql
 20200413185502_change_nullability_in_tariff400ng_zip3s.up.sql
+20200408210507_engadmin_schema.up.sql
 20200420154249_add_crating_standalone.up.sql
 20200422184129_change_nullability_in_tariff400ng_zip5_rate_areas.up.sql
 20200423174512_add-status-to-service-item.up.sql
