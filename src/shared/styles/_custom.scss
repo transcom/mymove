@@ -175,3 +175,14 @@ table {
 #root #sb-tables {
   background-color: lighten($mm-blue, 78%);
 }
+
+//Stacked Tables
+
+.table--stacked {
+  caption {
+    @include u-text('left');
+  }
+  th {
+    @include u-text('bold');
+  }
+}

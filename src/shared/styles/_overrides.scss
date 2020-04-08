@@ -82,6 +82,9 @@
     @include u-bg('transparent');
     @include u-text('primary-vivid');
     @include u-text('no-underline');
+    @include u-margin(0);
+    @include u-padding-y(0);
+    @include u-height('auto');
     .icon {
       @include u-padding-right('1');
       svg path {

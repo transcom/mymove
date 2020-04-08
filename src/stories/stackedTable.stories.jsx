@@ -6,11 +6,13 @@ import { ReactComponent as EditIcon } from 'shared/icon/edit.svg';
 import { StackedTable, StackedTableRow, StackedTableHeader, StackedTableData } from '../components/StackedTable';
 
 const StackedTableExample = () => (
-  <div style={{ background: 'F0F0F0' }}>
+  <div className="table--stacked">
     <StackedTable fullWidth>
       <caption>
         <h4>Orders</h4>
       </caption>
+      <col style={{ width: '25%' }} />
+      <col style={{ width: '75%' }} />
       <StackedTableRow>
         <StackedTableHeader>Table Header</StackedTableHeader>
         <StackedTableData>Table Data</StackedTableData>
@@ -24,11 +26,13 @@ const StackedTableExample = () => (
 );
 
 const StackedTableWithButtons = () => (
-  <div>
+  <div className="table--stacked-wbuttons">
     <StackedTable fullWidth>
       <caption>
         <h4>Orders</h4>
       </caption>
+      <col style={{ width: '25%' }} />
+      <col style={{ width: '75%' }} />
       <StackedTableRow>
         <StackedTableHeader>Table Header</StackedTableHeader>
         <StackedTableData>
