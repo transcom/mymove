@@ -45,10 +45,14 @@ describe('Form', () => {
   it('should call submit handler', () => {
     wrapper.simulate('submit');
     expect(mockHandleSubmit).toHaveBeenCalled();
+    expect(mockHandleReset).not.toHaveBeenCalled();
   });
 
   it('should call reset handler', () => {
     wrapper.simulate('reset');
+    expect(mockHandleSubmit).not.toHaveBeenCalled();
     expect(mockHandleReset).toHaveBeenCalled();
   });
+
+  afterEach(jest.resetAllMocks);
 });

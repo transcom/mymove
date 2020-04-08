@@ -4,17 +4,18 @@ import { FormGroup, Label, TextInput as UswdsTextInput } from '@trussworks/react
 import { ErrorMessage } from '..';
 import { TextInput } from '.';
 
+const mockOnChange = jest.fn();
 // mock out formik hook as we are not testing formik
 // needs to be before first describe
 jest.mock('formik', () => {
   return {
     ...jest.requireActual('formik'),
-    useField: jest.fn().mockReturnValue([
+    useField: () => [
       {
-        onChange: jest.fn().mockName('onChange'),
+        onChange: mockOnChange,
       },
       { touched: true, error: 'sample error' },
-    ]),
+    ],
   };
 });
 
@@ -46,15 +47,15 @@ describe('TextInput', () => {
     it('should render a USWDS TextInput', () => {
       const textInput = wrapper.find(FormGroup).find(UswdsTextInput);
       expect(textInput.length).toBe(1);
-      expect(textInput.prop('onChange').getMockName()).toBe('onChange');
       expect(textInput.prop('className')).toBe('sample-class');
       expect(textInput.prop('type')).toBe('text');
     });
 
     it('should trigger onChange properly', () => {
       const textInput = wrapper.find(FormGroup).find(UswdsTextInput);
+      expect(textInput.prop('onChange')).toBe(mockOnChange);
       textInput.simulate('change', { value: 'sample' });
-      expect(textInput.prop('onChange')).toHaveBeenCalledWith({ value: 'sample' });
+      expect(mockOnChange).toHaveBeenCalledWith({ value: 'sample' });
     });
   });
 
@@ -75,13 +76,15 @@ describe('TextInput', () => {
   });
 
   describe('with no id or name prop', () => {
-    const spy = jest.spyOn(global.console, 'error');
-    shallow(<TextInput className="sample-class" label="Some Name" type="text" />);
-
     it('should render console error', () => {
+      const spy = jest.spyOn(global.console, 'error');
+      shallow(<TextInput className="sample-class" label="Some Name" type="text" />);
+
       expect(spy).toHaveBeenCalledWith(
         expect.stringMatching(/Warning: Failed prop type: id or name required on 'TextInput'/),
       );
     });
   });
+
+  afterEach(jest.resetAllMocks);
 });
