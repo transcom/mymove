@@ -494,3 +494,4 @@
 20200325145334_import_2020_400ng.up.sql
 20200326142555_change_nullability_in_tariff_400ng_full_pack_rate.up.sql
 20200327154306_shauna_cac.up.sql
+20200408215659_change_nullability_in_tariff400ng_linehaul_rates.up.sql
