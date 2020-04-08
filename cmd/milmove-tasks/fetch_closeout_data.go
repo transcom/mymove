@@ -1,10 +1,16 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
+	"os"
 	"strings"
+	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/spf13/cobra"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -15,9 +21,21 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/services/closeout"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/route"
+)
+
+// hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
+const hereRequestTimeout = time.Duration(15) * time.Second
+
+const (
+	moveIDFlag string = "move"
+	debugFlag  string = "debug"
 )
 
 func checkCloseoutDataConfig(v *viper.Viper, logger logger) error {
@@ -33,6 +51,10 @@ func checkCloseoutDataConfig(v *viper.Viper, logger logger) error {
 }
 
 func initFetchCloseoutDataFlags(flag *pflag.FlagSet) {
+
+	// Scenario config
+	flag.String(moveIDFlag, "", "The move ID to generate a shipment summary worksheet for")
+	flag.Bool(debugFlag, false, "show field debug output")
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
@@ -104,13 +126,56 @@ func fetchCloseoutData(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	closeout, err := closeout.NewCloseoutData(dbConnection, logger)
-	if err != nil {
-		logger.Fatal("initializing CloseoutData", zap.Error(err))
+	// closeout, err := closeout.NewCloseoutData(dbConnection, logger)
+	// if err != nil {
+	// 	logger.Fatal("initializing CloseoutData", zap.Error(err))
+	// }
+	// fmt.Println(closeout)
+	// moveIDs := []string{"77CXF9"}
+	// _ = closeout.FetchCloseoutDetails(moveIDs)
+
+	moveID := v.GetString(moveIDFlag)
+	if moveID == "" {
+		log.Fatal("Usage: generate_shipment_summary -move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
 	}
-	fmt.Println(closeout)
-	moveIDs := []string{"77CXF9"}
-	_ = closeout.FetchCloseoutDetails(moveIDs)
+
+	// Define the data here that you want to populate the form with. Data will only be populated
+	// in the form if the field name exist BOTH in the fields map and your data below
+	parsedID := uuid.Must(uuid.FromString(moveID))
+
+	// Build our form with a template image and field placement
+	formFiller := paperwork.NewFormFiller()
+
+	debug := v.GetBool(debugFlag)
+	// This is very useful for getting field positioning right initially
+	if debug {
+		formFiller.Debug()
+	}
+
+	move, err := models.FetchMoveByMoveID(dbConnection, parsedID)
+	if err != nil {
+		log.Fatalf("error fetching move: %s", moveIDFlag)
+	}
+
+	geocodeEndpoint := os.Getenv("HERE_MAPS_GEOCODE_ENDPOINT")
+	routingEndpoint := os.Getenv("HERE_MAPS_ROUTING_ENDPOINT")
+	testAppID := os.Getenv("HERE_MAPS_APP_ID")
+	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
+	hereClient := &http.Client{Timeout: hereRequestTimeout}
+	planner := route.NewHEREPlanner(logger, hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
+	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(dbConnection, logger, move))
+
+	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(dbConnection, &auth.Session{}, parsedID)
+	if err != nil {
+		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
+	}
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, planner)
+	if err != nil {
+		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
+	}
+
+	file, _ := json.MarshalIndent(ssfd, "", " ")
+	ioutil.WriteFile("pptas1.json", file, 0644)
 
 	return nil
 }
