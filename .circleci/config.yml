@@ -333,8 +333,8 @@ commands:
           name: make e2e_mtls_test_docker
           command: |
             echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_MTLS_CERT=$(cat /home/circleci/transcom/config/tls/devlocal-mtls.cer)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_MTLS_KEY=$(cat /home/circleci/transcom/config/tls/devlocal-mtls.key)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_MTLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-mtls.cer)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_MTLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-mtls.key)' >> $BASH_ENV
             source $BASH_ENV
             make e2e_mtls_test_docker
           environment:
