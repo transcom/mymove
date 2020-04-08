@@ -7,11 +7,15 @@ scripts/ensure-application app
 # Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
 export REACT_APP_NODE_ENV=development
 
-# Set Defaults
-NETWORK="mymove_default" # Docker network
-
 # Set the container default name
 CONTAINER=mymove_milmove_1
+
+# Set hostnames
+PRIMEHOST=primelocal
+
+# Set Defaults
+NETWORK="mymove_default" # Docker network
+HTTP_PORT=9443
 
 # When running locally enable TTY
 DOCKER_RUN="docker run -t"
@@ -116,6 +120,9 @@ $DOCKER_RUN \
   tools:latest \
   --named-scenario e2e_basic
 
+# Grab the IP address of the running container
+E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
+
 #
 # INTEGRATION TESTS START
 #
@@ -123,6 +130,8 @@ $DOCKER_RUN \
   function prime_api_client () {
   # Cannot mount directories in CircleCI so certificates and data are built into the container
   $DOCKER_RUN \
+  -e CYPRESS_baseUrl="https://${PRIMEHOST}:${HTTP_PORT}" \
+  --add-host "${PRIMEHOST}:${E2E_IP}" \
     --link="${CONTAINER}" \
     --net "${NETWORK}" \
     --rm \
@@ -136,9 +145,7 @@ $DOCKER_RUN \
 
 #Integration test for Prime API
 #Return mtos from the fetch-mto endpoint where is_available_for_prime is true
-prime_api_client fetch-mtos
 mtos=$(prime_api_client fetch-mtos)
-#mtos=$(go run ./cmd/prime-api-client --insecure fetch-mtos)
 #Returns mtoShipments from the fetch-mto response, needed to return etag below
 mtoShipments=$(echo "$mtos" | jq '.[0] | .mtoShipments')
 #Returns etag for the first mtoShipment, needed to run update-mto-shipment below
