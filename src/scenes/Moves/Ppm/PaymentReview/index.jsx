@@ -105,7 +105,7 @@ class PaymentReview extends Component {
   applyClickHandlers = () => {
     const { currentPPM, moveId, incentiveEstimateMin, incentiveEstimateMax } = this.props;
 
-    this.setState({ moveSubmissionError: false });
+    this.setState({ moveSubmissionError: false }); // TODO: make this not asynchronous
     Promise.all([this.submitCertificate(), this.props.submitExpenseDocs()])
       .then(() => {
         return this.props.updatePPM(moveId, currentPPM.id, {
