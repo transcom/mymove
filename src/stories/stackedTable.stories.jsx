@@ -2,9 +2,9 @@ import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { storiesOf } from '@storybook/react';
 import { Button } from '@trussworks/react-uswds';
-import { ReactComponent as EditIcon } from 'shared/icon/edit.svg';
 import { ReactComponent as DocsIcon } from 'shared/icon/documents.svg';
 import { StackedTable, StackedTableRow, StackedTableHeader, StackedTableData } from '../components/StackedTable';
+import { EditButton } from '../components/form';
 
 const StackedTableExample = () => (
   <div className="table--stacked">
@@ -58,36 +58,21 @@ const StackedTableWithButtons = () => (
         <StackedTableHeader>Orders number</StackedTableHeader>
         <StackedTableData>
           999999999
-          <Button className="usa-button--unstyled" onClick={action('should open edit form')}>
-            <span className="icon">
-              <EditIcon />
-            </span>
-            <span>Edit</span>
-          </Button>
+          <EditButton unstyled onClick={action('should open edit form')} />
         </StackedTableData>
       </StackedTableRow>
       <StackedTableRow>
         <StackedTableHeader>Orders number</StackedTableHeader>
         <StackedTableData>
           999999999
-          <Button className="usa-button--unstyled" onClick={action('should open edit form')}>
-            <span className="icon">
-              <EditIcon />
-            </span>
-            <span>Edit</span>
-          </Button>
+          <EditButton unstyled onClick={action('should open edit form')} />
         </StackedTableData>
       </StackedTableRow>
       <StackedTableRow>
         <StackedTableHeader>Orders number</StackedTableHeader>
         <StackedTableData>
           999999999
-          <Button className="usa-button--unstyled" onClick={action('should open edit form')}>
-            <span className="icon">
-              <EditIcon />
-            </span>
-            <span>Edit</span>
-          </Button>
+          <EditButton unstyled onClick={action('should open edit form')} />
         </StackedTableData>
       </StackedTableRow>
     </StackedTable>
