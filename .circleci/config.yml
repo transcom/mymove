@@ -570,7 +570,6 @@ jobs:
       - run: make server_generate
       - run: rm -f bin/generate-test-data && make bin/generate-test-data
       - run: rm -f bin/prime-api-client && make bin/prime-api-client
-      - e2e_tests_mtls
       - e2e_tests
       - store_artifacts:
           path: cypress/videos
@@ -578,6 +577,33 @@ jobs:
       - store_artifacts:
           path: cypress/screenshots
           destination: screenshots
+      - store_test_results:
+          path: cypress/results
+      - announce_failure
+
+  # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
+  integration_tests_mtls:
+    executor: mymove_medium_plus
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - restore_cache:
+          keys:
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - attach_workspace:
+          at: /home/circleci/transcom/mymove/bin
+      - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
+      - run: make server_generate
+      - run: rm -f bin/generate-test-data && make bin/generate-test-data
+      - run: rm -f bin/prime-api-client && make bin/prime-api-client
+      - e2e_tests_mtls
       - store_test_results:
           path: cypress/results
       - announce_failure
@@ -987,6 +1013,19 @@ workflows:
             branches:
               ignore: placeholder_branch_name
 
+      - integration_tests_mtls:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+            - check_generated_code
+            - build_app
+            - build_migrations
+            - acceptance_tests
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          filters:
+            branches:
+              ignore: placeholder_branch_name
+
       - client_test:
           requires:
             - pre_deps_yarn
@@ -1076,6 +1115,7 @@ workflows:
             - build_tasks
             - acceptance_tests
             - integration_tests
+            - integration_tests_mtls
           filters:
             branches:
               only: master
