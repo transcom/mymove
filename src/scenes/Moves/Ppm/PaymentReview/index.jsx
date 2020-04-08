@@ -106,14 +106,13 @@ class PaymentReview extends Component {
     const { currentPPM, moveId, incentiveEstimateMin, incentiveEstimateMax } = this.props;
 
     this.setState({ moveSubmissionError: false });
-    Promise.all([
-      this.submitCertificate(),
-      this.props.submitExpenseDocs(),
-      this.props.updatePPM(moveId, currentPPM.id, {
-        incentive_estimate_min: incentiveEstimateMin,
-        incentive_estimate_max: incentiveEstimateMax,
-      }),
-    ])
+    Promise.all([this.submitCertificate(), this.props.submitExpenseDocs()])
+      .then(() => {
+        return this.props.updatePPM(moveId, currentPPM.id, {
+          incentive_estimate_min: incentiveEstimateMin,
+          incentive_estimate_max: incentiveEstimateMax,
+        });
+      })
       .then(() => {
         this.props.history.push('/');
       })
