@@ -60,7 +60,9 @@ StackedTableRow.propTypes = {
 };
 
 const StackedTableHeader = ({ children, className }) => (
-  <th className={cx('default-table-header-class-names', className)}>{children}</th>
+  <th scope="row" className={cx('default-table-header-class-names', className)}>
+    {children}
+  </th>
 );
 
 StackedTableHeader.propTypes = {
