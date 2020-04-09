@@ -44,6 +44,7 @@ type Assertions struct {
 	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem
 	MTOServiceItemDimension                  models.MTOServiceItemDimension
+	MTOServiceItemCustomerContact            models.MTOServiceItemCustomerContact
 	MTOShipment                              models.MTOShipment
 	Notification                             models.Notification
 	WeightTicketSetDocument                  models.WeightTicketSetDocument

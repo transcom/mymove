@@ -43,7 +43,7 @@ type MTOServiceItemDomesticCrating struct {
 	// Required: true
 	Item *MTOServiceItemDimension `json:"item"`
 
-	// Describes available re service code for domestic crating
+	// re service code
 	// Required: true
 	// Enum: [DCRT DUCRT]
 	ReServiceCode *string `json:"reServiceCode"`
@@ -143,7 +143,7 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		Item *MTOServiceItemDimension `json:"item"`
 
-		// Describes available re service code for domestic crating
+		// re service code
 		// Required: true
 		// Enum: [DCRT DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
@@ -231,7 +231,7 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Item *MTOServiceItemDimension `json:"item"`
 
-		// Describes available re service code for domestic crating
+		// re service code
 		// Required: true
 		// Enum: [DCRT DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`

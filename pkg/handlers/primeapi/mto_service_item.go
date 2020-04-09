@@ -16,6 +16,15 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS.
+// We will eventually remove this when all service items are added.
+var allowedServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
+	primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:          true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:          true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:         true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating: true,
+}
+
 // CreateMTOServiceItemHandler is the handler to update MTO shipments
 type CreateMTOServiceItemHandler struct {
 	handlers.HandlerContext
@@ -26,15 +35,10 @@ type CreateMTOServiceItemHandler struct {
 func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOServiceItemParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	// THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS
 	// restrict creation to a list
-	allowedMap := map[primemessages.MTOServiceItemModelType]bool{
-		primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:          true,
-		primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating: true,
-	}
-	if _, ok := allowedMap[params.Body.ModelType()]; !ok {
+	if _, ok := allowedServiceItemMap[params.Body.ModelType()]; !ok {
 		// throw error if modelType() not on the list
-		mapKeys := getMapKeys(allowedMap)
+		mapKeys := getMapKeys(allowedServiceItemMap)
 		detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", params.Body.ModelType())
 		verrs := validate.NewErrors()
 		verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
