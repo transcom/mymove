@@ -116,7 +116,7 @@ table {
       @include u-border('base-lighter');
     }
     .error {
-      @include u-border-left(2px);
+      @include u-border-left(0.5);
       @include u-border-left('error');
     }
   }
