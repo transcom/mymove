@@ -26,9 +26,9 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 	var stmt strings.Builder
 
 	i := 0
-	var hasCopyStatment []string
+	inCopyStatement := false
 	for {
-		// Get previous and current characters
+		// Get current character
 		char, err := in.Index(i)
 		if err != nil {
 			if err == io.EOF {
@@ -42,10 +42,37 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			}
 		}
 
-		// if statement is empty, don't prefix with spaces
+		// If statement is empty, don't prefix with spaces
 		if stmt.Len() == 0 && byteIsSpace(char) {
 			i++
 			continue
+		}
+
+		// If we're in a COPY statement, see if we've reached the end stdin marker
+		if inCopyStatement && char == '\n' {
+			twoPrevChars, err := in.Range(i-2, i)
+			if err != nil {
+				if err == ErrWait {
+					time.Sleep(wait)
+					continue
+				} else {
+					close(statements)
+					return
+				}
+			} else if twoPrevChars == "\\." {
+				// Found the end stdin marker, so slice the string into lines, send to the
+				// channel, and reset our copy statement boolean.
+				str := strings.TrimSpace(stmt.String())
+				copyStmts := strings.Split(str, "\n")
+				for _, dataStmt := range copyStmts {
+					statements <- dataStmt
+					stmt.Reset()
+				}
+
+				inCopyStatement = false
+				i++ // eat 1 character
+				continue
+			}
 		}
 
 		// If not in block not quoted and on semicolon, then split statement.
@@ -56,10 +83,8 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 				stmt.Reset()
 			}
 
-			// check for copy statement in statements, we only need to do this once
-			if hasCopyStatment == nil {
-				hasCopyStatment = copyStdinPattern.FindStringSubmatch(str)
-			}
+			// Check to see if this was a COPY statement
+			inCopyStatement = copyStdinPattern.MatchString(str)
 			i++ // eat 1 character
 			continue
 		}
@@ -96,7 +121,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			continue
 		}
 
-		// If not quoted and there's a quote.
+		// If not quoted and there's a quote, increase our quote level.
 		if char == '\'' {
 			str, err := in.Range(i, i+2)
 			if err != nil {
@@ -121,6 +146,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			continue
 		}
 
+		// Look for blocks of code such as "DO"
 		if isAfterSpace(in, i) {
 			str, err := in.Range(i, i+3)
 			if err != nil {
@@ -192,7 +218,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			}
 		}
 
-		// let's see if we match the last block
+		// Let's see if we match the last block
 		if !blocks.Empty() {
 			lastBlock := strings.ToUpper(blocks.Last())
 			str, err := in.Range(i, i+len(lastBlock))
@@ -213,7 +239,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			}
 		}
 
-		// if nothing special simply add the character and increment the cursor
+		// If nothing special, simply add the character and increment the cursor
 		stmt.WriteByte(char)
 		i++
 	}
@@ -222,16 +248,8 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 	if stmt.Len() > 0 {
 		str := strings.TrimSpace(stmt.String())
 		if len(str) > 0 {
-			// if we found COPY statement in statements anywhere, we assume last rows are data rows. Split them on newline
-			if hasCopyStatment != nil {
-				copyStmts := strings.Split(str, "\n")
-				for _, dataStmt := range copyStmts {
-					statements <- dataStmt
-				}
-			} else {
-				statements <- str
-				stmt.Reset()
-			}
+			statements <- str
+			stmt.Reset()
 		}
 	}
 	close(statements)
