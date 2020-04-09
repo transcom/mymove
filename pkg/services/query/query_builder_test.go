@@ -409,7 +409,7 @@ func (suite *QueryBuilderSuite) TestTransaction() {
 		userInfo := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
-			Email:                  "spaceman@leo.org",
+			Email:                  "spacemannnnnnnnn@leo.org",
 			TransportationOfficeID: transportationOffice.ID,
 			Telephone:              "312-111-1111",
 			TransportationOffice:   transportationOffice,
