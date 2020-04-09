@@ -245,3 +245,59 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
 	})
 }
+
+func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
+	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: mto,
+	})
+	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: "DDFSIT",
+		},
+	})
+	builder := query.NewQueryBuilder(suite.DB())
+
+	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s/mto_service_items", mto.ID.String(), mtoShipment.ID.String()), nil)
+
+	mtoServiceItem := models.MTOServiceItem{
+		MoveTaskOrderID: mto.ID,
+		MTOShipmentID:   &mtoShipment.ID,
+		ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
+		Description:     handlers.FmtString("description"),
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               "0400Z",
+				FirstAvailableDeliveryDate: time.Now(),
+			},
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeSecond,
+				TimeMilitary:               "0400Z",
+				FirstAvailableDeliveryDate: time.Now(),
+			},
+		},
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	params := mtoserviceitemops.CreateMTOServiceItemParams{
+		HTTPRequest:     req,
+		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+		MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
+		Body:            payloads.MTOServiceItem(&mtoServiceItem),
+	}
+
+	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		suite.NotZero(okResponse.Payload.ID())
+	})
+}
