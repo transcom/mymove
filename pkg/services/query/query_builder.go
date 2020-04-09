@@ -460,6 +460,7 @@ func associatedQuery(query *pop.Query, associations services.QueryAssociations, 
 
 // Transaction will create a new transaction on the connection. Will rollback if
 // fn returns error, otherwise, will commit.
+// TODO: Will need to revisit the design for this. Use internal txDB state instead?
 func (p *Builder) Transaction(fn func(tx *pop.Connection) error) error {
 	return p.db.Transaction(fn)
 }
