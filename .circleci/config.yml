@@ -564,12 +564,9 @@ jobs:
       - restore_cache:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - attach_workspace:
-          at: /home/circleci/transcom/mymove/bin
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate
       - run: rm -f bin/generate-test-data && make bin/generate-test-data
-      - run: rm -f bin/prime-api-client && make bin/prime-api-client
       - e2e_tests
       - store_artifacts:
           path: cypress/videos
