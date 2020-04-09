@@ -371,7 +371,7 @@ storiesOf('Components|Tables', module)
           <table>
             <tbody>
               <tr>
-                <td>Table Cell Content</td>
+                <td className="numeric">Table Cell Content</td>
               </tr>
             </tbody>
           </table>
@@ -411,7 +411,7 @@ storiesOf('Components|Tables', module)
           <table>
             <thead>
               <tr>
-                <th>Table Cell Content</th>
+                <th className="numeric">Table Cell Content</th>
               </tr>
             </thead>
           </table>

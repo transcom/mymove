@@ -76,6 +76,9 @@ table {
       @include u-border(1px);
       @include u-border('base-darkest');
     }
+    &.numeric {
+      @include u-text('right');
+    }
   }
   th {
     @include u-text('normal');
