@@ -55,7 +55,7 @@ func (gre *GHCRateEngineImporter) mapZip3s(dbTx *pop.Connection, fixturePath str
 	for _, zip3RateArea := range zip3RateAreas {
 		var reZip3 models.ReZip3
 
-		err = dbTx.Where("zip3 = ?", zip3RateArea.Zip).First(&reZip3)
+		err = dbTx.Where("zip3 = ?", zip3RateArea.Zip).Where("contract_id = ?", gre.ContractID).First(&reZip3)
 		if err != nil {
 			return fmt.Errorf("failed to find ReZip3 record with zip %s: %w", zip3RateArea.Zip, err)
 		}
