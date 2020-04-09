@@ -22,9 +22,6 @@ const StackedTableExample = () => (
       </div>
     </div>
     <StackedTable fullWidth>
-      <caption>
-        <h4>Orders</h4>
-      </caption>
       <col style={{ width: '25%' }} />
       <col style={{ width: '75%' }} />
       <StackedTableRow>
@@ -98,5 +95,13 @@ const StackedTableWithButtons = () => (
 );
 
 storiesOf('Components|StackedTable', module)
-  .add('default', () => <StackedTableExample />)
-  .add('with buttons to edit', () => <StackedTableWithButtons />);
+  .add('default', () => (
+    <div style={{ padding: `20px`, background: `#f0f0f0` }}>
+      <StackedTableExample />
+    </div>
+  ))
+  .add('with buttons to edit', () => (
+    <div style={{ padding: `20px`, background: `#f0f0f0` }}>
+      <StackedTableWithButtons />
+    </div>
+  ));
