@@ -863,6 +863,12 @@ definitions:
     enum:
       - ITEM
       - CRATE
+  CustomerContactType:
+    description: Describes a customer contact type for a MTOServiceItemDomesticDestSIT
+    type: string
+    enum:
+      - FIRST
+      - SECOND
   MTOServiceItemDimension:
     description: Describes a dimension object for the MTOServiceItem
     type: object
@@ -907,6 +913,7 @@ definitions:
     enum:
       - MTOServiceItemBasic
       - MTOServiceItemDOFSIT
+      - MTOServiceItemDDFSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
   MTOAgentType:
@@ -974,6 +981,35 @@ definitions:
         required:
           - reason
           - pickupPostalCode
+  MTOServiceItemDDFSIT:
+    description: Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            $ref: '#/definitions/ReServiceCode'
+          type:
+            $ref: '#/definitions/CustomerContactType'
+          timeMilitary1:
+            type: string
+            example: 0400Z
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            example: 2020-01-20
+          timeMilitary2:
+            type: string
+            example: 0400Z
+          firstAvailableDeliveryDate2:
+            format: date
+            type: string
+            example: 2020-01-20
+        required:
+          - timeMilitary1
+          - firstAvailableDeliveryDate1
+          - timeMilitary2
+          - firstAvailableDeliveryDate2
   MTOServiceItemShuttle:
     description: Describes a shuttle service item
     allOf:
@@ -1006,9 +1042,6 @@ definitions:
             enum:
               - DCRT # Domestic Crating
               - DUCRT # Domestic Uncrating
-          reason:
-            type: string
-            example: Storage items need to be picked up
           item:
             $ref: '#/definitions/MTOServiceItemDimension'
           crate:

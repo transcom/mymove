@@ -807,6 +807,14 @@ func init() {
         }
       }
     },
+    "CustomerContactType": {
+      "description": "Describes a customer contact type for a MTOServiceItemDomesticDestSIT",
+      "type": "string",
+      "enum": [
+        "FIRST",
+        "SECOND"
+      ]
+    },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension",
       "type": "string",
@@ -1028,6 +1036,49 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDDFSIT": {
+      "description": "Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "timeMilitary1",
+            "firstAvailableDeliveryDate1",
+            "timeMilitary2",
+            "firstAvailableDeliveryDate2"
+          ],
+          "properties": {
+            "firstAvailableDeliveryDate1": {
+              "type": "string",
+              "format": "date",
+              "example": "2020-01-20"
+            },
+            "firstAvailableDeliveryDate2": {
+              "type": "string",
+              "format": "date",
+              "example": "2020-01-20"
+            },
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            },
+            "timeMilitary1": {
+              "type": "string",
+              "example": "0400Z"
+            },
+            "timeMilitary2": {
+              "type": "string",
+              "example": "0400Z"
+            },
+            "type": {
+              "$ref": "#/definitions/CustomerContactType"
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemDOFSIT": {
       "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem",
       "allOf": [
@@ -1126,10 +1177,6 @@ func init() {
                 "DCRT",
                 "DUCRT"
               ]
-            },
-            "reason": {
-              "type": "string",
-              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -1141,6 +1188,7 @@ func init() {
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemDOFSIT",
+        "MTOServiceItemDDFSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating"
       ]
@@ -2557,6 +2605,14 @@ func init() {
         }
       }
     },
+    "CustomerContactType": {
+      "description": "Describes a customer contact type for a MTOServiceItemDomesticDestSIT",
+      "type": "string",
+      "enum": [
+        "FIRST",
+        "SECOND"
+      ]
+    },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension",
       "type": "string",
@@ -2778,6 +2834,49 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDDFSIT": {
+      "description": "Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "timeMilitary1",
+            "firstAvailableDeliveryDate1",
+            "timeMilitary2",
+            "firstAvailableDeliveryDate2"
+          ],
+          "properties": {
+            "firstAvailableDeliveryDate1": {
+              "type": "string",
+              "format": "date",
+              "example": "2020-01-20"
+            },
+            "firstAvailableDeliveryDate2": {
+              "type": "string",
+              "format": "date",
+              "example": "2020-01-20"
+            },
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            },
+            "timeMilitary1": {
+              "type": "string",
+              "example": "0400Z"
+            },
+            "timeMilitary2": {
+              "type": "string",
+              "example": "0400Z"
+            },
+            "type": {
+              "$ref": "#/definitions/CustomerContactType"
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemDOFSIT": {
       "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem",
       "allOf": [
@@ -2876,10 +2975,6 @@ func init() {
                 "DCRT",
                 "DUCRT"
               ]
-            },
-            "reason": {
-              "type": "string",
-              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -2891,6 +2986,7 @@ func init() {
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemDOFSIT",
+        "MTOServiceItemDDFSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating"
       ]
