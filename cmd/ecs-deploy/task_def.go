@@ -498,7 +498,14 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 
 	// Short service name needed for RDS, CloudWatch Logs, and SSM
 	serviceNameParts := strings.Split(serviceName, "-")
-	serviceNameShort := serviceNameParts[0]
+
+	//work around to handle service name for standing up engadmin service as it uses app-engadmin-migrations service name and has its own task execution role
+	var serviceNameShort string
+	if len(serviceNameParts) == 3 {
+		serviceNameShort = fmt.Sprintf("%s-%s", serviceNameParts[0], serviceNameParts[1])
+	} else {
+		serviceNameShort = serviceNameParts[0]
+	}
 
 	// Confirm the image exists
 	ecrImage, errECRImage := NewECRImage(imageURI)
