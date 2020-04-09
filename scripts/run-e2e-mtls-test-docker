@@ -151,7 +151,7 @@ mtoShipments=$(echo "$mtos" | jq '.[0] | .mtoShipments')
 #Returns etag for the first mtoShipment, needed to run update-mto-shipment below
 etag=$(echo "$mtoShipments" | jq '.[0] | .eTag' |  tr -d '"')
 #Tests update-shipment endpoint
-go run ./cmd/prime-api-client --insecure update-mto-shipment --etag "${etag}" --filename ./pkg/testdatagen/testdata/update_mto_shipment.json
+prime_api_client update-mto-shipment --etag "${etag}" --filename ./pkg/testdatagen/testdata/update_mto_shipment.json
 
 #
 # INTEGRATION TESTS END
