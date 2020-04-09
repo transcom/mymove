@@ -907,6 +907,7 @@ definitions:
     enum:
       - MTOServiceItemBasic
       - MTOServiceItemDOFSIT
+      - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
   MTOAgentType:
     type: string
@@ -973,6 +974,27 @@ definitions:
         required:
           - reason
           - pickupPostalCode
+  MTOServiceItemShuttle:
+    description: Describes a shuttle service item
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            enum:
+              - DOSHUT # Domestic Origin Shuttle Service
+              - DDSHUT # Domestic Destination Shuttle Service
+          reason:
+            type: string
+            example: Storage items need to be picked up
+          description:
+            type: string
+            example: Things to be moved to the place by shuttle.
+        required:
+          - reason
+          - reServiceCode
+          - description
   MTOServiceItemDomesticCrating:
     description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem
     allOf:
@@ -980,11 +1002,13 @@ definitions:
       - type: object
         properties:
           reServiceCode:
-            description: Describes available re service code for domestic crating
             type: string
             enum:
               - DCRT # Domestic Crating
               - DUCRT # Domestic Uncrating
+          reason:
+            type: string
+            example: Storage items need to be picked up
           item:
             $ref: '#/definitions/MTOServiceItemDimension'
           crate:

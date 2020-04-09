@@ -2294,9 +2294,10 @@
     "@babel/runtime" "^7.5.5"
     "@testing-library/dom" "^5.6.1"
 
-"@trussworks/react-uswds@https://github.com/trussworks/react-uswds.git#develop":
-  version "1.0.0"
-  resolved "https://github.com/trussworks/react-uswds.git#a479ac3bc15ffc8423d85ea7b3e8cef1524649cc"
+"@trussworks/react-uswds@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-1.1.0.tgz#a38e8bb1639be307bd4dba8551c4f37bf99357c6"
+  integrity sha512-L64N6ClB/WTCEN6IhKhdjI6g/MpNvmQgt9mWkKQ4zA6/rmtz3fzwhwVEepWhAE9C5Ml8h6+i3R7fDLuWwhO2Bg==
   dependencies:
     classnames "^2.2.6"
     react "^16.10.0"
@@ -5560,13 +5561,6 @@ dom-converter@^0.2:
   dependencies:
     utila "~0.4"
 
-dom-helpers@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/dom-helpers/-/dom-helpers-3.4.0.tgz#e9b369700f959f62ecde5a6babde4bccd9169af8"
-  integrity sha512-LnuPJ+dwqKDIyotW1VzmOZ5TONUN7CwkCR5hrgawTUbkBGYdeoNLZo6nNfGkCrjtE1nXXaj7iMMpDa8/d9WoIA==
-  dependencies:
-    "@babel/runtime" "^7.1.2"
-
 dom-helpers@^5.0.1:
   version "5.1.3"
   resolved "https://registry.yarnpkg.com/dom-helpers/-/dom-helpers-5.1.3.tgz#7233248eb3a2d1f74aafca31e52c5299cc8ce821"
@@ -6852,6 +6846,11 @@ flush-write-stream@^1.0.0:
   dependencies:
     inherits "^2.0.3"
     readable-stream "^2.3.6"
+
+fn-name@~3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/fn-name/-/fn-name-3.0.0.tgz#0596707f635929634d791f452309ab41558e3c5c"
+  integrity sha512-eNMNr5exLoavuAMhIUVsOKF79SWd/zG104ef6sxBTSw+cZc6BXdQXDvYcGvp0VbxVVSp1XDUNoz7mg1xMtSznA==
 
 focus-lock@^0.6.6:
   version "0.6.6"
@@ -9612,7 +9611,7 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
-lodash-es@^4.17.10, lodash-es@^4.17.14, lodash-es@^4.17.15, lodash-es@^4.17.5, lodash-es@^4.2.1:
+lodash-es@^4.17.10, lodash-es@^4.17.11, lodash-es@^4.17.14, lodash-es@^4.17.15, lodash-es@^4.17.5, lodash-es@^4.2.1:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.15.tgz#21bd96839354412f23d7a10340e5eac6ee455d78"
   integrity sha512-rlrc3yU3+JNOpZ9zj5pQtxnx2THmvRykwL4Xlxoa8I9lHBlVbbyPhgyPMioxVZ4NqyxaVVtaJnzsyOidQIhyyQ==
@@ -12072,10 +12071,10 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@=2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.0.2.tgz#1ba8f3eb92231e769b7fcd7cb73ae1b6b74ade08"
-  integrity sha512-5xJQIPT8BraI7ZnaDwSbu5zLrB6vvi8hVV58yHQ+QK64qrY40dULy0HSRlQ2/2IdzeBpjhDkqdcFBnFeDEMVdg==
+prettier@=2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.0.4.tgz#2d1bae173e355996ee355ec9830a7a1ee05457ef"
+  integrity sha512-SVJIQ51spzFDvh4fIbCLvciiDMCrRhlN3mbZvv/+ycjvmF5E73bKdGfU8QDLNmjYJf+lsGnDBC4UUnvTe5OO0w==
 
 pretty-bytes@^5.1.0:
   version "5.3.0"
@@ -12220,6 +12219,11 @@ prop-types@~15.6.1:
     loose-envify "^1.3.1"
     object-assign "^4.1.1"
 
+property-expr@^2.0.0:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/property-expr/-/property-expr-2.0.2.tgz#fff2a43919135553a3bc2fdd94bdb841965b2330"
+  integrity sha512-bc/5ggaYZxNkFKj374aLbEDqVADdYaLcFo8XBkishUWbaAdjlphaBFns9TvRA2pUseVL/wMFmui9X3IdNDU37g==
+
 property-information@^5.0.0:
   version "5.4.0"
   resolved "https://registry.yarnpkg.com/property-information/-/property-information-5.4.0.tgz#16e08f13f4e5c4a7be2e4ec431c01c4f8dba869a"
@@ -12323,9 +12327,9 @@ qs@~6.5.2:
   integrity sha512-N5ZAX4/LxJmF+7wN74pUD6qAh9/wnvdQcjq9TZjevvXzSUo7bfmw91saqMjzGS2xq91/odN2dW/WOl7qQHNDGA==
 
 query-string@6, query-string@^6.8.2:
-  version "6.11.1"
-  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.11.1.tgz#ab021f275d463ce1b61e88f0ce6988b3e8fe7c2c"
-  integrity sha512-1ZvJOUl8ifkkBxu2ByVM/8GijMIPx+cef7u3yroO3Ogm4DOdZcF5dcrWTIlSHe3Pg/mtlt6/eFjObDfJureZZA==
+  version "6.12.0"
+  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.12.0.tgz#fa0fe5b3ddf4d040d1236b80672949ab33d5cf80"
+  integrity sha512-aoiFW9ZU7jP8Itjqfpw80Qe7RoyCIhFrW522sdsp9LG92pat6CCG3d8qNZBaUi71FsEjIfLjx9Ky347FtVoqXA==
   dependencies:
     decode-uri-component "^0.2.0"
     split-on-first "^1.0.0"
@@ -12391,10 +12395,10 @@ ra-core@^2.9.9:
     redux-saga "~0.16.0"
     reselect "~3.0.0"
 
-ra-core@^3.3.3:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.3.3.tgz#a1a827f7dfc3628bb60802a994fde891f0a783f7"
-  integrity sha512-SwbKf/qnYfCSTrbjnRo0w6PM3cHcyA6iKNElSqf0OlV6FeXxVrTjuxE5lAbjRaxBKZBE62h7LtBj48z2TjYr/g==
+ra-core@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.4.0.tgz#1d4b49b78cf60eb2b0d2c1584ccfce73611ab9a6"
+  integrity sha512-hpC0r6s6Uodj3e8T06uvBbk/dcv2H/C2Gih+ouAyuKOR4gglAWIPqcpy6SfN5cZrBxbGkvDCFSKDNNMw5067+g==
   dependencies:
     "@testing-library/react" "^8.0.7"
     classnames "~2.2.5"
@@ -12415,28 +12419,30 @@ ra-data-simple-rest@^2.9.9:
     query-string "~5.1.1"
     ra-core "^2.9.9"
 
-ra-i18n-polyglot@^3.3.3:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.3.3.tgz#52cad332a71c6cda26fd02be1372e03ee1bc8b27"
-  integrity sha512-dV00IZ5/gLLhTAbcmKeb4F5BsDE1anQMYRR1y6DeZobW4uMDjIX23HPUPGUGi4Cj6Na3M+j+lXqKsjpuQu6ZVg==
+ra-i18n-polyglot@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.4.0.tgz#fcc2067e55e953c58f496d579837241615eca85b"
+  integrity sha512-53VWZ3C9cza9cqfibzGVBdFAA/zc3c8pLY2yt5RKNiD1taHylZyX0doebC///jOe7OwUaOHv1KnD5WdLaNM93Q==
   dependencies:
     node-polyglot "^2.2.2"
-    ra-core "^3.3.3"
+    ra-core "^3.4.0"
 
 ra-language-english@^2.9.9:
   version "2.9.9"
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-2.9.9.tgz#e8d90d40df8e5e66de8a7b3a72f33dd9de638501"
   integrity sha512-tWybE7ZnCRyiVAWcyN02LA4v5oi030A853lLDmTJUJySUMSwqyy3EpAdiLrOXfe3XKEoyIjRLGQK54iX2cQ/Mw==
 
-ra-language-english@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.2.0.tgz#2ca13b767d834b43fefd128f48e452449f812b61"
-  integrity sha512-/XmwYWoQoB4MBkkzBCbg/ykCuRGjHQOHLk2ik6n1aM10AWHxiiJNyRw2aoLzH7Vc5rcp4BBJQCuhT+DgfYIJ2Q==
+ra-language-english@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.4.0.tgz#1296dd9bd632f175e71f885c9bdbc06379b49d5a"
+  integrity sha512-H2ZapYrn4jPyj7/+aA2X4XUaXQ6t2y5gR8DlSsRZlkmlHVWcpUFlyG2gZCYTDAeVKXO5Dedgf09KlYLJ6p7p0w==
+  dependencies:
+    ra-core "^3.4.0"
 
-ra-ui-materialui@^3.3.3:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.3.3.tgz#143e22dcee4d3e4d83c976354367ee00f02a95a6"
-  integrity sha512-qtJH16NQl+ebyNIyrCtYNHiR2IwyZx9XSyRILoJgPdPITiAr+j/cuz7DB6o1D5HQUl5/VOSu4IQIM3jlXjrYFQ==
+ra-ui-materialui@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.4.0.tgz#9f3f573384ee8c8e91637627fb888bd51a4fd0b9"
+  integrity sha512-nV10aD4Z8ZgmZUcnfNTzAelQCxqdc5cG/KxyYvcqqV9j0oGBrqC9dr00bKLIBHc1oFTVvLwcdPd4p78tO6B+5g==
   dependencies:
     autosuggest-highlight "^3.1.1"
     classnames "~2.2.5"
@@ -12449,7 +12455,7 @@ ra-ui-materialui@^3.3.3:
     prop-types "^15.7.0"
     query-string "^5.1.1"
     react-dropzone "^10.1.7"
-    react-transition-group "^2.2.1"
+    react-transition-group "^4.3.0"
     recompose "~0.26.0"
 
 raf@^3.4.1:
@@ -12529,10 +12535,10 @@ react-addons-create-fragment@^15.6.2:
     loose-envify "^1.3.1"
     object-assign "^4.1.0"
 
-react-admin@^3.3.3:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.3.3.tgz#05d03ea8bcb7425caf4e48076138f4da1a4825b8"
-  integrity sha512-sUiwC/jaL+0RvJFuA/8dsKB7brmno0+d+++Y52G9coBeJceEmY41gEh9Q9w/GUQb4+9VstyJj9Aoq1ns2Qnteg==
+react-admin@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.4.0.tgz#d2806d9bab6f1c73e4f065d6f339389dd8126195"
+  integrity sha512-tgxCAYPkoZa7LC8ImFU8pQVFf5ja4dbxtx4/bgCOYJ7/QbTYdwFhzwuhfspnzRWDO3Tvkx3VTiuObQuR+JIDug==
   dependencies:
     "@material-ui/core" "^4.3.3"
     "@material-ui/icons" "^4.2.1"
@@ -12540,10 +12546,10 @@ react-admin@^3.3.3:
     connected-react-router "^6.5.2"
     final-form "^4.18.5"
     final-form-arrays "^3.0.1"
-    ra-core "^3.3.3"
-    ra-i18n-polyglot "^3.3.3"
-    ra-language-english "^3.2.0"
-    ra-ui-materialui "^3.3.3"
+    ra-core "^3.4.0"
+    ra-i18n-polyglot "^3.4.0"
+    ra-language-english "^3.4.0"
+    ra-ui-materialui "^3.4.0"
     react-final-form "^6.3.3"
     react-final-form-arrays "^3.1.1"
     react-redux "^7.1.0"
@@ -13119,16 +13125,6 @@ react-textarea-autosize@^7.1.0:
   dependencies:
     "@babel/runtime" "^7.1.2"
     prop-types "^15.6.0"
-
-react-transition-group@^2.2.1:
-  version "2.9.0"
-  resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-2.9.0.tgz#df9cdb025796211151a436c69a8f3b97b5b07c8d"
-  integrity sha512-+HzNTCHpeQyl4MJ/bdE0u6XRMe9+XG/+aL4mCxVN4DnPBQ0/5bfHWPDuOZUzYdMj94daZaZdCCc1Dzt9R/xSSg==
-  dependencies:
-    dom-helpers "^3.4.0"
-    loose-envify "^1.4.0"
-    prop-types "^15.6.2"
-    react-lifecycles-compat "^3.0.4"
 
 react-transition-group@^4.3.0:
   version "4.3.0"
@@ -14881,6 +14877,11 @@ symbol.prototype.description@^1.0.0:
     es-abstract "^1.17.0-next.1"
     has-symbols "^1.0.1"
 
+synchronous-promise@^2.0.10:
+  version "2.0.10"
+  resolved "https://registry.yarnpkg.com/synchronous-promise/-/synchronous-promise-2.0.10.tgz#e64c6fd3afd25f423963353043f4a68ebd397fd8"
+  integrity sha512-6PC+JRGmNjiG3kJ56ZMNWDPL8hjyghF5cMXIFOKg+NiwwEZZIvxTWd0pinWKyD227odg9ygF8xVhhz7gb8Uq7A==
+
 table@^5.2.3:
   version "5.4.6"
   resolved "https://registry.yarnpkg.com/table/-/table-5.4.6.tgz#1292d19500ce3f86053b05f0e8e7e4a3bb21079e"
@@ -15130,6 +15131,11 @@ toidentifier@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/toidentifier/-/toidentifier-1.0.0.tgz#7e1be3470f1e77948bc43d94a3c8f4d7752ba553"
   integrity sha512-yaOH/Pk/VEhBWWTlhI+qXxDFXlejDGcQipMlyxda9nthulaxLZUNcUqFxokp0vcYnvteJln5FNQDRrxj3YcbVw==
+
+toposort@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/toposort/-/toposort-2.0.2.tgz#ae21768175d1559d48bef35420b2f4962f09c330"
+  integrity sha1-riF2gXXRVZ1IvvNUILL0li8JwzA=
 
 tough-cookie@^2.3.3, tough-cookie@^2.3.4, tough-cookie@^2.5.0, tough-cookie@~2.5.0:
   version "2.5.0"
@@ -16307,3 +16313,16 @@ yoga-layout-prebuilt@^1.9.3:
   integrity sha512-+G5Ojl4/sG78mk5masCL3SRaZtkKXRBhMGf5c+4C1j32jN9KpS4lxVFdYyBi15EHN4gMeK5sIRf83T33TOaDkA==
   dependencies:
     "@types/yoga-layout" "1.9.1"
+
+yup@^0.28.3:
+  version "0.28.3"
+  resolved "https://registry.yarnpkg.com/yup/-/yup-0.28.3.tgz#1ca607405a8adf24a5ac51f54bd09d527555f0ba"
+  integrity sha512-amVkCgFWe5bGjrrUiODkbIzrSwtB8JpZrQYSrfj2YsbRdrV+tn9LquWdZDlfOx2HXyfEA8FGnlwidE/bFDxO7Q==
+  dependencies:
+    "@babel/runtime" "^7.8.7"
+    fn-name "~3.0.0"
+    lodash "^4.17.15"
+    lodash-es "^4.17.11"
+    property-expr "^2.0.0"
+    synchronous-promise "^2.0.10"
+    toposort "^2.0.2"
