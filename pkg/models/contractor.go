@@ -17,7 +17,6 @@ type Contractor struct {
 	Type           string    `json:"type" db:"type"`
 	ContractNumber string    `json:"contract_number" db:"contract_number"`
 	CreatedAt      time.Time `json:"created_at" db:"created_at"`
-	//ClaimedAt      *time.Time `json:"claimed_at" db:"claimed_at"`
 }
 
 // Contractors is a slice of Contractor objects

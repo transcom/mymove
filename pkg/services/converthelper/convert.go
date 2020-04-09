@@ -83,9 +83,9 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	}
 
 	var contractor models.Contractor
-	contractor.Name = "contractor name"
+	contractor.Name = "Name"
 	contractor.Type = "Type"
-	contractor.ContractNumber = "number"
+	contractor.ContractNumber = "ContractNumber"
 
 	if err := db.Save(&contractor); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not save contractor, %w", err)
