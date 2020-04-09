@@ -498,14 +498,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 
 	// Short service name needed for RDS, CloudWatch Logs, and SSM
 	serviceNameParts := strings.Split(serviceName, "-")
-
-	//work around to handle service name for standing up engadmin service as it uses app-engadmin-migrations service name and has its own task execution role
-	var serviceNameShort string
-	if len(serviceNameParts) == 3 {
-		serviceNameShort = fmt.Sprintf("%s-%s", serviceNameParts[0], serviceNameParts[1])
-	} else {
-		serviceNameShort = serviceNameParts[0]
-	}
+	serviceNameShort := serviceNameParts[0]
 
 	// Confirm the image exists
 	ecrImage, errECRImage := NewECRImage(imageURI)
@@ -559,6 +552,13 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		if listTargetsByRuleErr != nil {
 			quit(logger, nil, fmt.Errorf("error retrieving targets for rule %q: %w", ruleName, listTargetsByRuleErr))
 		}
+	} else if subCommandName == "migrate" && commandName == "python app/manage.py" { //engadmin migrations has its own task def unlike app-migrations below
+		awsLogsStreamPrefix = serviceName
+		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
+		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
+		executionRoleArn = fmt.Sprintf("ecs-task-execution-role-%s-%s", serviceName, environmentName)
+		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
+
 	} else if subCommandName == "migrate" {
 		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
