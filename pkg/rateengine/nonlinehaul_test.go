@@ -28,6 +28,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	serviceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
 		ServiceArea:        "428",
+		ServicesSchedule:   1,
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
