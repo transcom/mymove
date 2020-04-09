@@ -144,6 +144,7 @@ table {
   .usa-select {
     width: 89px;
     height: 38px;
+    @include u-margin(0);
     @include u-margin-right('105');
   }
 }
