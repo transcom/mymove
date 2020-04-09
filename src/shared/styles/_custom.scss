@@ -149,6 +149,7 @@ table {
   @include u-border(0);
   td {
     @include u-border(0);
+    @include u-padding-left(1);
   }
   td,
   th {
