@@ -458,7 +458,8 @@ func associatedQuery(query *pop.Query, associations services.QueryAssociations, 
 	return query.Eager(associations.StringGetAssociations()...)
 }
 
-// Transaction will start a new transaction on the pop connection.
-func (p *Builder) Transaction(fn func(db *pop.Connection) error) error {
+// Transaction will create a new transaction on the connection. Will rollback if
+// fn returns error, otherwise, will commit.
+func (p *Builder) Transaction(fn func(tx *pop.Connection) error) error {
 	return p.db.Transaction(fn)
 }

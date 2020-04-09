@@ -1,6 +1,7 @@
 package query
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -403,39 +404,34 @@ func (suite *QueryBuilderSuite) TestTransaction() {
 	builder := NewQueryBuilder(suite.DB())
 
 	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
-	userInfo := models.OfficeUser{
-		LastName:               "Spaceman",
-		FirstName:              "Leo",
-		Email:                  "spaceman@leo.org",
-		TransportationOfficeID: transportationOffice.ID,
-		Telephone:              "312-111-1111",
-		TransportationOffice:   transportationOffice,
-	}
 
 	suite.T().Run("Successfully creates a record in a transaction", func(t *testing.T) {
+		userInfo := models.OfficeUser{
+			LastName:               "Spaceman",
+			FirstName:              "Leo",
+			Email:                  "spaceman@leo.org",
+			TransportationOfficeID: transportationOffice.ID,
+			Telephone:              "312-111-1111",
+			TransportationOffice:   transportationOffice,
+		}
+
 		var verrs *validate.Errors
 		var err error
 		txErr := builder.Transaction(func(tx *pop.Connection) error {
 			txBuilder := NewQueryBuilder(tx)
 			verrs, err = txBuilder.CreateOne(&userInfo)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
-			}
 
 			return nil
 		})
+		suite.Nil(txErr)
 
 		suite.Nil(verrs)
 		suite.Nil(err)
-		suite.Nil(txErr)
 		suite.NotZero(userInfo.ID)
 	})
 
 	suite.T().Run("Unsuccessfully creates a record in a transaction", func(t *testing.T) {
-		var verrs *validate.Errors
-		var err error
-
-		userInfo := models.OfficeUser{
+		testUser := models.OfficeUser{
 			LastName:               "Spaceman",
 			FirstName:              "Leo",
 			Email:                  "testman@test.com",
@@ -444,22 +440,22 @@ func (suite *QueryBuilderSuite) TestTransaction() {
 			TransportationOffice:   transportationOffice,
 		}
 
-		// rollback intentionally with a successful create
+		// rollback intentionally with a successful create and unsuccessful create
 		txErr := builder.Transaction(func(tx *pop.Connection) error {
 			txBuilder := NewQueryBuilder(tx)
-			verrs, err = txBuilder.CreateOne(&userInfo)
-
+			verrs, err := txBuilder.CreateOne(&testUser)
 			suite.Nil(verrs)
 			suite.Nil(err)
 
-			return fmt.Errorf("failed on for testing")
-		})
+			verrs, err = txBuilder.CreateOne(&models.ReService{})
+			suite.NotNil(verrs)
+			suite.Nil(err)
 
+			return errors.New("testing")
+		})
 		suite.NotNil(txErr)
 
-		// id gets generated but it should not have saved
-		suite.NotZero(userInfo.ID)
-		err = suite.DB().Find(&userInfo, userInfo.ID)
+		err := suite.DB().Find(&models.OfficeUser{}, testUser.ID)
 		suite.NotNil(err)
 	})
 }
