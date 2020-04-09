@@ -441,7 +441,9 @@ storiesOf('Components|Tables', module)
           <table>
             <tbody>
               <tr>
-                <td className="filter">Table Cell Content</td>
+                <td className="filter">
+                  <input className="usa-input" id="input-type-text" name="input-type-text" type="text" />
+                </td>
               </tr>
             </tbody>
           </table>

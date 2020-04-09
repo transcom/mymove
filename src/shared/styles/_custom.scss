@@ -73,8 +73,7 @@ table {
       @include u-text('gray-40');
     }
     &.filter {
-      @include u-border(1px);
-      @include u-border('base-darkest');
+      @include u-bg('gray-5');
     }
     &.numeric {
       @include u-text('right');
