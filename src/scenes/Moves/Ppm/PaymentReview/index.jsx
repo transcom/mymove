@@ -35,7 +35,6 @@ class PaymentReview extends Component {
   state = {
     acceptTerms: false,
     moveSubmissionError: false,
-    calculatedNetWeight: 0,
   };
 
   componentDidMount() {
@@ -48,7 +47,6 @@ class PaymentReview extends Component {
           const weightTicketNetWeight = calcNetWeight(documents);
           const netWeight =
             weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
-          this.setState({ calculatedNetWeight: netWeight });
           // TODO: make not async, make sure this happens
 
           this.props.getPpmWeightEstimate(
@@ -72,7 +70,6 @@ class PaymentReview extends Component {
           const weightTicketNetWeight = calcNetWeight(documents);
           const netWeight =
             weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
-          this.setState({ calculatedNetWeight: netWeight });
           this.props.getPpmWeightEstimate(
             original_move_date,
             pickup_postal_code,
