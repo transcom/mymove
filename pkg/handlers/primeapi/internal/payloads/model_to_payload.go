@@ -310,14 +310,8 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			Reason:           mtoServiceItem.Reason,
 		}
 	case models.ReServiceCodeDDFSIT:
-		firstContact := mtoServiceItem.GetFirstCustomerContact()
-		if firstContact == nil {
-			firstContact = &models.MTOServiceItemCustomerContact{}
-		}
-		secondContact := mtoServiceItem.GetSecondCustomerContact()
-		if secondContact == nil {
-			secondContact = &models.MTOServiceItemCustomerContact{}
-		}
+		firstContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
+		secondContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
 		payload = &primemessages.MTOServiceItemDDFSIT{
 			ReServiceCode:               primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
 			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
@@ -326,14 +320,8 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
 		}
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
-		item := mtoServiceItem.GetItemDimension()
-		if item == nil {
-			item = &models.MTOServiceItemDimension{}
-		}
-		crate := mtoServiceItem.GetCrateDimension()
-		if crate == nil {
-			crate = &models.MTOServiceItemDimension{}
-		}
+		item := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
+		crate := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		payload = &primemessages.MTOServiceItemDomesticCrating{
 			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Item: &primemessages.MTOServiceItemDimension{
@@ -366,8 +354,14 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	}
 
 	// set all relevant fields that apply to all service items
+	var shipmentIDStr string
+	if mtoServiceItem.MTOShipmentID != nil {
+		shipmentIDStr = mtoServiceItem.MTOShipmentID.String()
+	}
+
 	payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
 	payload.SetMoveTaskOrderID(strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()))
+	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
 	payload.SetReServiceID(strfmt.UUID(mtoServiceItem.ReServiceID.String()))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)
 	payload.SetETag(etag.GenerateEtag(mtoServiceItem.UpdatedAt))
@@ -399,4 +393,34 @@ func clientError(title string, detail string, instance uuid.UUID) *primemessages
 		Detail:   handlers.FmtString(detail),
 		Instance: handlers.FmtUUID(instance),
 	}
+}
+
+// getDimension will get the first dimension of the passed in type.
+func getDimension(dimensions models.MTOServiceItemDimensions, dimensionType models.DimensionType) models.MTOServiceItemDimension {
+	if len(dimensions) == 0 {
+		return models.MTOServiceItemDimension{}
+	}
+
+	for _, dimension := range dimensions {
+		if dimension.Type == dimensionType {
+			return dimension
+		}
+	}
+
+	return models.MTOServiceItemDimension{}
+}
+
+// getFirstCustomerContact will get the first customer contact for destination 1st day SIT based on type.
+func getCustomerContact(customerContacts models.MTOServiceItemCustomerContacts, customerContactType models.CustomerContactType) models.MTOServiceItemCustomerContact {
+	if len(customerContacts) == 0 {
+		return models.MTOServiceItemCustomerContact{}
+	}
+
+	for _, customerContact := range customerContacts {
+		if customerContact.Type == customerContactType {
+			return customerContact
+		}
+	}
+
+	return models.MTOServiceItemCustomerContact{}
 }
