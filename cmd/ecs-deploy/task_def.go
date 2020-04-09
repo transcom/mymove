@@ -514,8 +514,17 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// Entrypoint
 	entryPoint := v.GetString(entryPointFlag)
 	entryPointList := strings.Split(entryPoint, " ")
-	commandName := entryPointList[0]
-	subCommandName := entryPointList[1]
+	var commandName, subCommandName string
+	switch len(entryPointList) {
+	case 2:
+		commandName = entryPointList[0]
+		subCommandName = entryPointList[1]
+	case 3:
+		commandName = fmt.Sprintf("%s %s", entryPointList[0], entryPointList[1])
+		subCommandName = entryPointList[2]
+	default:
+		quit(logger, nil, fmt.Errorf("error parsing entry point parameter, expected 2 or 3 strings seperated by spaces but got %s", entryPointList))
+	}
 
 	// Register the new task definition
 	executionRoleArn := fmt.Sprintf("ecs-task-execution-role-%s-%s", serviceName, environmentName)
