@@ -98,6 +98,9 @@ table {
       @include u-padding-x(1);
       @include u-text('base-darker');
       @include u-font('body', '3xs');
+      &.numeric {
+        @include u-text('right');
+      }
     }
     th {
       @include u-text('bold');
