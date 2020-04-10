@@ -169,13 +169,13 @@ Examples usage:
   1. Run this command:
 
    ```sh
-    go run ./cmd/prime-api-client make-available-to-prime --etag {Etag of MTO} --filename {PATH TO FILE}  --hostname supportlocal --insecure | jq
+    go run ./cmd/prime-api-client make-available-to-prime --etag {Etag of MTO} --filename {PATH TO FILE} --insecure | jq
    ```
 
    `Example usage:`
 
    ```sh
-    prime-api-client make-available-to-prime --etag MjAyMC0wMy0zMVQyMTo1NjozOS45NzIxNzha --filename data.json --hostname supportlocal --insecure | jq
+    prime-api-client make-available-to-prime --etag MjAyMC0wMy0zMVQyMTo1NjozOS45NzIxNzha --filename data.json --insecure | jq
    ```
 
   `Successful response:`
