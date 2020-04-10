@@ -75,7 +75,6 @@ services:
       - HTTP_OFFICE_SERVER_NAME=officelocal
       - HTTP_ORDERS_SERVER_NAME=orderslocal
       - HTTP_PRIME_SERVER_NAME=primelocal
-      - HTTP_SUPPORT_SERVER_NAME=supportlocal
       - AWS_CF_DOMAIN=assets.devlocal.move.mil
       - IWS_RBS_HOST
       - LOCAL_STORAGE_ROOT=/tmp
@@ -98,7 +97,6 @@ services:
       - SERVE_API_GHC=false
       - SERVE_API_INTERNAL=true
       - SERVE_API_PRIME=true
-      - SERVE_API_SUPPORT=true
       - STORAGE_BACKEND=local
     volumes:
       - ./tmp:/tmp

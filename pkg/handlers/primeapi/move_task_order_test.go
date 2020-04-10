@@ -7,6 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/strfmt"
+
+	"github.com/transcom/mymove/pkg/etag"
+
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -27,6 +31,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
+
+type FeatureFlag struct {
+	Name   string
+	Active bool
+}
 
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
@@ -281,4 +290,32 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		response := handler.Handle(params)
 		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationUnprocessableEntity{}, response)
 	})
+}
+
+func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+
+	request := httptest.NewRequest("PATCH", "/support/move-task-orders/{moveTaskOrderID}/status", nil)
+	params := movetaskorderops.UpdateMoveTaskOrderStatusParams{
+		HTTPRequest:     request,
+		MoveTaskOrderID: moveTaskOrder.ID.String(),
+		IfMatch:         etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context.SetFeatureFlag(handlers.FeatureFlag{Name: "support-endpoints", Active: true})
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+
+	// make the request
+	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder),
+	}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	moveTaskOrdersResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusOK)
+	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderStatusOK{}, response)
+	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
+	suite.Equal(*moveTaskOrdersPayload.IsAvailableToPrime, true)
 }

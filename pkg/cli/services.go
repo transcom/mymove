@@ -23,8 +23,6 @@ const (
 	ServeGHCFlag string = "serve-api-ghc"
 	// ServePrimeFlag is the prime api flag
 	ServePrimeFlag string = "serve-api-prime"
-	// ServeSupportFlag is the support api flag
-	ServeSupportFlag string = "serve-api-support"
 )
 
 // InitServiceFlags initializes the service command line flags
@@ -36,7 +34,6 @@ func InitServiceFlags(flag *pflag.FlagSet) {
 	flag.Bool(ServeAPIInternalFlag, false, "Enable the Internal API Service.")
 	flag.Bool(ServeGHCFlag, false, "Enable the GHC API Service.")
 	flag.Bool(ServePrimeFlag, false, "Enable the Prime API Service.")
-	flag.Bool(ServeSupportFlag, true, "Enable the Support Service.")
 }
 
 // CheckServices validates these lovely service flags
@@ -48,7 +45,6 @@ func CheckServices(v *viper.Viper) error {
 	internalAPIEnabled := v.GetBool(ServeAPIInternalFlag)
 	ghcAPIEnabled := v.GetBool(ServeGHCFlag)
 	primeAPIEnabled := v.GetBool(ServePrimeFlag)
-	supportAPIEnabled := v.GetBool(ServeSupportFlag)
 
 	// Oops none of the flags used
 	if (!adminEnabled) &&
@@ -57,8 +53,7 @@ func CheckServices(v *viper.Viper) error {
 		(!dpsEnabled) &&
 		(!internalAPIEnabled) &&
 		(!ghcAPIEnabled) &&
-		(!primeAPIEnabled) &&
-		(!supportAPIEnabled) {
+		(!primeAPIEnabled) {
 		return errors.New("no service was enabled")
 	}
 
@@ -76,11 +71,7 @@ func CheckServices(v *viper.Viper) error {
 		if primeAPIEnabled && !mutualTLSEnabled {
 			return errors.New(fmt.Sprintf("for prime service to be enabled both %s and the %s flags must be in use", ServePrimeFlag, MutualTLSListenerFlag))
 		}
-
-		if supportAPIEnabled && !mutualTLSEnabled {
-			return errors.New(fmt.Sprintf("for support  service to be enabled both %s and the %s flags must be in use", ServeSupportFlag, MutualTLSListenerFlag))
-		}
-		if mutualTLSEnabled && !(dpsEnabled || ordersEnabled || primeAPIEnabled || supportAPIEnabled) {
+		if mutualTLSEnabled && !(dpsEnabled || ordersEnabled || primeAPIEnabled) {
 			return errors.New("either dps, orders or prime service must be enabled for mutualTSL to be enabled")
 		}
 	}

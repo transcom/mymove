@@ -94,7 +94,6 @@ services:
       - SERVE_API_GHC=false
       - SERVE_API_INTERNAL=true
       - SERVE_API_PRIME=true
-      - SERVE_API_SUPPORT=true
       - STORAGE_BACKEND=local
     volumes:
       - ./tmp:/tmp
