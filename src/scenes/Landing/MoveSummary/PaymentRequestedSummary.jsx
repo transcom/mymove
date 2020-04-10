@@ -15,7 +15,7 @@ const PaymentRequestedSummary = (props) => {
       <div className="shipment_box">
         <div className="shipment_type">
           <img className="move_sm" src={ppmCar} alt="ppm-car" />
-          Move your own stuff (PPM)
+          Handle your own move (PPM)
         </div>
 
         <div className="shipment_box_contents">
