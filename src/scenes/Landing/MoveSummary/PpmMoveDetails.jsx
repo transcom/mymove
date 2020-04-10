@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents } from 'shared/formatters';
 import { formatIncentiveRange } from 'shared/incentive';
@@ -23,7 +22,7 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimate
   return (
     <div className="titled_block">
       <div className="title">Details</div>
-      <div>Weight (est.): {ppm.currentPpm.weight_estimate} lbs</div>
+      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
       <div className="title" style={{ paddingTop: '0.5em' }}>
         Payment request
       </div>
@@ -66,7 +65,6 @@ const mapStateToProps = (state, ownProps) => {
     'WEIGHT_TICKET_SET',
   ]).some((doc) => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
   return {
-    ppm: get(state, 'ppm', {}),
     advance,
     isMissingWeightTicketDocuments,
     estimateRange: selectPPMEstimateRange(state),
