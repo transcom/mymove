@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/transcom/mymove/pkg/cli"
+
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -53,6 +55,13 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		fetch.NewFetcher(queryBuilder),
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
+	}
+
+	if context.GetFeatureFlag(cli.FeatureFlagSupportEndpoints) {
+		primeAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
+			context,
+			movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
+		}
 	}
 
 	return primeAPI.Serve(nil)
