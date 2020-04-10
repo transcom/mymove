@@ -8,8 +8,11 @@ import { selectActivePPMForMove, selectReimbursement } from 'shared/Entities/mod
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
 import { hasShortHaulError } from 'shared/incentive';
+import { getRequestStatus } from 'shared/Swagger/selectors';
 
 import './Review.css';
+
+const getPPMEstimateLabel = 'ppm.showPPMEstimate';
 
 export class PPMShipmentSummary extends Component {
   chooseEstimateText(ppmEstimate) {
@@ -151,11 +154,13 @@ function mapStateToProps(state, ownProps) {
     state,
     ppm.move_id,
   );
+  const ppmEstimateStatus = getRequestStatus(state, getPPMEstimateLabel);
+
   return {
     ...ownProps,
     advance,
     ppmEstimate: {
-      hasEstimateError: state.ppm.hasEstimateError,
+      hasEstimateError: ppmEstimateStatus,
       hasEstimateSuccess: state.ppm.hasEstimateSuccess,
       hasEstimateInProgress: state.ppm.hasEstimateInProgress,
       rateEngineError: state.ppm.rateEngineError || null,
