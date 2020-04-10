@@ -48,7 +48,7 @@ export class Landing extends Component {
         this.resumeMove();
       }
     }
-    if (prevProps.move.id !== this.props.move.id) {
+    if (prevProps.move && prevProps.move.id !== this.props.move.id) {
       this.props.loadPPMs(this.props.move.id);
     }
   }
