@@ -354,7 +354,7 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
-  '/payment-requests/{paymentRequestID}/status':
+  '/support/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
         - application/json

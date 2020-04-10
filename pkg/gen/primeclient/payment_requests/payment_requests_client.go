@@ -76,7 +76,7 @@ func (a *Client) UpdatePaymentRequestStatus(params *UpdatePaymentRequestStatusPa
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "updatePaymentRequestStatus",
 		Method:             "PATCH",
-		PathPattern:        "/payment-requests/{paymentRequestID}/status",
+		PathPattern:        "/support/payment-requests/{paymentRequestID}/status",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
