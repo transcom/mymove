@@ -73,6 +73,12 @@ table {
       background-color: rgba(255, 255, 255, 0);
       @include u-text('gray-40');
     }
+    &.filter {
+      @include u-bg('gray-5');
+    }
+    &.numeric {
+      @include u-text('right');
+    }
   }
   th {
     @include u-text('normal');
@@ -100,6 +106,9 @@ table {
       @include u-padding-x(1);
       @include u-text('base-darker');
       @include u-font('body', '3xs');
+      &.numeric {
+        @include u-text('right');
+      }
     }
     th {
       @include u-text('bold');
@@ -118,7 +127,7 @@ table {
       @include u-border('base-lighter');
     }
     .error {
-      @include u-border-left(2px);
+      @include u-border-left(0.5);
       @include u-border-left('error');
     }
   }
