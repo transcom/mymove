@@ -61,7 +61,7 @@ export class MoveSummaryComponent extends React.Component {
         if (netWeight === 0) {
           netWeight = this.props.ppm.weight_estimate;
         }
-        if (!isEmpty(this.props.ppm)) {
+        if (!isEmpty(this.props.ppm) && netWeight) {
           this.props.getPpmWeightEstimate(
             this.props.ppm.original_move_date,
             this.props.ppm.pickup_postal_code,

@@ -36,6 +36,7 @@ export class PpmWeight extends Component {
       pendingPpmWeight: 0,
       includesProgear: 'No',
       isProgearMoreThan1000: 'No',
+      hasEstimateError: false,
     };
 
     this.onWeightSelected = this.onWeightSelected.bind(this);
@@ -91,7 +92,7 @@ export class PpmWeight extends Component {
   // this method is used to set the incentive on page load
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
-  updateIncentive() {
+  updateIncentive = () => {
     const { currentPPM, originDutyStationZip, tempCurrentPPM } = this.props;
     const weight = this.state.pendingPpmWeight;
 
@@ -106,8 +107,10 @@ export class PpmWeight extends Component {
         ? currentPPM.pickup_postal_code
         : tempCurrentPPM.pickup_postal_code;
 
-    this.props.getPpmWeightEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight);
-  }
+    this.props
+      .getPpmWeightEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight)
+      .catch((err) => this.setState({ hasEstimateError: true }));
+  };
 
   handleSubmit = () => {
     const ppmBody = {
@@ -268,10 +271,9 @@ export class PpmWeight extends Component {
       pageKey,
       hasEstimateInProgress,
       error,
-      hasEstimateError,
       rateEngineError,
     } = this.props;
-    const { includesProgear, isProgearMoreThan1000 } = this.state;
+    const { includesProgear, isProgearMoreThan1000, hasEstimateError } = this.state;
 
     return (
       <div>
