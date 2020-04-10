@@ -103,6 +103,16 @@ func main() {
 	initUpdateMTOStatusFlags(makeAvailableToPrimeCommand.Flags())
 	root.AddCommand(makeAvailableToPrimeCommand)
 
+	getMoveTaskOrder := &cobra.Command{
+		Use:          "get-mto",
+		Short:        "Get an individual mto",
+		Long:         "Get an individual mto's information",
+		RunE:         getMTO,
+		SilenceUsage: true,
+	}
+	initGetMTOFlags(getMoveTaskOrder.Flags())
+	root.AddCommand(getMoveTaskOrder)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
