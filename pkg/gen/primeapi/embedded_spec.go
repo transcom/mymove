@@ -480,6 +480,103 @@ func init() {
         }
       }
     },
+    "/payment-requests/{paymentRequestID}/status": {
+      "patch": {
+        "description": "Updates status of a payment request by id",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests",
+          "gov"
+        ],
+        "summary": "Updates status of a payment request by id",
+        "operationId": "updatePaymentRequestStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of payment request",
+            "name": "paymentRequestID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated payment request",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      }
+    },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG, PNG, or PDF.",
@@ -1662,6 +1759,22 @@ func init() {
         }
       }
     },
+    "UpdatePaymentRequestStatusPayload": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
     "Upload": {
       "type": "object",
       "required": [
@@ -2294,6 +2407,121 @@ func init() {
             }
           }
         }
+      }
+    },
+    "/payment-requests/{paymentRequestID}/status": {
+      "patch": {
+        "description": "Updates status of a payment request by id",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests",
+          "gov"
+        ],
+        "summary": "Updates status of a payment request by id",
+        "operationId": "updatePaymentRequestStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of payment request",
+            "name": "paymentRequestID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated payment request",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
       }
     },
     "/payment-requests/{paymentRequestID}/uploads": {
@@ -3508,6 +3736,22 @@ func init() {
               }
             }
           }
+        }
+      }
+    },
+    "UpdatePaymentRequestStatusPayload": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
         }
       }
     },

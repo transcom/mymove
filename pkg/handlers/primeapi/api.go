@@ -62,6 +62,13 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 			context,
 			movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
 		}
+
+		//Payment Status Handler Goes Here #TODO
+		primeAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
+			HandlerContext:              context,
+			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
+		}
 	}
 
 	return primeAPI.Serve(nil)

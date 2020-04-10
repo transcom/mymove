@@ -354,6 +354,72 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
+  '/payment-requests/{paymentRequestID}/status':
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: UUID of payment request
+          format: uuid
+          in: path
+          name: paymentRequestID
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdatePaymentRequestStatusPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated payment request
+          schema:
+            $ref: '#/definitions/PaymentRequest'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition Failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+        - gov
+      description: Updates status of a payment request by id
+      operationId: updatePaymentRequestStatus
+      x-swagger-roles:
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
+      summary: Updates status of a payment request by id
   '/support/move-task-orders/{moveTaskOrderID}/status':
     patch:
       consumes:
@@ -1220,6 +1286,17 @@ definitions:
       - bytes
       - createdAt
       - updatedAt
+  UpdatePaymentRequestStatusPayload:
+    properties:
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+      eTag:
+        type: string
+    type: object
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'
