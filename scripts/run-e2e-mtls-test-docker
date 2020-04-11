@@ -116,6 +116,7 @@ $DOCKER_RUN \
 function prime_api_client () {
   # Cannot mount directories in CircleCI so certificates and data are built into the container	##Return mtos from the fetch-mto endpoint where is_available_for_prime is true
   $DOCKER_RUN \
+    -e MUTUAL_TLS_PORT=9443 \
     --link="milmove:primelocal" \
     --net "${NETWORK}" \
     --rm \
