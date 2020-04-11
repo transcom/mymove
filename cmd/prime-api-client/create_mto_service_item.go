@@ -22,12 +22,14 @@ type getType struct {
 	ModelType primemessages.MTOServiceItemModelType `json:"modelType"`
 }
 
+// initCreateMTOServiceItemFlags initializes flags.
 func initCreateMTOServiceItemFlags(flag *pflag.FlagSet) {
 	flag.String(FilenameFlag, "", "Name of the file being passed in")
 
 	flag.SortFlags = false
 }
 
+// checkCreateMTOServiceItemConfig checks the args.
 func checkCreateMTOServiceItemConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := CheckRootConfig(v)
 	if err != nil {
@@ -41,6 +43,7 @@ func checkCreateMTOServiceItemConfig(v *viper.Viper, args []string, logger *log.
 	return nil
 }
 
+// getFileReader will get the bufio file reader.
 func getFileReader(filename string, args []string, logger *log.Logger) *bufio.Reader {
 	var reader *bufio.Reader
 	if filename != "" {
@@ -57,10 +60,12 @@ func getFileReader(filename string, args []string, logger *log.Logger) *bufio.Re
 	return reader
 }
 
+// getJSONDecoder will get a new json decoder.
 func getJSONDecoder(reader *bufio.Reader) *json.Decoder {
 	return json.NewDecoder(reader)
 }
 
+// decodeServiceItem will decode the json into a mto service item type.
 func decodeServiceItem(subType primemessages.MTOServiceItem, jsonDecoder *json.Decoder) (primemessages.MTOServiceItem, error) {
 	err := jsonDecoder.Decode(&subType)
 	if err != nil {
