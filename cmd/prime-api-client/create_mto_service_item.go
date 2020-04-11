@@ -62,7 +62,6 @@ func getJSONDecoder(reader *bufio.Reader) *json.Decoder {
 }
 
 func decodeServiceItem(subType primemessages.MTOServiceItem, jsonDecoder *json.Decoder) (primemessages.MTOServiceItem, error) {
-	//jsonDecoder = json.NewDecoder(getFileReader(filename, args, logger))
 	err := jsonDecoder.Decode(&subType)
 	if err != nil {
 		return nil, fmt.Errorf("second decoding data failed: %w", err)
