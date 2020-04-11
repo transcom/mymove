@@ -340,6 +340,7 @@ commands:
           environment:
             # Env vars needed for the webserver to run inside docker
             APPLICATION: app
+            MUTUAL_TLS_PORT: 9443
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
 
 jobs:
