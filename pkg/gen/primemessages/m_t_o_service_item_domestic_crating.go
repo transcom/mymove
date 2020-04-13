@@ -47,9 +47,6 @@ type MTOServiceItemDomesticCrating struct {
 	// Required: true
 	// Enum: [DCRT DUCRT]
 	ReServiceCode *string `json:"reServiceCode"`
-
-	// reason
-	Reason string `json:"reason,omitempty"`
 }
 
 // ETag gets the e tag of this subtype
@@ -130,8 +127,6 @@ func (m *MTOServiceItemDomesticCrating) SetReServiceName(val string) {
 
 // ReServiceCode gets the re service code of this subtype
 
-// Reason gets the reason of this subtype
-
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 	var data struct {
@@ -152,9 +147,6 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		// Enum: [DCRT DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
-
-		// reason
-		Reason string `json:"reason,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -216,8 +208,6 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 
 	result.ReServiceCode = data.ReServiceCode
 
-	result.Reason = data.Reason
-
 	*m = result
 
 	return nil
@@ -245,9 +235,6 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		// Required: true
 		// Enum: [DCRT DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
-
-		// reason
-		Reason string `json:"reason,omitempty"`
 	}{
 
 		Crate: m.Crate,
@@ -257,8 +244,6 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		Item: m.Item,
 
 		ReServiceCode: m.ReServiceCode,
-
-		Reason: m.Reason,
 	},
 	)
 	if err != nil {

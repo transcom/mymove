@@ -75,6 +75,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	serviceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
 		ServiceArea:        "428",
+		ServicesSchedule:   1,
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -177,6 +178,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		Name:               "Austin",
 		ServiceChargeCents: 100,
 		ServiceArea:        "744",
+		ServicesSchedule:   1,
 		LinehaulFactor:     78,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
@@ -190,6 +192,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		Name:               "SF",
 		ServiceChargeCents: 200,
 		ServiceArea:        "81",
+		ServicesSchedule:   1,
 		LinehaulFactor:     263,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,

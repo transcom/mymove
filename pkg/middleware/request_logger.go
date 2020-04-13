@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/logging"
 )
 
@@ -69,6 +70,8 @@ func RequestLogger(serverLogger Logger) func(inner http.Handler) http.Handler {
 				if session.IsOfficeUser() {
 					fields = append(fields, zap.String("office-user-id", session.OfficeUserID.String()))
 				}
+			} else if clientCert := authentication.ClientCertFromContext(ctx); clientCert != nil {
+				fields = append(fields, zap.String("client-cert-id", clientCert.ID.String()))
 			}
 
 			metrics := httpsnoop.CaptureMetrics(inner, w, r)
