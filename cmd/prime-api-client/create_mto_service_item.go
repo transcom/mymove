@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"reflect"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -19,22 +18,18 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-// THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS
-// restrict creation to a list
-var allowedMap = map[primemessages.MTOServiceItemModelType]bool{
-	primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT: true,
-}
-
 type getType struct {
 	ModelType primemessages.MTOServiceItemModelType `json:"modelType"`
 }
 
+// initCreateMTOServiceItemFlags initializes flags.
 func initCreateMTOServiceItemFlags(flag *pflag.FlagSet) {
 	flag.String(FilenameFlag, "", "Name of the file being passed in")
 
 	flag.SortFlags = false
 }
 
+// checkCreateMTOServiceItemConfig checks the args.
 func checkCreateMTOServiceItemConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := CheckRootConfig(v)
 	if err != nil {
@@ -48,6 +43,7 @@ func checkCreateMTOServiceItemConfig(v *viper.Viper, args []string, logger *log.
 	return nil
 }
 
+// getFileReader will get the bufio file reader.
 func getFileReader(filename string, args []string, logger *log.Logger) *bufio.Reader {
 	var reader *bufio.Reader
 	if filename != "" {
@@ -64,9 +60,18 @@ func getFileReader(filename string, args []string, logger *log.Logger) *bufio.Re
 	return reader
 }
 
-func getJSONDecoder(filename string, args []string, logger *log.Logger) *json.Decoder {
-	reader := getFileReader(filename, args, logger)
+// getJSONDecoder will get a new json decoder.
+func getJSONDecoder(reader *bufio.Reader) *json.Decoder {
 	return json.NewDecoder(reader)
+}
+
+// decodeServiceItem will decode the json into a mto service item type.
+func decodeServiceItem(subType primemessages.MTOServiceItem, jsonDecoder *json.Decoder) (primemessages.MTOServiceItem, error) {
+	err := jsonDecoder.Decode(&subType)
+	if err != nil {
+		return nil, fmt.Errorf("second decoding data failed: %w", err)
+	}
+	return subType, nil
 }
 
 // CreateMTOServiceItem creates the mto service item for a MTO and/or MTOShipment
@@ -100,7 +105,8 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 
 	// reading json file so we can unmarshal
 	filename := v.GetString(FilenameFlag)
-	jsonDecoder := getJSONDecoder(filename, args, logger)
+	reader := getFileReader(filename, args, logger)
+	jsonDecoder := getJSONDecoder(reader)
 	// decode first to determine the model type
 	var gt getType
 	err = jsonDecoder.Decode(&gt)
@@ -108,40 +114,32 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("first decoding data failed: %w", err)
 	}
 
+	// reset decoder to read from beginning
+	jsonDecoder = getJSONDecoder(getFileReader(filename, args, logger))
+
 	// once decoded, we can type cast into a more specific model type
 	// then decode a second time into subtype
 	var serviceItem primemessages.MTOServiceItem
 	switch gt.ModelType {
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:
-		var serviceItemSubtype primemessages.MTOServiceItemDOFSIT
-
-		jsonDecoder = json.NewDecoder(getFileReader(filename, args, logger))
-		err = jsonDecoder.Decode(&serviceItemSubtype)
-		if err != nil {
-			return fmt.Errorf("second decoding data failed: %w", err)
-		}
-		serviceItem = &serviceItemSubtype
+		serviceItem, err = decodeServiceItem(&primemessages.MTOServiceItemDOFSIT{}, jsonDecoder)
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:
-		var serviceItemSubtype primemessages.MTOServiceItemDDFSIT
-
-		jsonDecoder = json.NewDecoder(getFileReader(filename, args, logger))
-		err = jsonDecoder.Decode(&serviceItemSubtype)
-		if err != nil {
-			return fmt.Errorf("second decoding data failed: %w", err)
-		}
-		serviceItem = &serviceItemSubtype
+		serviceItem, err = decodeServiceItem(&primemessages.MTOServiceItemDDFSIT{}, jsonDecoder)
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
-		var serviceItemSubtype primemessages.MTOServiceItemDomesticCrating
-
-		jsonDecoder = json.NewDecoder(getFileReader(filename, args, logger))
-		err = jsonDecoder.Decode(&serviceItemSubtype)
-		if err != nil {
-			return fmt.Errorf("second decoding data failed: %w", err)
-		}
-		serviceItem = &serviceItemSubtype
+		serviceItem, err = decodeServiceItem(&primemessages.MTOServiceItemDomesticCrating{}, jsonDecoder)
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
+		serviceItem, err = decodeServiceItem(&primemessages.MTOServiceItemShuttle{}, jsonDecoder)
 	default:
-		return fmt.Errorf("unexpected MTOServiceItem type: %s \n\nexpected model types: %v",
-			gt.ModelType, reflect.ValueOf(allowedMap).MapKeys())
+		err = fmt.Errorf("allowed modelType(): %v", []primemessages.MTOServiceItemModelType{
+			primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT,
+			primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT,
+			primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating,
+			primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle,
+		})
+	}
+	// return any decoding errors
+	if err != nil {
+		return err
 	}
 
 	// Let's make a request!
