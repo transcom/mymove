@@ -125,9 +125,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItem has not yet been implemented")
 		})
 	}
-	if api.MtoServiceItemUpdateMTOServiceItemstatusHandler == nil {
-		api.MtoServiceItemUpdateMTOServiceItemstatusHandler = mto_service_item.UpdateMTOServiceItemstatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemstatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemstatus has not yet been implemented")
+	if api.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
+		api.MtoServiceItemUpdateMTOServiceItemStatusHandler = mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemStatus has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {

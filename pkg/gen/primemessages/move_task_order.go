@@ -27,6 +27,9 @@ type MoveTaskOrder struct {
 	// Format: date
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -48,18 +51,18 @@ type MoveTaskOrder struct {
 
 	// mto shipments
 	// Required: true
-	MtoShipments MTOShipments `json:"mto_shipments"`
+	MtoShipments MTOShipments `json:"mtoShipments"`
 
 	// payment requests
 	// Required: true
-	PaymentRequests PaymentRequests `json:"payment_requests"`
+	PaymentRequests PaymentRequests `json:"paymentRequests"`
 
 	// ppm estimated weight
-	PpmEstimatedWeight int64 `json:"ppm_estimated_weight,omitempty"`
+	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
 	// ppm type
 	// Enum: [FULL PARTIAL]
-	PpmType string `json:"ppm_type,omitempty"`
+	PpmType string `json:"ppmType,omitempty"`
 
 	// reference Id
 	ReferenceID string `json:"referenceId,omitempty"`
@@ -84,6 +87,8 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
+		ETag string `json:"eTag,omitempty"`
+
 		ID strfmt.UUID `json:"id,omitempty"`
 
 		IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
@@ -94,15 +99,15 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
 
-		MtoServiceItems json.RawMessage `json:"mto_service_items"`
+		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
 
-		MtoShipments MTOShipments `json:"mto_shipments"`
+		MtoShipments MTOShipments `json:"mtoShipments"`
 
-		PaymentRequests PaymentRequests `json:"payment_requests"`
+		PaymentRequests PaymentRequests `json:"paymentRequests"`
 
-		PpmEstimatedWeight int64 `json:"ppm_estimated_weight,omitempty"`
+		PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
-		PpmType string `json:"ppm_type,omitempty"`
+		PpmType string `json:"ppmType,omitempty"`
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
@@ -126,6 +131,9 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// createdAt
 	result.CreatedAt = data.CreatedAt
 
+	// eTag
+	result.ETag = data.ETag
+
 	// id
 	result.ID = data.ID
 
@@ -141,19 +149,19 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// moveOrderID
 	result.MoveOrderID = data.MoveOrderID
 
-	// mto_service_items
+	// mtoServiceItems
 	result.mtoServiceItemsField = propMtoServiceItems
 
-	// mto_shipments
+	// mtoShipments
 	result.MtoShipments = data.MtoShipments
 
-	// payment_requests
+	// paymentRequests
 	result.PaymentRequests = data.PaymentRequests
 
-	// ppm_estimated_weight
+	// ppmEstimatedWeight
 	result.PpmEstimatedWeight = data.PpmEstimatedWeight
 
-	// ppm_type
+	// ppmType
 	result.PpmType = data.PpmType
 
 	// referenceId
@@ -174,6 +182,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 		CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
+		ETag string `json:"eTag,omitempty"`
+
 		ID strfmt.UUID `json:"id,omitempty"`
 
 		IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
@@ -184,13 +194,13 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
 
-		MtoShipments MTOShipments `json:"mto_shipments"`
+		MtoShipments MTOShipments `json:"mtoShipments"`
 
-		PaymentRequests PaymentRequests `json:"payment_requests"`
+		PaymentRequests PaymentRequests `json:"paymentRequests"`
 
-		PpmEstimatedWeight int64 `json:"ppm_estimated_weight,omitempty"`
+		PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
-		PpmType string `json:"ppm_type,omitempty"`
+		PpmType string `json:"ppmType,omitempty"`
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
@@ -198,6 +208,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	}{
 
 		CreatedAt: m.CreatedAt,
+
+		ETag: m.ETag,
 
 		ID: m.ID,
 
@@ -226,7 +238,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	b2, err = json.Marshal(struct {
-		MtoServiceItems []MTOServiceItem `json:"mto_service_items"`
+		MtoServiceItems []MTOServiceItem `json:"mtoServiceItems"`
 	}{
 
 		MtoServiceItems: m.mtoServiceItemsField,
@@ -344,7 +356,7 @@ func (m *MoveTaskOrder) validateMoveOrderID(formats strfmt.Registry) error {
 
 func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
 
-	if err := validate.Required("mto_service_items", "body", m.MtoServiceItems()); err != nil {
+	if err := validate.Required("mtoServiceItems", "body", m.MtoServiceItems()); err != nil {
 		return err
 	}
 
@@ -352,7 +364,7 @@ func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
 
 		if err := m.mtoServiceItemsField[i].Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("mto_service_items" + "." + strconv.Itoa(i))
+				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
 			}
 			return err
 		}
@@ -364,13 +376,13 @@ func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
 
 func (m *MoveTaskOrder) validateMtoShipments(formats strfmt.Registry) error {
 
-	if err := validate.Required("mto_shipments", "body", m.MtoShipments); err != nil {
+	if err := validate.Required("mtoShipments", "body", m.MtoShipments); err != nil {
 		return err
 	}
 
 	if err := m.MtoShipments.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("mto_shipments")
+			return ve.ValidateName("mtoShipments")
 		}
 		return err
 	}
@@ -380,13 +392,13 @@ func (m *MoveTaskOrder) validateMtoShipments(formats strfmt.Registry) error {
 
 func (m *MoveTaskOrder) validatePaymentRequests(formats strfmt.Registry) error {
 
-	if err := validate.Required("payment_requests", "body", m.PaymentRequests); err != nil {
+	if err := validate.Required("paymentRequests", "body", m.PaymentRequests); err != nil {
 		return err
 	}
 
 	if err := m.PaymentRequests.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("payment_requests")
+			return ve.ValidateName("paymentRequests")
 		}
 		return err
 	}
@@ -430,7 +442,7 @@ func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := m.validatePpmTypeEnum("ppm_type", "body", m.PpmType); err != nil {
+	if err := m.validatePpmTypeEnum("ppmType", "body", m.PpmType); err != nil {
 		return err
 	}
 

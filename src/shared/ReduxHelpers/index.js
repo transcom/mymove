@@ -9,7 +9,7 @@ function generateActionTypes(resourceName, actionTypes) {
   resourceName = (resourceName || '').trim();
   if (!resourceName) throw new Error('No resource name provided');
   let actions = {};
-  actionTypes.forEach(actionType => {
+  actionTypes.forEach((actionType) => {
     actions[actionType] = actionName(resourceName, actionType); // eslint-disable-line security/detect-object-injection
   });
   return actions;
@@ -37,11 +37,11 @@ export function generateAsyncActions(resourceName) {
     start: () => ({
       type: actionTypes.start,
     }),
-    success: payload => ({
+    success: (payload) => ({
       type: actionTypes.success,
       payload,
     }),
-    error: error => ({
+    error: (error) => ({
       type: actionTypes.failure,
       error,
     }),
@@ -56,11 +56,11 @@ export function generateAsyncActions(resourceName) {
 export function generateAsyncActionCreator(resourceName, asyncAction) {
   const actions = generateAsyncActions(resourceName);
   return function actionCreator(...args) {
-    return function(dispatch) {
+    return function (dispatch) {
       dispatch(actions.start());
       return asyncAction(...args)
-        .then(item => dispatch(actions.success(item)))
-        .catch(error => {
+        .then((item) => dispatch(actions.success(item)))
+        .catch((error) => {
           dispatch(actions.error(error));
           return Promise.reject(error);
         });
@@ -84,7 +84,7 @@ export function generateAsyncReducer(resourceName, onSuccess, initialState) {
     },
     initialState,
   );
-  return function(state = combinedInitialState, action) {
+  return function (state = combinedInitialState, action) {
     switch (action.type) {
       case actions.start:
         return Object.assign({}, state, {

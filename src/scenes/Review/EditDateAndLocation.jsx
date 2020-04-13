@@ -10,9 +10,9 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { createOrUpdatePpm, getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
+import { getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { selectPPMForMove } from 'shared/Entities/modules/ppms';
+import { loadPPMs, updatePPM, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
@@ -20,7 +20,7 @@ import scrollToTop from 'shared/scrollToTop';
 
 const sitEstimateDebounceTime = 300;
 
-let EditDateAndLocationForm = props => {
+let EditDateAndLocationForm = (props) => {
   const { handleSubmit, currentOrders, getSitEstimate, schema, valid, sitReimbursement, submitting } = props;
   return (
     <div className="grid-container usa-prose">
@@ -80,7 +80,9 @@ let EditDateAndLocationForm = props => {
 };
 
 const editDateAndLocationFormName = 'edit_date_and_location';
-EditDateAndLocationForm = reduxForm({ form: editDateAndLocationFormName })(EditDateAndLocationForm);
+EditDateAndLocationForm = reduxForm({ form: editDateAndLocationFormName, enableReinitialize: true })(
+  EditDateAndLocationForm,
+);
 
 class EditDateAndLocation extends Component {
   handleSubmit = () => {
@@ -91,11 +93,10 @@ class EditDateAndLocation extends Component {
       if (!pendingValues.has_sit) {
         pendingValues.days_in_storage = null;
       }
-
       const moveId = this.props.match.params.moveId;
-      return this.props.createOrUpdatePpm(moveId, pendingValues).then(({ payload }) => {
+      return this.props.updatePPM(moveId, this.props.currentPPM.id, pendingValues).then(({ response }) => {
         this.props
-          .updatePPMEstimate(moveId, payload.id)
+          .updatePPMEstimate(moveId, response.body.id)
           .then(() => {
             // This promise resolves regardless of error.
             if (!this.props.hasSubmitError) {
@@ -105,7 +106,7 @@ class EditDateAndLocation extends Component {
               scrollToTop();
             }
           })
-          .catch(err => {
+          .catch((err) => {
             // This promise resolves regardless of error.
             if (!this.props.hasSubmitError) {
               this.props.editSuccessful();
@@ -128,7 +129,7 @@ class EditDateAndLocation extends Component {
   debouncedSitEstimate = debounce(bind(this.getSitEstimate, this), sitEstimateDebounceTime);
 
   getDebouncedSitEstimate = (e, value, _, field) => {
-    const { currentPpm, formValues, currentOrders } = this.props;
+    const { currentPPM, formValues, currentOrders } = this.props;
     const estimateValues = cloneDeep(formValues);
     // eslint-disable-next-line
     estimateValues[field] = value;
@@ -137,13 +138,15 @@ class EditDateAndLocation extends Component {
       estimateValues.days_in_storage,
       estimateValues.pickup_postal_code,
       currentOrders.id,
-      currentPpm.weight_estimate,
+      currentPPM.weight_estimate,
     );
   };
 
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
+    this.props.loadPPMs(this.props.match.params.moveId);
+    scrollToTop();
   }
 
   render() {
@@ -179,7 +182,6 @@ class EditDateAndLocation extends Component {
             }
             currentOrders={currentOrders}
             onCancel={this.returnToReview}
-            createOrUpdatePpm={createOrUpdatePpm}
           />
         </div>
       </div>
@@ -189,29 +191,29 @@ class EditDateAndLocation extends Component {
 
 EditDateAndLocation.propTypes = {
   schema: PropTypes.object.isRequired,
-  createOrUpdatePpm: PropTypes.func.isRequired,
+  updatePPM: PropTypes.func.isRequired,
   error: PropTypes.object,
 };
 function mapStateToProps(state) {
+  const moveID = state.moves.currentMove.id;
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
-    ...state.ppm,
     move: get(state, 'moves.currentMove'),
     currentOrders: get(state.orders, 'currentOrders'),
-    currentPpm: get(state.ppm, 'currentPpm'),
+    currentPPM: selectActivePPMForMove(state, moveID),
     formValues: getFormValues(editDateAndLocationFormName)(state),
     entitlement: loadEntitlementsFromState(state),
     error: get(state, 'ppm.error'),
     hasSubmitError: get(state, 'ppm.hasSubmitError'),
     entitiesSitReimbursement: get(
-      selectPPMForMove(state, get(state, 'moves.currentMove.id')),
+      selectActivePPMForMove(state, get(state, 'moves.currentMove.id')),
       'estimated_storage_reimbursement',
       '',
     ),
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
-  props.initialValues = props.currentPpm
-    ? props.currentPpm
+  props.initialValues = props.currentPPM
+    ? props.currentPPM
     : defaultPickupZip
     ? {
         pickup_postal_code: defaultPickupZip,
@@ -223,7 +225,8 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       push,
-      createOrUpdatePpm,
+      updatePPM,
+      loadPPMs,
       getPpmSitEstimate,
       editBegin,
       editSuccessful,

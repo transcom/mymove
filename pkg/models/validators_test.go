@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/gobuffalo/validate"
@@ -322,25 +324,29 @@ func Test_OptionalUUIDIsPresent(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	v := models.OptionalUUIDIsPresent{Name: "Name", Field: &id}
+	// positive tests
 
+	// test with filled id
+	v := models.OptionalUUIDIsPresent{Name: "Name", Field: &id}
 	errors := validate.NewErrors()
 	v.IsValid(errors)
-	if errors.Count() != 0 {
+	if errors.Count() > 0 {
+		t.Fatalf("got errors when should be valid: %v", errors)
+	}
+	// test with nil pointer
+	v = models.OptionalUUIDIsPresent{Name: "Name", Field: nil}
+	errors = validate.NewErrors()
+	v.IsValid(errors)
+	if errors.Count() > 0 {
 		t.Fatalf("got errors when should be valid: %v", errors)
 	}
 
+	// negative test
+
+	// test with empty id
 	emptyUUID := uuid.UUID{}
 	v = models.OptionalUUIDIsPresent{Name: "Name", Field: &emptyUUID}
-	v.IsValid(errors)
-	if errors.Count() != 1 {
-		t.Fatalf("got wrong number of errors: %v", errors)
-	}
-	if errors.Get("name")[0] != "Name can not be blank." {
-		t.Fatalf("wrong error; expected %s, got %s", "Name can not be blank.", errors.Get("name")[0])
-	}
-
-	v = models.OptionalUUIDIsPresent{Name: "Name", Field: nil}
+	errors = validate.NewErrors()
 	v.IsValid(errors)
 	if errors.Count() != 1 {
 		t.Fatalf("got wrong number of errors: %v", errors)
@@ -410,6 +416,88 @@ func Test_MustBeBothNilOrBothNotNil_IsValid(t *testing.T) {
 		v.IsValid(errs)
 		if errs.Count() == 0 {
 			t.Fatalf("should throw an error if %v is filled and %v is empty: %v", v.FieldName1, v.FieldName2, errs)
+		}
+	})
+}
+
+func Test_ItemCanFitInsideCrate_IsValid(t *testing.T) {
+	makeInt32 := func(i int) *int32 {
+		val := int32(i)
+		return &val
+	}
+
+	item := primemessages.MTOServiceItemDimension{
+		Height: makeInt32(10000),
+		Length: makeInt32(10000),
+		Width:  makeInt32(10000),
+	}
+	crate := primemessages.MTOServiceItemDimension{
+		Height: makeInt32(20000),
+		Length: makeInt32(20000),
+		Width:  makeInt32(20000),
+	}
+
+	t.Run("item and crate both have values succeeds", func(t *testing.T) {
+		v := models.ItemCanFitInsideCrate{
+			Name:         "Item",
+			Item:         &item,
+			NameCompared: "Crate",
+			Crate:        &crate,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() != 0 {
+			t.Fatalf("got errors when should be valid: %v", errs)
+		}
+	})
+
+	t.Run("item and crate both nil fails", func(t *testing.T) {
+		v := models.ItemCanFitInsideCrate{
+			Name:         "Item",
+			Item:         nil,
+			NameCompared: "Crate",
+			Crate:        nil,
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Fatalf("got no errors when should be invalid")
+		}
+	})
+
+	t.Run("item and crate dimension nil values fails", func(t *testing.T) {
+		v := models.ItemCanFitInsideCrate{
+			Name:         "Item",
+			Item:         &primemessages.MTOServiceItemDimension{},
+			NameCompared: "Crate",
+			Crate:        &primemessages.MTOServiceItemDimension{},
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Fatalf("got no errors when should be invalid")
+		}
+	})
+
+	t.Run("item dimensions greater than or equal to crate dimensions fails", func(t *testing.T) {
+		v := models.ItemCanFitInsideCrate{
+			Name: "Item",
+			Item: &primemessages.MTOServiceItemDimension{
+				Height: makeInt32(0),
+				Length: makeInt32(0),
+				Width:  makeInt32(0),
+			},
+			NameCompared: "Crate",
+			Crate: &primemessages.MTOServiceItemDimension{
+				Height: makeInt32(0),
+				Length: makeInt32(0),
+				Width:  makeInt32(0),
+			},
+		}
+		errs := validate.NewErrors()
+		v.IsValid(errs)
+		if errs.Count() == 0 {
+			t.Fatalf("got no errors when should be invalid")
 		}
 	})
 }

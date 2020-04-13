@@ -24,7 +24,7 @@ Cypress.Screenshot.defaults({
   capture: 'fullPage',
 });
 
-afterEach(function() {
+afterEach(function () {
   if (this.currentTest.state === 'failed') {
     // Take another screenshot so we get the full page
     cy.screenshot();

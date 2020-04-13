@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import {
   selectReimbursement,
   approveReimbursement,
-  selectPPMForMove,
+  selectActivePPMForMove,
   downloadPPMAttachments,
   downloadPPMAttachmentsLabel,
 } from 'shared/Entities/modules/ppms';
@@ -75,9 +75,9 @@ class PaymentsTable extends Component {
     return this.props.moveDocuments.length < 1;
   };
 
-  startDownload = docTypes => {
+  startDownload = (docTypes) => {
     this.setState({ disableDownload: true });
-    this.props.downloadPPMAttachments(this.props.ppm.id, docTypes).then(response => {
+    this.props.downloadPPMAttachments(this.props.ppm.id, docTypes).then((response) => {
       const {
         response: {
           obj: { url },
@@ -314,7 +314,7 @@ class PaymentsTable extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   const { moveId } = ownProps;
-  const ppm = selectPPMForMove(state, moveId);
+  const ppm = selectActivePPMForMove(state, moveId);
   const advance = selectReimbursement(state, ppm.advance);
   const signedCertifications = selectPaymentRequestCertificationForMove(state, moveId);
   const moveDocuments = selectAllDocumentsForMove(state, moveId);
@@ -329,7 +329,7 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-const mapDispatchToProps = dispatch =>
+const mapDispatchToProps = (dispatch) =>
   bindActionCreators(
     {
       getSignedCertification,

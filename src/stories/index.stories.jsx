@@ -2,24 +2,120 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { storiesOf } from '@storybook/react';
+
 import { action } from '@storybook/addon-actions';
-import { linkTo } from '@storybook/addon-links';
-import { Button, Welcome } from '@storybook/react/demo';
+import { Button, Tag } from '@trussworks/react-uswds';
+import { ReactComponent as EditIcon } from 'shared/images/edit-24px.svg';
+import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
+
 import colors from '../shared/styles/colors.scss';
 
-const filterGroup = filter => Object.keys(colors).filter(color => color.indexOf(filter) === 0);
+const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
 
-storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
+// Buttons
 
-storiesOf('Components/Button', module)
-  .add('with text', () => <Button onClick={action('clicked')}>Hello Button</Button>)
-  .add('with some emoji', () => (
+const ButtonGroup = ({ className }) => (
+  <div className={className} style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
     <Button onClick={action('clicked')}>
-      <span role="img" aria-label="so cool">
-        😀 😎 👍 💯
-      </span>
+      <span>Button</span>
     </Button>
+    <Button className="usa-button--icon" onClick={action('clicked')}>
+      <span className="icon">
+        <EditIcon />
+      </span>
+      <span>Button</span>
+    </Button>
+    <Button secondary onClick={action('clicked')}>
+      <span>Button</span>
+    </Button>
+    <Button className="usa-button--small" onClick={action('clicked')}>
+      <span>Button</span>
+    </Button>
+    <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
+      <span className="icon">
+        <EditIcon />
+      </span>
+      <span>Button</span>
+    </Button>
+    <Button secondary className="usa-button--small" onClick={action('clicked')}>
+      <span>Button</span>
+    </Button>
+    <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
+      <span className="icon">
+        <EditIcon />
+      </span>
+      <span>Button</span>
+    </Button>
+    <Button className="usa-button--unstyled" onClick={action('clicked')}>
+      <span>Button</span>
+    </Button>
+    <Button className="usa-button--unstyled" onClick={action('clicked')}>
+      <span className="icon">
+        <EditIcon />
+      </span>
+      <span>Button</span>
+    </Button>
+  </div>
+);
+
+ButtonGroup.defaultProps = {
+  className: '',
+};
+
+ButtonGroup.propTypes = {
+  className: PropTypes.string,
+};
+
+storiesOf('Components|Button', module)
+  .add('default', () => <ButtonGroup />)
+  .add('active', () => <ButtonGroup className="active" />)
+  .add('hover', () => <ButtonGroup className="hover" />)
+  .add('focus', () => <ButtonGroup className="focus" />)
+  .add('disabled', () => (
+    <div className="disabled" style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
+      <Button disabled onClick={action('clicked')}>
+        <span>Button</span>
+      </Button>
+      <Button disabled className="usa-button--icon" onClick={action('clicked')}>
+        <span className="icon">
+          <EditIcon />
+        </span>
+        <span>Button</span>
+      </Button>
+      <Button disabled secondary onClick={action('clicked')}>
+        <span>Button</span>
+      </Button>
+      <Button disabled className="usa-button--small" onClick={action('clicked')}>
+        <span>Button</span>
+      </Button>
+      <Button disabled className="usa-button--icon usa-button--small" onClick={action('clicked')}>
+        <span className="icon">
+          <EditIcon />
+        </span>
+        <span>Button</span>
+      </Button>
+      <Button disabled secondary className="usa-button--small" onClick={action('clicked')}>
+        <span>Button</span>
+      </Button>
+      <Button disabled secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
+        <span className="icon">
+          <EditIcon />
+        </span>
+        <span>Button</span>
+      </Button>
+      <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
+        <span>Button</span>
+      </Button>
+      <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
+        <span className="icon">
+          <EditIcon />
+        </span>
+        <span>Button</span>
+      </Button>
+    </div>
   ));
+
+// Colors
 
 storiesOf('Global|Colors', module).add('all', () => (
   <div style={{ padding: '20px' }}>
@@ -37,18 +133,18 @@ storiesOf('Global|Colors', module).add('all', () => (
 ));
 
 // Convert the color key to the color variable name.
-const colorVariable = color => {
+const colorVariable = (color) => {
   const array = color.split('-')[1].split(/(?=[A-Z])/);
   return `$${array.join('-').toLowerCase()}`;
 };
 
 // Convert the color key to the color proper name.
-const colorName = color => {
+const colorName = (color) => {
   const array = color.split('-')[1].split(/(?=[A-Z])/);
   return `${array.join(' ').toLowerCase()}`;
 };
 
-const colorsHelper = color => {
+const colorsHelper = (color) => {
   if (Object.keys(colors).includes(color)) {
     // The use of colors[color] triggers a security warning from our eslint security plugin.
     // However, since we verify inputs against imported colors and this function is not used where
@@ -111,7 +207,7 @@ const ColorGroup = ({ group }) => (
       padding: '0px',
     }}
   >
-    {group.map(color => {
+    {group.map((color) => {
       return <Color color={color} key={color} />;
     })}
   </ul>
@@ -121,6 +217,7 @@ ColorGroup.propTypes = {
   group: PropTypes.arrayOf.isRequired,
 };
 
+// Typography
 storiesOf('Global|Typography', module)
   .add('Headers', () => (
     <div style={{ padding: '20px' }}>
@@ -182,3 +279,71 @@ storiesOf('Global|Typography', module)
       </small>
     </div>
   ));
+
+// Containers
+
+storiesOf('Components|Containers', module).add('all', () => (
+  <div id="containers" style={{ padding: '20px' }}>
+    <div className="container">
+      <code>
+        <b>Container Default</b>
+        <br />
+        .container
+      </code>
+    </div>
+    <div className="container container--gray">
+      <code>
+        <b>Container Gray</b>
+        <br />
+        .container
+        <br />
+        .container--gray
+      </code>
+    </div>
+    <div className="container container--popout">
+      <code>
+        <b>Container Popout</b>
+        <br />
+        .container
+        <br />
+        .container--popout
+      </code>
+    </div>
+    <div className="container container--accent--blue">
+      <code>
+        <b>Container Accent Blue</b>
+        <br />
+        .container
+        <br />
+        .container--accent--blue
+      </code>
+    </div>
+    <div className="container container--accent--yellow">
+      <code>
+        <b>Container Accent Yellow</b>
+        <br />
+        .container
+        <br />
+        .container--accent--yellow
+      </code>
+    </div>
+  </div>
+));
+
+// Tags
+
+storiesOf('Components|Tags', module).add('all', () => (
+  <div id="tags" style={{ padding: '20px' }}>
+    <hr />
+    <h3>Tags</h3>
+    <Tag>New</Tag>
+    <Tag className="usa-tag--green">Authorized</Tag>
+    <Tag className="usa-tag--red">Rejected</Tag>
+    <Tag className="usa-tag--yellow">Pending</Tag>
+    <Tag className="usa-tag--alert">
+      <AlertIcon />
+    </Tag>
+    <Tag>3</Tag>
+    <Tag className="usa-tag--cyan usa-tag--large">#ABC123K</Tag>
+  </div>
+));

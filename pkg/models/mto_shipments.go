@@ -59,11 +59,13 @@ type MTOShipment struct {
 	ApprovedDate                     *time.Time        `db:"approved_date"`
 	FirstAvailableDeliveryDate       *time.Time        `db:"first_available_delivery_date"`
 	ActualPickupDate                 *time.Time        `db:"actual_pickup_date"`
+	RequiredDeliveryDate             *time.Time        `db:"required_delivery_date"`
 	CustomerRemarks                  *string           `db:"customer_remarks"`
-	PickupAddress                    Address           `belongs_to:"addresses"`
-	PickupAddressID                  uuid.UUID         `db:"pickup_address_id"`
-	DestinationAddress               Address           `belongs_to:"addresses"`
-	DestinationAddressID             uuid.UUID         `db:"destination_address_id"`
+	PickupAddress                    *Address          `belongs_to:"addresses"`
+	PickupAddressID                  *uuid.UUID        `db:"pickup_address_id"`
+	DestinationAddress               *Address          `belongs_to:"addresses"`
+	DestinationAddressID             *uuid.UUID        `db:"destination_address_id"`
+	MTOAgents                        MTOAgents         `has_many:"mto_agents" fk_id:"mto_shipment_id"`
 	SecondaryPickupAddress           *Address          `belongs_to:"addresses"`
 	SecondaryPickupAddressID         *uuid.UUID        `db:"secondary_pickup_address_id"`
 	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses"`
@@ -90,8 +92,8 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusSubmitted),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
-	vs = append(vs, &validators.UUIDIsPresent{Field: m.PickupAddressID, Name: "PickupAddressID"})
-	vs = append(vs, &validators.UUIDIsPresent{Field: m.DestinationAddressID, Name: "DestinationAddressID"})
+	vs = append(vs, &validators.UUIDIsPresent{Field: *m.PickupAddressID, Name: "PickupAddressID"})
+	vs = append(vs, &validators.UUIDIsPresent{Field: *m.DestinationAddressID, Name: "DestinationAddressID"})
 	if m.PrimeEstimatedWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeEstimatedWeight.Int(), Compared: -1, Name: "PrimeEstimatedWeight"})
 	}

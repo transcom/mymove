@@ -3,6 +3,8 @@ package payloads
 import (
 	"time"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -25,6 +27,38 @@ func AddressModel(address *primemessages.Address) *models.Address {
 		PostalCode:     *address.PostalCode,
 		Country:        address.Country,
 	}
+}
+
+// MTOAgentModel model
+func MTOAgentModel(mtoAgent *primemessages.MTOAgent) *models.MTOAgent {
+	if mtoAgent == nil {
+		return nil
+	}
+
+	return &models.MTOAgent{
+		ID:            uuid.FromStringOrNil(mtoAgent.ID.String()),
+		MTOShipmentID: uuid.FromStringOrNil(mtoAgent.MtoShipmentID.String()),
+		FirstName:     mtoAgent.FirstName,
+		LastName:      mtoAgent.LastName,
+		Email:         mtoAgent.Email,
+		Phone:         mtoAgent.Phone,
+		MTOAgentType:  models.MTOAgentType(mtoAgent.AgentType),
+	}
+}
+
+// MTOAgentsModel model
+func MTOAgentsModel(mtoAgents *primemessages.MTOAgents) *models.MTOAgents {
+	if mtoAgents == nil {
+		return nil
+	}
+
+	agents := make(models.MTOAgents, len(*mtoAgents))
+
+	for i, m := range *mtoAgents {
+		agents[i] = *MTOAgentModel(m)
+	}
+
+	return &agents
 }
 
 // MTOShipmentModel model
@@ -59,11 +93,11 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 	}
 
 	if mtoShipment.PickupAddress != nil {
-		model.PickupAddress = *AddressModel(mtoShipment.PickupAddress)
+		model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
 	}
 
 	if mtoShipment.DestinationAddress != nil {
-		model.DestinationAddress = *AddressModel(mtoShipment.DestinationAddress)
+		model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
 	}
 
 	if mtoShipment.PrimeActualWeight > 0 {
@@ -88,13 +122,17 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
 	}
 
+	if mtoShipment.Agents != nil {
+		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
+	}
+
 	return model
 }
 
 // MTOServiceItemModel model
-func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) *models.MTOServiceItem {
+func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.MTOServiceItem, *validate.Errors) {
 	if mtoServiceItem == nil {
-		return nil
+		return nil, nil
 	}
 
 	shipmentID := uuid.FromStringOrNil(mtoServiceItem.MtoShipmentID().String())
@@ -115,11 +153,65 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) *models.MT
 		model.ReService.Code = models.ReServiceCodeDOFSIT
 		model.Reason = dofsit.Reason
 		model.PickupPostalCode = dofsit.PickupPostalCode
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:
+		ddfsit := mtoServiceItem.(*primemessages.MTOServiceItemDDFSIT)
+		model.ReService.Code = models.ReServiceCodeDDFSIT
+		model.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               *ddfsit.TimeMilitary1,
+				FirstAvailableDeliveryDate: time.Time(*ddfsit.FirstAvailableDeliveryDate1),
+			},
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeSecond,
+				TimeMilitary:               *ddfsit.TimeMilitary2,
+				FirstAvailableDeliveryDate: time.Time(*ddfsit.FirstAvailableDeliveryDate2),
+			},
+		}
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
+		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemShuttle)
+		// values to get from payload
+		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
+		model.Reason = shuttleService.Reason
+		model.Description = shuttleService.Description
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
+		domesticCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticCrating)
+
+		// additional validation for this specific service item type
+		verrs := validateDomesticCrating(*domesticCrating)
+		if verrs.HasAny() {
+			return nil, verrs
+		}
+
+		// have to get code from payload
+		model.ReService.Code = models.ReServiceCode(*domesticCrating.ReServiceCode)
+		model.Description = domesticCrating.Description
+		model.Dimensions = models.MTOServiceItemDimensions{
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeItem,
+				Length: unit.ThousandthInches(*domesticCrating.Item.Length),
+				Height: unit.ThousandthInches(*domesticCrating.Item.Height),
+				Width:  unit.ThousandthInches(*domesticCrating.Item.Width),
+			},
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeCrate,
+				Length: unit.ThousandthInches(*domesticCrating.Crate.Length),
+				Height: unit.ThousandthInches(*domesticCrating.Crate.Height),
+				Width:  unit.ThousandthInches(*domesticCrating.Crate.Width),
+			},
+		}
 	default:
 		// assume basic service item, take in provided re service code
 		basic := mtoServiceItem.(*primemessages.MTOServiceItemBasic)
 		model.ReService.Code = models.ReServiceCode(basic.ReServiceCode)
 	}
 
-	return model
+	return model, nil
+}
+
+// validateDomesticCrating validates this mto service item domestic crating
+func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *validate.Errors {
+	return validate.Validate(
+		&models.ItemCanFitInsideCrate{Name: "Item", NameCompared: "Crate", Item: m.Item, Crate: m.Crate},
+	)
 }

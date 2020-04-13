@@ -9,8 +9,8 @@
   * [Engineering](#engineering)
   * [Update Loki tests accordingly](#update-loki-tests-accordingly)
 * [Testing](#testing)
-  * [Test Runners and Libraries](#test-runners-and-libraries)
   * [Writing Tests](#writing-tests)
+  * [Unit Test Runners and Libraries](#unit-test-runners-and-libraries)
   * [Browser Testing](#browser-testing)
   * [Storybook Testing](#storybook-testing)
 * [Code Style](#code-style)
@@ -43,7 +43,7 @@ Regenerate with "pre-commit run -a markdown-toc"
 
 ## Design + Engineering Process for new components
 
-MilMove has defined a process for taking a new component from concept to design to implementation. This section of the doc will describe this process. We use [Storybook](https://storybook.js.org/) for showing the finished components and you can view all current ones on master by going to our [public storybook site](https://storybook.move.mil/). If you want to see things locally please check out the [How To Run Storybook](how-to/run-storybook.md) document.
+MilMove has defined a process for taking a new component from concept to design to implementation. This section of the doc will describe this process. We use [Storybook](https://storybook.js.org/) for showing the finished components and you can view all current ones on master by going to our [public storybook site](https://storybook.move.mil/). If you want to see things locally please check out the [How To Run Storybook](https://github.com/transcom/mymove/wiki/run-storybook) document.
 
 ### Design delivers component design
 
@@ -57,11 +57,36 @@ Once an engineer has the Abstract design for a new component they can begin to i
 
 ### Update Loki tests accordingly
 
-We currently use [Loki](https://loki.js.org/) for ensuring our storybook components do not regress as the project goes on. Please ensure you run the tests and add or update new reference images as you create or update components. See [How to Run Loki tests against Storybook](how-to/run-loki-tests-against-storybook.md) document for more details.
+We currently use [Loki](https://loki.js.org/) for ensuring our storybook components do not regress as the project goes on. Please ensure you run the tests and add or update new reference images as you create or update components. See [How to Run Loki tests against Storybook](https://github.com/transcom/mymove/wiki/run-loki-tests-against-storybook) document for more details.
 
 ## Testing
 
-### Test Runners and Libraries
+MilMove uses a mix of front end testing libraries for different purposes. We use Jest & Enzyme for unit testing our javascript code. We use Cypress test framework for writing integration tests that run in a browser to test out features and the associated functionality of the app. We use Loki tests to visually verify that components in storybook are still displaying as intended. Unfortunately our use of these libraries has not been consistent and some have been introduced later than other thus leading to mixture of usage. This section aims to describe the recommended setup, if you come across areas that are lacking one or more of these tests please consider adding them as part of your changes.
+
+### Writing Tests
+
+MilMove is following a TDD approach so tests are required as part of all code changes. What type of test varies with what you are doing but likely will include a couple of the different types. Below list breaks down general hints as to what type of tests are needed when.
+
+* Storybook Tests
+  * Creating new components based on Abstract designs requires a storybook story and Loki tests
+  * Modifying a component that has storybook story requires updating the storybook stories for that component and Loki tests
+* Unit Tests
+  * React components should have unit tests
+    * Does component render
+    * If it takes parameters are they working as expected
+    * Container components have logic in them, and that logic should be tested.
+  * Redux Reducers should have unit tests
+    * See [redux testing documentation](https://redux.js.org/recipes/writing-tests/#reducers)
+  * Redux Action Creators should have unit tests
+    * See [redux testing documentation](https://redux.js.org/recipes/writing-tests/#action-creators)
+  * Standalone javascript helper methods should have unit tests
+* Browser Tests
+  * New features require new Cypress tests
+  * Changes to existing user flows require updates to Cypress tests
+
+### Unit Test Runners and Libraries
+
+Historically we have leaned on Browser tests to cover testing our app thoroughly. However, we would benefit from adding unit tests, it is highly recommended to add unit tests as we make changes.
 
 * Jest - Testing framework
   * Provided by CRA, executes when you run `yarn test`.
@@ -72,15 +97,6 @@ We currently use [Loki](https://loki.js.org/) for ensuring our storybook compone
   * Use Full rendering (`.mount()`) when you need access to component lifecycle methods.
   * Calling .debug() on a component is helpful to see what a shallow rendered component is composed of.
 
-### Writing Tests
-
-* React component should have a test.
-  * At a minimum: does component render.
-  * Container components have logic in them, and that logic should be tested.
-* Redux Reducers
-* Redux Action Creators?
-  * TODO: Give guidance here.
-
 ### Browser Testing
 
 * We use the [Cypress framework](https://www.cypress.io/) for most browser testing, both with chrome and headless chrome
@@ -89,7 +105,7 @@ We currently use [Loki](https://loki.js.org/) for ensuring our storybook compone
 ### Storybook Testing
 
 * We use the [Loki](https://loki.js.org/) package for visually testing storybook.
-* For details on how to run, add, or update these tests see [How to Run Loki tests against Storybook](how-to/run-loki-tests-against-storybook.md)
+* For details on how to run, add, or update these tests see [How to Run Loki tests against Storybook](https://github.com/transcom/mymove/wiki/run-loki-tests-against-storybook)
 
 ## Code Style
 
@@ -197,8 +213,10 @@ Understand the [difference between rem and em](https://zellwk.com/blog/rem-vs-em
 
 #### USWDS
 
-* Check the [Truss USWDS React package](https://github.com/trussworks/react-uswds) for a component that matches your needs. Maximize the code view to see what classes to use to replicate the component styles.
-* If there isn't a component there already Check the [Truss USWDS React package](https://standards.usa.gov/components/) for a component that matches your needs. Please add it to the USWDS React code and then import the new version for use in MilMove.
+MilMove uses the United States Web Design Standards (USWDS) project version 2. There have been significant changes to USWDS between version 1.0 and 2.0. If you are familiar with USWDS version 1.0 please review the [USWDS Migration Guide](https://designsystem.digital.gov/documentation/migration/) to learn what's different in 2.0.
+
+* Check the [Truss USWDS React package](https://github.com/trussworks/react-uswds) for a component that matches your needs. Look at the component code to see what classes to use to replicate the component styles.
+* If there isn't a component there already Check the [USWDS Documentation](https://standards.usa.gov/components/) for a component that matches your needs. Please add it to the USWDS React code and then import the new version for use in MilMove.
 * USWDS has a [Slack chat](https://chat.18f.gov/) you can go to for help. Get invited to it by filling out [this form](https://chat.18f.gov/).
 
 ## Tooling

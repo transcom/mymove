@@ -2,7 +2,7 @@
 
 import { milmoveAppName } from '../../support/constants';
 
-describe('completing the ppm flow', function() {
+describe('completing the ppm flow', function () {
   describe('progresses thru forms', () => {
     //profile@comple.te
     it('submit a PPM move', () => {
@@ -61,29 +61,18 @@ function SMSubmitsMove() {
   cy.get('[data-cy="move-header-weight-estimate"]').contains('8,000 lbs');
   cy.contains('Continue Move Setup').click();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
   });
 
   cy.get('.wizard-header').should('not.exist');
-  cy.get('input[name="original_move_date"]')
-    .first()
-    .type('9/2/2018{enter}')
-    .blur();
-  cy.get('input[name="pickup_postal_code"]')
-    .clear()
-    .type('80913');
+  cy.get('input[name="original_move_date"]').first().type('9/2/2018{enter}').blur();
+  cy.get('input[name="pickup_postal_code"]').clear().type('80913');
 
-  cy.get('input[name="destination_postal_code"]')
-    .clear()
-    .type('76127');
+  cy.get('input[name="destination_postal_code"]').clear().type('76127');
 
-  cy.get('input[type="radio"][value="yes"]')
-    .eq(1)
-    .check('yes', { force: true });
-  cy.get('input[name="days_in_storage"]')
-    .clear()
-    .type('30');
+  cy.get('input[type="radio"][value="yes"]').eq(1).check('yes', { force: true });
+  cy.get('input[name="days_in_storage"]').clear().type('30');
 
   cy.nextPageAndCheckLocation(
     'weight-page-title',
@@ -98,45 +87,37 @@ function SMSubmitsMove() {
 
   cy.nextPage();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
   cy.get('.wizard-header').should('not.exist');
 
   // todo: should probably have test suite for review and edit screens
-  cy.get('[data-cy="sit-display"]')
-    .contains('30 days')
-    .contains('$2328.64');
+  cy.get('[data-cy="sit-display"]').contains('30 days').contains('$726.76');
 
   cy.get('[data-cy="edit-ppm-dates"]').click();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review\/edit-date-and-location/);
   });
 
-  cy.get('[data-cy="storage-estimate"]').contains('$2328.64');
+  cy.get('[data-cy="storage-estimate"]').contains('$726.76');
 
-  cy.get('input[name="days_in_storage"]')
-    .clear()
-    .type('35');
+  cy.get('input[name="days_in_storage"]').clear().type('35');
 
-  cy.get('[data-cy="storage-estimate"]').contains('$2328.64');
+  cy.get('[data-cy="storage-estimate"]').contains('$726.76');
 
-  cy.get('button')
-    .contains('Save')
-    .click();
+  cy.get('button').contains('Save').click();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
 
-  cy.get('[data-cy="sit-display"]')
-    .contains('35 days')
-    .contains('$2405.14');
+  cy.get('[data-cy="sit-display"]').contains('35 days').contains('$745.88');
 
   cy.nextPage();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/agreement/);
   });
   cy.get('.wizard-header').should('not.exist');
@@ -145,17 +126,14 @@ function SMSubmitsMove() {
 
   cy.nextPage();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/$/);
   });
 
   cy.get('.usa-alert--success').within(() => {
     cy.contains('Congrats - your move is submitted!');
     cy.contains('Next, wait for approval. Once approved:');
-    cy.get('a')
-      .contains('PPM info sheet')
-      .should('have.attr', 'href')
-      .and('include', '/downloads/ppm_info_sheet.pdf');
+    cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
   });
 }
 
@@ -164,29 +142,18 @@ function SMCompletesMove() {
   cy.get('[data-cy="move-header-weight-estimate"]').contains('8,000 lbs');
   cy.contains('Continue Move Setup').click();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
   });
 
   cy.get('.wizard-header').should('not.exist');
-  cy.get('input[name="original_move_date"]')
-    .first()
-    .type('9/2/2030{enter}')
-    .blur();
-  cy.get('input[name="pickup_postal_code"]')
-    .clear()
-    .type('80913');
+  cy.get('input[name="original_move_date"]').first().type('9/2/2030{enter}').blur();
+  cy.get('input[name="pickup_postal_code"]').clear().type('80913');
 
-  cy.get('input[name="destination_postal_code"]')
-    .clear()
-    .type('76127');
+  cy.get('input[name="destination_postal_code"]').clear().type('76127');
 
-  cy.get('input[type="radio"][value="yes"]')
-    .eq(1)
-    .check('yes', { force: true });
-  cy.get('input[name="days_in_storage"]')
-    .clear()
-    .type('30');
+  cy.get('input[type="radio"][value="yes"]').eq(1).check('yes', { force: true });
+  cy.get('input[name="days_in_storage"]').clear().type('30');
 
   cy.nextPageAndCheckLocation(
     'weight-page-title',
@@ -204,7 +171,7 @@ function SMCompletesMove() {
   );
   cy.nextPage();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
   cy.get('.wizard-header').should('not.exist');
@@ -216,7 +183,7 @@ function SMCompletesMove() {
 
   cy.nextPage();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/agreement/);
   });
   cy.get('.wizard-header').should('not.exist');
@@ -225,17 +192,14 @@ function SMCompletesMove() {
 
   cy.nextPage();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/$/);
   });
 
   cy.get('.usa-alert--success').within(() => {
     cy.contains('Congrats - your move is submitted!');
     cy.contains('Next, wait for approval. Once approved:');
-    cy.get('a')
-      .contains('PPM info sheet')
-      .should('have.attr', 'href')
-      .and('include', '/downloads/ppm_info_sheet.pdf');
+    cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
   });
 
   cy.contains('Incentive (est.): Not ready yet');
@@ -244,9 +208,7 @@ function SMCompletesMove() {
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
   );
 
-  cy.get('[data-cy="edit-move"]')
-    .contains('Edit Move')
-    .click();
+  cy.get('[data-cy="edit-move"]').contains('Edit Move').click();
 
   cy.get('td').contains('Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
@@ -257,68 +219,47 @@ function SMCompletesMove() {
 
 function SMInputsSamePostalCodes() {
   cy.contains('Continue Move Setup').click();
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
   });
 
   cy.get('.wizard-header').should('not.exist');
-  cy.get('input[name="original_move_date"]')
-    .first()
-    .type('9/2/2018{enter}')
-    .blur();
-  cy.get('input[name="pickup_postal_code"]')
-    .clear()
-    .type('80913');
-  cy.get('input[name="destination_postal_code"]')
-    .type('80913')
-    .blur();
+  cy.get('input[name="original_move_date"]').first().type('9/2/2018{enter}').blur();
+  cy.get('input[name="pickup_postal_code"]').clear().type('80913');
+  cy.get('input[name="destination_postal_code"]').type('80913').blur();
 
   cy.get('#destination_postal_code-error').should('exist');
 }
 
 function SMInputsInvalidPostalCodes() {
   cy.contains('Continue Move Setup').click();
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
   });
   cy.get('.wizard-header').should('not.exist');
-  cy.get('input[name="original_move_date"]')
-    .type('6/3/2100')
-    .blur();
+  cy.get('input[name="original_move_date"]').type('6/3/2100').blur();
   // test an invalid pickup zip code
-  cy.get('input[name="pickup_postal_code"]')
-    .clear()
-    .type('00000')
-    .blur();
+  cy.get('input[name="pickup_postal_code"]').clear().type('00000').blur();
   cy.get('#pickup_postal_code-error').should('exist');
 
-  cy.get('input[name="pickup_postal_code"]')
-    .clear()
-    .type('80913');
+  cy.get('input[name="pickup_postal_code"]').clear().type('80913');
 
   // test an invalid destination zip code
-  cy.get('input[name="destination_postal_code"]')
-    .clear()
-    .type('00000')
-    .blur();
+  cy.get('input[name="destination_postal_code"]').clear().type('00000').blur();
   cy.get('#destination_postal_code-error').should('exist');
 
-  cy.get('input[name="destination_postal_code"]')
-    .clear()
-    .type('30813');
+  cy.get('input[name="destination_postal_code"]').clear().type('30813');
   cy.nextPage();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
   });
 }
 
 function SMSeesMoveDetails() {
-  cy.get('.sidebar button')
-    .contains('Edit Move')
-    .click();
+  cy.get('.sidebar button').contains('Edit Move').click();
 
-  cy.get('[data-cy="ppm-summary"]').should(ppmContainer => {
+  cy.get('[data-cy="ppm-summary"]').should((ppmContainer) => {
     expect(ppmContainer).to.have.length(1);
   });
 }
@@ -327,34 +268,24 @@ function SMContinueRequestPayment() {
   serviceMemberStartsPPMPaymentRequest();
   serviceMemberSubmitsWeightTicket('CAR', true);
 
-  cy.get('button')
-    .contains('Finish Later')
-    .click();
+  cy.get('button').contains('Finish Later').click();
 
-  cy.get('button')
-    .contains('OK')
-    .click();
+  cy.get('button').contains('OK').click();
 
-  cy.location().should(loc => {
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/$/);
   });
 
-  cy.get('a')
-    .contains('Continue Requesting Payment')
-    .click();
-  cy.location().should(loc => {
+  cy.get('a').contains('Continue Requesting Payment').click();
+  cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
   });
 }
 
 function serviceMemberStartsPPMPaymentRequest() {
   cy.contains('Request Payment').click();
-  cy.get('input[name="actual_move_date"]')
-    .type('6/20/2018{enter}')
-    .blur();
-  cy.get('button')
-    .contains('Get Started')
-    .click();
+  cy.get('input[name="actual_move_date"]').type('6/20/2018{enter}').blur();
+  cy.get('button').contains('Get Started').click();
 }
 
 function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordinal = null) {
@@ -386,27 +317,17 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
   cy.upload_file('[data-cy=full-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
-  cy.get('input[name="weight_ticket_date"]')
-    .type('6/2/2018{enter}')
-    .blur();
+  cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();
   cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
   cy.get('input[name="additional_weight_ticket"][value="No"]').should('be.checked');
   if (hasAnother) {
     cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
     cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
-    cy.get('button')
-      .contains('Save & Add Another')
-      .click();
-    cy.wait('@postWeightTicket')
-      .its('status')
-      .should('eq', 200);
+    cy.get('button').contains('Save & Add Another').click();
+    cy.wait('@postWeightTicket').its('status').should('eq', 200);
     cy.get('[data-cy=documents-uploaded]').should('exist');
   } else {
-    cy.get('button')
-      .contains('Save & Continue')
-      .click();
-    cy.wait('@postWeightTicket')
-      .its('status')
-      .should('eq', 200);
+    cy.get('button').contains('Save & Continue').click();
+    cy.wait('@postWeightTicket').its('status').should('eq', 200);
   }
 }

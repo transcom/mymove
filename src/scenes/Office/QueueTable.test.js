@@ -6,7 +6,7 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 
 import QueueTable from './QueueTable';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-6';
 import store from 'shared/store';
 import { mount } from 'enzyme/build';
 import { setIsLoggedInType } from 'shared/Data/users';
@@ -16,7 +16,7 @@ const push = jest.fn();
 describe('Shipments column', () => {
   let wrapper;
 
-  it('renders "PPM" when it is a PPM move', done => {
+  it('renders "PPM" when it is a PPM move', (done) => {
     wrapper = mountComponents(
       retrieveMovesStub({
         ppm_status: 'PAYMENT_REQUESTED',
@@ -32,7 +32,7 @@ describe('Shipments column', () => {
     });
   });
 
-  it('does not display when the queue type is anything other than "new"', done => {
+  it('does not display when the queue type is anything other than "new"', (done) => {
     wrapper = mountComponents(
       retrieveMovesStub({
         ppm_status: undefined,
@@ -52,16 +52,13 @@ describe('Shipments column', () => {
 
 describe('Refreshing', () => {
   let wrapper;
-  it('loads the data again', done => {
+  it('loads the data again', (done) => {
     const refreshSpy = jest.spyOn(QueueTable.WrappedComponent.prototype, 'refresh');
     const fetchDataSpy = jest.spyOn(QueueTable.WrappedComponent.prototype, 'fetchData');
 
     wrapper = mountComponents(retrieveMovesStub());
 
-    wrapper
-      .find('[data-cy="refreshQueue"]')
-      .at(0)
-      .simulate('click');
+    wrapper.find('[data-cy="refreshQueue"]').at(0).simulate('click');
 
     setTimeout(() => {
       expect(refreshSpy).toHaveBeenCalled();
@@ -76,7 +73,7 @@ describe('on 401 unauthorized error', () => {
   const middlewares = [thunk];
   const mockStore = configureMockStore(middlewares);
 
-  it('force user log out', done => {
+  it('force user log out', (done) => {
     const fetchDataSpy = jest.spyOn(QueueTable.WrappedComponent.prototype, 'fetchData');
 
     let error = new Error('Unauthorized');
@@ -84,10 +81,7 @@ describe('on 401 unauthorized error', () => {
 
     const store = mockStore({});
     const wrapper = mountComponents(retrieveMovesStub(null, error), 'new', store);
-    wrapper
-      .find('[data-cy="refreshQueue"]')
-      .at(0)
-      .simulate('click');
+    wrapper.find('[data-cy="refreshQueue"]').at(0).simulate('click');
 
     setTimeout(() => {
       expect(fetchDataSpy).toHaveBeenCalled();
@@ -104,7 +98,7 @@ function retrieveMovesStub(params, throwError) {
   // This is meant as a stub that will act in place of
   // `RetrieveMovesForOffice` from Office/api.js
   return async () => {
-    return await new Promise(resolve => {
+    return await new Promise((resolve) => {
       if (throwError) {
         throw throwError;
       }

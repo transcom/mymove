@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-6';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
-import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
 import { setUserIsLoggedIn } from 'shared/Data/users';
@@ -12,6 +11,7 @@ import { defaultColumns } from './queueTableColumns';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
+import 'react-table-6/react-table.css';
 
 class QueueTable extends Component {
   constructor() {
@@ -77,7 +77,7 @@ class QueueTable extends Component {
       // this will build on top of the current duty stations list we see from the data
       let origDutyStationDataSet = new Set(this.getOriginDutyStations());
       let destDutyStationDataSet = new Set(this.getDestinationDutyStations());
-      body.forEach(value => {
+      body.forEach((value) => {
         if (value.origin_duty_station_name !== undefined && value.origin_duty_station_name !== '') {
           origDutyStationDataSet.add(value.origin_duty_station_name);
         }
@@ -152,14 +152,14 @@ class QueueTable extends Component {
 
     const showColumns = defaultColumns(this);
 
-    const defaultSort = queueType => {
+    const defaultSort = (queueType) => {
       if (['all'].includes(queueType)) {
         return [{ id: 'locator', asc: true }];
       }
       return [{ id: 'move_date', asc: true }];
     };
 
-    this.state.data.forEach(row => {
+    this.state.data.forEach((row) => {
       row.shipments = 'PPM';
 
       if (row.ppm_status !== null) {
@@ -229,7 +229,7 @@ class QueueTable extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     showFlashMessage: get(state, 'flashMessages.display', false),
     flashMessageLines: get(state, 'flashMessages.messageLines', false),

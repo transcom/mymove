@@ -1,186 +1,89 @@
 #! /usr/bin/env bash
 
 set -eu -o pipefail
-
 #
 # Title: Anti Virus Scanning of Source Code
 #
+# Example:
+#
+#   AV_IGNORE_DIR=./anti-virus/ anti-virus
+#
 # More information about the docker setup is found here: https://github.com/mko-x/docker-clamav
 #
+# Environment Variables that modify behavior:
+#
+# - AV_IGNORE_DIR: The full path to the directory where new ignore files will be created (no default)
+# - AV_DATABASE_DIR: The directory inside the container to store AV database files (default: /tmp/store)
+# - AV_DOCKER_IMAGE: The docker image used which runs ClamAV (default: mk0x/docker-clamav:alpine)
+# - AV_MOUNT_DIR: The directory in the container used to mount files for scanning (default: /project)
+#
+
+IGNORE_DIR="${AV_IGNORE_DIR:-}"
+readonly IGNORE_DIR
+
+if [[ -n "${IGNORE_DIR}" && ! -d "${IGNORE_DIR}" ]]; then
+  echo "The AV_IGNORE_DIR environment variable must be a directory that exists on the filesystem."
+  echo "The directory '${IGNORE_DIR}' does not exist!"
+  exit 1
+fi
+
+DATABASE_DIR=${AV_DATABASE_DIR:-/tmp/store}
+readonly DATABASE_DIR
+DOCKER_IMAGE=${AV_DOCKER_IMAGE:-mk0x/docker-clamav:alpine}
+readonly DOCKER_IMAGE
+MOUNT_DIR=${AV_MOUNT_DIR:-/root/project}
+readonly MOUNT_DIR
+
+function echo_line() {
+  echo
+  echo "********************************************************************************"
+  echo
+}
 
 function msg_now() {
   msg=$1
   echo -e "\n$msg: $(date +"%Y-%m-%dT%H:%M:%S %Z")"
 }
 
-msg_now "Script Start Time"
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
-readonly DIR
-SLEEP=15
-readonly SLEEP
-DOCKER_IMAGE=mk0x/docker-clamav:alpine
-readonly DOCKER_IMAGE
-CONTAINER_NAME=anti_virus
-readonly CONTAINER_NAME
-MOUNT_DIR=/transcom/mymove
-readonly MOUNT_DIR
-IGNORE_FILES=(pkg/testdatagen/testdata/orders.pdf)
-readonly IGNORE_FILES
-# WARNING: IGNORE AT OUR PERIL. IF ADDING HERE ADD NOTES!
-# - PUA.Pdf.Trojan.EmbeddedJavaScript-1 is ignored because we don't ship PDFs in any docker containers
-# - orders.pdf.UNOFFICIAL is a finding based on the ignored file above of the same name
-IGNORE_SIGS=(PUA.Pdf.Trojan.EmbeddedJavaScript-1 orders.pdf.UNOFFICIAL)
-readonly IGNORE_SIGS
-# *.fp is preferred over *.hsb
-WHITELIST_FILES=whitelist-files.fp
-readonly WHITELIST_FILES
-# *.ign2 replaces *.ign files
-WHITELIST_SIGS=whitelist-signatures.ign2
-readonly WHITELIST_SIGS
-
-if [ -n "${CIRCLECI+x}" ]; then
-  echo "RUNNING IN CIRCLECI"
-fi
-
-# Remove any existing containers
-echo
-echo "Cleaning up existing containers and files:"
-docker rm -f "${CONTAINER_NAME}" || true
-rm -f "${WHITELIST_FILES}"
-rm -f "${WHITELIST_SIGS}"
-
-# Start the clamd service and update with freshclam (takes several minutes to be running)
-echo
-echo "Starting clamd service:"
+# Get latest image
 docker pull "${DOCKER_IMAGE}"
+echo_line
 
-# In the Retry here we are trying to do a couple things:
-# - Let 'freshclam' download all the new virus definitions. If this flakes because of an outage
-#   with ClamAV then the whole docker container can exit prematurely
-# - Wait for the socket to exist so we can connect to it
-#
-# Waiting does take longer but doing work during the startup process (especially while freshclam
-# is updating) means we may be run into a container exiting early and its unclear why.
+# Print the version
+docker run --rm -it -v "${DATABASE_DIR}:${DATABASE_DIR}" "${DOCKER_IMAGE}" clamscan --version
+echo_line
 
-# Start rerun loop here
-for RETRY_COUNT in {1..5}; do
-  msg_now "Retry Start Time"
+echo "Make or Clean ${DATABASE_DIR}"
+mkdir -p "${DATABASE_DIR}"
+rm -vf "${DATABASE_DIR}"/*.{cvd,fp,ign2}
+echo_line
 
-  # Mount the project directory inside for scanning later
-  echo
-  echo "Mounting the project directory for scanning:"
-  docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
-
-  # Need to sleep just long enough for docker to start up
-  sleep 5
-  if [ "$(docker inspect -f '{{.State.Running}}' "${CONTAINER_NAME}")" == "false" ]; then
-    docker logs "${CONTAINER_NAME}"
-    docker rm -f "${CONTAINER_NAME}"
-    echo "Container not running! Retry number ${RETRY_COUNT}"
-    if [ "${RETRY_COUNT}" == "5" ]; then
-      echo "Script cannot continue now that retries are exhuasted"
-      exit 1
-    else
-      break
-    fi
-  else
-    # Remove warning from clamav:
-    # WARNING: Ignoring deprecated option DetectBrokenExecutables at /etc/clamav/clamd.conf:30
-    docker exec -it "${CONTAINER_NAME}" sed -i 's/.*DetectBrokenExecutables.*//' /etc/clamav/clamd.conf
-
-    # Wait for the clamd service to be available by checking on the existence of the socket
-    while true; do
-      if docker exec -it "${CONTAINER_NAME}" ls /tmp/clamd.sock &> /dev/null ; then
-        break
-      else
-        echo "Retry ${RETRY_COUNT}: Waiting ${SLEEP} seconds for clamd service to be available"
-        sleep "${SLEEP}"
-      fi
-    done
-    break
-  fi
-done
-
-msg_now "Retry Complete Time"
-
-#
-# At this point the container needs to be running and be stable.
-#
-
-if [[ -n "${CIRCLECI+x}" ]]; then
-  # Can't mount folders in CircleCI so copy this data in
-  # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
-  docker cp "${DIR}" "${CONTAINER_NAME}:${MOUNT_DIR}/.."
+echo "Update DB definitions"
+if [[ -d "${IGNORE_DIR}" ]]; then
+  cp -v "${IGNORE_DIR}"whitelist-*.{fp,ign2} "${DATABASE_DIR}"
 fi
+docker run --rm -it -v "${DATABASE_DIR}:${DATABASE_DIR}" "${DOCKER_IMAGE}" freshclam --config-file /etc/clamav/freshclam.conf --datadir="${DATABASE_DIR}"
+ls -alh "${DATABASE_DIR}"
+echo_line
 
-# Create a whitelist of files to ignore
-# The whitelisting is done using `sigtool` to create an md5 hash and placing it in a file
-# See https://www.clamav.net/documents/whitelist-databases
-# See https://owlbearconsulting.com/doku.php?id=linux_wiki:clamav#whitelist_a_file
-# See https://www.clamav.net/documents/file-hash-signatures
-echo
-echo "Creating whitelist of files to ignore:"
-touch "${WHITELIST_FILES}"
-for file in "${IGNORE_FILES[@]}"; do
-  # This step verifies the ignore file exists and also details some info for debugging
-  docker exec -it "${CONTAINER_NAME}" ls -alh "${MOUNT_DIR}/${file}"
-  # Sigtool format is "MD5sum:Filesize:Comment"
-  docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}" | tee -a "${WHITELIST_FILES}"
-done
-echo
-echo "Creating whitelist of signatures to ignore:"
-touch "${WHITELIST_SIGS}"
-for sig in "${IGNORE_SIGS[@]}"; do
-  echo "${sig}" | tee -a "${WHITELIST_SIGS}"
-done
-
-# Copy the ignore list into the container in the same directory as the virus database
-echo
-echo "Copying the ignore list into the container:"
-docker cp "${WHITELIST_FILES}" "${CONTAINER_NAME}:/store/"
-docker cp "${WHITELIST_SIGS}" "${CONTAINER_NAME}:/store/"
-docker exec -it "${CONTAINER_NAME}" chown root:root "/store/${WHITELIST_FILES}" "/store/${WHITELIST_SIGS}"
-
-echo
-echo "********************************************************************************"
-echo "WARNING: Ignoring these specific files in sigtool format:"
-cat "${WHITELIST_FILES}"
-echo "********************************************************************************"
-echo
-echo "********************************************************************************"
-echo "WARNING: Ignoring these specific virus signatures:"
-cat "${WHITELIST_SIGS}"
-echo "********************************************************************************"
-
-echo
-echo "Look at all ClamAV files:"
-docker exec -it "${CONTAINER_NAME}" ls -alh "/store/"
-
-echo
-echo "Reload the virus database with ignore files"
-docker exec -it "${CONTAINER_NAME}" clamdscan --reload
-
-# Print the logs so we can see the state of clamd prior to scanning
-echo
-echo "********************************************************************************"
-docker logs "${CONTAINER_NAME}"
-
-# List the version we're working with for auditing reasons
-echo
-echo "Version Information:"
-docker exec -it "${CONTAINER_NAME}" clamd --version
-echo "********************************************************************************"
-echo
-
-# Run the scan against the mounted folder as well as the folder containing virus defs and whitelists
+echo "Run ClamAV scan of ${MOUNT_DIR}"
 msg_now "Scan Start Time"
-docker exec -it "${CONTAINER_NAME}" clamdscan -v /store "${MOUNT_DIR}"
+docker run --rm -it \
+  -v "${DATABASE_DIR}:${DATABASE_DIR}" \
+  -v "${PWD}:${MOUNT_DIR}" \
+  "${DOCKER_IMAGE}" \
+  clamscan \
+    --recursive \
+    --infected \
+    --detect-pua=yes \
+    --exclude-pua=NetTool \
+    --exclude-pua=PWTool \
+    --max-scansize=300M \
+    --max-filesize=100M \
+    --max-recursion=30 \
+    --max-files=50000 \
+    --tempdir=/tmp \
+    --database="${DATABASE_DIR}" \
+    "${MOUNT_DIR}" \
+    "${DATABASE_DIR}"
 msg_now "Scan End Time"
-
-# Clean up, useful in developement only
-# docker rm -f "${CONTAINER_NAME}"
-# rm -f "${WHITELIST_FILES}"
-# rm -f "${WHITELIST_SIGS}"
-
-msg_now "Script End Time"

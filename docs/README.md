@@ -31,46 +31,6 @@ If you are looking to understand choices made in this project, see the list of [
 * [Migrate the Database](database/migrate-the-database.md#how-to-migrate-the-database)
 * [Soft Delete](database/soft-delete.md#how-to-soft-delete)
 
-## HOWTOs
-
-* [Access a Global Application Variable](how-to/access-global-variables.md#how-to-access-a-global-application-variable)
-* [Call Swagger Endpoints from React](how-to/access-swagger-endpoints-from-react.md#how-to-call-swagger-endpoints-from-react)
-* [Add Application Logging](how-to/add-application-logging.md#how-to-add-application-logging)
-* [Automatically add JIRA ID to Commit Message](how-to/automatically-add-jira-id-to-commit-message.md#how-to-automatically-add-jira-id-to-commit-message)
-* [Create An ECS Scheduled Task](how-to/create-an-ecs-scheduled-task.md#how-to-create-an-ecs-scheduled-task)
-* [Create or Deactivate Users](how-to/create-or-deactivate-users.md#how-to-create-or-deactivate-users)
-* [Deploy to Experimental](how-to/deploy-to-experimental.md#how-to-deploy-to-experimental)
-* [display dates and times](how-to/display-dates-and-times.md#how-to-display-dates-and-times)
-* [Generate Mocks with Mockery](how-to/generate-mocks-with-mockery.md#how-to-generate-mocks-with-mockery)
-* [handle back-end errors](how-to/handle-backend-errors.md#how-to-handle-back-end-errors)
-* [Make a Sample Prime API Call](how-to/make-a-sample-prime-api-call.md#how-to-make-a-sample-prime-api-call)
-* [Manage Dependabot](how-to/manage-dependabot.md#how-to-manage-dependabot)
-* [Manage Dependencies With go mod](how-to/manage-dependencies-with-go-mod.md#how-to-manage-dependencies-with-go-mod)
-* [Manage Docker Locally](how-to/manage-docker-locally.md#how-to-manage-docker-locally)
-* [revert a change](how-to/revert-a-change.md#how-to-revert-a-change)
-* [Run Acceptance Tests](how-to/run-acceptance-tests.md#how-to-run-acceptance-tests)
-* [Run Against S3 & CDN Locally](how-to/run-against-s3-locally.md#how-to-run-against-s3-cdn-locally)
-* [Run End to End (Cypress) Tests](how-to/run-e2e-tests.md#how-to-run-end-to-end-cypress-tests)
-* [Run Go Tests](how-to/run-go-tests.md#how-to-run-go-tests)
-* [Run JavaScript (Jest) Tests](how-to/run-js-tests.md#how-to-run-javascript-jest-tests)
-* [Run Loki Tests Against Storybook](how-to/run-loki-tests-against-storybook.md#how-to-run-loki-tests-against-storybook)
-* [Run and troubleshoot pre-commit hooks](how-to/run-pre-commit-hooks.md#run-and-troubleshoot-pre-commit-hooks)
-* [Run server_test job in CircleCI container locally](how-to/run-server-test-circle-ci.md#run-server-test-job-in-circleci-container-locally)
-* [Use and Run Storybook](how-to/run-storybook.md#how-to-use-and-run-storybook)
-* [Searching for Application Errors](how-to/search-for-application-errors.md#how-to-searching-for-application-errors)
-* [Setup Postman to make Mutual TLS API Calls](how-to/setup-postman-to-make-mutual-tls-api-calls.md#how-to-setup-postman-to-make-mutual-tls-api-calls)
-* [Store Data in Redux](how-to/store-data-in-redux.md#how-to-store-data-in-redux)
-* [Store UI State in Redux](how-to/store-ui-state-in-redux.md#how-to-store-ui-state-in-redux)
-* [Test Prime API on staging and experimental](how-to/test-prime-api-staging-experimental.md#how-to-test-prime-api-on-staging-and-experimental)
-* [Test Virus Scanning](how-to/test-virus-scanning.md#how-to-test-virus-scanning)
-* [Troubleshoot GEX Connection](how-to/troubleshoot-gex-connection.md#how-to-troubleshoot-gex-connection)
-* [Unit Test React Components](how-to/unit-test-react-components.md#how-to-unit-test-react-components)
-* [Upgrade Go Version](how-to/upgrade-go-version.md#how-to-upgrade-go-version)
-* [Upload Electronic Orders Using your CAC](how-to/upload-electronic-orders.md#how-to-upload-electronic-orders-using-your-cac)
-* [Create CAC Access (for using Prime API and uploading Electronic Orders)](how-to/use-mtls-with-cac.md#how-to-create-cac-access-for-using-prime-api-and-uploading-electronic-orders)
-* [Use Optimistic Locking](how-to/use-optimistic-locking.md#how-to-use-optimistic-locking)
-* [View ECS Service Logs](how-to/view-ecs-service-logs.md#how-to-view-ecs-service-logs)
-
 ## ADRs
 
 * 0000 [Use Truss' Golang web server skeleton to build API for DP3](adr/0000-server-framework.md#use-truss-golang-web-server-skeleton-to-build-api-for-dp3)
@@ -117,5 +77,6 @@ If you are looking to understand choices made in this project, see the list of [
 * 0041 [Front End Form Library](adr/0041-front-end-form-library.md#front-end-form-library)
 * 0042 [Use If-Match / E-tags for optimistic locking](adr/0042-optimistic-locking.md#use-if-match-e-tags-for-optimistic-locking)
 * 0043 [*Handling time in the Prime API*](adr/0043-prime-time.md#handling-time-in-the-prime-api)
+* 0044 [Use camelCase for API params](adr/0044-params-styling.md#use-camelcase-for-api-params)
 
 <!--endindex-->

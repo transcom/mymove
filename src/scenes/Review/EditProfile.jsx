@@ -21,7 +21,7 @@ import profileImage from './images/profile.png';
 
 const editProfileFormName = 'edit_profile';
 
-let EditProfileForm = props => {
+let EditProfileForm = (props) => {
   const {
     schema,
     handleSubmit,
@@ -97,7 +97,7 @@ EditProfileForm = reduxForm({
 })(EditProfileForm);
 
 class EditProfile extends Component {
-  updateProfile = fieldValues => {
+  updateProfile = (fieldValues) => {
     fieldValues.current_station_id = fieldValues.current_station.id;
     if (fieldValues.rank !== this.props.serviceMember.rank) {
       this.props.entitlementChanged();

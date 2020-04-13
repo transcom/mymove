@@ -86,20 +86,20 @@ func NewUpdateMTOPostCounselingInformationOK() *UpdateMTOPostCounselingInformati
 Successfully updated move task order post counseling information
 */
 type UpdateMTOPostCounselingInformationOK struct {
-	Payload *primemessages.MoveTaskOrderWithEtag
+	Payload *primemessages.MoveTaskOrder
 }
 
 func (o *UpdateMTOPostCounselingInformationOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationOK  %+v", 200, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationOK) GetPayload() *primemessages.MoveTaskOrderWithEtag {
+func (o *UpdateMTOPostCounselingInformationOK) GetPayload() *primemessages.MoveTaskOrder {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.MoveTaskOrderWithEtag)
+	o.Payload = new(primemessages.MoveTaskOrder)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -302,12 +302,15 @@ swagger:model UpdateMTOPostCounselingInformationBody
 */
 type UpdateMTOPostCounselingInformationBody struct {
 
+	// Email or id of a contact person for this update
+	PointOfContact string `json:"pointOfContact,omitempty"`
+
 	// ppm estimated weight
-	PpmEstimatedWeight int64 `json:"ppm_estimated_weight,omitempty"`
+	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
 	// ppm type
 	// Enum: [FULL PARTIAL]
-	PpmType string `json:"ppm_type,omitempty"`
+	PpmType string `json:"ppmType,omitempty"`
 }
 
 // Validate validates this update m t o post counseling information body
@@ -360,7 +363,7 @@ func (o *UpdateMTOPostCounselingInformationBody) validatePpmType(formats strfmt.
 	}
 
 	// value enum
-	if err := o.validatePpmTypeEnum("body"+"."+"ppm_type", "body", o.PpmType); err != nil {
+	if err := o.validatePpmTypeEnum("body"+"."+"ppmType", "body", o.PpmType); err != nil {
 		return err
 	}
 

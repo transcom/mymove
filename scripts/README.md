@@ -121,6 +121,8 @@ This subset of development scripts is used for testing
 | `run-e2e-test-docker` | Runs cypress tests entirely inside docker containers like in CircleCI |
 | `run-server-test` | Run golang server tests |
 | `run-server-test-in-circle-container` | Executed in docker-compose.circle.yml to run the `make server_test` task in a CircleCI container |
+| `run-storybook-tests` | Runs the storybook tests in docker containers for CircleCI testing. |
+| `start-storybook-tests` | Intended to run inside a docker container, will wait for a 'storybook' container to have started before running the tests. |
 
 ### Secure Migrations
 
@@ -190,3 +192,12 @@ These scripts are used to do vulnerability scanning on our code
 | Script Name | Description |
 | --- | --- |
 | `anti-virus` | Scan the source code for viruses |
+| `anti-virus-whitelists` | Create anti-virus whitelist database files for files and signatures to ignore |
+
+### Prime Scripts
+
+These scripts are primarily used for working with the Prime API
+
+| Script Name | Description |
+| --- | --- |
+| `run-prime-docker` | Runs a docker container allowing access to the Prime API |

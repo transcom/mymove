@@ -22,11 +22,6 @@ describe('DocumentList tests', () => {
         moveId="1"
       />,
     );
-    expect(
-      wrapper
-        .find('.document-upload-link')
-        .find('a')
-        .prop('href'),
-    ).toEqual(newDocumentUrl);
+    expect(wrapper.find('.document-upload-link').find('a').prop('href')).toEqual(newDocumentUrl);
   });
 });

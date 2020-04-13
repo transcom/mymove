@@ -18,6 +18,7 @@ import ServiceMemberSummary from './ServiceMemberSummary';
 import PPMShipmentSummary from './PPMShipmentSummary';
 
 import './Review.css';
+import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
 
 export class Summary extends Component {
   componentDidMount() {
@@ -27,7 +28,7 @@ export class Summary extends Component {
   }
   componentDidUpdate(prevProps) {
     // Only check entitlement for PPMs, not HHGs
-    if (prevProps.currentPpm !== this.props.currentPpm) {
+    if (prevProps.currentPPM !== this.props.currentPPM) {
       this.props.onCheckEntitlement(this.props.match.params.moveId);
     }
   }
@@ -35,7 +36,7 @@ export class Summary extends Component {
   render() {
     const {
       currentMove,
-      currentPpm,
+      currentPPM,
       currentBackupContacts,
       currentOrders,
       schemaRank,
@@ -57,7 +58,7 @@ export class Summary extends Component {
     const editOrdersPath = rootAddressWithMoveId + '/edit-orders';
 
     const showPPMShipmentSummary =
-      (isReviewPage && currentPpm) || (!isReviewPage && currentPpm && currentPpm.status !== 'DRAFT');
+      (isReviewPage && currentPPM) || (!isReviewPage && currentPPM && currentPPM.status !== 'DRAFT');
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
     return (
@@ -94,7 +95,7 @@ export class Summary extends Component {
         )}
 
         {showPPMShipmentSummary && (
-          <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} orders={currentOrders} />
+          <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
         )}
         {moveIsApproved && (
           <div className="approved-edit-warning">
@@ -111,6 +112,7 @@ Summary.propTypes = {
   currentBackupContacts: PropTypes.array,
   getCurrentMove: PropTypes.func,
   currentOrders: PropTypes.object,
+  currentPPM: PropTypes.object,
   currentPpm: PropTypes.object,
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
@@ -120,7 +122,9 @@ Summary.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
+  const moveID = state.moves.currentMove.id;
   return {
+    currentPPM: selectActivePPMForMove(state, moveID),
     currentPpm: getPPM(state),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, ownProps.match.params.moveId),
@@ -137,11 +141,11 @@ function mapStateToProps(state, ownProps) {
 }
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    onDidMount: function() {
+    onDidMount: function () {
       const moveID = ownProps.match.params.moveId;
       dispatch(loadMove(moveID, 'Summary.getMove'));
     },
-    onCheckEntitlement: moveId => {
+    onCheckEntitlement: (moveId) => {
       dispatch(checkEntitlement(moveId));
     },
   };

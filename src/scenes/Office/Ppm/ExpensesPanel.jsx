@@ -2,14 +2,14 @@ import { filter, get } from 'lodash';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { formatCents } from 'shared/formatters';
-import { selectPPMForMove } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { getTabularExpenses, getPpmExpenseSummary } from 'scenes/Office/Ppm/ducks';
 import { connect } from 'react-redux';
 
 import Alert from 'shared/Alert';
 import { getDocsByStatusAndType } from './ducks';
 
-const dollar = cents => (cents ? '$' + formatCents(cents) : null);
+const dollar = (cents) => (cents ? '$' + formatCents(cents) : null);
 
 class ExpensesPanel extends Component {
   componentDidMount() {
@@ -57,7 +57,7 @@ class ExpensesPanel extends Component {
                   &nbsp;
                 </th>
               </tr>
-              {tabularData.map(row => {
+              {tabularData.map((row) => {
                 return (
                   <tr key={row.type}>
                     <td>{row.type}</td>
@@ -78,14 +78,14 @@ class ExpensesPanel extends Component {
 function mapStateToProps(state, ownProps) {
   const expenseDocuments = filter(ownProps.moveDocuments, ['move_document_type', 'EXPENSE']);
   return {
-    ppmId: selectPPMForMove(state, ownProps.moveId).id,
+    ppmId: selectActivePPMForMove(state, ownProps.moveId).id,
     schemaMovingExpenseType: get(state, 'swaggerInternal.spec.definitions.MovingExpenseType', {}),
     expenseData: get(state, 'ppmIncentive.summary'),
     awaitingStorageExpenses: getDocsByStatusAndType(expenseDocuments, 'OK', 'STORAGE'),
   };
 }
 
-const mapDispatchToProps = dispatch =>
+const mapDispatchToProps = (dispatch) =>
   bindActionCreators(
     {
       getPpmExpenseSummary,

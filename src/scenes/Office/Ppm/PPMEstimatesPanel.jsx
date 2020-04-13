@@ -8,7 +8,7 @@ import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/Editable
 import { formatCentsRange } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { selectPPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
 
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 
@@ -18,7 +18,7 @@ const validateWeight = (value, formValues, props, fieldName) => {
   }
 };
 
-const EstimatesDisplay = props => {
+const EstimatesDisplay = (props) => {
   const ppm = props.PPMEstimate;
   const fieldProps = {
     schema: props.ppmSchema,
@@ -59,7 +59,7 @@ const EstimatesDisplay = props => {
   );
 };
 
-const EstimatesEdit = props => {
+const EstimatesEdit = (props) => {
   const ppm = props.PPMEstimate;
   const schema = props.ppmSchema;
 
@@ -107,7 +107,7 @@ let PPMEstimatesPanel = editablePanelify(EstimatesDisplay, EstimatesEdit);
 PPMEstimatesPanel = reduxForm({ form: formName })(PPMEstimatesPanel);
 
 function mapStateToProps(state, ownProps) {
-  const PPMEstimate = selectPPMForMove(state, ownProps.moveId);
+  const PPMEstimate = selectActivePPMForMove(state, ownProps.moveId);
   const formValues = getFormValues(formName)(state);
 
   return {
@@ -124,7 +124,7 @@ function mapStateToProps(state, ownProps) {
     entitlement: calculateEntitlementsForMove(state, ownProps.moveId),
 
     // editablePanelify
-    getUpdateArgs: function() {
+    getUpdateArgs: function () {
       if (
         formValues.PPMEstimate.additional_pickup_postal_code !== '' &&
         formValues.PPMEstimate.additional_pickup_postal_code !== undefined

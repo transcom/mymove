@@ -34,6 +34,9 @@ type MTOServiceItem struct {
 	// description
 	Description string `json:"description,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// fee type
 	// Enum: [COUNSELING CRATING TRUCKING SHUTTLE]
 	FeeType string `json:"feeType,omitempty"`

@@ -17,7 +17,7 @@ import SubmittedPpmMoveSummary from 'scenes/Landing/MoveSummary/SubmittedPpmMove
 
 import './MoveSummary.css';
 
-const MoveInfoHeader = props => {
+const MoveInfoHeader = (props) => {
   const { orders, profile, move, entitlement, requestPaymentSuccess } = props;
   return (
     <div>
@@ -159,7 +159,7 @@ export class MoveSummaryComponent extends React.Component {
 function mapStateToProps(state, ownProps) {
   const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.move.id, [
     'WEIGHT_TICKET_SET',
-  ]).some(doc => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
+  ]).some((doc) => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
 
   return {
     isMissingWeightTicketDocuments,

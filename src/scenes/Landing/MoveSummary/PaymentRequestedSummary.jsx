@@ -7,7 +7,7 @@ import PPMStatusTimeline from 'scenes/Landing/PPMStatusTimeline';
 import FindWeightScales from 'scenes/Landing/MoveSummary/FindWeightScales';
 import PpmMoveDetails from 'scenes/Landing/MoveSummary/SubmittedPpmMoveDetails';
 
-const PaymentRequestedSummary = props => {
+const PaymentRequestedSummary = (props) => {
   const { ppm, requestPaymentSuccess } = props;
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
   return (
@@ -15,7 +15,7 @@ const PaymentRequestedSummary = props => {
       <div className="shipment_box">
         <div className="shipment_type">
           <img className="move_sm" src={ppmCar} alt="ppm-car" />
-          Move your own stuff (PPM)
+          Handle your own move (PPM)
         </div>
 
         <div className="shipment_box_contents">

@@ -6,7 +6,7 @@ import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
 import { LogoutUser } from 'shared/User/api.js';
 
-const LoginButton = props => {
+const LoginButton = (props) => {
   if (!props.isLoggedIn) {
     return (
       <React.Fragment>

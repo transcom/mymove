@@ -7,7 +7,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
-DB_DOCKER_CONTAINER_IMAGE = postgres:10.10
+DB_DOCKER_CONTAINER_IMAGE = postgres:11.7
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
@@ -145,7 +145,10 @@ client_deps_update: .check_node_version.stamp ## Update client dependencies
 .PHONY: client_deps
 client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## Install client dependencies
 .client_deps.stamp: yarn.lock
-	yarn install
+	# setting network concurrency to 1 because using the default failed with errors trying to extract package tar files saying they were corrupt.
+	# this was workaround that seemed to fix the issue See for details https://github.com/yarnpkg/yarn/issues/7212
+	# This is caused by a timing issue when using react-uswds branch. It can be removed once we switch to a released version
+	yarn install --network-concurrency 1
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
 
@@ -242,6 +245,9 @@ bin/generate-test-data:
 bin/ghc-pricing-parser:
 	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/ghc-pricing-parser
 
+bin/ghc-transit-time-parser:
+	go build -ldflags "$(LDFLAGS)" -o bin/ghc-transit-time-parser ./cmd/ghc-transit-time-parser
+
 bin/health-checker:
 	go build -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
 
@@ -335,6 +341,7 @@ build_tools: bin/gin \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/ghc-pricing-parser \
+	bin/ghc-transit-time-parser \
 	bin/health-checker \
 	bin/iws \
 	bin/milmove-tasks \
@@ -350,10 +357,10 @@ build_tools: bin/gin \
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
 
-# webserver_test runs a few acceptance tests against a local or remote environment.
+# acceptance_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
-.PHONY: webserver_test
-webserver_test: bin/rds-ca-2019-root.pem ## Run acceptance tests
+.PHONY: acceptance_test
+acceptance_test: bin/rds-ca-2019-root.pem ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -797,6 +804,18 @@ run_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Exp
 #
 
 #
+# ----- START PRIME TARGETS -----
+#
+
+.PHONY: run_prime_docker
+run_prime_docker: ## Runs the docker that spins up the Prime API and data to test with
+	scripts/run-prime-docker
+
+#
+# ----- END PRIME TARGETS -----
+#
+
+#
 # ----- START MAKE TEST TARGETS -----
 #
 
@@ -878,13 +897,18 @@ spellcheck: ## Run interactive spellchecker
 storybook: ## Start the storybook server
 	yarn run storybook
 
+.PHONY: storybook_docker
+storybook_docker: ## Start the storybook server in a docker container
+	docker-compose -f docker-compose.storybook.yml -f docker-compose.storybook_local.yml build --pull storybook
+	docker-compose -f docker-compose.storybook.yml -f docker-compose.storybook_local.yml up storybook
+
 .PHONY: storybook_build
 storybook_build: ## Build static storybook site
 	yarn run build-storybook
 
 .PHONY: storybook_tests
 storybook_tests: ## Run the Loki storybook tests to ensure no breaking changes
-	yarn run loki test
+	scripts/run-storybook-tests
 
 .PHONY: loki_approve_changes
 loki_approve_changes: ## Approves differences in Loki test results
