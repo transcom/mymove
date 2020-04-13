@@ -4,10 +4,6 @@ set -eux -o pipefail
 
 scripts/ensure-application app
 
-# Set the container default name
-CONTAINER=mymove_milmove_1
-
-
 # Set Defaults
 NETWORK="mymove_default" # Docker network
 
@@ -21,35 +17,35 @@ fi
 # Check that the docker process is running first
 docker system info >> /dev/null
 
-# Begin Setup
-make e2e_clean
-
 if [[ -n "${CIRCLECI+x}" ]]; then
   # CI/CD allows us to use pre-built images using the branch name
   scripts/update-docker-compose
 
   # Let's clean things up before starting
   # This may show an error locally but can be safely ignored, its only for CircleCI
-  docker-compose down --rmi all || true
+  docker-compose -f docker-compose.yml down --rmi all || true
 
   # Docker Compose Setup
   aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 
   # If you don't pull and CircleCI has cached previous images then you won't see any changes from AWS ECR
-  docker-compose pull
+  docker-compose -f docker-compose.yml pull
 
   # Bring these containers up but don't start them so they can be manipulated first
-  docker-compose up --no-start
+  docker-compose -f docker-compose.yml up --no-start
 
   # Can't mount folders in CircleCI so copy this data in
   # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
   docker cp ./migrations/app/secure mymove_milmove_migrate_1:/migrate/
 
   # Start everything up
-  docker-compose up -d --no-recreate --remove-orphans
+  docker-compose -f docker-compose.yml up -d --no-recreate --remove-orphans
 
   # Build a small e2e dockerfile
   docker build -f Dockerfile.tools --tag tools:latest .
+
+  # Following the logs should block any more actions until migrations are completed and the container exits
+  docker-compose -f docker-compose.yml logs -f milmove_migrate
 else
   # Locally development requires that we build the container
 
@@ -63,7 +59,7 @@ else
   docker build -f Dockerfile.tools_local --tag tools:latest .
 
   # Following the logs should block any more actions until migrations are completed and the container exits
-  docker-compose logs -f milmove_migrate
+  docker-compose -f docker-compose.local.yml logs -f milmove_migrate
 fi
 
 # Need to wait not just for DB but also migrations to finish
@@ -120,7 +116,7 @@ $DOCKER_RUN \
 function prime_api_client () {
   # Cannot mount directories in CircleCI so certificates and data are built into the container	##Return mtos from the fetch-mto endpoint where is_available_for_prime is true
   $DOCKER_RUN \
-    --link="${CONTAINER}:primelocal" \
+    --link="mymove_milmove_1:primelocal" \
     --net "${NETWORK}" \
     --rm \
     --entrypoint prime-api-client \
