@@ -554,7 +554,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		}
 	} else if subCommandName == "migrate" && commandName == "python app/manage.py" { //engadmin migrations has its own task def unlike app-migrations below
 		awsLogsStreamPrefix = serviceName
-		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
+		awsLogsGroup = fmt.Sprintf("ecs-tasks-app-engadmin-%s", environmentName)
 		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
 		executionRoleArn = fmt.Sprintf("ecs-task-execution-role-app-engadmin-%s", environmentName)
 		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
