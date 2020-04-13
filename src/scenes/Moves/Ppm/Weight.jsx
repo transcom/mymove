@@ -109,7 +109,7 @@ export class PpmWeight extends Component {
 
     this.props
       .getPpmWeightEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight)
-      .catch((err) => this.setState({ hasEstimateError: true }));
+      .catch(() => this.setState({ hasEstimateError: true }));
   };
 
   handleSubmit = () => {
