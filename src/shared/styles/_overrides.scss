@@ -113,3 +113,41 @@
     }
   }
 } //close usa-button
+
+//Tags
+
+.usa-tag {
+  background-color: $mm-gold;
+  color: $base-darkest;
+  &--green {
+    background-color: $success-light;
+  }
+  &--red {
+    background-color: $error-light;
+  }
+  &--yellow {
+    background-color: $warning-light;
+  }
+  &--cyan {
+    background-color: #a8f2ff;
+  }
+  &--alert {
+    border-radius: 100%;
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    svg {
+      width: 100%;
+      vertical-align: sub;
+      path {
+        fill: #fff;
+      }
+    }
+  }
+  &--large {
+    @include u-font('body', 'sm'); //16px
+    @include u-padding-x(1.5); //12px
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+}

@@ -11,6 +11,7 @@ import (
 func (suite *ModelSuite) TestReZip5RateAreaValidations() {
 	suite.T().Run("test valid ReZip5RateArea", func(t *testing.T) {
 		validReZip5RateArea := models.ReZip5RateArea{
+			ContractID: uuid.Must(uuid.NewV4()),
 			RateAreaID: uuid.Must(uuid.NewV4()),
 			Zip5:       "60610",
 		}
@@ -21,6 +22,7 @@ func (suite *ModelSuite) TestReZip5RateAreaValidations() {
 	suite.T().Run("test invalid ReZip5RateArea", func(t *testing.T) {
 		emptyReZip5RateArea := models.ReZip5RateArea{}
 		expErrors := map[string][]string{
+			"contract_id":  {"ContractID can not be blank."},
 			"rate_area_id": {"RateAreaID can not be blank."},
 			"zip5":         {"Zip5 not in range(5, 5)"},
 		}
@@ -29,6 +31,7 @@ func (suite *ModelSuite) TestReZip5RateAreaValidations() {
 
 	suite.T().Run("test when zip5 is not a length of 5", func(t *testing.T) {
 		invalidReZip5RateArea := models.ReZip5RateArea{
+			ContractID: uuid.Must(uuid.NewV4()),
 			RateAreaID: uuid.Must(uuid.NewV4()),
 			Zip5:       "6034",
 		}
