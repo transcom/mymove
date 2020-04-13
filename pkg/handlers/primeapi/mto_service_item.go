@@ -16,6 +16,15 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS.
+// We will eventually remove this when all service items are added.
+var allowedServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
+	primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:          true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:          true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:         true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating: true,
+}
+
 // CreateMTOServiceItemHandler is the handler to update MTO shipments
 type CreateMTOServiceItemHandler struct {
 	handlers.HandlerContext
@@ -26,14 +35,10 @@ type CreateMTOServiceItemHandler struct {
 func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOServiceItemParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	// THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS
 	// restrict creation to a list
-	allowedMap := map[primemessages.MTOServiceItemModelType]bool{
-		primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT: true,
-	}
-	if _, ok := allowedMap[params.Body.ModelType()]; !ok {
+	if _, ok := allowedServiceItemMap[params.Body.ModelType()]; !ok {
 		// throw error if modelType() not on the list
-		mapKeys := getMapKeys(allowedMap)
+		mapKeys := getMapKeys(allowedServiceItemMap)
 		detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", params.Body.ModelType())
 		verrs := validate.NewErrors()
 		verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
@@ -45,7 +50,12 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 	params.Body.SetMoveTaskOrderID(params.MoveTaskOrderID)
 	params.Body.SetMtoShipmentID(params.MtoShipmentID)
-	mtoServiceItem := payloads.MTOServiceItemModel(params.Body)
+	// validation errors passed back if any
+	mtoServiceItem, verrs := payloads.MTOServiceItemModel(params.Body)
+	if verrs != nil && verrs.HasAny() {
+		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+			"Model validation error", verrs.Error(), h.GetTraceID(), verrs))
+	}
 
 	mtoServiceItem, verrs, err := h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
 	if verrs != nil && verrs.HasAny() {

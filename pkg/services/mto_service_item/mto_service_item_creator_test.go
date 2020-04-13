@@ -4,6 +4,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/validate"
@@ -13,8 +15,9 @@ import (
 )
 
 type testMTOServiceItemQueryBuilder struct {
-	fakeCreateOne func(model interface{}) (*validate.Errors, error)
-	fakeFetchOne  func(model interface{}, filters []services.QueryFilter) error
+	fakeCreateOne   func(model interface{}) (*validate.Errors, error)
+	fakeFetchOne    func(model interface{}, filters []services.QueryFilter) error
+	fakeTransaction func(func(tx *pop.Connection) error) error
 }
 
 func (t *testMTOServiceItemQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
@@ -25,11 +28,19 @@ func (t *testMTOServiceItemQueryBuilder) FetchOne(model interface{}, filters []s
 	return t.fakeFetchOne(model, filters)
 }
 
+func (t *testMTOServiceItemQueryBuilder) Transaction(fn func(tx *pop.Connection) error) error {
+	return t.fakeTransaction(fn)
+}
+
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	dimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{})
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: moveTaskOrder.ID,
 		MoveTaskOrder:   moveTaskOrder,
+		Dimensions: models.MTOServiceItemDimensions{
+			dimension,
+		},
 	}
 
 	// Happy path
@@ -40,17 +51,30 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		fakeFetchOne := func(model interface{}, filters []services.QueryFilter) error {
 			return nil
 		}
-
-		builder := &testMTOServiceItemQueryBuilder{
-			fakeCreateOne: fakeCreateOne,
-			fakeFetchOne:  fakeFetchOne,
+		fakeTx := func(fn func(tx *pop.Connection) error) error {
+			return fn(&pop.Connection{})
 		}
 
-		creator := NewMTOServiceItemCreator(builder)
+		builder := &testMTOServiceItemQueryBuilder{
+			fakeCreateOne:   fakeCreateOne,
+			fakeFetchOne:    fakeFetchOne,
+			fakeTransaction: fakeTx,
+		}
+
+		fakeCreateNewBuilder := func(db *pop.Connection) createMTOServiceItemQueryBuilder {
+			return builder
+		}
+
+		creator := mtoServiceItemCreator{
+			builder:          builder,
+			createNewBuilder: fakeCreateNewBuilder,
+		}
 		createdServiceItem, verrs, err := creator.CreateMTOServiceItem(&serviceItem)
+
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(createdServiceItem)
+		suite.NotEmpty(createdServiceItem.Dimensions)
 	})
 
 	// Bad data which could be IDs that doesn't exist (MoveTaskOrderID or REServiceID)
@@ -64,17 +88,60 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		fakeFetchOne := func(model interface{}, filters []services.QueryFilter) error {
 			return nil
 		}
+
+		fakeTx := func(fn func(tx *pop.Connection) error) error {
+			return fn(&pop.Connection{})
+		}
+
+		builder := &testMTOServiceItemQueryBuilder{
+			fakeCreateOne:   fakeCreateOne,
+			fakeFetchOne:    fakeFetchOne,
+			fakeTransaction: fakeTx,
+		}
+
+		fakeCreateNewBuilder := func(db *pop.Connection) createMTOServiceItemQueryBuilder {
+			return builder
+		}
+
+		creator := mtoServiceItemCreator{
+			builder:          builder,
+			createNewBuilder: fakeCreateNewBuilder,
+		}
+
+		createdServiceItem, verrs, _ := creator.CreateMTOServiceItem(&serviceItem)
+		suite.Error(verrs)
+		suite.Nil(createdServiceItem)
+	})
+
+	// If the service item we're trying to create is shuttle service and there is no estimated weight, it fails.
+	suite.T().Run("If we try to create a shuttle service without the estimated weight it fails", func(t *testing.T) {
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+
+		serviceItemNoWeight := models.MTOServiceItem{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			MoveTaskOrder:   moveTaskOrder,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDSHUT,
+			},
+		}
+
+		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+			return nil, nil
+		}
+		fakeFetchOne := func(model interface{}, filters []services.QueryFilter) error {
+			return nil
+		}
+
 		builder := &testMTOServiceItemQueryBuilder{
 			fakeCreateOne: fakeCreateOne,
 			fakeFetchOne:  fakeFetchOne,
 		}
 
 		creator := NewMTOServiceItemCreator(builder)
-		createdServiceItem, verrs, err := creator.CreateMTOServiceItem(&serviceItem)
+		createdServiceItem, _, err := creator.CreateMTOServiceItem(&serviceItemNoWeight)
 		suite.Error(err)
-		suite.Error(verrs)
 		suite.Nil(createdServiceItem)
-		suite.Equal(verrs, verrs)
-		suite.Equal(expectedError, err.Error())
 	})
 }

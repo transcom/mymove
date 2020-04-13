@@ -7,7 +7,6 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -32,43 +31,65 @@ func TestMigrateSuite(t *testing.T) {
 	ms.PopTestSuite.TearDown()
 }
 
-func TestCopyStdinPattern(t *testing.T) {
-	tableName := "public.transportation_service_provider_performances"
-	listOfColumns := "id, performance_period_start, performance_period_end, traffic_distribution_list_id, quality_band, offer_count, best_value_score, transportation_service_provider_id, created_at, updated_at, rate_cycle_start, rate_cycle_end, linehaul_rate, sit_rate"
-	// #nosec This is sql formatting only for testing
-	stmtString := fmt.Sprintf("COPY %s (%s) FROM stdin;", tableName, listOfColumns)
-	match := copyStdinPattern.FindStringSubmatch(stmtString)
+func (suite *MigrateSuite) TestCopyStdinPattern() {
+	tests := []struct {
+		name          string
+		tableName     string
+		listOfColumns string
+		shouldMatch   bool
+	}{
+		{
+			"table name with prefix, letters, and underscores",
+			"public.transportation_service_provider_performances",
+			"id, performance_period_start, performance_period_end, traffic_distribution_list_id, quality_band, offer_count, best_value_score, transportation_service_provider_id, created_at, updated_at, rate_cycle_start, rate_cycle_end, linehaul_rate, sit_rate",
+			true,
+		},
+		{
+			"table name with prefix, letters, numbers, and underscores",
+			"public.tariff400ng_full_unpack_rates",
+			"id, schedule, rate_millicents, effective_date_lower, effective_date_upper, created_at, updated_at",
+			true,
+		},
+		{
+			"bad table name",
+			"public.tari+ff400ng_full_unpack_rates",
+			"id, schedule, rate_millicents",
+			false,
+		},
+	}
 
-	assert.NotNil(t, match, "Match not found")
-	// 0 : Full Line
-	assert.Equal(t, match[0], stmtString)
-	// 1 : Whitespace Prefix
-	assert.Equal(t, match[1], "")
-	// 2 : COPY
-	assert.Equal(t, match[2], "COPY")
-	// 3 : Whitespace
-	assert.Equal(t, match[3], " ")
-	// 4 : table name
-	assert.Equal(t, match[4], tableName)
-	// 5 : whitespace
-	assert.Equal(t, match[5], " ")
-	// 6 : list of columns
-	assert.Equal(t, match[6], listOfColumns)
-	// 7 : whitespace
-	assert.Equal(t, match[7], " ")
-	// 8 : FROM
-	assert.Equal(t, match[8], "FROM")
-	// 9 : whitespace
-	assert.Equal(t, match[9], " ")
-	// 10 : stdin
-	assert.Equal(t, match[10], "stdin")
-	// 11 : whitespace
-	assert.Equal(t, match[11], "")
-	// 12 : ;
-	assert.Equal(t, match[12], ";")
-	// 12 : whitespace
-	assert.Equal(t, match[13], "")
+	for _, test := range tests {
+		suite.T().Run(test.name, func(t *testing.T) {
+			// This is sql formatting only for testing
+			stmtString := fmt.Sprintf("COPY %s (%s) FROM stdin;", test.tableName, test.listOfColumns) // #nosec G201
+			match := copyStdinPattern.FindStringSubmatch(stmtString)
 
-	// preparedStmt := pq.CopyInSchema(parts[0], parts[1], columns...)
-	// assert.Equal(t, preparedStmt, stmtString)
+			if !test.shouldMatch {
+				suite.Nil(match, "Match found, but wasn't expecting to match")
+			} else if suite.NotNil(match, "Match not found when expecting one") {
+				expectedMatchArray := []string{
+					stmtString,
+					"",
+					"COPY",
+					" ",
+					test.tableName,
+					" ",
+					test.listOfColumns,
+					" ",
+					"FROM",
+					" ",
+					"stdin",
+					"",
+					";",
+					"",
+				}
+
+				for i, matchItem := range expectedMatchArray {
+					suite.Equalf(matchItem, match[i], "Match array item %d not equal", i)
+				}
+
+				suite.Len(match, len(expectedMatchArray))
+			}
+		})
+	}
 }

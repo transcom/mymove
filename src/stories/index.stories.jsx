@@ -4,10 +4,11 @@ import PropTypes from 'prop-types';
 import { storiesOf } from '@storybook/react';
 
 import { action } from '@storybook/addon-actions';
-import { Button } from '@trussworks/react-uswds';
+import { Button, Tag } from '@trussworks/react-uswds';
 import { ReactComponent as EditIcon } from 'shared/images/edit-24px.svg';
 import { ReactComponent as ChevronLeft } from 'shared/icon/chevron-left.svg';
 import { ReactComponent as ChevronRight } from 'shared/icon/chevron-right.svg';
+import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 import colors from '../shared/styles/colors.scss';
 
 const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
@@ -279,6 +280,8 @@ storiesOf('Global|Typography', module)
       </small>
     </div>
   ));
+
+// Containers
 
 storiesOf('Components|Containers', module).add('all', () => (
   <div id="containers" style={{ padding: '20px' }}>
@@ -570,3 +573,21 @@ storiesOf('Components|Tables', module)
       <p>placeholder</p>
     </div>
   ));
+
+// Tags
+
+storiesOf('Components|Tags', module).add('all', () => (
+  <div id="tags" style={{ padding: '20px' }}>
+    <hr />
+    <h3>Tags</h3>
+    <Tag>New</Tag>
+    <Tag className="usa-tag--green">Authorized</Tag>
+    <Tag className="usa-tag--red">Rejected</Tag>
+    <Tag className="usa-tag--yellow">Pending</Tag>
+    <Tag className="usa-tag--alert">
+      <AlertIcon />
+    </Tag>
+    <Tag>3</Tag>
+    <Tag className="usa-tag--cyan usa-tag--large">#ABC123K</Tag>
+  </div>
+));

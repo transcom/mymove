@@ -43,7 +43,7 @@ Regenerate with "pre-commit run -a markdown-toc"
 
 ## Design + Engineering Process for new components
 
-MilMove has defined a process for taking a new component from concept to design to implementation. This section of the doc will describe this process. We use [Storybook](https://storybook.js.org/) for showing the finished components and you can view all current ones on master by going to our [public storybook site](https://storybook.move.mil/). If you want to see things locally please check out the [How To Run Storybook](how-to/run-storybook.md) document.
+MilMove has defined a process for taking a new component from concept to design to implementation. This section of the doc will describe this process. We use [Storybook](https://storybook.js.org/) for showing the finished components and you can view all current ones on master by going to our [public storybook site](https://storybook.move.mil/). If you want to see things locally please check out the [How To Run Storybook](https://github.com/transcom/mymove/wiki/run-storybook) document.
 
 ### Design delivers component design
 
@@ -57,7 +57,7 @@ Once an engineer has the Abstract design for a new component they can begin to i
 
 ### Update Loki tests accordingly
 
-We currently use [Loki](https://loki.js.org/) for ensuring our storybook components do not regress as the project goes on. Please ensure you run the tests and add or update new reference images as you create or update components. See [How to Run Loki tests against Storybook](how-to/run-loki-tests-against-storybook.md) document for more details.
+We currently use [Loki](https://loki.js.org/) for ensuring our storybook components do not regress as the project goes on. Please ensure you run the tests and add or update new reference images as you create or update components. See [How to Run Loki tests against Storybook](https://github.com/transcom/mymove/wiki/run-loki-tests-against-storybook) document for more details.
 
 ## Testing
 
@@ -105,7 +105,7 @@ Historically we have leaned on Browser tests to cover testing our app thoroughly
 ### Storybook Testing
 
 * We use the [Loki](https://loki.js.org/) package for visually testing storybook.
-* For details on how to run, add, or update these tests see [How to Run Loki tests against Storybook](how-to/run-loki-tests-against-storybook.md)
+* For details on how to run, add, or update these tests see [How to Run Loki tests against Storybook](https://github.com/transcom/mymove/wiki/run-loki-tests-against-storybook)
 
 ## Code Style
 
