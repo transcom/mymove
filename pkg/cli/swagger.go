@@ -47,7 +47,6 @@ func CheckSwagger(v *viper.Viper) error {
 		GHCSwaggerFlag,
 		AdminSwaggerFlag,
 		PrimeSwaggerFlag,
-		SupportSwaggerFlag,
 	}
 
 	for _, c := range swaggerVars {
