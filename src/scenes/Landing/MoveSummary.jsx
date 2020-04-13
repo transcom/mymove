@@ -51,6 +51,14 @@ const getPPMStatus = (moveStatus, ppm) => {
 };
 
 export class MoveSummaryComponent extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      hasEstimateError: false,
+    };
+  }
+
   componentDidMount() {
     if (this.props.move.id) {
       this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
@@ -61,14 +69,19 @@ export class MoveSummaryComponent extends React.Component {
         if (netWeight === 0) {
           netWeight = this.props.ppm.weight_estimate;
         }
+        if (!netWeight) {
+          this.setState({ hasEstimateError: true });
+        }
         if (!isEmpty(this.props.ppm) && netWeight) {
-          this.props.getPpmWeightEstimate(
-            this.props.ppm.original_move_date,
-            this.props.ppm.pickup_postal_code,
-            this.props.originDutyStationZip,
-            this.props.orders.id,
-            netWeight,
-          );
+          this.props
+            .getPpmWeightEstimate(
+              this.props.ppm.original_move_date,
+              this.props.ppm.pickup_postal_code,
+              this.props.originDutyStationZip,
+              this.props.orders.id,
+              netWeight,
+            )
+            .catch((err) => this.setState({ hasEstimateError: true }));
         }
       });
     }
@@ -133,6 +146,7 @@ export class MoveSummaryComponent extends React.Component {
               reviewProfile={reviewProfile}
               requestPaymentSuccess={requestPaymentSuccess}
               isMissingWeightTicketDocuments={isMissingWeightTicketDocuments}
+              hasEstimateError={this.state.hasEstimateError}
             />
           </div>
 
