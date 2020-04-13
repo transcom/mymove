@@ -26,12 +26,11 @@ func (suite *ModelSuite) Test_ShorthaulRateEffectiveDateValidation() {
 		CwtMilesLower:      10,
 		CwtMilesUpper:      20,
 		RateCents:          100,
-		EffectiveDateLower: now,
 		EffectiveDateUpper: now.AddDate(-1, 0, 0),
 	}
 
 	expErrors = map[string][]string{
-		"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
+		"effective_date_lower": {"EffectiveDateLower can not be blank."},
 	}
 	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
 
@@ -39,11 +38,24 @@ func (suite *ModelSuite) Test_ShorthaulRateEffectiveDateValidation() {
 		CwtMilesLower:      10,
 		CwtMilesUpper:      20,
 		RateCents:          100,
+		EffectiveDateLower: now.AddDate(-1, 0, 0),
+	}
+
+	expErrors = map[string][]string{
+		"effective_date_upper": {"EffectiveDateUpper can not be blank.", "EffectiveDateUpper must be after EffectiveDateLower."},
+	}
+	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
+
+	invalidShorthaulRate = Tariff400ngShorthaulRate{
+		CwtMilesLower:      10,
+		CwtMilesUpper:      20,
+		RateCents:          100,
+		EffectiveDateLower: now,
 		EffectiveDateUpper: now.AddDate(-1, 0, 0),
 	}
 
 	expErrors = map[string][]string{
-		"effective_date_lower": {"EffectiveDateLower can not be blank."},
+		"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
 	}
 	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
 }
@@ -96,6 +108,18 @@ func (suite *ModelSuite) Test_ShorthaulRateCwtMilesValidation() {
 
 	expErrors = map[string][]string{
 		"cwt_miles_upper": {"10 is not greater than 20."},
+	}
+	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
+
+	invalidShorthaulRate = Tariff400ngShorthaulRate{
+		CwtMilesLower:      20,
+		RateCents:          100,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+
+	expErrors = map[string][]string{
+		"cwt_miles_upper": {"0 is not greater than 20.", "CwtMilesUpper can not be blank."},
 	}
 	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
 }
