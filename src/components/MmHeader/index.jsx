@@ -1,0 +1,23 @@
+import React from 'react';
+import classNames from 'classnames/bind';
+import styles from './index.module.scss';
+import { ReactComponent as MmLogo } from '../../shared/images/milmove-logo.svg';
+
+const cx = classNames.bind(styles);
+
+const MmHeader = () => (
+  <div className={cx('mm-header')}>
+    <MmLogo />
+    <div className={cx('links')}>
+      <span>
+        <b>TOO queue</b>
+      </span>
+      <span>Baker, Riley</span>
+      <span>
+        <a>Sign out</a>
+      </span>
+    </div>
+  </div>
+);
+
+export default MmHeader;

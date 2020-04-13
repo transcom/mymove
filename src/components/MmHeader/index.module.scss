@@ -1,0 +1,27 @@
+// Mm Header styles
+
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+.mm-header {
+  background: $mm-blue;
+  width: 100vw;
+  padding: 10px;
+  @include u-padding-left(2);
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  .links {
+    display: flex;
+    color: $base-lightest;
+  }
+
+  .page-label {
+    @include u-text('bold');
+  }
+
+  span {
+    @include u-padding-x(3);
+  }
+}

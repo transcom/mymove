@@ -8,6 +8,8 @@ import { Button } from '@trussworks/react-uswds';
 import { ReactComponent as EditIcon } from 'shared/images/edit-24px.svg';
 import colors from '../shared/styles/colors.scss';
 
+import MmHeader from '../components/MmHeader';
+
 const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
 
 // Buttons
@@ -323,5 +325,11 @@ storiesOf('Components|Containers', module).add('all', () => (
         .container--accent--yellow
       </code>
     </div>
+  </div>
+));
+
+storiesOf('Components|Headers', module).add('all', () => (
+  <div>
+    <MmHeader />
   </div>
 ));
