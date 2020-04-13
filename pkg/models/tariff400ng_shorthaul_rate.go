@@ -31,9 +31,12 @@ type Tariff400ngShorthaulRates []Tariff400ngShorthaulRate
 // This method is not required and may be deleted.
 func (t *Tariff400ngShorthaulRate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.IntIsGreaterThan{Field: t.RateCents.Int(), Name: "ServiceChargeCents", Compared: -1},
+		&validators.IntIsGreaterThan{Field: t.RateCents.Int(), Name: "RateCents", Compared: -1},
 		&validators.IntIsGreaterThan{Field: t.CwtMilesUpper, Name: "CwtMilesUpper",
 			Compared: t.CwtMilesLower},
+		&validators.IntIsPresent{Field: t.CwtMilesUpper, Name: "CwtMilesUpper"},
+		&validators.TimeIsPresent{Field: t.EffectiveDateLower, Name: "EffectiveDateLower"},
+		&validators.TimeIsPresent{Field: t.EffectiveDateUpper, Name: "EffectiveDateUpper"},
 		&validators.TimeAfterTime{
 			FirstTime: t.EffectiveDateUpper, FirstName: "EffectiveDateUpper",
 			SecondTime: t.EffectiveDateLower, SecondName: "EffectiveDateLower"},

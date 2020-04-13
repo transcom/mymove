@@ -45,12 +45,6 @@ for file in index("database/*.md", howto_title):
     output += file
     output += new_line
 
-output += "\n## HOWTOs\n\n"
-
-for file in index("how-to/*.md", howto_title):
-    output += file
-    output += new_line
-
 output += "\n## ADRs\n\n"
 
 for file in index("adr/0*.md", adr_title):

@@ -15,9 +15,6 @@ export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_PPM_E
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_SIT_ESTIMATE');
 
 // Action creation
-export function setPendingPpmWeight(value) {
-  return { type: SET_PENDING_PPM_WEIGHT, payload: value };
-}
 export function getPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
   return function (dispatch, getState) {
