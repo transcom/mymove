@@ -6,7 +6,9 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { Button, Tag } from '@trussworks/react-uswds';
 import { ReactComponent as EditIcon } from 'shared/images/edit-24px.svg';
+
 import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
+
 import colors from '../shared/styles/colors.scss';
 
 const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
