@@ -51,6 +51,7 @@
 table {
   @include u-font('body', 'xs');
   color: $base-darkest;
+  border-collapse: collapse;
   td,
   th {
     @include u-padding-y(1);
@@ -90,6 +91,14 @@ table {
       @include u-border-bottom('black');
     }
   }
+  .filter {
+    @include u-bg('gray-2');
+    td {
+      background-color: rgba(255, 255, 255, 0);
+      //@include u-border(1px);
+      //@include u-border('base-darkest');
+    }
+  }
   &.table--small,
   .table--small {
     th,
@@ -103,6 +112,9 @@ table {
     }
     th {
       @include u-text('bold');
+      @include u-border(0);
+      @include u-border-bottom(1px);
+      @include u-border('base-darker');
     }
     td {
     }
@@ -141,14 +153,23 @@ table {
   .usa-select {
     width: 89px;
     height: 38px;
+    @include u-margin(0);
     @include u-margin-right('105');
   }
 }
+
 .table--data-point {
   @include u-border(0);
+  .table--small th {
+    @include u-border('base-lighter');
+  }
   td {
     @include u-border(0);
+    @include u-padding-top(1.5);
     @include u-padding-left(1);
+    &:hover {
+      background-color: rgba(255, 255, 255, 0);
+    }
   }
   td,
   th {
@@ -156,6 +177,7 @@ table {
     min-width: 290px;
   }
 }
+
 .table--data-pair {
   width: 600px;
   @include u-padding(2px);
@@ -163,6 +185,75 @@ table {
   @include u-border('base-lighter');
   @include u-border('1px');
   @include u-radius('05');
+  table {
+    @include u-margin-left(1);
+  }
+}
+
+.table--queue {
+  max-width: 1302px;
+  table {
+    @include u-margin-bottom(4);
+  }
+  .display-flex {
+    justify-content: space-between;
+  }
+  td .usa-select,
+  td input {
+    @include u-margin(0);
+    padding-top: 3px;
+    padding-bottom: 3px;
+    height: 38px;
+  }
+  td {
+    padding: 14px 8px 14px 8px;
+    a {
+      @include u-text('primary-vivid');
+    }
+  }
+  .filter {
+    height: 52px;
+    td {
+      padding: 5px 8px 5px 8px;
+    }
+  }
+}
+
+.table--service-item {
+  td {
+    @include u-padding-x(1);
+  }
+  .gray-out {
+    @include u-text('gray-30');
+    @include u-padding-left(1);
+    svg {
+      @include u-margin-right(1);
+      fill: #adadad;
+    }
+  }
+  small {
+    @include u-text('gray-30');
+  }
+  &--hasimg {
+    table {
+      table-layout: fixed;
+      width: 100%;
+      max-width: 1021px;
+    }
+  }
+  .icon svg {
+    @include u-margin-right(0);
+  }
+}
+
+.si-thumbnail {
+  @include u-bg('base-lightest');
+  @include u-border('1px');
+  @include u-border('base-lighter');
+  @include u-margin-right(1);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
 //for displaying the tables in Storybook
