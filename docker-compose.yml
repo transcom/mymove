@@ -14,7 +14,7 @@ services:
   milmove_migrate:
     depends_on:
       - database
-    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
+    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-sm-MB-1315-add-prime-api-integration-tests
     links:
       - database
     environment:
@@ -38,7 +38,7 @@ services:
     depends_on:
       - database
       - milmove_migrate
-    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-placeholder_branch_name
+    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-sm-MB-1315-add-prime-api-integration-tests
     links:
       - database
     ports:
@@ -47,14 +47,17 @@ services:
     environment:
       - CLIENT_AUTH_SECRET_KEY
       - CSRF_AUTH_KEY
+      - DB_DEBUG=1
       - DB_ENV=development
       - DB_HOST=database
       - DB_NAME=dev_db
       - DB_PASSWORD=mysecretpassword
       - DB_PORT=5432
+      - DB_REGION=us-west-2
+      - DB_RETRY_INTERVAL=5s
       - DB_SSL_MODE=disable
       - DB_USER=postgres
-      - DEVLOCAL_AUTH=true
+      - DEVLOCAL_AUTH=1
       - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
       - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
       - DPS_AUTH_COOKIE_SECRET_KEY
@@ -72,6 +75,7 @@ services:
       - HTTP_ORDERS_SERVER_NAME=orderslocal
       - HTTP_PRIME_SERVER_NAME=primelocal
       - AWS_CF_DOMAIN=assets.devlocal.move.mil
+      - IWS_RBS_ENABLED=1
       - IWS_RBS_HOST
       - LOCAL_STORAGE_ROOT=/tmp
       - LOCAL_STORAGE_WEB_ROOT=storage
@@ -94,5 +98,7 @@ services:
       - SERVE_API_INTERNAL=true
       - SERVE_API_PRIME=true
       - STORAGE_BACKEND=local
+      - TLS_ENABLED=1
+      - TZ=UTC
     volumes:
       - ./tmp:/tmp
