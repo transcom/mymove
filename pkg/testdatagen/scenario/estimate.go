@@ -68,6 +68,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
 		ServiceArea:        "748",
+		ServicesSchedule:   3,
 		LinehaulFactor:     unit.Cents(39),
 		ServiceChargeCents: unit.Cents(350),
 		EffectiveDateLower: May15TestYear,
@@ -83,6 +84,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
 		ServiceArea:        "320",
+		ServicesSchedule:   3,
 		LinehaulFactor:     unit.Cents(43),
 		ServiceChargeCents: unit.Cents(350),
 		EffectiveDateLower: May15TestYear,

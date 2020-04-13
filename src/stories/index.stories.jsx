@@ -4,8 +4,9 @@ import PropTypes from 'prop-types';
 import { storiesOf } from '@storybook/react';
 
 import { action } from '@storybook/addon-actions';
-import { Button } from '@trussworks/react-uswds';
+import { Button, Tag } from '@trussworks/react-uswds';
 import { ReactComponent as EditIcon } from 'shared/images/edit-24px.svg';
+import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 import getColor from '../helpers/colors';
 import colors from '../shared/styles/colors.scss';
 
@@ -268,6 +269,8 @@ storiesOf('Global|Typography', module)
     </div>
   ));
 
+// Containers
+
 storiesOf('Components|Containers', module).add('all', () => (
   <div id="containers" style={{ padding: '20px' }}>
     <div className="container">
@@ -313,5 +316,23 @@ storiesOf('Components|Containers', module).add('all', () => (
         .container--accent--yellow
       </code>
     </div>
+  </div>
+));
+
+// Tags
+
+storiesOf('Components|Tags', module).add('all', () => (
+  <div id="tags" style={{ padding: '20px' }}>
+    <hr />
+    <h3>Tags</h3>
+    <Tag>New</Tag>
+    <Tag className="usa-tag--green">Authorized</Tag>
+    <Tag className="usa-tag--red">Rejected</Tag>
+    <Tag className="usa-tag--yellow">Pending</Tag>
+    <Tag className="usa-tag--alert">
+      <AlertIcon />
+    </Tag>
+    <Tag>3</Tag>
+    <Tag className="usa-tag--cyan usa-tag--large">#ABC123K</Tag>
   </div>
 ));

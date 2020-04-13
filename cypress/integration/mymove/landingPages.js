@@ -45,7 +45,7 @@ function draftMove(userId) {
 
 function ppmSubmitted(userId) {
   cy.signInAsUserPostRequest(milmoveAppName, userId);
-  cy.contains('Move your own stuff (PPM)');
+  cy.contains('Handle your own move (PPM)');
   cy.contains('Next Step: Wait for approval');
   cy.should('not.contain', 'Add PPM (DITY) Move');
   cy.logout();
@@ -53,7 +53,7 @@ function ppmSubmitted(userId) {
 
 function ppmApproved(userId) {
   cy.signInAsUserPostRequest(milmoveAppName, userId);
-  cy.contains('Move your own stuff (PPM)');
+  cy.contains('Handle your own move (PPM)');
   cy.contains('Next Step: Request payment');
   cy.logout();
 }
@@ -61,7 +61,7 @@ function ppmApproved(userId) {
 function ppmPaymentRequested(userId) {
   cy.signInAsUserPostRequest(milmoveAppName, userId);
   cy.setFeatureFlag('ppmPaymentRequest=false', '/');
-  cy.contains('Move your own stuff (PPM)');
+  cy.contains('Handle your own move (PPM)');
   cy.contains('Edit Payment Request');
   cy.contains('Estimated payment');
   cy.logout();
