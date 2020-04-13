@@ -61,7 +61,7 @@ task_definition_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --environment "${environment}" \
   --image "${image}" \
   --variables-file "${DIR}/../config/env/${environment}.engadmin.migrations.env" \
-  --entrypoint "python app/manage.py migrate" \
+  --entrypoint "python /home/app/web/manage.py migrate" \
   --cpu "${RESERVATION_CPU}" \
   --memory "${RESERVATION_MEM}" \
   --register)
