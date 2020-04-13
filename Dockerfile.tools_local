@@ -29,6 +29,10 @@ COPY pkg/testdatagen/testdata/test.pdf /bin/pkg/testdatagen/testdata/test.pdf
 COPY pkg/testdatagen/testdata/update_mto_shipment.json /bin/pkg/testdatagen/testdata/update_mto_shipment.json
 
 #Certs for Prime API
+COPY config/tls/devlocal-ca.pem /bin/config/tls/devlocal-ca.pem
+COPY config/tls/devlocal-https.pem /bin/config/tls/devlocal-https.pem
+COPY config/tls/devlocal-https.key /bin/config/tls/devlocal-https.key
+COPY config/tls/devlocal-client_auth_secret.key /bin/config/tls/devlocal-client_auth_secret.key
 COPY config/tls/devlocal-mtls.cer /bin/config/tls/devlocal-mtls.cer
 COPY config/tls/devlocal-mtls.key /bin/config/tls/devlocal-mtls.key
 
