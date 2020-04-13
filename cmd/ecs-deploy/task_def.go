@@ -556,7 +556,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
 		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
-		executionRoleArn = fmt.Sprintf("ecs-task-execution-role-%s-%s", serviceNameShort, environmentName)
+		executionRoleArn = fmt.Sprintf("ecs-task-execution-role-app-engadmin-%s", environmentName)
 		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
 
 	} else if subCommandName == "migrate" {
