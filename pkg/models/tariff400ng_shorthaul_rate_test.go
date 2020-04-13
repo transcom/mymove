@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *ModelSuite) Test_ShorthaulRateEffectiveDateValidation() {
+func (suite *ModelSuite) Test_ShorthaulRateValidation() {
 	now := time.Now()
 
 	validShorthaulRate := Tariff400ngShorthaulRate{
@@ -22,31 +22,19 @@ func (suite *ModelSuite) Test_ShorthaulRateEffectiveDateValidation() {
 	expErrors := map[string][]string{}
 	suite.verifyValidationErrors(&validShorthaulRate, expErrors)
 
-	invalidShorthaulRate := Tariff400ngShorthaulRate{
-		CwtMilesLower:      10,
-		CwtMilesUpper:      20,
-		RateCents:          100,
-		EffectiveDateUpper: now.AddDate(-1, 0, 0),
-	}
-
+	invalidShorthaulRate := Tariff400ngShorthaulRate{}
 	expErrors = map[string][]string{
+		"cwt_miles_upper":      {"CwtMilesUpper can not be blank.", "0 is not greater than 0."},
 		"effective_date_lower": {"EffectiveDateLower can not be blank."},
+		"effective_date_upper": {"EffectiveDateUpper can not be blank."},
 	}
 	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
+}
 
-	invalidShorthaulRate = Tariff400ngShorthaulRate{
-		CwtMilesLower:      10,
-		CwtMilesUpper:      20,
-		RateCents:          100,
-		EffectiveDateLower: now.AddDate(-1, 0, 0),
-	}
+func (suite *ModelSuite) Test_ShorthaulRateEffectiveDateValidation() {
+	now := time.Now()
 
-	expErrors = map[string][]string{
-		"effective_date_upper": {"EffectiveDateUpper can not be blank.", "EffectiveDateUpper must be after EffectiveDateLower."},
-	}
-	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
-
-	invalidShorthaulRate = Tariff400ngShorthaulRate{
+	invalidShorthaulRate := Tariff400ngShorthaulRate{
 		CwtMilesLower:      10,
 		CwtMilesUpper:      20,
 		RateCents:          100,
@@ -54,24 +42,13 @@ func (suite *ModelSuite) Test_ShorthaulRateEffectiveDateValidation() {
 		EffectiveDateUpper: now.AddDate(-1, 0, 0),
 	}
 
-	expErrors = map[string][]string{
+	expErrors := map[string][]string{
 		"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
 	}
 	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
 }
 
 func (suite *ModelSuite) Test_ShorthaulRateServiceChargeValidation() {
-	validShorthaulRate := Tariff400ngShorthaulRate{
-		CwtMilesLower:      10,
-		CwtMilesUpper:      20,
-		RateCents:          100,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-
-	expErrors := map[string][]string{}
-	suite.verifyValidationErrors(&validShorthaulRate, expErrors)
-
 	invalidShorthaulRate := Tariff400ngShorthaulRate{
 		CwtMilesLower:      10,
 		CwtMilesUpper:      20,
@@ -80,24 +57,13 @@ func (suite *ModelSuite) Test_ShorthaulRateServiceChargeValidation() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 
-	expErrors = map[string][]string{
+	expErrors := map[string][]string{
 		"rate_cents": {"-1 is not greater than -1."},
 	}
 	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
 }
 
 func (suite *ModelSuite) Test_ShorthaulRateCwtMilesValidation() {
-	validShorthaulRate := Tariff400ngShorthaulRate{
-		CwtMilesLower:      10,
-		CwtMilesUpper:      20,
-		RateCents:          100,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-
-	expErrors := map[string][]string{}
-	suite.verifyValidationErrors(&validShorthaulRate, expErrors)
-
 	invalidShorthaulRate := Tariff400ngShorthaulRate{
 		CwtMilesLower:      20,
 		CwtMilesUpper:      10,
@@ -106,20 +72,8 @@ func (suite *ModelSuite) Test_ShorthaulRateCwtMilesValidation() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 
-	expErrors = map[string][]string{
+	expErrors := map[string][]string{
 		"cwt_miles_upper": {"10 is not greater than 20."},
-	}
-	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
-
-	invalidShorthaulRate = Tariff400ngShorthaulRate{
-		CwtMilesLower:      20,
-		RateCents:          100,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-
-	expErrors = map[string][]string{
-		"cwt_miles_upper": {"0 is not greater than 20.", "CwtMilesUpper can not be blank."},
 	}
 	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
 }
