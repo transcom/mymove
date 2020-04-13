@@ -445,7 +445,7 @@ You can view the API's documentation (powered by Swagger UI) at <http://localhos
 There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run front-end testing suites.
-* `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://github.com/transcom/mymove/blob/master/docs/how-to/run-go-tests.md)
+* `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://github.com/transcom/mymove/wiki/run-go-tests)
 * `make e2e_test`: Run e2e testing suite.
 * `make test`: Run e2e, client- and server-side testing suites.
 
@@ -620,7 +620,7 @@ Doing so will set the timezone environment variable to UTC utilizing the same lo
 
 #### Linters & Pre-commit Hooks
 
-We use a number of linters for formatting, security and error checking. Please see this [how-to document](./docs/how-to/run-pre-commit-hooks.md) for a list of linters and troubleshooting tips.
+We use a number of linters for formatting, security and error checking. Please see the [pre-commit documentation](https://github.com/transcom/mymove/wiki/run-pre-commit-hooks) for a list of linters and troubleshooting tips.
 
 #### Yarn install markdown-spell (aka mdspell)
 
