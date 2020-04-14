@@ -90,37 +90,3 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	mtoPayload := payloads.MoveTaskOrder(mto)
 	return movetaskorderops.NewUpdateMTOPostCounselingInformationOK().WithPayload(mtoPayload)
 }
-
-// UpdateMoveTaskOrderStatusHandlerFunc updates the status of a Move Task Order
-type UpdateMoveTaskOrderStatusHandlerFunc struct {
-	handlers.HandlerContext
-	moveTaskOrderStatusUpdater services.MoveTaskOrderUpdater
-}
-
-// Handle updates the status of a MoveTaskOrder
-func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	eTag := params.IfMatch
-
-	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-
-	mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag)
-
-	if err != nil {
-		logger.Error("primeapi.support.MoveTaskOrderHandler error", zap.Error(err))
-		switch err.(type) {
-		case services.NotFoundError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.InvalidInputError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusBadRequest().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.PreconditionFailedError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
-		}
-	}
-
-	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
-
-	return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
-}
