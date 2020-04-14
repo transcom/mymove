@@ -11,7 +11,13 @@ const PageHeader = () => (
         <h2>Smith, Kerry</h2>
         <span className="usa-tag usa-tag--cyan usa-tag--large">#ABC123K</span>
       </div>
-      <div>officer information</div>
+      <div>
+        <p>
+          Navy E-6
+          <span className={cx('vertical-bar')}>|</span>
+          DoD ID 999999999
+        </p>
+      </div>
     </div>
     <div className={cx('info-block')}>
       <div>

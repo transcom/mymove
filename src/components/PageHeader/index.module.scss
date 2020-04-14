@@ -14,6 +14,7 @@
   padding-top: 13px;
   padding-bottom: 13px;
   @include u-text('white');
+  height: 80px;
   .name-block {
     display: flex;
     align-items: center;
@@ -21,6 +22,15 @@
       @include u-margin(0);
       margin-right: 20px;
     }
+  }
+  .vertical-bar {
+    color: $mm-periwinkle;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+  p {
+    @include u-margin(0);
+    @include u-margin-top('05');
   }
   .info-block {
     display: flex;
