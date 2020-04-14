@@ -499,6 +499,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// Short service name needed for RDS, CloudWatch Logs, and SSM
 	serviceNameParts := strings.Split(serviceName, "-")
 	serviceNameShort := serviceNameParts[0]
+	ssmNameSpace := serviceNameShort
 
 	// Confirm the image exists
 	ecrImage, errECRImage := NewECRImage(imageURI)
@@ -559,6 +560,9 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		executionRoleArn = fmt.Sprintf("ecs-task-execution-role-app-engadmin-%s", environmentName)
 		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
 
+		//change namespace to get secrets from the engadmin name space instead of defaulting to app
+		ssmNameSpace = "app-engadmin"
+
 	} else if subCommandName == "migrate" {
 		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
@@ -601,7 +605,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	cpu := strconv.Itoa(v.GetInt(cpuFlag))
 	mem := strconv.Itoa(v.GetInt(memFlag))
 
-	newTaskDefInput := generateTaskDefinition(containerDefName, ecrImage, entryPointList, serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName, dbHost, variablesFile, awsLogsGroup, awsLogsStreamPrefix, portMappings, cpu, executionRoleArn, family, mem, taskRoleArn, sidecarImageURI, logger)
+	newTaskDefInput := generateTaskDefinition(containerDefName, ecrImage, entryPointList, serviceSSM, awsRegion, awsAccountID, ssmNameSpace, environmentName, dbHost, variablesFile, awsLogsGroup, awsLogsStreamPrefix, portMappings, cpu, executionRoleArn, family, mem, taskRoleArn, sidecarImageURI, logger)
 
 	// Registration is never allowed by default and requires a flag
 	if v.GetBool(dryRunFlag) {
@@ -627,7 +631,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func generateTaskDefinition(containerDefName string, ecrImage *ECRImage, entryPointList []string, serviceSSM *ssm.SSM, awsRegion string, awsAccountID string, serviceNameShort string, environmentName string, dbHost string, variablesFile string, awsLogsGroup string, awsLogsStreamPrefix string, portMappings []*ecs.PortMapping, cpu string, executionRoleArn string, family string, mem string, taskRoleArn string, sidecarImageURI string, logger *log.Logger) ecs.RegisterTaskDefinitionInput {
+func generateTaskDefinition(containerDefName string, ecrImage *ECRImage, entryPointList []string, serviceSSM *ssm.SSM, awsRegion string, awsAccountID string, nameSpaceSSMPath string, environmentName string, dbHost string, variablesFile string, awsLogsGroup string, awsLogsStreamPrefix string, portMappings []*ecs.PortMapping, cpu string, executionRoleArn string, family string, mem string, taskRoleArn string, sidecarImageURI string, logger *log.Logger) ecs.RegisterTaskDefinitionInput {
 	var sideCarLink []*string
 	sideCarContainerName := fmt.Sprintf("%s-sidecar", containerDefName)
 	networkMode := "awsvpc"
@@ -651,7 +655,7 @@ func generateTaskDefinition(containerDefName string, ecrImage *ECRImage, entryPo
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPointList),
 				Command:     []*string{},
-				Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName),
+				Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, nameSpaceSSMPath, environmentName),
 				Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
@@ -687,7 +691,7 @@ func generateTaskDefinition(containerDefName string, ecrImage *ECRImage, entryPo
 			Essential:   aws.Bool(true),
 			EntryPoint:  aws.StringSlice(entryPointList),
 			Command:     []*string{},
-			Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName),
+			Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, nameSpaceSSMPath, environmentName),
 			Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
 			LogConfiguration: &ecs.LogConfiguration{
 				LogDriver: aws.String("awslogs"),
