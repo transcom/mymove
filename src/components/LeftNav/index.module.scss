@@ -4,7 +4,7 @@
 //Left Nav
 
 nav {
-  @include u-font-size('body', 'xs');
+  @include u-font-size('body', 'xs'); //15px
   @include u-text('no-underline');
   @include u-border('base-lighter');
   @include u-border('1px');
