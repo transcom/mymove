@@ -10,6 +10,8 @@ import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 
 import colors from '../shared/styles/colors.scss';
 
+import LeftNav from '../components/LeftNav';
+
 const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
 
 // Buttons
@@ -345,5 +347,13 @@ storiesOf('Components|Tags', module).add('all', () => (
     </Tag>
     <Tag>3</Tag>
     <Tag className="usa-tag--cyan usa-tag--large">#ABC123K</Tag>
+  </div>
+));
+
+// Left Nav
+
+storiesOf('Components|Left Nav', module).add('all', () => (
+  <div id="l-nav" style={{ padding: '20px', background: '#f0f0f0' }}>
+    <LeftNav />
   </div>
 ));

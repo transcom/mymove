@@ -1,0 +1,35 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+
+//Left Nav
+
+nav {
+  @include u-font-size('body', 'xs');
+  @include u-text('no-underline');
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-radius('md'); //4px
+  @include u-bg('white');
+  display: flex;
+  flex-direction: column;
+  @include u-padding-x(0); //20px
+  @include u-padding-y(0);
+  width: 227px;
+  @include u-margin(0);
+  a {
+    @include u-padding-y(1.5); //12px
+    @include u-padding-x(2.5); //20px
+    @include u-border(0);
+    &:not(:first-child) {
+      @include u-border-top('1px');
+      @include u-border-y('base-lighter');
+    }
+    &:not(:last-child) {
+      @include u-border-bottom('1px');
+      @include u-border-y('base-lighter');
+    }
+    &:hover {
+      @include u-text('no-underline');
+    }
+  }
+}
