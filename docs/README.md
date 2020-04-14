@@ -62,7 +62,6 @@ If you are looking to understand choices made in this project, see the list of [
 * [Setup Postman to make Mutual TLS API Calls](how-to/setup-postman-to-make-mutual-tls-api-calls.md#how-to-setup-postman-to-make-mutual-tls-api-calls)
 * [Store Data in Redux](how-to/store-data-in-redux.md#how-to-store-data-in-redux)
 * [Store UI State in Redux](how-to/store-ui-state-in-redux.md#how-to-store-ui-state-in-redux)
-* [Test Prime API locally](how-to/test-prime-api-local.md#how-to-test-prime-api-locally)
 * [Test Prime API on staging and experimental](how-to/test-prime-api-staging-experimental.md#how-to-test-prime-api-on-staging-and-experimental)
 * [Troubleshoot GEX Connection](how-to/troubleshoot-gex-connection.md#how-to-troubleshoot-gex-connection)
 * [Unit Test React Components](how-to/unit-test-react-components.md#how-to-unit-test-react-components)
