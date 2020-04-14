@@ -3,7 +3,7 @@ import { GovBanner } from '@trussworks/react-uswds';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-const TOO = () => {
+const Accessorials = () => {
   return (
     <>
       <GovBanner />
@@ -12,9 +12,4 @@ const TOO = () => {
   );
 };
 
-const mapStateToProps = () => {
-  return {};
-};
-const mapDispatchToProps = {};
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(TOO));
+export default withRouter(connect()(Accessorials));
