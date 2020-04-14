@@ -23,43 +23,43 @@ if [[ -n "${CIRCLECI+x}" ]]; then
 
   # Let's clean things up before starting
   # This may show an error locally but can be safely ignored, its only for CircleCI
-  docker-compose -f docker-compose.yml down --rmi all || true
+  docker-compose -f docker-compose.mtls.yml down --rmi all || true
 
   # Docker Compose Setup
   aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 
   # If you don't pull and CircleCI has cached previous images then you won't see any changes from AWS ECR
-  docker-compose -f docker-compose.yml pull
+  docker-compose -f docker-compose.mtls.yml pull
 
   # Bring these containers up but don't start them so they can be manipulated first
-  docker-compose -f docker-compose.yml up --no-start
+  docker-compose -f docker-compose.mtls.yml up --no-start
 
   # Can't mount folders in CircleCI so copy this data in
   # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
   docker cp ./migrations/app/secure mymove_milmove_migrate_1:/migrate/
 
   # Start everything up
-  docker-compose -f docker-compose.yml up -d --no-recreate --remove-orphans
+  docker-compose -f docker-compose.mtls.yml up -d --no-recreate --remove-orphans
 
   # Build a small e2e dockerfile
   docker build -f Dockerfile.tools --tag tools:latest .
 
   # Following the logs should block any more actions until migrations are completed and the container exits
-  docker-compose -f docker-compose.yml logs -f milmove_migrate
+  docker-compose -f docker-compose.mtls.yml logs -f milmove_migrate
 else
   # Locally development requires that we build the container
 
   # Let's clean things up before starting
-  docker-compose -f docker-compose.local.yml down --remove-orphans || true
+  docker-compose -f docker-compose.mtls_local.yml down --remove-orphans || true
 
   # Build images and start everything up
-  docker-compose -f docker-compose.local.yml up --remove-orphans -d --build
+  docker-compose -f docker-compose.mtls_local.yml up --remove-orphans -d --build
 
   # Build a small tools dockerfile
   docker build -f Dockerfile.tools_local --tag tools:latest .
 
   # Following the logs should block any more actions until migrations are completed and the container exits
-  docker-compose -f docker-compose.local.yml logs -f milmove_migrate
+  docker-compose -f docker-compose.mtls_local.yml logs -f milmove_migrate
 fi
 
 # Need to wait not just for DB but also migrations to finish
@@ -121,6 +121,8 @@ function prime_api_client () {
     --rm \
     --entrypoint prime-api-client \
     tools:latest \
+    --certpath ./config/tls/devlocal-mtls.cer \
+    --keypath ./config/tls/devlocal-mtls.key \
     --insecure \
     --hostname primelocal \
     --port 9443 \
