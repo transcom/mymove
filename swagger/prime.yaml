@@ -354,61 +354,6 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
-  '/support/move-task-orders/{moveTaskOrderID}/status':
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - description: ID of move order to use
-          in: path
-          name: moveTaskOrderID
-          required: true
-          type: string
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-      responses:
-        '200':
-          description: Successfully updated move task order status
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Changes move task order status to make it available to prime
-      operationId: updateMoveTaskOrderStatus
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
-      summary: Change the status of a move task order to make it available to prime
 definitions:
   Address:
     type: object
