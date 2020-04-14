@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"testing"
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
@@ -8,108 +9,55 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *ModelSuite) Test_LinehaulEffectiveDateValidation() {
-	now := time.Now()
+func (suite *ModelSuite) Test_Tariff400ngLinehaulRateValidation() {
+	suite.T().Run("test valid Tariff400ngLinehaulRate", func(t *testing.T) {
+		now := time.Now()
+		validTariff400ngLinehaulRate := Tariff400ngLinehaulRate{
+			DistanceMilesLower: 100,
+			DistanceMilesUpper: 200,
+			Type:               "ConusLinehaul",
+			WeightLbsLower:     unit.Pound(100),
+			WeightLbsUpper:     unit.Pound(200),
+			RateCents:          unit.Cents(100),
+			EffectiveDateLower: now,
+			EffectiveDateUpper: now.AddDate(1, 0, 0),
+		}
+		expErrors := map[string][]string{}
+		suite.verifyValidationErrors(&validTariff400ngLinehaulRate, expErrors)
+	})
 
-	validLinehaulRate := Tariff400ngLinehaulRate{
-		WeightLbsLower:     100,
-		WeightLbsUpper:     200,
-		DistanceMilesLower: 100,
-		DistanceMilesUpper: 200,
-		EffectiveDateLower: now,
-		EffectiveDateUpper: now.AddDate(1, 0, 0),
-	}
+	suite.T().Run("test invalid Tariff400ngLinehaulRate", func(t *testing.T) {
+		invalidTariff400ngLinehaulRate := Tariff400ngLinehaulRate{}
+		expErrors := map[string][]string{
+			"distance_miles_lower": {"DistanceMilesLower can not be blank.", "0 is not less than 0."},
+			"distance_miles_upper": {"DistanceMilesUpper can not be blank."},
+			"type":                 {"Type can not be blank."},
+			"weight_lbs_lower":     {"WeightLbsLower can not be blank.", "0 is not less than 0."},
+			"weight_lbs_upper":     {"WeightLbsUpper can not be blank."},
+			"effective_date_lower": {"EffectiveDateLower can not be blank."},
+			"effective_date_upper": {"EffectiveDateUpper can not be blank."},
+		}
+		suite.verifyValidationErrors(&invalidTariff400ngLinehaulRate, expErrors)
+	})
 
-	expErrors := map[string][]string{}
-	suite.verifyValidationErrors(&validLinehaulRate, expErrors)
-
-	invalidLinehaulRate := Tariff400ngLinehaulRate{
-		WeightLbsLower:     100,
-		WeightLbsUpper:     200,
-		DistanceMilesLower: 100,
-		DistanceMilesUpper: 200,
-		EffectiveDateLower: now,
-		EffectiveDateUpper: now.AddDate(-1, 0, 0),
-	}
-
-	expErrors = map[string][]string{
-		"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
-	}
-	suite.verifyValidationErrors(&invalidLinehaulRate, expErrors)
-}
-
-func (suite *ModelSuite) Test_LinehaulWeightValidation() {
-	validLinehaulRate := Tariff400ngLinehaulRate{
-		WeightLbsLower:     100,
-		WeightLbsUpper:     200,
-		DistanceMilesLower: 100,
-		DistanceMilesUpper: 200,
-	}
-
-	expErrors := map[string][]string{}
-	suite.verifyValidationErrors(&validLinehaulRate, expErrors)
-
-	invalidLinehaulRate := Tariff400ngLinehaulRate{
-		WeightLbsLower:     200,
-		WeightLbsUpper:     100,
-		DistanceMilesLower: 100,
-		DistanceMilesUpper: 200,
-	}
-
-	expErrors = map[string][]string{
-		"weight_lbs_lower": {"200 is not less than 100."},
-	}
-	suite.verifyValidationErrors(&invalidLinehaulRate, expErrors)
-}
-
-func (suite *ModelSuite) Test_LinehaulRateValidation() {
-	validLinehaulRate := Tariff400ngLinehaulRate{
-		RateCents:          100,
-		WeightLbsLower:     100,
-		WeightLbsUpper:     200,
-		DistanceMilesLower: 100,
-		DistanceMilesUpper: 200,
-	}
-
-	expErrors := map[string][]string{}
-	suite.verifyValidationErrors(&validLinehaulRate, expErrors)
-
-	invalidLinehaulRate := Tariff400ngLinehaulRate{
-		RateCents:          -1,
-		WeightLbsLower:     100,
-		WeightLbsUpper:     200,
-		DistanceMilesLower: 100,
-		DistanceMilesUpper: 200,
-	}
-
-	expErrors = map[string][]string{
-		"rate_cents": {"-1 is not greater than -1."},
-	}
-	suite.verifyValidationErrors(&invalidLinehaulRate, expErrors)
-}
-
-func (suite *ModelSuite) Test_LinehaulDistanceValidation() {
-	validLinehaulRate := Tariff400ngLinehaulRate{
-		WeightLbsLower:     100,
-		WeightLbsUpper:     200,
-		DistanceMilesLower: 100,
-		DistanceMilesUpper: 200,
-	}
-
-	expErrors := map[string][]string{}
-	suite.verifyValidationErrors(&validLinehaulRate, expErrors)
-
-	invalidLinehaulRate := Tariff400ngLinehaulRate{
-		WeightLbsLower:     100,
-		WeightLbsUpper:     200,
-		DistanceMilesLower: 200,
-		DistanceMilesUpper: 100,
-	}
-
-	expErrors = map[string][]string{
-		"distance_miles_lower": {"200 is not less than 100."},
-	}
-	suite.verifyValidationErrors(&invalidLinehaulRate, expErrors)
+	suite.T().Run("test negative RateCents, badly ordered dates for Tariff400ngLinehaulRate", func(t *testing.T) {
+		now := time.Now()
+		invalidTariff400ngLinehaulRate := Tariff400ngLinehaulRate{
+			DistanceMilesLower: 100,
+			DistanceMilesUpper: 200,
+			Type:               "ConusLinehaul",
+			WeightLbsLower:     unit.Pound(100),
+			WeightLbsUpper:     unit.Pound(200),
+			RateCents:          unit.Cents(-200),
+			EffectiveDateLower: now,
+			EffectiveDateUpper: now.AddDate(-1, 0, 0),
+		}
+		expErrors := map[string][]string{
+			"rate_cents":           {"-200 is not greater than -1."},
+			"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
+		}
+		suite.verifyValidationErrors(&invalidTariff400ngLinehaulRate, expErrors)
+	})
 }
 
 func (suite *ModelSuite) Test_FetchBaseLinehaulRate() {

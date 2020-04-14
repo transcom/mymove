@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"testing"
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
@@ -8,73 +9,59 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *ModelSuite) Test_ServiceAreaEffectiveDateValidation() {
-	now := time.Now()
+func (suite *ModelSuite) Test_Tariff400ngServiceAreaValidation() {
+	suite.T().Run("test valid Tariff400ngServiceArea", func(t *testing.T) {
+		now := time.Now()
+		validTariff400ngServiceArea := Tariff400ngServiceArea{
+			Name:               "Birmingham, AL",
+			ServiceArea:        testdatagen.DefaultServiceArea,
+			ServicesSchedule:   1,
+			LinehaulFactor:     unit.Cents(100),
+			ServiceChargeCents: unit.Cents(100),
+			EffectiveDateLower: now,
+			EffectiveDateUpper: now.AddDate(1, 0, 0),
+			SIT185ARateCents:   unit.Cents(100),
+			SIT185BRateCents:   unit.Cents(100),
+			SITPDSchedule:      1,
+		}
+		expErrors := map[string][]string{}
+		suite.verifyValidationErrors(&validTariff400ngServiceArea, expErrors)
+	})
 
-	validServiceArea := Tariff400ngServiceArea{
-		ServiceArea:        testdatagen.DefaultServiceArea,
-		EffectiveDateLower: now,
-		EffectiveDateUpper: now.AddDate(1, 0, 0),
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
+	suite.T().Run("test invalid Tariff400ngServiceArea", func(t *testing.T) {
+		invalidTariff400ngServiceArea := Tariff400ngServiceArea{}
+		expErrors := map[string][]string{
+			"name":                  {"Name can not be blank."},
+			"service_area":          {"ServiceArea can not be blank.", "ServiceArea does not match the expected format."},
+			"services_schedule":     {"ServicesSchedule can not be blank."},
+			"effective_date_lower":  {"EffectiveDateLower can not be blank."},
+			"effective_date_upper":  {"EffectiveDateUpper can not be blank."},
+			"s_i_t185_a_rate_cents": {"SIT185ARateCents can not be blank."},
+			"s_i_t185_b_rate_cents": {"SIT185BRateCents can not be blank."},
+			"s_i_t_p_d_schedule":    {"SITPDSchedule can not be blank."},
+		}
+		suite.verifyValidationErrors(&invalidTariff400ngServiceArea, expErrors)
+	})
 
-	expErrors := map[string][]string{}
-	suite.verifyValidationErrors(&validServiceArea, expErrors)
-
-	invalidServiceArea := Tariff400ngServiceArea{
-		ServiceArea:        testdatagen.DefaultServiceArea,
-		EffectiveDateLower: now,
-		EffectiveDateUpper: now.AddDate(-1, 0, 0),
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-
-	expErrors = map[string][]string{
-		"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
-	}
-	suite.verifyValidationErrors(&invalidServiceArea, expErrors)
-}
-
-func (suite *ModelSuite) Test_ServiceAreaServiceChargeValidation() {
-	validServiceArea := Tariff400ngServiceArea{
-		ServiceArea:        testdatagen.DefaultServiceArea,
-		ServiceChargeCents: 100,
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-
-	expErrors := map[string][]string{}
-	suite.verifyValidationErrors(&validServiceArea, expErrors)
-
-	invalidServiceArea := Tariff400ngServiceArea{
-		ServiceArea:        testdatagen.DefaultServiceArea,
-		ServiceChargeCents: -1,
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-
-	expErrors = map[string][]string{
-		"service_charge_cents": {"-1 is not greater than -1."},
-	}
-	suite.verifyValidationErrors(&invalidServiceArea, expErrors)
-}
-
-func (suite *ModelSuite) Test_ServiceAreaSITRatesValidation() {
-	invalidServiceArea := Tariff400ngServiceArea{
-		ServiceChargeCents: 1,
-	}
-
-	expErrors := map[string][]string{
-		"service_area": {"ServiceArea can not be blank.",
-			"ServiceArea does not match the expected format."},
-		"s_i_t185_b_rate_cents": {"SIT185BRateCents can not be blank."},
-		"s_i_t_p_d_schedule":    {"SITPDSchedule can not be blank."},
-		"s_i_t185_a_rate_cents": {"SIT185ARateCents can not be blank."},
-	}
-	suite.verifyValidationErrors(&invalidServiceArea, expErrors)
+	suite.T().Run("test other validations not exercised above for Tariff400ngServiceArea", func(t *testing.T) {
+		now := time.Now()
+		invalidTariff400ngServiceArea := Tariff400ngServiceArea{
+			Name:               "Birmingham, AL",
+			ServiceArea:        testdatagen.DefaultServiceArea,
+			ServicesSchedule:   1,
+			LinehaulFactor:     unit.Cents(-100),
+			ServiceChargeCents: unit.Cents(-100),
+			EffectiveDateLower: now,
+			EffectiveDateUpper: now.AddDate(-1, 0, 0),
+			SIT185ARateCents:   unit.Cents(100),
+			SIT185BRateCents:   unit.Cents(100),
+			SITPDSchedule:      1,
+		}
+		expErrors := map[string][]string{
+			"linehaul_factor":      {"-100 is not greater than -1."},
+			"service_charge_cents": {"-100 is not greater than -1."},
+			"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
+		}
+		suite.verifyValidationErrors(&invalidTariff400ngServiceArea, expErrors)
+	})
 }

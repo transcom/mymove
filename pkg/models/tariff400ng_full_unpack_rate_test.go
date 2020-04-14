@@ -1,50 +1,50 @@
 package models_test
 
 import (
+	"testing"
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ModelSuite) Test_UnpackEffectiveDateValidation() {
-	now := time.Now()
+func (suite *ModelSuite) Test_Tariff400ngFullUnpackRateValidation() {
+	suite.T().Run("test valid Tariff400ngFullUnpackRate", func(t *testing.T) {
+		now := time.Now()
+		validTariff400ngFullUnpackRate := Tariff400ngFullUnpackRate{
+			Schedule:           1,
+			RateMillicents:     100000,
+			EffectiveDateLower: now,
+			EffectiveDateUpper: now.AddDate(1, 0, 0),
+		}
+		expErrors := map[string][]string{}
+		suite.verifyValidationErrors(&validTariff400ngFullUnpackRate, expErrors)
+	})
 
-	validUnpackRate := Tariff400ngFullUnpackRate{
-		EffectiveDateLower: now,
-		EffectiveDateUpper: now.AddDate(1, 0, 0),
-	}
+	suite.T().Run("test invalid Tariff400ngFullUnpackRate", func(t *testing.T) {
+		invalidTariff400ngFullUnpackRate := Tariff400ngFullUnpackRate{}
+		expErrors := map[string][]string{
+			"schedule":             {"Schedule can not be blank."},
+			"effective_date_lower": {"EffectiveDateLower can not be blank."},
+			"effective_date_upper": {"EffectiveDateUpper can not be blank."},
+		}
+		suite.verifyValidationErrors(&invalidTariff400ngFullUnpackRate, expErrors)
+	})
 
-	expErrors := map[string][]string{}
-	suite.verifyValidationErrors(&validUnpackRate, expErrors)
-
-	invalidUnpackRate := Tariff400ngFullUnpackRate{
-		EffectiveDateLower: now,
-		EffectiveDateUpper: now.AddDate(-1, 0, 0),
-	}
-
-	expErrors = map[string][]string{
-		"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
-	}
-	suite.verifyValidationErrors(&invalidUnpackRate, expErrors)
-}
-
-func (suite *ModelSuite) Test_UnpackRateValidation() {
-	validUnpackRate := Tariff400ngFullUnpackRate{
-		RateMillicents: 100,
-	}
-
-	expErrors := map[string][]string{}
-	suite.verifyValidationErrors(&validUnpackRate, expErrors)
-
-	invalidUnpackRate := Tariff400ngFullUnpackRate{
-		RateMillicents: -1,
-	}
-
-	expErrors = map[string][]string{
-		"rate_millicents": {"-1 is not greater than -1."},
-	}
-	suite.verifyValidationErrors(&invalidUnpackRate, expErrors)
+	suite.T().Run("test negative RateMillicents, badly ordered dates for Tariff400ngFullUnpackRate", func(t *testing.T) {
+		now := time.Now()
+		invalidTariff400ngFullUnpackRate := Tariff400ngFullUnpackRate{
+			Schedule:           1,
+			RateMillicents:     -200000,
+			EffectiveDateLower: now,
+			EffectiveDateUpper: now.AddDate(-1, 0, 0),
+		}
+		expErrors := map[string][]string{
+			"rate_millicents":      {"-200000 is not greater than -1."},
+			"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
+		}
+		suite.verifyValidationErrors(&invalidTariff400ngFullUnpackRate, expErrors)
+	})
 }
 
 func (suite *ModelSuite) Test_UnpackCreateAndSave() {
