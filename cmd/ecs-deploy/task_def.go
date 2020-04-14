@@ -552,7 +552,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		if listTargetsByRuleErr != nil {
 			quit(logger, nil, fmt.Errorf("error retrieving targets for rule %q: %w", ruleName, listTargetsByRuleErr))
 		}
-	} else if subCommandName == "migrate" && commandName == "python app/manage.py" { //engadmin migrations has its own task def unlike app-migrations below
+	} else if subCommandName == "migrate" && commandName == "python /home/app/web/manage.py" { //engadmin migrations has its own task def unlike app-migrations below
 		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-app-engadmin-%s", environmentName)
 		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
