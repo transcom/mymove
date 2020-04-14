@@ -35,27 +35,22 @@ type Tariff400ngLinehaulRates []Tariff400ngLinehaulRate
 // This method is not required and may be deleted.
 func (t *Tariff400ngLinehaulRate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.IntIsGreaterThan{Field: t.RateCents.Int(), Name: "RateCents", Compared: -1},
+		&validators.IntIsPresent{Field: t.DistanceMilesLower, Name: "DistanceMilesLower"},
+		&validators.IntIsPresent{Field: t.DistanceMilesUpper, Name: "DistanceMilesUpper"},
 		&validators.IntIsLessThan{Field: t.DistanceMilesLower, Name: "DistanceMilesLower",
 			Compared: t.DistanceMilesUpper},
+		&validators.StringIsPresent{Field: t.Type, Name: "Type"},
+		&validators.IntIsPresent{Field: t.WeightLbsLower.Int(), Name: "WeightLbsLower"},
+		&validators.IntIsPresent{Field: t.WeightLbsUpper.Int(), Name: "WeightLbsUpper"},
 		&validators.IntIsLessThan{Field: t.WeightLbsLower.Int(), Name: "WeightLbsLower",
 			Compared: t.WeightLbsUpper.Int()},
+		&validators.IntIsGreaterThan{Field: t.RateCents.Int(), Name: "RateCents", Compared: -1},
+		&validators.TimeIsPresent{Field: t.EffectiveDateLower, Name: "EffectiveDateLower"},
+		&validators.TimeIsPresent{Field: t.EffectiveDateUpper, Name: "EffectiveDateUpper"},
 		&validators.TimeAfterTime{
 			FirstTime: t.EffectiveDateUpper, FirstName: "EffectiveDateUpper",
 			SecondTime: t.EffectiveDateLower, SecondName: "EffectiveDateLower"},
 	), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (t *Tariff400ngLinehaulRate) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (t *Tariff400ngLinehaulRate) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
 
 // FetchBaseLinehaulRate takes a move's distance and weight and queries the tariff400ng_linehaul_rates table to find a move's base linehaul rate.

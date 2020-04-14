@@ -11,7 +11,7 @@ const SubmittedPpmMoveSummary = (props) => {
     <div className="shipment_box">
       <div className="shipment_type">
         <img className="move_sm" src={ppmCar} alt="ppm-car" />
-        Move your own stuff (PPM)
+        Handle your own move (PPM)
       </div>
       <div className="shipment_box_contents">
         <PPMStatusTimeline ppm={ppm} />
@@ -23,18 +23,18 @@ const SubmittedPpmMoveSummary = (props) => {
                 You'll be notified when your move is approved (up to 5 days). To get ready to move:
                 <ul>
                   <li>
-                    Go to{' '}
+                    {' '}
                     <a
                       href="https://move.mil/resources/locator-maps"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="usa-link"
                     >
-                      certified weight scales
+                      Find a convenient weight scale
                     </a>{' '}
-                    to get empty &amp; full weight tickets.
+                    and verify when they’re open.
                   </li>
-                  <li>Save expense receipts, including for storage.</li>
+                  <li>Save any expense receipts, including for storage.</li>
                 </ul>
               </div>
             </div>
