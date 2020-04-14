@@ -4,6 +4,7 @@ import 'loki/configure-react';
 
 import './storybook.scss';
 import '../src/index.scss';
+import '../src/ghc_index.scss';
 
 const req = require.context('../src', true, /\.stories\.jsx?$/);
 
