@@ -14,8 +14,8 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
+	mto "github.com/transcom/mymove/pkg/gen/supportclient/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 func initGetMTOFlags(flag *pflag.FlagSet) {
@@ -55,7 +55,7 @@ func getMTO(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
-	primeGateway, cacStore, errCreateClient := CreateClient(v)
+	supportGateway, cacStore, errCreateClient := CreateSupportClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -81,7 +81,7 @@ func getMTO(cmd *cobra.Command, args []string) error {
 	}
 
 	jsonDecoder := json.NewDecoder(reader)
-	var moveTaskOrder primemessages.MoveTaskOrder
+	var moveTaskOrder supportmessages.MoveTaskOrder
 	err = jsonDecoder.Decode(&moveTaskOrder)
 	if err != nil {
 		return fmt.Errorf("decoding data failed: %w", err)
@@ -93,7 +93,7 @@ func getMTO(cmd *cobra.Command, args []string) error {
 
 	params.SetTimeout(time.Second * 30)
 
-	resp, errGetMTO := primeGateway.MoveTaskOrder.GetMoveTaskOrder(&params)
+	resp, errGetMTO := supportGateway.MoveTaskOrder.GetMoveTaskOrder(&params)
 	if errGetMTO != nil {
 		// If the response cannot be parsed as JSON you may see an error like
 		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface

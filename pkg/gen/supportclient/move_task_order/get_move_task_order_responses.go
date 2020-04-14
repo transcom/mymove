@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // GetMoveTaskOrderReader is a Reader for the GetMoveTaskOrder structure.
@@ -76,20 +76,20 @@ func NewGetMoveTaskOrderOK() *GetMoveTaskOrderOK {
 Successfully retrieve an individual move task order
 */
 type GetMoveTaskOrderOK struct {
-	Payload *primemessages.MoveTaskOrder
+	Payload *supportmessages.MoveTaskOrder
 }
 
 func (o *GetMoveTaskOrderOK) Error() string {
-	return fmt.Sprintf("[GET /support/move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderOK  %+v", 200, o.Payload)
 }
 
-func (o *GetMoveTaskOrderOK) GetPayload() *primemessages.MoveTaskOrder {
+func (o *GetMoveTaskOrderOK) GetPayload() *supportmessages.MoveTaskOrder {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.MoveTaskOrder)
+	o.Payload = new(supportmessages.MoveTaskOrder)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -113,7 +113,7 @@ type GetMoveTaskOrderBadRequest struct {
 }
 
 func (o *GetMoveTaskOrderBadRequest) Error() string {
-	return fmt.Sprintf("[GET /support/move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *GetMoveTaskOrderBadRequest) GetPayload() interface{} {
@@ -144,7 +144,7 @@ type GetMoveTaskOrderUnauthorized struct {
 }
 
 func (o *GetMoveTaskOrderUnauthorized) Error() string {
-	return fmt.Sprintf("[GET /support/move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
 }
 
 func (o *GetMoveTaskOrderUnauthorized) GetPayload() interface{} {
@@ -175,7 +175,7 @@ type GetMoveTaskOrderForbidden struct {
 }
 
 func (o *GetMoveTaskOrderForbidden) Error() string {
-	return fmt.Sprintf("[GET /support/move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderForbidden  %+v", 403, o.Payload)
 }
 
 func (o *GetMoveTaskOrderForbidden) GetPayload() interface{} {
@@ -206,7 +206,7 @@ type GetMoveTaskOrderNotFound struct {
 }
 
 func (o *GetMoveTaskOrderNotFound) Error() string {
-	return fmt.Sprintf("[GET /support/move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderNotFound  %+v", 404, o.Payload)
 }
 
 func (o *GetMoveTaskOrderNotFound) GetPayload() interface{} {
@@ -237,7 +237,7 @@ type GetMoveTaskOrderInternalServerError struct {
 }
 
 func (o *GetMoveTaskOrderInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /support/move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *GetMoveTaskOrderInternalServerError) GetPayload() interface{} {

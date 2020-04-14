@@ -40,7 +40,7 @@ func (o *GetMoveTaskOrderURL) SetBasePath(bp string) {
 func (o *GetMoveTaskOrderURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/support/move-task-orders/{moveTaskOrderID}"
+	var _path = "/move-task-orders/{moveTaskOrderID}"
 
 	moveTaskOrderID := o.MoveTaskOrderID
 	if moveTaskOrderID != "" {
@@ -51,7 +51,7 @@ func (o *GetMoveTaskOrderURL) Build() (*url.URL, error) {
 
 	_basePath := o._basePath
 	if _basePath == "" {
-		_basePath = "/prime/v1"
+		_basePath = "/support/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 

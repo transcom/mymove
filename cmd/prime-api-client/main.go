@@ -104,7 +104,7 @@ func main() {
 	root.AddCommand(makeAvailableToPrimeCommand)
 
 	getMoveTaskOrder := &cobra.Command{
-		Use:          "get-mto",
+		Use:          "support-get-mto",
 		Short:        "Get an individual mto",
 		Long:         "Get an individual mto's information",
 		RunE:         getMTO,

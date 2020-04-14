@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // GetMoveTaskOrderOKCode is the HTTP code returned for type GetMoveTaskOrderOK
@@ -25,7 +25,7 @@ type GetMoveTaskOrderOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.MoveTaskOrder `json:"body,omitempty"`
+	Payload *supportmessages.MoveTaskOrder `json:"body,omitempty"`
 }
 
 // NewGetMoveTaskOrderOK creates GetMoveTaskOrderOK with default headers values
@@ -35,13 +35,13 @@ func NewGetMoveTaskOrderOK() *GetMoveTaskOrderOK {
 }
 
 // WithPayload adds the payload to the get move task order o k response
-func (o *GetMoveTaskOrderOK) WithPayload(payload *primemessages.MoveTaskOrder) *GetMoveTaskOrderOK {
+func (o *GetMoveTaskOrderOK) WithPayload(payload *supportmessages.MoveTaskOrder) *GetMoveTaskOrderOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move task order o k response
-func (o *GetMoveTaskOrderOK) SetPayload(payload *primemessages.MoveTaskOrder) {
+func (o *GetMoveTaskOrderOK) SetPayload(payload *supportmessages.MoveTaskOrder) {
 	o.Payload = payload
 }
 

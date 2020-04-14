@@ -63,42 +63,6 @@ func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdate
 }
 
 /*
-GetMoveTaskOrder gets a move task order by ID
-
-Gets an individual move task order
-*/
-func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewGetMoveTaskOrderParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "getMoveTaskOrder",
-		Method:             "GET",
-		PathPattern:        "/support/move-task-orders/{moveTaskOrderID}",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{""},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &GetMoveTaskOrderReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*GetMoveTaskOrderOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for getMoveTaskOrder: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
-}
-
-/*
 GetMoveTaskOrderCustomer gets a the customer associated with a move task order ID
 
 Gets a the customer associated with a move task order ID
