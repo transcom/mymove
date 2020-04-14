@@ -94,7 +94,7 @@ func main() {
 	root.AddCommand(createMTOServiceItemCommand)
 
 	makeAvailableToPrimeCommand := &cobra.Command{
-		Use:          "make-available-to-prime",
+		Use:          "support-make-mto-available-to-prime",
 		Short:        "Make mto available to prime",
 		Long:         "Makes an mto available to the prime for prime-api consumption",
 		RunE:         updateMTOStatus,

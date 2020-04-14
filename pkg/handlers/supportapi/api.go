@@ -18,7 +18,6 @@ import (
 // NewSupportAPIHandler returns a handler for the Prime API
 func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 	queryBuilder := query.NewQueryBuilder(context.DB())
-	// fetcher := fetch.NewFetcher(builder)
 
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
 	if err != nil {

@@ -60,7 +60,7 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
-	primeGateway, cacStore, errCreateClient := CreateClient(v)
+	primeGateway, cacStore, errCreateClient := CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}

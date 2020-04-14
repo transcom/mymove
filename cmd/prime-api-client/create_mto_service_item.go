@@ -89,7 +89,7 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 	}
 
 	// cac and api gateway
-	primeGateway, cacStore, errCreateClient := CreateClient(v)
+	primeGateway, cacStore, errCreateClient := CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
