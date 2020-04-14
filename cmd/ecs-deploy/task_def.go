@@ -33,7 +33,7 @@ const (
 	binMilMove         string = "/bin/milmove"
 	binMilMoveTasks    string = "/bin/milmove-tasks"
 	binOrders          string = "/bin/orders"
-	engadminMigrations string = "app/manage.py"
+	engadminMigrations string = "/home/app/web/manage.py"
 	digestSeparator    string = "@"
 	tagSeparator       string = ":"
 )
