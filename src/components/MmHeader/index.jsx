@@ -12,6 +12,7 @@ const MmHeader = () => (
       <span>
         <b>TOO queue</b>
       </span>
+      <span className={cx('line-add')}>&nbsp;</span>
       <span>Baker, Riley</span>
       <span>
         <a>Sign out</a>

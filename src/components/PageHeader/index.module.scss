@@ -1,0 +1,23 @@
+// Mm Header styles
+
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+.page-header {
+  background: $base-darker;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  @include u-padding-x(4);
+  padding-top: 13px;
+  padding-bottom: 13px;
+  @include u-text('white');
+  h2 {
+    margin: 0;
+  }
+  .usa-tag--large {
+    margin-left: 20px;
+  }
+}

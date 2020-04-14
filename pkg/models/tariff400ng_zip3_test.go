@@ -1,34 +1,38 @@
 package models_test
 
 import (
+	"testing"
+
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ModelSuite) Test_Zip3Validation() {
-	validZip3 := Tariff400ngZip3{
-		Zip3:          "139",
-		BasepointCity: "Dogtown",
-		State:         "NY",
-		ServiceArea:   testdatagen.DefaultServiceArea,
-		RateArea:      testdatagen.DefaultSrcRateArea,
-		Region:        testdatagen.DefaultDstRegion,
-	}
+func (suite *ModelSuite) Test_Tariff400ngZip3Validation() {
+	suite.T().Run("test valid Tariff400ngZip3", func(t *testing.T) {
+		validTariff400ngZip3 := Tariff400ngZip3{
+			Zip3:          "139",
+			BasepointCity: "Dogtown",
+			State:         "NY",
+			ServiceArea:   testdatagen.DefaultServiceArea,
+			RateArea:      testdatagen.DefaultSrcRateArea,
+			Region:        testdatagen.DefaultDstRegion,
+		}
+		expErrors := map[string][]string{}
+		suite.verifyValidationErrors(&validTariff400ngZip3, expErrors)
+	})
 
-	expErrors := map[string][]string{}
-	suite.verifyValidationErrors(&validZip3, expErrors)
-
-	invalidZip3 := Tariff400ngZip3{}
-
-	expErrors = map[string][]string{
-		"basepoint_city": {"BasepointCity can not be blank."},
-		"rate_area":      {"RateArea can not be blank.", "RateArea does not match the expected format."},
-		"region":         {"Region can not be blank.", "Region does not match the expected format."},
-		"service_area":   {"ServiceArea can not be blank.", "ServiceArea does not match the expected format."},
-		"state":          {"State can not be blank."},
-		"zip3":           {"Zip3 not in range(3, 3)"},
-	}
-	suite.verifyValidationErrors(&invalidZip3, expErrors)
+	suite.T().Run("test invalid Tariff400ngZip3", func(t *testing.T) {
+		invalidTariff400ngZip3 := Tariff400ngZip3{}
+		expErrors := map[string][]string{
+			"basepoint_city": {"BasepointCity can not be blank."},
+			"rate_area":      {"RateArea can not be blank.", "RateArea does not match the expected format."},
+			"region":         {"Region can not be blank.", "Region does not match the expected format."},
+			"service_area":   {"ServiceArea can not be blank.", "ServiceArea does not match the expected format."},
+			"state":          {"State can not be blank."},
+			"zip3":           {"Zip3 not in range(3, 3)"},
+		}
+		suite.verifyValidationErrors(&invalidTariff400ngZip3, expErrors)
+	})
 }
 
 func (suite *ModelSuite) Test_Zip3CreateAndSave() {

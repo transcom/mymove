@@ -207,7 +207,7 @@ VALUES
 This will add the new entries to the temporary TDL table,
 forcing them to adhere to any table constraints
 and generating new UUIDs to be consistent across environments.
-For info on why having consistent UUIDs is important [see this document](docs/how-to/create-or-deactivate-users.md#a-note-about-uuid_generate_v4)
+For info on why having consistent UUIDs is important [see this document](https://github.com/transcom/mymove/wiki/create-or-deactivate-users)
 
 We'll now [create a new migration](../database/migrate-the-database.md#how-to-migrate-the-database) with that data (replace your migration filename):
 
@@ -266,7 +266,7 @@ SELECT count(DISTINCT scac) FROM tdl_scores_and_discounts WHERE tsp_id IS NULL;
 
 #### If TSP ID is still null
 
-Note we use GENERATED_UUID4_VAL here to represent a generated UUID, read [this doc](docs/how-to/create-or-deactivate-users.md#a-note-about-uuid_generate_v4) for details.
+Note we use GENERATED_UUID4_VAL here to represent a generated UUID, read [this doc](https://github.com/transcom/mymove/wiki/create-or-deactivate-users#a-note-about-uuid_generate_v4) for details.
 If this is not 0, add the TSPs:
 
 ```sql
@@ -310,7 +310,7 @@ The following command will fill the TSPP table with data. Use your data's curren
 >
 > [This document](https://docs.google.com/document/d/12AN1igDt9Acxm9cu1cJA0fiWQIMI3XGs5u_jhCHLo6I) specifies the date ranges for both the performance periods and the rate cycle periods.
 
-Note we use GENERATED_UUID4_VAL here to represent a generated UUID, read [this doc](docs/how-to/create-or-deactivate-users.md#a-note-about-uuid_generate_v4) for details.
+Note we use GENERATED_UUID4_VAL here to represent a generated UUID, read [this doc](https://github.com/transcom/mymove/wiki/create-or-deactivate-users#a-note-about-uuid_generate_v4) for details.
 
 ```SQL
 INSERT INTO
