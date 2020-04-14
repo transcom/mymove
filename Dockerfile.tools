@@ -3,15 +3,11 @@ FROM alpine:3.11.5
 COPY bin/generate-test-data /bin/generate-test-data
 COPY bin/prime-api-client /bin/prime-api-client
 
-#Certs for Prime API
-COPY config/tls/devlocal-ca.pem /bin/config/tls/devlocal-ca.pem
-COPY config/tls/devlocal-https.pem /bin/config/tls/devlocal-https.pem
-COPY config/tls/devlocal-https.key /bin/config/tls/devlocal-https.key
-COPY config/tls/devlocal-client_auth_secret.key /bin/config/tls/devlocal-client_auth_secret.key
+# Certs for mTLS authentication
 COPY config/tls/devlocal-mtls.cer /bin/config/tls/devlocal-mtls.cer
 COPY config/tls/devlocal-mtls.key /bin/config/tls/devlocal-mtls.key
 
-#Specify testdata needed for integration tests
+# Specify testdata needed for integration tests
 COPY pkg/testdatagen/testdata/test.pdf /bin/pkg/testdatagen/testdata/test.pdf
 COPY pkg/testdatagen/testdata/update_mto_shipment.json /bin/pkg/testdatagen/testdata/update_mto_shipment.json
 
