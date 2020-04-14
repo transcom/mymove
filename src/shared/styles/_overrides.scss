@@ -148,8 +148,8 @@
   }
   &--large {
     @include u-font('body', 'sm'); //16px
-    @include u-padding-x(1.5); //12px
-    padding-top: 6px;
-    padding-bottom: 6px;
+    @include u-padding-x(1); //12px
+    padding-top: 0px;
+    height: 23px;
   }
 }

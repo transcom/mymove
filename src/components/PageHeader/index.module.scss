@@ -14,10 +14,30 @@
   padding-top: 13px;
   padding-bottom: 13px;
   @include u-text('white');
-  h2 {
-    margin: 0;
+  .name-block {
+    display: flex;
+    align-items: center;
+    h2 {
+      @include u-margin(0);
+      margin-right: 20px;
+    }
   }
-  .usa-tag--large {
-    margin-left: 20px;
+  .info-block {
+    display: flex;
+    div {
+      border-left: 4px solid $mm-periwinkle;
+      @include u-padding-left(2);
+      @include u-padding-right(7);
+      &:last-child {
+        @include u-padding-right(0);
+      }
+    }
+    p {
+      @include u-text('base-lighter');
+    }
+    p,
+    h4 {
+      margin: 0;
+    }
   }
 }
