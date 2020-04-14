@@ -6,6 +6,7 @@
 nav {
   @include u-font-size('body', 'xs'); //15px
   @include u-text('no-underline');
+  @include u-text('gray-50');
   @include u-border('base-lighter');
   @include u-border('1px');
   @include u-radius('md'); //4px
@@ -30,6 +31,7 @@ nav {
     }
     &:hover {
       @include u-text('no-underline');
+      @include u-text('primary-vivid');
     }
   }
 }
