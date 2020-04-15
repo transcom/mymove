@@ -51,14 +51,14 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
 }
 
-// GetMoveTaskOrderHandler updates the status of a Move Task Order
-type GetMoveTaskOrderHandler struct {
+// GetMoveTaskOrderHandlerFunc updates the status of a Move Task Order
+type GetMoveTaskOrderHandlerFunc struct {
 	handlers.HandlerContext
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
 // Handle updates the status of a MoveTaskOrder
-func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
+func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
