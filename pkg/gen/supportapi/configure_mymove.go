@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/support.yaml --api-package supportoperations --model-package supportmessages --server-package supportapi --exclude-main
@@ -34,6 +35,11 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.MtoShipmentPatchMTOShipmentStatusHandler == nil {
+		api.MtoShipmentPatchMTOShipmentStatusHandler = mto_shipment.PatchMTOShipmentStatusHandlerFunc(func(params mto_shipment.PatchMTOShipmentStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.PatchMTOShipmentStatus has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {
 		api.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = move_task_order.UpdateMoveTaskOrderStatusHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrderStatus has not yet been implemented")
