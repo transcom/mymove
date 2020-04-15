@@ -10,8 +10,8 @@ import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 
 import colors from '../shared/styles/colors.scss';
 
-import MmHeader from '../components/MmHeader';
-import PageHeader from '../components/PageHeader';
+import MilMoveHeader from '../components/MilMoveHeader';
+import CustomerHeader from '../components/CustomerHeader';
 
 const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
 
@@ -335,8 +335,8 @@ storiesOf('Components|Containers', module).add('all', () => (
 
 storiesOf('Components|Headers', module).add('all', () => (
   <div>
-    <MmHeader />
-    <PageHeader />
+    <MilMoveHeader />
+    <CustomerHeader />
   </div>
 ));
 

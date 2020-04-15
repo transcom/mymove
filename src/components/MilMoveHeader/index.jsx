@@ -5,7 +5,7 @@ import { ReactComponent as MmLogo } from '../../shared/images/milmove-logo.svg';
 
 const cx = classNames.bind(styles);
 
-const MmHeader = () => (
+const MilMoveHeader = () => (
   <div className={cx('mm-header')}>
     <MmLogo />
     <div className={cx('links')}>
@@ -21,4 +21,4 @@ const MmHeader = () => (
   </div>
 );
 
-export default MmHeader;
+export default MilMoveHeader;

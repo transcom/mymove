@@ -4,7 +4,7 @@ import styles from './index.module.scss';
 
 const cx = classNames.bind(styles);
 
-const PageHeader = () => (
+const CustomerHeader = () => (
   <div className={cx('page-header')}>
     <div>
       <div className={cx('name-block')}>
@@ -36,4 +36,4 @@ const PageHeader = () => (
   </div>
 );
 
-export default PageHeader;
+export default CustomerHeader;
