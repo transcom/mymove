@@ -10,7 +10,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/utilities"
 )
 
@@ -58,7 +57,7 @@ func (u *PrimeUpload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchPrimeUpload returns an PrimeUpload if the contractor has access to that upload
-func FetchPrimeUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (PrimeUpload, error) {
+func FetchPrimeUpload(ctx context.Context, db *pop.Connection, contractorID uuid.UUID, id uuid.UUID) (PrimeUpload, error) {
 	var primeUpload PrimeUpload
 	err := db.Q().
 		Join("uploads AS ups", "ups.id = prime_uploads.upload_id").
@@ -71,49 +70,10 @@ func FetchPrimeUpload(ctx context.Context, db *pop.Connection, session *auth.Ses
 		return PrimeUpload{}, err
 	}
 
-	// If there's a document, check permissions. Otherwise user must
-	// have been the uploader
-	/* TODO what is the permission check for prime/contractor fetching proof of service documents
-	if primeUpload.DocumentID != nil {
-		_, docErr := FetchDocument(ctx, db, session, *primeUpload.DocumentID, false)
-		if docErr != nil {
-			return PrimeUpload{}, docErr
-		}
-	} else if primeUpload.UploaderID != session.UserID {
-		return PrimeUpload{}, errors.Wrap(ErrFetchNotFound, "user ID doesn't match uploader ID")
+	// If there's a proof of service doc, check permissions.
+	if primeUpload.ContractorID != contractorID {
+		return PrimeUpload{}, errors.Wrap(ErrFetchNotFound, "contractor ID doesn't match primeUpload.ContractorID")
 	}
-	*/
-	return primeUpload, nil
-}
-
-// FetchPrimeUploadFromUploadID returns an PrimeUpload if the contractor has access to that upload
-func FetchPrimeUploadFromUploadID(ctx context.Context, db *pop.Connection, session *auth.Session, uploadID uuid.UUID) (PrimeUpload, error) {
-	var primeUpload PrimeUpload
-	err := db.Q().
-		Join("uploads AS ups", "ups.id = prime_uploads.upload_id").
-		Where("ups.ID = $1 and ups.deleted_at is null and prime_uploads.deleted_at is null", uploadID).
-		Eager("ProofOfServiceDoc", "Contractor", "Upload").First(&primeUpload)
-	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
-			return PrimeUpload{}, errors.Wrap(ErrFetchNotFound, "error fetching prime_uploads")
-		}
-		// Otherwise, it's an unexpected err so we return that.
-		return PrimeUpload{}, err
-	}
-
-	// If there's a document, check permissions. Otherwise user must
-	// have been the uploader
-	/* TODO how to check permissions for prime/contractor fetching proof of service documents
-	if primeUpload.DocumentID != nil {
-		_, docErr := FetchDocument(ctx, db, session, *primeUpload.DocumentID, false)
-		if docErr != nil {
-			return PrimeUpload{}, docErr
-		}
-	} else if primeUpload.UploaderID != session.UserID {
-		return PrimeUpload{}, errors.Wrap(ErrFetchNotFound, "user ID doesn't match uploader ID")
-	}
-
-	*/
 	return primeUpload, nil
 }
 

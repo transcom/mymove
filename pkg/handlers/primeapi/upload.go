@@ -26,6 +26,8 @@ func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload 
 // CreateUploadHandler is the create upload handler
 type CreateUploadHandler struct {
 	handlers.HandlerContext
+	// To be fixed under this story: https://github.com/transcom/mymove/pull/3775/files#r397219200
+	// unable to get logger to pass in for instantiation
 	//services.PaymentRequestUploadCreator
 }
 

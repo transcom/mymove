@@ -3,7 +3,6 @@ package models_test
 import (
 	"context"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -125,15 +124,8 @@ func (suite *ModelSuite) TestFetchPrimeUpload() {
 	t := suite.T()
 
 	ctx := context.Background()
-	document := testdatagen.MakeDefaultDocument(suite.DB())
 	posDoc := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
 	contractor := testdatagen.MakeDefaultContractor(suite.DB())
-
-	session := auth.Session{
-		UserID:          document.ServiceMember.UserID,
-		ApplicationName: auth.MilApp,
-		ServiceMemberID: document.ServiceMember.ID,
-	}
 
 	upload := models.Upload{
 		Filename:    "test.pdf",
@@ -166,7 +158,7 @@ func (suite *ModelSuite) TestFetchPrimeUpload() {
 		t.Errorf("did not expect PrimeUpload validation errors: %v", verrs)
 	}
 
-	primeUp, _ := models.FetchPrimeUpload(ctx, suite.DB(), &session, primeUpload.ID)
+	primeUp, _ := models.FetchPrimeUpload(ctx, suite.DB(), contractor.ID, primeUpload.ID)
 	suite.Equal(primeUp.ID, primeUpload.ID)
 	suite.Equal(upload.ID, primeUpload.Upload.ID)
 	suite.Equal(upload.ID, *primeUpload.UploadID)
@@ -176,15 +168,9 @@ func (suite *ModelSuite) TestFetchDeletedPrimeUpload() {
 	t := suite.T()
 
 	ctx := context.Background()
-	document := testdatagen.MakeDefaultDocument(suite.DB())
 	posDoc := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
 	contractor := testdatagen.MakeDefaultContractor(suite.DB())
 
-	session := auth.Session{
-		UserID:          document.ServiceMember.UserID,
-		ApplicationName: auth.MilApp,
-		ServiceMemberID: document.ServiceMember.ID,
-	}
 	upload := models.Upload{
 		Filename:    "test.pdf",
 		Bytes:       1048576,
@@ -220,7 +206,7 @@ func (suite *ModelSuite) TestFetchDeletedPrimeUpload() {
 
 	err = models.DeletePrimeUpload(suite.DB(), &primeUpload)
 	suite.Nil(err)
-	primeUp, err := models.FetchPrimeUpload(ctx, suite.DB(), &session, primeUpload.ID)
+	primeUp, err := models.FetchPrimeUpload(ctx, suite.DB(), contractor.ID, primeUpload.ID)
 	suite.Equal("error fetching prime_uploads: FETCH_NOT_FOUND", err.Error())
 
 	// fetches a nil primeupload

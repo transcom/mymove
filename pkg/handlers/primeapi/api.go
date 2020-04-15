@@ -51,6 +51,8 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	primeAPI.UploadsCreateUploadHandler = CreateUploadHandler{
 		context,
+		// To be fixed under this story: https://github.com/transcom/mymove/pull/3775/files#r397219200
+		// unable to get logger to pass in for instantiation
 		//paymentrequest.NewPaymentRequestUploadCreator(context.DB(), &logger,
 		//	context.FileStorer()),
 	}

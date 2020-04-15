@@ -1,8 +1,6 @@
 package models
 
 import (
-	"context"
-	"fmt"
 	"path"
 	"time"
 
@@ -10,9 +8,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/utilities"
 )
 
@@ -71,32 +67,6 @@ func (u *Upload) BeforeCreate(tx *pop.Connection) error {
 	}
 
 	return nil
-}
-
-// FetchUpload returns an UserUpload if the user has access to that upload
-func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (Upload, error) {
-	var upload Upload
-	err := db.Q().Where("uploads.deleted_at is null").Eager().Find(&upload, id)
-	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
-			return Upload{}, errors.Wrap(ErrFetchNotFound, "error fetching upload")
-		}
-		// Otherwise, it's an unexpected err so we return that.
-		return Upload{}, err
-	}
-	// In order to check permissions, need to fetch upload type
-	if upload.UploadType == UploadTypeUSER {
-		_, err := FetchUserUploadFromUploadID(ctx, db, session, upload.ID)
-		if err != nil {
-			return Upload{}, fmt.Errorf("error fetching user upload errors: %w", err)
-		}
-	} else if upload.UploadType == UploadTypePRIME {
-		_, err := FetchPrimeUploadFromUploadID(ctx, db, session, upload.ID)
-		if err != nil {
-			return Upload{}, fmt.Errorf("error fetching prime upload errors: %w", err)
-		}
-	}
-	return upload, nil
 }
 
 // DeleteUpload deletes an upload from the database

@@ -125,9 +125,6 @@ func (suite *ModelSuite) TestFetchUpload() {
 	suite.Equal(*upUser.UploadID, upload.ID)
 	suite.Equal(upUser.Upload.ID, upload.ID)
 	suite.Equal(upUser.ID, uploadUser.ID)
-
-	up, _ := models.FetchUpload(ctx, suite.DB(), &session, upload.ID)
-	suite.Equal(up.ID, upload.ID)
 }
 
 func (suite *ModelSuite) TestFetchDeletedUpload() {
@@ -159,10 +156,11 @@ func (suite *ModelSuite) TestFetchDeletedUpload() {
 	}
 
 	models.DeleteUpload(suite.DB(), &upload)
-	up, _ := models.FetchUpload(ctx, suite.DB(), &session, upload.ID)
+	up, _ := models.FetchUserUpload(ctx, suite.DB(), &session, upload.ID)
 
 	// fetches a nil upload
-	suite.Equal(up.Filename, "")
-	suite.Equal(up.ContentType, "")
+	//suite.Equal(up.Upload.Filename, "")
+	//suite.Equal(up.Upload.ContentType, "")
 	suite.Equal(up.ID, uuid.Nil)
+	suite.Nil(up.Upload)
 }
