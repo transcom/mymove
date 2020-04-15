@@ -840,6 +840,10 @@ jobs:
           command: git clone -b rd-enable-iam-auth --single-branch https://github.com/transcom/milmove_admin.git
           working_directory: ~/transcom
       - run:
+          name: generate key
+          command: make prepare_key_standalone
+          working_directory: ~/transcom/milmove_admin
+      - run:
           name: generate models file for migrations
           command: make generate_models_standalone
           working_directory: ~/transcom/milmove_admin
