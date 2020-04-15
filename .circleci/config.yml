@@ -847,6 +847,8 @@ jobs:
           name: generate key
           command: make prepare_key_standalone
           working_directory: ~/transcom/milmove_admin
+          environment:
+            LOGIN_GOV_JWK_SET_FILENAME: 'keyset.jwk'
       - run:
           name: generate models file for migrations
           command: make generate_models_standalone
