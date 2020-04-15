@@ -37,6 +37,8 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   # Can't mount folders in CircleCI so copy this data in
   # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
   docker cp ./migrations/app/secure mymove_milmove_migrate_1:/migrate/
+  docker cp ./config/tls/devlocal-ca.key mymove_milmove_1:/config/tls/devlocal-ca.key
+  docker cp ./config/tls/devlocal-ca.pem mymove_milmove_1:/config/tls/devlocal-ca.pem
 
   # Start everything up
   docker-compose -f docker-compose.mtls.yml up -d --no-recreate --remove-orphans
@@ -146,6 +148,7 @@ prime_api_client update-mto-shipment --etag "${etag}" --filename ./pkg/testdatag
 # Stop the app container to release the DB connection
 if [[ -n "${CIRCLECI+x}" ]]; then
   docker-compose -f docker-compose.branch.yml down --remove-orphans || true
+  git checkout docker-compose.mtls.yml
 else
   docker-compose -f docker-compose.local.yml down --remove-orphans || true
 fi
