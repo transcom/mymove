@@ -119,6 +119,7 @@
 .usa-tag {
   background-color: $mm-gold;
   color: $base-darkest;
+  @include u-text('normal');
   &--green {
     background-color: $success-light;
   }
@@ -131,6 +132,10 @@
   &--cyan {
     background-color: #a8f2ff;
   }
+  &--teal {
+    background-color: #009bc2;
+    @include u-text('white');
+  }
   &--alert {
     border-radius: 100%;
     width: 24px;
@@ -141,6 +146,15 @@
       vertical-align: sub;
       path {
         fill: #fff;
+      }
+    }
+    &--small {
+      width: 20px;
+      height: 20px;
+      background-color: $error;
+      svg {
+        vertical-align: baseline;
+        height: 12px;
       }
     }
   }
