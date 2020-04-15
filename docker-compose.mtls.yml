@@ -44,6 +44,8 @@ services:
     ports:
       - '9443:9443'
     environment:
+      - CLIENT_AUTH_SECRET_KEY
+      - CSRF_AUTH_KEY
       - DB_DEBUG=1
       - DB_ENV=development
       - DB_HOST=database
@@ -57,6 +59,9 @@ services:
       - DEVLOCAL_AUTH=1
       - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
       - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+      - DPS_AUTH_COOKIE_SECRET_KEY
+      - DPS_COOKIE_EXPIRES_IN_MINUTES
+      - EIA_KEY=db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
       - ENVIRONMENT=test
       - FEATURE_FLAG_ACCESS_CODE=false
       - HTTP_PRIME_SERVER_NAME=primelocal
@@ -65,6 +70,13 @@ services:
       - IWS_RBS_HOST
       - LOCAL_STORAGE_ROOT=/tmp
       - LOCAL_STORAGE_WEB_ROOT=storage
+      - LOGIN_GOV_ADMIN_CLIENT_ID
+      - LOGIN_GOV_CALLBACK_PORT=4000
+      - LOGIN_GOV_CALLBACK_PROTOCOL
+      - LOGIN_GOV_HOSTNAME
+      - LOGIN_GOV_MY_CLIENT_ID
+      - LOGIN_GOV_OFFICE_CLIENT_ID
+      - LOGIN_GOV_SECRET_KEY
       - MOVE_MIL_DOD_CA_CERT
       - MOVE_MIL_DOD_TLS_CERT
       - MOVE_MIL_DOD_TLS_KEY
