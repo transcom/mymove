@@ -4,12 +4,15 @@ import (
 	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestContractorValidation() {
 	suite.T().Run("test valid Contractor", func(t *testing.T) {
-		newContractor := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{})
+		newContractor := models.Contractor{
+			Name:           "Contractor 1",
+			Type:           "Prime",
+			ContractNumber: "HTC111-11-1-1111",
+		}
 
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&newContractor, expErrors)
