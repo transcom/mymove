@@ -53,7 +53,9 @@ class WeightTicketListItem extends Component {
       full_weight,
       num,
       trailer_ownership_missing,
-      vehicle_nickname,
+      // vehicle_nickname,
+      vehicle_make,
+      vehicle_model,
       weight_ticket_set_type,
       showDelete,
       deleteDocumentListItem,
@@ -81,7 +83,7 @@ class WeightTicketListItem extends Component {
             <h4>
               {isWeightTicketSet && (
                 <>
-                  {vehicle_nickname} {formatToOrdinal(num + 1)} set
+                  {vehicle_make} {vehicle_model} {formatToOrdinal(num + 1)} set
                 </>
               )}
             </h4>
