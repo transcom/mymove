@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -39,6 +40,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
+		MtoShipmentPatchMTOShipmentStatusHandler: mto_shipment.PatchMTOShipmentStatusHandlerFunc(func(params mto_shipment.PatchMTOShipmentStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentPatchMTOShipmentStatus has not yet been implemented")
+		}),
 		MoveTaskOrderUpdateMoveTaskOrderStatusHandler: move_task_order.UpdateMoveTaskOrderStatusHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderStatus has not yet been implemented")
 		}),
@@ -73,6 +77,8 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// MtoShipmentPatchMTOShipmentStatusHandler sets the operation handler for the patch m t o shipment status operation
+	MtoShipmentPatchMTOShipmentStatusHandler mto_shipment.PatchMTOShipmentStatusHandler
 	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
 	MoveTaskOrderUpdateMoveTaskOrderStatusHandler move_task_order.UpdateMoveTaskOrderStatusHandler
 
@@ -136,6 +142,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
+	}
+
+	if o.MtoShipmentPatchMTOShipmentStatusHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.PatchMTOShipmentStatusHandler")
 	}
 
 	if o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {
@@ -239,6 +249,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status"] = mto_shipment.NewPatchMTOShipmentStatus(o.context, o.MtoShipmentPatchMTOShipmentStatusHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

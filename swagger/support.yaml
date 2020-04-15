@@ -67,6 +67,69 @@ paths:
         - contracting_officer
         - ppm_office_users
       summary: Change the status of a move task order to make it available to prime
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status':
+    parameters:
+      - description: ID of move task order for mto shipment to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        format: uuid
+        type: string
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/PatchMTOShipmentStatusPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully updated shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error
+          schema:
+            $ref: '#/responses/Conflict'
+        '412':
+          description: Precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - mtoShipment
+      description: Updates a shipment's status
+      x-swagger-roles:
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+      operationId: patchMTOShipmentStatus
+      summary: Updates a shipment's status
 definitions:
   ClientError:
     type: object
