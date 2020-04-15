@@ -335,19 +335,11 @@ commands:
             echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
             echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
             echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
             source $BASH_ENV
             make e2e_mtls_test_docker
           environment:
             # Env vars needed for the webserver to run inside docker
             APPLICATION: app
-            LOGIN_GOV_CALLBACK_PROTOCOL: http
-            LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
-            LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
-            LOGIN_GOV_ADMIN_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:adminmovemillocal
-            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
 
 jobs:

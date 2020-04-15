@@ -98,7 +98,5 @@ services:
       - STORAGE_BACKEND=local
       - TLS_ENABLED=1
       - TZ=UTC
-    extra_hosts:
-      - "primelocal:127.0.0.1"
     volumes:
       - ./tmp:/tmp
