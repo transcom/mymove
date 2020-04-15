@@ -798,7 +798,7 @@ jobs:
       - announce_failure
 
   # `build_django_app` builds the django app container and pushes to container repository
-  build_milmove_admin_app:
+  build_engadmin_app:
     executor: mymove_and_postgres_medium
     steps:
       - checkout
@@ -839,6 +839,10 @@ jobs:
           name: clone mymove_admin repo
           command: git clone -b rd-enable-iam-auth --single-branch https://github.com/transcom/milmove_admin.git
           working_directory: ~/transcom
+      - run:
+          name: install deps
+          command: pip3 install -r app/requirements.txt
+          working_directory: ~/transcom/milmove_admin
       - run:
           name: generate key
           command: make prepare_key_standalone
@@ -1043,7 +1047,7 @@ workflows:
 
       - pre_deps_yarn
 
-      - build_milmove_admin_app:
+      - build_engadmin_app:
           requires:
             - pre_deps_golang
 
@@ -1137,7 +1141,7 @@ workflows:
             - build_tools
             - build_tasks
             - build_migrations
-            - build_milmove_admin_app
+            - build_engadmin_app
           filters:
             branches:
               only: rd-ecs-deploy-sidecar-friendly
@@ -1166,7 +1170,7 @@ workflows:
       - deploy_experiment_engadmin_app:
           requires:
             - deploy_experimental_migrations
-            - build_milmove_admin_app
+            - build_engadmin_app
           filters:
             branches:
               only: rd-ecs-deploy-sidecar-friendly
