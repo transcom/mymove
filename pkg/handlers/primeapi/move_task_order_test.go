@@ -34,56 +34,15 @@ type FeatureFlag struct {
 }
 
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
+	// unavailable MTO
+	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
 			IsAvailableToPrime: true,
 		},
 	})
 
-	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			MoveTaskOrderID: moveTaskOrder.ID,
-		},
-	})
-
-	reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: "DCRT",
-			Name: "Dom. Crating",
-		},
-	})
-
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			MoveTaskOrderID: moveTaskOrder.ID,
-		},
-		ReService: reService,
-	})
-
-	testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Type:      models.DimensionTypeItem,
-			Length:    1000,
-			Height:    1000,
-			Width:     1000,
-			CreatedAt: time.Time{},
-			UpdatedAt: time.Time{},
-		},
-		MTOServiceItem: mtoServiceItem,
-	})
-
-	testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			MTOServiceItemID: mtoServiceItem.ID,
-			Type:             models.DimensionTypeCrate,
-			Length:           2000,
-			Height:           2000,
-			Width:            2000,
-			CreatedAt:        time.Time{},
-			UpdatedAt:        time.Time{},
-		},
-	})
-
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder,
 	})
@@ -91,9 +50,6 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder,
 	})
-
-	// unavailable MTO
-	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 
@@ -102,20 +58,131 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 
 	// make the request
 	handler := FetchMTOUpdatesHandler{HandlerContext: context}
-	response := handler.Handle(params)
 
-	suite.IsNotErrResponse(response)
-	moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
-	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+	suite.T().Run("with mto payments", func(t *testing.T) {
+		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				MoveTaskOrderID: moveTaskOrder.ID,
+			},
+		})
 
-	suite.Equal(1, len(moveTaskOrdersPayload))
-	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrdersPayload[0].ID.String())
-	suite.Equal(1, len(moveTaskOrdersPayload[0].PaymentRequests))
-	suite.Equal(1, len(moveTaskOrdersPayload[0].MtoServiceItems()))
-	suite.NotEmpty(moveTaskOrdersPayload[0].MtoServiceItems()[0].(*primemessages.MTOServiceItemDomesticCrating).Crate.ID)
-	suite.NotEmpty(moveTaskOrdersPayload[0].MtoServiceItems()[0].(*primemessages.MTOServiceItemDomesticCrating).Item.ID)
-	suite.Equal(2, len(moveTaskOrdersPayload[0].MtoShipments))
-	suite.NotNil(moveTaskOrdersPayload[0].MtoShipments[0].ETag)
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
+		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+		suite.Equal(1, len(moveTaskOrdersPayload))
+		suite.Equal(moveTaskOrder.ID.String(), moveTaskOrdersPayload[0].ID.String())
+		suite.Equal(1, len(moveTaskOrdersPayload[0].PaymentRequests))
+		suite.Equal(2, len(moveTaskOrdersPayload[0].MtoShipments))
+		suite.NotNil(moveTaskOrdersPayload[0].MtoShipments[0].ETag)
+	})
+
+	suite.T().Run("with mto service item dimensions", func(t *testing.T) {
+		reServiceDomCrating := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: "DCRT",
+				Name: "Dom. Crating",
+			},
+		})
+
+		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				MoveTaskOrderID: moveTaskOrder.ID,
+			},
+			ReService: reServiceDomCrating,
+		})
+
+		testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemDimension: models.MTOServiceItemDimension{
+				Type:      models.DimensionTypeItem,
+				Length:    1000,
+				Height:    1000,
+				Width:     1000,
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
+			},
+			MTOServiceItem: mtoServiceItem1,
+		})
+
+		testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemDimension: models.MTOServiceItemDimension{
+				MTOServiceItemID: mtoServiceItem1.ID,
+				Type:             models.DimensionTypeCrate,
+				Length:           2000,
+				Height:           2000,
+				Width:            2000,
+				CreatedAt:        time.Time{},
+				UpdatedAt:        time.Time{},
+			},
+		})
+
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
+		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+		suite.Equal(1, len(moveTaskOrdersPayload[0].MtoServiceItems()))
+		suite.NotEmpty(moveTaskOrdersPayload[0].MtoServiceItems()[0].(*primemessages.MTOServiceItemDomesticCrating).Crate.ID)
+		suite.NotEmpty(moveTaskOrdersPayload[0].MtoServiceItems()[0].(*primemessages.MTOServiceItemDomesticCrating).Item.ID)
+	})
+
+	suite.T().Run("with mto service item customer contacts", func(t *testing.T) {
+		reServiceDesSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: "DDFSIT",
+				Name: "Destination 1st Day SIT",
+			},
+		})
+
+		mtoServiceItem2 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				MoveTaskOrderID: moveTaskOrder.ID,
+			},
+			ReService: reServiceDesSIT,
+		})
+
+		testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				MTOServiceItemID:           mtoServiceItem2.ID,
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               "0400Z",
+				FirstAvailableDeliveryDate: time.Now(),
+			},
+			ReService: reServiceDesSIT,
+		})
+
+		testdatagen.MakeMTOServiceItemCustomerContact(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+				MTOServiceItemID:           mtoServiceItem2.ID,
+				Type:                       models.CustomerContactTypeSecond,
+				TimeMilitary:               "0400Z",
+				FirstAvailableDeliveryDate: time.Now(),
+			},
+			ReService: reServiceDesSIT,
+		})
+
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
+		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+		suite.Equal(2, len(moveTaskOrdersPayload[0].MtoServiceItems()))
+
+		// get ddfsit service item
+		var serviceItemDDFSIT *primemessages.MTOServiceItemDDFSIT
+		for _, item := range moveTaskOrdersPayload[0].MtoServiceItems() {
+			if item.ModelType() == primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT {
+				serviceItemDDFSIT = item.(*primemessages.MTOServiceItemDDFSIT)
+				break
+			}
+		}
+
+		suite.NotEmpty(serviceItemDDFSIT.ID)
+	})
 }
 
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerMinimal() {
