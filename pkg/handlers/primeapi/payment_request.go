@@ -65,7 +65,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	}
 
 	createdPaymentRequest, verrs, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
-	if verrs != nil {
+	if verrs.HasAny() {
 		payload := &primemessages.ValidationError{
 			InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
 		}
