@@ -64,7 +64,19 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
-	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
+	createdPaymentRequest, verrs, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
+	if verrs != nil {
+		payload := &primemessages.ValidationError{
+			InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
+		}
+
+		payload.Title = handlers.FmtString(handlers.ValidationErrMessage)
+		payload.Detail = handlers.FmtString("The information you provided is invalid.")
+		payload.Instance = handlers.FmtUUID(h.GetTraceID())
+
+		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
+	}
+
 	if err != nil {
 		logger.Error("Error creating payment request", zap.Error(err))
 		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
@@ -72,7 +84,6 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	logger.Info("Payment Request params",
 		zap.Any("payload", payload),
-		// TODO add ProofOfService object to log
 	)
 
 	returnPayload := payloads.PaymentRequest(createdPaymentRequest)

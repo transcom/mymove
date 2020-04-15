@@ -24,7 +24,7 @@ func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator
 	return &paymentRequestCreator{db: db}
 }
 
-func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
+func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, *validate.Errors, error) {
 	// Verify that the MTO ID exists
 	//
 	// Lock on the parent row to keep multiple transactions from getting this count at the same time
@@ -32,12 +32,13 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	// same move_task_order_id.  Payment requests for other move_task_order_ids should run concurrently.
 	// Also note that we use "FOR NO KEY UPDATE" to allow concurrent mods to other tables that have a
 	// FK to move_task_orders.
+	verrs := validate.NewErrors()
 	var moveTaskOrder models.MoveTaskOrder
 	sqlString, sqlArgs := tx.Where("id = $1", paymentRequest.MoveTaskOrderID).ToSQL(&pop.Model{Value: &moveTaskOrder})
 	sqlString += " FOR NO KEY UPDATE"
 	err := tx.RawQuery(sqlString, sqlArgs...).First(&moveTaskOrder)
 	if err != nil {
-		return nil, fmt.Errorf("could not find MoveTaskOrderID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
+		return nil, verrs, fmt.Errorf("could not find MoveTaskOrderID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
 	}
 
 	// Update PaymentRequest
@@ -47,21 +48,22 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 
 	uniqueIdentifier, sequenceNumber, err := p.makeUniqueIdentifier(tx, moveTaskOrder)
 	if err != nil {
-		return nil, fmt.Errorf("issue creating payment request unique identifier: %w", err)
+		return nil, verrs, fmt.Errorf("issue creating payment request unique identifier: %w", err)
 	}
 	paymentRequest.PaymentRequestNumber = uniqueIdentifier
 	paymentRequest.SequenceNumber = sequenceNumber
 
 	// Create the payment request for the database
-	verrs, err := tx.ValidateAndCreate(paymentRequest)
+	verrs, err = tx.ValidateAndCreate(paymentRequest)
+
 	if verrs.HasAny() {
-		return nil, fmt.Errorf("validation error creating payment request: %w for %s", verrs, paymentRequest.ID.String())
+		return nil, verrs, err
 	}
 	if err != nil {
-		return nil, fmt.Errorf("failure creating payment request: %w for %s", err, paymentRequest.ID.String())
+		return nil, verrs, fmt.Errorf("failure creating payment request: %w for %s", err, paymentRequest.ID.String())
 	}
 
-	return paymentRequest, nil
+	return paymentRequest, verrs, nil
 }
 
 func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, paymentServiceItem *models.PaymentServiceItem, paymentRequest *models.PaymentRequest, requestedAt time.Time) (models.PaymentServiceItem, models.MTOServiceItem, error) {
@@ -175,7 +177,8 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connect
 	return &paymentServiceItemParam, nil
 }
 
-func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, error) {
+func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, *validate.Errors, error) {
+	verrs := validate.NewErrors()
 	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
 		var err error
 		now := time.Now()
@@ -185,7 +188,10 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 		prMessageString := " paymentRequestID <" + paymentRequestArg.ID.String() + ">"
 
 		// Create the payment request
-		paymentRequestArg, err = p.createPaymentRequestSaveToDB(tx, paymentRequestArg, now)
+		paymentRequestArg, verrs, err = p.createPaymentRequestSaveToDB(tx, paymentRequestArg, now)
+		if verrs.HasAny() {
+			return err
+		}
 		if err != nil {
 			return fmt.Errorf("failure creating payment request: %w for %s", err, mtoMessageString+prMessageString)
 		}
@@ -286,10 +292,10 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 	})
 
 	if transactionError != nil {
-		return nil, transactionError
+		return nil, verrs, transactionError
 	}
 
-	return paymentRequestArg, nil
+	return paymentRequestArg, verrs, nil
 }
 
 func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto models.MoveTaskOrder) (string, int, error) {

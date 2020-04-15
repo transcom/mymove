@@ -100,8 +100,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		paymentRequestReturn, err := creator.CreatePaymentRequest(&paymentRequest)
+		paymentRequestReturn, verrs, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
+		suite.NoVerrs(verrs)
 
 		expectedSequenceNumber := 1
 		expectedPaymentRequestNumber := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber)
@@ -157,8 +158,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		_, err := creator.CreatePaymentRequest(&paymentRequest)
+		_, verrs, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
+		suite.NoVerrs(verrs)
 
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
@@ -196,8 +198,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		paymentRequestResult, err := creator.CreatePaymentRequest(&paymentRequest)
+		paymentRequestResult, verrs, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
+		suite.NoVerrs(verrs)
 
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequestResult.ID, uuid.Nil)
@@ -224,8 +227,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			MoveTaskOrderID: badID,
 			IsFinal:         false,
 		}
-		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, verrs, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+		suite.NotEmpty(verrs)
 	})
 
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {
@@ -238,8 +242,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, verrs, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+		suite.NoVerrs(verrs)
 	})
 
 	suite.T().Run("Given a non-existent service item param key id, the create should fail", func(t *testing.T) {
@@ -259,7 +264,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, _, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
 	})
 
@@ -280,7 +285,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, _, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
 	})
 
@@ -307,8 +312,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err = creator.CreatePaymentRequest(&paymentRequest1)
+		_, verrs, err := creator.CreatePaymentRequest(&paymentRequest1)
 		suite.FatalNoError(err)
+		suite.NoVerrs(verrs)
 
 		paymentRequest2 := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
@@ -326,8 +332,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, err = creator.CreatePaymentRequest(&paymentRequest2)
+		_, verrs, err = creator.CreatePaymentRequest(&paymentRequest2)
 		suite.FatalNoError(err)
+		suite.NoVerrs(verrs)
 
 		// Verify expected payment request numbers
 		expectedSequenceNumber1 := max + 1
