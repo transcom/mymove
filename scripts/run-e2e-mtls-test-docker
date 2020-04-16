@@ -23,7 +23,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
 
   # Let's clean things up before starting
   # This may show an error locally but can be safely ignored, its only for CircleCI
-  docker-compose -f docker-compose.mtls.yml down --rmi all || true
+  docker-compose down --rmi all || true
 
   # Docker Compose Setup
   aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
