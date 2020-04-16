@@ -67,3 +67,10 @@ nav {
     //changes to 16px to get the active item to still left align to the other items. accounts for the 4px of border.
   }
 }
+
+nav a:first-child:active, nav a.active:first-child  {
+      border-top-left-radius: 4px;
+}
+nav a:last-child:active {
+      border-bottom-left-radius: 4px;
+}
