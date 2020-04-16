@@ -4,10 +4,14 @@
 
 //Left Nav
 
+
 .sidebar {
   position: relative;
   width: 15%;
   max-width: 230px;
+  html & {
+      scroll-behavior: smooth;
+  }
 }
 
 nav {
