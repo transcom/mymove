@@ -213,6 +213,63 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
 	})
 
+	suite.T().Run("failed create payment request - validation errors", func(t *testing.T) {
+		verrs := &validate.Errors{
+			Errors: map[string][]string{
+				"violation": {"invalid value"},
+			},
+		}
+		paymentRequestCreator := &mocks.PaymentRequestCreator{}
+		paymentRequestCreator.On("CreatePaymentRequest",
+			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, verrs, nil).Once()
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestCreator,
+		}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		serviceItemID1, _ := uuid.FromString("1b7b134a-7c44-45f2-9114-bb0831cc5db3")
+		serviceItemID2, _ := uuid.FromString("119f0a05-34d7-4d86-9745-009c0707b4c2")
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequestPayload{
+				IsFinal:         swag.Bool(false),
+				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				ServiceItems: []*primemessages.ServiceItem{
+					{
+						ID: *handlers.FmtUUID(serviceItemID1),
+						Params: []*primemessages.ServiceItemParamsItems0{
+							{
+								Key:   "weight",
+								Value: "1234",
+							},
+							{
+								Key:   "pickup",
+								Value: "2019-12-16",
+							},
+						},
+					},
+					{
+						ID: *handlers.FmtUUID(serviceItemID2),
+						Params: []*primemessages.ServiceItemParamsItems0{
+							{
+								Key:   "weight",
+								Value: "5678",
+							},
+						},
+					},
+				},
+				PointOfContact: "user@prime.com",
+			},
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
+	})
+
 	suite.T().Run("successful create payment request payload audit", func(t *testing.T) {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)

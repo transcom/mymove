@@ -228,8 +228,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 		}
 		_, verrs, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+
 		suite.Error(err)
-		suite.NotEmpty(verrs)
+		suite.NoVerrs(verrs)
 	})
 
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {

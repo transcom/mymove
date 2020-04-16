@@ -188,7 +188,6 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 
 	// Create the payment request for the database
 	verrs, err = tx.ValidateAndCreate(paymentRequest)
-
 	if verrs.HasAny() {
 		return nil, verrs, err
 	}
