@@ -1024,7 +1024,6 @@ workflows:
       - integration_tests_mtls:
           requires:
             - pre_deps_golang
-            - pre_deps_yarn
             - check_generated_code
             - build_app
             - build_migrations
