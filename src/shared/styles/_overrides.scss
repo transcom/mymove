@@ -120,6 +120,7 @@
   background-color: $mm-gold;
   color: $base-darkest;
   @include u-text('normal');
+  vertical-align: middle;
   &--green {
     background-color: $success-light;
   }
