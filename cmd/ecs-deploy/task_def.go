@@ -499,6 +499,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// Short service name needed for RDS, CloudWatch Logs, and SSM
 	serviceNameParts := strings.Split(serviceName, "-")
 	serviceNameShort := serviceNameParts[0]
+	// TODO: SSM should have a namespace for every app which means splitting app and app-client-tls to be more like app-engadmin. This is future work.
 	ssmNameSpace := serviceNameShort
 
 	// Confirm the image exists
