@@ -87,7 +87,7 @@ class WeightTicketListItem extends Component {
                   {vehicle_make} {vehicle_model}
                 </>
               )}
-              {showVehicleNickname && <>{vehicle_nickname}</>}
+              {showVehicleNickname && <>{vehicle_nickname} </>}
               {formatToOrdinal(num + 1)} set
             </h4>
             {showDelete && (
