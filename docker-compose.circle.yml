@@ -14,9 +14,13 @@ services:
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_DB=test_db
 
+  redis:
+    image: redis
+
   server_test:
     depends_on:
       - database
+      - redis
     image: milmove/circleci-docker:milmove-app-ce60239ffca056a033af6330daf922a5a9635066
     deploy:
       resources:
