@@ -546,184 +546,6 @@ func init() {
           }
         }
       }
-    },
-    "/support/move-task-orders/{moveTaskOrderID}/status": {
-      "patch": {
-        "description": "Changes move task order status to make it available to prime",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Change the status of a move task order to make it available to prime",
-        "operationId": "updateMoveTaskOrderStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of move order to use",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated move task order status",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      }
-    },
-    "/support/payment-requests/{paymentRequestID}/status": {
-      "patch": {
-        "description": "Updates status of a payment request by id",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "paymentRequests",
-          "gov"
-        ],
-        "summary": "Updates status of a payment request by id",
-        "operationId": "updatePaymentRequestStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of payment request",
-            "name": "paymentRequestID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated payment request",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequest"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      }
     }
   },
   "definitions": {
@@ -985,6 +807,14 @@ func init() {
         }
       }
     },
+    "CustomerContactType": {
+      "description": "Describes a customer contact type for a MTOServiceItemDomesticDestSIT",
+      "type": "string",
+      "enum": [
+        "FIRST",
+        "SECOND"
+      ]
+    },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension",
       "type": "string",
@@ -1206,6 +1036,49 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDDFSIT": {
+      "description": "Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "timeMilitary1",
+            "firstAvailableDeliveryDate1",
+            "timeMilitary2",
+            "firstAvailableDeliveryDate2"
+          ],
+          "properties": {
+            "firstAvailableDeliveryDate1": {
+              "type": "string",
+              "format": "date",
+              "example": "2020-01-20"
+            },
+            "firstAvailableDeliveryDate2": {
+              "type": "string",
+              "format": "date",
+              "example": "2020-01-20"
+            },
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            },
+            "timeMilitary1": {
+              "type": "string",
+              "example": "0400Z"
+            },
+            "timeMilitary2": {
+              "type": "string",
+              "example": "0400Z"
+            },
+            "type": {
+              "$ref": "#/definitions/CustomerContactType"
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemDOFSIT": {
       "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem",
       "allOf": [
@@ -1304,10 +1177,6 @@ func init() {
                 "DCRT",
                 "DUCRT"
               ]
-            },
-            "reason": {
-              "type": "string",
-              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -1319,6 +1188,7 @@ func init() {
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemDOFSIT",
+        "MTOServiceItemDDFSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating"
       ]
@@ -2490,220 +2360,6 @@ func init() {
           }
         }
       }
-    },
-    "/support/move-task-orders/{moveTaskOrderID}/status": {
-      "patch": {
-        "description": "Changes move task order status to make it available to prime",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Change the status of a move task order to make it available to prime",
-        "operationId": "updateMoveTaskOrderStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of move order to use",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated move task order status",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      }
-    },
-    "/support/payment-requests/{paymentRequestID}/status": {
-      "patch": {
-        "description": "Updates status of a payment request by id",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "paymentRequests",
-          "gov"
-        ],
-        "summary": "Updates status of a payment request by id",
-        "operationId": "updatePaymentRequestStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of payment request",
-            "name": "paymentRequestID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated payment request",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequest"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      }
     }
   },
   "definitions": {
@@ -2965,6 +2621,14 @@ func init() {
         }
       }
     },
+    "CustomerContactType": {
+      "description": "Describes a customer contact type for a MTOServiceItemDomesticDestSIT",
+      "type": "string",
+      "enum": [
+        "FIRST",
+        "SECOND"
+      ]
+    },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension",
       "type": "string",
@@ -3186,6 +2850,49 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDDFSIT": {
+      "description": "Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "timeMilitary1",
+            "firstAvailableDeliveryDate1",
+            "timeMilitary2",
+            "firstAvailableDeliveryDate2"
+          ],
+          "properties": {
+            "firstAvailableDeliveryDate1": {
+              "type": "string",
+              "format": "date",
+              "example": "2020-01-20"
+            },
+            "firstAvailableDeliveryDate2": {
+              "type": "string",
+              "format": "date",
+              "example": "2020-01-20"
+            },
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            },
+            "timeMilitary1": {
+              "type": "string",
+              "example": "0400Z"
+            },
+            "timeMilitary2": {
+              "type": "string",
+              "example": "0400Z"
+            },
+            "type": {
+              "$ref": "#/definitions/CustomerContactType"
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemDOFSIT": {
       "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem",
       "allOf": [
@@ -3284,10 +2991,6 @@ func init() {
                 "DCRT",
                 "DUCRT"
               ]
-            },
-            "reason": {
-              "type": "string",
-              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -3299,6 +3002,7 @@ func init() {
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemDOFSIT",
+        "MTOServiceItemDDFSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating"
       ]

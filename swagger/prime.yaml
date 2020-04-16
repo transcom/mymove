@@ -354,127 +354,6 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
-  '/support/payment-requests/{paymentRequestID}/status':
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - description: UUID of payment request
-          format: uuid
-          in: path
-          name: paymentRequestID
-          required: true
-          type: string
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdatePaymentRequestStatusPayload'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-      responses:
-        '200':
-          description: updated payment request
-          schema:
-            $ref: '#/definitions/PaymentRequest'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
-        '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - paymentRequests
-        - gov
-      description: Updates status of a payment request by id
-      operationId: updatePaymentRequestStatus
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
-      summary: Updates status of a payment request by id
-  '/support/move-task-orders/{moveTaskOrderID}/status':
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - description: ID of move order to use
-          in: path
-          name: moveTaskOrderID
-          required: true
-          type: string
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-      responses:
-        '200':
-          description: Successfully updated move task order status
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Changes move task order status to make it available to prime
-      operationId: updateMoveTaskOrderStatus
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
-      summary: Change the status of a move task order to make it available to prime
 definitions:
   Address:
     type: object
@@ -984,6 +863,12 @@ definitions:
     enum:
       - ITEM
       - CRATE
+  CustomerContactType:
+    description: Describes a customer contact type for a MTOServiceItemDomesticDestSIT
+    type: string
+    enum:
+      - FIRST
+      - SECOND
   MTOServiceItemDimension:
     description: Describes a dimension object for the MTOServiceItem
     type: object
@@ -1028,6 +913,7 @@ definitions:
     enum:
       - MTOServiceItemBasic
       - MTOServiceItemDOFSIT
+      - MTOServiceItemDDFSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
   MTOAgentType:
@@ -1095,6 +981,35 @@ definitions:
         required:
           - reason
           - pickupPostalCode
+  MTOServiceItemDDFSIT:
+    description: Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            $ref: '#/definitions/ReServiceCode'
+          type:
+            $ref: '#/definitions/CustomerContactType'
+          timeMilitary1:
+            type: string
+            example: 0400Z
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            example: 2020-01-20
+          timeMilitary2:
+            type: string
+            example: 0400Z
+          firstAvailableDeliveryDate2:
+            format: date
+            type: string
+            example: 2020-01-20
+        required:
+          - timeMilitary1
+          - firstAvailableDeliveryDate1
+          - timeMilitary2
+          - firstAvailableDeliveryDate2
   MTOServiceItemShuttle:
     description: Describes a shuttle service item
     allOf:
@@ -1127,9 +1042,6 @@ definitions:
             enum:
               - DCRT # Domestic Crating
               - DUCRT # Domestic Uncrating
-          reason:
-            type: string
-            example: Storage items need to be picked up
           item:
             $ref: '#/definitions/MTOServiceItemDimension'
           crate:

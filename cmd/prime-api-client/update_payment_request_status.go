@@ -10,13 +10,14 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	paymentRequest "github.com/transcom/mymove/pkg/gen/primeclient/payment_requests"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
+	paymentRequest "github.com/transcom/mymove/pkg/gen/supportclient/payment_requests"
 )
 
 func initUpdatePaymentRequestStatusFlags(flag *pflag.FlagSet) {
@@ -61,7 +62,7 @@ func updatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
-	primeGateway, cacStore, errCreateClient := CreateClient(v)
+	supportGateway, cacStore, errCreateClient := CreateSupportClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -88,7 +89,7 @@ func updatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
 	}
 
 	jsonDecoder := json.NewDecoder(reader)
-	var request primemessages.PaymentRequest
+	var request supportmessages.PaymentRequest
 
 	err = jsonDecoder.Decode(&request)
 
@@ -99,14 +100,14 @@ func updatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
 	params := paymentRequest.UpdatePaymentRequestStatusParams{
 		PaymentRequestID: strfmt.UUID(request.ID.String()),
 		IfMatch:          v.GetString(ETagFlag),
-		Body: &primemessages.UpdatePaymentRequestStatusPayload{
+		Body: &supportmessages.UpdatePaymentRequestStatusPayload{
 			Status:          request.Status,
 			RejectionReason: request.RejectionReason},
 	}
 
 	params.SetTimeout(time.Second * 30)
 
-	resp, errUpdatePaymentRequestStatus := primeGateway.PaymentRequests.UpdatePaymentRequestStatus(&params)
+	resp, errUpdatePaymentRequestStatus := supportGateway.PaymentRequests.UpdatePaymentRequestStatus(&params)
 	if errUpdatePaymentRequestStatus != nil {
 		// If the response cannot be parsed as JSON you may see an error like
 		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface

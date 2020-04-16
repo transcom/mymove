@@ -153,6 +153,21 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.ReService.Code = models.ReServiceCodeDOFSIT
 		model.Reason = dofsit.Reason
 		model.PickupPostalCode = dofsit.PickupPostalCode
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:
+		ddfsit := mtoServiceItem.(*primemessages.MTOServiceItemDDFSIT)
+		model.ReService.Code = models.ReServiceCodeDDFSIT
+		model.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               *ddfsit.TimeMilitary1,
+				FirstAvailableDeliveryDate: time.Time(*ddfsit.FirstAvailableDeliveryDate1),
+			},
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeSecond,
+				TimeMilitary:               *ddfsit.TimeMilitary2,
+				FirstAvailableDeliveryDate: time.Time(*ddfsit.FirstAvailableDeliveryDate2),
+			},
+		}
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
 		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemShuttle)
 		// values to get from payload
