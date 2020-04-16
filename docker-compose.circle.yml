@@ -17,7 +17,7 @@ services:
   redis:
     image: redis
     environment:
-      - REDIS_URL=redis://0.0.0.0
+      - REDIS_URL=redis://redis
 
   server_test:
     depends_on:
