@@ -8,7 +8,7 @@ package tools
 
 import (
 	// Install for hot reloading server
-	_ "github.com/codegangsta/gin"
+	_ "github.com/cosmtrek/air"
 	// Install for managing the database
 	_ "github.com/gobuffalo/pop/soda"
 

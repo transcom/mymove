@@ -3,12 +3,10 @@ module github.com/transcom/mymove
 go 1.13
 
 require (
-	github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.4
 	github.com/aws/aws-sdk-go v1.30.7
-	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
-	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
+	github.com/cosmtrek/air v1.12.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.2
 	github.com/dustin/go-humanize v1.0.0
@@ -43,10 +41,11 @@ require (
 	github.com/leodido/go-urn v1.2.0
 	github.com/lib/pq v1.3.0
 	github.com/markbates/goth v1.64.0
-	github.com/mattn/go-shellwords v1.0.6 // indirect
+	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mitchellh/mapstructure v1.2.2
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
+	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/rickar/cal v1.0.3
 	github.com/rogpeppe/go-internal v1.5.1 // indirect
@@ -64,12 +63,12 @@ require (
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20200128174031-69ecbb4d6d5d
 	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
+	golang.org/x/sys v0.0.0-20200413165638-669c56c373c4 // indirect
 	golang.org/x/text v0.3.2
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
-	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 	pault.ag/go/pksigner v1.0.2
 )
 
@@ -78,11 +77,6 @@ require (
 // is merged or a better solution is completed as mentioned in
 // https://github.com/jmoiron/sqlx/pull/520
 replace github.com/jmoiron/sqlx v1.2.0 => github.com/transcom/sqlx v1.2.1
-
-// https://github.com/codegangsta/gin/issues/154#issuecomment-544391671
-// This fixes an issue that was being caused due to urfave/cli v1.21.0
-// being renamed.
-replace gopkg.in/urfave/cli.v1 => github.com/urfave/cli v1.21.0
 
 // Update to ignore compiler warnings on macOS catalina
 // https://github.com/keybase/go-keychain/pull/55

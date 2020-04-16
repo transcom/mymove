@@ -193,8 +193,8 @@ admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 
 ### Go Tool Targets
 
-bin/gin: .check_go_version.stamp .check_gopath.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
+bin/air: .check_go_version.stamp .check_gopath.stamp
+	go build -ldflags "$(LDFLAGS)" -o bin/air github.com/cosmtrek/air
 
 bin/soda: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
@@ -308,20 +308,9 @@ server_run_standalone: check_log_dir server_build client_build db_dev_run
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
-# This command runs the server behind gin, a hot-reload server
-# Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
-# Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run
-	INTERFACE=localhost DEBUG_LOGGING=true \
-	$(AWS_VAULT) ./bin/gin \
-		--build ./cmd/milmove \
-		--bin /bin/milmove_gin \
-		--laddr 127.0.0.1 --port "$(GIN_PORT)" \
-		--excludeDir node_modules \
-		--immediate \
-		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
-		serve \
-		2>&1 | tee -a log/dev.log
+# This command runs the server behind air, a hot-reload server
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/air build/index.html server_generate db_dev_run
+	@air
 
 .PHONY: server_run_debug
 server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## Debug the server
@@ -330,7 +319,7 @@ server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
-build_tools: bin/gin \
+build_tools: bin/air \
 	bin/mockery \
 	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
@@ -625,7 +614,7 @@ db_test_psql: ## Open PostgreSQL shell for Test DB
 #
 
 .PHONY: e2e_test
-e2e_test: bin/gin server_generate server_build client_build db_e2e_init ## Run e2e (end-to-end) integration tests
+e2e_test: bin/air server_generate server_build client_build db_e2e_init ## Run e2e (end-to-end) integration tests
 	$(AWS_VAULT) ./scripts/run-e2e-test
 
 .PHONY: e2e_test_docker
