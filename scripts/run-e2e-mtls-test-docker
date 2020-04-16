@@ -37,6 +37,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   # Can't mount folders in CircleCI so copy this data in
   # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
   docker cp ./migrations/app/secure mymove_milmove_migrate_1:/migrate/
+  # Copy the certificate authority into the container.
   docker cp ./config/tls/devlocal-ca.key mymove_milmove_1:/config/tls/devlocal-ca.key
   docker cp ./config/tls/devlocal-ca.pem mymove_milmove_1:/config/tls/devlocal-ca.pem
 

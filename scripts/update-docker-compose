@@ -1,7 +1,13 @@
 #! /usr/bin/env bash
 
 #
-# Update branch name before running docker-compose
+# Update branch name before running docker-compose.
+#
+# Will need to pass the docker-compose file being used.
+#
+# Example:
+#
+# update-docker-compose docker-compose.mtls.yml
 #
 
 set -eu -o pipefail
