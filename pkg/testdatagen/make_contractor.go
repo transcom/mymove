@@ -14,7 +14,7 @@ func MakeContractor(db *pop.Connection, assertions Assertions) models.Contractor
 
 	contractor := models.Contractor{
 		Name:           DefaultContractName,
-		ContractNumber: DefaultContractCode,
+		ContractNumber: DefaultContractNumber,
 		Type:           DefaultContractType,
 	}
 

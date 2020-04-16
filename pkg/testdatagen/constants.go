@@ -103,3 +103,6 @@ const DefaultContractName = "Default contractor name for test"
 
 // DefaultContractType default prime type is Prime for testing
 const DefaultContractType = "Prime"
+
+// DefaultContractNumber is the default contract number for  testing
+const DefaultContractNumber = "Default contractor number for test"
