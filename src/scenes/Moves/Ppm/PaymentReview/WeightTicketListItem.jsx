@@ -53,7 +53,7 @@ class WeightTicketListItem extends Component {
       full_weight,
       num,
       trailer_ownership_missing,
-      // vehicle_nickname,
+      vehicle_nickname,
       vehicle_make,
       vehicle_model,
       weight_ticket_set_type,
@@ -65,6 +65,7 @@ class WeightTicketListItem extends Component {
     const { showDeleteConfirmation } = this.state;
     const isInfected = this.areUploadsInfected(uploads);
     const showWeightTicketIcon = weight_ticket_set_type !== 'PRO_GEAR';
+    const showVehicleNickname = weight_ticket_set_type === 'BOX_TRUCK' || 'PRO_GEAR';
     return (
       <div className="ticket-item" style={{ display: 'flex' }}>
         {/* size of largest of the images */}
@@ -83,9 +84,11 @@ class WeightTicketListItem extends Component {
             <h4>
               {isWeightTicketSet && (
                 <>
-                  {vehicle_make} {vehicle_model} {formatToOrdinal(num + 1)} set
+                  {vehicle_make} {vehicle_model}
                 </>
               )}
+              {showVehicleNickname && <>{vehicle_nickname}</>}
+              {formatToOrdinal(num + 1)} set
             </h4>
             {showDelete && (
               <img
