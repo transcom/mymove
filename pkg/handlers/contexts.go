@@ -36,8 +36,6 @@ type HandlerContext interface {
 	SetPlanner(planner route.Planner)
 	CookieSecret() string
 	SetCookieSecret(secret string)
-	NoSessionTimeout() bool
-	SetNoSessionTimeout()
 	IWSPersonLookup() iws.PersonLookup
 	SetIWSPersonLookup(rbs iws.PersonLookup)
 	SendProductionInvoice() bool
@@ -70,7 +68,6 @@ type handlerContext struct {
 	db                    *pop.Connection
 	logger                Logger
 	cookieSecret          string
-	noSessionTimeout      bool
 	planner               route.Planner
 	storage               storage.FileStorer
 	notificationSender    notifications.NotificationSender
@@ -173,16 +170,6 @@ func (hctx *handlerContext) CookieSecret() string {
 // SetCookieSecret is a simple setter for the cookieSeecret private Field
 func (hctx *handlerContext) SetCookieSecret(cookieSecret string) {
 	hctx.cookieSecret = cookieSecret
-}
-
-// NoSessionTimeout is a flag which, when true, indicates that sessions should not timeout. Used in dev.
-func (hctx *handlerContext) NoSessionTimeout() bool {
-	return hctx.noSessionTimeout
-}
-
-// SetNoSessionTimeout is a simple setter for the noSessionTimeout private Field
-func (hctx *handlerContext) SetNoSessionTimeout() {
-	hctx.noSessionTimeout = true
 }
 
 func (hctx *handlerContext) IWSPersonLookup() iws.PersonLookup {
