@@ -221,20 +221,6 @@ func (_m *HandlerContext) LoggerFromRequest(r *http.Request) handlers.Logger {
 	return r0
 }
 
-// NoSessionTimeout provides a mock function with given fields:
-func (_m *HandlerContext) NoSessionTimeout() bool {
-	ret := _m.Called()
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func() bool); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	return r0
-}
-
 // NotificationSender provides a mock function with given fields:
 func (_m *HandlerContext) NotificationSender() notifications.NotificationSender {
 	ret := _m.Called()
@@ -401,11 +387,6 @@ func (_m *HandlerContext) SetICNSequencer(sequencer sequence.Sequencer) {
 // SetIWSPersonLookup provides a mock function with given fields: rbs
 func (_m *HandlerContext) SetIWSPersonLookup(rbs iws.PersonLookup) {
 	_m.Called(rbs)
-}
-
-// SetNoSessionTimeout provides a mock function with given fields:
-func (_m *HandlerContext) SetNoSessionTimeout() {
-	_m.Called()
 }
 
 // SetNotificationSender provides a mock function with given fields: sender

@@ -14,9 +14,6 @@ const (
 	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag #nosec G101
 	ClientAuthSecretKeyFlag string = "client-auth-secret-key"
 
-	// NoSessionTimeoutFlag is the No Session Timeout Flag
-	NoSessionTimeoutFlag string = "no-session-timeout"
-
 	// LoginGovCallbackProtocolFlag is the Login.gov Callback Protocol Flag
 	LoginGovCallbackProtocolFlag string = "login-gov-callback-protocol"
 	// LoginGovCallbackPortFlag is the Login.gov Callback Port Flag
@@ -44,8 +41,6 @@ func (e *errInvalidClientID) Error() string {
 // InitAuthFlags initializes Auth command line flags
 func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(ClientAuthSecretKeyFlag, "", "Client auth secret JWT key.")
-
-	flag.Bool(NoSessionTimeoutFlag, false, "whether user sessions should timeout.")
 
 	flag.String(LoginGovCallbackProtocolFlag, "https", "Protocol for non local environments.")
 	flag.Int(LoginGovCallbackPortFlag, 443, "The port for callback urls.")
