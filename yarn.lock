@@ -12589,10 +12589,10 @@ react-color@^2.17.0:
     reactcss "^1.2.0"
     tinycolor2 "^1.4.1"
 
-react-day-picker@=7.4.2:
-  version "7.4.2"
-  resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-7.4.2.tgz#a5a927e5825ac82e8f5c074f6c751b6d6d1a30fa"
-  integrity sha512-VflmMDoZmFuOGw84r25i8PLZdUnsHWEkiYn14GkAt9ySopnO1m1Xed8Gp5sbXP1Kre5kGgOluHz9jn8ZeYAPFQ==
+react-day-picker@=7.4.4:
+  version "7.4.4"
+  resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-7.4.4.tgz#666b9ef3845b430d30407c808cd034180f123582"
+  integrity sha512-jGhgGUqkY2i5tOQ8/XhwPFuXXwBDq4KxQaQ2XQh4/RnNFaLkUjBOTfA/WbEHkmNk/JKdE0fNxVRzVwxnYdckww==
   dependencies:
     prop-types "^15.6.2"
 
