@@ -148,7 +148,6 @@ prime_api_client update-mto-shipment --etag "${etag}" --filename ./pkg/testdatag
 # Stop the app container to release the DB connection
 if [[ -n "${CIRCLECI+x}" ]]; then
   docker-compose -f docker-compose.branch.yml down --remove-orphans || true
-  git checkout docker-compose.mtls.yml
 else
   docker-compose -f docker-compose.local.yml down --remove-orphans || true
 fi
