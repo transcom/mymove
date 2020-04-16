@@ -3,7 +3,6 @@ import { action } from '@storybook/addon-actions';
 import { storiesOf } from '@storybook/react';
 import { Button } from '@trussworks/react-uswds';
 import { ReactComponent as DocsIcon } from 'shared/icon/documents.svg';
-import { StackedTable, StackedTableRow, StackedTableHeader, StackedTableData } from '../components/StackedTable';
 import { EditButton } from '../components/form';
 
 const StackedTableExample = () => (
@@ -21,18 +20,22 @@ const StackedTableExample = () => (
         </Button>
       </div>
     </div>
-    <StackedTable fullWidth>
-      <col style={{ width: '25%' }} />
-      <col style={{ width: '75%' }} />
-      <StackedTableRow>
-        <StackedTableHeader>Orders number</StackedTableHeader>
-        <StackedTableData>999999999</StackedTableData>
-      </StackedTableRow>
-      <StackedTableRow>
-        <StackedTableHeader>Authorized Entitlement</StackedTableHeader>
-        <StackedTableData>999999999</StackedTableData>
-      </StackedTableRow>
-    </StackedTable>
+    <table>
+      <colgroup>
+        <col style={{ width: '25%' }} />
+        <col style={{ width: '75%' }} />
+      </colgroup>
+      <tbody>
+        <tr>
+          <th scope="row">Orders number</th>
+          <td>999999999</td>
+        </tr>
+        <tr>
+          <th scope="row">Authorized Entitlement</th>
+          <td>999999999</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 );
 
@@ -51,31 +54,35 @@ const StackedTableWithButtons = () => (
         </Button>
       </div>
     </div>
-    <StackedTable fullWidth>
-      <col style={{ width: '25%' }} />
-      <col style={{ width: '75%' }} />
-      <StackedTableRow>
-        <StackedTableHeader>Orders number</StackedTableHeader>
-        <StackedTableData>
-          999999999
-          <EditButton unstyled onClick={action('should open edit form')} />
-        </StackedTableData>
-      </StackedTableRow>
-      <StackedTableRow>
-        <StackedTableHeader>Orders number</StackedTableHeader>
-        <StackedTableData>
-          999999999
-          <EditButton unstyled onClick={action('should open edit form')} />
-        </StackedTableData>
-      </StackedTableRow>
-      <StackedTableRow>
-        <StackedTableHeader>Orders number</StackedTableHeader>
-        <StackedTableData>
-          999999999
-          <EditButton unstyled onClick={action('should open edit form')} />
-        </StackedTableData>
-      </StackedTableRow>
-    </StackedTable>
+    <table>
+      <colgroup>
+        <col style={{ width: '25%' }} />
+        <col style={{ width: '75%' }} />
+      </colgroup>
+      <tbody>
+        <tr>
+          <th scope="row">Orders number</th>
+          <td>
+            999999999
+            <EditButton unstyled onClick={action('should open edit form')} />
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Orders number</th>
+          <td>
+            999999999
+            <EditButton unstyled onClick={action('should open edit form')} />
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Orders number</th>
+          <td>
+            999999999
+            <EditButton unstyled onClick={action('should open edit form')} />
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 );
 
