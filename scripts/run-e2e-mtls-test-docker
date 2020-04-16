@@ -29,7 +29,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 
   # If you don't pull and CircleCI has cached previous images then you won't see any changes from AWS ECR
-  docker-compose -f docker-compose.mtls.yml pull
+  docker-compose pull
 
   # Bring these containers up but don't start them so they can be manipulated first
   docker-compose -f docker-compose.mtls.yml up --no-start
