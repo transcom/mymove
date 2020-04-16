@@ -5,7 +5,7 @@ import styles from './index.module.scss';
 const cx = classNames.bind(styles);
 
 const CustomerHeader = () => (
-  <div className={cx('page-header')}>
+  <div className={cx('cust-header')}>
     <div>
       <div className={cx('name-block')}>
         <h2>Smith, Kerry</h2>
