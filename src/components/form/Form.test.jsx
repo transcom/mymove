@@ -11,6 +11,8 @@ jest.mock('formik', () => {
   return {
     ...jest.requireActual('formik'),
     useFormikContext: () => ({
+      errors: { sampleField: 'Required' },
+      touched: { sampleField: true },
       handleReset: mockHandleReset,
       handleSubmit: mockHandleSubmit,
     }),
@@ -52,6 +54,27 @@ describe('Form', () => {
     wrapper.simulate('reset');
     expect(mockHandleSubmit).not.toHaveBeenCalled();
     expect(mockHandleReset).toHaveBeenCalled();
+  });
+
+  describe('with errorCallback', () => {
+    it('passes errors to it when rendered', () => {
+      const errorCallback = jest.fn();
+      shallow(
+        <Form errorCallback={errorCallback} className="sample-class">
+          <Button type="submit">Submit</Button>
+          <Button type="reset">Reset</Button>
+        </Form>,
+      );
+
+      expect(errorCallback).toHaveBeenCalledWith(
+        {
+          sampleField: 'Required',
+        },
+        {
+          sampleField: true,
+        },
+      );
+    });
   });
 
   afterEach(jest.resetAllMocks);
