@@ -10,7 +10,13 @@ const MilMoveHeader = () => (
     <MmLogo />
     <div className={cx('links')}>
       <span>
-        <b>TOO queue</b>
+        <a>Navigation Link</a>
+      </span>
+      <span>
+        <a>Navigation Link</a>
+      </span>
+      <span>
+        <a>Navigation Link</a>
       </span>
       <span className={cx('line-add')}>&nbsp;</span>
       <span>Baker, Riley</span>

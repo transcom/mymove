@@ -8,7 +8,7 @@
   background: $mm-blue;
   width: 100vw;
   padding: 10px;
-  @include u-padding-left(2);
+  @include u-padding-x(4);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -20,10 +20,20 @@
   }
   span {
     @include u-padding-x(3);
+    &:first-child {
+      @include u-padding-left(0);
+    }
+    &:last-child {
+      @include u-padding-right(0);
+    }
   }
   a {
     @include u-text('bold');
     color: $link-light;
+    &:hover, &:focus {
+      color: #b7caf0;
+      @include u-text('no-underline');
+    }
   }
   .line-add {
     padding: 0px;
