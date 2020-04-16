@@ -17,7 +17,7 @@ storiesOf('Components|Left Nav', module)
       <LeftNav />
       <div
         className="content container container--accent--blue"
-        style={{ position: 'relative', width: '85%', marginTop: '0' }}
+        style={{ position: 'relative', width: '85vw', marginTop: '0' }}
       >
         <ul>
           <h2>Fixed positioning behavior of the tertiary nav</h2>
@@ -56,7 +56,7 @@ storiesOf('Components|Left Nav', module)
             &nbsp;has a&nbsp;
             <code>width</code>
             &nbsp;of&nbsp;
-            <b>15%</b>
+            <b>15vw</b>
             &nbsp;, and a &nbsp;
             <code>max-width</code>
             &nbsp;of&nbsp;
@@ -66,7 +66,7 @@ storiesOf('Components|Left Nav', module)
             &nbsp; and your intended right side of the page content in a div and apply
             <code>display: flex;</code>
             &nbsp;and set your content&apos;s wrapping div to&nbsp;
-            <b>85%</b>
+            <b>85vw</b>
             &nbsp;, you should get the intended layout.
           </li>
           <li>
