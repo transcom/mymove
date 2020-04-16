@@ -310,7 +310,7 @@ server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind air, a hot-reload server
 server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/air build/index.html server_generate db_dev_run
-	@air
+	@air -c .air.toml
 
 .PHONY: server_run_debug
 server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## Debug the server
