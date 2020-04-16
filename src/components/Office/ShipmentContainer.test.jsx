@@ -23,4 +23,12 @@ describe('Shipment Container', () => {
     );
     expect(wrapper.find('.container').exists()).toBe(true);
   });
+  it('should render a child component passed to it', () => {
+    const wrapper = shallow(
+      <ShipmentContainer>
+        <ShipmentHeading shipmentInfo={headingInfo} />
+      </ShipmentContainer>,
+    );
+    expect(wrapper.find(ShipmentHeading).length).toBe(1);
+  });
 });

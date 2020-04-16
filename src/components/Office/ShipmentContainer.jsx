@@ -1,5 +1,6 @@
 import React from 'react';
 import classNames from 'classnames/bind';
+import * as PropTypes from 'prop-types';
 import styles from './shipmentContainer.module.scss';
 
 const cx = classNames.bind(styles);
@@ -9,16 +10,7 @@ function ShipmentContainer({ children }) {
 }
 
 ShipmentContainer.propTypes = {
-  children: (props, propName, componentName) => {
-    // eslint-disable-next-line security/detect-object-injection
-    const prop = props[propName];
-    let error;
-
-    if (React.Children.count(prop) === 0) {
-      error = new Error(`\`${componentName}\` requires Children.`);
-    }
-    return error;
-  },
+  children: PropTypes.element,
 };
 
 export default ShipmentContainer;

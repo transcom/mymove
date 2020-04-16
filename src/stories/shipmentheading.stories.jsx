@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { withKnobs, text } from '@storybook/addon-knobs';
 import ShipmentHeading from '../components/Office/ShipmentHeading';
 
-storiesOf('TOO/TIO Components|ShipmentContainer|ShipmentHeading', module)
+storiesOf('TOO/TIO Components|ShipmentHeading', module)
   .addDecorator(withKnobs)
   .add('Shipment Heading', () => (
     <ShipmentHeading
@@ -15,7 +15,7 @@ storiesOf('TOO/TIO Components|ShipmentContainer|ShipmentHeading', module)
         destinationCity: text('ShipmentInfo.destinationCity', 'Tacoma'),
         destinationState: text('ShipmentInfo.destinationState', 'WA'),
         destinationPostalCode: text('ShipmentInfo.destinationPostalCode', '98421'),
-        scheduledPickupDate: text('ShipmentInfo.destinationPostalCode', '27 Mar 2020'),
+        scheduledPickupDate: text('ShipmentInfo.scheduledPickupDate', '27 Mar 2020'),
       }}
     />
   ));
