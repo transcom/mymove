@@ -43,6 +43,8 @@ type Assertions struct {
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem
+	MTOServiceItemDimension                  models.MTOServiceItemDimension
+	MTOServiceItemCustomerContact            models.MTOServiceItemCustomerContact
 	MTOShipment                              models.MTOShipment
 	Notification                             models.Notification
 	WeightTicketSetDocument                  models.WeightTicketSetDocument
@@ -155,7 +157,7 @@ func fixture(name string) afero.File {
 type customTransformer struct {
 }
 
-// Checks if src is not a zero value, then overwrites dst
+// Transformer checks if src is not a zero value, then overwrites dst
 func (t customTransformer) Transformer(typ reflect.Type) func(dst, src reflect.Value) error {
 	// UUID comparison
 	if typ == reflect.TypeOf(uuid.UUID{}) || typ == reflect.TypeOf(&uuid.UUID{}) {

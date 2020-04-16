@@ -15,7 +15,7 @@ const AccessCodeFilter = (props) => (
       alwaysOn
       resettable
     />
-    <SelectInput source="move_type" choices={[{ id: 'PPM', name: 'PPM' }]} />
+    <SelectInput source="moveType" choices={[{ id: 'PPM', name: 'PPM' }]} />
   </Filter>
 );
 
@@ -24,7 +24,7 @@ const AccessCodeList = (props) => (
     <Datagrid>
       <TextField source="id" reference="access_codes" />
       <TextField source="code" reference="access_codes" />
-      <TextField source="move_type" reference="access_codes" />
+      <TextField source="moveType" reference="access_codes" />
       <TextField source="locator" reference="access_codes" />
     </Datagrid>
   </List>

@@ -12,7 +12,8 @@
   justify-content: center;
   height: 42px;
   @include u-margin('1');
-  .icon svg path {
+  .icon svg path,
+  .icon svg polygon {
     fill: white;
   }
   &:hover,
@@ -69,7 +70,7 @@
   } //close &--secondary
   &--icon {
     .icon {
-      @include u-padding-right('1');
+      @include u-padding-x('1');
     }
   }
   &--small {
@@ -86,7 +87,7 @@
     @include u-padding-y(0);
     @include u-height('auto');
     .icon {
-      @include u-padding-right('1');
+      @include u-padding-x('1');
       svg path {
         fill: $primary;
       }
@@ -115,3 +116,43 @@
     }
   }
 } //close usa-button
+
+//Tags
+
+.usa-tag {
+  background-color: $mm-gold;
+  color: $base-darkest;
+  @include u-text('normal');
+  vertical-align: middle;
+  &--green {
+    background-color: $success-light;
+  }
+  &--red {
+    background-color: $error-light;
+  }
+  &--yellow {
+    background-color: $warning-light;
+  }
+  &--cyan {
+    background-color: #a8f2ff;
+  }
+  &--alert {
+    border-radius: 100%;
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    svg {
+      width: 100%;
+      vertical-align: sub;
+      path {
+        fill: #fff;
+      }
+    }
+  }
+  &--large {
+    @include u-font('body', 'sm'); //16px
+    @include u-padding-x(1); //12px
+    padding-top: 0px;
+    height: 23px;
+  }
+}

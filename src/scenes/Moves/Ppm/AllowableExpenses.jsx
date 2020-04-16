@@ -77,14 +77,17 @@ function AllowableExpenses(props) {
           <hr className="divider" />
           <section style={{ marginBottom: '1.5em' }}>
             <strong>Gas and fuel expenses</strong>
+            <p>Gas and fuel expenses are not reimbursable.</p>
+            <p>If you rented a vehicle to perform your move, you can claim gas expenses for tax purposes.</p>
             <p>
-              Fuel expenses may not be claimed for a PPM unless they exceed the amount paid for mileage and per diem
-              fees on your travel pay. The IRS does not allow you to claim an expense if you were already paid for the
-              mileage. Doing so could result in an IRS audit.
+              You can not claim expenses for fuel for your own vehicles. You will be reimbursed for that fuel via DTS
+              when you claim your mileage. The IRS does not allow you to claim an expense twice, and may audit you if
+              you do so.
             </p>
             <p>
-              If your fuel costs exceed the per diem payment you received, however, you may claim the portion that
-              exceeds that amount.
+              There is one rare exception: If your fuel expenses exceed the amount paid for mileage and per diem fees on
+              your travel pay. You may claim the portion of your fuel expenses for your own vehicles that exceeds that
+              amount.
             </p>
           </section>
           <section style={{ marginBottom: '3.5em' }}>

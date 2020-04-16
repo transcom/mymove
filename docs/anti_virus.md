@@ -1,12 +1,15 @@
 # Anti-Virus
 
 This document provides an overview of the anti-virus solutions employed by the MilMove project.
+MilMove uses an anti-virus scan utility called [ClamAV](https://www.clamav.net).
 
 Anti-virus scanning is concerned with two parts of the system. The first part is viruses being injected into the source code of the project by folks with permissions to commit and merge code. The second part is viruses being uploaded to the AWS S3 bucket by users and downloaded by other users of the system.
 
 ## Source Code Scanning
 
 Anti-virus scanning of the source code is done via a step in the CI/CD pipeline which in turn calls the `make anti_virus` target in the `Makefile`. The step uses a ClamAV Docker container to scan a copy of the checked out source code prior to building any binaries or docker images for deployment. If a virus is detected the build cannot continue and the anti-virus finding must be dealt with.
+
+**NOTE:** This is only done on merge to master, not on every branch.
 
 ### Virus Findings
 
@@ -20,9 +23,15 @@ During the incident get help in determining if the finding is a False Positive (
 
 #### False Positives
 
-Files that are false positives (like PDF test fixtures) can be white-listed in the `scripts/anti-virus` file by updating the variable `IGNORE_FILES`.
+Files and Signatures that are false positives (like PDF test fixtures) can be white-listed by using the `scripts/anti-virus-whitelists` script like so:
 
-Signatures that are false positives (like `PUA.Pdf.Trojan.EmbeddedJavaScript-1`) can be white listed in the `scripts/anti-virus` file by updating the variable `IGNORE_SIGS`.
+```sh
+export AV_DIR=$PWD
+export AV_IGNORE_DIR=./anti-virus/
+export AV_IGNORE_FILES=pkg/testdatagen/testdata/orders.pdf
+export AV_IGNORE_SIGS="PUA.Pdf.Trojan.EmbeddedJavaScript-1 orders.pdf.UNOFFICIAL"
+anti-virus-whitelists
+```
 
 #### Outdated ClamAV
 
@@ -38,9 +47,9 @@ The ClamAV maintainers have not yet released an official version for Debian Alpi
 
 See [mko-x/docker-clamav#39](https://github.com/mko-x/docker-clamav/issues/39) for more information.
 
-#### Docker container exits unpredictably
+#### freshclam container exits unpredictably
 
-The ClamAV process starts off by updating its various databases and definitions for virus detection. Here is some of that output:
+The freshclam process is used for updating various databases and definitions for virus detection. Here is some of that output:
 
 ```text
 Fri Mar  6 19:57:07 2020 -> daily database available for download (remote version: 25743)
@@ -61,25 +70,45 @@ Fri Mar  6 19:57:43 2020 -> Database test passed.
 Fri Mar  6 19:57:43 2020 -> safebrowsing.cvd updated (version: 49191, sigs: 2213119, f-level: 63, builder: google)
 ```
 
-Each update requires a network connection and for the website hosting the files to be available. If either the network is unstable or the website is unavailable then the docker container cannot continue startup and will exit. This is why a retry loop is added to the script, to try to catch intermittent problems. Additionally the script waits for the `/tmp/clamd.sock` unix socket to be available as an indicator that the container was able to start up correctly.
-
-#### My database changes are not being captured
-
-You may need to reload the service with `docker exec -it "${CONTAINER_NAME}" clamdscan --reload`.
+Each update requires a network connection and for the website hosting the files to be available. If either the network is unstable or the website is unavailable then the docker container cannot continue startup and will exit.
 
 #### How do I get inside the container to debug
 
 On your local computer you can just run `make anti_virus` and wait until the script finishes. Once completed you can run the following command to drop into the container to debug:
 
 ```sh
-docker exec -it anti_virus /bin/bash
+docker run -it --rm -v /tmp/store:/tmp/store -v $PWD:/root/project mk0x/docker-clamav:alpine /bin/bash
 ```
 
-This should drop you in a bash shell. The project files can be found in the `MOUNT_DIR` from the `scripts/anti-virus` script. The ClamAV database files are found at `/store`.
+This should drop you in a bash shell with the virus definitions at `/tmp/store` and the project at `/root/project`.
 
 ## Upload Object Scanning in AWS S3
 
 Anti-virus scanning of uploads is done via an AWS Lambda that responds to AWS S3 Creation events to respond in real time to uploads and scan them immediately. The application and AWS users are forbidden from downloading unscanned files or files that have been marked as infected. Infected files also cannot be re-tagged as clean, preventing circumvention of the AV solution.
+
+### Development
+
+If you want to test this functionality on any of the deployed environments, you will need access to a file that will be marked as infected. *Ideally* this can be done without dealing with any live viruses!  The most common
+way to test AV software is using [EICAR test files](https://en.wikipedia.org/wiki/EICAR_test_file), which are text files that begin with a specific string
+and are generally recognized by AV software as being "infected" with a fake virus. Unfortunately, EICAR files are plain text and
+as a result are rejected by the Milmove uploading code for not being one of the allowed content types (JPG, PNG, or PDF).
+
+Instead, we can use one of the test files that is provided by the ClamAV project itself. These test files are generated
+when the project is built and are not installed by the `clamav` formula in homebrew and exhibit a similar behavior to EICAR
+files when scanned with ClamAV. To access them without needing to build the entire ClamAV project we can extract them from a Debian package.
+
+**Please don't check this file into our repository as it is under the GNU license and this project is not.**
+
+```shell script
+$ curl http://http.us.debian.org/debian/pool/main/c/clamav/clamav-testfiles_0.101.4+dfsg-1_all.deb -o clamav-testfiles_0.101.4+dfsg-1_all.deb
+$ ar x clamav-testfiles_0.101.4+dfsg-1_all.deb
+$ tar -xzvf data.tar.xz
+
+# The test files are available in ./usr/share/clamav-testfiles/
+```
+
+You can use the PDF filed located within the directory used above at `usr/share/clamav-testfiles/clam.pdf`. This file will
+be flagged as containing `Clamav.Test.File-6` by ClamAV.
 
 ### Object Tagging
 

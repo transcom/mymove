@@ -19,10 +19,10 @@ type AdminUserUpdatePayload struct {
 	Active *bool `json:"active,omitempty"`
 
 	// First Name
-	FirstName *string `json:"first_name,omitempty"`
+	FirstName *string `json:"firstName,omitempty"`
 
 	// Last Name
-	LastName *string `json:"last_name,omitempty"`
+	LastName *string `json:"lastName,omitempty"`
 }
 
 // Validate validates this admin user update payload
