@@ -19,17 +19,17 @@ docker system info >> /dev/null
 
 if [[ -n "${CIRCLECI+x}" ]]; then
   # CI/CD allows us to use pre-built images using the branch name
-  scripts/update-docker-compose
+  update-docker-compose docker-compose.mtls.yml
 
   # Let's clean things up before starting
   # This may show an error locally but can be safely ignored, its only for CircleCI
-  docker-compose down --rmi all || true
+  docker-compose -f docker-compose.mtls.yml down --rmi all || true
 
   # Docker Compose Setup
   aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 
   # If you don't pull and CircleCI has cached previous images then you won't see any changes from AWS ECR
-  docker-compose pull
+  docker-compose -f docker-compose.mtls.yml pull
 
   # Bring these containers up but don't start them so they can be manipulated first
   docker-compose -f docker-compose.mtls.yml up --no-start
@@ -148,6 +148,7 @@ prime_api_client update-mto-shipment --etag "${etag}" --filename ./pkg/testdatag
 # Stop the app container to release the DB connection
 if [[ -n "${CIRCLECI+x}" ]]; then
   docker-compose -f docker-compose.branch.yml down --remove-orphans || true
+  git checkout docker-compose.mtls.yml
 else
   docker-compose -f docker-compose.local.yml down --remove-orphans || true
 fi
