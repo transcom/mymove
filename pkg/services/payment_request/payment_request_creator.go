@@ -26,6 +26,133 @@ func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator
 	return &paymentRequestCreator{db: db}
 }
 
+func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, *validate.Errors, error) {
+	verrs := validate.NewErrors()
+	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
+		var err error
+		now := time.Now()
+
+		// Gather information for logging
+		mtoMessageString := " MTO ID <" + paymentRequestArg.MoveTaskOrderID.String() + ">"
+		prMessageString := " paymentRequestID <" + paymentRequestArg.ID.String() + ">"
+
+		// Create the payment request
+		paymentRequestArg, verrs, err = p.createPaymentRequestSaveToDB(tx, paymentRequestArg, now)
+		if verrs.HasAny() {
+			return err
+		}
+		if err != nil {
+			return fmt.Errorf("failure creating payment request: %w for %s", err, mtoMessageString+prMessageString)
+		}
+		if paymentRequestArg == nil {
+			return fmt.Errorf("failure creating payment request <nil> for %s", mtoMessageString+prMessageString)
+		}
+
+		// Create a payment service item for each incoming payment service item in the payment request
+		// These incoming payment service items have not been created in the database yet
+		var newPaymentServiceItems models.PaymentServiceItems
+		for _, paymentServiceItem := range paymentRequestArg.PaymentServiceItems {
+
+			var mtoServiceItem models.MTOServiceItem
+			// Create the payment service item
+			paymentServiceItem, mtoServiceItem, verrs, err = p.createPaymentServiceItem(tx, &paymentServiceItem, paymentRequestArg, now)
+
+			// Gather message information for logging
+			mtoServiceItemString := " MTO Service item ID <" + paymentServiceItem.MTOServiceItemID.String() + ">"
+			reServiceItem := paymentServiceItem.MTOServiceItem.ReService
+			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
+			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
+
+			// Check for error from creating payment service item
+			if verrs.HasAny() {
+				return err
+			}
+			if err != nil {
+				return fmt.Errorf("failure creating payment service item: %w for %s", err, errMessageString)
+			}
+
+			// store param Key:Value pairs coming from the create payment request payload, sent by the user when requesting payment
+			incomingMTOServiceItemParams := make(map[string]string)
+
+			// Create a payment service item parameter for each of the incoming payment service item params
+			var newPaymentServiceItemParams models.PaymentServiceItemParams
+			for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
+				var param *models.PaymentServiceItemParam
+				var key, value *string
+				param, key, value, verrs, err = p.createPaymentServiceItemParam(tx, &paymentServiceItemParam, paymentServiceItem)
+				if verrs.HasAny() {
+					return err
+				}
+				if err != nil {
+					return fmt.Errorf("failed to create payment service item param [%s]: %w for %s", paymentServiceItemParam.ServiceItemParamKeyID, err, errMessageString)
+				}
+				if param != nil && key != nil && value != nil {
+					incomingMTOServiceItemParams[*key] = *value
+					newPaymentServiceItemParams = append(newPaymentServiceItemParams, paymentServiceItemParam)
+				}
+			}
+
+			//
+			// For the current service item, find any missing params needed to price
+			// this service item
+			//
+
+			// Retrieve all of the params needed to price this service item
+			paymentHelper := paymentrequesthelper.RequestPaymentHelper{DB: tx}
+			reServiceParams, err := paymentHelper.FetchServiceParamList(paymentServiceItem.MTOServiceItemID)
+			if err != nil {
+				errMessage := "Failed to retrieve service item param list for " + errMessageString
+				return fmt.Errorf("%s err: %w", errMessage, err)
+			}
+
+			// Get values for needed service item params (do lookups)
+			paramLookup := serviceparamlookups.ServiceParamLookupInitialize(paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID)
+			for _, reServiceParam := range reServiceParams {
+				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key]; !found {
+					// create the missing service item param
+					var param *models.PaymentServiceItemParam
+					param, err = p.createServiceItemParamFromLookup(tx, paramLookup, reServiceParam, paymentServiceItem)
+					if err != nil {
+						errMessage := "Failed to create service item param for param key <" + reServiceParam.ServiceItemParamKey.Key + "> " + errMessageString
+						return fmt.Errorf("%s err: %w", errMessage, err)
+					}
+					if param != nil {
+						newPaymentServiceItemParams = append(newPaymentServiceItemParams, *param)
+					}
+				}
+			}
+
+			//
+			// Save all params for current service item
+			// Save the new payment service item to the list of service items to be returned
+			//
+
+			paymentServiceItem.PaymentServiceItemParams = newPaymentServiceItemParams
+
+			newPaymentServiceItems = append(newPaymentServiceItems, paymentServiceItem)
+
+			//
+			// Validate that all params are available to prices the service item that is in
+			// the payment request
+			//
+			validParamList, validateMessage := paymentHelper.ValidServiceParamList(mtoServiceItem, reServiceParams, paymentServiceItem.PaymentServiceItemParams)
+			if validParamList == false {
+				errMessage := "service item param list is not valid (will not be able to price the item) " + validateMessage + " for " + errMessageString
+				return fmt.Errorf("%s err: %w", errMessage, err)
+			}
+		}
+		paymentRequestArg.PaymentServiceItems = newPaymentServiceItems
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return nil, verrs, transactionError
+	}
+
+	return paymentRequestArg, verrs, nil
+}
+
 func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, *validate.Errors, error) {
 	// Verify that the MTO ID exists
 	//
@@ -190,133 +317,6 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connect
 	}
 
 	return &paymentServiceItemParam, nil
-}
-
-func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, *validate.Errors, error) {
-	verrs := validate.NewErrors()
-	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
-		var err error
-		now := time.Now()
-
-		// Gather information for logging
-		mtoMessageString := " MTO ID <" + paymentRequestArg.MoveTaskOrderID.String() + ">"
-		prMessageString := " paymentRequestID <" + paymentRequestArg.ID.String() + ">"
-
-		// Create the payment request
-		paymentRequestArg, verrs, err = p.createPaymentRequestSaveToDB(tx, paymentRequestArg, now)
-		if verrs.HasAny() {
-			return err
-		}
-		if err != nil {
-			return fmt.Errorf("failure creating payment request: %w for %s", err, mtoMessageString+prMessageString)
-		}
-		if paymentRequestArg == nil {
-			return fmt.Errorf("failure creating payment request <nil> for %s", mtoMessageString+prMessageString)
-		}
-
-		// Create a payment service item for each incoming payment service item in the payment request
-		// These incoming payment service items have not been created in the database yet
-		var newPaymentServiceItems models.PaymentServiceItems
-		for _, paymentServiceItem := range paymentRequestArg.PaymentServiceItems {
-
-			var mtoServiceItem models.MTOServiceItem
-			// Create the payment service item
-			paymentServiceItem, mtoServiceItem, verrs, err = p.createPaymentServiceItem(tx, &paymentServiceItem, paymentRequestArg, now)
-
-			// Gather message information for logging
-			mtoServiceItemString := " MTO Service item ID <" + paymentServiceItem.MTOServiceItemID.String() + ">"
-			reServiceItem := paymentServiceItem.MTOServiceItem.ReService
-			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
-			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
-
-			// Check for error from creating payment service item
-			if verrs.HasAny() {
-				return err
-			}
-			if err != nil {
-				return fmt.Errorf("failure creating payment service item: %w for %s", err, errMessageString)
-			}
-
-			// store param Key:Value pairs coming from the create payment request payload, sent by the user when requesting payment
-			incomingMTOServiceItemParams := make(map[string]string)
-
-			// Create a payment service item parameter for each of the incoming payment service item params
-			var newPaymentServiceItemParams models.PaymentServiceItemParams
-			for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
-				var param *models.PaymentServiceItemParam
-				var key, value *string
-				param, key, value, verrs, err = p.createPaymentServiceItemParam(tx, &paymentServiceItemParam, paymentServiceItem)
-				if verrs.HasAny() {
-					return err
-				}
-				if err != nil {
-					return fmt.Errorf("failed to create payment service item param [%s]: %w for %s", paymentServiceItemParam.ServiceItemParamKeyID, err, errMessageString)
-				}
-				if param != nil && key != nil && value != nil {
-					incomingMTOServiceItemParams[*key] = *value
-					newPaymentServiceItemParams = append(newPaymentServiceItemParams, paymentServiceItemParam)
-				}
-			}
-
-			//
-			// For the current service item, find any missing params needed to price
-			// this service item
-			//
-
-			// Retrieve all of the params needed to price this service item
-			paymentHelper := paymentrequesthelper.RequestPaymentHelper{DB: tx}
-			reServiceParams, err := paymentHelper.FetchServiceParamList(paymentServiceItem.MTOServiceItemID)
-			if err != nil {
-				errMessage := "Failed to retrieve service item param list for " + errMessageString
-				return fmt.Errorf("%s err: %w", errMessage, err)
-			}
-
-			// Get values for needed service item params (do lookups)
-			paramLookup := serviceparamlookups.ServiceParamLookupInitialize(paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID)
-			for _, reServiceParam := range reServiceParams {
-				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key]; !found {
-					// create the missing service item param
-					var param *models.PaymentServiceItemParam
-					param, err = p.createServiceItemParamFromLookup(tx, paramLookup, reServiceParam, paymentServiceItem)
-					if err != nil {
-						errMessage := "Failed to create service item param for param key <" + reServiceParam.ServiceItemParamKey.Key + "> " + errMessageString
-						return fmt.Errorf("%s err: %w", errMessage, err)
-					}
-					if param != nil {
-						newPaymentServiceItemParams = append(newPaymentServiceItemParams, *param)
-					}
-				}
-			}
-
-			//
-			// Save all params for current service item
-			// Save the new payment service item to the list of service items to be returned
-			//
-
-			paymentServiceItem.PaymentServiceItemParams = newPaymentServiceItemParams
-
-			newPaymentServiceItems = append(newPaymentServiceItems, paymentServiceItem)
-
-			//
-			// Validate that all params are available to prices the service item that is in
-			// the payment request
-			//
-			validParamList, validateMessage := paymentHelper.ValidServiceParamList(mtoServiceItem, reServiceParams, paymentServiceItem.PaymentServiceItemParams)
-			if validParamList == false {
-				errMessage := "service item param list is not valid (will not be able to price the item) " + validateMessage + " for " + errMessageString
-				return fmt.Errorf("%s err: %w", errMessage, err)
-			}
-		}
-		paymentRequestArg.PaymentServiceItems = newPaymentServiceItems
-
-		return nil
-	})
-
-	if transactionError != nil {
-		return nil, verrs, transactionError
-	}
-
-	return paymentRequestArg, verrs, nil
 }
 
 func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto models.MoveTaskOrder) (string, int, error) {
