@@ -103,6 +103,16 @@ func main() {
 	initUpdateMTOStatusFlags(makeAvailableToPrimeCommand.Flags())
 	root.AddCommand(makeAvailableToPrimeCommand)
 
+	patchMTOShipmentStatusCommand := &cobra.Command{
+		Use:          "support-patch-mto-shipment-status",
+		Short:        "Update MTO shipment status for prime",
+		Long:         "Allows prime to update MTO shipment status in non-prod envs",
+		RunE:         patchMTOShipmentStatus,
+		SilenceUsage: true,
+	}
+	initPatchMTOShipmentStatusFlags(patchMTOShipmentStatusCommand.Flags())
+	root.AddCommand(patchMTOShipmentStatusCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
