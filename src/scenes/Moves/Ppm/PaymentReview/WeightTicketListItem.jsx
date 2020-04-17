@@ -59,6 +59,7 @@ class WeightTicketListItem extends Component {
       weight_ticket_set_type,
       showDelete,
       deleteDocumentListItem,
+      isWeightTicketSet,
       uploads,
     } = this.props;
     const { showDeleteConfirmation } = this.state;
@@ -88,7 +89,7 @@ class WeightTicketListItem extends Component {
                 </>
               )}
               {showVehicleNickname && <>{vehicle_nickname} </>}
-              <>{formatToOrdinal(num + 1)} set</>
+              {isWeightTicketSet && <>{formatToOrdinal(num + 1)} set</>}
             </h4>
             {showDelete && (
               <img
