@@ -12,7 +12,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -98,8 +97,8 @@ func patchMTOShipmentStatus(cmd *cobra.Command, args []string) error {
 	}
 
 	params := mtoShipment.PatchMTOShipmentStatusParams{
-		MoveTaskOrderID: strfmt.UUID(shipment.MoveTaskOrderID.String()),
-		ShipmentID:      strfmt.UUID(shipment.ID.String()),
+		MoveTaskOrderID: shipment.MoveTaskOrderID,
+		ShipmentID:      shipment.ID,
 		IfMatch:         v.GetString(ETagFlag),
 		Body: &supportmessages.PatchMTOShipmentStatusPayload{
 			Status:          shipment.Status,
