@@ -183,7 +183,7 @@ func init() {
         ]
       }
     },
-    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status": {
+    "/mto-shipments/{shipmentID}/status": {
       "patch": {
         "description": "Updates a shipment's status",
         "consumes": [
@@ -258,14 +258,6 @@ func init() {
         ]
       },
       "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move task order for mto shipment to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        },
         {
           "type": "string",
           "format": "uuid",
@@ -1467,7 +1459,7 @@ func init() {
         ]
       }
     },
-    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status": {
+    "/mto-shipments/{shipmentID}/status": {
       "patch": {
         "description": "Updates a shipment's status",
         "consumes": [
@@ -1554,14 +1546,6 @@ func init() {
         ]
       },
       "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move task order for mto shipment to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        },
         {
           "type": "string",
           "format": "uuid",
