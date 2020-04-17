@@ -67,7 +67,7 @@ paths:
         - contracting_officer
         - ppm_office_users
       summary: Change the status of a move task order to make it available to prime
-  '/support/payment-requests/{paymentRequestID}/status':
+  '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
         - application/json

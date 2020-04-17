@@ -42,7 +42,7 @@ func (o *UpdatePaymentRequestStatusURL) SetBasePath(bp string) {
 func (o *UpdatePaymentRequestStatusURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/support/payment-requests/{paymentRequestID}/status"
+	var _path = "/payment-requests/{paymentRequestID}/status"
 
 	paymentRequestID := o.PaymentRequestID.String()
 	if paymentRequestID != "" {

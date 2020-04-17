@@ -117,7 +117,7 @@ func init() {
         ]
       }
     },
-    "/support/payment-requests/{paymentRequestID}/status": {
+    "/payment-requests/{paymentRequestID}/status": {
       "patch": {
         "description": "Updates status of a payment request by id",
         "consumes": [
@@ -1324,7 +1324,7 @@ func init() {
         ]
       }
     },
-    "/support/payment-requests/{paymentRequestID}/status": {
+    "/payment-requests/{paymentRequestID}/status": {
       "patch": {
         "description": "Updates status of a payment request by id",
         "consumes": [

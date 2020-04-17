@@ -92,7 +92,7 @@ type UpdatePaymentRequestStatusOK struct {
 }
 
 func (o *UpdatePaymentRequestStatusOK) Error() string {
-	return fmt.Sprintf("[PATCH /support/payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusOK  %+v", 200, o.Payload)
 }
 
 func (o *UpdatePaymentRequestStatusOK) GetPayload() *supportmessages.PaymentRequest {
@@ -125,7 +125,7 @@ type UpdatePaymentRequestStatusBadRequest struct {
 }
 
 func (o *UpdatePaymentRequestStatusBadRequest) Error() string {
-	return fmt.Sprintf("[PATCH /support/payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *UpdatePaymentRequestStatusBadRequest) GetPayload() interface{} {
@@ -156,7 +156,7 @@ type UpdatePaymentRequestStatusUnauthorized struct {
 }
 
 func (o *UpdatePaymentRequestStatusUnauthorized) Error() string {
-	return fmt.Sprintf("[PATCH /support/payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnauthorized  %+v", 401, o.Payload)
 }
 
 func (o *UpdatePaymentRequestStatusUnauthorized) GetPayload() interface{} {
@@ -187,7 +187,7 @@ type UpdatePaymentRequestStatusForbidden struct {
 }
 
 func (o *UpdatePaymentRequestStatusForbidden) Error() string {
-	return fmt.Sprintf("[PATCH /support/payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusForbidden  %+v", 403, o.Payload)
 }
 
 func (o *UpdatePaymentRequestStatusForbidden) GetPayload() interface{} {
@@ -218,7 +218,7 @@ type UpdatePaymentRequestStatusNotFound struct {
 }
 
 func (o *UpdatePaymentRequestStatusNotFound) Error() string {
-	return fmt.Sprintf("[PATCH /support/payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusNotFound  %+v", 404, o.Payload)
 }
 
 func (o *UpdatePaymentRequestStatusNotFound) GetPayload() interface{} {
@@ -249,7 +249,7 @@ type UpdatePaymentRequestStatusPreconditionFailed struct {
 }
 
 func (o *UpdatePaymentRequestStatusPreconditionFailed) Error() string {
-	return fmt.Sprintf("[PATCH /support/payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusPreconditionFailed  %+v", 412, o.Payload)
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusPreconditionFailed  %+v", 412, o.Payload)
 }
 
 func (o *UpdatePaymentRequestStatusPreconditionFailed) GetPayload() interface{} {
@@ -280,7 +280,7 @@ type UpdatePaymentRequestStatusUnprocessableEntity struct {
 }
 
 func (o *UpdatePaymentRequestStatusUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[PATCH /support/payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnprocessableEntity  %+v", 422, o.Payload)
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnprocessableEntity  %+v", 422, o.Payload)
 }
 
 func (o *UpdatePaymentRequestStatusUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
@@ -313,7 +313,7 @@ type UpdatePaymentRequestStatusInternalServerError struct {
 }
 
 func (o *UpdatePaymentRequestStatusInternalServerError) Error() string {
-	return fmt.Sprintf("[PATCH /support/payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *UpdatePaymentRequestStatusInternalServerError) GetPayload() interface{} {
