@@ -298,22 +298,27 @@ pkg/gen/: pkg/assets/assets.go $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 
 .PHONY: server_build
-server_build: bin/milmove ## Build the server
+server_build: bin/milmove ## Build the golang server
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
-server_run_standalone: check_log_dir server_build client_build db_dev_run
+.PHONY: server_run_standalone
+server_run_standalone: check_log_dir server_build client_build db_dev_run ## run the golang server without reloading
 	DEBUG_LOGGING=true ./bin/milmove serve 2>&1 | tee -a log/dev.log
 
 # This command will rebuild the swagger go code and rerun server on any changes
-server_run:
+.PHONY: server_run
+server_run: ## run the golang server and rebuild when golang or swagger files change
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
+
 # This command runs the server behind air, a hot-reload server
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/air build/index.html server_generate db_dev_run
-	@air -c .air.toml
+.PHONY: server_run_default
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/air build/index.html server_generate db_dev_run  ## run the golang server and rebuild when golang files change
+	@ulimit -n 20000
+	@air
 
 .PHONY: server_run_debug
-server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## Debug the server
+server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## run the server with debugging available
 	scripts/kill-process-on-port 8080
 	scripts/kill-process-on-port 9443
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
