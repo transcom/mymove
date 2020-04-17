@@ -841,7 +841,7 @@ jobs:
           working_directory: ~/transcom
       - run:
           name: install deps
-          command: pip3 install -r app/requirements.txt
+          command: pip install -r app/requirements.txt
           working_directory: ~/transcom/milmove_admin
       - run:
           name: generate key
