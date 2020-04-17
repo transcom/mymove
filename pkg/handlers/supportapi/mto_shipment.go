@@ -59,7 +59,7 @@ func (h PatchMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.PatchMTO
 
 		switch e := err.(type) {
 		case services.NotFoundError:
-			notFoundPayload := &supportmessages.Error{Message: handlers.FmtString(fmt.Sprintf("MTO Shipment with ID '%s' not found", shipmentID.String()))}
+			notFoundPayload := &supportmessages.Error{Message: handlers.FmtString(fmt.Sprintf("id: '%s' not found", shipmentID.String()))}
 			return mtoshipmentops.NewPatchMTOShipmentStatusNotFound().WithPayload(notFoundPayload)
 		case services.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "UpdateShipmentMTOStatus", h.GetTraceID(), e.ValidationErrors)
