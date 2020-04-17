@@ -1,0 +1,17 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+.container--small {
+  min-height: 115px;
+  min-width: 300px;
+  background-color: $bg-white;
+  padding: 1.6rem;
+  margin: 1.6rem;
+  border-radius: 0.26667rem;
+}
+
+.container__heading {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
