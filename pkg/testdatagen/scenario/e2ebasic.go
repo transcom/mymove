@@ -1086,7 +1086,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 	mto2 := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			ID:                 uuid.FromStringOrNil("0da3f34cc-fb94-4e0b-1c90-ba3333cb7791"),
+			ID:                 uuid.FromStringOrNil("da3f34cc-fb94-4e0b-1c90-ba3333cb7791"),
 			MoveOrderID:        moveOrders6.ID,
 			UpdatedAt:          time.Unix(1576779681256, 0),
 			IsAvailableToPrime: true,
@@ -1146,6 +1146,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("8a625314-1922-4987-93c5-a62c0d13f053"),
+		},
 		MoveTaskOrder: mto2,
 	})
 }
