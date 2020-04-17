@@ -80,7 +80,7 @@ type PatchMTOShipmentStatusOK struct {
 }
 
 func (o *PatchMTOShipmentStatusOK) Error() string {
-	return fmt.Sprintf("[PATCH /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status][%d] patchMTOShipmentStatusOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-shipments/{shipmentID}/status][%d] patchMTOShipmentStatusOK  %+v", 200, o.Payload)
 }
 
 func (o *PatchMTOShipmentStatusOK) GetPayload() *supportmessages.MTOShipment {
@@ -113,7 +113,7 @@ type PatchMTOShipmentStatusNotFound struct {
 }
 
 func (o *PatchMTOShipmentStatusNotFound) Error() string {
-	return fmt.Sprintf("[PATCH /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status][%d] patchMTOShipmentStatusNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-shipments/{shipmentID}/status][%d] patchMTOShipmentStatusNotFound  %+v", 404, o.Payload)
 }
 
 func (o *PatchMTOShipmentStatusNotFound) GetPayload() interface{} {
@@ -144,7 +144,7 @@ type PatchMTOShipmentStatusConflict struct {
 }
 
 func (o *PatchMTOShipmentStatusConflict) Error() string {
-	return fmt.Sprintf("[PATCH /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status][%d] patchMTOShipmentStatusConflict  %+v", 409, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-shipments/{shipmentID}/status][%d] patchMTOShipmentStatusConflict  %+v", 409, o.Payload)
 }
 
 func (o *PatchMTOShipmentStatusConflict) GetPayload() interface{} {
@@ -175,7 +175,7 @@ type PatchMTOShipmentStatusPreconditionFailed struct {
 }
 
 func (o *PatchMTOShipmentStatusPreconditionFailed) Error() string {
-	return fmt.Sprintf("[PATCH /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status][%d] patchMTOShipmentStatusPreconditionFailed  %+v", 412, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-shipments/{shipmentID}/status][%d] patchMTOShipmentStatusPreconditionFailed  %+v", 412, o.Payload)
 }
 
 func (o *PatchMTOShipmentStatusPreconditionFailed) GetPayload() interface{} {
@@ -206,7 +206,7 @@ type PatchMTOShipmentStatusUnprocessableEntity struct {
 }
 
 func (o *PatchMTOShipmentStatusUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[PATCH /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status][%d] patchMTOShipmentStatusUnprocessableEntity  %+v", 422, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-shipments/{shipmentID}/status][%d] patchMTOShipmentStatusUnprocessableEntity  %+v", 422, o.Payload)
 }
 
 func (o *PatchMTOShipmentStatusUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
@@ -239,7 +239,7 @@ type PatchMTOShipmentStatusInternalServerError struct {
 }
 
 func (o *PatchMTOShipmentStatusInternalServerError) Error() string {
-	return fmt.Sprintf("[PATCH /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status][%d] patchMTOShipmentStatusInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-shipments/{shipmentID}/status][%d] patchMTOShipmentStatusInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *PatchMTOShipmentStatusInternalServerError) GetPayload() interface{} {

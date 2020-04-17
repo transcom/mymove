@@ -45,11 +45,6 @@ type PatchMTOShipmentStatusParams struct {
 	  In: body
 	*/
 	Body *supportmessages.PatchMTOShipmentStatusPayload
-	/*ID of move task order for mto shipment to use
-	  Required: true
-	  In: path
-	*/
-	MoveTaskOrderID strfmt.UUID
 	/*ID of the shipment
 	  Required: true
 	  In: path
@@ -92,11 +87,6 @@ func (o *PatchMTOShipmentStatusParams) BindRequest(r *http.Request, route *middl
 	} else {
 		res = append(res, errors.Required("body", "body"))
 	}
-	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
-	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
 	rShipmentID, rhkShipmentID, _ := route.Params.GetOK("shipmentID")
 	if err := o.bindShipmentID(rShipmentID, rhkShipmentID, route.Formats); err != nil {
 		res = append(res, err)
@@ -126,39 +116,6 @@ func (o *PatchMTOShipmentStatusParams) bindIfMatch(rawData []string, hasKey bool
 
 	o.IfMatch = raw
 
-	return nil
-}
-
-// bindMoveTaskOrderID binds and validates parameter MoveTaskOrderID from path.
-func (o *PatchMTOShipmentStatusParams) bindMoveTaskOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: true
-	// Parameter is provided by construction from the route
-
-	// Format: uuid
-	value, err := formats.Parse("uuid", raw)
-	if err != nil {
-		return errors.InvalidType("moveTaskOrderID", "path", "strfmt.UUID", raw)
-	}
-	o.MoveTaskOrderID = *(value.(*strfmt.UUID))
-
-	if err := o.validateMoveTaskOrderID(formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// validateMoveTaskOrderID carries on validations for parameter MoveTaskOrderID
-func (o *PatchMTOShipmentStatusParams) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
-	if err := validate.FormatOf("moveTaskOrderID", "path", "uuid", o.MoveTaskOrderID.String(), formats); err != nil {
-		return err
-	}
 	return nil
 }
 
