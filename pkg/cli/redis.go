@@ -26,13 +26,14 @@ func InitRedisFlags(flag *pflag.FlagSet) {
 
 // CheckRedis validates Redis command line flags
 func CheckRedis(v *viper.Viper) error {
-	if v.GetString(RedisURLFlag) == "redis://localhost" {
+	redisURL := v.GetString(RedisURLFlag)
+	if redisURL == "redis://localhost" || redisURL == "redis://redis" {
 		return nil
 	}
 
 	r, _ := regexp.Compile(`redis://\w+:\w+@\w[-.\w]+:\d`)
 
-	if r.MatchString(RedisURLFlag) == false {
+	if r.MatchString(redisURL) == false {
 		return errors.Errorf("%s must follow the scheme 'redis://username:password@hostname'", RedisURLFlag)
 	}
 
