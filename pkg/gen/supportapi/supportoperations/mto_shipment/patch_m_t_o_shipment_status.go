@@ -29,7 +29,7 @@ func NewPatchMTOShipmentStatus(ctx *middleware.Context, handler PatchMTOShipment
 	return &PatchMTOShipmentStatus{Context: ctx, Handler: handler}
 }
 
-/*PatchMTOShipmentStatus swagger:route PATCH /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status mtoShipment patchMTOShipmentStatus
+/*PatchMTOShipmentStatus swagger:route PATCH /mto-shipments/{shipmentID}/status mtoShipment patchMTOShipmentStatus
 
 Updates a shipment's status
 

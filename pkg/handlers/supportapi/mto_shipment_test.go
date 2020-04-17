@@ -32,15 +32,14 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := mtoshipmentops.PatchMTOShipmentStatusParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
-		Body:            &supportmessages.PatchMTOShipmentStatusPayload{Status: "APPROVED"},
-		IfMatch:         eTag,
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(mtoShipment.ID),
+		Body:        &supportmessages.PatchMTOShipmentStatusPayload{Status: "APPROVED"},
+		IfMatch:     eTag,
 	}
 
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
