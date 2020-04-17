@@ -1,0 +1,28 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+.container-override {
+  background: $base-lightest;
+  padding: 0 1.6rem 1rem 1.6rem;
+}
+
+.header {
+  font-size: 0.87rem;
+  font-weight: bold;
+  color: $base-dark;
+  width: 50%;
+}
+
+.divider {
+  border: 1px solid $base-lighter;
+}
+
+.flex {
+  display: flex;
+}
+
+.date {
+  width: 50%;
+  margin-top: 0;
+}

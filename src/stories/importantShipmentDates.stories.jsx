@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import ImportantShipmentDates from '../components/ImportantShipmentDates';
+import ImportantShipmentDates from '../components/Office/ImportantShipmentDates';
 
 storiesOf('Components|ImportantShipmentDates', module).add('default', () => {
   return (
