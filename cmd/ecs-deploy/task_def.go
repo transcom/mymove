@@ -516,6 +516,9 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// Entrypoint
 	entryPoint := v.GetString(entryPointFlag)
 	entryPointList := strings.Split(entryPoint, " ")
+
+	//entryPointList can be two or three space delimited strings, if it is 3 strings we assume the first two strings are command
+	// todo: refactor to be comma delimited so we dont have to combine strings
 	var commandName, subCommandName string
 	switch len(entryPointList) {
 	case 2:
