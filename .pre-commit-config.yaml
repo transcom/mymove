@@ -26,7 +26,10 @@ repos:
           )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
+      # This hack to the pre-commit hook is so we can capture the .air.conf file
       - id: check-toml
+        files: \.(toml|air\.conf)$
+        types: [file, text]
 
   - repo: git://github.com/golangci/golangci-lint
     rev: v1.23.6
