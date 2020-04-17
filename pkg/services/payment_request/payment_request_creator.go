@@ -212,7 +212,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	err := tx.Eager("ReService").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			errorString := fmt.Sprint("$1 for a Payment Service Item", models.ErrFetchNotFound)
+			errorString := fmt.Sprintf("MTO Service Item: %s", models.ErrFetchNotFound)
 			return models.PaymentServiceItem{}, models.MTOServiceItem{}, verrs, route.NewBadDataFromRequester(errorString)
 		}
 		return *paymentServiceItem, models.MTOServiceItem{}, verrs, fmt.Errorf("could not find MTO MTOServiceItemID [%s]: %w", paymentServiceItem.MTOServiceItemID.String(), err)
@@ -249,7 +249,8 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		err := tx.Find(&serviceItemParamKey, paymentServiceItemParam.ServiceItemParamKeyID)
 		if err != nil {
 			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-				return nil, nil, nil, verrs, models.ErrFetchNotFound
+				errorString := fmt.Sprintf("Service Item Param Key: %s", models.ErrFetchNotFound)
+				return nil, nil, nil, verrs, route.NewBadDataFromRequester(errorString)
 			}
 			return nil, nil, nil, verrs, fmt.Errorf("could not fetch ServiceItemParamKey with ID [%s]: %w", paymentServiceItemParam.ServiceItemParamKeyID, err)
 		}
@@ -263,7 +264,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		err := tx.Where("key = ?", paymentServiceItemParam.IncomingKey).First(&serviceItemParamKey)
 		if err != nil {
 			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-				errorString := fmt.Sprint("$1 for a Service Item Param Key", models.ErrFetchNotFound)
+				errorString := fmt.Sprintf("Service Item Param Key: %s", models.ErrFetchNotFound)
 				return nil, nil, nil, verrs, route.NewBadDataFromRequester(errorString)
 			}
 			return nil, nil, nil, verrs, fmt.Errorf("could not retrieve param key [%s]: %w", paymentServiceItemParam.IncomingKey, err)
