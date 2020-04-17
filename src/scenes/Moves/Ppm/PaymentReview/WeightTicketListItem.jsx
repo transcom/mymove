@@ -64,6 +64,7 @@ class WeightTicketListItem extends Component {
     const { showDeleteConfirmation } = this.state;
     const isInfected = this.areUploadsInfected(uploads);
     const showWeightTicketIcon = weight_ticket_set_type !== 'PRO_GEAR';
+    const showVehicleNickname = weight_ticket_set_type === 'BOX_TRUCK' || 'PRO_GEAR';
     const showMakeModel = weight_ticket_set_type === 'CAR' || 'CAR_TRAILER';
     return (
       <div className="ticket-item" style={{ display: 'flex' }}>
@@ -83,9 +84,11 @@ class WeightTicketListItem extends Component {
             <h4>
               {showMakeModel && (
                 <>
-                  {vehicle_make} {vehicle_model} {vehicle_nickname} {formatToOrdinal(num + 1)} set
+                  {vehicle_make} {vehicle_model}
                 </>
               )}
+              {showVehicleNickname && <>{vehicle_nickname} </>}
+              <>{formatToOrdinal(num + 1)} set</>
             </h4>
             {showDelete && (
               <img
