@@ -101,6 +101,7 @@ services:
       - NO_TLS_ENABLED=1
       - NO_TLS_PORT=4000
       - PGPASSWORD=mysecretpassword
+      - REDIS_URL=redis://redis
       - SERVE_ADMIN=true
       - SERVE_API_GHC=false
       - SERVE_API_INTERNAL=true
