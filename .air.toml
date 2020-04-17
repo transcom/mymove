@@ -7,7 +7,7 @@ tmp_dir = "tmp/air"
 
 [build]
 # Just plain old shell command. You could use `make` as well.
-cmd = "go build -i ./cmd/milmove -o ./bin/milmove_air"
+cmd = "go build -i -o ./bin/milmove_air ./cmd/milmove"
 # Binary file yields from `cmd`.
 bin = "bin/milmove_air"
 # Customize binary.
