@@ -1,6 +1,8 @@
 package supportapi
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -57,7 +59,8 @@ func (h PatchMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.PatchMTO
 
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewPatchMTOShipmentStatusNotFound()
+			notFoundPayload := &supportmessages.Error{Message: handlers.FmtString(fmt.Sprintf("MTO Shipment with ID '%s' not found", shipmentID.String()))}
+			return mtoshipmentops.NewPatchMTOShipmentStatusNotFound().WithPayload(notFoundPayload)
 		case services.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "UpdateShipmentMTOStatus", h.GetTraceID(), e.ValidationErrors)
 			return mtoshipmentops.NewPatchMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
