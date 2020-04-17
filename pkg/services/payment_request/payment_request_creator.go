@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/route"
+
 	"github.com/pkg/errors"
 
 	"github.com/gobuffalo/pop"
@@ -42,6 +44,10 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			return err
 		}
 		if err != nil {
+			var e *route.BadDataFromRequester
+			if errors.As(err, &e) {
+				return err
+			}
 			return fmt.Errorf("failure creating payment request: %w for %s", err, mtoMessageString+prMessageString)
 		}
 		if paymentRequestArg == nil {
@@ -169,7 +175,8 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return nil, verrs, models.ErrFetchNotFound
+			errorString := fmt.Sprintf("MoveTaskOrder with ID [%s]: %s", paymentRequest.MoveTaskOrderID, models.ErrFetchNotFound)
+			return nil, verrs, route.NewBadDataFromRequester(errorString)
 		}
 		return nil, verrs, fmt.Errorf("could not retrieve MoveTaskOrder with ID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
 	}
@@ -205,7 +212,8 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	err := tx.Eager("ReService").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			return models.PaymentServiceItem{}, models.MTOServiceItem{}, verrs, models.ErrFetchNotFound
+			errorString := fmt.Sprint("$1 for a Payment Service Item", models.ErrFetchNotFound)
+			return models.PaymentServiceItem{}, models.MTOServiceItem{}, verrs, route.NewBadDataFromRequester(errorString)
 		}
 		return *paymentServiceItem, models.MTOServiceItem{}, verrs, fmt.Errorf("could not find MTO MTOServiceItemID [%s]: %w", paymentServiceItem.MTOServiceItemID.String(), err)
 	}
@@ -255,7 +263,8 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		err := tx.Where("key = ?", paymentServiceItemParam.IncomingKey).First(&serviceItemParamKey)
 		if err != nil {
 			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-				return nil, nil, nil, verrs, models.ErrFetchNotFound
+				errorString := fmt.Sprint("$1 for a Service Item Param Key", models.ErrFetchNotFound)
+				return nil, nil, nil, verrs, route.NewBadDataFromRequester(errorString)
 			}
 			return nil, nil, nil, verrs, fmt.Errorf("could not retrieve param key [%s]: %w", paymentServiceItemParam.IncomingKey, err)
 		}

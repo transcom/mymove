@@ -10,6 +10,8 @@ import (
 type ErrorCode string
 
 const (
+	// BadDataFromRequesterCode catches errors that are due to bad data being sent, specifically not a server side error
+	BadDataFromRequesterCode ErrorCode = "BAD_DATA_FROM_REQUESTER"
 	// UnsupportedPostalCode happens when we can't map a ZIP5 to a set of Lat/Long
 	UnsupportedPostalCode ErrorCode = "UNSUPPORTED_POSTAL_CODE"
 	// UnroutableRoute happens when a valid route can't be calculated between two locations
@@ -40,6 +42,24 @@ type baseError struct {
 // Code returns the error code enum
 func (b *baseError) Code() ErrorCode {
 	return b.code
+}
+
+// BadDataFromRequester is the custom error type (exported for type checking)
+type BadDataFromRequester struct {
+	baseError
+	badDataMsg string
+}
+
+// NewBadDataFromRequester creates a new BadDataFromRequester error
+func NewBadDataFromRequester(badDataMsg string) Error {
+	return &BadDataFromRequester{
+		baseError{BadDataFromRequesterCode},
+		badDataMsg,
+	}
+}
+
+func (b *BadDataFromRequester) Error() string {
+	return fmt.Sprintf("Data received from requester is bad: %s", b.badDataMsg)
 }
 
 type unsupportedPostalCode struct {
