@@ -271,6 +271,18 @@ storiesOf('Components|Tables', module)
       <br />
       <hr />
       <h3>Service item table with images and buttons</h3>
-      <ServiceItemTableHasImg />
+      <ServiceItemTableHasImg
+        requestedServiceItems={[
+          {
+            dateRequested: '20 Nov 2020',
+            serviceItem: 'Domestic Crating',
+            code: 'DCRT',
+            details: {
+              text: 'grandfather clock 7ft x 2ft x 3.5ft',
+              imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
+            },
+          },
+        ]}
+      />
     </div>
   ));
