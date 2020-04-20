@@ -45,6 +45,7 @@ These scripts are used to operate the system.
 | `deploy-app` | Deploy the app |
 | `deploy-app-client-tls` | Deploy the app client-tls |
 | `deploy-app-migrations` | Deploy the app migrations |
+| `deploy-app-engadmin-migrations` | Deploy the app eng admin migrations |
 | `deploy-app-tasks` | Deploy the app tasks |
 | `download-alb-logs` | Download alb logs for the given environment and dates to a local folder |
 | `dupe-secrets` | Dupes experimental secrets to target params |

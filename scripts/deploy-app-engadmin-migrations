@@ -1,0 +1,29 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Deploy the appengadmin migrations
+#
+
+usage() {
+  echo "$0 <environment>"
+  exit 1
+}
+
+readonly environment="${1:-engadmin-experimental}"
+
+[[ -z "${environment}" ]] && usage
+
+if [ -z "${AWS_ACCOUNT_ID}" ]; then
+  echo "AWS_ACCOUNT_ID not found!"
+  echo "Please add 'AWS_ACCOUNT_ID' to your .envrc.local"
+  exit 1
+fi
+
+APP_ENVIRONMENT="${environment}"
+AWS_DEFAULT_REGION=us-west-2
+CIRCLE_SHA1="dfc873b737939be48245920b12e799d040f4e3b8" #use a static commit until engadmin is deployed
+
+readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-engadmin-migrations:git-${CIRCLE_SHA1}"
+scripts/ecs-run-app-engadmin-migrations-container "${image}" "${APP_ENVIRONMENT}"
