@@ -814,6 +814,9 @@ definitions:
       actualPickupDate:
         format: date
         type: string
+      requiredDeliveryDate:
+        format: date
+        type: string
       agents:
         $ref: '#/definitions/MTOAgents'
       customerRemarks:

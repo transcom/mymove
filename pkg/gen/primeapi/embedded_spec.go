@@ -1304,6 +1304,10 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "requiredDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
         "scheduledPickupDate": {
           "type": "string",
           "format": "date"
@@ -3099,6 +3103,10 @@ func init() {
           "format": "date"
         },
         "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requiredDeliveryDate": {
           "type": "string",
           "format": "date"
         },
