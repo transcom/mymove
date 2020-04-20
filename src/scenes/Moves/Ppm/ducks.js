@@ -1,14 +1,12 @@
-import { get, every, isNull, isNumber, isEmpty } from 'lodash';
-import { CreatePpm, UpdatePpm, GetPpm, GetPpmWeightEstimate, GetPpmSitEstimate, RequestPayment } from './api.js';
+import { get, every, isNumber } from 'lodash';
+import { GetPpm, GetPpmWeightEstimate, GetPpmSitEstimate, RequestPayment } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive, fetchActivePPM } from 'shared/utils';
-import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
 import { change } from 'redux-form';
 
 // Types
-export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
 export const SET_PENDING_PPM_WEIGHT = 'SET_PENDING_PPM_WEIGHT';
 const CLEAR_SIT_ESTIMATE = 'CLEAR_SIT_ESTIMATE';
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
@@ -17,14 +15,6 @@ export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_PPM_E
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_SIT_ESTIMATE');
 
 // Action creation
-export function setPendingPpmSize(value) {
-  return { type: SET_PENDING_PPM_SIZE, payload: value };
-}
-
-export function setPendingPpmWeight(value) {
-  return { type: SET_PENDING_PPM_WEIGHT, payload: value };
-}
-
 export function getPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
   return function (dispatch, getState) {
@@ -51,24 +41,6 @@ export function getPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightE
 
 export function clearPpmSitEstimate() {
   return { type: CLEAR_SIT_ESTIMATE };
-}
-
-export function createOrUpdatePpm(moveId, ppm) {
-  const action = ReduxHelpers.generateAsyncActions('CREATE_OR_UPDATE_PPM');
-  return function (dispatch, getState) {
-    dispatch(action.start());
-    const state = getState();
-    const currentPpm = state.ppm.currentPpm;
-    if (currentPpm) {
-      return UpdatePpm(moveId, currentPpm.id, ppm)
-        .then((item) => dispatch(action.success(item)))
-        .catch((error) => dispatch(action.error(error)));
-    } else {
-      return CreatePpm(moveId, ppm)
-        .then((item) => dispatch(action.success(item)))
-        .catch((error) => dispatch(action.error(error)));
-    }
-  };
 }
 
 export function setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode) {
@@ -122,20 +94,6 @@ export function submitExpenseDocs(state) {
 }
 
 // Selectors
-export function getRawWeightInfo(state) {
-  const entitlement = loadEntitlementsFromState(state);
-  if (isEmpty(entitlement)) {
-    return null;
-  }
-
-  return {
-    defaultSize: {
-      min: 1500,
-      max: entitlement.sum,
-    },
-  };
-}
-
 export function getMaxAdvance(state) {
   const maxIncentive = get(state, 'ppm.incentive_estimate_max');
   // we are using 20000000 since it is the largest number MacRae found that could be stored in table
@@ -143,20 +101,38 @@ export function getMaxAdvance(state) {
   return maxIncentive ? 0.6 * maxIncentive : 20000000;
 }
 
-export function getSelectedWeightInfo(state) {
-  const weightInfo = getRawWeightInfo(state);
-  const ppm = get(state, 'ppm.currentPpm', null);
-  if (isNull(weightInfo) || isNull(ppm)) {
-    return null;
-  }
-  return weightInfo.defaultSize; // eslint-disable-line security/detect-object-injection
-}
-
 export function getPPM(state) {
   const move = state.moves.currentMove || state.moves.latestMove || {};
   const moveId = move.id;
   const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
-  return ppmFromEntities || state.ppm.currentPpm || {};
+  const tempPPM = state.ppm.currentPpm;
+
+  // temp fix while redux refactor is in progress when statuses aren't updated on ppms from both places
+  const ppmStates = ['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'CANCELED'];
+
+  if (ppmFromEntities && tempPPM) {
+    const entitiesPPMStatus = ppmFromEntities.status;
+    const tempPPMStatus = tempPPM.status;
+    const indexOfEntitiesPPMStatus = ppmStates.indexOf(entitiesPPMStatus);
+    const indexOfTempPPMStatus = ppmStates.indexOf(tempPPMStatus);
+
+    if (entitiesPPMStatus === 'CANCELED') {
+      return ppmFromEntities;
+    } else if (tempPPMStatus === 'CANCELED') {
+      return tempPPM;
+    }
+
+    if (indexOfEntitiesPPMStatus > indexOfTempPPMStatus) {
+      return ppmFromEntities;
+    }
+    if (indexOfEntitiesPPMStatus < indexOfTempPPMStatus) {
+      return tempPPM;
+    }
+    return ppmFromEntities;
+  } else if (tempPPM) {
+    return tempPPM;
+  }
+  return {};
 }
 
 // Reducer

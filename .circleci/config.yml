@@ -14,9 +14,14 @@ version: '2.1'
 # References for variables shared across the file
 references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ce60239ffca056a033af6330daf922a5a9635066
-  postgres: &postgres postgres:10.12
+  postgres: &postgres postgres:11.7
 
 executors:
+  av_medium:
+    resource_class: medium
+    working_directory: /root/project
+    docker:
+      - image: mk0x/docker-clamav:alpine
   # `mymove_small` and `mymove_medium` use the `milmove/milmove-app` docker image with a checkout of the mymove code
   mymove_small:
     resource_class: small
@@ -391,23 +396,30 @@ jobs:
 
   # `anti_virus` uses virus detection software to scan the source code
   anti_virus:
-    executor: mymove_medium
+    executor: av_medium
     steps:
+      - run: apk update && apk add --no-cache git openssh
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
+      - run: clamscan --version
+      - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /store
       - run:
-          name: make anti_virus
-          command: make anti_virus
-          environment:
-            AV_DIR: /home/circleci/transcom/mymove
-            # WARNING: IGNORE FILES AT OUR PERIL. IF ADDING HERE ADD NOTES!
-            # - pkg/testdatagen/testdata/orders.pdf is a file used exclusively for testing
-            AV_IGNORE_FILES: pkg/testdatagen/testdata/orders.pdf
-            # WARNING: IGNORE SIGNATURES AT OUR PERIL. IF ADDING HERE ADD NOTES!
-            # - PUA.Pdf.Trojan.EmbeddedJavaScript-1 is ignored because we don't ship PDFs in any docker containers
-            # - orders.pdf.UNOFFICIAL is a finding based on the ignored file above of the same name
-            AV_IGNORE_SIGS: "PUA.Pdf.Trojan.EmbeddedJavaScript-1 orders.pdf.UNOFFICIAL"
+          name: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store
+          command: for i in $(seq 1 5); do freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store && s=0 && break || s=$? && sleep 5; done; (exit $s)
+      - run: >
+          clamscan \
+            --recursive \
+            --infected \
+            --detect-pua=yes \
+            --exclude-pua=NetTool \
+            --exclude-pua=PWTool \
+            --max-scansize=300M \
+            --max-filesize=100M \
+            --max-recursion=30 \
+            --max-files=50000 \
+            --tempdir=/tmp \
+            --database=/store \
+            /root/project \
+            /store
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
@@ -443,12 +455,9 @@ jobs:
             mkdir -p tmp/test-results/pretest
             pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
       # adding danger checks here as they are similar to our pre-commit hooks
-      # TODO: This step is commented out until we have a GITHUB TOKEN See https://dp3.atlassian.net/browse/MB-2059
-      # - run:
-      #     name: Run DangerJS checks
-      #     command: yarn danger ci --failOnErrors
-      #     environment:
-      #       DANGER_GITHUB_API_TOKEN: 1
+      - run:
+          name: Run DangerJS checks
+          command: yarn danger ci --failOnErrors
       # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
