@@ -49,8 +49,17 @@ func CheckRedis(v *viper.Viper) error {
 		return err
 	}
 
-	if err := ValidateRedisHost(v, RedisHostFlag); err != nil {
-		return err
+	environment := v.GetString(EnvironmentFlag)
+	if environment == EnvironmentProd {
+		if err := ValidateRedisHostInProd(v, RedisHostFlag); err != nil {
+			return err
+		}
+	}
+
+	if environment == EnvironmentTest {
+		if err := ValidateRedisHostInTest(v, RedisHostFlag); err != nil {
+			return err
+		}
 	}
 
 	if err := ValidateRedisConnectTimeout(v, RedisConnectTimeoutFlag); err != nil {
@@ -96,22 +105,21 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	return pool, nil
 }
 
-// ValidateRedisHost validates a Redis hostname passed in from the command line
-func ValidateRedisHost(v *viper.Viper, flagname string) error {
+// ValidateRedisHostInProd validates the REDIS_HOST environment variable in prd
+func ValidateRedisHostInProd(v *viper.Viper, flagname string) error {
 	r := regexp.MustCompile(`([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}`)
-	host := v.GetString(flagname)
-	environment := v.GetString(EnvironmentFlag)
 
-	if environment == EnvironmentDevelopment && host == "localhost" {
-		return nil
-	}
-
-	if environment == EnvironmentTest && host != "redis" {
-		return errors.New("REDIS_HOST must be 'redis' in the test environment")
-	}
-
-	if r.MatchString(host) == false {
+	if host := v.GetString(flagname); r.MatchString(host) == false {
 		return errors.Errorf("%s can only contain letters, numbers, periods, and dashes", flagname)
+	}
+
+	return nil
+}
+
+// ValidateRedisHostInTest validates the REDIS_HOST environment variable in test
+func ValidateRedisHostInTest(v *viper.Viper, flagname string) error {
+	if host := v.GetString(flagname); host != "redis" {
+		return errors.New("REDIS_HOST must be 'redis' in the test environment")
 	}
 
 	return nil
