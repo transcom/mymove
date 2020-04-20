@@ -1,12 +1,24 @@
+# Key must be PEM encoded PKCS1 https://tools.ietf.org/html/rfc7468#section-2
 export LOGIN_GOV_SECRET_KEY=replace
+# certificate PEM block https://tools.ietf.org/html/rfc7468#section-2
 export MOVE_MIL_DOD_TLS_CERT=replace
+# certificate PEM block https://tools.ietf.org/html/rfc7468#section-2
 export MOVE_MIL_DOD_TLS_KEY=replace
-export HERE_MAPS_APP_ID=replace
-export HERE_MAPS_APP_CODE=replace
-export GEX_BASIC_AUTH_PASSWORD=replace
-export DPS_AUTH_SECRET_KEY=replace
+# any string length 32
 export DPS_AUTH_COOKIE_SECRET_KEY=replace
+# any string length 64
 export CSRF_AUTH_KEY=replace
+# any string of any length
+export HERE_MAPS_APP_ID=replace
+# any string of any length
+export HERE_MAPS_APP_CODE=replace
+# any string of any length
+export GEX_BASIC_AUTH_PASSWORD=replace
+# any string of any length
+export DPS_AUTH_SECRET_KEY=replace
+# any string of any length
 export EIA_KEY=replace
+# any string of any length
 export CLOUD_FRONT_PRIVATE_KEY=replace
+# any string of any length
 export CLOUD_FRONT_KEY_ID=replace
