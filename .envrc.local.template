@@ -5,20 +5,20 @@ export MOVE_MIL_DOD_TLS_CERT=replace
 # certificate PEM block https://tools.ietf.org/html/rfc7468#section-2
 export MOVE_MIL_DOD_TLS_KEY=replace
 # any string length 32
-export DPS_AUTH_COOKIE_SECRET_KEY=replace
+export DPS_AUTH_COOKIE_SECRET_KEY=thisisakeywithalengthof32charsss
 # any string length 64
-export CSRF_AUTH_KEY=replace
+export CSRF_AUTH_KEY=thisisakeywithalengthof64charsssthisisakeywithalengthof64charsss
 # any string of any length
-export HERE_MAPS_APP_ID=replace
+export HERE_MAPS_APP_ID=placeholder
 # any string of any length
-export HERE_MAPS_APP_CODE=replace
+export HERE_MAPS_APP_CODE=placeholder
 # any string of any length
-export GEX_BASIC_AUTH_PASSWORD=replace
+export GEX_BASIC_AUTH_PASSWORD=placeholder
 # any string of any length
-export DPS_AUTH_SECRET_KEY=replace
+export DPS_AUTH_SECRET_KEY=placeholder
 # any string of any length
-export EIA_KEY=replace
+export EIA_KEY=placeholder
 # any string of any length
-export CLOUD_FRONT_PRIVATE_KEY=replace
+export CLOUD_FRONT_PRIVATE_KEY=placeholder
 # any string of any length
-export CLOUD_FRONT_KEY_ID=replace
+export CLOUD_FRONT_KEY_ID=placeholder
