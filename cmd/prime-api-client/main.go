@@ -93,6 +93,26 @@ func main() {
 	initCreateMTOServiceItemFlags(createMTOServiceItemCommand.Flags())
 	root.AddCommand(createMTOServiceItemCommand)
 
+	makeAvailableToPrimeCommand := &cobra.Command{
+		Use:          "support-make-mto-available-to-prime",
+		Short:        "Make mto available to prime",
+		Long:         "Makes an mto available to the prime for prime-api consumption",
+		RunE:         updateMTOStatus,
+		SilenceUsage: true,
+	}
+	initUpdateMTOStatusFlags(makeAvailableToPrimeCommand.Flags())
+	root.AddCommand(makeAvailableToPrimeCommand)
+
+	createPaymentRequestCommand := &cobra.Command{
+		Use:          "create-payment-request",
+		Short:        "Create payment request",
+		Long:         "Create payment request for a move task order",
+		RunE:         createPaymentRequest,
+		SilenceUsage: true,
+	}
+	initCreatePaymentRequestFlags(createPaymentRequestCommand.Flags())
+	root.AddCommand(createPaymentRequestCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
