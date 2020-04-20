@@ -36,14 +36,12 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	// mock dates
 	scheduledPickupDate := time.Date(TestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
 	requestedPickupDate := time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
-	requiredDeliveryDate := time.Date(TestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
 
 	MTOShipment := models.MTOShipment{
 		MoveTaskOrder:            moveTaskOrder,
 		MoveTaskOrderID:          moveTaskOrder.ID,
 		ScheduledPickupDate:      &scheduledPickupDate,
 		RequestedPickupDate:      &requestedPickupDate,
-		RequiredDeliveryDate:     &requiredDeliveryDate,
 		CustomerRemarks:          &remarks,
 		PickupAddress:            &pickupAddress,
 		PickupAddressID:          &pickupAddress.ID,
@@ -60,6 +58,11 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
 		approvedDate := time.Date(TestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
 		MTOShipment.ApprovedDate = &approvedDate
+	}
+
+	if assertions.MTOShipment.Status == models.MTOShipmentStatusRejected {
+		requiredDeliveryDate := time.Date(TestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
+		MTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
 	// Overwrite values with those from assertions
