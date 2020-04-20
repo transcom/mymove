@@ -116,14 +116,13 @@ func (e *errInvalidFile) Error() string {
 }
 
 const (
-	serviceFlag         string = "service"
-	imageURIFlag        string = "image"
-	sidecarImageURIFlag string = "sidecar-image"
-	variablesFileFlag   string = "variables-file"
-	entryPointFlag      string = "entrypoint"
-	cpuFlag             string = "cpu"
-	memFlag             string = "memory"
-	registerFlag        string = "register"
+	serviceFlag       string = "service"
+	imageURIFlag      string = "image"
+	variablesFileFlag string = "variables-file"
+	entryPointFlag    string = "entrypoint"
+	cpuFlag           string = "cpu"
+	memFlag           string = "memory"
+	registerFlag      string = "register"
 )
 
 // ECRImage represents an ECR Image tag broken into its constituent parts
@@ -227,8 +226,7 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	// Task Definition Settings
 	flag.String(serviceFlag, "app", fmt.Sprintf("The service name (choose %q)", services))
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
-	flag.String(imageURIFlag, "", "The URI of the container image to use in the task definition")
-	flag.String(sidecarImageURIFlag, "", "The URI of the sidecar container image to use in the task definition")
+	flag.String(imageURIFlag, "", "The URI of the container(s) image(s) to use in the task definition")
 	flag.String(variablesFileFlag, "", "A file containing variables for the task definiton")
 	flag.String(entryPointFlag, fmt.Sprintf("%s serve", binMilMove), "The entryPoint for the container")
 	flag.Int(cpuFlag, int(512), "The CPU reservation")
@@ -492,8 +490,9 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	awsRegion := v.GetString(cli.AWSRegionFlag)
 	environmentName := v.GetString(environmentFlag)
 	serviceName := v.GetString(serviceFlag)
-	imageURI := v.GetString(imageURIFlag)
-	sidecarImageURI := v.GetString(sidecarImageURIFlag)
+	// image uri flag can hold one or more comma separated images, assume first image is the main image
+	imageURIs := v.GetString(imageURIFlag)
+	imageList := strings.Split(imageURIs, ",")
 	variablesFile := v.GetString(variablesFileFlag)
 
 	// Short service name needed for RDS, CloudWatch Logs, and SSM
@@ -503,9 +502,9 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	ssmNameSpace := serviceNameShort
 
 	// Confirm the image exists
-	ecrImage, errECRImage := NewECRImage(imageURI)
+	ecrImage, errECRImage := NewECRImage(imageList[0])
 	if errECRImage != nil {
-		quit(logger, nil, fmt.Errorf("unable to recognize image URI %q: %w", imageURI, errECRImage))
+		quit(logger, nil, fmt.Errorf("unable to recognize image URI %q: %w", imageList[0], errECRImage))
 	}
 
 	errValidateImage := ecrImage.Validate(serviceECR)
@@ -609,7 +608,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	cpu := strconv.Itoa(v.GetInt(cpuFlag))
 	mem := strconv.Itoa(v.GetInt(memFlag))
 
-	newTaskDefInput := generateTaskDefinition(containerDefName, ecrImage, entryPointList, serviceSSM, awsRegion, awsAccountID, ssmNameSpace, environmentName, dbHost, variablesFile, awsLogsGroup, awsLogsStreamPrefix, portMappings, cpu, executionRoleArn, family, mem, taskRoleArn, sidecarImageURI, logger)
+	newTaskDefInput := generateTaskDefinition(containerDefName, ecrImage, entryPointList, serviceSSM, awsRegion, awsAccountID, ssmNameSpace, environmentName, dbHost, variablesFile, awsLogsGroup, awsLogsStreamPrefix, portMappings, cpu, executionRoleArn, family, mem, taskRoleArn, imageList, logger)
 
 	// Registration is never allowed by default and requires a flag
 	if v.GetBool(dryRunFlag) {
@@ -635,22 +634,53 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func generateTaskDefinition(containerDefName string, ecrImage *ECRImage, entryPointList []string, serviceSSM *ssm.SSM, awsRegion string, awsAccountID string, nameSpaceSSMPath string, environmentName string, dbHost string, variablesFile string, awsLogsGroup string, awsLogsStreamPrefix string, portMappings []*ecs.PortMapping, cpu string, executionRoleArn string, family string, mem string, taskRoleArn string, sidecarImageURI string, logger *log.Logger) ecs.RegisterTaskDefinitionInput {
-	var sideCarLink []*string
-	sideCarContainerName := fmt.Sprintf("%s-sidecar", containerDefName)
+func generateTaskDefinition(containerDefName string, ecrImage *ECRImage, entryPointList []string, serviceSSM *ssm.SSM, awsRegion string, awsAccountID string, nameSpaceSSMPath string, environmentName string, dbHost string, variablesFile string, awsLogsGroup string, awsLogsStreamPrefix string, portMappings []*ecs.PortMapping, cpu string, executionRoleArn string, family string, mem string, taskRoleArn string, imageList []string, logger *log.Logger) ecs.RegisterTaskDefinitionInput {
+	var secondaryContainerLinks []*string
+	//default networking mode if only a single container needs to be run
 	networkMode := "awsvpc"
 
-	//create port mapping for containers
-	sideCarPort := portMappings
-	containerPort := portMappings
+	var secondaryContainerList []*ecs.ContainerDefinition
 
-	//if side car container exists create a link and set container port to nil because sidecar should be primary
-	if len(sidecarImageURI) > 0 {
-		sideCarLink = append(sideCarLink, &sideCarContainerName)
-		containerPort = nil
+	//if more than one image exists, change network mode and generate secondary container list
+	if len(imageList) > 1 {
+		//loop over all containers uris
+		for iterator := 1; iterator <= len(imageList); iterator++ { //SKIP 0th container as it is considered primary
+			// create links for secondary containers
+			secondaryContainerName := fmt.Sprintf("%d-%s-secondary", iterator, containerDefName)
+			secondaryContainerLinks = append(secondaryContainerLinks, &secondaryContainerName)
+
+			//generate secondary container definitions
+			ecrSecondaryContainerImage, errSECRImage := NewECRImage(imageList[iterator])
+			if errSECRImage != nil {
+				quit(logger, nil, fmt.Errorf("unable to recognize secondary image URI %q: %w", imageList[iterator], errSECRImage))
+			}
+			secondaryContainer := ecs.ContainerDefinition{
+				Name:        aws.String(secondaryContainerName),
+				Image:       aws.String(ecrSecondaryContainerImage.ImageURI),
+				Essential:   aws.Bool(true),
+				EntryPoint:  aws.StringSlice(entryPointList),
+				Command:     []*string{},
+				Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, nameSpaceSSMPath, environmentName),
+				Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
+				LogConfiguration: &ecs.LogConfiguration{
+					LogDriver: aws.String("awslogs"),
+					Options: map[string]*string{
+						"awslogs-group":         aws.String(awsLogsGroup),
+						"awslogs-region":        aws.String(awsRegion),
+						"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
+					},
+				},
+				ReadonlyRootFilesystem: aws.Bool(true),
+				Links:                  []*string{&containerDefName},
+			}
+			secondaryContainerList = append(secondaryContainerList, &secondaryContainer)
+		}
+
+		//change networking to bridged for multi container env
 		networkMode = "bridge"
 	}
 
+	// primary container which should deal with incoming traffic nad requires port mapping
 	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
@@ -669,9 +699,9 @@ func generateTaskDefinition(containerDefName string, ecrImage *ECRImage, entryPo
 						"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
 					},
 				},
-				PortMappings:           containerPort,
+				PortMappings:           portMappings,
 				ReadonlyRootFilesystem: aws.Bool(true),
-				Links:                  sideCarLink,
+				Links:                  secondaryContainerLinks,
 			},
 		},
 		Cpu:                     aws.String(cpu),
@@ -683,33 +713,7 @@ func generateTaskDefinition(containerDefName string, ecrImage *ECRImage, entryPo
 		TaskRoleArn:             aws.String(taskRoleArn),
 	}
 
-	//if sidecar container is present then add it to container definition
-	if len(sidecarImageURI) > 0 {
-		ecrSidecarImage, errSECRImage := NewECRImage(sidecarImageURI)
-		if errSECRImage != nil {
-			quit(logger, nil, fmt.Errorf("unable to recognize sidecar image URI %q: %w", sidecarImageURI, errSECRImage))
-		}
-		sideCarContainer := ecs.ContainerDefinition{
-			Name:        aws.String(sideCarContainerName),
-			Image:       aws.String(ecrSidecarImage.ImageURI),
-			Essential:   aws.Bool(true),
-			EntryPoint:  aws.StringSlice(entryPointList),
-			Command:     []*string{},
-			Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, nameSpaceSSMPath, environmentName),
-			Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
-			LogConfiguration: &ecs.LogConfiguration{
-				LogDriver: aws.String("awslogs"),
-				Options: map[string]*string{
-					"awslogs-group":         aws.String(awsLogsGroup),
-					"awslogs-region":        aws.String(awsRegion),
-					"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
-				},
-			},
-			PortMappings:           sideCarPort,
-			ReadonlyRootFilesystem: aws.Bool(true),
-			Links:                  []*string{&containerDefName},
-		}
-		newTaskDefInput.ContainerDefinitions = append(newTaskDefInput.ContainerDefinitions, &sideCarContainer)
-	}
+	// append any secondary containers to task definition
+	newTaskDefInput.ContainerDefinitions = append(newTaskDefInput.ContainerDefinitions, secondaryContainerList...)
 	return newTaskDefInput
 }

@@ -20,9 +20,8 @@ set -u
 
 # name also describes the service
 readonly name=$1
-readonly primaryImage=$2
-readonly sidecarImage=$3
-readonly environment=$4
+readonly images=$2
+readonly environment=$3
 
 readonly RESERVATION_CPU=512
 readonly RESERVATION_MEM=2048
@@ -85,8 +84,7 @@ green_task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --aws-region us-west-2 \
   --service "${name}" \
   --environment "${environment}" \
-  --image "${primaryImage}" \
-  --sidecar-image "${sidecarImage}" \
+  --image "${images}" \
   --variables-file "${DIR}/../config/env/${environment}.${name}.env" \
   --entrypoint "milmove_admin.wsgi:application --name milmove_admin --bind 0.0.0.0:8000 --workers 3 --log-level info --error-logfile ''-' --access-logfile '-'" \
   --cpu "${RESERVATION_CPU}" \
