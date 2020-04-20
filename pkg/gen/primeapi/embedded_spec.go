@@ -1175,6 +1175,7 @@ func init() {
               "type": "string",
               "enum": [
                 "DCRT",
+                "DCRTSA",
                 "DUCRT"
               ]
             }
@@ -1554,6 +1555,7 @@ func init() {
         "DBHF",
         "DBTF",
         "DCRT",
+        "DCRTSA",
         "DDASIT",
         "DDDSIT",
         "DDFSIT",
@@ -1577,6 +1579,7 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
+        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",
@@ -2973,6 +2976,7 @@ func init() {
               "type": "string",
               "enum": [
                 "DCRT",
+                "DCRTSA",
                 "DUCRT"
               ]
             }
@@ -3352,6 +3356,7 @@ func init() {
         "DBHF",
         "DBTF",
         "DCRT",
+        "DCRTSA",
         "DDASIT",
         "DDDSIT",
         "DDFSIT",
@@ -3375,6 +3380,7 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
+        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",
