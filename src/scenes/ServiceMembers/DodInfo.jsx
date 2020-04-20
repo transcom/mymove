@@ -84,13 +84,13 @@ const validateDodForm = (values, form) => {
 
   if (hasSSN) {
     if (ssnPresent && !validSSN) {
-      errors.social_security_number = 'SSN must have 9 digits.';
+      errors.social_security_number = 'SSN must have 9 digits';
     }
   } else {
     if (!ssnPresent) {
       errors.social_security_number = 'Required';
     } else if (!validSSN) {
-      errors.social_security_number = 'SSN must have 9 digits.';
+      errors.social_security_number = 'SSN must have 9 digits';
     }
   }
 
