@@ -1,3 +1,5 @@
+LOCK TABLE uploads, contractor, proof_of_service_docs, invoices IN SHARE MODE;
+
 create type upload_type as enum (
     'PRIME',
     'USER'
