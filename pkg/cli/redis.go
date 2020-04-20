@@ -45,6 +45,8 @@ func InitRedisFlags(flag *pflag.FlagSet) {
 
 // CheckRedis validates Redis command line flags
 func CheckRedis(v *viper.Viper) error {
+	host := v.GetString(RedisHostFlag)
+	fmt.Println("Redis host is:", host)
 	if err := ValidatePort(v, RedisPortFlag); err != nil {
 		return err
 	}
@@ -56,11 +58,11 @@ func CheckRedis(v *viper.Viper) error {
 		}
 	}
 
-	if environment == EnvironmentTest {
-		if err := ValidateRedisHostInTest(v, RedisHostFlag); err != nil {
-			return err
-		}
-	}
+	// if environment == EnvironmentTest {
+	// 	if err := ValidateRedisHostInTest(v, RedisHostFlag); err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	if err := ValidateRedisConnectTimeout(v, RedisConnectTimeoutFlag); err != nil {
 		return err
