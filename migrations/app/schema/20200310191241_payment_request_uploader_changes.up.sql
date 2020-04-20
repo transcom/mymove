@@ -66,8 +66,8 @@ create table prime_uploads
         primary key,
     proof_of_service_docs_id uuid
         constraint prime_uploads_proof_of_service_docs_id_fkey
-            references proof_of_service_docs,
-    contractor_id uuid constraint prime_uploads_contractor_id_fkey references contractors,
+            references proof_of_service_docs not null,
+    contractor_id uuid not null constraint prime_uploads_contractor_id_fkey references contractors,
     upload_id uuid not null constraint prime_uploads_uploads_id_fkey references uploads on delete restrict,
     created_at timestamp not null,
     updated_at timestamp not null,

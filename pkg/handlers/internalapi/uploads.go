@@ -100,7 +100,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		logger.Error("failed to get presigned url", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
-	uploadPayload := payloadForUploadModel(h.FileStorer(), *newUserUpload.Upload, url)
+	uploadPayload := payloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
 	return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload)
 }
 

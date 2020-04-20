@@ -16,7 +16,7 @@ import (
 func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
 	uploads := make([]*internalmessages.UploadPayload, len(document.UserUploads))
 	for i, userUpload := range document.UserUploads {
-		if userUpload.Upload == nil {
+		if userUpload.Upload.ID == uuid.Nil {
 			return nil, errors.New("No uploads for user")
 		}
 		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType)
@@ -24,7 +24,7 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 			return nil, err
 		}
 
-		uploadPayload := payloadForUploadModel(storer, *userUpload.Upload, url)
+		uploadPayload := payloadForUploadModel(storer, userUpload.Upload, url)
 		uploads[i] = uploadPayload
 	}
 

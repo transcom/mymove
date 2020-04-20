@@ -35,7 +35,7 @@ func (suite *ModelSuite) Test_PrimeUploadCreate() {
 	primeUpload := models.PrimeUpload{
 		ProofOfServiceDocID: posDoc.ID,
 		ContractorID:        contractor.ID,
-		Upload:              &upload,
+		Upload:              upload,
 	}
 
 	verrs, err = suite.DB().ValidateAndSave(&primeUpload)
@@ -77,7 +77,7 @@ func (suite *ModelSuite) Test_PrimeUploadCreateWithID() {
 		ID:                  id,
 		ProofOfServiceDocID: posDoc.ID,
 		ContractorID:        contractor.ID,
-		Upload:              &upload,
+		Upload:              upload,
 	}
 
 	verrs, err = suite.DB().ValidateAndSave(&primeUpload)
@@ -116,7 +116,7 @@ func (suite *ModelSuite) TestFetchPrimeUploadWithNoUpload() {
 	}
 
 	_, err := suite.DB().ValidateAndSave(&primeUpload)
-	suite.Equal("pq: null value in column \"upload_id\" violates not-null constraint", err.Error(), "expected primeupload error")
+	suite.Equal("pq: insert or update on table \"prime_uploads\" violates foreign key constraint \"prime_uploads_uploads_id_fkey\"", err.Error(), "expected primeupload error")
 
 }
 
@@ -146,7 +146,7 @@ func (suite *ModelSuite) TestFetchPrimeUpload() {
 	primeUpload := models.PrimeUpload{
 		ProofOfServiceDocID: posDoc.ID,
 		ContractorID:        contractor.ID,
-		Upload:              &upload,
+		Upload:              upload,
 	}
 
 	verrs, err = suite.DB().ValidateAndSave(&primeUpload)
@@ -161,7 +161,7 @@ func (suite *ModelSuite) TestFetchPrimeUpload() {
 	primeUp, _ := models.FetchPrimeUpload(ctx, suite.DB(), contractor.ID, primeUpload.ID)
 	suite.Equal(primeUp.ID, primeUpload.ID)
 	suite.Equal(upload.ID, primeUpload.Upload.ID)
-	suite.Equal(upload.ID, *primeUpload.UploadID)
+	suite.Equal(upload.ID, primeUpload.UploadID)
 }
 
 func (suite *ModelSuite) TestFetchDeletedPrimeUpload() {
@@ -191,8 +191,8 @@ func (suite *ModelSuite) TestFetchDeletedPrimeUpload() {
 	primeUpload := models.PrimeUpload{
 		ProofOfServiceDocID: posDoc.ID,
 		ContractorID:        contractor.ID,
-		UploadID:            &upload.ID,
-		Upload:              &upload,
+		UploadID:            upload.ID,
+		Upload:              upload,
 	}
 
 	verrs, err = suite.DB().ValidateAndSave(&primeUpload)

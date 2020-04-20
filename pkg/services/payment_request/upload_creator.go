@@ -88,7 +88,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 		if err != nil {
 			return fmt.Errorf("failure creating payment request primeUpload: %w", err)
 		}
-		upload = primeUpload.Upload
+		upload = &primeUpload.Upload
 		return nil
 	})
 

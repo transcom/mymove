@@ -210,7 +210,7 @@ func createWeightTicketSetDocument(suite *HandlerSuite, weightTicketSetType stri
 	})
 	uploadUser.DocumentID = nil
 	suite.MustSave(&uploadUser)
-	uploadIds := []strfmt.UUID{*handlers.FmtUUID(*uploadUser.UploadID)}
+	uploadIds := []strfmt.UUID{*handlers.FmtUUID(uploadUser.UploadID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)

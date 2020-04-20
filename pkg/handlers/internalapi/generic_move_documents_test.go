@@ -25,7 +25,7 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	})
 	userUpload.DocumentID = nil
 	suite.MustSave(&userUpload)
-	uploadIds := []strfmt.UUID{*handlers.FmtUUID(*userUpload.UploadID)}
+	uploadIds := []strfmt.UUID{*handlers.FmtUUID(userUpload.UploadID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)

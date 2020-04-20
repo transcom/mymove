@@ -31,7 +31,7 @@ func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
 		uif := NewUploadInformationFetcher(suite.DB())
 		suite.NotNil(uu.UploadID)
 		suite.NotNil(uu.Upload)
-		u := *uu.Upload
+		u := uu.Upload
 		ui, err := uif.FetchUploadInformation(u.ID)
 
 		suite.NoError(err)

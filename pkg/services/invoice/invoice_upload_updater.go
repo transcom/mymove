@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -43,7 +44,7 @@ func (u UploadUpdater) saveInvoice(invoice *models.Invoice) error {
 func (u UploadUpdater) DeleteUpload(invoice *models.Invoice) error {
 
 	// Check that there is an upload object
-	if invoice.UserUpload != nil && invoice.UserUpload.Upload != nil {
+	if invoice.UserUpload != nil && invoice.UserUpload.Upload.ID != uuid.Nil {
 		if invoice.UserUpload.Upload.StorageKey != "" {
 
 			deleteUploadForUser := invoice.UserUpload
@@ -62,7 +63,7 @@ func (u UploadUpdater) DeleteUpload(invoice *models.Invoice) error {
 			err = u.UserUploader.DeleteUserUpload(deleteUploadForUser)
 			if err != nil {
 				var storageKey string
-				if deleteUploadForUser.Upload != nil {
+				if deleteUploadForUser.Upload.ID != uuid.Nil {
 					storageKey = deleteUploadForUser.Upload.StorageKey
 				}
 

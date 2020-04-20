@@ -20,8 +20,8 @@ type PrimeUpload struct {
 	ProofOfServiceDoc   ProofOfServiceDoc `belongs_to:"proof_of_service_docs"`
 	ContractorID        uuid.UUID         `db:"contractor_id"`
 	Contractor          Contractor        `belongs_to:"contractors"`
-	UploadID            *uuid.UUID        `db:"upload_id"`
-	Upload              *Upload           `belongs_to:"uploads"`
+	UploadID            uuid.UUID         `db:"upload_id"`
+	Upload              Upload            `belongs_to:"uploads"`
 	CreatedAt           time.Time         `db:"created_at"`
 	UpdatedAt           time.Time         `db:"updated_at"`
 	DeletedAt           *time.Time        `db:"deleted_at"`

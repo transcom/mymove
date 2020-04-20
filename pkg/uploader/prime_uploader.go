@@ -61,8 +61,8 @@ func (u *PrimeUploader) createAndStore(posID *uuid.UUID, contractorID uuid.UUID,
 		ID:                  id,
 		ProofOfServiceDocID: *posID,
 		ContractorID:        contractorID,
-		UploadID:            &newUpload.ID,
-		Upload:              newUpload,
+		UploadID:            newUpload.ID,
+		Upload:              *newUpload,
 	}
 
 	verrs, err = u.db.ValidateAndCreate(newUploadForUser)
@@ -121,14 +121,14 @@ func (u *PrimeUploader) CreatePrimeUploadForDocument(posID *uuid.UUID, contracto
 // storer.
 func (u *PrimeUploader) DeletePrimeUpload(primeUpload *models.PrimeUpload) error {
 	if u.db.TX != nil {
-		if err := u.uploader.DeleteUpload(primeUpload.Upload); err != nil {
+		if err := u.uploader.DeleteUpload(&primeUpload.Upload); err != nil {
 			return err
 		}
 		return models.DeletePrimeUpload(u.db, primeUpload)
 
 	}
 	return u.db.Transaction(func(db *pop.Connection) error {
-		if err := u.uploader.DeleteUpload(primeUpload.Upload); err != nil {
+		if err := u.uploader.DeleteUpload(&primeUpload.Upload); err != nil {
 			return err
 		}
 		return models.DeletePrimeUpload(db, primeUpload)
@@ -137,11 +137,11 @@ func (u *PrimeUploader) DeletePrimeUpload(primeUpload *models.PrimeUpload) error
 
 // PresignedURL returns a URL that can be used to access an PrimeUpload's file.
 func (u *PrimeUploader) PresignedURL(primeUpload *models.PrimeUpload) (string, error) {
-	if primeUpload == nil || primeUpload.Upload == nil {
+	if primeUpload == nil {
 		u.logger.Error("failed to get PrimeUploader presigned url")
 		return "", errors.New("failed to get PrimeUploader presigned url")
 	}
-	url, err := u.uploader.PresignedURL(primeUpload.Upload)
+	url, err := u.uploader.PresignedURL(&primeUpload.Upload)
 	if err != nil {
 		u.logger.Error("failed to get PrimeUploader presigned url", zap.Error(err))
 		return "", err
@@ -179,5 +179,5 @@ func (u *PrimeUploader) GetUploadStorageKey() string {
 //
 // It is the caller's responsibility to delete the tempfile.
 func (u *PrimeUploader) Download(primeUpload *models.PrimeUpload) (io.ReadCloser, error) {
-	return u.uploader.Download(primeUpload.Upload)
+	return u.uploader.Download(&primeUpload.Upload)
 }

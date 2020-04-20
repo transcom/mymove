@@ -138,8 +138,8 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssoci
 	userUpload1 := models.UserUpload{
 		DocumentID: &document.ID,
 		UploaderID: document.ServiceMember.UserID,
-		UploadID:   &upload.ID,
-		Upload:     &upload,
+		UploadID:   upload.ID,
+		Upload:     upload,
 	}
 	suite.MustSave(&userUpload1)
 	upload2 := models.Upload{
@@ -153,8 +153,8 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssoci
 	userUpload2 := models.UserUpload{
 		DocumentID: &document.ID,
 		UploaderID: document.ServiceMember.UserID,
-		UploadID:   &upload2.ID,
-		Upload:     &upload2,
+		UploadID:   upload2.ID,
+		Upload:     upload2,
 	}
 	suite.MustSave(&userUpload2)
 	suite.Nil(upload.DeletedAt)

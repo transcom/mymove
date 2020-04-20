@@ -20,8 +20,8 @@ type UserUpload struct {
 	DocumentID *uuid.UUID `db:"document_id"`
 	Document   Document   `belongs_to:"documents"`
 	UploaderID uuid.UUID  `db:"uploader_id"`
-	UploadID   *uuid.UUID `db:"upload_id"`
-	Upload     *Upload    `belongs_to:"uploads"`
+	UploadID   uuid.UUID  `db:"upload_id"`
+	Upload     Upload     `belongs_to:"uploads"`
 	CreatedAt  time.Time  `db:"created_at"`
 	UpdatedAt  time.Time  `db:"updated_at"`
 	DeletedAt  *time.Time `db:"deleted_at"`
@@ -52,8 +52,8 @@ func UploadsFromUserUploads(db *pop.Connection, userUploads UserUploads) (Upload
 func UploadsFromUserUploadsNoDatabase(userUploads UserUploads) (Uploads, error) {
 	var uploads Uploads
 	for _, userUpload := range userUploads {
-		if userUpload.UploadID != nil && *userUpload.UploadID != uuid.Nil && userUpload.Upload != nil {
-			uploads = append(uploads, *userUpload.Upload)
+		if userUpload.UploadID != uuid.Nil {
+			uploads = append(uploads, userUpload.Upload)
 		} else {
 			return Uploads{}, errors.New("error invalid UploadID in UserUpload")
 		}

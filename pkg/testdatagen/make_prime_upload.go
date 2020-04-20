@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gobuffalo/validate"
-
-	"github.com/transcom/mymove/pkg/uploader"
-
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // MakePrimeUpload creates a single PrimeUpload.
@@ -47,8 +46,8 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 	} else {
 		// If no PrimeUploader is being stored, use asserted fields
 
-		if assertions.PrimeUpload.Upload != nil {
-			assertions.Upload = *assertions.PrimeUpload.Upload
+		if assertions.PrimeUpload.Upload.ID != uuid.Nil {
+			assertions.Upload = assertions.PrimeUpload.Upload
 		}
 		assertions.Upload.UploadType = models.UploadTypePRIME
 		upload := MakeUpload(db, assertions)
@@ -57,8 +56,8 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 			ProofOfServiceDocID: posDoc.ID,
 			ProofOfServiceDoc:   posDoc,
 			ContractorID:        contractor.ID,
-			Upload:              &upload,
-			UploadID:            &upload.ID,
+			Upload:              upload,
+			UploadID:            upload.ID,
 		}
 
 		mergeModels(primeUpload, assertions.PrimeUpload)

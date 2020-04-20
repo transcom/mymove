@@ -35,7 +35,7 @@ func (suite *ModelSuite) Test_UserUploadCreate() {
 	uploadUser := models.UserUpload{
 		DocumentID: &document.ID,
 		UploaderID: document.ServiceMember.UserID,
-		Upload:     &upload,
+		Upload:     upload,
 	}
 
 	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
@@ -76,7 +76,7 @@ func (suite *ModelSuite) Test_UserUploadCreateWithID() {
 		ID:         id,
 		DocumentID: &document.ID,
 		UploaderID: document.ServiceMemberID,
-		Upload:     &upload,
+		Upload:     upload,
 	}
 
 	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
@@ -113,7 +113,7 @@ func (suite *ModelSuite) TestFetchUserUploadWithNoUpload() {
 	}
 
 	_, err := suite.DB().ValidateAndSave(&uploadUser)
-	suite.Equal("pq: null value in column \"upload_id\" violates not-null constraint", err.Error(), "expected userupload error")
+	suite.Equal("pq: insert or update on table \"user_uploads\" violates foreign key constraint \"user_uploads_uploads_id_fkey\"", err.Error(), "expected userupload error")
 
 }
 
@@ -148,7 +148,7 @@ func (suite *ModelSuite) TestFetchUserUpload() {
 	uploadUser := models.UserUpload{
 		DocumentID: &document.ID,
 		UploaderID: document.ServiceMember.UserID,
-		Upload:     &upload,
+		Upload:     upload,
 	}
 
 	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
@@ -163,7 +163,7 @@ func (suite *ModelSuite) TestFetchUserUpload() {
 	upUser, _ := models.FetchUserUpload(ctx, suite.DB(), &session, uploadUser.ID)
 	suite.Equal(upUser.ID, uploadUser.ID)
 	suite.Equal(upload.ID, uploadUser.Upload.ID)
-	suite.Equal(upload.ID, *uploadUser.UploadID)
+	suite.Equal(upload.ID, uploadUser.UploadID)
 }
 
 func (suite *ModelSuite) TestFetchDeletedUserUpload() {
@@ -197,8 +197,8 @@ func (suite *ModelSuite) TestFetchDeletedUserUpload() {
 	uploadUser := models.UserUpload{
 		DocumentID: &document.ID,
 		UploaderID: document.ServiceMember.UserID,
-		UploadID:   &upload.ID,
-		Upload:     &upload,
+		UploadID:   upload.ID,
+		Upload:     upload,
 	}
 
 	verrs, err = suite.DB().ValidateAndSave(&uploadUser)

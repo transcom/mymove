@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gobuffalo/validate"
-
-	"github.com/transcom/mymove/pkg/uploader"
-
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // MakeUserUpload creates a single UserUpload.
@@ -39,8 +38,8 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 	} else {
 		// If no UserUploader is being stored, use asserted fields
 
-		if assertions.UserUpload.Upload != nil {
-			assertions.Upload = *assertions.UserUpload.Upload
+		if assertions.UserUpload.Upload.ID != uuid.Nil {
+			assertions.Upload = assertions.UserUpload.Upload
 		}
 		assertions.Upload.UploadType = models.UploadTypeUSER
 		upload := MakeUpload(db, assertions)
@@ -49,8 +48,8 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 			DocumentID: &document.ID,
 			Document:   document,
 			UploaderID: uploaderID,
-			Upload:     &upload,
-			UploadID:   &upload.ID,
+			Upload:     upload,
+			UploadID:   upload.ID,
 		}
 
 		mergeModels(userUpload, assertions.UserUpload)

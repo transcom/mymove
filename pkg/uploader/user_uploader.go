@@ -61,8 +61,8 @@ func (u *UserUploader) createAndStore(documentID *uuid.UUID, userID uuid.UUID, f
 		ID:         id,
 		DocumentID: documentID,
 		UploaderID: userID,
-		UploadID:   &newUpload.ID,
-		Upload:     newUpload,
+		UploadID:   newUpload.ID,
+		Upload:     *newUpload,
 	}
 
 	verrs, err = u.db.ValidateAndCreate(newUploadForUser)
@@ -108,19 +108,28 @@ func (u *UserUploader) CreateUserUpload(userID uuid.UUID, file File, allowedType
 // DeleteUserUpload removes an UserUpload from the database and deletes its file from the
 // storer.
 func (u *UserUploader) DeleteUserUpload(userUpload *models.UserUpload) error {
-	if err := u.uploader.DeleteUpload(userUpload.Upload); err != nil {
-		return err
+
+	if u.db.TX != nil {
+		if err := u.uploader.DeleteUpload(&userUpload.Upload); err != nil {
+			return err
+		}
+		return models.DeleteUserUpload(u.db, userUpload)
 	}
-	return models.DeleteUserUpload(u.db, userUpload)
+	return u.db.Transaction(func(db *pop.Connection) error {
+		if err := u.uploader.DeleteUpload(&userUpload.Upload); err != nil {
+			return err
+		}
+		return models.DeleteUserUpload(db, userUpload)
+	})
 }
 
 // PresignedURL returns a URL that can be used to access an UserUpload's file.
 func (u *UserUploader) PresignedURL(userUpload *models.UserUpload) (string, error) {
-	if userUpload == nil || userUpload.Upload == nil {
+	if userUpload == nil {
 		u.logger.Error("failed to get UserUploader presigned url")
 		return "", errors.New("failed to get UserUploader presigned url")
 	}
-	url, err := u.uploader.PresignedURL(userUpload.Upload)
+	url, err := u.uploader.PresignedURL(&userUpload.Upload)
 	if err != nil {
 		u.logger.Error("failed to get UserUploader presigned url", zap.Error(err))
 		return "", err
@@ -158,5 +167,5 @@ func (u *UserUploader) GetUploadStorageKey() string {
 //
 // It is the caller's responsibility to delete the tempfile.
 func (u *UserUploader) Download(userUpload *models.UserUpload) (io.ReadCloser, error) {
-	return u.uploader.Download(userUpload.Upload)
+	return u.uploader.Download(&userUpload.Upload)
 }

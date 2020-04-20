@@ -56,7 +56,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		DocumentID: &document.ID,
 		CreatedAt:  time.Now(),
 		UploaderID: sm.UserID,
-		Upload: &models.Upload{
+		Upload: models.Upload{
 			ID:          uploadID,
 			Filename:    "FileName",
 			Bytes:       int64(15),
