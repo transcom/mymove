@@ -42,7 +42,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticAccessorialPrices() 
 func (suite *GHCRateEngineImportSuite) helperVerifyDomesticAccessorialPrices() {
 	count, err := suite.DB().Count(&models.ReDomesticAccessorialPrice{})
 	suite.NoError(err)
-	suite.Equal(12, count)
+	suite.Equal(15, count)
 }
 
 func (suite *GHCRateEngineImportSuite) helperCheckDomesticAccessorialPrices() {
@@ -51,55 +51,40 @@ func (suite *GHCRateEngineImportSuite) helperCheckDomesticAccessorialPrices() {
 	err := suite.DB().Where("code = $1", testContractCode).First(&contract)
 	suite.NoError(err)
 
-	// Get service UUID.
-	var serviceDCRT models.ReService
-	err = suite.DB().Where("code = 'DCRT'").First(&serviceDCRT)
-	suite.NoError(err)
+	testCases := []struct {
+		serviceCode   string
+		schedule      int
+		expectedPrice int
+		isError       bool
+	}{
+		{"DCRT", 1, 2369, false},
+		{"DCRTSA", 1, 2369, false},
+		{"DUCRT", 1, 595, false},
+		{"DDSHUT", 1, 505, false},
+		{"DDSHUT", 3, 576, false},
+		{"DOSHUT", 1, 505, false},
+		{"MS", 3, 0, true},
+		{"DCRT", 5, 0, true},
+	}
 
-	var serviceDUCRT models.ReService
-	err = suite.DB().Where("code = 'DUCRT'").First(&serviceDUCRT)
-	suite.NoError(err)
+	for _, testCase := range testCases {
+		// Get service UUID.
+		var service models.ReService
+		err = suite.DB().Where("code = ?", testCase.serviceCode).First(&service)
+		suite.NoError(err)
 
-	var serviceDDSHUT models.ReService
-	err = suite.DB().Where("code = 'DDSHUT'").First(&serviceDDSHUT)
-	suite.NoError(err)
+		var domesticAccessorialPrice models.ReDomesticAccessorialPrice
+		err = suite.DB().
+			Where("contract_id = $1", contract.ID).
+			Where("service_id = $2", service.ID).
+			Where("services_schedule = $3", testCase.schedule).
+			First(&domesticAccessorialPrice)
 
-	var serviceNotValid models.ReService
-	err = suite.DB().Where("code = 'MS'").First(&serviceNotValid)
-	suite.NoError(err)
-
-	var domesticAccessorialPriceDCRT models.ReDomesticAccessorialPrice
-	err = suite.DB().
-		Where("contract_id = $1", contract.ID).
-		Where("service_id = $2", serviceDCRT.ID).
-		Where("services_schedule = $3", 1).
-		First(&domesticAccessorialPriceDCRT)
-	suite.NoError(err)
-	suite.Equal(unit.Cents(2369), domesticAccessorialPriceDCRT.PerUnitCents)
-
-	var domesticAccessorialPriceDUCRT models.ReDomesticAccessorialPrice
-	err = suite.DB().
-		Where("contract_id = $1", contract.ID).
-		Where("service_id = $2", serviceDUCRT.ID).
-		Where("services_schedule = $3", 1).
-		First(&domesticAccessorialPriceDUCRT)
-	suite.NoError(err)
-	suite.Equal(unit.Cents(595), domesticAccessorialPriceDUCRT.PerUnitCents)
-
-	var domesticAccessorialPriceDDSHUT models.ReDomesticAccessorialPrice
-	err = suite.DB().
-		Where("contract_id = $1", contract.ID).
-		Where("service_id = $2", serviceDDSHUT.ID).
-		Where("services_schedule = $3", 3).
-		First(&domesticAccessorialPriceDDSHUT)
-	suite.NoError(err)
-	suite.Equal(unit.Cents(576), domesticAccessorialPriceDDSHUT.PerUnitCents)
-
-	var domesticAccessorialPriceServiceNotValid models.ReDomesticAccessorialPrice
-	err = suite.DB().
-		Where("contract_id = $1", contract.ID).
-		Where("service_id = $2", serviceNotValid.ID).
-		Where("services_schedule = $3", 3).
-		First(&domesticAccessorialPriceServiceNotValid)
-	suite.Error(err)
+		if testCase.isError {
+			suite.Error(err)
+		} else {
+			suite.NoError(err)
+			suite.Equal(unit.Cents(testCase.expectedPrice), domesticAccessorialPrice.PerUnitCents, "test case: %+v", testCase)
+		}
+	}
 }
