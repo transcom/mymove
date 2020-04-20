@@ -2,6 +2,11 @@
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/_mixins.scss';
 
+
+html {
+      scroll-behavior: smooth;
+}
+
 //
 //Containers
 //
