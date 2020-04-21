@@ -6060,10 +6060,10 @@ eslint-config-airbnb@^18.1.0:
     object.assign "^4.1.0"
     object.entries "^1.1.1"
 
-eslint-config-prettier@^6.10.1:
-  version "6.10.1"
-  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-6.10.1.tgz#129ef9ec575d5ddc0e269667bf09defcd898642a"
-  integrity sha512-svTy6zh1ecQojvpbJSgH3aei/Rt7C6i090l5f2WQ4aB05lYHeZIR1qL4wZyyILTbtmnbHP5Yn8MrsOJMGa8RkQ==
+eslint-config-prettier@^6.11.0:
+  version "6.11.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-6.11.0.tgz#f6d2238c1290d01c859a8b5c1f7d352a0b0da8b1"
+  integrity sha512-oB8cpLWSAjOVFEJhhyMZh6NOEOtBVziaqdDQ86+qhDHFbZXoRTM7pNSvFRfW/W/L/LrQ38C99J5CGuRBBzBsdA==
   dependencies:
     get-stdin "^6.0.0"
 
@@ -12071,10 +12071,10 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@=2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.0.4.tgz#2d1bae173e355996ee355ec9830a7a1ee05457ef"
-  integrity sha512-SVJIQ51spzFDvh4fIbCLvciiDMCrRhlN3mbZvv/+ycjvmF5E73bKdGfU8QDLNmjYJf+lsGnDBC4UUnvTe5OO0w==
+prettier@=2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.0.5.tgz#d6d56282455243f2f92cc1716692c08aa31522d4"
+  integrity sha512-7PtVymN48hGcO4fGjybyBSIWDsLU4H4XlvOHfq91pz9kkGlonzwTfYkaIEwiRg/dAJF9YlbsduBAgtYLi+8cFg==
 
 pretty-bytes@^5.1.0:
   version "5.3.0"
@@ -12439,10 +12439,10 @@ ra-language-english@^3.4.1:
   dependencies:
     ra-core "^3.4.1"
 
-ra-ui-materialui@^3.4.1:
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.4.1.tgz#72a08cfc3fade7bc244438ae96a31c33fb0b3fa0"
-  integrity sha512-QjUUb40tkPTC4pzBXpLjnIPf0S9zEsc5HxZulH9J/HLkhG+Q2sPQ8kWISccg9LjbVfk4DDLa8m60EYm/w1SV0A==
+ra-ui-materialui@^3.4.2:
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.4.2.tgz#6ab59b44cbe351eee2afccfeb118ee3ea67db28d"
+  integrity sha512-P1WigQJzIGeMy2jpAoMF0PlkDKZuufUEp/J0y9YFPumHvd5Dvzzz4XCytlL+362XkzgtxVWWH+WlX8CoYD3Y2w==
   dependencies:
     autosuggest-highlight "^3.1.1"
     classnames "~2.2.5"
@@ -12535,10 +12535,10 @@ react-addons-create-fragment@^15.6.2:
     loose-envify "^1.3.1"
     object-assign "^4.1.0"
 
-react-admin@^3.4.1:
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.4.1.tgz#cd7465a574f2c60ef4655670d9b45a4e35429fa6"
-  integrity sha512-0VVhqetNup+o03aRURcPO6skB1uEsxXMVKlGNbUrCczi7Mf8W0LIKpZry2l5kvnuplEQ4LfR68ad+RNFwxeeZA==
+react-admin@^3.4.2:
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.4.2.tgz#081a9f930e5822cf31c4cc747d058a9522f945e4"
+  integrity sha512-C0YeuWgd1fskhOk9oG6uyZidw7IEd5MkQWBKahDOY4PW59dZk8hFSuRzkVkaF8B/c/2oM1kCGuVR5likYPrJEA==
   dependencies:
     "@material-ui/core" "^4.3.3"
     "@material-ui/icons" "^4.2.1"
@@ -12549,7 +12549,7 @@ react-admin@^3.4.1:
     ra-core "^3.4.1"
     ra-i18n-polyglot "^3.4.1"
     ra-language-english "^3.4.1"
-    ra-ui-materialui "^3.4.1"
+    ra-ui-materialui "^3.4.2"
     react-final-form "^6.3.3"
     react-final-form-arrays "^3.1.1"
     react-redux "^7.1.0"
@@ -12589,10 +12589,10 @@ react-color@^2.17.0:
     reactcss "^1.2.0"
     tinycolor2 "^1.4.1"
 
-react-day-picker@=7.4.5:
-  version "7.4.5"
-  resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-7.4.5.tgz#b36fb2d91386c5c0895c35a89664d5665d79db91"
-  integrity sha512-Yi7zwWFZBVts+xCT5ukeD6B5n3tqsl7CXNzXgjb8vxLb3wwLp1jsIJV0U4tr4AXBHen3aP5iTeKyGoV85aZqXw==
+react-day-picker@=7.4.6:
+  version "7.4.6"
+  resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-7.4.6.tgz#951426eee9a2bf43e802aa2ced63f71f03be8a3a"
+  integrity sha512-aPqF+edeP5Mf1ifVGHlSo0ajKfisLIAsIULxkQb+WCw593m2KchXAgj1+u+Zh3sH3WCjz2lM+3l9twrhYggjPA==
   dependencies:
     prop-types "^15.6.2"
 
@@ -16314,10 +16314,10 @@ yoga-layout-prebuilt@^1.9.3:
   dependencies:
     "@types/yoga-layout" "1.9.1"
 
-yup@^0.28.3:
-  version "0.28.3"
-  resolved "https://registry.yarnpkg.com/yup/-/yup-0.28.3.tgz#1ca607405a8adf24a5ac51f54bd09d527555f0ba"
-  integrity sha512-amVkCgFWe5bGjrrUiODkbIzrSwtB8JpZrQYSrfj2YsbRdrV+tn9LquWdZDlfOx2HXyfEA8FGnlwidE/bFDxO7Q==
+yup@^0.28.4:
+  version "0.28.4"
+  resolved "https://registry.yarnpkg.com/yup/-/yup-0.28.4.tgz#e8f0038df8260f26e90e2cf5c061eed193f94a74"
+  integrity sha512-mcIe+Oz/uEbbp+YgPY3udg22msRP6Ntm7l0LWov9FExRHvZMwwppPSK1ygRXtblu/tYBq3N+tonundeeY+sFJw==
   dependencies:
     "@babel/runtime" "^7.8.7"
     fn-name "~3.0.0"
