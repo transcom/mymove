@@ -66,7 +66,7 @@ type PatchMTOShipmentStatusParams struct {
 	/*IfMatch*/
 	IfMatch string
 	/*Body*/
-	Body *supportmessages.PatchMTOShipmentStatusPayload
+	Body *supportmessages.PatchMTOShipmentStatus
 	/*ShipmentID
 	  ID of the shipment
 
@@ -123,13 +123,13 @@ func (o *PatchMTOShipmentStatusParams) SetIfMatch(ifMatch string) {
 }
 
 // WithBody adds the body to the patch m t o shipment status params
-func (o *PatchMTOShipmentStatusParams) WithBody(body *supportmessages.PatchMTOShipmentStatusPayload) *PatchMTOShipmentStatusParams {
+func (o *PatchMTOShipmentStatusParams) WithBody(body *supportmessages.PatchMTOShipmentStatus) *PatchMTOShipmentStatusParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the patch m t o shipment status params
-func (o *PatchMTOShipmentStatusParams) SetBody(body *supportmessages.PatchMTOShipmentStatusPayload) {
+func (o *PatchMTOShipmentStatusParams) SetBody(body *supportmessages.PatchMTOShipmentStatus) {
 	o.Body = body
 }
 

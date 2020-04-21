@@ -85,7 +85,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/PatchMTOShipmentStatusPayload'
+            $ref: '#/definitions/PatchMTOShipmentStatus'
         - in: header
           name: If-Match
           type: string
@@ -695,7 +695,7 @@ definitions:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
-  PatchMTOShipmentStatusPayload:
+  PatchMTOShipmentStatus:
     properties:
       status:
         type: string
@@ -792,7 +792,7 @@ definitions:
           - REJECTED
         type: string
     type: object
-  UpdatePaymentRequestPayload:
+  UpdatePaymentRequest:
     properties:
       proofOfServicePackage:
         $ref: '#/definitions/ProofOfServicePackage'
@@ -805,7 +805,7 @@ definitions:
       eTag:
         type: string
     type: object
-  UpdatePaymentRequestStatusPayload:
+  UpdatePaymentRequestStatus:
     properties:
       rejectionReason:
         example: documentation was incomplete

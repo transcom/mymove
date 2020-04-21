@@ -15,9 +15,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdatePaymentRequestPayload update payment request payload
-// swagger:model UpdatePaymentRequestPayload
-type UpdatePaymentRequestPayload struct {
+// UpdatePaymentRequest update payment request
+// swagger:model UpdatePaymentRequest
+type UpdatePaymentRequest struct {
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
@@ -29,8 +29,8 @@ type UpdatePaymentRequestPayload struct {
 	ServiceItemIDs []strfmt.UUID `json:"serviceItemIDs"`
 }
 
-// Validate validates this update payment request payload
-func (m *UpdatePaymentRequestPayload) Validate(formats strfmt.Registry) error {
+// Validate validates this update payment request
+func (m *UpdatePaymentRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateProofOfServicePackage(formats); err != nil {
@@ -47,7 +47,7 @@ func (m *UpdatePaymentRequestPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdatePaymentRequestPayload) validateProofOfServicePackage(formats strfmt.Registry) error {
+func (m *UpdatePaymentRequest) validateProofOfServicePackage(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ProofOfServicePackage) { // not required
 		return nil
@@ -65,7 +65,7 @@ func (m *UpdatePaymentRequestPayload) validateProofOfServicePackage(formats strf
 	return nil
 }
 
-func (m *UpdatePaymentRequestPayload) validateServiceItemIDs(formats strfmt.Registry) error {
+func (m *UpdatePaymentRequest) validateServiceItemIDs(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ServiceItemIDs) { // not required
 		return nil
@@ -83,7 +83,7 @@ func (m *UpdatePaymentRequestPayload) validateServiceItemIDs(formats strfmt.Regi
 }
 
 // MarshalBinary interface implementation
-func (m *UpdatePaymentRequestPayload) MarshalBinary() ([]byte, error) {
+func (m *UpdatePaymentRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -91,8 +91,8 @@ func (m *UpdatePaymentRequestPayload) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *UpdatePaymentRequestPayload) UnmarshalBinary(b []byte) error {
-	var res UpdatePaymentRequestPayload
+func (m *UpdatePaymentRequest) UnmarshalBinary(b []byte) error {
+	var res UpdatePaymentRequest
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
