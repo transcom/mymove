@@ -1013,6 +1013,9 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         }
       },
       "discriminator": "modelType"
@@ -1227,17 +1230,13 @@ func init() {
       ]
     },
     "MTOServiceItemStatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
-      }
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOShipment": {
       "properties": {
@@ -2811,6 +2810,9 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         }
       },
       "discriminator": "modelType"
@@ -3025,17 +3027,13 @@ func init() {
       ]
     },
     "MTOServiceItemStatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
-      }
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOShipment": {
       "properties": {
