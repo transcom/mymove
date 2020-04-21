@@ -5,8 +5,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/route"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -83,9 +81,15 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	if err != nil {
 		logger.Error("Error creating payment request", zap.Error(err))
-		var e *route.BadDataFromRequester
-		if errors.As(err, &e) {
-			return paymentrequestop.NewCreatePaymentRequestBadRequest()
+		var notFoundError *services.NotFoundError
+		var badDataError *services.BadDataError
+		if errors.As(err, &notFoundError) || errors.As(err, &badDataError) {
+			payload := &primemessages.ClientError{
+				Title:    handlers.FmtString("Unable to create payment request"),
+				Detail:   handlers.FmtString(err.Error()),
+				Instance: handlers.FmtUUID(h.GetTraceID()),
+			}
+			return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(payload)
 		}
 		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
 	}

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/validate"
 
@@ -274,7 +274,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 	suite.T().Run("failed create payment request due to bad data", func(t *testing.T) {
 		verrs := validate.NewErrors()
-		err := route.NewBadDataFromRequester("sent some bad data, foo!")
+		err := services.NewBadDataError("sent some bad data, foo!")
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, verrs, err).Once()

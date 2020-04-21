@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/route"
-
 	"github.com/pkg/errors"
 
 	"github.com/gobuffalo/pop"
@@ -44,8 +42,9 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			return err
 		}
 		if err != nil {
-			var e *route.BadDataFromRequester
-			if errors.As(err, &e) {
+			var notFoundError *services.NotFoundError
+			var badDataError *services.BadDataError
+			if errors.As(err, &notFoundError) || errors.As(err, &badDataError) {
 				return err
 			}
 			return fmt.Errorf("failure creating payment request: %w for %s", err, mtoMessageString+prMessageString)
@@ -175,8 +174,8 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			errorString := fmt.Sprintf("MoveTaskOrder with ID [%s]: %s", paymentRequest.MoveTaskOrderID, models.ErrFetchNotFound)
-			return nil, verrs, route.NewBadDataFromRequester(errorString)
+			msg := fmt.Sprint("MoveTaskOrder")
+			return nil, verrs, services.NewNotFoundError(paymentRequest.MoveTaskOrderID, msg)
 		}
 		return nil, verrs, fmt.Errorf("could not retrieve MoveTaskOrder with ID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
 	}
@@ -212,8 +211,8 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	err := tx.Eager("ReService").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			errorString := fmt.Sprintf("MTO Service Item: %s", models.ErrFetchNotFound)
-			return models.PaymentServiceItem{}, models.MTOServiceItem{}, verrs, route.NewBadDataFromRequester(errorString)
+			msg := fmt.Sprint("MTO Service Item")
+			return models.PaymentServiceItem{}, models.MTOServiceItem{}, verrs, services.NewNotFoundError(paymentServiceItem.MTOServiceItemID, msg)
 		}
 		return *paymentServiceItem, models.MTOServiceItem{}, verrs, fmt.Errorf("could not find MTO MTOServiceItemID [%s]: %w", paymentServiceItem.MTOServiceItemID.String(), err)
 	}
@@ -249,8 +248,8 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		err := tx.Find(&serviceItemParamKey, paymentServiceItemParam.ServiceItemParamKeyID)
 		if err != nil {
 			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-				errorString := fmt.Sprintf("Service Item Param Key: %s", models.ErrFetchNotFound)
-				return nil, nil, nil, verrs, route.NewBadDataFromRequester(errorString)
+				msg := fmt.Sprintf("Service Item Param Key")
+				return nil, nil, nil, verrs, services.NewNotFoundError(paymentServiceItemParam.ServiceItemParamKeyID, msg)
 			}
 			return nil, nil, nil, verrs, fmt.Errorf("could not fetch ServiceItemParamKey with ID [%s]: %w", paymentServiceItemParam.ServiceItemParamKeyID, err)
 		}
@@ -264,8 +263,8 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		err := tx.Where("key = ?", paymentServiceItemParam.IncomingKey).First(&serviceItemParamKey)
 		if err != nil {
 			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-				errorString := fmt.Sprintf("Service Item Param Key: %s", models.ErrFetchNotFound)
-				return nil, nil, nil, verrs, route.NewBadDataFromRequester(errorString)
+				errorString := fmt.Sprintf("Service Item Param Key %s: %s", paymentServiceItemParam.IncomingKey, models.ErrFetchNotFound)
+				return nil, nil, nil, verrs, services.NewBadDataError(errorString)
 			}
 			return nil, nil, nil, verrs, fmt.Errorf("could not retrieve param key [%s]: %w", paymentServiceItemParam.IncomingKey, err)
 		}
