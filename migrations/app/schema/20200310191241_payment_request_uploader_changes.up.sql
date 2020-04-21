@@ -93,7 +93,7 @@ update uploads
     set uploader_id = null;
 
 insert into prime_uploads (id, proof_of_service_docs_id, contractor_id, upload_id, created_at, updated_at)
-select uuid_generate_v4(), proof_of_service_docs.id, null ,proof_of_service_docs.upload_id, created_at, updated_at from proof_of_service_docs;
+select uuid_generate_v4(), proof_of_service_docs.id, '5db13bb4-6d29-4bdb-bc81-262f4513ecf6' ,proof_of_service_docs.upload_id, created_at, updated_at from proof_of_service_docs;
 
 alter table invoices
     drop constraint invoices_uploads_id_fk,
@@ -104,17 +104,4 @@ update invoices
 
 alter table proof_of_service_docs
     drop constraint proof_of_service_docs_upload_id_fkey;
-
--- Part 2 of migrations, do not deploy with above
--- alter table proof_of_service_docs
---    drop column upload_id;
---
--- alter table uploads
---    drop column document_id,
---    drop column uploader_id;
---
--- alter table invoices
---    drop column upload_id;
---
--- drop table contractor;
 
