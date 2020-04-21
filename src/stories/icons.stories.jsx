@@ -2,6 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 
 import { ReactComponent as AddIcon } from 'shared/icon/add.svg';
+import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 import { ReactComponent as ArrowRightIcon } from 'shared/icon/arrow-right.svg';
 import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkmark.svg';
 import { ReactComponent as ChevLeftIcon } from 'shared/icon/chevron-left.svg';
@@ -27,6 +28,10 @@ storiesOf('Global|Icons', module).add('all', () => (
     <div>
       <AddIcon />
       <code>add</code>
+    </div>
+    <div>
+      <AlertIcon />
+      <code>alert</code>
     </div>
     <div>
       <ArrowRightIcon />
