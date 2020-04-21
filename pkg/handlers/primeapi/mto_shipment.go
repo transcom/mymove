@@ -12,6 +12,12 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// CreateMTOShipmentHandler is the handler to create MTO shipments
+type CreateMTOShipmentHandler struct {
+	handlers.HandlerContext
+	services.MTOShipmentCreator
+}
+
 // UpdateMTOShipmentHandler is the handler to update MTO shipments
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerContext
