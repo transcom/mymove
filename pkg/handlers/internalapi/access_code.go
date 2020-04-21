@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"os"
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -41,6 +42,10 @@ type FetchAccessCodeHandler struct {
 
 // Handle fetches the access code for a service member
 func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams) middleware.Responder {
+	if os.Getenv("FEATURE_FLAG_ACCESS_CODE") == "false" {
+		return nil
+	}
+
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if session == nil {
