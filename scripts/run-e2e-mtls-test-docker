@@ -4,21 +4,7 @@ set -eux -o pipefail
 
 scripts/ensure-application app
 
-# Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
-export REACT_APP_NODE_ENV=development
-
-# Set the container default name
-CONTAINER=mymove_milmove_1
-CONTAINER_CYPRESS=cypress
-
-# Set hostnames
-MILMOVEHOST=milmovelocal
-OFFICEHOST=officelocal
-ADMINHOST=adminlocal
-ORDERSHOST=orderslocal
-
 # Set Defaults
-HTTP_PORT=4000
 NETWORK="mymove_default" # Docker network
 
 # When running locally enable TTY
@@ -31,53 +17,53 @@ fi
 # Check that the docker process is running first
 docker system info >> /dev/null
 
-# Begin Setup
-make e2e_clean
-
 if [[ -n "${CIRCLECI+x}" ]]; then
   # CI/CD allows us to use pre-built images using the branch name
-  scripts/update-docker-compose docker-compose.yml
+  scripts/update-docker-compose docker-compose.mtls.yml
 
   # Let's clean things up before starting
   # This may show an error locally but can be safely ignored, its only for CircleCI
-  docker-compose down --rmi all || true
+  docker-compose -f docker-compose.mtls.yml down --rmi all || true
 
   # Docker Compose Setup
   aws ecr get-login-password --region "${AWS_DEFAULT_REGION}" | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 
   # If you don't pull and CircleCI has cached previous images then you won't see any changes from AWS ECR
-  docker-compose pull
+  docker-compose -f docker-compose.mtls.yml pull
 
   # Bring these containers up but don't start them so they can be manipulated first
-  docker-compose up --no-start
+  docker-compose -f docker-compose.mtls.yml up --no-start
 
   # Can't mount folders in CircleCI so copy this data in
   # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
   docker cp ./migrations/app/secure mymove_milmove_migrate_1:/migrate/
+  # Copy the certificate authority into the container.
+  docker cp ./config/tls/devlocal-ca.key mymove_milmove_1:/config/tls/devlocal-ca.key
+  docker cp ./config/tls/devlocal-ca.pem mymove_milmove_1:/config/tls/devlocal-ca.pem
 
   # Start everything up
-  docker-compose up -d --no-recreate --remove-orphans
+  docker-compose -f docker-compose.mtls.yml up -d --no-recreate --remove-orphans
 
-  # Build a small tools dockerfile
+  # Build a small e2e dockerfile
   docker build -f Dockerfile.tools --tag tools:latest .
+
+  # Following the logs should block any more actions until migrations are completed and the container exits
+  docker-compose -f docker-compose.mtls.yml logs -f milmove_migrate
 else
   # Locally development requires that we build the container
 
   # Let's clean things up before starting
-  docker-compose -f docker-compose.local.yml down --remove-orphans || true
-
-  # Build artifacts
-  make client_build
+  docker-compose -f docker-compose.mtls_local.yml down --remove-orphans || true
 
   # Build images and start everything up
-  docker-compose -f docker-compose.local.yml up --remove-orphans -d --build
+  docker-compose -f docker-compose.mtls_local.yml up --remove-orphans -d --build
 
   # Build a small tools dockerfile
   docker build -f Dockerfile.tools_local --tag tools:latest .
-fi
 
-# Following the logs should block any more actions until migrations are completed and the container exits
-docker-compose logs -f milmove_migrate
+  # Following the logs should block any more actions until migrations are completed and the container exits
+  docker-compose -f docker-compose.mtls_local.yml logs -f milmove_migrate
+fi
 
 # Need to wait not just for DB but also migrations to finish
 while true; do
@@ -124,50 +110,46 @@ $DOCKER_RUN \
   tools:latest \
   --named-scenario e2e_basic
 
-# Grab the IP address of the running container
-E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
+#
+# INTEGRATION TESTS START
+#
 
-# Run the cypress tests
-docker build -f cypress/Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest ./cypress
+##Integration test for Prime API
+##Return mtos from the fetch-mto endpoint where is_available_for_prime is true
+function prime_api_client () {
+  # Cannot mount directories in CircleCI so certificates and data are built into the container	##Return mtos from the fetch-mto endpoint where is_available_for_prime is true
+  $DOCKER_RUN \
+    --link="mymove_milmove_1:primelocal" \
+    --net "${NETWORK}" \
+    --rm \
+    --entrypoint prime-api-client \
+    tools:latest \
+    --certpath ./config/tls/devlocal-mtls.cer \
+    --keypath ./config/tls/devlocal-mtls.key \
+    --insecure \
+    --hostname primelocal \
+    --port 9443 \
+    "$@"
+}
 
-# Confirm app container is still running before running tests
-# See note above about what to do if you need to debug
-DOCKER_PID=$(docker ps -qf name=${CONTAINER})
-if [ -z "${DOCKER_PID}" ]; then
-  echo
-  echo "Docker container ${CONTAINER} exited unexpectedly. No tests will be run."
-  exit 1
-fi
+#Integration test for Prime API
+#Return mtos from the fetch-mto endpoint where is_available_for_prime is true
+mtos=$(prime_api_client fetch-mtos)
+#Returns mtoShipments from the fetch-mto response, needed to return etag below
+mtoShipments=$(echo "$mtos" | jq '.[0] | .mtoShipments')
+#Returns etag for the first mtoShipment, needed to run update-mto-shipment below
+etag=$(echo "$mtoShipments" | jq '.[0] | .eTag' |  tr -d '"')
+#Tests update-shipment endpoint
+prime_api_client update-mto-shipment --etag "${etag}" --filename ./pkg/testdatagen/testdata/update_mto_shipment.json
 
-readonly spec="${SPEC:-cypress/integration/**/*}"
-echo "Testing this SPEC: ${spec}"
-
-$DOCKER_RUN \
-  -e CYPRESS_baseUrl="http://${MILMOVEHOST}:${HTTP_PORT}" \
-  --add-host "${MILMOVEHOST}:${E2E_IP}" \
-  --add-host "${OFFICEHOST}:${E2E_IP}" \
-  --add-host "${ADMINHOST}:${E2E_IP}" \
-  --add-host "${ORDERSHOST}:${E2E_IP}" \
-  --name="${CONTAINER_CYPRESS}" \
-  --link="${CONTAINER}" \
-  --net "${NETWORK}" \
-  --ipc=host \
-  --detach \
-  ${CONTAINER_CYPRESS}:latest run --spec "${spec}"
-
-# Tail the logs so users can follow along
-docker logs -f ${CONTAINER_CYPRESS}
+#
+# INTEGRATION TESTS END
+#
 
 # Stop the app container to release the DB connection
-docker stop ${CONTAINER}
-
-# Copy out the results
-docker cp ${CONTAINER_CYPRESS}:/cypress/results cypress/ 2>/dev/null || echo "No cypress results copied"
-docker cp ${CONTAINER_CYPRESS}:/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
-docker cp ${CONTAINER_CYPRESS}:/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
-
-# Grab the exit code from the test container
-EXIT_STATUS=$(docker inspect ${CONTAINER_CYPRESS} --format='{{.State.ExitCode}}')
-
-# Exit with the status from tests
-exit "${EXIT_STATUS}"
+if [[ -n "${CIRCLECI+x}" ]]; then
+  docker-compose -f docker-compose.branch.yml down --remove-orphans || true
+  git checkout docker-compose.mtls.yml
+else
+  docker-compose -f docker-compose.local.yml down --remove-orphans || true
+fi
