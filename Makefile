@@ -628,6 +628,10 @@ db_test_psql: ## Open PostgreSQL shell for Test DB
 e2e_test: bin/gin server_generate server_build client_build db_e2e_init ## Run e2e (end-to-end) integration tests
 	$(AWS_VAULT) ./scripts/run-e2e-test
 
+.PHONY: e2e_mtls_test_docker
+e2e_mtls_test_docker: ## Run e2e (end-to-end) integration tests with docker
+	$(AWS_VAULT) ./scripts/run-e2e-mtls-test-docker
+
 .PHONY: e2e_test_docker
 e2e_test_docker: ## Run e2e (end-to-end) integration tests with docker
 	$(AWS_VAULT) ./scripts/run-e2e-test-docker

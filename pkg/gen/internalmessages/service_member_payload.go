@@ -45,7 +45,7 @@ type ServiceMemberPayload struct {
 	// Email
 	EmailIsPreferred *bool `json:"email_is_preferred,omitempty"`
 
-	// First Name
+	// First name
 	FirstName *string `json:"first_name,omitempty"`
 
 	// has social security number
@@ -61,10 +61,10 @@ type ServiceMemberPayload struct {
 	// Required: true
 	IsProfileComplete *bool `json:"is_profile_complete"`
 
-	// Last Name
+	// Last name
 	LastName *string `json:"last_name,omitempty"`
 
-	// Middle Name
+	// Middle name
 	MiddleName *string `json:"middle_name,omitempty"`
 
 	// orders

@@ -1128,17 +1128,17 @@ definitions:
         type: string
         example: John
         x-nullable: true
-        title: First Name
+        title: First name
       middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Name
+        title: Middle name
       last_name:
         type: string
         example: Donut
         x-nullable: true
-        title: Last Name
+        title: Last name
       suffix:
         type: string
         example: Jr.
@@ -1234,17 +1234,17 @@ definitions:
         type: string
         example: John
         x-nullable: true
-        title: First Name
+        title: First name
       middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Name
+        title: Middle name
       last_name:
         type: string
         example: Donut
         x-nullable: true
-        title: Last Name
+        title: Last name
       suffix:
         type: string
         example: Jr.
@@ -1320,17 +1320,17 @@ definitions:
         type: string
         example: John
         x-nullable: true
-        title: First Name
+        title: First name
       middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Name
+        title: Middle name
       last_name:
         type: string
         example: Donut
         x-nullable: true
-        title: Last Name
+        title: Last name
       suffix:
         type: string
         example: Jr.
