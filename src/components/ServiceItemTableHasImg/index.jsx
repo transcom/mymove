@@ -4,8 +4,8 @@ import { Button } from '@trussworks/react-uswds';
 import { ReactComponent as Check } from '../../shared/icon/check.svg';
 import { ReactComponent as Ex } from '../../shared/icon/ex.svg';
 
-const ServiceItemTableHasImg = ({ requestedServiceItems }) => {
-  const tableRows = requestedServiceItems.map(({ dateRequested, serviceItem, code, details }) => {
+const ServiceItemTableHasImg = ({ serviceItems }) => {
+  const tableRows = serviceItems.map(({ id, dateRequested, serviceItem, code, details }) => {
     let detailSection;
 
     if (details.imgURL) {
@@ -24,11 +24,11 @@ const ServiceItemTableHasImg = ({ requestedServiceItems }) => {
         </div>
       );
     } else {
-      detailSection = <p>{details.text}</p>;
+      detailSection = <p className="si-details">{details.text}</p>;
     }
 
     return (
-      <tr style={{ height: '80px' }}>
+      <tr key={id} style={{ height: '80px' }}>
         <td style={{ paddingTop: '19px', verticalAlign: 'top' }}>{dateRequested}</td>
         <td style={{ paddingTop: '19px', verticalAlign: 'top' }}>{serviceItem}</td>
         <td style={{ paddingTop: '19px', verticalAlign: 'top' }}>{code}</td>
@@ -77,8 +77,9 @@ const ServiceItemTableHasImg = ({ requestedServiceItems }) => {
 };
 
 ServiceItemTableHasImg.propTypes = {
-  requestedServiceItems: PropTypes.arrayOf(
+  serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.string,
       dateRequested: PropTypes.string,
       serviceItem: PropTypes.string,
       code: PropTypes.string,

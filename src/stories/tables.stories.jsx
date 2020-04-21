@@ -272,8 +272,9 @@ storiesOf('Components|Tables', module)
       <hr />
       <h3>Service item table with images and buttons</h3>
       <ServiceItemTableHasImg
-        requestedServiceItems={[
+        serviceItems={[
           {
+            id: 'abc-123',
             dateRequested: '20 Nov 2020',
             serviceItem: 'Domestic Crating',
             code: 'DCRT',
