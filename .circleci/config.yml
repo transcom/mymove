@@ -1052,7 +1052,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: rd-ecs-deploy-sidecar-friendly
+              ignore: placeholder_branch_name
 
       - client_test:
           requires:
@@ -1060,7 +1060,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: rd-ecs-deploy-sidecar-friendly
+              ignore: placeholder_branch_name
 
       - server_test:
           requires:
@@ -1068,7 +1068,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: rd-ecs-deploy-sidecar-friendly
+              ignore: placeholder_branch_name
 
       - build_app:
           requires:
@@ -1104,28 +1104,28 @@ workflows:
             - build_engadmin_app
           filters:
             branches:
-              only: rd-ecs-deploy-sidecar-friendly
+              only: placeholder_branch_name
 
       - deploy_experimental_tasks:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: rd-ecs-deploy-sidecar-friendly
+              only: placeholder_branch_name
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: rd-ecs-deploy-sidecar-friendly
+              only: placeholder_branch_name
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: rd-ecs-deploy-sidecar-friendly
+              only: placeholder_branch_name
 
       - check_circle_against_staging_sha:
           requires:
