@@ -3737,7 +3737,7 @@ func init() {
         "personal_email": {
           "type": "string",
           "format": "x-email",
-          "title": "Personal Email",
+          "title": "Personal email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true,
           "example": "john_bob@example.com"
@@ -3757,7 +3757,7 @@ func init() {
         "secondary_telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Alternate Phone",
+          "title": "Alternate phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -3778,7 +3778,7 @@ func init() {
         "telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Best Contact Phone",
+          "title": "Best contact phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -5708,7 +5708,7 @@ func init() {
         "telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Best Contact Phone",
+          "title": "Best contact phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -9942,7 +9942,7 @@ func init() {
         "personal_email": {
           "type": "string",
           "format": "x-email",
-          "title": "Personal Email",
+          "title": "Personal email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true,
           "example": "john_bob@example.com"
@@ -9962,7 +9962,7 @@ func init() {
         "secondary_telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Alternate Phone",
+          "title": "Alternate phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -9983,7 +9983,7 @@ func init() {
         "telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Best Contact Phone",
+          "title": "Best contact phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -11921,7 +11921,7 @@ func init() {
         "telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Best Contact Phone",
+          "title": "Best contact phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
