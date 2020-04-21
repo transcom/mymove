@@ -535,16 +535,15 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	family := fmt.Sprintf("%s-%s", serviceName, environmentName)
 
 	// handle entrypoint specific logic
-	var awsLogsStreamPrefix string
+	awsLogsStreamPrefix := serviceName
 	var awsLogsGroup string
 	var portMappings []*ecs.PortMapping
-	var containerDefName string
+	containerDefName := fmt.Sprintf("%s-%s", serviceName, environmentName)
 	if commandName == binMilMoveTasks {
 		executionRoleArn = fmt.Sprintf("ecs-task-exec-role-%s-%s-%s", serviceNameShort, environmentName, subCommandName)
 		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-%s-%s", serviceNameShort, environmentName, subCommandName)
 		family = fmt.Sprintf("%s-%s-%s", serviceNameShort, environmentName, subCommandName)
 
-		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
 		containerDefName = fmt.Sprintf("%s-%s-%s", serviceName, subCommandName, environmentName)
 
@@ -556,19 +555,12 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 			quit(logger, nil, fmt.Errorf("error retrieving targets for rule %q: %w", ruleName, listTargetsByRuleErr))
 		}
 	} else if subCommandName == "migrate" && commandName == "python /home/app/web/manage.py" { //engadmin migrations has its own task def unlike app-migrations below
-		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-app-engadmin-%s", environmentName)
-		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
-		executionRoleArn = fmt.Sprintf("ecs-task-execution-role-app-engadmin-%s", environmentName)
-		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
 
 		//change namespace to get secrets from the engadmin name space instead of defaulting to app
 		ssmNameSpace = "app-engadmin"
-
 	} else if subCommandName == "migrate" {
-		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
-		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
 
 		// TODO: The execution role needs to be split from the app
 		// This needs to be fixed in terraform
@@ -580,7 +572,6 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	} else {
 		awsLogsStreamPrefix = serviceNameShort
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
-		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
 
 		// Ports
 		port := servicesToAppPorts[serviceName]
