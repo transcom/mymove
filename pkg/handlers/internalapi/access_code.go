@@ -1,13 +1,13 @@
 package internalapi
 
 import (
-	"os"
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/cli"
 	accesscodeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -42,7 +42,8 @@ type FetchAccessCodeHandler struct {
 
 // Handle fetches the access code for a service member
 func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams) middleware.Responder {
-	if os.Getenv("FEATURE_FLAG_ACCESS_CODE") == "false" {
+	accessCodeRequired := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
+	if accessCodeRequired == false {
 		return nil
 	}
 
