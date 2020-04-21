@@ -99,7 +99,7 @@ func patchMTOShipmentStatus(cmd *cobra.Command, args []string) error {
 	params := mtoShipment.PatchMTOShipmentStatusParams{
 		ShipmentID: shipment.ID,
 		IfMatch:    v.GetString(ETagFlag),
-		Body: &supportmessages.PatchMTOShipmentStatusPayload{
+		Body: &supportmessages.PatchMTOShipmentStatus{
 			Status:          shipment.Status,
 			RejectionReason: shipment.RejectionReason},
 	}

@@ -203,7 +203,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatusPayload"
+              "$ref": "#/definitions/PatchMTOShipmentStatus"
             }
           },
           {
@@ -1022,7 +1022,7 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "PatchMTOShipmentStatusPayload": {
+    "PatchMTOShipmentStatus": {
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -1119,7 +1119,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestPayload": {
+    "UpdatePaymentRequest": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -1138,7 +1138,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -1479,7 +1479,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatusPayload"
+              "$ref": "#/definitions/PatchMTOShipmentStatus"
             }
           },
           {
@@ -2310,7 +2310,7 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "PatchMTOShipmentStatusPayload": {
+    "PatchMTOShipmentStatus": {
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -2407,7 +2407,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestPayload": {
+    "UpdatePaymentRequest": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -2426,7 +2426,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {

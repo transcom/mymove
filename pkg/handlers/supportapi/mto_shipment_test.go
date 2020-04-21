@@ -38,7 +38,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	params := mtoshipmentops.PatchMTOShipmentStatusParams{
 		HTTPRequest: req,
 		ShipmentID:  *handlers.FmtUUID(mtoShipment.ID),
-		Body:        &supportmessages.PatchMTOShipmentStatusPayload{Status: "APPROVED"},
+		Body:        &supportmessages.PatchMTOShipmentStatus{Status: "APPROVED"},
 		IfMatch:     eTag,
 	}
 
