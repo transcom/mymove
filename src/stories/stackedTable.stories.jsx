@@ -1,9 +1,8 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { storiesOf } from '@storybook/react';
-import { Button } from '@trussworks/react-uswds';
-import { ReactComponent as DocsIcon } from 'shared/icon/documents.svg';
-import { EditButton } from '../components/form';
+import * as Yup from 'yup';
+import { StackedTableRowForm, DocsButton } from '../components/form';
 
 const StackedTableExample = () => (
   <div className="table--stacked">
@@ -12,12 +11,7 @@ const StackedTableExample = () => (
         <h4>Orders</h4>
       </div>
       <div>
-        <Button className="usa-button--icon" onClick={action('clicked')}>
-          <span className="icon">
-            <DocsIcon />
-          </span>
-          <span>View orders</span>
-        </Button>
+        <DocsButton label="View orders" onClick={action('would open orders document viewer')} />
       </div>
     </div>
     <table>
@@ -46,12 +40,7 @@ const StackedTableWithButtons = () => (
         <h4>Orders</h4>
       </div>
       <div>
-        <Button className="usa-button--icon" onClick={action('clicked')}>
-          <span className="icon">
-            <DocsIcon />
-          </span>
-          <span>View orders</span>
-        </Button>
+        <DocsButton label="View orders" onClick={action('would open orders document viewer')} />
       </div>
     </div>
     <table>
@@ -60,27 +49,54 @@ const StackedTableWithButtons = () => (
         <col style={{ width: '75%' }} />
       </colgroup>
       <tbody>
-        <tr>
-          <th scope="row">Orders number</th>
-          <td>
-            999999999
-            <EditButton unstyled onClick={action('should open edit form')} />
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">Orders number</th>
-          <td>
-            999999999
-            <EditButton unstyled onClick={action('should open edit form')} />
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">Orders number</th>
-          <td>
-            999999999
-            <EditButton unstyled onClick={action('should open edit form')} />
-          </td>
-        </tr>
+        <StackedTableRowForm
+          initialValues={{ ordersNumber: '99999999' }}
+          validationSchema={Yup.object({
+            ordersNumber: Yup.string().max(15, 'Must be 15 characters or less').required('Required'),
+          })}
+          onSubmit={action('Orders Number Submit')}
+          onReset={action('Orders Number Cancel')}
+          id="ordersNumber"
+          name="ordersNumber"
+          type="text"
+          label="Orders Number"
+        />
+        <StackedTableRowForm
+          initialValues={{ madeUpField: '' }}
+          validationSchema={Yup.object({
+            madeUpField: Yup.string().max(15, 'Must be 15 characters or less').required('Required'),
+          })}
+          onSubmit={action('Made Up Field Submit')}
+          onReset={action('Made Up Field Cancel')}
+          id="madeUpField"
+          name="madeUpField"
+          type="text"
+          label="Made Up Field"
+        />
+        <StackedTableRowForm
+          initialValues={{ madeUpField2: 'Other data' }}
+          validationSchema={Yup.object({
+            madeUpField2: Yup.string().max(15, 'Must be 15 characters or less').required('Required'),
+          })}
+          onSubmit={action('Made Up Field 2 Submit')}
+          onReset={action('Made Up Field 2 Cancel')}
+          id="madeUpField2"
+          name="madeUpField2"
+          type="text"
+          label="Made Up Field 2"
+        />
+        <StackedTableRowForm
+          initialValues={{ madeUpField3: 'More Data' }}
+          validationSchema={Yup.object({
+            madeUpField3: Yup.string().max(15, 'Must be 15 characters or less').required('Required'),
+          })}
+          onSubmit={action('Made Up Field 3 Submit')}
+          onReset={action('Made Up Field 3 Cancel')}
+          id="madeUpField3"
+          name="madeUpField3"
+          type="text"
+          label="Made Up Field 3"
+        />
       </tbody>
     </table>
   </div>
