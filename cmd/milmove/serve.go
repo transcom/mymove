@@ -29,6 +29,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
+	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -313,6 +314,21 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeContent(w, r, "index.html", stat.ModTime(), bytes.NewReader(indexHTML))
 	}
+}
+
+func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]interface{}) map[string]interface{} {
+	conn := pool.Get()
+	defer conn.Close()
+
+	_, redisErr := redis.Bytes(conn.Do("GET", "scs:session:foo"))
+	if redisErr == redis.ErrNil {
+		redisErr = nil
+	} else if redisErr != nil {
+		logger.Error("Failed Redis health check", zap.Error(redisErr))
+	}
+	data["redis"] = redisErr == nil
+
+	return data
 }
 
 func serveFunction(cmd *cobra.Command, args []string) error {
@@ -668,7 +684,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Stub health check
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
-
 		data := map[string]interface{}{
 			"gitBranch": gitBranch,
 			"gitCommit": gitCommit,
@@ -687,6 +702,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 				logger.Error("Failed database health check", zap.Error(dbErr))
 			}
 			data["database"] = dbErr == nil
+
+			data = redisHealthCheck(redisPool, logger, data)
 		}
 
 		newEncoderErr := json.NewEncoder(w).Encode(data)
