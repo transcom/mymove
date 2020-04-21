@@ -226,7 +226,7 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	// Task Definition Settings
 	flag.String(serviceFlag, "app", fmt.Sprintf("The service name (choose %q)", services))
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
-	flag.String(imageURIFlag, "", "The URI of the container(s) image(s) to use in the task definition")
+	flag.String(imageURIFlag, "", "The URI of the image(s) to use in the task definition")
 	flag.String(variablesFileFlag, "", "A file containing variables for the task definiton")
 	flag.String(entryPointFlag, fmt.Sprintf("%s serve", binMilMove), "The entryPoint for the container")
 	flag.Int(cpuFlag, int(512), "The CPU reservation")
@@ -490,9 +490,8 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	awsRegion := v.GetString(cli.AWSRegionFlag)
 	environmentName := v.GetString(environmentFlag)
 	serviceName := v.GetString(serviceFlag)
-	// image uri flag can hold one or more comma separated images, assume first image is the main image
-	imageURIs := v.GetString(imageURIFlag)
-	imageList := strings.Split(imageURIs, ",")
+	// image uri flag can hold one or more images values, assume first image is the main image
+	imageList := v.GetStringSlice(imageURIFlag)
 	variablesFile := v.GetString(variablesFileFlag)
 
 	// Short service name needed for RDS, CloudWatch Logs, and SSM
