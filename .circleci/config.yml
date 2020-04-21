@@ -701,9 +701,9 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `storybook_tests` runs the loki test suite against the current storybook code
-  storybook_tests:
-    executor: mymove_medium
+  # `storybook_test_and_build` builds the storybook application container and pushes to the container repository
+  storybook_test_and_build:
+    executor: mymove_medium_plus
     steps:
       - checkout
       - setup_remote_docker:
@@ -715,6 +715,11 @@ jobs:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make storybook_tests
+      - run: make storybook_build
+      - persist_to_workspace:
+          root: /home/circleci/transcom/mymove/
+          paths:
+            - storybook-static
       - store_artifacts:
           path: .loki/current
           destination: current
@@ -724,24 +729,6 @@ jobs:
       - store_artifacts:
           path: .loki/reference
           destination: reference
-      - announce_failure
-
-  # `build_storybook_app` builds the storybook application container and pushes to the container repository
-  build_storybook_app:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make storybook_build
-      - persist_to_workspace:
-          root: /home/circleci/transcom/mymove/
-          paths:
-            - storybook-static
       - announce_failure
 
   # `build_migrations` builds the migrations container and pushes to the container repository
@@ -1056,12 +1043,6 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests # don't bother building and pushing the application if it won't even start properly
 
-      - build_storybook_app:
-          requires:
-            - anti_virus
-            - pre_deps_yarn
-            - storybook_tests
-
       - build_tools:
           requires:
             - anti_virus
@@ -1192,7 +1173,7 @@ workflows:
 
       - deploy_prod_storybook:
           requires:
-            - build_storybook_app
+            - storybook_test_and_build
             - approve_prod_deploy
           filters:
             branches:
@@ -1200,7 +1181,7 @@ workflows:
               # Uncomment below if pushing a test branch. Also comment out approve_prod_deploy few lines above.
               #only: placeholder_branch_name
 
-      - storybook_tests:
+      - storybook_test_and_build:
           requires:
             - anti_virus
             - pre_deps_yarn
