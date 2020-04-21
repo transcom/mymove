@@ -36,9 +36,9 @@
     "query-string": "6",
     "ra-data-simple-rest": "^2.9.9",
     "react": "^16.13.1",
-    "react-admin": "^3.4.1",
+    "react-admin": "^3.4.2",
     "react-app-polyfill": "^1.0.6",
-    "react-day-picker": "=7.4.2",
+    "react-day-picker": "=7.4.6",
     "react-dom": "^16.13.1",
     "react-filepond": "^4.0.0",
     "react-form": "^4.0.1",
@@ -69,7 +69,7 @@
     "swagger-client": "^3.10.0",
     "swagger-ui-dist": "^3.25.0",
     "uswds": "2.6.0",
-    "yup": "^0.28.3"
+    "yup": "^0.28.4"
   },
   "resolutions": {
     "kind-of": "^6.0.2"

@@ -3307,7 +3307,7 @@ func init() {
         "AIR_FORCE": "Air Force",
         "ARMY": "Army",
         "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
+        "MARINES": "Marine Corps",
         "NAVY": "Navy"
       },
       "x-nullable": true
@@ -9510,7 +9510,7 @@ func init() {
         "AIR_FORCE": "Air Force",
         "ARMY": "Army",
         "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
+        "MARINES": "Marine Corps",
         "NAVY": "Navy"
       },
       "x-nullable": true

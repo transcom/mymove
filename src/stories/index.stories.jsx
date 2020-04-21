@@ -248,6 +248,7 @@ storiesOf('Components|Tags', module).add('all', () => (
     <Tag className="usa-tag--alert">
       <AlertIcon />
     </Tag>
+    <Tag className="usa-tag--teal">INTL</Tag>
     <Tag>3</Tag>
     <Tag className="usa-tag--cyan usa-tag--large">#ABC123K</Tag>
   </div>

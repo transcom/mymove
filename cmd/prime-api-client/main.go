@@ -103,6 +103,16 @@ func main() {
 	initUpdateMTOStatusFlags(makeAvailableToPrimeCommand.Flags())
 	root.AddCommand(makeAvailableToPrimeCommand)
 
+	createPaymentRequestCommand := &cobra.Command{
+		Use:          "create-payment-request",
+		Short:        "Create payment request",
+		Long:         "Create payment request for a move task order",
+		RunE:         createPaymentRequest,
+		SilenceUsage: true,
+	}
+	initCreatePaymentRequestFlags(createPaymentRequestCommand.Flags())
+	root.AddCommand(createPaymentRequestCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
