@@ -1629,7 +1629,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -3443,7 +3443,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {

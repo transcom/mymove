@@ -46,7 +46,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &supportmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &supportmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
@@ -104,7 +104,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &supportmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
@@ -133,7 +133,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &supportmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 

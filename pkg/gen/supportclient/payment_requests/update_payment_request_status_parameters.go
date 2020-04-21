@@ -66,7 +66,7 @@ type UpdatePaymentRequestStatusParams struct {
 	/*IfMatch*/
 	IfMatch string
 	/*Body*/
-	Body *supportmessages.UpdatePaymentRequestStatusPayload
+	Body *supportmessages.UpdatePaymentRequestStatus
 	/*PaymentRequestID
 	  UUID of payment request
 
@@ -123,13 +123,13 @@ func (o *UpdatePaymentRequestStatusParams) SetIfMatch(ifMatch string) {
 }
 
 // WithBody adds the body to the update payment request status params
-func (o *UpdatePaymentRequestStatusParams) WithBody(body *supportmessages.UpdatePaymentRequestStatusPayload) *UpdatePaymentRequestStatusParams {
+func (o *UpdatePaymentRequestStatusParams) WithBody(body *supportmessages.UpdatePaymentRequestStatus) *UpdatePaymentRequestStatusParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the update payment request status params
-func (o *UpdatePaymentRequestStatusParams) SetBody(body *supportmessages.UpdatePaymentRequestStatusPayload) {
+func (o *UpdatePaymentRequestStatusParams) SetBody(body *supportmessages.UpdatePaymentRequestStatus) {
 	o.Body = body
 }
 

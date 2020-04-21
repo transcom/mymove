@@ -84,7 +84,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdatePaymentRequestStatusPayload'
+            $ref: '#/definitions/UpdatePaymentRequestStatus'
         - in: header
           name: If-Match
           type: string
@@ -124,7 +124,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
-        - gov
       description: Updates status of a payment request by id
       operationId: updatePaymentRequestStatus
       x-swagger-roles:
@@ -814,7 +813,7 @@ definitions:
       eTag:
         type: string
     type: object
-  UpdatePaymentRequestStatusPayload:
+  UpdatePaymentRequestStatus:
     properties:
       rejectionReason:
         example: documentation was incomplete

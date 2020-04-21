@@ -100,7 +100,7 @@ func updatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
 	params := paymentRequest.UpdatePaymentRequestStatusParams{
 		PaymentRequestID: strfmt.UUID(request.ID.String()),
 		IfMatch:          v.GetString(ETagFlag),
-		Body: &supportmessages.UpdatePaymentRequestStatusPayload{
+		Body: &supportmessages.UpdatePaymentRequestStatus{
 			Status:          request.Status,
 			RejectionReason: request.RejectionReason},
 	}

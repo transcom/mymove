@@ -44,7 +44,7 @@ type UpdatePaymentRequestStatusParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *supportmessages.UpdatePaymentRequestStatusPayload
+	Body *supportmessages.UpdatePaymentRequestStatus
 	/*UUID of payment request
 	  Required: true
 	  In: path
@@ -67,7 +67,7 @@ func (o *UpdatePaymentRequestStatusParams) BindRequest(r *http.Request, route *m
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body supportmessages.UpdatePaymentRequestStatusPayload
+		var body supportmessages.UpdatePaymentRequestStatus
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body"))

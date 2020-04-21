@@ -1198,7 +1198,7 @@ definitions:
       - bytes
       - createdAt
       - updatedAt
-  UpdatePaymentRequestStatusPayload:
+  UpdatePaymentRequestStatus:
     properties:
       rejectionReason:
         example: documentation was incomplete

@@ -127,8 +127,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Updates status of a payment request by id",
         "operationId": "updatePaymentRequestStatus",
@@ -146,7 +145,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
+              "$ref": "#/definitions/UpdatePaymentRequestStatus"
             }
           },
           {
@@ -1084,7 +1083,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -1334,8 +1333,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Updates status of a payment request by id",
         "operationId": "updatePaymentRequestStatus",
@@ -1353,7 +1351,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
+              "$ref": "#/definitions/UpdatePaymentRequestStatus"
             }
           },
           {
@@ -2309,7 +2307,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {
