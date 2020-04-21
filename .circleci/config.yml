@@ -703,7 +703,7 @@ jobs:
 
   # `storybook_test_and_build` builds the storybook application container and pushes to the container repository
   storybook_test_and_build:
-    executor: mymove_medium_plus
+    executor: mymove_medium
     steps:
       - checkout
       - setup_remote_docker:
