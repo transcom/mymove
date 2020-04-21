@@ -106,7 +106,7 @@
     "loki": "^0.20.3",
     "mime-types": "^2.1.26",
     "mockdate": "^2.0.2",
-    "prettier": "=2.0.4"
+    "prettier": "=2.0.5"
   },
   "browserslist": [
     ">0.2%",
