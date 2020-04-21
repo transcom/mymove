@@ -534,11 +534,13 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	taskRoleArn := fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
 	family := fmt.Sprintf("%s-%s", serviceName, environmentName)
 
-	// handle entrypoint specific logic
+	// set env driven shared defaults
 	awsLogsStreamPrefix := serviceName
-	var awsLogsGroup string
+	awsLogsGroup := fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
 	var portMappings []*ecs.PortMapping
 	containerDefName := fmt.Sprintf("%s-%s", serviceName, environmentName)
+
+	// handle entrypoint specific logic
 	if commandName == binMilMoveTasks {
 		executionRoleArn = fmt.Sprintf("ecs-task-exec-role-%s-%s-%s", serviceNameShort, environmentName, subCommandName)
 		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-%s-%s", serviceNameShort, environmentName, subCommandName)
@@ -555,10 +557,8 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 			quit(logger, nil, fmt.Errorf("error retrieving targets for rule %q: %w", ruleName, listTargetsByRuleErr))
 		}
 	} else if subCommandName == "migrate" && commandName == "python /home/app/web/manage.py" { //engadmin migrations has its own task def unlike app-migrations below
-		awsLogsGroup = fmt.Sprintf("ecs-tasks-app-engadmin-%s", environmentName)
-
-		//change namespace to get secrets from the engadmin name space instead of defaulting to app
-		ssmNameSpace = "app-engadmin"
+		//change namespace to get secrets from the app-engadmin name space instead of defaulting to app
+		ssmNameSpace = serviceName
 	} else if subCommandName == "migrate" {
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
 
@@ -571,7 +571,6 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		taskRoleArn = fmt.Sprintf("ecs-task-role-%s-migration-%s", serviceNameShort, environmentName)
 	} else {
 		awsLogsStreamPrefix = serviceNameShort
-		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
 
 		// Ports
 		port := servicesToAppPorts[serviceName]
