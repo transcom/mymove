@@ -24,82 +24,85 @@ import { ReactComponent as ZoomOutIcon } from 'shared/icon/zoom-out.svg';
 // Icons
 
 storiesOf('Global|Icons', module).add('all', () => (
-  <div id="icons" style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
-    <div>
-      <AddIcon />
-      <code>add</code>
-    </div>
-    <div>
-      <AlertIcon />
-      <code>alert</code>
-    </div>
-    <div>
-      <ArrowRightIcon />
-      <code>arrow right</code>
-    </div>
-    <div>
-      <ChevLeftIcon />
-      <code>chevron left</code>
-    </div>
-    <div>
-      <ChevRightIcon />
-      <code>chevron right</code>
-    </div>
-    <div>
-      <CheckmarkIcon />
-      <code>checkmark</code>
-    </div>
-    <div>
-      <DocsIcon />
-      <code>documents</code>
-    </div>
-    <div>
-      <EditIcon />
-      <code>edit</code>
-    </div>
-    <div>
-      <ExtenalLinkIcon />
-      <code>external link</code>
-    </div>
-    <div>
-      <FormCheckmarkIcon />
-      <code>form checkmark</code>
-    </div>
-    <div>
-      <FormDoubleCaratIcon />
-      <code>form double carat</code>
-    </div>
-    <div>
-      <LockIcon />
-      <code>lock</code>
-    </div>
-    <div>
-      <MapPinIcon />
-      <code>map pin</code>
-    </div>
-    <div>
-      <RotateClockwiseIcon />
-      <code>rotate clockwise</code>
-    </div>
-    <div>
-      <RotateCounterClockwiseIcon />
-      <code>rotate counter clockwise</code>
-    </div>
-    <div>
-      <XHeavyIcon />
-      <code>x heavy</code>
-    </div>
-    <div>
-      <XLightIcon />
-      <code>x light</code>
-    </div>
-    <div>
-      <ZoomInIcon />
-      <code>zoom in</code>
-    </div>
-    <div>
-      <ZoomOutIcon />
-      <code>zoom out</code>
+  <div style={{ padding: '20px', background: '#f0f0f0' }}>
+    <h3>Icons</h3>
+    <div id="icons" style={{ display: 'flex', flexWrap: 'wrap' }}>
+      <div>
+        <AddIcon />
+        <code>add</code>
+      </div>
+      <div>
+        <AlertIcon />
+        <code>alert</code>
+      </div>
+      <div>
+        <ArrowRightIcon />
+        <code>arrow right</code>
+      </div>
+      <div>
+        <ChevLeftIcon />
+        <code>chevron left</code>
+      </div>
+      <div>
+        <ChevRightIcon />
+        <code>chevron right</code>
+      </div>
+      <div>
+        <CheckmarkIcon />
+        <code>checkmark</code>
+      </div>
+      <div>
+        <DocsIcon />
+        <code>documents</code>
+      </div>
+      <div>
+        <EditIcon />
+        <code>edit</code>
+      </div>
+      <div>
+        <ExtenalLinkIcon />
+        <code>external link</code>
+      </div>
+      <div>
+        <FormCheckmarkIcon />
+        <code>form checkmark</code>
+      </div>
+      <div>
+        <FormDoubleCaratIcon />
+        <code>form double carat</code>
+      </div>
+      <div>
+        <LockIcon />
+        <code>lock</code>
+      </div>
+      <div>
+        <MapPinIcon />
+        <code>map pin</code>
+      </div>
+      <div>
+        <RotateClockwiseIcon />
+        <code>rotate clockwise</code>
+      </div>
+      <div>
+        <RotateCounterClockwiseIcon />
+        <code>rotate counter clockwise</code>
+      </div>
+      <div>
+        <XHeavyIcon />
+        <code>x heavy</code>
+      </div>
+      <div>
+        <XLightIcon />
+        <code>x light</code>
+      </div>
+      <div>
+        <ZoomInIcon />
+        <code>zoom in</code>
+      </div>
+      <div>
+        <ZoomOutIcon />
+        <code>zoom out</code>
+      </div>
     </div>
   </div>
 ));
