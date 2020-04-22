@@ -1041,6 +1041,7 @@ definitions:
             type: string
             enum:
               - DCRT # Domestic Crating
+              - DCRTSA # Domestic Crating - Standalone
               - DUCRT # Domestic Uncrating
           item:
             $ref: '#/definitions/MTOServiceItemDimension'
@@ -1130,6 +1131,7 @@ definitions:
       - DBHF
       - DBTF
       - DCRT
+      - DCRTSA
       - DDASIT
       - DDDSIT
       - DDFSIT
@@ -1153,6 +1155,7 @@ definitions:
       - ICOLH
       - ICOUB
       - ICRT
+      - ICRTSA
       - IDASIT
       - IDDSIT
       - IDFSIT

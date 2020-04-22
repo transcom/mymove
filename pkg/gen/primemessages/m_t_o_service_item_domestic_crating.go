@@ -47,7 +47,7 @@ type MTOServiceItemDomesticCrating struct {
 
 	// re service code
 	// Required: true
-	// Enum: [DCRT DUCRT]
+	// Enum: [DCRT DCRTSA DUCRT]
 	ReServiceCode *string `json:"reServiceCode"`
 }
 
@@ -157,7 +157,7 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 
 		// re service code
 		// Required: true
-		// Enum: [DCRT DUCRT]
+		// Enum: [DCRT DCRTSA DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
 	}
 	buf := bytes.NewBuffer(raw)
@@ -249,7 +249,7 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 
 		// re service code
 		// Required: true
-		// Enum: [DCRT DUCRT]
+		// Enum: [DCRT DCRTSA DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
 	}{
 
@@ -470,7 +470,7 @@ var mTOServiceItemDomesticCratingTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DCRT","DUCRT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DCRT","DCRTSA","DUCRT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
