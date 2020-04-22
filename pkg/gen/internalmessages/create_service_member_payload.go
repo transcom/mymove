@@ -45,7 +45,7 @@ type CreateServiceMemberPayload struct {
 	// Middle name
 	MiddleName *string `json:"middle_name,omitempty"`
 
-	// Personal Email
+	// Personal email
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	PersonalEmail *string `json:"personal_email,omitempty"`
 
@@ -58,7 +58,7 @@ type CreateServiceMemberPayload struct {
 	// Residential Address
 	ResidentialAddress *Address `json:"residential_address,omitempty"`
 
-	// Alternate Phone
+	// Alternate phone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	SecondaryTelephone *string `json:"secondary_telephone,omitempty"`
 
@@ -69,7 +69,7 @@ type CreateServiceMemberPayload struct {
 	// Suffix
 	Suffix *string `json:"suffix,omitempty"`
 
-	// Best Contact Phone
+	// Best contact phone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone *string `json:"telephone,omitempty"`
 
