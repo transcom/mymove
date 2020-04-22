@@ -68,7 +68,7 @@ type PatchMTOShipmentStatusParams struct {
 	/*Body*/
 	Body *supportmessages.PatchMTOShipmentStatus
 	/*ShipmentID
-	  ID of the shipment
+	  ID of the shipment being updated
 
 	*/
 	ShipmentID strfmt.UUID

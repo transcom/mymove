@@ -16,7 +16,7 @@ import (
 // PatchMTOShipmentStatusOKCode is the HTTP code returned for type PatchMTOShipmentStatusOK
 const PatchMTOShipmentStatusOKCode int = 200
 
-/*PatchMTOShipmentStatusOK Successfully updated shipment
+/*PatchMTOShipmentStatusOK Successfully updated shipment's status
 
 swagger:response patchMTOShipmentStatusOK
 */
