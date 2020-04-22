@@ -14,7 +14,9 @@ services:
   milmove_migrate:
     depends_on:
       - database
-    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
+    build:
+      context: .
+      dockerfile: Dockerfile.migrations_local
     links:
       - database
     environment:
@@ -38,11 +40,13 @@ services:
     depends_on:
       - database
       - milmove_migrate
-    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-placeholder_branch_name
+    build:
+      context: .
+      dockerfile: Dockerfile.local
     links:
       - database
     ports:
-      - '4000:4000'
+      - '9443:9443'
     environment:
       - CLIENT_AUTH_SECRET_KEY
       - CSRF_AUTH_KEY
@@ -64,14 +68,7 @@ services:
       - EIA_KEY=db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
       - ENVIRONMENT=test
       - FEATURE_FLAG_ACCESS_CODE=false
-      - HERE_MAPS_APP_CODE
-      - HERE_MAPS_APP_ID
-      - HERE_MAPS_GEOCODE_ENDPOINT
-      - HERE_MAPS_ROUTING_ENDPOINT
-      - HTTP_ADMIN_SERVER_NAME=adminlocal
-      - HTTP_MY_SERVER_NAME=milmovelocal
-      - HTTP_OFFICE_SERVER_NAME=officelocal
-      - HTTP_ORDERS_SERVER_NAME=orderslocal
+      - HTTP_PRIME_SERVER_NAME=primelocal
       - AWS_CF_DOMAIN=assets.devlocal.move.mil
       - IWS_RBS_ENABLED=1
       - IWS_RBS_HOST
@@ -87,16 +84,10 @@ services:
       - MOVE_MIL_DOD_CA_CERT
       - MOVE_MIL_DOD_TLS_CERT
       - MOVE_MIL_DOD_TLS_KEY
-      - MUTUAL_TLS_ENABLED=0
-      - NO_TLS_ENABLED=1
-      - NO_TLS_PORT=4000
+      - MUTUAL_TLS_ENABLED=1
       - PGPASSWORD=mysecretpassword
-      - SERVE_ADMIN=true
-      - SERVE_API_GHC=false
-      - SERVE_API_INTERNAL=true
-      - SERVE_API_PRIME=false
+      - SERVE_API_PRIME=true
       - STORAGE_BACKEND=local
-      - TLS_ENABLED=1
       - TZ=UTC
     volumes:
       - ./tmp:/tmp
