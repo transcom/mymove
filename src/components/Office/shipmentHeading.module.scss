@@ -4,9 +4,9 @@
 
 .shipment-heading {
   h3 {
-    margin-bottom: 0;
+    @include u-margin-bottom(0);
   }
   small {
-    color: $base-light;
+    @include u-text('base-light');
   }
 }
