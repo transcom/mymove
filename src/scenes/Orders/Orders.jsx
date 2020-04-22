@@ -59,11 +59,11 @@ export class Orders extends Component {
         pageList={pages}
         serverError={error}
       >
-        <h1 className="sm-heading">Tell Us About Your Move Orders</h1>
+        <h1 className="sm-heading">Tell us about your move orders</h1>
         <SwaggerField fieldName="orders_type" swagger={this.props.schema} required />
         <SwaggerField fieldName="issue_date" swagger={this.props.schema} required />
         <div style={{ marginTop: '0.25rem' }}>
-          <span className="usa-hint">Date your orders were issued.</span>
+          <span className="usa-hint">Date your orders were issued</span>
         </div>
         <SwaggerField fieldName="report_by_date" swagger={this.props.schema} required />
         <SwaggerField fieldName="has_dependents" swagger={this.props.schema} component={YesNoBoolean} />
