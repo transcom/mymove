@@ -130,6 +130,8 @@ storiesOf('Global|Colors', module).add('all', () => (
     <ColorGroup group={filterGroup('base')} />
     <h3>Alert Colors</h3>
     <ColorGroup group={filterGroup('alert')} />
+    <h3>Primary Colors</h3>
+    <ColorGroup group={filterGroup('primary')} />
     <h3>Accent Colors</h3>
     <ColorGroup group={filterGroup('accent')} />
   </div>
