@@ -5,7 +5,7 @@ import * as Yup from 'yup';
 import { StackedTableRowForm, DocsButton } from '../components/form';
 
 const StackedTableExample = () => (
-  <div className="table--stacked">
+  <div>
     <div className="display-flex">
       <div>
         <h4>Orders</h4>
@@ -14,7 +14,7 @@ const StackedTableExample = () => (
         <DocsButton label="View orders" onClick={action('would open orders document viewer')} />
       </div>
     </div>
-    <table>
+    <table className="table--stacked">
       <colgroup>
         <col style={{ width: '25%' }} />
         <col style={{ width: '75%' }} />
@@ -34,7 +34,7 @@ const StackedTableExample = () => (
 );
 
 const StackedTableWithButtons = () => (
-  <div className="table--stacked table--stacked-wbuttons">
+  <div>
     <div className="display-flex">
       <div>
         <h4>Orders</h4>
@@ -43,7 +43,7 @@ const StackedTableWithButtons = () => (
         <DocsButton label="View orders" onClick={action('would open orders document viewer')} />
       </div>
     </div>
-    <table>
+    <table className="table--stacked table--stacked-wbuttons">
       <colgroup>
         <col style={{ width: '25%' }} />
         <col style={{ width: '75%' }} />
