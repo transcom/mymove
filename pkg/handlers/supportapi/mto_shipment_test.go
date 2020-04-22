@@ -36,10 +36,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := mtoshipmentops.PatchMTOShipmentStatusParams{
-		HTTPRequest: req,
-		ShipmentID:  *handlers.FmtUUID(mtoShipment.ID),
-		Body:        &supportmessages.PatchMTOShipmentStatus{Status: "APPROVED"},
-		IfMatch:     eTag,
+		HTTPRequest:   req,
+		MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
+		Body:          &supportmessages.PatchMTOShipmentStatus{Status: "APPROVED"},
+		IfMatch:       eTag,
 	}
 
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {

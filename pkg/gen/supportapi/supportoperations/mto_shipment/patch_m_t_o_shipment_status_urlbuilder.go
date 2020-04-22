@@ -16,7 +16,7 @@ import (
 
 // PatchMTOShipmentStatusURL generates an URL for the patch m t o shipment status operation
 type PatchMTOShipmentStatusURL struct {
-	ShipmentID strfmt.UUID
+	MtoShipmentID strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -42,13 +42,13 @@ func (o *PatchMTOShipmentStatusURL) SetBasePath(bp string) {
 func (o *PatchMTOShipmentStatusURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/mto-shipments/{shipmentID}/status"
+	var _path = "/mto-shipments/{mtoShipmentID}/status"
 
-	shipmentID := o.ShipmentID.String()
-	if shipmentID != "" {
-		_path = strings.Replace(_path, "{shipmentID}", shipmentID, -1)
+	mtoShipmentID := o.MtoShipmentID.String()
+	if mtoShipmentID != "" {
+		_path = strings.Replace(_path, "{mtoShipmentID}", mtoShipmentID, -1)
 	} else {
-		return nil, errors.New("shipmentId is required on PatchMTOShipmentStatusURL")
+		return nil, errors.New("mtoShipmentId is required on PatchMTOShipmentStatusURL")
 	}
 
 	_basePath := o._basePath

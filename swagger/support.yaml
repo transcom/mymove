@@ -113,11 +113,11 @@ paths:
         - contracting_officer
         - ppm_office_users
       summary: Gets a move task order by ID
-  '/mto-shipments/{shipmentID}/status':
+  '/mto-shipments/{mtoShipmentID}/status':
     parameters:
       - description: ID of the shipment being updated
         in: path
-        name: shipmentID
+        name: mtoShipmentID
         required: true
         format: uuid
         type: string

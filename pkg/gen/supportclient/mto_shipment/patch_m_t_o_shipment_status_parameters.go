@@ -67,11 +67,11 @@ type PatchMTOShipmentStatusParams struct {
 	IfMatch string
 	/*Body*/
 	Body *supportmessages.PatchMTOShipmentStatus
-	/*ShipmentID
+	/*MtoShipmentID
 	  ID of the shipment being updated
 
 	*/
-	ShipmentID strfmt.UUID
+	MtoShipmentID strfmt.UUID
 
 	timeout    time.Duration
 	Context    context.Context
@@ -133,15 +133,15 @@ func (o *PatchMTOShipmentStatusParams) SetBody(body *supportmessages.PatchMTOShi
 	o.Body = body
 }
 
-// WithShipmentID adds the shipmentID to the patch m t o shipment status params
-func (o *PatchMTOShipmentStatusParams) WithShipmentID(shipmentID strfmt.UUID) *PatchMTOShipmentStatusParams {
-	o.SetShipmentID(shipmentID)
+// WithMtoShipmentID adds the mtoShipmentID to the patch m t o shipment status params
+func (o *PatchMTOShipmentStatusParams) WithMtoShipmentID(mtoShipmentID strfmt.UUID) *PatchMTOShipmentStatusParams {
+	o.SetMtoShipmentID(mtoShipmentID)
 	return o
 }
 
-// SetShipmentID adds the shipmentId to the patch m t o shipment status params
-func (o *PatchMTOShipmentStatusParams) SetShipmentID(shipmentID strfmt.UUID) {
-	o.ShipmentID = shipmentID
+// SetMtoShipmentID adds the mtoShipmentId to the patch m t o shipment status params
+func (o *PatchMTOShipmentStatusParams) SetMtoShipmentID(mtoShipmentID strfmt.UUID) {
+	o.MtoShipmentID = mtoShipmentID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -163,8 +163,8 @@ func (o *PatchMTOShipmentStatusParams) WriteToRequest(r runtime.ClientRequest, r
 		}
 	}
 
-	// path param shipmentID
-	if err := r.SetPathParam("shipmentID", o.ShipmentID.String()); err != nil {
+	// path param mtoShipmentID
+	if err := r.SetPathParam("mtoShipmentID", o.MtoShipmentID.String()); err != nil {
 		return err
 	}
 

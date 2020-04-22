@@ -183,7 +183,7 @@ func init() {
         ]
       }
     },
-    "/mto-shipments/{shipmentID}/status": {
+    "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
         "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required.\n",
         "consumes": [
@@ -257,7 +257,7 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "ID of the shipment being updated",
-          "name": "shipmentID",
+          "name": "mtoShipmentID",
           "in": "path",
           "required": true
         }
@@ -1454,7 +1454,7 @@ func init() {
         ]
       }
     },
-    "/mto-shipments/{shipmentID}/status": {
+    "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
         "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required.\n",
         "consumes": [
@@ -1540,7 +1540,7 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "ID of the shipment being updated",
-          "name": "shipmentID",
+          "name": "mtoShipmentID",
           "in": "path",
           "required": true
         }
