@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Formik } from 'formik';
-import { Button, Label } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 import classNames from 'classnames';
 import { EditButton } from './IconButtons';
 import { Form } from './Form';
@@ -46,7 +46,7 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
     </Formik>
   ) : (
     <>
-      <ErrorMessage className="display-inline" display={errorMsg}>
+      <ErrorMessage className="display-inline" display={!!errorMsg}>
         {errorMsg}
       </ErrorMessage>
       {value ? <span>{value}</span> : null}
@@ -57,13 +57,7 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
   return (
     <tr>
       <th scope="row" className={classNames({ error: errorMsg })}>
-        {show ? (
-          <Label error={errorMsg} htmlFor={name}>
-            {label}
-          </Label>
-        ) : (
-          <>{label}</>
-        )}
+        {label}
       </th>
       <td>{content}</td>
     </tr>
