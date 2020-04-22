@@ -3718,26 +3718,26 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
         "personal_email": {
           "type": "string",
           "format": "x-email",
-          "title": "Personal Email",
+          "title": "Personal email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true,
           "example": "john_bob@example.com"
@@ -3757,7 +3757,7 @@ func init() {
         "secondary_telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Alternate Phone",
+          "title": "Alternate phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -3778,7 +3778,7 @@ func init() {
         "telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Best Contact Phone",
+          "title": "Best contact phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -5113,19 +5113,19 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -5632,7 +5632,7 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
@@ -5649,13 +5649,13 @@ func init() {
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -5708,7 +5708,7 @@ func init() {
         "telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Best Contact Phone",
+          "title": "Best contact phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -9923,26 +9923,26 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
         "personal_email": {
           "type": "string",
           "format": "x-email",
-          "title": "Personal Email",
+          "title": "Personal email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true,
           "example": "john_bob@example.com"
@@ -9962,7 +9962,7 @@ func init() {
         "secondary_telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Alternate Phone",
+          "title": "Alternate phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -9983,7 +9983,7 @@ func init() {
         "telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Best Contact Phone",
+          "title": "Best contact phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -11324,19 +11324,19 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -11845,7 +11845,7 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
@@ -11862,13 +11862,13 @@ func init() {
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -11921,7 +11921,7 @@ func init() {
         "telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Best Contact Phone",
+          "title": "Best contact phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
