@@ -120,9 +120,9 @@ export class DateAndLocation extends Component {
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
           <h1 data-cy="location-page-title">PPM dates & locations</h1>
-          <h3> Move Date </h3>
+          <h3> Move date </h3>
           <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
-          <h3>Pickup Location</h3>
+          <h3>Pickup location</h3>
           <SwaggerField fieldName="pickup_postal_code" swagger={this.props.schema} required />
           <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
           {get(this.props, 'formValues.has_additional_postal_code', false) && (
