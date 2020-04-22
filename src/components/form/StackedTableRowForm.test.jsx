@@ -110,19 +110,5 @@ describe('StackedTableRowForm', () => {
     });
   });
 
-  it('triggers reset handler', () => {
-    const submit = jest.fn();
-    const reset = jest.fn();
-    const component = renderStackedTableRowForm(submit, reset);
-    component.find(EditButton).simulate('click');
-    const onResetFunc = component.find(Formik).props().onReset;
-    expect(component.find(EditButton).length).toBe(0);
-    onResetFunc({ sample: 'submit data' });
-    expect(reset).toHaveBeenCalledWith({
-      sample: 'submit data',
-    });
-    expect(submit).not.toHaveBeenCalled();
-  });
-
   afterEach(jest.clearAllMocks);
 });
