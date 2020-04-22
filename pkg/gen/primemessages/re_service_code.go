@@ -32,6 +32,9 @@ const (
 	// ReServiceCodeDCRT captures enum value "DCRT"
 	ReServiceCodeDCRT ReServiceCode = "DCRT"
 
+	// ReServiceCodeDCRTSA captures enum value "DCRTSA"
+	ReServiceCodeDCRTSA ReServiceCode = "DCRTSA"
+
 	// ReServiceCodeDDASIT captures enum value "DDASIT"
 	ReServiceCodeDDASIT ReServiceCode = "DDASIT"
 
@@ -100,6 +103,9 @@ const (
 
 	// ReServiceCodeICRT captures enum value "ICRT"
 	ReServiceCodeICRT ReServiceCode = "ICRT"
+
+	// ReServiceCodeICRTSA captures enum value "ICRTSA"
+	ReServiceCodeICRTSA ReServiceCode = "ICRTSA"
 
 	// ReServiceCodeIDASIT captures enum value "IDASIT"
 	ReServiceCodeIDASIT ReServiceCode = "IDASIT"
@@ -170,7 +176,7 @@ var reServiceCodeEnum []interface{}
 
 func init() {
 	var res []ReServiceCode
-	if err := json.Unmarshal([]byte(`["CS","DBHF","DBTF","DCRT","DDASIT","DDDSIT","DDFSIT","DDP","DDSHUT","DLH","DMHF","DNPKF","DOASIT","DOFSIT","DOP","DOPSIT","DOSHUT","DPK","DSH","DUCRT","DUPK","FSC","IBHF","IBTF","ICOLH","ICOUB","ICRT","IDASIT","IDDSIT","IDFSIT","IDSHUT","IHPK","IHUPK","INPKF","IOASIT","IOCLH","IOCUB","IOFSIT","IOOLH","IOOUB","IOPSIT","IOSHUT","IUBPK","IUBUPK","IUCRT","MS","NSTH","NSTUB"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["CS","DBHF","DBTF","DCRT","DCRTSA","DDASIT","DDDSIT","DDFSIT","DDP","DDSHUT","DLH","DMHF","DNPKF","DOASIT","DOFSIT","DOP","DOPSIT","DOSHUT","DPK","DSH","DUCRT","DUPK","FSC","IBHF","IBTF","ICOLH","ICOUB","ICRT","ICRTSA","IDASIT","IDDSIT","IDFSIT","IDSHUT","IHPK","IHUPK","INPKF","IOASIT","IOCLH","IOCUB","IOFSIT","IOOLH","IOOUB","IOPSIT","IOSHUT","IUBPK","IUBUPK","IUCRT","MS","NSTH","NSTUB"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
