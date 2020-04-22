@@ -148,7 +148,7 @@ export class DateAndLocation extends Component {
               )}
             </Fragment>
           )}
-          <h3>Destination Location</h3>
+          <h3>Destination location</h3>
           <p>
             Enter the ZIP for your new home if you know it, or for{' '}
             {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
