@@ -6,6 +6,7 @@ import { Button, Label } from '@trussworks/react-uswds';
 import classNames from 'classnames';
 import { EditButton } from './IconButtons';
 import { Form } from './Form';
+import { ErrorMessage } from './ErrorMessage';
 import { TextInputMinimal } from './fields';
 
 export const StackedTableRowForm = ({ label, name, validationSchema, initialValues, onSubmit, onReset, ...props }) => {
@@ -45,17 +46,17 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
     </Formik>
   ) : (
     <>
-      <span>
+      <ErrorMessage className="display-inline" display={errorMsg}>
         {errorMsg}
-        {value}
-      </span>
-      <EditButton type="button" unstyled onClick={() => setShow(true)} />
+      </ErrorMessage>
+      {value ? <span>{value}</span> : null}
+      <EditButton type="button" className="float-right" unstyled onClick={() => setShow(true)} />
     </>
   );
   /* eslint-enable react/jsx-props-no-spreading */
   return (
-    <tr className="default-table-row-classes">
-      <th scope="row" className={classNames('default-table-header-class-names', { 'table-header-error': errorMsg })}>
+    <tr>
+      <th scope="row" className={classNames({ error: errorMsg })}>
         {show ? (
           <Label error={errorMsg} htmlFor={name}>
             {label}
@@ -64,7 +65,7 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
           <>{label}</>
         )}
       </th>
-      <td className="default-table-data-class-names">{content}</td>
+      <td>{content}</td>
     </tr>
   );
 };
