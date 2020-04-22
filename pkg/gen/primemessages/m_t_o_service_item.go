@@ -56,6 +56,10 @@ type MTOServiceItem interface {
 	// re service name
 	ReServiceName() string
 	SetReServiceName(string)
+
+	// status
+	Status() MTOServiceItemStatus
+	SetStatus(MTOServiceItemStatus)
 }
 
 type mTOServiceItem struct {
@@ -72,6 +76,8 @@ type mTOServiceItem struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
+
+	statusField MTOServiceItemStatus
 }
 
 // ETag gets the e tag of this polymorphic type
@@ -142,6 +148,16 @@ func (m *mTOServiceItem) ReServiceName() string {
 // SetReServiceName sets the re service name of this polymorphic type
 func (m *mTOServiceItem) SetReServiceName(val string) {
 	m.reServiceNameField = val
+}
+
+// Status gets the status of this polymorphic type
+func (m *mTOServiceItem) Status() MTOServiceItemStatus {
+	return m.statusField
+}
+
+// SetStatus sets the status of this polymorphic type
+func (m *mTOServiceItem) SetStatus(val MTOServiceItemStatus) {
+	m.statusField = val
 }
 
 // UnmarshalMTOServiceItemSlice unmarshals polymorphic slices of MTOServiceItem
@@ -257,6 +273,10 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -309,6 +329,22 @@ func (m *mTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
+	if err := m.Status().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

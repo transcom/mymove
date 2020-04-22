@@ -113,6 +113,9 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 	}
 
 	if updatedShipment.MTOAgents != nil {
+		if oldShipment.MTOAgents == nil {
+			return services.NewInvalidInputError(oldShipment.ID, nil, nil, "MTO Agents do not exist")
+		}
 		for i, oldAgent := range oldShipment.MTOAgents {
 			for _, newAgentInfo := range updatedShipment.MTOAgents {
 				if oldAgent.ID == newAgentInfo.ID {
