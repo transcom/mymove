@@ -502,3 +502,4 @@
 20200410194345_change_nullability_in_tariff400ng_shorthaul_rate.up.sql
 20200413185502_change_nullability_in_tariff400ng_zip3s.up.sql
 20200420154249_add_crating_standalone.up.sql
+20200422184129_change_nullability_in_tariff400ng_zip5_rate_areas.up.sql
