@@ -6,9 +6,11 @@ import { Form as UswdsForm } from '@trussworks/react-uswds';
 
 export const Form = ({ errorCallback, ...props }) => {
   const { errors, touched, handleReset, handleSubmit } = useFormikContext();
-  if (errorCallback) {
-    errorCallback(errors, touched);
-  }
+  React.useEffect(() => {
+    if (errorCallback) {
+      errorCallback(errors, touched);
+    }
+  });
   // eslint-disable-next-line react/jsx-props-no-spreading
   return <UswdsForm onSubmit={handleSubmit} onReset={handleReset} {...props} />;
 };

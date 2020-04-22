@@ -57,6 +57,10 @@ describe('Form', () => {
   });
 
   describe('with errorCallback', () => {
+    beforeEach(() => {
+      jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => f());
+    });
+
     it('passes errors to it when rendered', () => {
       const errorCallback = jest.fn();
       shallow(
