@@ -1174,12 +1174,9 @@ workflows:
       - deploy_prod_storybook:
           requires:
             - storybook_tests
-            - approve_prod_deploy
           filters:
             branches:
               only: master
-              # Uncomment below if pushing a test branch. Also comment out approve_prod_deploy few lines above.
-              #only: placeholder_branch_name
 
       - storybook_tests:
           requires:
