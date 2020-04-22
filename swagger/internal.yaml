@@ -1150,7 +1150,7 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Best Contact Phone
+        title: Best contact phone
       secondary_telephone:
         type: string
         format: telephone
@@ -1256,21 +1256,21 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Best Contact Phone
+        title: Best contact phone
       secondary_telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Alternate Phone
+        title: Alternate phone
       personal_email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
-        title: Personal Email
+        title: Personal email
       phone_is_preferred:
         type: boolean
         x-nullable: true

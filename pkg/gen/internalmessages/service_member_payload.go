@@ -94,7 +94,7 @@ type ServiceMemberPayload struct {
 	// Suffix
 	Suffix *string `json:"suffix,omitempty"`
 
-	// Best Contact Phone
+	// Best contact phone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone *string `json:"telephone,omitempty"`
 
