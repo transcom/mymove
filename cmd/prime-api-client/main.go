@@ -112,7 +112,7 @@ func main() {
 	}
 	initGetMTOFlags(getMoveTaskOrder.Flags())
 	root.AddCommand(getMoveTaskOrder)
-  
+
 	createPaymentRequestCommand := &cobra.Command{
 		Use:          "create-payment-request",
 		Short:        "Create payment request",
