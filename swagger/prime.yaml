@@ -899,14 +899,12 @@ definitions:
       - width
       - height
   MTOServiceItemStatus:
-    properties:
-      status:
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
-        type: string
-    type: object
+    description: Describes all statuses for a MTOServiceItem
+    type: string
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
   MTOServiceItemModelType:
     description: Describes all model sub-types for a MTOServiceItem model
     type: string
@@ -946,6 +944,8 @@ definitions:
         type: string
       reServiceName:
         type: string
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
       modelType: # Base type and sub-types of MTOServiceItem
         $ref: '#/definitions/MTOServiceItemModelType'
       eTag:

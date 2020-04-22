@@ -31,6 +31,8 @@ type MTOServiceItemDomesticCrating struct {
 
 	reServiceNameField string
 
+	statusField MTOServiceItemStatus
+
 	// crate
 	// Required: true
 	Crate *MTOServiceItemDimension `json:"crate"`
@@ -119,6 +121,16 @@ func (m *MTOServiceItemDomesticCrating) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// Status gets the status of this subtype
+func (m *MTOServiceItemDomesticCrating) Status() MTOServiceItemStatus {
+	return m.statusField
+}
+
+// SetStatus sets the status of this subtype
+func (m *MTOServiceItemDomesticCrating) SetStatus(val MTOServiceItemStatus) {
+	m.statusField = val
+}
+
 // Crate gets the crate of this subtype
 
 // Description gets the description of this subtype
@@ -172,6 +184,8 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
 	dec = json.NewDecoder(buf)
@@ -199,6 +213,8 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
+
+	result.statusField = base.Status
 
 	result.Crate = data.Crate
 
@@ -263,6 +279,8 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
 		ETag: m.ETag(),
@@ -278,6 +296,8 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		Status: m.Status(),
 	},
 	)
 	if err != nil {
@@ -304,6 +324,10 @@ func (m *MTOServiceItemDomesticCrating) Validate(formats strfmt.Registry) error 
 	}
 
 	if err := m.validateReServiceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -375,6 +399,22 @@ func (m *MTOServiceItemDomesticCrating) validateReServiceID(formats strfmt.Regis
 	}
 
 	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDomesticCrating) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
+	if err := m.Status().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 
