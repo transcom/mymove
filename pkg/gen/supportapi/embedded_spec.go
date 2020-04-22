@@ -184,12 +184,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer"
-        ]
+        }
       },
       "parameters": [
         {
@@ -1391,12 +1386,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer"
-        ]
+        }
       },
       "parameters": [
         {

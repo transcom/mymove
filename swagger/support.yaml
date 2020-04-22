@@ -121,10 +121,6 @@ paths:
         Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED,
         `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in
         `rejectionReason` is required.
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
       operationId: patchMTOShipmentStatus
       summary: Updates a shipment's status
 definitions:
