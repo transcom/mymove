@@ -3307,7 +3307,7 @@ func init() {
         "AIR_FORCE": "Air Force",
         "ARMY": "Army",
         "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
+        "MARINES": "Marine Corps",
         "NAVY": "Navy"
       },
       "x-nullable": true
@@ -3718,19 +3718,19 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -5125,19 +5125,19 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -5644,7 +5644,7 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
@@ -5661,13 +5661,13 @@ func init() {
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -9522,7 +9522,7 @@ func init() {
         "AIR_FORCE": "Air Force",
         "ARMY": "Army",
         "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
+        "MARINES": "Marine Corps",
         "NAVY": "Navy"
       },
       "x-nullable": true
@@ -9935,19 +9935,19 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -11348,19 +11348,19 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -11869,7 +11869,7 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
@@ -11886,13 +11886,13 @@ func init() {
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
