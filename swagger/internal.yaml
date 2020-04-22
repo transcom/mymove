@@ -151,7 +151,7 @@ definitions:
       pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
@@ -162,14 +162,14 @@ definitions:
       additional_pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
@@ -240,7 +240,7 @@ definitions:
       pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
@@ -251,14 +251,14 @@ definitions:
       additional_pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
@@ -335,7 +335,7 @@ definitions:
       pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
@@ -346,14 +346,14 @@ definitions:
       additional_pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
@@ -446,7 +446,7 @@ definitions:
       pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
@@ -457,14 +457,14 @@ definitions:
       additional_pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true

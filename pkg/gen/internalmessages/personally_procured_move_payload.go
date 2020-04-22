@@ -23,7 +23,7 @@ type PersonallyProcuredMovePayload struct {
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actual_move_date,omitempty"`
 
-	// ZIP/Postal Code
+	// ZIP code
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	AdditionalPickupPostalCode *string `json:"additional_pickup_postal_code,omitempty"`
 
@@ -47,7 +47,7 @@ type PersonallyProcuredMovePayload struct {
 	// Minimum: 0
 	DaysInStorage *int64 `json:"days_in_storage,omitempty"`
 
-	// ZIP/Postal Code
+	// ZIP code
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	DestinationPostalCode *string `json:"destination_postal_code,omitempty"`
 
@@ -97,7 +97,7 @@ type PersonallyProcuredMovePayload struct {
 	// Format: date
 	OriginalMoveDate *strfmt.Date `json:"original_move_date,omitempty"`
 
-	// ZIP/Postal Code
+	// ZIP code
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	PickupPostalCode *string `json:"pickup_postal_code,omitempty"`
 

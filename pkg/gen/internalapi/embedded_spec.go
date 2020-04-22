@@ -3535,7 +3535,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -3555,7 +3555,7 @@ func init() {
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -3615,7 +3615,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -4983,7 +4983,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -5003,7 +5003,7 @@ func init() {
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -5059,7 +5059,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -5217,7 +5217,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -5248,7 +5248,7 @@ func init() {
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -5345,7 +5345,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -5988,7 +5988,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -6008,7 +6008,7 @@ func init() {
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -6069,7 +6069,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -9738,7 +9738,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -9759,7 +9759,7 @@ func init() {
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -9819,7 +9819,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -11192,7 +11192,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -11213,7 +11213,7 @@ func init() {
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -11269,7 +11269,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -11428,7 +11428,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -11460,7 +11460,7 @@ func init() {
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -11557,7 +11557,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -12201,7 +12201,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -12222,7 +12222,7 @@ func init() {
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -12283,7 +12283,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
