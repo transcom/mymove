@@ -33,7 +33,7 @@ func NewUpdatePaymentRequestStatus(ctx *middleware.Context, handler UpdatePaymen
 
 Updates status of a payment request by id
 
-Updates status of a payment request by id
+Approves or rejects a payment request, located using the payment request id. It can also add or update an optional rejection reason to add more context to the status.
 
 */
 type UpdatePaymentRequestStatus struct {

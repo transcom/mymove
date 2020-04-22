@@ -16,7 +16,7 @@ import (
 // UpdatePaymentRequestStatusOKCode is the HTTP code returned for type UpdatePaymentRequestStatusOK
 const UpdatePaymentRequestStatusOKCode int = 200
 
-/*UpdatePaymentRequestStatusOK updated payment request
+/*UpdatePaymentRequestStatusOK Updated payment request status
 
 swagger:response updatePaymentRequestStatusOK
 */
@@ -228,7 +228,7 @@ func (o *UpdatePaymentRequestStatusNotFound) WriteResponse(rw http.ResponseWrite
 // UpdatePaymentRequestStatusPreconditionFailedCode is the HTTP code returned for type UpdatePaymentRequestStatusPreconditionFailed
 const UpdatePaymentRequestStatusPreconditionFailedCode int = 412
 
-/*UpdatePaymentRequestStatusPreconditionFailed Precondition Failed
+/*UpdatePaymentRequestStatusPreconditionFailed Precondition failed -- add something about etag not matching
 
 swagger:response updatePaymentRequestStatusPreconditionFailed
 */

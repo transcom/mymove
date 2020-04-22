@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
@@ -40,8 +41,9 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(filter)
 
 	if err != nil {
-		logger.Error(fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
-		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
+		msg := fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String())
+		logger.Error(msg, zap.Error(err))
+		return paymentrequestop.NewUpdatePaymentRequestStatusBadRequest().WithPayload(&supportmessages.Error{Message: &msg})
 	}
 
 	status := existingPaymentRequest.Status
@@ -107,11 +109,12 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate, params.IfMatch)
 
 	if err != nil {
+		fmt.Println("there is an error 🎭™`")
 		switch err.(type) {
 		case services.NotFoundError:
 			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound()
 		case services.PreconditionFailedError:
-			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
 			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()

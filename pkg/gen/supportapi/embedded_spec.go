@@ -119,7 +119,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request by id",
+        "description": "Approves or rejects a payment request, located using the payment request id. It can also add or update an optional rejection reason to add more context to the status.",
         "consumes": [
           "application/json"
         ],
@@ -157,7 +157,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "updated payment request",
+            "description": "Updated payment request status",
             "schema": {
               "$ref": "#/definitions/PaymentRequest"
             }
@@ -187,7 +187,7 @@ func init() {
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed -- add something about etag not matching",
             "schema": {
               "$ref": "#/responses/PreconditionFailed"
             }
@@ -204,13 +204,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       }
     }
   },
@@ -1017,14 +1011,6 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
@@ -1325,7 +1311,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request by id",
+        "description": "Approves or rejects a payment request, located using the payment request id. It can also add or update an optional rejection reason to add more context to the status.",
         "consumes": [
           "application/json"
         ],
@@ -1363,7 +1349,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "updated payment request",
+            "description": "Updated payment request status",
             "schema": {
               "$ref": "#/definitions/PaymentRequest"
             }
@@ -1405,7 +1391,7 @@ func init() {
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed -- add something about etag not matching",
             "schema": {
               "description": "Precondition failed",
               "schema": {
@@ -1428,13 +1414,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       }
     }
   },
@@ -2241,14 +2221,6 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"

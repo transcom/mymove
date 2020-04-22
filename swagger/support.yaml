@@ -69,6 +69,11 @@ paths:
       summary: Change the status of a move task order to make it available to prime
   '/payment-requests/{paymentRequestID}/status':
     patch:
+      summary: Updates status of a payment request by id
+      description: Approves or rejects a payment request, located using the payment request id. It can also add or update an optional rejection reason to add more context to the status.
+      operationId: updatePaymentRequestStatus
+      tags:
+        - paymentRequests
       consumes:
         - application/json
       produces:
@@ -91,7 +96,7 @@ paths:
           required: true
       responses:
         '200':
-          description: updated payment request
+          description: Updated payment request status
           schema:
             $ref: '#/definitions/PaymentRequest'
         '400':
@@ -111,7 +116,7 @@ paths:
           schema:
             $ref: '#/responses/NotFound'
         '412':
-          description: Precondition Failed
+          description: Precondition failed -- add something about etag not matching
           schema:
             $ref: '#/responses/PreconditionFailed'
         '422':
@@ -122,16 +127,6 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
-      tags:
-        - paymentRequests
-      description: Updates status of a payment request by id
-      operationId: updatePaymentRequestStatus
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
-      summary: Updates status of a payment request by id
 definitions:
   ClientError:
     type: object
@@ -602,12 +597,6 @@ definitions:
         example: documentation was incomplete
         type: string
         x-nullable: true
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
       status:
         $ref: '#/definitions/PaymentRequestStatus'
       paymentRequestNumber:

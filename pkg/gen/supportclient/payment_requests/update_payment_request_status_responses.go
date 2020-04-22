@@ -85,7 +85,7 @@ func NewUpdatePaymentRequestStatusOK() *UpdatePaymentRequestStatusOK {
 
 /*UpdatePaymentRequestStatusOK handles this case with default header values.
 
-updated payment request
+Updated payment request status
 */
 type UpdatePaymentRequestStatusOK struct {
 	Payload *supportmessages.PaymentRequest
@@ -242,7 +242,7 @@ func NewUpdatePaymentRequestStatusPreconditionFailed() *UpdatePaymentRequestStat
 
 /*UpdatePaymentRequestStatusPreconditionFailed handles this case with default header values.
 
-Precondition Failed
+Precondition failed -- add something about etag not matching
 */
 type UpdatePaymentRequestStatusPreconditionFailed struct {
 	Payload interface{}
