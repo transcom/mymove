@@ -41,7 +41,7 @@ func (a *Client) PatchMTOShipmentStatus(params *PatchMTOShipmentStatusParams) (*
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "patchMTOShipmentStatus",
 		Method:             "PATCH",
-		PathPattern:        "/mto-shipments/{shipmentID}/status",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}/status",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},

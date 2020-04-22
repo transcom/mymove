@@ -47,7 +47,7 @@ type PatchMTOShipmentStatusHandlerFunc struct {
 func (h PatchMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.PatchMTOShipmentStatusParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+	shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 	status := models.MTOShipmentStatus(params.Body.Status)
 	rejectionReason := params.Body.RejectionReason
 	eTag := params.IfMatch

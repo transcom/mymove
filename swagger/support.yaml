@@ -67,11 +67,11 @@ paths:
         - contracting_officer
         - ppm_office_users
       summary: Change the status of a move task order to make it available to prime
-  '/mto-shipments/{shipmentID}/status':
+  '/mto-shipments/{mtoShipmentID}/status':
     parameters:
       - description: ID of the shipment being updated
         in: path
-        name: shipmentID
+        name: mtoShipmentID
         required: true
         format: uuid
         type: string
