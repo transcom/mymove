@@ -7,7 +7,7 @@ const cx = classNames.bind(styles);
 
 const ImportantShipmentDates = ({ requestedPickupDate, scheduledPickupDate }) => {
   return (
-    <div className={`container maxw-tablet ${cx('container-override')}`}>
+    <div className={`container container--gray maxw-tablet ${cx('shipment-dates-container')}`}>
       <div className={`${cx('flex')}`}>
         <p className={`${cx('header')} display-inline-block margin-bottom-0`}>Customer requested pick up date</p>
         <p className={`${cx('header')} display-inline-block margin-bottom-0`}>Scheduled pick up date</p>

@@ -2,9 +2,8 @@
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
 
-.container-override {
-  background: $base-lightest;
-  padding: 0 1.6rem 1rem 1.6rem;
+.shipment-dates-container {
+  padding-top: 0;
 }
 
 .header {
