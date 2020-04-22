@@ -45,7 +45,7 @@ type PatchMTOShipmentStatusParams struct {
 	  In: body
 	*/
 	Body *supportmessages.PatchMTOShipmentStatus
-	/*ID of the shipment
+	/*ID of the shipment being updated
 	  Required: true
 	  In: path
 	*/

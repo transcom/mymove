@@ -115,7 +115,7 @@ paths:
       summary: Gets a move task order by ID
   '/mto-shipments/{shipmentID}/status':
     parameters:
-      - description: ID of the shipment
+      - description: ID of the shipment being updated
         in: path
         name: shipmentID
         required: true
@@ -138,7 +138,7 @@ paths:
           required: true
       responses:
         '200':
-          description: Successfully updated shipment
+          description: Successfully updated shipment's status
           schema:
             $ref: '#/definitions/MTOShipment'
         '404':
@@ -163,7 +163,10 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - mtoShipment
-      description: Updates a shipment's status
+      description: >
+        Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED,
+        `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in
+        `rejectionReason` is required.
       x-swagger-roles:
         - transportation_invoicing_officer
         - transportation_ordering_officer

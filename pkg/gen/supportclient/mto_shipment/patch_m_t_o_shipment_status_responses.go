@@ -73,7 +73,7 @@ func NewPatchMTOShipmentStatusOK() *PatchMTOShipmentStatusOK {
 
 /*PatchMTOShipmentStatusOK handles this case with default header values.
 
-Successfully updated shipment
+Successfully updated shipment's status
 */
 type PatchMTOShipmentStatusOK struct {
 	Payload *supportmessages.MTOShipment
