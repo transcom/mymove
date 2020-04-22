@@ -3,25 +3,10 @@
 @import '../../shared/styles/colors';
 
 .shipment-dates-container {
-  padding-top: 0;
+  @include u-padding-top(0);
 }
 
-.header {
-  font-size: 0.87rem;
-  font-weight: bold;
-  color: $base-dark;
+.header, .date {
   width: 50%;
 }
 
-.divider {
-  border: 1px solid $base-lighter;
-}
-
-.flex {
-  display: flex;
-}
-
-.date {
-  width: 50%;
-  margin-top: 0;
-}
