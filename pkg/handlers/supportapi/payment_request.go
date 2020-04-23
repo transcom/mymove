@@ -122,6 +122,5 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	returnPayload := payloads.PaymentRequest(updatedPaymentRequest)
-
 	return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload)
 }
