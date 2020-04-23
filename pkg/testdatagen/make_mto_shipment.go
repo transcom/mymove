@@ -60,6 +60,11 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		MTOShipment.ApprovedDate = &approvedDate
 	}
 
+	if assertions.MTOShipment.ScheduledPickupDate != nil {
+		requiredDeliveryDate := time.Date(TestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
+		MTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
+	}
+
 	// Overwrite values with those from assertions
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 

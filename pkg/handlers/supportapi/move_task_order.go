@@ -4,6 +4,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
@@ -47,4 +49,31 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
 
 	return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
+}
+
+// GetMoveTaskOrderHandlerFunc updates the status of a Move Task Order
+type GetMoveTaskOrderHandlerFunc struct {
+	handlers.HandlerContext
+	moveTaskOrderFetcher services.MoveTaskOrderFetcher
+}
+
+// Handle updates the status of a MoveTaskOrder
+func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		logger.Error("primeapi.support.GetMoveTaskOrderHandler error", zap.Error(err))
+		switch err.(type) {
+		case services.NotFoundError:
+			return movetaskorderops.NewGetMoveTaskOrderNotFound().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.InvalidInputError:
+			return movetaskorderops.NewGetMoveTaskOrderBadRequest().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+		}
+	}
+	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
 }

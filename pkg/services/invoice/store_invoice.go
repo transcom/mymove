@@ -53,8 +53,8 @@ func (s StoreInvoice858C) Call(edi string, invoice *models.Invoice, userID uuid.
 		verrs.Add(validators.GenerateKey("Sync EDI file Failed for file: "+ediTmpFile), err.Error())
 	}
 
-	// Create Upload'r
-	loader, err := uploader.NewUploader(s.DB, s.Logger, *s.Storer, 25*uploader.MB)
+	// Create UserUpload
+	loader, err := uploader.NewUserUploader(s.DB, s.Logger, *s.Storer, 25*uploader.MB)
 	if err != nil {
 		s.Logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}
@@ -62,34 +62,34 @@ func (s StoreInvoice858C) Call(edi string, invoice *models.Invoice, userID uuid.
 	loader.SetUploadStorageKey(ediTmpFile)
 
 	// Delete of previous upload, if it exist
-	// If Delete of Upload fails, ignoring this error because we still have a new Upload that needs to be saved
+	// If Delete of UserUpload fails, ignoring this error because we still have a new UserUpload that needs to be saved
 	// to the Invoice
-	err = UploadUpdater{DB: s.DB, Uploader: loader}.DeleteUpload(invoice)
+	err = UploadUpdater{DB: s.DB, UserUploader: loader}.DeleteUpload(invoice)
 	if err != nil {
 		logStr := ""
-		if invoice != nil && invoice.UploadID != nil {
-			logStr = invoice.UploadID.String()
+		if invoice != nil && invoice.UserUploadID != nil {
+			logStr = invoice.UserUploadID.String()
 		}
-		s.Logger.Info("Errors encountered for while deleting previous Upload:"+logStr,
+		s.Logger.Info("Errors encountered for while deleting previous UserUpload:"+logStr,
 			zap.Any("verrors", verrs.Error()))
 	}
 
-	// Create and save Upload to s3
-	upload, verrs2, err := loader.CreateUpload(userID, uploader.File{File: f}, uploader.AllowedTypesText)
+	// Create and save UserUpload to s3
+	userUpload, verrs2, err := loader.CreateUserUpload(userID, uploader.File{File: f}, uploader.AllowedTypesText)
 	verrs.Append(verrs2)
 	if err != nil {
-		return verrs, errors.Wrapf(err, "Failed to Create Upload for StoreInvoice858C(), invoice ID: %s", invoiceID)
+		return verrs, errors.Wrapf(err, "Failed to Create UserUpload for StoreInvoice858C(), invoice ID: %s", invoiceID)
 	}
 
-	if upload == nil {
-		return verrs, errors.New("Failed to Create and Save new Upload object in database, invoice ID: " + invoiceID)
+	if userUpload == nil {
+		return verrs, errors.New("Failed to Create and Save new UserUpload object in database, invoice ID: " + invoiceID)
 	}
 
-	// Save Upload to Invoice
-	verrs2, err = UploadUpdater{DB: s.DB, Uploader: loader}.Call(invoice, upload)
+	// Save UserUpload to Invoice
+	verrs2, err = UploadUpdater{DB: s.DB, UserUploader: loader}.Call(invoice, userUpload)
 	verrs.Append(verrs2)
 	if err != nil {
-		return verrs, errors.New("Failed to save Upload to Invoice: " + invoiceID)
+		return verrs, errors.New("Failed to save UserUpload to Invoice: " + invoiceID)
 	}
 
 	if verrs.HasAny() {

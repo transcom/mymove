@@ -201,7 +201,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 
 	// Eager loading of nested has_many associations is broken
 	for i, moveDoc := range move.MoveDocuments {
-		db.Load(&moveDoc.Document, "Uploads")
+		db.Load(&moveDoc.Document, "UserUploads.Upload")
 		move.MoveDocuments[i] = moveDoc
 	}
 
@@ -216,7 +216,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 
 func (m Move) createMoveDocumentWithoutTransaction(
 	db *pop.Connection,
-	uploads Uploads,
+	userUploads UserUploads,
 	modelID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
@@ -229,7 +229,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	// Make a generic Document
 	newDoc := Document{
 		ServiceMemberID: m.Orders.ServiceMemberID,
-		Uploads:         uploads,
+		UserUploads:     userUploads,
 	}
 	newDocVerrs, newDocErr := db.ValidateAndCreate(&newDoc)
 	if newDocErr != nil || newDocVerrs.HasAny() {
@@ -239,7 +239,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	}
 
 	// Associate uploads to the new document
-	for _, upload := range uploads {
+	for _, upload := range userUploads {
 		upload.DocumentID = &newDoc.ID
 		verrs, err := db.ValidateAndUpdate(&upload)
 		if err != nil || verrs.HasAny() {
@@ -288,7 +288,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 // CreateMoveDocument creates a move document associated to a move & ppm or shipment
 func (m Move) CreateMoveDocument(
 	db *pop.Connection,
-	uploads Uploads,
+	userUploads UserUploads,
 	modelID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
@@ -304,7 +304,7 @@ func (m Move) CreateMoveDocument(
 
 		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
 			db,
-			uploads,
+			userUploads,
 			modelID,
 			moveDocumentType,
 			title,
@@ -325,7 +325,7 @@ func (m Move) CreateMoveDocument(
 // CreateMovingExpenseDocument creates a moving expense document associated to a move and move document
 func (m Move) CreateMovingExpenseDocument(
 	db *pop.Connection,
-	uploads Uploads,
+	userUploads UserUploads,
 	personallyProcuredMoveID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
@@ -344,7 +344,7 @@ func (m Move) CreateMovingExpenseDocument(
 		var newMoveDocument *MoveDocument
 		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
 			db,
-			uploads,
+			userUploads,
 			personallyProcuredMoveID,
 			moveDocumentType,
 			title,
