@@ -4,6 +4,8 @@ import { ConnectedRouter } from 'connected-react-router';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import '../../index.scss';
+import '../../ghc_index.scss';
 
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
@@ -29,7 +31,7 @@ const DocumentViewer = lazy(() => import('./DocumentViewer'));
 const ScratchPad = lazy(() => import('shared/ScratchPad'));
 const CustomerDetails = lazy(() => import('./TOO/customerDetails'));
 const TOO = lazy(() => import('./TOO/too'));
-const TOOAccessorials = lazy(() => import('pages/TOO/accessorials'));
+const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
 const TIO = lazy(() => import('./TIO/tio'));
 const TOOVerificationInProgress = lazy(() => import('./TOO/tooVerificationInProgress'));
 const PaymentRequestShow = lazy(() => import('./TIO/paymentRequestShow'));
@@ -164,7 +166,7 @@ export class OfficeWrapper extends Component {
                 <Suspense fallback={<LoadingPlaceholder />}>
                   <Switch>
                     {too && <PrivateRoute path="/too/customer-moves" exact component={TOO} />}
-                    {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOAccessorials} />}
+                    {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOMoveTaskOrder} />}
                     {too && (
                       <PrivateRoute
                         path="/too/customer-moves/:moveOrderId/customer/:customerId"

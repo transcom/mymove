@@ -197,6 +197,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
 	}
 
+	if mtoShipment.ScheduledPickupDate != nil {
+		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
+	}
+
 	return payload
 }
 
