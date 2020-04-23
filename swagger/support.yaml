@@ -113,7 +113,7 @@ paths:
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found.
+          description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
         '412':
@@ -128,6 +128,52 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
+  '/move-task-orders/{moveTaskOrderID}':
+    parameters:
+      - description: ID of move task order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieve an individual move task order
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Gets an individual move task order
+      operationId: getMoveTaskOrder
+      x-swagger-roles:
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
+      summary: Gets a move task order by ID
 definitions:
   ClientError:
     type: object

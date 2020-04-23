@@ -211,7 +211,7 @@ func NewUpdatePaymentRequestStatusNotFound() *UpdatePaymentRequestStatusNotFound
 
 /*UpdatePaymentRequestStatusNotFound handles this case with default header values.
 
-The requested resource wasn't found.
+The requested resource wasn't found
 */
 type UpdatePaymentRequestStatusNotFound struct {
 	Payload interface{}

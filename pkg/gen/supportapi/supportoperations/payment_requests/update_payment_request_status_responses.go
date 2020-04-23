@@ -186,7 +186,7 @@ func (o *UpdatePaymentRequestStatusForbidden) WriteResponse(rw http.ResponseWrit
 // UpdatePaymentRequestStatusNotFoundCode is the HTTP code returned for type UpdatePaymentRequestStatusNotFound
 const UpdatePaymentRequestStatusNotFoundCode int = 404
 
-/*UpdatePaymentRequestStatusNotFound The requested resource wasn't found.
+/*UpdatePaymentRequestStatusNotFound The requested resource wasn't found
 
 swagger:response updatePaymentRequestStatusNotFound
 */

@@ -14,16 +14,6 @@ import (
 
 // MakeUpload creates a single Upload.
 func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
-	document := assertions.Upload.Document
-	if assertions.Upload.DocumentID == nil || isZeroUUID(*assertions.Upload.DocumentID) {
-		document = MakeDocument(db, assertions)
-	}
-
-	uploaderID := assertions.Upload.UploaderID
-	if isZeroUUID(uploaderID) {
-		uploaderID = document.ServiceMember.UserID
-	}
-
 	// Users can either assert an Uploader (and a real file is used), or can optionally assert fields
 	var upload *models.Upload
 	if assertions.Uploader != nil {
@@ -31,21 +21,45 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 		var verrs *validate.Errors
 		var err error
 		file := fixture("test.pdf")
-		upload, verrs, err = assertions.Uploader.CreateUploadForDocument(&document.ID, uploaderID, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
+		upload, verrs, err = assertions.Uploader.CreateUpload(uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
-			log.Panic(fmt.Errorf("Errors encountered saving upload %v, %v", verrs, err))
+			log.Panic(fmt.Errorf("errors encountered saving upload %v, %v", verrs, err))
 		}
 	} else {
 		// If no file is being stored, use asserted fields
-		upload = &models.Upload{
-			DocumentID:  &document.ID,
-			Document:    document,
-			UploaderID:  uploaderID,
-			Filename:    "testFile.pdf",
-			Bytes:       2202009,
-			ContentType: "application/pdf",
-			Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+		upload = &models.Upload{}
+
+		filename := "testFile.pdf"
+		if assertions.Upload.Filename != "" {
+			filename = assertions.Upload.Filename
 		}
+		upload.Filename = filename
+
+		bytes := int64(2202009)
+		if assertions.UploadUseZeroBytes == true {
+			bytes = 0
+		} else if assertions.Upload.Bytes > 0 {
+			bytes = assertions.Upload.Bytes
+		}
+		upload.Bytes = bytes
+
+		contentType := "application/pdf"
+		if assertions.Upload.ContentType != "" {
+			contentType = assertions.Upload.ContentType
+		}
+		upload.ContentType = contentType
+
+		checksum := "ImGQ2Ush0bDHsaQthV5BnQ=="
+		if assertions.Upload.Checksum != "" {
+			checksum = assertions.Upload.Checksum
+		}
+		upload.Checksum = checksum
+
+		uploadType := models.UploadTypeUSER
+		if assertions.Upload.UploadType.Valid() {
+			uploadType = assertions.Upload.UploadType
+		}
+		upload.UploadType = uploadType
 
 		mergeModels(upload, assertions.Upload)
 

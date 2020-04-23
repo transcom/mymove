@@ -61,7 +61,7 @@ export class ContactInfo extends Component {
       >
         <div className="grid-row">
           <div className="grid-col-12">
-            <h1 className="sm-heading">Your Contact Info</h1>
+            <h1 className="sm-heading">Your contact info</h1>
             <SwaggerField fieldName="telephone" swagger={schema} required />
             <SwaggerField fieldName="secondary_telephone" swagger={schema} />
             <SwaggerField fieldName="personal_email" swagger={schema} required />

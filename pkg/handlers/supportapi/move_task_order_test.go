@@ -41,3 +41,26 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
 	suite.Equal(*moveTaskOrdersPayload.IsAvailableToPrime, true)
 }
+
+func (suite *HandlerSuite) TestGetMoveTaskOrder() {
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+
+	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	params := move_task_order.GetMoveTaskOrderParams{
+		HTTPRequest:     request,
+		MoveTaskOrderID: moveTaskOrder.ID.String(),
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetMoveTaskOrderHandlerFunc{context,
+		movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+	}
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+	moveTaskOrdersResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+	suite.Assertions.IsType(&move_task_order.GetMoveTaskOrderOK{}, response)
+	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
+	suite.Equal(*moveTaskOrdersPayload.IsAvailableToPrime, false)
+}

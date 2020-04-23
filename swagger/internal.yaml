@@ -53,7 +53,7 @@ definitions:
     x-display-value:
       ARMY: Army
       NAVY: Navy
-      MARINES: Marines
+      MARINES: Marine Corps
       AIR_FORCE: Air Force
       COAST_GUARD: Coast Guard
   DutyStationPayload:
@@ -1128,17 +1128,17 @@ definitions:
         type: string
         example: John
         x-nullable: true
-        title: First Name
+        title: First name
       middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Name
+        title: Middle name
       last_name:
         type: string
         example: Donut
         x-nullable: true
-        title: Last Name
+        title: Last name
       suffix:
         type: string
         example: Jr.
@@ -1150,7 +1150,7 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Best Contact Phone
+        title: Best contact phone
       secondary_telephone:
         type: string
         format: telephone
@@ -1234,17 +1234,17 @@ definitions:
         type: string
         example: John
         x-nullable: true
-        title: First Name
+        title: First name
       middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Name
+        title: Middle name
       last_name:
         type: string
         example: Donut
         x-nullable: true
-        title: Last Name
+        title: Last name
       suffix:
         type: string
         example: Jr.
@@ -1256,21 +1256,21 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Best Contact Phone
+        title: Best contact phone
       secondary_telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Alternate Phone
+        title: Alternate phone
       personal_email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
-        title: Personal Email
+        title: Personal email
       phone_is_preferred:
         type: boolean
         x-nullable: true
@@ -1320,17 +1320,17 @@ definitions:
         type: string
         example: John
         x-nullable: true
-        title: First Name
+        title: First name
       middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Name
+        title: Middle name
       last_name:
         type: string
         example: Donut
         x-nullable: true
-        title: Last Name
+        title: Last name
       suffix:
         type: string
         example: Jr.

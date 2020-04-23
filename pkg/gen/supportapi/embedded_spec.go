@@ -36,6 +36,72 @@ func init() {
   },
   "basePath": "/support/v1",
   "paths": {
+    "/move-task-orders/{moveTaskOrderID}": {
+      "get": {
+        "description": "Gets an individual move task order",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Gets a move task order by ID",
+        "operationId": "getMoveTaskOrder",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieve an individual move task order",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move task order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
         "description": "Changes move task order status to make it available to prime",
@@ -182,7 +248,7 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found.",
+            "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/responses/NotFound"
             }
@@ -1213,6 +1279,87 @@ func init() {
   },
   "basePath": "/support/v1",
   "paths": {
+    "/move-task-orders/{moveTaskOrderID}": {
+      "get": {
+        "description": "Gets an individual move task order",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Gets a move task order by ID",
+        "operationId": "getMoveTaskOrder",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieve an individual move task order",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move task order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
         "description": "Changes move task order status to make it available to prime",
@@ -1386,7 +1533,7 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found.",
+            "description": "The requested resource wasn't found",
             "schema": {
               "description": "The requested resource wasn't found",
               "schema": {
