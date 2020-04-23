@@ -54,7 +54,7 @@ type PersonallyProcuredMovePayload struct {
 	// Estimated Storage Reimbursement
 	EstimatedStorageReimbursement *string `json:"estimated_storage_reimbursement,omitempty"`
 
-	// Will you move anything from another pickup location?
+	// Do you have stuff at another pickup location?
 	HasAdditionalPostalCode *bool `json:"has_additional_postal_code,omitempty"`
 
 	// Has Pro-Gear
@@ -68,7 +68,7 @@ type PersonallyProcuredMovePayload struct {
 	// Would you like an advance of up to 60% of your PPM incentive?
 	HasRequestedAdvance *bool `json:"has_requested_advance,omitempty"`
 
-	// Are you going to put your stuff in temporary storage before moving into your new home?
+	// Will you put anything in storage?
 	HasSit *bool `json:"has_sit,omitempty"`
 
 	// id

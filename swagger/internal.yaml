@@ -158,7 +158,7 @@ definitions:
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Will you move anything from another pickup location?
+        title: Do you have stuff at another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
@@ -176,7 +176,7 @@ definitions:
       has_sit:
         type: boolean
         x-nullable: true
-        title: Are you going to put your stuff in temporary storage before moving into your new home?
+        title: Will you put anything in storage?
       days_in_storage:
         type: integer
         title: How many days do you plan to put your stuff in storage?
@@ -247,7 +247,7 @@ definitions:
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Will you move anything from another pickup location?
+        title: Do you have stuff at another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
@@ -265,7 +265,7 @@ definitions:
       has_sit:
         type: boolean
         x-nullable: true
-        title: Are you going to put your stuff in temporary storage before moving into your new home?
+        title: Will you put anything in storage?
       days_in_storage:
         type: integer
         title: How many days do you plan to put your stuff in storage?
@@ -342,7 +342,7 @@ definitions:
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Will you move anything from another pickup location?
+        title: Do you have stuff at another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
@@ -360,7 +360,7 @@ definitions:
       has_sit:
         type: boolean
         x-nullable: true
-        title: Are you going to put your stuff in temporary storage before moving into your new home?
+        title: Will you put anything in storage?
       days_in_storage:
         type: integer
         title: How many days do you plan to put your stuff in storage?
@@ -453,7 +453,7 @@ definitions:
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Will you move anything from another pickup location?
+        title: Do you have stuff at another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
@@ -471,7 +471,7 @@ definitions:
       has_sit:
         type: boolean
         x-nullable: true
-        title: Are you going to put your stuff in temporary storage before moving into your new home?
+        title: Will you put anything in storage?
       days_in_storage:
         type: integer
         title: How many days do you plan to put your stuff in storage?

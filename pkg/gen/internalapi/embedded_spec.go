@@ -3567,7 +3567,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Will you move anything from another pickup location?",
+          "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -3596,7 +3596,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "net_weight": {
@@ -5010,7 +5010,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Will you move anything from another pickup location?",
+          "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -5040,7 +5040,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "net_weight": {
@@ -5260,7 +5260,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Will you move anything from another pickup location?",
+          "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -5300,7 +5300,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "id": {
@@ -6020,7 +6020,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Will you move anything from another pickup location?",
+          "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -6050,7 +6050,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "net_weight": {
@@ -9771,7 +9771,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Will you move anything from another pickup location?",
+          "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -9800,7 +9800,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "net_weight": {
@@ -11220,7 +11220,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Will you move anything from another pickup location?",
+          "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -11250,7 +11250,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "net_weight": {
@@ -11472,7 +11472,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Will you move anything from another pickup location?",
+          "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -11512,7 +11512,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "id": {
@@ -12234,7 +12234,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Will you move anything from another pickup location?",
+          "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -12264,7 +12264,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "net_weight": {
