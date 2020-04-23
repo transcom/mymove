@@ -47,6 +47,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	status := existingPaymentRequest.Status
+
 	var reviewedDate time.Time
 	var recGexDate time.Time
 	var sentGexDate time.Time
@@ -109,7 +110,6 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate, params.IfMatch)
 
 	if err != nil {
-		fmt.Println("there is an error 🎭™`")
 		switch err.(type) {
 		case services.NotFoundError:
 			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound()
@@ -122,5 +122,6 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	returnPayload := payloads.PaymentRequest(updatedPaymentRequest)
+
 	return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload)
 }

@@ -5,61 +5,53 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
-	"time"
+
+	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
-	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
-
-	paymentRequest := models.PaymentRequest{
-		ID:        paymentRequestID,
-		IsFinal:   false,
-		Status:    models.PaymentRequestStatusPending,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+	paymentRequestID := paymentRequest.ID
 
 	suite.T().Run("successful status update of payment request", func(t *testing.T) {
-		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(&paymentRequest, nil).Once()
-
-		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
-
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
+		eTag := etag.GenerateEtag(paymentRequest.UpdatedAt)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
 			HTTPRequest:      req,
-			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil},
+			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil, ETag: eTag},
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+			IfMatch:          eTag,
 		}
+		queryBuilder := query.NewQueryBuilder(suite.DB())
 
 		handler := UpdatePaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
-			PaymentRequestFetcher:       paymentRequestFetcher,
+			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
 		}
 
 		response := handler.Handle(params)
 
-		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusOK(), response)
+		paymentRequestStatusResponse := response.(*paymentrequestop.UpdatePaymentRequestStatusOK)
+		paymentRequestStatusPayload := paymentRequestStatusResponse.Payload
 
+		suite.Equal(paymentRequestStatusPayload.Status, params.Body.Status)
+		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusOK(), response)
 	})
 
 	suite.T().Run("unsuccessful status update of payment request (500)", func(t *testing.T) {
