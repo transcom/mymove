@@ -1,9 +1,9 @@
 # Connected to https://login.gov: Key must be PEM encoded PKCS1 https://tools.ietf.org/html/rfc7468#section-2
 export LOGIN_GOV_SECRET_KEY=replace
 # certificate PEM block https://tools.ietf.org/html/rfc7468#section-2
-export MOVE_MIL_DOD_TLS_CERT=replace
+export MOVE_MIL_DOD_TLS_CERT=$(cat "${MYMOVE_DIR}"/config/tls/devlocal-mtls.cer)
 # certificate PEM block https://tools.ietf.org/html/rfc7468#section-2
-export MOVE_MIL_DOD_TLS_KEY=replace
+export MOVE_MIL_DOD_TLS_KEY=$(cat "${MYMOVE_DIR}"/config/tls/devlocal-mtls.key)
 # any string of length 32
 export DPS_AUTH_COOKIE_SECRET_KEY=thisisakeywithalengthof32charsss
 # any string of any length
