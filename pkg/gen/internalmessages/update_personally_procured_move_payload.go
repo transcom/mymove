@@ -45,7 +45,7 @@ type UpdatePersonallyProcuredMovePayload struct {
 	// Estimated Storage Reimbursement
 	EstimatedStorageReimbursement *string `json:"estimated_storage_reimbursement,omitempty"`
 
-	// Do you have stuff at another pickup location?
+	// Will you move anything from another pickup location?
 	HasAdditionalPostalCode *bool `json:"has_additional_postal_code,omitempty"`
 
 	// Has Pro-Gear

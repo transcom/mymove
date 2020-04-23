@@ -158,7 +158,7 @@ definitions:
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Do you have stuff at another pickup location?
+        title: Will you move anything from another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
@@ -247,7 +247,7 @@ definitions:
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Do you have stuff at another pickup location?
+        title: Will you move anything from another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
@@ -342,7 +342,7 @@ definitions:
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Do you have stuff at another pickup location?
+        title: Will you move anything from another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
@@ -453,7 +453,7 @@ definitions:
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Do you have stuff at another pickup location?
+        title: Will you move anything from another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
