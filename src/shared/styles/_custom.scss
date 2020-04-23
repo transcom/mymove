@@ -137,6 +137,13 @@ table {
     }
   }
 }
+.stackedtable-header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  max-width: 802px;
+  align-items: center;
+}
 .tcontrol--pagination {
   display: flex;
   align-items: center;

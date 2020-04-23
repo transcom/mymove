@@ -6,7 +6,7 @@ import { StackedTableRowForm, DocsButton } from '../components/form';
 
 const StackedTableExample = () => (
   <div>
-    <div className="display-flex">
+    <div className="stackedtable-header">
       <div>
         <h4>Orders</h4>
       </div>
@@ -35,7 +35,7 @@ const StackedTableExample = () => (
 
 const StackedTableWithButtons = () => (
   <div>
-    <div className="display-flex">
+    <div className="stackedtable-header">
       <div>
         <h4>Orders</h4>
       </div>
