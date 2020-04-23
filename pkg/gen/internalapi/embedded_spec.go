@@ -3567,7 +3567,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -5010,7 +5010,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -5260,7 +5260,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -6020,7 +6020,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -9771,7 +9771,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -11220,7 +11220,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -11472,7 +11472,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -12234,7 +12234,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
