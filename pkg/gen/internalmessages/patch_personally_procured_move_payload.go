@@ -33,7 +33,7 @@ type PatchPersonallyProcuredMovePayload struct {
 	// advance worksheet
 	AdvanceWorksheet *DocumentPayload `json:"advance_worksheet,omitempty"`
 
-	// How many days do you plan to put your stuff in storage?
+	// How many days of storage do you think you'll need?
 	// Maximum: 90
 	// Minimum: 0
 	DaysInStorage *int64 `json:"days_in_storage,omitempty"`

@@ -3548,7 +3548,7 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "x-nullable": true
         },
@@ -4996,7 +4996,7 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "x-nullable": true
         },
@@ -5241,7 +5241,7 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "x-nullable": true
         },
@@ -6001,7 +6001,7 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "x-nullable": true
         },
@@ -9751,7 +9751,7 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "minimum": 0,
           "x-nullable": true
@@ -11205,7 +11205,7 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "minimum": 0,
           "x-nullable": true
@@ -11452,7 +11452,7 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "minimum": 0,
           "x-nullable": true
@@ -12214,7 +12214,7 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "minimum": 0,
           "x-nullable": true
