@@ -13,13 +13,12 @@ import (
 type ProofOfServiceDoc struct {
 	ID               uuid.UUID `json:"id" db:"id"`
 	PaymentRequestID uuid.UUID `json:"payment_request_id" db:"payment_request_id"`
-	UploadID         uuid.UUID `json:"upload_id" db:"upload_id"`
 	CreatedAt        time.Time `db:"created_at"`
 	UpdatedAt        time.Time `db:"updated_at"`
 
 	//Associations
 	PaymentRequest PaymentRequest `belongs_to:"payment_request"`
-	Upload         Upload         `belongs_to:"upload"`
+	PrimeUploads   PrimeUploads   `has_many:"prime_uploads" order_by:"created_at asc"`
 }
 
 // ProofOfServiceDocs is not required by pop and may be deleted
@@ -29,6 +28,5 @@ type ProofOfServiceDocs []ProofOfServiceDoc
 func (p *ProofOfServiceDoc) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.PaymentRequestID, Name: "PaymentRequestID"},
-		&validators.UUIDIsPresent{Field: p.UploadID, Name: "UploadID"},
 	), nil
 }
