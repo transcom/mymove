@@ -9,19 +9,27 @@ const ImportantShipmentDates = ({ requestedPickupDate, scheduledPickupDate }) =>
   return (
     <div className={`container container--gray maxw-tablet ${cx('shipment-dates-container')}`}>
       <div>
-        <p className={`${cx('header')} font-sans-2xs text-bold text-base-dark display-inline-block margin-bottom-0`}>
+        <h4
+          className={`${cx(
+            'header',
+          )} font-sans-2xs text-bold text-base-dark display-inline-block margin-bottom-0 margin-top-2`}
+        >
           Customer requested pick up date
-        </p>
-        <p className={`${cx('header')} font-sans-2xs text-bold text-base-dark display-inline-block margin-bottom-0`}>
+        </h4>
+        <h4
+          className={`${cx(
+            'header',
+          )} font-sans-2xs text-bold text-base-dark display-inline-block margin-bottom-0 margin-top-2`}
+        >
           Scheduled pick up date
-        </p>
+        </h4>
       </div>
 
       <hr className="border border-base-lighter" />
 
       <div>
-        <p className={`${cx('date')} margin-top-0 display-inline-block`}>{requestedPickupDate}</p>
-        <p className={`${cx('date')} margin-top-0 display-inline-block`}>{scheduledPickupDate}</p>
+        <p className={`${cx('date')} margin-top-0 display-inline-block margin-bottom-2`}>{requestedPickupDate}</p>
+        <p className={`${cx('date')} margin-top-0 display-inline-block margin-bottom-2`}>{scheduledPickupDate}</p>
       </div>
     </div>
   );
