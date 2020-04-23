@@ -66,8 +66,9 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
-	createdPaymentRequest, verrs, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
-	if verrs.HasAny() {
+	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
+	if typedErr, ok := err.(services.InvalidCreateInputError); ok {
+		verrs := typedErr.ValidationErrors
 		payload := &primemessages.ValidationError{
 			InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
 		}
@@ -81,11 +82,23 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	if err != nil {
 		logger.Error("Error creating payment request", zap.Error(err))
+		if typedErr, ok := err.(services.InvalidCreateInputError); ok {
+			verrs := typedErr.ValidationErrors
+			payload := &primemessages.ValidationError{
+				InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
+			}
+
+			payload.Title = handlers.FmtString(handlers.ValidationErrMessage)
+			payload.Detail = handlers.FmtString("The information you provided is invalid.")
+			payload.Instance = handlers.FmtUUID(h.GetTraceID())
+
+			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
+		}
 		var notFoundError *services.NotFoundError
 		var badDataError *services.BadDataError
 		if errors.As(err, &notFoundError) || errors.As(err, &badDataError) {
 			payload := &primemessages.ClientError{
-				Title:    handlers.FmtString("Unable to create payment request"),
+				Title:    handlers.FmtString(handlers.SQLErrMessage),
 				Detail:   handlers.FmtString(err.Error()),
 				Instance: handlers.FmtUUID(h.GetTraceID()),
 			}

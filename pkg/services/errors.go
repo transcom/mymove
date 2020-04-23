@@ -73,7 +73,7 @@ type BadDataError struct {
 }
 
 // NewBadDataError creates a new BadDataError error
-func NewBadDataError(badDataMsg string) Error {
+func NewBadDataError(badDataMsg string) *BadDataError {
 	return &BadDataError{
 		baseError{BadDataCode},
 		badDataMsg,
@@ -107,4 +107,25 @@ func (e InvalidInputError) Error() string {
 		return fmt.Sprintf(e.message)
 	}
 	return fmt.Sprintf("invalid input for id: %s. %s", e.id.String(), e.ValidationErrors)
+}
+
+//InvalidCreateInputError is returned when an update fails a validation rule
+type InvalidCreateInputError struct {
+	ValidationErrors *validate.Errors
+	message          string
+}
+
+// NewInvalidCreateInputError returns an error for invalid input
+func NewInvalidCreateInputError(validationErrors *validate.Errors, message string) InvalidCreateInputError {
+	return InvalidCreateInputError{
+		ValidationErrors: validationErrors,
+		message:          message,
+	}
+}
+
+func (e InvalidCreateInputError) Error() string {
+	if e.message != "" {
+		return fmt.Sprintf(e.message)
+	}
+	return fmt.Sprintf("invalid input for id: %s", e.ValidationErrors)
 }

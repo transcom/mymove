@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -100,9 +101,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		paymentRequestReturn, verrs, err := creator.CreatePaymentRequest(&paymentRequest)
+		paymentRequestReturn, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
-		suite.NoVerrs(verrs)
 
 		expectedSequenceNumber := 1
 		expectedPaymentRequestNumber := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber)
@@ -158,9 +158,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		_, verrs, err := creator.CreatePaymentRequest(&paymentRequest)
+		_, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
-		suite.NoVerrs(verrs)
 
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
@@ -198,9 +197,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		paymentRequestResult, verrs, err := creator.CreatePaymentRequest(&paymentRequest)
+		paymentRequestResult, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
-		suite.NoVerrs(verrs)
 
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequestResult.ID, uuid.Nil)
@@ -220,20 +218,60 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 	})
 
-	badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
+	// for testing the validation, although it doesn't currently reach validation due to prior checks that lead to NotFoundError
+	//suite.T().Run("Payment request throws validation error given no mto ID", func(t *testing.T) {
+	//	paymentRequest := models.PaymentRequest{
+	//		IsFinal:         false,
+	//		PaymentServiceItems: models.PaymentServiceItems{
+	//			{
+	//				MTOServiceItemID: mtoServiceItem1.ID,
+	//				MTOServiceItem:   mtoServiceItem1,
+	//				PaymentServiceItemParams: models.PaymentServiceItemParams{
+	//					{
+	//						ServiceItemParamKeyID: serviceItemParamKey1.ID,
+	//						Value:                 "3254",
+	//					},
+	//					{
+	//						ServiceItemParamKeyID: serviceItemParamKey2.ID,
+	//						Value:                 "2019-12-16",
+	//					},
+	//				},
+	//			},
+	//			{
+	//				MTOServiceItemID: mtoServiceItem2.ID,
+	//				MTOServiceItem:   mtoServiceItem2,
+	//				PaymentServiceItemParams: models.PaymentServiceItemParams{
+	//					{
+	//						ServiceItemParamKeyID: serviceItemParamKey1.ID,
+	//						Value:                 "7722",
+	//					},
+	//				},
+	//			},
+	//		},
+	//	}
+	//
+	//	_, err := creator.CreatePaymentRequest(&paymentRequest)
+	//
+	//	suite.Error(err)
+	//	_, ok := err.(services.InvalidCreateInputError)
+	//	suite.Equal(true, ok)
+	//})
 
 	suite.T().Run("Given a non-existent move task order id, the create should fail", func(t *testing.T) {
+		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: badID,
 			IsFinal:         false,
 		}
-		_, verrs, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 
 		suite.Error(err)
-		suite.NoVerrs(verrs)
+		_, ok := err.(services.NotFoundError)
+		suite.Equal(true, ok)
 	})
 
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {
+		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -243,12 +281,14 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, verrs, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-		suite.NoVerrs(verrs)
+		_, ok := err.(services.NotFoundError)
+		suite.Equal(true, ok)
 	})
 
 	suite.T().Run("Given a non-existent service item param key id, the create should fail", func(t *testing.T) {
+		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -265,8 +305,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, _, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+		_, ok := err.(services.NotFoundError)
+		suite.Equal(true, ok)
 	})
 
 	suite.T().Run("Given a non-existent service item param key name, the create should fail", func(t *testing.T) {
@@ -286,8 +328,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, _, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+		_, ok := err.(*services.BadDataError)
+		suite.Equal(true, ok)
 	})
 
 	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {
@@ -313,9 +357,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, verrs, err := creator.CreatePaymentRequest(&paymentRequest1)
+		_, err = creator.CreatePaymentRequest(&paymentRequest1)
 		suite.FatalNoError(err)
-		suite.NoVerrs(verrs)
 
 		paymentRequest2 := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
@@ -333,9 +376,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, verrs, err = creator.CreatePaymentRequest(&paymentRequest2)
+		_, err = creator.CreatePaymentRequest(&paymentRequest2)
 		suite.FatalNoError(err)
-		suite.NoVerrs(verrs)
 
 		// Verify expected payment request numbers
 		expectedSequenceNumber1 := max + 1

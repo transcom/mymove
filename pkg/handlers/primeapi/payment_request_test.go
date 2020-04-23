@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/gobuffalo/validate"
+
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -41,10 +41,9 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			CreatedAt:            time.Now(),
 			UpdatedAt:            time.Now(),
 		}
-		verrs := validate.NewErrors()
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, verrs, nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -101,10 +100,10 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	})
 
 	suite.T().Run("failed create payment request -- nil body", func(t *testing.T) {
-		verrs := validate.NewErrors()
+
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, verrs, nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -123,10 +122,10 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	})
 
 	suite.T().Run("failed create payment request -- creator failed with error", func(t *testing.T) {
-		verrs := validate.NewErrors()
+
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, verrs, errors.New("creator failed")).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, errors.New("creator failed")).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -150,10 +149,10 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	})
 
 	suite.T().Run("failed create payment request -- invalid MTO ID format", func(t *testing.T) {
-		verrs := validate.NewErrors()
+
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, verrs, nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -177,10 +176,10 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	})
 
 	suite.T().Run("failed create payment request -- invalid service item ID format", func(t *testing.T) {
-		verrs := validate.NewErrors()
+
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, verrs, nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -221,9 +220,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				"violation": {"invalid value"},
 			},
 		}
+		err := services.NewInvalidCreateInputError(verrs, "can't create payment request for MTO ID 1234")
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
+
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, verrs, nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -273,11 +274,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	})
 
 	suite.T().Run("failed create payment request due to bad data", func(t *testing.T) {
-		verrs := validate.NewErrors()
+
 		err := services.NewBadDataError("sent some bad data, foo!")
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, verrs, err).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
