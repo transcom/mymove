@@ -18,7 +18,7 @@ import { Switch, Redirect } from 'react-router-dom';
 
 import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
-import { selectPPMForMove } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import {
@@ -216,7 +216,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    currentPpm: selectPPMForMove(state, moveId),
+    currentPpm: selectActivePPMForMove(state, moveId),
     docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
     moveId,
     moveLocator,

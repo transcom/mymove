@@ -807,6 +807,22 @@ func init() {
         }
       }
     },
+    "CustomerContactType": {
+      "description": "Describes a customer contact type for a MTOServiceItemDomesticDestSIT",
+      "type": "string",
+      "enum": [
+        "FIRST",
+        "SECOND"
+      ]
+    },
+    "DimensionType": {
+      "description": "Describes a dimension type for a MTOServiceItemDimension",
+      "type": "string",
+      "enum": [
+        "ITEM",
+        "CRATE"
+      ]
+    },
     "DutyStation": {
       "type": "object",
       "properties": {
@@ -997,6 +1013,9 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         }
       },
       "discriminator": "modelType"
@@ -1015,6 +1034,49 @@ func init() {
           "properties": {
             "reServiceCode": {
               "$ref": "#/definitions/ReServiceCode"
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemDDFSIT": {
+      "description": "Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "timeMilitary1",
+            "firstAvailableDeliveryDate1",
+            "timeMilitary2",
+            "firstAvailableDeliveryDate2"
+          ],
+          "properties": {
+            "firstAvailableDeliveryDate1": {
+              "type": "string",
+              "format": "date",
+              "example": "2020-01-20"
+            },
+            "firstAvailableDeliveryDate2": {
+              "type": "string",
+              "format": "date",
+              "example": "2020-01-20"
+            },
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            },
+            "timeMilitary1": {
+              "type": "string",
+              "example": "0400Z"
+            },
+            "timeMilitary2": {
+              "type": "string",
+              "example": "0400Z"
+            },
+            "type": {
+              "$ref": "#/definitions/CustomerContactType"
             }
           }
         }
@@ -1050,26 +1112,132 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDimension": {
+      "description": "Describes a dimension object for the MTOServiceItem",
+      "type": "object",
+      "required": [
+        "length",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "height": {
+          "description": "Height in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "length": {
+          "description": "Length in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "type": {
+          "$ref": "#/definitions/DimensionType"
+        },
+        "width": {
+          "description": "Width in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        }
+      }
+    },
+    "MTOServiceItemDomesticCrating": {
+      "description": "Describes a domestic crating/uncrating service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "$ref": "#/definitions/MTOServiceItemDimension"
+            },
+            "description": {
+              "type": "string",
+              "example": "Decorated horse head to be crated."
+            },
+            "item": {
+              "$ref": "#/definitions/MTOServiceItemDimension"
+            },
+            "reServiceCode": {
+              "type": "string",
+              "enum": [
+                "DCRT",
+                "DCRTSA",
+                "DUCRT"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
       "description": "Describes all model sub-types for a MTOServiceItem model",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
-        "MTOServiceItemDOFSIT"
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemDDFSIT",
+        "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticCrating"
+      ]
+    },
+    "MTOServiceItemShuttle": {
+      "description": "Describes a shuttle service item",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode",
+            "description"
+          ],
+          "properties": {
+            "description": {
+              "type": "string",
+              "example": "Things to be moved to the place by shuttle."
+            },
+            "reServiceCode": {
+              "type": "string",
+              "enum": [
+                "DOSHUT",
+                "DDSHUT"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            }
+          }
+        }
       ]
     },
     "MTOServiceItemStatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
-      }
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOShipment": {
       "properties": {
@@ -1133,6 +1301,10 @@ func init() {
           "format": "date"
         },
         "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requiredDeliveryDate": {
           "type": "string",
           "format": "date"
         },
@@ -1386,6 +1558,7 @@ func init() {
         "DBHF",
         "DBTF",
         "DCRT",
+        "DCRTSA",
         "DDASIT",
         "DDDSIT",
         "DDFSIT",
@@ -1409,6 +1582,7 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
+        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",
@@ -2437,6 +2611,22 @@ func init() {
         }
       }
     },
+    "CustomerContactType": {
+      "description": "Describes a customer contact type for a MTOServiceItemDomesticDestSIT",
+      "type": "string",
+      "enum": [
+        "FIRST",
+        "SECOND"
+      ]
+    },
+    "DimensionType": {
+      "description": "Describes a dimension type for a MTOServiceItemDimension",
+      "type": "string",
+      "enum": [
+        "ITEM",
+        "CRATE"
+      ]
+    },
     "DutyStation": {
       "type": "object",
       "properties": {
@@ -2627,6 +2817,9 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         }
       },
       "discriminator": "modelType"
@@ -2645,6 +2838,49 @@ func init() {
           "properties": {
             "reServiceCode": {
               "$ref": "#/definitions/ReServiceCode"
+            }
+          }
+        }
+      ]
+    },
+    "MTOServiceItemDDFSIT": {
+      "description": "Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "timeMilitary1",
+            "firstAvailableDeliveryDate1",
+            "timeMilitary2",
+            "firstAvailableDeliveryDate2"
+          ],
+          "properties": {
+            "firstAvailableDeliveryDate1": {
+              "type": "string",
+              "format": "date",
+              "example": "2020-01-20"
+            },
+            "firstAvailableDeliveryDate2": {
+              "type": "string",
+              "format": "date",
+              "example": "2020-01-20"
+            },
+            "reServiceCode": {
+              "$ref": "#/definitions/ReServiceCode"
+            },
+            "timeMilitary1": {
+              "type": "string",
+              "example": "0400Z"
+            },
+            "timeMilitary2": {
+              "type": "string",
+              "example": "0400Z"
+            },
+            "type": {
+              "$ref": "#/definitions/CustomerContactType"
             }
           }
         }
@@ -2680,26 +2916,132 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemDimension": {
+      "description": "Describes a dimension object for the MTOServiceItem",
+      "type": "object",
+      "required": [
+        "length",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "height": {
+          "description": "Height in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "length": {
+          "description": "Length in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "type": {
+          "$ref": "#/definitions/DimensionType"
+        },
+        "width": {
+          "description": "Width in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        }
+      }
+    },
+    "MTOServiceItemDomesticCrating": {
+      "description": "Describes a domestic crating/uncrating service item subtype of a MTOServiceItem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "$ref": "#/definitions/MTOServiceItemDimension"
+            },
+            "description": {
+              "type": "string",
+              "example": "Decorated horse head to be crated."
+            },
+            "item": {
+              "$ref": "#/definitions/MTOServiceItemDimension"
+            },
+            "reServiceCode": {
+              "type": "string",
+              "enum": [
+                "DCRT",
+                "DCRTSA",
+                "DUCRT"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
       "description": "Describes all model sub-types for a MTOServiceItem model",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
-        "MTOServiceItemDOFSIT"
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemDDFSIT",
+        "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticCrating"
+      ]
+    },
+    "MTOServiceItemShuttle": {
+      "description": "Describes a shuttle service item",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason",
+            "reServiceCode",
+            "description"
+          ],
+          "properties": {
+            "description": {
+              "type": "string",
+              "example": "Things to be moved to the place by shuttle."
+            },
+            "reServiceCode": {
+              "type": "string",
+              "enum": [
+                "DOSHUT",
+                "DDSHUT"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            }
+          }
+        }
       ]
     },
     "MTOServiceItemStatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
-      }
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOShipment": {
       "properties": {
@@ -2763,6 +3105,10 @@ func init() {
           "format": "date"
         },
         "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requiredDeliveryDate": {
           "type": "string",
           "format": "date"
         },
@@ -3016,6 +3362,7 @@ func init() {
         "DBHF",
         "DBTF",
         "DCRT",
+        "DCRTSA",
         "DDASIT",
         "DDDSIT",
         "DDFSIT",
@@ -3039,6 +3386,7 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
+        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",

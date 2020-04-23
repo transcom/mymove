@@ -41,7 +41,6 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
   * [Setup: Direnv](#setup-direnv)
     * [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
   * [Setup: Pre-Commit](#setup-pre-commit)
-  * [Setup: Hosts](#setup-hosts)
   * [Setup: Dependencies](#setup-dependencies)
   * [Setup: Build Tools](#setup-build-tools)
   * [Setup: Database](#setup-database)
@@ -286,40 +285,6 @@ Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-comm
 
 Before running `pre-commit run -a` you will need to install Javascript dependencies and generate some golang code from Swagger files. An easier way to handle this is by running `make pre_commit_tests` or `make server generate client_deps && pre-commit run -a`. But it's early to do this so you can feel free to skip running the pre-commit checks at this time.
 
-### Setup: Hosts
-
-You need to modify your `/etc/hosts` file. This is a tricky file to modify and you will need to use `sudo` to edit it.
-Here are the steps:
-
-  ```bash
-  echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 orderslocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
-  ```
-
-Check that the file looks correct with `cat /etc/hosts`:
-
-  ```text
-  ##
-  # Host Database
-  #
-  # localhost is used to configure the loopback interface
-  # when the system is booting.  Do not change this entry.
-  ##
-  255.255.255.255 broadcasthost
-  ::1             localhost
-  127.0.0.1   localhost
-  127.0.0.1   milmovelocal
-  127.0.0.1   officelocal
-  127.0.0.1   orderslocal
-  127.0.0.1   adminlocal
-  127.0.0.1   primelocal
-```
-
-You can also verify this by running `scripts/check-hosts-file`.
-
 ### Setup: Dependencies
 
 Run `make deps`. This will check your system for any setup issues. Then it will ensure that you have installed pre-commit
@@ -445,7 +410,7 @@ You can view the API's documentation (powered by Swagger UI) at <http://localhos
 There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run front-end testing suites.
-* `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://github.com/transcom/mymove/blob/master/docs/how-to/run-go-tests.md)
+* `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://github.com/transcom/mymove/wiki/run-go-tests)
 * `make e2e_test`: Run e2e testing suite.
 * `make test`: Run e2e, client- and server-side testing suites.
 
@@ -620,7 +585,7 @@ Doing so will set the timezone environment variable to UTC utilizing the same lo
 
 #### Linters & Pre-commit Hooks
 
-We use a number of linters for formatting, security and error checking. Please see this [how-to document](./docs/how-to/run-pre-commit-hooks.md) for a list of linters and troubleshooting tips.
+We use a number of linters for formatting, security and error checking. Please see the [pre-commit documentation](https://github.com/transcom/mymove/wiki/run-pre-commit-hooks) for a list of linters and troubleshooting tips.
 
 #### Yarn install markdown-spell (aka mdspell)
 

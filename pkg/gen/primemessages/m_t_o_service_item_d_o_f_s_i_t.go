@@ -31,6 +31,8 @@ type MTOServiceItemDOFSIT struct {
 
 	reServiceNameField string
 
+	statusField MTOServiceItemStatus
+
 	// pickup postal code
 	// Required: true
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
@@ -114,6 +116,16 @@ func (m *MTOServiceItemDOFSIT) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// Status gets the status of this subtype
+func (m *MTOServiceItemDOFSIT) Status() MTOServiceItemStatus {
+	return m.statusField
+}
+
+// SetStatus sets the status of this subtype
+func (m *MTOServiceItemDOFSIT) SetStatus(val MTOServiceItemStatus) {
+	m.statusField = val
+}
+
 // PickupPostalCode gets the pickup postal code of this subtype
 
 // ReServiceCode gets the re service code of this subtype
@@ -160,6 +172,8 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
 	dec = json.NewDecoder(buf)
@@ -187,6 +201,8 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
+
+	result.statusField = base.Status
 
 	result.PickupPostalCode = data.PickupPostalCode
 
@@ -242,6 +258,8 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
 		ETag: m.ETag(),
@@ -257,6 +275,8 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		Status: m.Status(),
 	},
 	)
 	if err != nil {
@@ -283,6 +303,10 @@ func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -350,6 +374,22 @@ func (m *MTOServiceItemDOFSIT) validateReServiceID(formats strfmt.Registry) erro
 	}
 
 	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDOFSIT) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
+	if err := m.Status().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

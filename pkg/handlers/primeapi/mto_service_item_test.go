@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/primemessages"
+
 	"github.com/gobuffalo/validate"
 
 	"github.com/stretchr/testify/mock"
@@ -165,5 +167,137 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		}
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
+	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: mto,
+	})
+	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: "DCRT",
+		},
+	})
+	builder := query.NewQueryBuilder(suite.DB())
+
+	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s/mto_service_items", mto.ID.String(), mtoShipment.ID.String()), nil)
+
+	mtoServiceItem := models.MTOServiceItem{
+		MoveTaskOrderID: mto.ID,
+		MTOShipmentID:   &mtoShipment.ID,
+		ReService:       models.ReService{Code: models.ReServiceCodeDCRT},
+		Description:     handlers.FmtString("description"),
+		Dimensions: models.MTOServiceItemDimensions{
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeItem,
+				Length: 1000,
+				Height: 1000,
+				Width:  1000,
+			},
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeCrate,
+				Length: 10000,
+				Height: 10000,
+				Width:  10000,
+			},
+		},
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	params := mtoserviceitemops.CreateMTOServiceItemParams{
+		HTTPRequest:     req,
+		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+		MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
+		Body:            payloads.MTOServiceItem(&mtoServiceItem),
+	}
+
+	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		suite.NotZero(okResponse.Payload.ID())
+	})
+
+	suite.T().Run("POST failure - 422", func(t *testing.T) {
+		mockCreator := mocks.MTOServiceItemCreator{}
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockCreator,
+		}
+		err := errors.New("ServerError")
+
+		mockCreator.On("CreateMTOServiceItem",
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		var height int32 = 0
+		params.Body.(*primemessages.MTOServiceItemDomesticCrating).Crate.Height = &height
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
+	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: mto,
+	})
+	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: "DDFSIT",
+		},
+	})
+	builder := query.NewQueryBuilder(suite.DB())
+
+	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s/mto_service_items", mto.ID.String(), mtoShipment.ID.String()), nil)
+
+	mtoServiceItem := models.MTOServiceItem{
+		MoveTaskOrderID: mto.ID,
+		MTOShipmentID:   &mtoShipment.ID,
+		ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
+		Description:     handlers.FmtString("description"),
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				TimeMilitary:               "0400Z",
+				FirstAvailableDeliveryDate: time.Now(),
+			},
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeSecond,
+				TimeMilitary:               "0400Z",
+				FirstAvailableDeliveryDate: time.Now(),
+			},
+		},
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	params := mtoserviceitemops.CreateMTOServiceItemParams{
+		HTTPRequest:     req,
+		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+		MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
+		Body:            payloads.MTOServiceItem(&mtoServiceItem),
+	}
+
+	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		suite.NotZero(okResponse.Payload.ID())
 	})
 }

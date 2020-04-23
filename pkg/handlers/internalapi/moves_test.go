@@ -404,6 +404,7 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 		Schedule:           1,
 		WeightLbsLower:     1,
 		WeightLbsUpper:     10000,
+		RateCents:          100,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}

@@ -7,7 +7,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
-DB_DOCKER_CONTAINER_IMAGE = postgres:10.12
+DB_DOCKER_CONTAINER_IMAGE = postgres:11.7
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
@@ -627,6 +627,10 @@ db_test_psql: ## Open PostgreSQL shell for Test DB
 .PHONY: e2e_test
 e2e_test: bin/gin server_generate server_build client_build db_e2e_init ## Run e2e (end-to-end) integration tests
 	$(AWS_VAULT) ./scripts/run-e2e-test
+
+.PHONY: e2e_mtls_test_docker
+e2e_mtls_test_docker: ## Run e2e (end-to-end) integration tests with docker
+	$(AWS_VAULT) ./scripts/run-e2e-mtls-test-docker
 
 .PHONY: e2e_test_docker
 e2e_test_docker: ## Run e2e (end-to-end) integration tests with docker

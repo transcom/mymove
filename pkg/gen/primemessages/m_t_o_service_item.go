@@ -56,6 +56,10 @@ type MTOServiceItem interface {
 	// re service name
 	ReServiceName() string
 	SetReServiceName(string)
+
+	// status
+	Status() MTOServiceItemStatus
+	SetStatus(MTOServiceItemStatus)
 }
 
 type mTOServiceItem struct {
@@ -72,6 +76,8 @@ type mTOServiceItem struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
+
+	statusField MTOServiceItemStatus
 }
 
 // ETag gets the e tag of this polymorphic type
@@ -144,6 +150,16 @@ func (m *mTOServiceItem) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// Status gets the status of this polymorphic type
+func (m *mTOServiceItem) Status() MTOServiceItemStatus {
+	return m.statusField
+}
+
+// SetStatus sets the status of this polymorphic type
+func (m *mTOServiceItem) SetStatus(val MTOServiceItemStatus) {
+	m.statusField = val
+}
+
 // UnmarshalMTOServiceItemSlice unmarshals polymorphic slices of MTOServiceItem
 func UnmarshalMTOServiceItemSlice(reader io.Reader, consumer runtime.Consumer) ([]MTOServiceItem, error) {
 	var elements []json.RawMessage
@@ -204,8 +220,29 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 		}
 		return &result, nil
 
+	case "MTOServiceItemDDFSIT":
+		var result MTOServiceItemDDFSIT
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
 	case "MTOServiceItemDOFSIT":
 		var result MTOServiceItemDOFSIT
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
+	case "MTOServiceItemDomesticCrating":
+		var result MTOServiceItemDomesticCrating
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
+	case "MTOServiceItemShuttle":
+		var result MTOServiceItemShuttle
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
@@ -233,6 +270,10 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -288,6 +329,22 @@ func (m *mTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
+	if err := m.Status().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 
