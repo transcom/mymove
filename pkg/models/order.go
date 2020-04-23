@@ -146,9 +146,14 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	err := db.Q().Eager("ServiceMember.User",
 		"NewDutyStation.Address",
 		"NewDutyStation.TransportationOffice",
-		"UploadedOrders.Uploads",
+		"UploadedOrders.UserUploads.Upload",
 		"Moves.PersonallyProcuredMoves",
-		"Moves.SignedCertifications").Find(&order, id)
+		"Moves.SignedCertifications").
+		Join("documents as d", "orders.uploaded_orders_id = d.id").
+		LeftJoin("user_uploads as uu", "d.id = uu.document_id").
+		LeftJoin("uploads as u", "uu.upload_id = u.id").
+		Where("u.deleted_at is null and uu.deleted_at is null").
+		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
@@ -182,7 +187,7 @@ func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {
 // FetchOrderForPDFConversion returns orders and any attached uploads
 func FetchOrderForPDFConversion(db *pop.Connection, id uuid.UUID) (Order, error) {
 	var order Order
-	err := db.Q().Eager("UploadedOrders.Uploads").Find(&order, id)
+	err := db.Q().Eager("UploadedOrders.UserUploads.Upload").Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
