@@ -92,6 +92,11 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		model.ActualPickupDate = &actualPickupDate
 	}
 
+	requiredDeliveryDate := time.Time(mtoShipment.RequiredDeliveryDate)
+	if !requiredDeliveryDate.IsZero() {
+		model.RequiredDeliveryDate = &requiredDeliveryDate
+	}
+
 	if mtoShipment.PickupAddress != nil {
 		model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
 	}

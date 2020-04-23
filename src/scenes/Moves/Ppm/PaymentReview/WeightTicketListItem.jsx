@@ -54,6 +54,8 @@ class WeightTicketListItem extends Component {
       num,
       trailer_ownership_missing,
       vehicle_nickname,
+      vehicle_make,
+      vehicle_model,
       weight_ticket_set_type,
       showDelete,
       deleteDocumentListItem,
@@ -63,6 +65,8 @@ class WeightTicketListItem extends Component {
     const { showDeleteConfirmation } = this.state;
     const isInfected = this.areUploadsInfected(uploads);
     const showWeightTicketIcon = weight_ticket_set_type !== 'PRO_GEAR';
+    const showVehicleNickname = weight_ticket_set_type === 'BOX_TRUCK' || 'PRO_GEAR';
+    const showVehicleMakeModel = weight_ticket_set_type === 'CAR' || 'CAR_TRAILER';
     return (
       <div className="ticket-item" style={{ display: 'flex' }}>
         {/* size of largest of the images */}
@@ -79,11 +83,13 @@ class WeightTicketListItem extends Component {
         <div style={{ flex: 1 }}>
           <div className="weight-li-item-container">
             <h4>
-              {isWeightTicketSet && (
+              {showVehicleMakeModel && (
                 <>
-                  {vehicle_nickname} {formatToOrdinal(num + 1)} set
+                  {vehicle_make} {vehicle_model}
                 </>
               )}
+              {showVehicleNickname && <>{vehicle_nickname} </>}
+              {isWeightTicketSet && <>{formatToOrdinal(num + 1)} set</>}
             </h4>
             {showDelete && (
               <img

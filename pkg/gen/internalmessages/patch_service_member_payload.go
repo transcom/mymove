@@ -36,13 +36,13 @@ type PatchServiceMemberPayload struct {
 	// Email
 	EmailIsPreferred *bool `json:"email_is_preferred,omitempty"`
 
-	// First Name
+	// First name
 	FirstName *string `json:"first_name,omitempty"`
 
-	// Last Name
+	// Last name
 	LastName *string `json:"last_name,omitempty"`
 
-	// Middle Name
+	// Middle name
 	MiddleName *string `json:"middle_name,omitempty"`
 
 	// Personal Email

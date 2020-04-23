@@ -121,6 +121,7 @@ This subset of development scripts is used for testing
 | --- | --- |
 | `run-e2e-test` | Runs cypress tests with interactive GUI |
 | `run-e2e-test-docker` | Runs cypress tests entirely inside docker containers like in CircleCI |
+| `run-e2e-mtls-test-docker` | Runs integration tests for mtls endpoints inside docker containers like in CircleCI |
 | `run-server-test` | Run golang server tests |
 | `run-server-test-in-circle-container` | Executed in docker-compose.circle.yml to run the `make server_test` task in a CircleCI container |
 | `run-storybook-tests` | Runs the storybook tests in docker containers for CircleCI testing. |
