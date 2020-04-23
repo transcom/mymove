@@ -475,6 +475,7 @@
 20200306232322_service_item_dom_origin_sit_update.up.sql
 20200309224754_ren_cac.up.sql
 20200310163230_add-required-delivery-date-mto-shipment.up.sql
+20200310191241_payment_request_uploader_changes.up.sql
 20200312023106_shimona_cac.up.sql
 20200312145322_change_nullability_in_client_certs.up.sql
 20200313162229_change_nullability_in_customers.up.sql
@@ -502,3 +503,4 @@
 20200410194345_change_nullability_in_tariff400ng_shorthaul_rate.up.sql
 20200413185502_change_nullability_in_tariff400ng_zip3s.up.sql
 20200420154249_add_crating_standalone.up.sql
+20200422184129_change_nullability_in_tariff400ng_zip5_rate_areas.up.sql

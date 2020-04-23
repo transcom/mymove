@@ -40,8 +40,8 @@ type Invoice struct {
 	InvoicedDate  time.Time     `json:"invoiced_date" db:"invoiced_date"`
 	CreatedAt     time.Time     `json:"created_at" db:"created_at"`
 	UpdatedAt     time.Time     `json:"updated_at" db:"updated_at"`
-	UploadID      *uuid.UUID    `json:"upload_id" db:"upload_id"`
-	Upload        *Upload       `belongs_to:"uploads"`
+	UserUploadID  *uuid.UUID    `json:"user_upload_id" db:"user_upload_id"`
+	UserUpload    *UserUpload   `belongs_to:"user_uploads"`
 }
 
 // Invoices is an array of invoices
