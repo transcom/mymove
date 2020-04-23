@@ -20,6 +20,11 @@ function run_tests() {
   echo "Shutdown containers"
   docker-compose -f docker-compose.storybook.yml down
 
+  if [ "$return_code" -ne "0" ]; then
+    echo "Loki Tests Failed!";
+  else
+    echo "Loki Tests Passed!";
+  fi
   exit "$return_code"
 }
 
