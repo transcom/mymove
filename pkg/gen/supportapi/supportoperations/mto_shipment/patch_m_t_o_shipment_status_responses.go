@@ -16,7 +16,7 @@ import (
 // PatchMTOShipmentStatusOKCode is the HTTP code returned for type PatchMTOShipmentStatusOK
 const PatchMTOShipmentStatusOKCode int = 200
 
-/*PatchMTOShipmentStatusOK Successfully updated shipment's status
+/*PatchMTOShipmentStatusOK Successfully updated the shipment's status
 
 swagger:response patchMTOShipmentStatusOK
 */
@@ -102,7 +102,7 @@ func (o *PatchMTOShipmentStatusNotFound) WriteResponse(rw http.ResponseWriter, p
 // PatchMTOShipmentStatusConflictCode is the HTTP code returned for type PatchMTOShipmentStatusConflict
 const PatchMTOShipmentStatusConflictCode int = 409
 
-/*PatchMTOShipmentStatusConflict Conflict error
+/*PatchMTOShipmentStatusConflict Conflict error due to trying to change the status of shipment that is not currently "SUBMITTED"
 
 swagger:response patchMTOShipmentStatusConflict
 */
@@ -144,7 +144,7 @@ func (o *PatchMTOShipmentStatusConflict) WriteResponse(rw http.ResponseWriter, p
 // PatchMTOShipmentStatusPreconditionFailedCode is the HTTP code returned for type PatchMTOShipmentStatusPreconditionFailed
 const PatchMTOShipmentStatusPreconditionFailedCode int = 412
 
-/*PatchMTOShipmentStatusPreconditionFailed Precondition failed
+/*PatchMTOShipmentStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match) value
 
 swagger:response patchMTOShipmentStatusPreconditionFailed
 */

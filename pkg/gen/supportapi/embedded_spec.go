@@ -215,7 +215,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated shipment's status",
+            "description": "Successfully updated the shipment's status",
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -227,13 +227,13 @@ func init() {
             }
           },
           "409": {
-            "description": "Conflict error",
+            "description": "Conflict error due to trying to change the status of shipment that is not currently \"SUBMITTED\"",
             "schema": {
               "$ref": "#/responses/Conflict"
             }
           },
           "412": {
-            "description": "Precondition failed",
+            "description": "Precondition failed, likely due to a stale eTag (If-Match) value",
             "schema": {
               "$ref": "#/responses/PreconditionFailed"
             }
@@ -1486,7 +1486,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated shipment's status",
+            "description": "Successfully updated the shipment's status",
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -1501,7 +1501,7 @@ func init() {
             }
           },
           "409": {
-            "description": "Conflict error",
+            "description": "Conflict error due to trying to change the status of shipment that is not currently \"SUBMITTED\"",
             "schema": {
               "description": "Conflict error",
               "schema": {
@@ -1510,7 +1510,7 @@ func init() {
             }
           },
           "412": {
-            "description": "Precondition failed",
+            "description": "Precondition failed, likely due to a stale eTag (If-Match) value",
             "schema": {
               "description": "Precondition failed",
               "schema": {

@@ -73,7 +73,7 @@ func NewPatchMTOShipmentStatusOK() *PatchMTOShipmentStatusOK {
 
 /*PatchMTOShipmentStatusOK handles this case with default header values.
 
-Successfully updated shipment's status
+Successfully updated the shipment's status
 */
 type PatchMTOShipmentStatusOK struct {
 	Payload *supportmessages.MTOShipment
@@ -137,7 +137,7 @@ func NewPatchMTOShipmentStatusConflict() *PatchMTOShipmentStatusConflict {
 
 /*PatchMTOShipmentStatusConflict handles this case with default header values.
 
-Conflict error
+Conflict error due to trying to change the status of shipment that is not currently "SUBMITTED"
 */
 type PatchMTOShipmentStatusConflict struct {
 	Payload interface{}
@@ -168,7 +168,7 @@ func NewPatchMTOShipmentStatusPreconditionFailed() *PatchMTOShipmentStatusPrecon
 
 /*PatchMTOShipmentStatusPreconditionFailed handles this case with default header values.
 
-Precondition failed
+Precondition failed, likely due to a stale eTag (If-Match) value
 */
 type PatchMTOShipmentStatusPreconditionFailed struct {
 	Payload interface{}
