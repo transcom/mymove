@@ -5,7 +5,7 @@ import DataPoint from '.';
 describe('DataPoint', () => {
   it('renders empty header and body', () => {
     const wrapper = shallow(<DataPoint />);
-    expect(wrapper.children().text()).toBe('');
+    expect(wrapper.text()).toBe('');
   });
 
   it('renders with header text', () => {
