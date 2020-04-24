@@ -21,6 +21,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -48,6 +49,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveTaskOrderUpdateMoveTaskOrderStatusHandler: move_task_order.UpdateMoveTaskOrderStatusHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderStatus has not yet been implemented")
+		}),
+		PaymentRequestsUpdatePaymentRequestStatusHandler: payment_requests.UpdatePaymentRequestStatusHandlerFunc(func(params payment_requests.UpdatePaymentRequestStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation PaymentRequestsUpdatePaymentRequestStatus has not yet been implemented")
 		}),
 	}
 }
@@ -86,6 +90,8 @@ type MymoveAPI struct {
 	MtoShipmentPatchMTOShipmentStatusHandler mto_shipment.PatchMTOShipmentStatusHandler
 	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
 	MoveTaskOrderUpdateMoveTaskOrderStatusHandler move_task_order.UpdateMoveTaskOrderStatusHandler
+	// PaymentRequestsUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
+	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -159,6 +165,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderStatusHandler")
+	}
+
+	if o.PaymentRequestsUpdatePaymentRequestStatusHandler == nil {
+		unregistered = append(unregistered, "payment_requests.UpdatePaymentRequestStatusHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -273,6 +283,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/status"] = move_task_order.NewUpdateMoveTaskOrderStatus(o.context, o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}/status"] = payment_requests.NewUpdatePaymentRequestStatus(o.context, o.PaymentRequestsUpdatePaymentRequestStatusHandler)
 
 }
 

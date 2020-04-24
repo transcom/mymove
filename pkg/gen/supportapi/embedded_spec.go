@@ -262,6 +262,97 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/payment-requests/{paymentRequestID}/status": {
+      "patch": {
+        "description": "Approves or rejects a payment request, located using the payment request id. It can also add or update an optional rejection reason to add more context to the status.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Updates status of a payment request by id",
+        "operationId": "updatePaymentRequestStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of payment request",
+            "name": "paymentRequestID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdatePaymentRequestStatus"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Unique value that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. The same value as the eTag attribute.",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated payment request status.",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid. Check the payment request body and try again.",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition failed. It is likely the eTag you passed is stale. Fetch the payment request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1068,14 +1159,6 @@ func init() {
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
-        },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
         }
@@ -1137,9 +1220,11 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
+          "description": "Attribute of the payment request object that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. This matches the value passed in the header for If-Match.",
           "type": "string"
         },
         "rejectionReason": {
+          "description": "A written reason to provide context for the status.",
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
@@ -1545,6 +1630,115 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/payment-requests/{paymentRequestID}/status": {
+      "patch": {
+        "description": "Approves or rejects a payment request, located using the payment request id. It can also add or update an optional rejection reason to add more context to the status.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Updates status of a payment request by id",
+        "operationId": "updatePaymentRequestStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of payment request",
+            "name": "paymentRequestID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdatePaymentRequestStatus"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Unique value that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. The same value as the eTag attribute.",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated payment request status.",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid. Check the payment request body and try again.",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition failed. It is likely the eTag you passed is stale. Fetch the payment request again to get the updated eTag value.",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2351,14 +2545,6 @@ func init() {
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
-        },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
         }
@@ -2420,9 +2606,11 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
+          "description": "Attribute of the payment request object that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. This matches the value passed in the header for If-Match.",
           "type": "string"
         },
         "rejectionReason": {
+          "description": "A written reason to provide context for the status.",
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"

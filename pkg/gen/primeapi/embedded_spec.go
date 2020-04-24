@@ -1635,6 +1635,22 @@ func init() {
         }
       }
     },
+    "UpdatePaymentRequestStatus": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
     "Upload": {
       "type": "object",
       "required": [
@@ -3436,6 +3452,22 @@ func init() {
               }
             }
           }
+        }
+      }
+    },
+    "UpdatePaymentRequestStatus": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
         }
       }
     },

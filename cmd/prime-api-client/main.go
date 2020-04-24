@@ -103,6 +103,16 @@ func main() {
 	initUpdateMTOStatusFlags(makeAvailableToPrimeCommand.Flags())
 	root.AddCommand(makeAvailableToPrimeCommand)
 
+	updatePaymentRequestStatusCommand := &cobra.Command{
+		Use:          "support-update-payment-request-status",
+		Short:        "Update payment request status for prime",
+		Long:         "Allows prime to update payment request status in non-prod envs",
+		RunE:         updatePaymentRequestStatus,
+		SilenceUsage: true,
+	}
+	initUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
+	root.AddCommand(updatePaymentRequestStatusCommand)
+
 	getMoveTaskOrder := &cobra.Command{
 		Use:          "support-get-mto",
 		Short:        "Get an individual mto",
