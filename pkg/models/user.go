@@ -18,13 +18,15 @@ import (
 
 // User is an entity with a registered uuid and email at login.gov
 type User struct {
-	ID            uuid.UUID   `json:"id" db:"id"`
-	CreatedAt     time.Time   `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time   `json:"updated_at" db:"updated_at"`
-	LoginGovUUID  uuid.UUID   `json:"login_gov_uuid" db:"login_gov_uuid"`
-	LoginGovEmail string      `json:"login_gov_email" db:"login_gov_email"`
-	Active        bool        `json:"active" db:"active"`
-	Roles         roles.Roles `many_to_many:"users_roles"`
+	ID               uuid.UUID   `json:"id" db:"id"`
+	CreatedAt        time.Time   `json:"created_at" db:"created_at"`
+	UpdatedAt        time.Time   `json:"updated_at" db:"updated_at"`
+	LoginGovUUID     uuid.UUID   `json:"login_gov_uuid" db:"login_gov_uuid"`
+	LoginGovEmail    string      `json:"login_gov_email" db:"login_gov_email"`
+	Active           bool        `json:"active" db:"active"`
+	Roles            roles.Roles `many_to_many:"users_roles"`
+	CurrentSessionID string      `json:"current_session_id" db:"current_session_id"`
+	UniqueSessionID  string      `json:"unique_session_id" db:"unique_session_id"`
 }
 
 // Users is not required by pop and may be deleted

@@ -148,15 +148,22 @@ func (suite *AuthSuite) TestGenerateNonce() {
 
 func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	t := suite.T()
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
 
 	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	callbackPort := 1234
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/auth/logout", OfficeTestHost), nil)
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		UserID:          fakeUUID,
+		UserID:          user.ID,
 		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
 	}
@@ -166,7 +173,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	sessionManager = scs.New()
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := sessionManager.LoadAndSave(LogoutHandler{authContext, sessionManager})
+	handler := sessionManager.LoadAndSave(LogoutHandler{authContext, suite.DB(), sessionManager})
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req.WithContext(ctx))
@@ -203,17 +210,23 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	req := httptest.NewRequest("GET", "/moves", nil)
 
 	// And: the context contains the auth values
-	session := auth.Session{UserID: user.ID, IDToken: "fake Token"}
+	session := auth.Session{UserID: user.ID, IDToken: "fake Token", ApplicationName: "mil"}
 	ctx := auth.SetSessionInRequestContext(req, &session)
-	req = req.WithContext(ctx)
+	scsContext, sessionManager := setupScsSession(ctx, &session)
+	req = req.WithContext(scsContext)
+	cookieName := auth.SessionCookieName(&session)
+	cookie := http.Cookie{
+		Name:  cookieName,
+		Value: "some randomly generated string",
+		Path:  "/",
+	}
+	req.AddCookie(&cookie)
 
 	var handlerSession *auth.Session
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
-	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.logger)(handler))
+	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.logger, suite.DB())(handler))
 
 	middleware.ServeHTTP(rr, req)
 
@@ -281,7 +294,7 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 	var sessionManager *scs.SessionManager
 	sessionManager = scs.New()
-	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.logger)(handler))
+	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.logger, suite.DB())(handler))
 
 	middleware.ServeHTTP(rr, req)
 
@@ -375,7 +388,17 @@ func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 
 func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	officeUserID := uuid.Must(uuid.NewV4())
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
+
 	userIdentity := models.UserIdentity{
+		ID:           user.ID,
 		Active:       true,
 		OfficeUserID: &officeUserID,
 	}
@@ -383,10 +406,8 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", OfficeTestHost), nil)
 
 	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		UserID:          fakeUUID,
 		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
 	}
@@ -443,7 +464,17 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 
 func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	officeUserID := uuid.Must(uuid.NewV4())
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
+
 	userIdentity := models.UserIdentity{
+		ID:           user.ID,
 		Active:       true,
 		OfficeUserID: &officeUserID,
 	}
@@ -451,10 +482,8 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
 
 	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		UserID:          fakeUUID,
 		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
 	}
@@ -503,8 +532,17 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	adminUserID := uuid.Must(uuid.NewV4())
 	officeUserID := uuid.Must(uuid.NewV4())
 	var adminUserRole models.AdminRole = "SYSTEM_ADMIN"
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
 
 	userIdentity := models.UserIdentity{
+		ID:            user.ID,
 		Active:        true,
 		OfficeUserID:  &officeUserID,
 		AdminUserID:   &adminUserID,
@@ -514,10 +552,9 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", AdminTestHost), nil)
 
 	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+
 	session := auth.Session{
 		ApplicationName: auth.AdminApp,
-		UserID:          fakeUUID,
 		IDToken:         fakeToken,
 		Hostname:        AdminTestHost,
 	}
@@ -537,6 +574,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(scsContext), "")
 
 	// admin app, so should only have admin ID information
+	suite.Equal(userIdentity.ID, session.UserID)
 	suite.Equal(adminUserID, session.AdminUserID)
 	suite.Equal(uuid.Nil, session.OfficeUserID)
 	suite.True(session.IsAdminUser())

@@ -1,7 +1,9 @@
 package authentication
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -84,17 +86,63 @@ func RoleAuthLogin(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
-// UserAuthMiddleware enforces that the incoming request is tied to a user session
-func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+// ConcurrentSessionMiddleware enforces one active session per user
+func ConcurrentSessionMiddleware(sessionManager *scs.SessionManager, logger Logger, db *pop.Connection) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-
+			fmt.Println("ConcurrentSessionMiddleware called")
 			session := auth.SessionFromRequestContext(r)
-			// We must have a logged in session and a user
 
+			// We must have a logged in session and a user
 			if session == nil || session.UserID == uuid.Nil {
-				logger.Error("unauthorized access, no session token or user id")
+				logger.Info("unauthorized access, no session token or user id")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
+
+			userID := session.UserID
+			fmt.Println("fetching user with id:", userID)
+			fmt.Println("session has admin user id:", session.AdminUserID)
+			user, err := models.GetUser(db, userID)
+			if err != nil {
+				logger.Error("error fetching user from DB")
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+			fmt.Println("user has unique session id:", user.UniqueSessionID)
+
+			uniqueSessionID := session.UniqueSessionID
+			fmt.Println("unique session id in session:", uniqueSessionID)
+			if user.UniqueSessionID != uniqueSessionID {
+				fmt.Println("user has another active session")
+				sessionManager.Destroy(r.Context())
+				auth.DeleteCSRFCookies(w)
+				logger.Info("user logged out due to concurrent session")
+				return
+			}
+			next.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
+}
+
+// UserAuthMiddleware enforces that the incoming request is tied to a user session
+func UserAuthMiddleware(logger Logger, db *pop.Connection) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			fmt.Println("UserAuthMiddleware called")
+			session := auth.SessionFromRequestContext(r)
+
+			// We must have a logged in session and a user
+			if session == nil || session.UserID == uuid.Nil {
+				logger.Info("unauthorized access, no session token or user id")
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
+
+			err := updateUserCurrentSessionID(session, r, db, logger)
+			if err != nil {
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
 
@@ -114,6 +162,83 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 		}
 		return http.HandlerFunc(mw)
 	}
+}
+
+func updateUserCurrentSessionID(session *auth.Session, r *http.Request, db *pop.Connection, logger Logger) error {
+	userID := session.UserID
+	fmt.Println("fetching user with id:", userID)
+	user, err := models.GetUser(db, userID)
+	if err != nil {
+		fmt.Println("error fetching user", err)
+	}
+	fmt.Println("user has current session id:", user.CurrentSessionID)
+	var sessionID string
+	cookie, err := r.Cookie(auth.SessionCookieName(session))
+	if err == nil {
+		sessionID = cookie.Value
+	}
+	fmt.Println("cookie session id:", sessionID)
+	if user.CurrentSessionID != sessionID {
+		fmt.Println("user's session id is different from cookie ID")
+
+		user.CurrentSessionID = sessionID
+		err = db.Save(user)
+		if err != nil {
+			logger.Error("Updating user's session_id", zap.String("email", session.Email), zap.Error(err))
+			return err
+		}
+		fmt.Println("updating user with current_session_id:", sessionID)
+	}
+
+	return err
+}
+
+func updateUserUniqueSessionID(session *auth.Session, sessionManager *scs.SessionManager, r *http.Request, db *pop.Connection, logger Logger) error {
+	userID := session.UserID
+	fmt.Println("fetching user with id:", userID)
+	user, err := models.GetUser(db, userID)
+	if err != nil {
+		fmt.Println("error fetching user", err)
+	}
+	uniqueID, _ := generateToken()
+	fmt.Println("updating user and session with unique session id:", uniqueID)
+	session.UniqueSessionID = uniqueID
+	user.UniqueSessionID = uniqueID
+	sessionManager.Put(r.Context(), "session", session)
+	err = db.Save(user)
+	if err != nil {
+		logger.Error("Updating user's unique_session_id", zap.String("email", session.Email), zap.Error(err))
+		return err
+	}
+
+	return err
+}
+
+func generateToken() (string, error) {
+	b := make([]byte, 32)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return base64.RawURLEncoding.EncodeToString(b), nil
+}
+
+func resetUserCurrentSessionID(session *auth.Session, db *pop.Connection, logger Logger) error {
+	userID := session.UserID
+	user, err := models.GetUser(db, userID)
+	if err != nil {
+		fmt.Println("error fetching user in ResetUserCurrentSessionID", err)
+	}
+
+	fmt.Println("resetting user's current session id to empty string:")
+	user.CurrentSessionID = ""
+	err = db.Save(user)
+	if err != nil {
+		logger.Error("Updating user's current_session_id", zap.String("email", session.Email), zap.Error(err))
+		return err
+	}
+
+	return err
 }
 
 // APIContext is the api context interface
@@ -261,13 +386,15 @@ func NewAuthContext(logger Logger, loginGovProvider LoginGovProvider, callbackPr
 // LogoutHandler handles logging the user out of login.gov
 type LogoutHandler struct {
 	Context
+	db             *pop.Connection
 	sessionManager *scs.SessionManager
 }
 
 // NewLogoutHandler creates a new LogoutHandler
-func NewLogoutHandler(ac Context, sessionManager *scs.SessionManager) LogoutHandler {
+func NewLogoutHandler(ac Context, db *pop.Connection, sessionManager *scs.SessionManager) LogoutHandler {
 	logoutHandler := LogoutHandler{
 		Context:        ac,
+		db:             db,
 		sessionManager: sessionManager,
 	}
 	return logoutHandler
@@ -275,7 +402,6 @@ func NewLogoutHandler(ac Context, sessionManager *scs.SessionManager) LogoutHand
 
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	session := auth.SessionFromRequestContext(r)
-
 	if session != nil {
 		redirectURL := h.landingURL(session)
 		if session.IDToken != "" {
@@ -288,8 +414,13 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			} else {
 				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
 			}
+			err := resetUserCurrentSessionID(session, h.db, h.logger)
+			if err != nil {
+				h.logger.Error("failed to reset user's current_session_id")
+			}
 			h.sessionManager.Destroy(r.Context())
 			auth.DeleteCSRFCookies(w)
+			h.logger.Info("user logged out")
 
 			fmt.Fprint(w, logoutURL)
 		} else {
@@ -672,7 +803,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 		session.Roles = append(session.Roles, role)
 	}
 	session.UserID = userIdentity.ID
-
+	fmt.Println("userIdentity.ID in authorizeKnownUser:", userIdentity.ID)
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
@@ -713,6 +844,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 	}
 
 	if session.IsAdminApp() {
+		fmt.Println("session is admin app")
 		if userIdentity.AdminUserActive != nil && !*userIdentity.AdminUserActive {
 			h.logger.Error("Admin user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
@@ -742,6 +874,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 			session.AdminUserID = adminUser.ID
 			session.AdminUserRole = adminUser.Role.String()
 			adminUser.UserID = &userIdentity.ID
+			fmt.Println("saving admin user to DB")
 			verrs, err := h.db.ValidateAndSave(&adminUser)
 			if err != nil {
 				h.logger.Error("Updating admin user", zap.String("email", session.Email), zap.Error(err))
@@ -768,6 +901,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 		return
 	}
 	h.sessionManager.Put(r.Context(), "session", session)
+	updateUserUniqueSessionID(session, h.sessionManager, r, h.db, h.logger)
 
 	h.logger.Info("logged in", zap.Any("session", session))
 

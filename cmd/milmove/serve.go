@@ -547,7 +547,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// Session management and authentication middleware
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, appnames, sessionManager)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
-	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	concurrentSessionMiddleware := authentication.ConcurrentSessionMiddleware(sessionManager, logger, dbConnection)
+	userAuthMiddleware := authentication.UserAuthMiddleware(logger, dbConnection)
 	if v.GetBool(cli.FeatureFlagRoleBasedAuth) {
 		userAuthMiddleware = authentication.RoleAuthLogin(logger)
 	}
@@ -909,6 +910,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalAPIMux := goji.SubMux()
 		internalMux.HandleFunc(pat.Get("/users/is_logged_in"), isLoggedInMiddleware)
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
+		internalAPIMux.Use(concurrentSessionMiddleware)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
 		api := internalapi.NewInternalAPI(handlerContext, sessionManager)
@@ -932,6 +934,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		// Mux for admin API that enforces auth
 		adminAPIMux := goji.SubMux()
 		adminMux.Handle(pat.New("/*"), adminAPIMux)
+		adminAPIMux.Use(concurrentSessionMiddleware)
 		adminAPIMux.Use(userAuthMiddleware)
 		adminAPIMux.Use(authentication.AdminAuthMiddleware(logger))
 		adminAPIMux.Use(middleware.NoCache(logger))
@@ -952,6 +955,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		// Mux for GHC API that enforces auth
 		ghcAPIMux := goji.SubMux()
 		ghcMux.Handle(pat.New("/*"), ghcAPIMux)
+		ghcAPIMux.Use(concurrentSessionMiddleware)
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
 		api := ghcapi.NewGhcAPIHandler(handlerContext)
@@ -972,7 +976,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Handle(pat.Get("/login-gov"), authentication.NewRedirectHandler(authContext, sessionManager))
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, sessionManager))
-	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, sessionManager))
+	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, dbConnection, sessionManager))
 
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
