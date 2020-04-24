@@ -10,6 +10,9 @@ import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 
 import colors from '../shared/styles/colors.scss';
 
+import MilMoveHeader from '../components/MilMoveHeader';
+import CustomerHeader from '../components/CustomerHeader';
+
 const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
 
 // Buttons
@@ -330,6 +333,13 @@ storiesOf('Components|Containers', module).add('all', () => (
   </div>
 ));
 
+storiesOf('Components|Headers', module).add('all', () => (
+  <div>
+    <MilMoveHeader />
+    <CustomerHeader />
+  </div>
+));
+
 // Tags
 
 storiesOf('Components|Tags', module).add('all', () => (
@@ -343,6 +353,7 @@ storiesOf('Components|Tags', module).add('all', () => (
     <Tag className="usa-tag--alert">
       <AlertIcon />
     </Tag>
+    <Tag className="usa-tag--teal">INTL</Tag>
     <Tag>3</Tag>
     <Tag className="usa-tag--cyan usa-tag--large">#ABC123K</Tag>
   </div>

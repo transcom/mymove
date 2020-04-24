@@ -95,14 +95,14 @@ var NextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
 // DefaultContractCode is the default contract code for testing
 const DefaultContractCode = "TEST"
 
-// DefaultServiceCode is the default service code for testing
-const DefaultServiceCode = "STEST"
-
 // DefaultContractName name used for contractor in testing
 const DefaultContractName = "Default contractor name for test"
 
 // DefaultContractType default prime type is Prime for testing
 const DefaultContractType = "Prime"
+
+// DefaultServiceCode is the default service code for testing
+const DefaultServiceCode = "STEST"
 
 // DefaultContractNumber is the default contract number for  testing
 const DefaultContractNumber = "Default contractor number for test"

@@ -1013,6 +1013,9 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         }
       },
       "discriminator": "modelType"
@@ -1175,6 +1178,7 @@ func init() {
               "type": "string",
               "enum": [
                 "DCRT",
+                "DCRTSA",
                 "DUCRT"
               ]
             }
@@ -1227,17 +1231,13 @@ func init() {
       ]
     },
     "MTOServiceItemStatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
-      }
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOShipment": {
       "properties": {
@@ -1301,6 +1301,10 @@ func init() {
           "format": "date"
         },
         "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requiredDeliveryDate": {
           "type": "string",
           "format": "date"
         },
@@ -1554,6 +1558,7 @@ func init() {
         "DBHF",
         "DBTF",
         "DCRT",
+        "DCRTSA",
         "DDASIT",
         "DDDSIT",
         "DDFSIT",
@@ -1577,6 +1582,7 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
+        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",
@@ -2811,6 +2817,9 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         }
       },
       "discriminator": "modelType"
@@ -2973,6 +2982,7 @@ func init() {
               "type": "string",
               "enum": [
                 "DCRT",
+                "DCRTSA",
                 "DUCRT"
               ]
             }
@@ -3025,17 +3035,13 @@ func init() {
       ]
     },
     "MTOServiceItemStatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
-      }
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOShipment": {
       "properties": {
@@ -3099,6 +3105,10 @@ func init() {
           "format": "date"
         },
         "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requiredDeliveryDate": {
           "type": "string",
           "format": "date"
         },
@@ -3352,6 +3362,7 @@ func init() {
         "DBHF",
         "DBTF",
         "DCRT",
+        "DCRTSA",
         "DDASIT",
         "DDDSIT",
         "DDFSIT",
@@ -3375,6 +3386,7 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
+        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",

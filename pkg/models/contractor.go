@@ -6,8 +6,8 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
-
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 )
 
 // Contractor is an object representing an access code for a service member
@@ -42,4 +42,21 @@ func (c *Contractor) ValidateCreate(tx *pop.Connection) (*validate.Errors, error
 // This method is not required and may be deleted.
 func (c *Contractor) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchGHCPrimeTestContractor returns a test contractor for dev
+func FetchGHCPrimeTestContractor(db *pop.Connection) (*Contractor, error) {
+	var contractor Contractor
+	err := db.Q().Where("contract_number='HTC111-11-1-1111'").First(&contractor)
+	if err != nil {
+		err = db.Q().Where(`contract_number = $1`, "TEST").First(&contractor)
+		if err != nil {
+			if errors.Cause(err).Error() == RecordNotFoundErrorString {
+				return nil, errors.Wrap(ErrFetchNotFound, "error fetching contractor")
+			}
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return &contractor, err
+	}
+	return &contractor, nil
 }

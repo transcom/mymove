@@ -2,6 +2,11 @@
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/_mixins.scss';
 
+
+html {
+      scroll-behavior: smooth;
+}
+
 //
 //Containers
 //
@@ -271,4 +276,26 @@ table {
 }
 #root #sb-tables {
   background-color: lighten($mm-blue, 78%);
+}
+
+//
+#icons {
+  div {
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 150px;
+    svg {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 16px;
+      path, polygon {
+        fill: $primary;
+      }
+    }
+    code {
+      font-size: 9px;
+    }
+  }
 }

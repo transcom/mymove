@@ -26,9 +26,12 @@ func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
 			},
 		})
 
-		assertions := testdatagen.Assertions{Upload: models.Upload{UploaderID: *ou.UserID}}
-		u := testdatagen.MakeUpload(suite.DB(), assertions)
+		assertions := testdatagen.Assertions{UserUpload: models.UserUpload{UploaderID: *ou.UserID}}
+		uu := testdatagen.MakeUserUpload(suite.DB(), assertions)
 		uif := NewUploadInformationFetcher(suite.DB())
+		suite.NotNil(uu.UploadID)
+		suite.NotNil(uu.Upload)
+		u := uu.Upload
 		ui, err := uif.FetchUploadInformation(u.ID)
 
 		suite.NoError(err)
@@ -41,13 +44,16 @@ func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
 	})
 
 	suite.T().Run("fetch service member upload", func(t *testing.T) {
-		u := testdatagen.MakeDefaultUpload(suite.DB())
+		uu := testdatagen.MakeDefaultUserUpload(suite.DB())
 		uif := NewUploadInformationFetcher(suite.DB())
+		suite.NotNil(uu.UploadID)
+		suite.NotNil(uu.Upload)
+		u := uu.Upload
 		ui, err := uif.FetchUploadInformation(u.ID)
 
 		suite.NoError(err)
 		suite.Nil(ui.OfficeUserID)
-		sm := u.Document.ServiceMember
+		sm := uu.Document.ServiceMember
 		suite.Equal(sm.ID, *ui.ServiceMemberID)
 		suite.Equal(*sm.PersonalEmail, *ui.ServiceMemberEmail)
 		suite.Equal(*sm.FirstName, *ui.ServiceMemberFirstName)

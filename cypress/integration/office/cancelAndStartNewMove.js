@@ -28,6 +28,6 @@ describe('office user finds the move', () => {
 
     cy.nextPage();
 
-    cy.get('h1').contains('Tell Us About Your Move Orders');
+    cy.get('h1').contains('Tell us about your move orders');
   });
 });

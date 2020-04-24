@@ -7,15 +7,21 @@ set -eu -o pipefail
 function check_host () {
   host=$1
   host_line=$(grep "$host" /etc/hosts || true)
+
+  declare -A host_docs
+  host_docs=(
+    ["milmovelocal"]="setup-milmovelocal-client"
+    ["officelocal"]="setup-officelocal-client"
+    ["adminlocal"]="setup-adminlocal-client"
+    ["orderslocal"]="setup-orders-gateway"
+    ["primelocal"]="setup-prime-api"
+  )
+
   if [ -z "${host_line}" ]; then
     # shellcheck disable=SC1117
     echo -e "\033[0;33mPlease add ${host} to your hosts file using the command:\033[0m 'echo \"127.0.0.1 ${host}\" | sudo tee -a /etc/hosts'"
-    if [ "${host}" = primelocal ]; then
-      echo "More information at https://github.com/transcom/mymove#setup-prime-api"
-    elif [ "${host}" = orderslocal ]; then
-      echo "More information at https://github.com/transcom/mymove#setup-orders-gateway"
-    else
-      echo "More information at https://github.com/transcom/mymove#setup-${host}-client"
+    if [ "${host}" != engadminlocal ]; then
+      echo "More information at https://github.com/transcom/mymove#${host_docs[${host}]}"
     fi
     exit 1
   fi
