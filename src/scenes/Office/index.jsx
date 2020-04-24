@@ -4,8 +4,6 @@ import { ConnectedRouter } from 'connected-react-router';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import '../../index.scss';
-import '../../ghc_index.scss';
 
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';

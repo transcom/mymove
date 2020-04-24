@@ -5,6 +5,8 @@ import { get } from 'lodash';
 import ShipmentContainer from '../../components/Office/ShipmentContainer';
 import ShipmentHeading from '../../components/Office/ShipmentHeading';
 import { getMTOShipments, selectMTOShiomentsByMTOId } from '../../shared/Entities/modules/mtoShipments';
+import '../../index.scss';
+import '../../ghc_index.scss';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
