@@ -126,6 +126,10 @@ func createMoveTaskOrderAndChildren(h CreateMoveTaskOrderHandler, params movetas
 	var moveTaskOrder *models.MoveTaskOrder
 	payload := params.Body
 
+	if payload.MoveOrder == nil {
+		return nil, services.NewCreateObjectError("MoveTaskOrder", nil, nil, "MoveOrder is necessary")
+	}
+
 	transactionError := h.DB().Transaction(func(tx *pop.Connection) error {
 		// Create or get customer
 		customer, err := createOrGetCustomer(tx, h.CustomerFetcher, payload.MoveOrder.CustomerID.String(), payload.MoveOrder.Customer, logger)
@@ -242,6 +246,10 @@ func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, custome
 	}
 	// Else customerIDString is empty and we need to create a customer
 	// Since each customer has a unique userid we need to create a user
+	if customerBody == nil {
+		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "If CustomerID is not provided, customer object is required to create Customer")
+		return nil, returnErr
+	}
 	user, err := createUser(tx, customerBody.Email, logger)
 	if err != nil {
 		return nil, err

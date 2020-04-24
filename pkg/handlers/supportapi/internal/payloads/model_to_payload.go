@@ -11,7 +11,6 @@ import (
 )
 
 // MoveTaskOrder payload
-// MoveTaskOrder payload
 func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *supportmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
 		return nil
@@ -68,7 +67,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *supportmessages.MoveOrder {
 	}
 	destinationDutyStation := DutyStation(moveOrder.DestinationDutyStation)
 	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
-	if moveOrder.Grade != nil {
+	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
 
