@@ -63,12 +63,6 @@ func RequestLogger(serverLogger Logger) func(inner http.Handler) http.Handler {
 			if session := auth.SessionFromContext(ctx); session != nil {
 				if session.UserID != uuid.Nil {
 					fields = append(fields, zap.String("user-id", session.UserID.String()))
-					var sessionID string
-					cookie, err := r.Cookie(auth.SessionCookieName(session))
-					if err == nil {
-						sessionID = cookie.Value
-					}
-					fields = append(fields, zap.String("session-id", sessionID))
 				}
 				if session.IsServiceMember() {
 					fields = append(fields, zap.String("service-member-id", session.ServiceMemberID.String()))
