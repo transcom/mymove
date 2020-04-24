@@ -127,6 +127,10 @@ func createMoveTaskOrderAndChildren(h CreateMoveTaskOrderHandler, params movetas
 	// Create or get customer
 	customer, err := createOrGetCustomer(h, payload.MoveOrder.CustomerID.String(), payload.MoveOrder.Customer, logger)
 	if err != nil {
+		fmt.Println("returning here")
+		data, _ := json.Marshal(err)
+		fmt.Printf("\n\n >>1 %s\n", data)
+
 		return nil, err
 	}
 	fmt.Println("\n\n >> Customer created! ", *customer.FirstName, *customer.LastName)
@@ -146,7 +150,7 @@ func createMoveTaskOrderAndChildren(h CreateMoveTaskOrderHandler, params movetas
 	// Creates the moveOrder and the entitlement at the same time
 	verrs, err := h.DB().ValidateAndCreate(moveTaskOrder)
 	if err != nil || verrs.Count() > 0 {
-		return nil, services.NewCreateObjectError("MoveTaskkOrder", err, verrs, "")
+		return nil, services.NewCreateObjectError("MoveTaskOrder", err, verrs, "")
 	}
 	fmt.Println("\n\n >> moveTaskOrder created", moveTaskOrder.ID.String())
 	fmt.Println("\n\n --")
@@ -235,7 +239,6 @@ func createOrGetCustomer(h CreateMoveTaskOrderHandler, customerIDString string, 
 		return nil, err
 	}
 
-	// Create the customer model and populate the new user
 	customer := payloads.CustomerModel(customerBody)
 	customer.User = *user
 	customer.UserID = user.ID
@@ -246,7 +249,9 @@ func createOrGetCustomer(h CreateMoveTaskOrderHandler, customerIDString string, 
 	// Create the new customer in the db
 	verrs, err := h.DB().ValidateAndCreate(customer)
 	if err != nil || verrs.Count() > 0 {
-		return nil, services.NewCreateObjectError("Customer", err, nil, "")
+		e := services.NewCreateObjectError("Customer", err, verrs, "")
+
+		return nil, e
 	}
 	return customer, nil
 

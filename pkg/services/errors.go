@@ -97,8 +97,10 @@ func NewCreateObjectError(objectType string, err error, validationErrors *valida
 // DetailedMsg returns a detailed msg for the logger (not for payload)
 func (e CreateObjectError) DetailedMsg() string {
 	basicMsg := e.Error()
-	if e.validationErrors.Count() > 0 {
+	if e.validationErrors != nil && e.validationErrors.Count() > 0 {
 		return fmt.Sprintf("%s: %s", basicMsg, e.validationErrors)
+	} else if e.err != nil {
+		return fmt.Sprintf("%s: %s", basicMsg, e.err.Error())
 	}
-	return fmt.Sprintf("%s: %s", basicMsg, e.err.Error())
+	return basicMsg
 }
