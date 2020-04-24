@@ -2,21 +2,12 @@ import React from 'react';
 import propTypes from 'prop-types';
 import { get } from 'lodash';
 
-import classNames from 'classnames/bind';
-import styles from 'components/CustomerRemarksAgentsDetails/customerRemarksAgentsDetails.module.scss';
+import DataPoint from 'components/DataPoint';
 
-const cx = classNames.bind(styles);
-
-const CustomerRemarksAgentsDetails = ({ customerRemarks, releasingAgent, receivingAgent }) => (
-  <div>
-    <div className={cx('container--small')}>
-      <div className={cx('container__heading')}>Customer remarks</div>
-      <hr />
-      {customerRemarks}
-    </div>
-    <div className={cx('container--small')}>
-      <div className={cx('container__heading')}>Releasing agent</div>
-      <hr />
+const CustomerRemarksAgentsDetails = ({ customerRemarks, releasingAgent, receivingAgent }) => {
+  const customerRemarksBody = <>{customerRemarks}</>;
+  const releasingAgentBody = (
+    <>
       {(get(releasingAgent, 'firstName') || get(releasingAgent, 'lastName')) && (
         <>
           {`${get(releasingAgent, 'firstName')} ${get(releasingAgent, 'lastName')}`}
@@ -31,10 +22,10 @@ const CustomerRemarksAgentsDetails = ({ customerRemarks, releasingAgent, receivi
         </>
       )}
       {get(releasingAgent, 'email')}
-    </div>
-    <div className={cx('container--small')}>
-      <div className={cx('container__heading')}>Receiving agent</div>
-      <hr />
+    </>
+  );
+  const receivingAgentBody = (
+    <>
       {(get(receivingAgent, 'firstName') || get(receivingAgent, 'lastName')) && (
         <>
           {`${get(receivingAgent, 'firstName')} ${get(receivingAgent, 'lastName')}`}
@@ -49,9 +40,23 @@ const CustomerRemarksAgentsDetails = ({ customerRemarks, releasingAgent, receivi
         </>
       )}
       {get(receivingAgent, 'email')}
-    </div>
-  </div>
-);
+    </>
+  );
+
+  return (
+    <>
+      <div className="container">
+        <DataPoint header="Customer remarks" body={customerRemarksBody} />
+      </div>
+      <div className="container">
+        <DataPoint header="Releasing agent" body={releasingAgentBody} />
+      </div>
+      <div className="container">
+        <DataPoint header="Receiving agent" body={receivingAgentBody} />
+      </div>
+    </>
+  );
+};
 
 CustomerRemarksAgentsDetails.propTypes = {
   customerRemarks: propTypes.string,
