@@ -383,7 +383,7 @@ func (v *OptionalUUIDIsPresent) IsValid(errors *validate.Errors) {
 		return
 	}
 
-	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s is not a valid uuid.", v.Name))
+	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 }
 
 // ItemCanFitInsideCrate is a structure for determining if an Item Dimension can fit inside a Crate Dimension
