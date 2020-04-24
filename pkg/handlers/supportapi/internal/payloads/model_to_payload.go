@@ -11,20 +11,32 @@ import (
 )
 
 // MoveTaskOrder payload
+// MoveTaskOrder payload
 func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *supportmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
 		return nil
 	}
-
+	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
 	payload := &supportmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
 		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
 		IsCanceled:         &moveTaskOrder.IsCanceled,
+		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
 		ReferenceID:        moveTaskOrder.ReferenceID,
+		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
+
+	if moveTaskOrder.PPMEstimatedWeight != nil {
+		payload.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
+	}
+
+	if moveTaskOrder.PPMType != nil {
+		payload.PpmType = *moveTaskOrder.PPMType
+	}
+
 	return payload
 }
 
@@ -59,10 +71,11 @@ func MoveOrder(moveOrder *models.MoveOrder) *supportmessages.MoveOrder {
 	if moveOrder.Grade != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
-	entitlements := Entitlement(moveOrder.Entitlement)
+
 	payload := supportmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
-		Entitlement:            entitlements,
+		Entitlement:            Entitlement(moveOrder.Entitlement),
+		Customer:               Customer(moveOrder.Customer),
 		OrderNumber:            moveOrder.OrderNumber,
 		OrderTypeDetail:        moveOrder.OrderTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),

@@ -25,7 +25,6 @@ type MoveTaskOrder struct {
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
 	// e tag
-	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -41,6 +40,10 @@ type MoveTaskOrder struct {
 	// move order
 	// Required: true
 	MoveOrder *MoveOrder `json:"moveOrder"`
+
+	// move order ID
+	// Format: uuid
+	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
 
 	// mto service items
 	MtoServiceItems []*MTOServiceItem `json:"mtoServiceItems"`
@@ -79,6 +82,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMoveOrder(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMoveOrderID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -147,6 +154,19 @@ func (m *MoveTaskOrder) validateMoveOrder(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateMoveOrderID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MoveOrderID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("moveOrderID", "body", "uuid", m.MoveOrderID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

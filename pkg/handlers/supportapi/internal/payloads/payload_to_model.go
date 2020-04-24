@@ -73,7 +73,7 @@ func EntitlementModel(entitlementPayload *supportmessages.Entitlement) *models.E
 }
 
 // MoveTaskOrderModel return an MTO model constructed from the payload.
-func MoveTaskOrderModel(mtoPayload *supportmessages.CreateMoveTaskOrderPayload) *models.MoveTaskOrder {
+func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.MoveTaskOrder {
 	if mtoPayload == nil {
 		return nil
 	}

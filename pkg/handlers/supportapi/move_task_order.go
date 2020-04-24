@@ -95,12 +95,6 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 
 	if err != nil {
 		errorForPayload := supportmessages.Error{Message: handlers.FmtString(err.Error())}
-		// if errnew, ok := err.(services.CreateObjectError); ok {
-		// 	fmt.Println("new code", errnew.Unwrap().Error())
-		// 	// query failed because of a permission problem
-		// } else {
-		// 	fmt.Println("is isn't!")
-		// }
 
 		var returnOp middleware.Responder
 		var detailedErrMsg string
@@ -120,8 +114,8 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 
 		return returnOp
 	}
-	fmt.Println(moveTaskOrder)
-	return movetaskorderops.NewCreateMoveTaskOrderBadRequest()
+	moveTaskOrderPayload := payloads.MoveTaskOrder(moveTaskOrder)
+	return movetaskorderops.NewCreateMoveTaskOrderCreated().WithPayload(moveTaskOrderPayload)
 
 }
 

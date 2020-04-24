@@ -64,7 +64,7 @@ for the create move task order operation typically these are written to a http.R
 type CreateMoveTaskOrderParams struct {
 
 	/*Body*/
-	Body *supportmessages.CreateMoveTaskOrderPayload
+	Body *supportmessages.MoveTaskOrder
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +105,13 @@ func (o *CreateMoveTaskOrderParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the create move task order params
-func (o *CreateMoveTaskOrderParams) WithBody(body *supportmessages.CreateMoveTaskOrderPayload) *CreateMoveTaskOrderParams {
+func (o *CreateMoveTaskOrderParams) WithBody(body *supportmessages.MoveTaskOrder) *CreateMoveTaskOrderParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the create move task order params
-func (o *CreateMoveTaskOrderParams) SetBody(body *supportmessages.CreateMoveTaskOrderPayload) {
+func (o *CreateMoveTaskOrderParams) SetBody(body *supportmessages.MoveTaskOrder) {
 	o.Body = body
 }
 

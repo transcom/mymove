@@ -76,20 +76,20 @@ func NewCreateMoveTaskOrderCreated() *CreateMoveTaskOrderCreated {
 created instance of payment request
 */
 type CreateMoveTaskOrderCreated struct {
-	Payload *supportmessages.CreateMoveTaskOrderPayload
+	Payload *supportmessages.MoveTaskOrder
 }
 
 func (o *CreateMoveTaskOrderCreated) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderCreated  %+v", 201, o.Payload)
 }
 
-func (o *CreateMoveTaskOrderCreated) GetPayload() *supportmessages.CreateMoveTaskOrderPayload {
+func (o *CreateMoveTaskOrderCreated) GetPayload() *supportmessages.MoveTaskOrder {
 	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.CreateMoveTaskOrderPayload)
+	o.Payload = new(supportmessages.MoveTaskOrder)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

@@ -25,7 +25,7 @@ type CreateMoveTaskOrderCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.CreateMoveTaskOrderPayload `json:"body,omitempty"`
+	Payload *supportmessages.MoveTaskOrder `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderCreated creates CreateMoveTaskOrderCreated with default headers values
@@ -35,13 +35,13 @@ func NewCreateMoveTaskOrderCreated() *CreateMoveTaskOrderCreated {
 }
 
 // WithPayload adds the payload to the create move task order created response
-func (o *CreateMoveTaskOrderCreated) WithPayload(payload *supportmessages.CreateMoveTaskOrderPayload) *CreateMoveTaskOrderCreated {
+func (o *CreateMoveTaskOrderCreated) WithPayload(payload *supportmessages.MoveTaskOrder) *CreateMoveTaskOrderCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create move task order created response
-func (o *CreateMoveTaskOrderCreated) SetPayload(payload *supportmessages.CreateMoveTaskOrderPayload) {
+func (o *CreateMoveTaskOrderCreated) SetPayload(payload *supportmessages.MoveTaskOrder) {
 	o.Payload = payload
 }
 

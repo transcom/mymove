@@ -36,7 +36,7 @@ type CreateMoveTaskOrderParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *supportmessages.CreateMoveTaskOrderPayload
+	Body *supportmessages.MoveTaskOrder
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -50,7 +50,7 @@ func (o *CreateMoveTaskOrderParams) BindRequest(r *http.Request, route *middlewa
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body supportmessages.CreateMoveTaskOrderPayload
+		var body supportmessages.MoveTaskOrder
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body"))

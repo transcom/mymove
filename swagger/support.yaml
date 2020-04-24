@@ -28,12 +28,12 @@ paths:
           required: true
           name: body
           schema:
-            $ref: '#/definitions/CreateMoveTaskOrderPayload'
+            $ref: '#/definitions/MoveTaskOrder'
       responses:
         '201':
           description: created instance of payment request
           schema:
-            $ref: '#/definitions/CreateMoveTaskOrderPayload'
+            $ref: '#/definitions/MoveTaskOrder'
         '400':
           description: The request payload is invalid
           schema:
@@ -502,11 +502,9 @@ definitions:
         type: string
         readOnly: true
     type: object
-  CreateMoveTaskOrderPayload:
+  MoveTaskOrder:
     type: object
     required:
-      - mtoShipments
-      - paymentRequests
       - moveOrder
     properties:
       id:
@@ -551,50 +549,6 @@ definitions:
         type: integer
       eTag:
         type: string
-  MoveTaskOrder:
-    type: object
-    required:
-      - moveOrder
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      createdAt:
-        format: date
-        type: string
-      moveOrder:
-        $ref: '#/definitions/MoveOrder'
-      referenceId:
-        example: 1001-3456
-        type: string
-      isAvailableToPrime:
-        type: boolean
-        x-nullable: true
-      isCanceled:
-        type: boolean
-        x-nullable: true
-      updatedAt:
-        format: date
-        type: string
-      paymentRequests:
-        $ref: '#/definitions/PaymentRequests'
-      mtoServiceItems:
-        type: array
-        items:
-          $ref: "#/definitions/MTOServiceItem"
-      mtoShipments:
-        $ref: '#/definitions/MTOShipments'
-      ppmType:
-        type: string
-        enum:
-          - FULL
-          - PARTIAL
-      ppmEstimatedWeight:
-        type: integer
-      eTag:
-        type: string
-        readOnly: true
   MoveTaskOrderStatus:
     properties:
       is_available_to_prime:
