@@ -35,23 +35,21 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
+          description: The request was unauthorized.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
+          description: The client doesn't have permissions to perform the request.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
+          description: The requested resource wasn't found.
           schema:
             $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
+          description: A server error occurred.
           schema:
             $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/status':
@@ -886,9 +884,9 @@ definitions:
     type: object
 responses:
   InvalidRequest:
-    description: The request payload is invalid
+    description: The parameters were invalid.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ValidationError'
   NotFound:
     description: The requested resource wasn't found
     schema:

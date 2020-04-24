@@ -3,6 +3,8 @@ package payloads
 import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
@@ -245,5 +247,25 @@ func PaymentRequest(pr *models.PaymentRequest) *supportmessages.PaymentRequest {
 		RejectionReason:      pr.RejectionReason,
 		Status:               supportmessages.PaymentRequestStatus(pr.Status),
 		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
+	}
+}
+
+// ValidationError payload describes validation errors from the model or properties
+func ValidationError(detail string, instance uuid.UUID, validationErrors *validate.Errors) *supportmessages.ValidationError {
+	payload := &supportmessages.ValidationError{
+		ClientError: *clientError(handlers.ValidationErrMessage, detail, instance),
+	}
+	if validationErrors != nil {
+		payload.InvalidFields = handlers.NewValidationErrorsResponse(validationErrors).Errors
+	}
+	return payload
+}
+
+// ClientError payload contains the default information we send to the client on errors
+func clientError(title string, detail string, instance uuid.UUID) *supportmessages.ClientError {
+	return &supportmessages.ClientError{
+		Title:    handlers.FmtString(title),
+		Detail:   handlers.FmtString(detail),
+		Instance: handlers.FmtUUID(instance),
 	}
 }

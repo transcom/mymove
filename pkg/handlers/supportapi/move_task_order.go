@@ -92,42 +92,40 @@ type CreateMoveTaskOrderHandler struct {
 func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	moveTaskOrder, err := createMoveTaskOrderAndChildren(h, params, logger)
+	moveTaskOrder, err := createMoveTaskOrderSupport(h, params, logger)
 
 	if err != nil {
 		errorForPayload := supportmessages.Error{Message: handlers.FmtString(err.Error())}
 
-		var returnOp middleware.Responder
-		var detailedErrMsg string
 		switch typedErr := err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewCreateMoveTaskOrderNotFound().WithPayload(errorForPayload)
 		case services.InvalidInputError:
-			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(errorForPayload)
-		case services.CreateObjectError:
-			detailedErrMsg = typedErr.DetailedMsg()
-			returnOp = movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(errorForPayload)
-			break
+			errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors)
+			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(errPayload)
+		case services.QueryError:
+			// This error is generated when the validation passed but there was an error in creation
+			// Usually this is due to a more complex dependency like a foreign key constraint
+			errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), nil)
+			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(errPayload)
 		default:
 			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(errorForPayload)
 		}
-		logger.Error("supportapi.CreateMoveTaskOrderHandler", zap.String("Error", detailedErrMsg))
-
-		return returnOp
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(moveTaskOrder)
 	return movetaskorderops.NewCreateMoveTaskOrderCreated().WithPayload(moveTaskOrderPayload)
 
 }
 
-// createMoveTaskOrderAndChildren creates a move task order - this is a support function do not use in production
-func createMoveTaskOrderAndChildren(h CreateMoveTaskOrderHandler, params movetaskorderops.CreateMoveTaskOrderParams, logger handlers.Logger) (*models.MoveTaskOrder, error) {
+// createMoveTaskOrderSupport creates a move task order - this is a support function do not use in production
+// It creates customers, users, move orders as well.
+func createMoveTaskOrderSupport(h CreateMoveTaskOrderHandler, params movetaskorderops.CreateMoveTaskOrderParams, logger handlers.Logger) (*models.MoveTaskOrder, error) {
 
 	var moveTaskOrder *models.MoveTaskOrder
 	payload := params.Body
 
 	if payload.MoveOrder == nil {
-		return nil, services.NewCreateObjectError("MoveTaskOrder", nil, nil, "MoveOrder is necessary")
+		return nil, services.NewQueryError("MoveTaskOrder", nil, "MoveOrder is necessary")
 	}
 
 	transactionError := h.DB().Transaction(func(tx *pop.Connection) error {
@@ -155,8 +153,13 @@ func createMoveTaskOrderAndChildren(h CreateMoveTaskOrderHandler, params movetas
 
 		// Creates the moveOrder and the entitlement at the same time
 		verrs, err := tx.ValidateAndCreate(moveTaskOrder)
-		if err != nil || verrs.Count() > 0 {
-			return services.NewCreateObjectError("MoveTaskOrder", err, verrs, "")
+		if verrs.Count() > 0 {
+			logger.Error("supportapi.createMoveTaskOrderSupport error", zap.Error(verrs))
+			return services.NewInvalidInputError(uuid.Nil, nil, verrs, "")
+		} else if err != nil {
+			logger.Error("supportapi.createMoveTaskOrderSupport error", zap.Error(err))
+			e := services.NewQueryError("MoveTaskOrder", err, "Unable to create MoveTaskOrder.")
+			return e
 		}
 		fmt.Println("\n\n >> moveTaskOrder created", moveTaskOrder.ID.String())
 		fmt.Println(" --")
@@ -183,14 +186,6 @@ func createMoveOrder(tx *pop.Connection, customer *models.Customer, moveOrderPay
 	moveOrder := payloads.MoveOrderModel(moveOrderPayload)
 	moveOrder.Entitlement = payloads.EntitlementModel(moveOrderPayload.Entitlement)
 
-	// Check if dutystations are valid uuids
-	// Doesn't check if in database, this will be automatically checked on creation of mO
-	if *moveOrder.DestinationDutyStationID == uuid.Nil ||
-		*moveOrder.OriginDutyStationID == uuid.Nil {
-		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "MoveOrder must contain valid destination and origin duty station UUIDs")
-		return nil, returnErr
-	}
-
 	// Add customer to mO
 	moveOrder.Customer = customer
 	moveOrder.CustomerID = &customer.ID
@@ -200,8 +195,13 @@ func createMoveOrder(tx *pop.Connection, customer *models.Customer, moveOrderPay
 
 	// Creates the moveOrder and the entitlement at the same time
 	verrs, err := tx.Eager().ValidateAndCreate(moveOrder)
-	if err != nil || verrs.Count() > 0 {
-		return nil, services.NewCreateObjectError("MoveOrder", err, verrs, "")
+	if verrs.Count() > 0 {
+		logger.Error("supportapi.createMoveOrder error", zap.Error(verrs))
+		return nil, services.NewInvalidInputError(uuid.Nil, nil, verrs, "")
+	} else if err != nil {
+		logger.Error("supportapi.createMoveOrder error", zap.Error(err))
+		e := services.NewQueryError("MoveOrder", err, "Unable to create MoveOrder.")
+		return nil, e
 	}
 	return moveOrder, nil
 }
@@ -219,8 +219,13 @@ func createUser(tx *pop.Connection, userEmail *string, logger handlers.Logger) (
 		Active:        true,
 	}
 	verrs, err := tx.ValidateAndCreate(&user)
-	if err != nil || verrs.Count() != 0 {
-		return nil, services.NewCreateObjectError("User", err, nil, "")
+	if verrs.Count() > 0 {
+		logger.Error("supportapi.createUser error", zap.Error(verrs))
+		return nil, services.NewInvalidInputError(uuid.Nil, nil, verrs, "")
+	} else if err != nil {
+		logger.Error("supportapi.createUser error", zap.Error(err))
+		e := services.NewQueryError("User", err, "Unable to create User.")
+		return nil, e
 	}
 	return &user, nil
 }
@@ -264,9 +269,12 @@ func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, custome
 
 	// Create the new customer in the db
 	verrs, err := tx.ValidateAndCreate(customer)
-	if err != nil || verrs.Count() > 0 {
-		e := services.NewCreateObjectError("Customer", err, verrs, "")
-
+	if verrs.Count() > 0 {
+		logger.Error("supportapi.createOrGetCustomer error", zap.Error(verrs))
+		return nil, services.NewInvalidInputError(uuid.Nil, nil, verrs, "")
+	} else if err != nil {
+		logger.Error("supportapi.createOrGetCustomer error", zap.Error(err))
+		e := services.NewQueryError("Customer", err, "Unable to create Customer")
 		return nil, e
 	}
 	return customer, nil

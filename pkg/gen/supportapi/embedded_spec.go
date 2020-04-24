@@ -68,31 +68,28 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/responses/NotFound"
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
               "$ref": "#/responses/ServerError"
             }
@@ -1211,9 +1208,9 @@ func init() {
       }
     },
     "InvalidRequest": {
-      "description": "The request payload is invalid",
+      "description": "The parameters were invalid.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ValidationError"
       }
     },
     "NotFound": {
@@ -1293,16 +1290,13 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
+            "description": "The parameters were invalid.",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "description": "The request was denied",
               "schema": {
@@ -1311,7 +1305,7 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "description": "The request was denied",
               "schema": {
@@ -1320,7 +1314,7 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
               "description": "The requested resource wasn't found",
               "schema": {
@@ -1329,7 +1323,7 @@ func init() {
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
               "description": "A server error occurred",
               "schema": {
@@ -1361,9 +1355,9 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
+              "description": "The parameters were invalid.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ValidationError"
               }
             }
           },
@@ -1460,9 +1454,9 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
+              "description": "The parameters were invalid.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ValidationError"
               }
             }
           },
@@ -2484,9 +2478,9 @@ func init() {
       }
     },
     "InvalidRequest": {
-      "description": "The request payload is invalid",
+      "description": "The parameters were invalid.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ValidationError"
       }
     },
     "NotFound": {

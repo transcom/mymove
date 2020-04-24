@@ -60,7 +60,7 @@ func (o *CreateMoveTaskOrderCreated) WriteResponse(rw http.ResponseWriter, produ
 // CreateMoveTaskOrderBadRequestCode is the HTTP code returned for type CreateMoveTaskOrderBadRequest
 const CreateMoveTaskOrderBadRequestCode int = 400
 
-/*CreateMoveTaskOrderBadRequest The request payload is invalid
+/*CreateMoveTaskOrderBadRequest The parameters were invalid.
 
 swagger:response createMoveTaskOrderBadRequest
 */
@@ -69,7 +69,7 @@ type CreateMoveTaskOrderBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.ValidationError `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderBadRequest creates CreateMoveTaskOrderBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewCreateMoveTaskOrderBadRequest() *CreateMoveTaskOrderBadRequest {
 }
 
 // WithPayload adds the payload to the create move task order bad request response
-func (o *CreateMoveTaskOrderBadRequest) WithPayload(payload interface{}) *CreateMoveTaskOrderBadRequest {
+func (o *CreateMoveTaskOrderBadRequest) WithPayload(payload *supportmessages.ValidationError) *CreateMoveTaskOrderBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create move task order bad request response
-func (o *CreateMoveTaskOrderBadRequest) SetPayload(payload interface{}) {
+func (o *CreateMoveTaskOrderBadRequest) SetPayload(payload *supportmessages.ValidationError) {
 	o.Payload = payload
 }
 
@@ -93,16 +93,18 @@ func (o *CreateMoveTaskOrderBadRequest) SetPayload(payload interface{}) {
 func (o *CreateMoveTaskOrderBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // CreateMoveTaskOrderUnauthorizedCode is the HTTP code returned for type CreateMoveTaskOrderUnauthorized
 const CreateMoveTaskOrderUnauthorizedCode int = 401
 
-/*CreateMoveTaskOrderUnauthorized The request was denied
+/*CreateMoveTaskOrderUnauthorized The request was unauthorized.
 
 swagger:response createMoveTaskOrderUnauthorized
 */
@@ -144,7 +146,7 @@ func (o *CreateMoveTaskOrderUnauthorized) WriteResponse(rw http.ResponseWriter, 
 // CreateMoveTaskOrderForbiddenCode is the HTTP code returned for type CreateMoveTaskOrderForbidden
 const CreateMoveTaskOrderForbiddenCode int = 403
 
-/*CreateMoveTaskOrderForbidden The request was denied
+/*CreateMoveTaskOrderForbidden The client doesn't have permissions to perform the request.
 
 swagger:response createMoveTaskOrderForbidden
 */
@@ -186,7 +188,7 @@ func (o *CreateMoveTaskOrderForbidden) WriteResponse(rw http.ResponseWriter, pro
 // CreateMoveTaskOrderNotFoundCode is the HTTP code returned for type CreateMoveTaskOrderNotFound
 const CreateMoveTaskOrderNotFoundCode int = 404
 
-/*CreateMoveTaskOrderNotFound The requested resource wasn't found
+/*CreateMoveTaskOrderNotFound The requested resource wasn't found.
 
 swagger:response createMoveTaskOrderNotFound
 */
@@ -228,7 +230,7 @@ func (o *CreateMoveTaskOrderNotFound) WriteResponse(rw http.ResponseWriter, prod
 // CreateMoveTaskOrderInternalServerErrorCode is the HTTP code returned for type CreateMoveTaskOrderInternalServerError
 const CreateMoveTaskOrderInternalServerErrorCode int = 500
 
-/*CreateMoveTaskOrderInternalServerError A server error occurred
+/*CreateMoveTaskOrderInternalServerError A server error occurred.
 
 swagger:response createMoveTaskOrderInternalServerError
 */

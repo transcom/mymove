@@ -106,24 +106,26 @@ func NewCreateMoveTaskOrderBadRequest() *CreateMoveTaskOrderBadRequest {
 
 /*CreateMoveTaskOrderBadRequest handles this case with default header values.
 
-The request payload is invalid
+The parameters were invalid.
 */
 type CreateMoveTaskOrderBadRequest struct {
-	Payload interface{}
+	Payload *supportmessages.ValidationError
 }
 
 func (o *CreateMoveTaskOrderBadRequest) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *CreateMoveTaskOrderBadRequest) GetPayload() interface{} {
+func (o *CreateMoveTaskOrderBadRequest) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.ValidationError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -137,7 +139,7 @@ func NewCreateMoveTaskOrderUnauthorized() *CreateMoveTaskOrderUnauthorized {
 
 /*CreateMoveTaskOrderUnauthorized handles this case with default header values.
 
-The request was denied
+The request was unauthorized.
 */
 type CreateMoveTaskOrderUnauthorized struct {
 	Payload interface{}
@@ -168,7 +170,7 @@ func NewCreateMoveTaskOrderForbidden() *CreateMoveTaskOrderForbidden {
 
 /*CreateMoveTaskOrderForbidden handles this case with default header values.
 
-The request was denied
+The client doesn't have permissions to perform the request.
 */
 type CreateMoveTaskOrderForbidden struct {
 	Payload interface{}
@@ -199,7 +201,7 @@ func NewCreateMoveTaskOrderNotFound() *CreateMoveTaskOrderNotFound {
 
 /*CreateMoveTaskOrderNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type CreateMoveTaskOrderNotFound struct {
 	Payload interface{}
@@ -230,7 +232,7 @@ func NewCreateMoveTaskOrderInternalServerError() *CreateMoveTaskOrderInternalSer
 
 /*CreateMoveTaskOrderInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type CreateMoveTaskOrderInternalServerError struct {
 	Payload interface{}

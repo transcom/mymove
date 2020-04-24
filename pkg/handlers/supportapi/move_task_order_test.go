@@ -72,35 +72,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 }
 
 func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
-	//this actually puts it in the db - not cool moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-	//moveTaskOrder.MoveOrder.CustomerID = nil
 
-	/*
-	   {
-	   	"referenceID": "91",
-	       "moveOrder": {
-	       	"customer" : {
-	       		"firstName": "mckejibbernna",
-	       		"lastName": "From jabber block",
-	       		"agency": "MARINES",
-	       		"email": "jfalwall@example.com"
-	       	},
-	       	"entitlement": {
-	       		"nonTemporaryStorage": false,
-	       		"totalDependents": 91
-	       	},
-	       	"orderNumber" : "91",
-	       	"rank": "E-6",
-	       	"orderType": "GHC",
-	       	"linesOfAccounting": "2",
-	       	"destinationDutyStationID": "71b2cafd-7396-4265-8225-ff82be863e01",
-	       	"originDutyStationID": "1347d7f3-2f9a-44df-b3a5-63941dd55b34"
-
-	       }
-	   }
-	*/
-
-	//moveOrder =
 	destinationDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{})
 	originDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{})
 	dbCustomer := testdatagen.MakeCustomer(suite.DB(), testdatagen.Assertions{})
@@ -143,20 +115,20 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 		response := handler.Handle(params)
 
-		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.CreateMoveTaskOrderCreated{}, response)
+
 		moveTaskOrdersResponse := response.(*movetaskorderops.CreateMoveTaskOrderCreated)
 		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
-
 		suite.Assertions.IsType(&move_task_order.CreateMoveTaskOrderCreated{}, response)
 		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
 		suite.Equal(true, *moveTaskOrdersPayload.IsAvailableToPrime)
 	})
 
-	suite.T().Run("successful create movetaskorder request with customer creation", func(t *testing.T) {
+	suite.T().Run("successful create movetaskorder request -- with customer creation", func(t *testing.T) {
 
 		newCustomer := models.Customer{
-			FirstName: swag.String("Noho"),
-			LastName:  swag.String("Hank"),
+			FirstName: swag.String("Grace"),
+			LastName:  swag.String("Griffin"),
 		}
 		mtoWithoutCustomer.ReferenceID = "346523"
 
@@ -166,6 +138,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		mtoPayload.MoveOrder.Customer = customerPayload
 		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
 		mtoPayload.MoveOrder.OriginDutyStationID = strfmt.UUID(originDutyStation.ID.String())
+
 		params := movetaskorderops.CreateMoveTaskOrderParams{
 			HTTPRequest: request,
 			Body:        mtoPayload,
@@ -178,7 +151,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 		response := handler.Handle(params)
 
-		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.CreateMoveTaskOrderCreated{}, response)
 		moveTaskOrdersResponse := response.(*movetaskorderops.CreateMoveTaskOrderCreated)
 		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 
@@ -186,5 +159,27 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
 		suite.Equal(true, *moveTaskOrdersPayload.IsAvailableToPrime)
 	})
+	suite.T().Run("failed create payment request -- repeat ReferenceID", func(t *testing.T) {
 
+		// Running the same request should result in the same reference id
+		// If customerID is provided create MTO without creating a new customer
+		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
+		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
+		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.OriginDutyStationID = strfmt.UUID(originDutyStation.ID.String())
+
+		params := movetaskorderops.CreateMoveTaskOrderParams{
+			HTTPRequest: request,
+			Body:        mtoPayload,
+		}
+
+		// make the request
+		handler := CreateMoveTaskOrderHandler{context,
+			customer.NewCustomerFetcher(context.DB()),
+			movetaskorder.NewMoveTaskOrderCreator(queryBuilder, context.DB()),
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&movetaskorderops.CreateMoveTaskOrderBadRequest{}, response)
+	})
 }

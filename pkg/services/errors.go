@@ -65,42 +65,35 @@ func NewInvalidInputError(id uuid.UUID, err error, validationErrors *validate.Er
 func (e InvalidInputError) Error() string {
 	if e.message != "" {
 		return fmt.Sprintf(e.message)
+	} else if e.id == uuid.Nil {
+		return fmt.Sprintf("Invalid input received. %s", e.ValidationErrors)
 	}
-	return fmt.Sprintf("invalid input for id: %s. %s", e.id.String(), e.ValidationErrors)
+	return fmt.Sprintf("Invalid input for id: %s. %s", e.id.String(), e.ValidationErrors)
 }
 
-// CreateObjectError is returned when object creation in the database failed
-type CreateObjectError struct {
-	objectType       string
-	validationErrors *validate.Errors
-	message          string
-	err              error
+// QueryError is returned when a query in the database failed.
+// Use InvalidInputError if you have validation errors to report.
+// QueryError is used if you passed validation but the query still failed.
+type QueryError struct {
+	objectType string
+	message    string
+	err        error
 }
 
-func (e CreateObjectError) Error() string {
+func (e QueryError) Error() string {
 	if e.message != "" {
 		return fmt.Sprintf(e.message)
 	}
-	return fmt.Sprintf("Could not create object of type: %s. %s", e.objectType, e.validationErrors)
+	return fmt.Sprintf("Could not complete query related to object of type: %s.", e.objectType)
 }
 
-// NewCreateObjectError returns an error on object creation
-func NewCreateObjectError(objectType string, err error, validationErrors *validate.Errors, message string) CreateObjectError {
-	return CreateObjectError{
-		objectType:       objectType,
-		err:              err,
-		validationErrors: validationErrors,
-		message:          message,
+// NewQueryError returns an error on a query to the database
+// It will create a default error message based on the objectType
+// You can override the default message with the msgOverride param
+func NewQueryError(objectType string, err error, msgOverride string) QueryError {
+	return QueryError{
+		objectType: objectType,
+		err:        err,
+		message:    msgOverride,
 	}
-}
-
-// DetailedMsg returns a detailed msg for the logger (not for payload)
-func (e CreateObjectError) DetailedMsg() string {
-	basicMsg := e.Error()
-	if e.validationErrors != nil && e.validationErrors.Count() > 0 {
-		return fmt.Sprintf("%s: %s", basicMsg, e.validationErrors)
-	} else if e.err != nil {
-		return fmt.Sprintf("%s: %s", basicMsg, e.err.Error())
-	}
-	return basicMsg
 }
