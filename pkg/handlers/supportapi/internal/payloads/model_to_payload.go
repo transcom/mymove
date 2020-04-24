@@ -69,13 +69,11 @@ func MoveOrder(moveOrder *models.MoveOrder) *supportmessages.MoveOrder {
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
+		OrderType:              moveOrder.OrderType,
 	}
 
 	if moveOrder.Customer != nil {
-		payload.Agency = swag.StringValue(moveOrder.Customer.Agency)
 		payload.CustomerID = strfmt.UUID(moveOrder.CustomerID.String())
-		payload.FirstName = swag.StringValue(moveOrder.Customer.FirstName)
-		payload.LastName = swag.StringValue(moveOrder.Customer.LastName)
 	}
 	if moveOrder.ReportByDate != nil {
 		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
@@ -84,15 +82,8 @@ func MoveOrder(moveOrder *models.MoveOrder) *supportmessages.MoveOrder {
 		payload.DateIssued = strfmt.Date(*moveOrder.DateIssued)
 	}
 	if moveOrder.Grade != nil {
-		payload.Grade = *moveOrder.Grade
+		payload.Rank = *moveOrder.Grade
 	}
-	if moveOrder.ConfirmationNumber != nil {
-		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
-	}
-	if moveOrder.OrderType != nil {
-		payload.OrderType = *moveOrder.OrderType
-	}
-
 	return &payload
 }
 

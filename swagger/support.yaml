@@ -454,56 +454,40 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      confirmation_number:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        type: string
-      first_name:
-        type: string
-        example: John
-        readOnly: true
-      last_name:
-        type: string
-        example: Doe
-        readOnly: true
-      grade:
-        type: string
-        example: E_1
-      agency:
-        type: string
-        example: civilian
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
         $ref: '#/definitions/DutyStation'
       originDutyStation:
         $ref: '#/definitions/DutyStation'
-      moveTaskOrderID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
+      rank:
         type: string
-      order_number:
+        example: E_1
+      reportByDate:
+        type: string
+        format: date
+        example: '2020-01-01'
+      orderNumber:
         type: string
         x-nullable: true
         example: '030-00362'
-      order_type:
+      orderType:
         example: GHC
-        type: string
-      order_type_detail:
         type: string
         enum:
           - GHC
           - NTS
         x-nullable: true
-      date_issued:
+      orderTypeDetail:
         type: string
-        format: date
-        example: '2020-01-01'
-      report_by_date:
+        x-nullable: true
+      dateIssued:
         type: string
         format: date
         example: '2020-01-01'
       eTag:
         type: string
+        readOnly: true
     type: object
   CreateMoveTaskOrderPayload:
     type: object

@@ -74,7 +74,7 @@ type CreateObjectError struct {
 	objectType       string
 	validationErrors *validate.Errors
 	message          string
-	error
+	err              error
 }
 
 func (e CreateObjectError) Error() string {
@@ -88,8 +88,17 @@ func (e CreateObjectError) Error() string {
 func NewCreateObjectError(objectType string, err error, validationErrors *validate.Errors, message string) CreateObjectError {
 	return CreateObjectError{
 		objectType:       objectType,
-		error:            err,
+		err:              err,
 		validationErrors: validationErrors,
 		message:          message,
 	}
+}
+
+// DetailedMsg returns a detailed msg for the logger (not for payload)
+func (e CreateObjectError) DetailedMsg() string {
+	basicMsg := e.Error()
+	if e.validationErrors.Count() > 0 {
+		return fmt.Sprintf("%s: %s", basicMsg, e.validationErrors)
+	}
+	return fmt.Sprintf("%s: %s", basicMsg, e.err.Error())
 }

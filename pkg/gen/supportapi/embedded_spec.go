@@ -911,14 +911,6 @@ func init() {
     "MoveOrder": {
       "type": "object",
       "properties": {
-        "agency": {
-          "type": "string",
-          "example": "civilian"
-        },
-        "confirmation_number": {
-          "type": "string",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -927,7 +919,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "date_issued": {
+        "dateIssued": {
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
@@ -936,56 +928,43 @@ func init() {
           "$ref": "#/definitions/DutyStation"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
-        },
-        "first_name": {
-          "type": "string",
-          "readOnly": true,
-          "example": "John"
-        },
-        "grade": {
-          "type": "string",
-          "example": "E_1"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "last_name": {
-          "type": "string",
-          "readOnly": true,
-          "example": "Doe"
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "order_number": {
+        "orderNumber": {
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
         },
-        "order_type": {
-          "type": "string",
-          "example": "GHC"
-        },
-        "order_type_detail": {
+        "orderType": {
           "type": "string",
           "enum": [
             "GHC",
             "NTS"
           ],
+          "x-nullable": true,
+          "example": "GHC"
+        },
+        "orderTypeDetail": {
+          "type": "string",
           "x-nullable": true
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
-        "report_by_date": {
+        "rank": {
+          "type": "string",
+          "example": "E_1"
+        },
+        "reportByDate": {
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
@@ -2253,14 +2232,6 @@ func init() {
     "MoveOrder": {
       "type": "object",
       "properties": {
-        "agency": {
-          "type": "string",
-          "example": "civilian"
-        },
-        "confirmation_number": {
-          "type": "string",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -2269,7 +2240,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "date_issued": {
+        "dateIssued": {
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
@@ -2278,56 +2249,43 @@ func init() {
           "$ref": "#/definitions/DutyStation"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
-        },
-        "first_name": {
-          "type": "string",
-          "readOnly": true,
-          "example": "John"
-        },
-        "grade": {
-          "type": "string",
-          "example": "E_1"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "last_name": {
-          "type": "string",
-          "readOnly": true,
-          "example": "Doe"
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "order_number": {
+        "orderNumber": {
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
         },
-        "order_type": {
-          "type": "string",
-          "example": "GHC"
-        },
-        "order_type_detail": {
+        "orderType": {
           "type": "string",
           "enum": [
             "GHC",
             "NTS"
           ],
+          "x-nullable": true,
+          "example": "GHC"
+        },
+        "orderTypeDetail": {
+          "type": "string",
           "x-nullable": true
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
-        "report_by_date": {
+        "rank": {
+          "type": "string",
+          "example": "E_1"
+        },
+        "reportByDate": {
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
