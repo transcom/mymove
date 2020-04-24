@@ -21,6 +21,12 @@ func MakeContractor(db *pop.Connection, assertions Assertions) models.Contractor
 	if assertions.Contractor.ContractNumber != "" {
 		contractor.ContractNumber = assertions.Contractor.ContractNumber
 	}
+	if assertions.Contractor.Name != "" {
+		contractor.ContractNumber = assertions.Contractor.Name
+	}
+	if assertions.Contractor.Type != "" {
+		contractor.ContractNumber = assertions.Contractor.Type
+	}
 
 	err := db.Q().Where(`contract_number=$1`, contractor.ContractNumber).First(&contractor)
 	if err != nil && err != sql.ErrNoRows {

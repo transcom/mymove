@@ -105,4 +105,4 @@ const DefaultContractType = "Prime"
 const DefaultServiceCode = "STEST"
 
 // DefaultContractNumber is the default contract number for  testing
-const DefaultContractNumber = "Default contractor number for test"
+const DefaultContractNumber = "HTC111-11-1-1111"
