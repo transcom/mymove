@@ -150,8 +150,6 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	if newServiceMember.LastName != nil {
 		session.LastName = *(newServiceMember.LastName)
 	}
-	// Update session cookie here instead of in responders?
-	// h.sessionManager.Put(ctx, "session", session)
 	// And return
 	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)

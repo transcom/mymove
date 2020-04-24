@@ -528,7 +528,8 @@ var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, sess
 	}
 	err = h.sessionManager.RenewToken(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		h.logger.Error("Error renewing session token", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 	h.sessionManager.Put(r.Context(), "session", session)
@@ -648,7 +649,8 @@ var authorizeKnownUserNew = func(userIdentity *models.UserIdentity, h CallbackHa
 
 	error := h.sessionManager.RenewToken(r.Context())
 	if error != nil {
-		http.Error(w, error.Error(), http.StatusInternalServerError)
+		h.logger.Error("Error renewing session token", zap.Error(error))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 	h.sessionManager.Put(r.Context(), "session", session)
@@ -764,7 +766,8 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 	// session fixation attacks
 	err := h.sessionManager.RenewToken(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		h.logger.Error("Error renewing session token", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 	h.sessionManager.Put(r.Context(), "session", session)
@@ -841,7 +844,8 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 
 	err = h.sessionManager.RenewToken(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		h.logger.Error("Error renewing session token", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 	h.sessionManager.Put(r.Context(), "session", session)
