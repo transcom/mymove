@@ -99,8 +99,7 @@ alter table invoices
     drop constraint invoices_uploads_id_fk,
     add column user_uploads_id uuid null constraint invoices_user_uploads_id_fkey references user_uploads on delete restrict;
 
-update invoices
-    set user_uploads_id = invoices.upload_id;
+update invoices set user_uploads_id = (select id from user_uploads where user_uploads.upload_id = invoices.upload_id);
 
 alter table proof_of_service_docs
     drop constraint proof_of_service_docs_upload_id_fkey;
