@@ -45,30 +45,30 @@ func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
 
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
-	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
+	generator, err := NewGenerator(suite.DB(), suite.logger, suite.userUploader.Uploader())
 	suite.FatalNil(err)
 
 	file, err := suite.openLocalFile("testdata/orders1.jpg", generator.fs)
 	suite.FatalNil(err)
 
-	_, _, err = suite.uploader.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
+	_, _, err = suite.userUploader.CreateUserUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
 	file, err = suite.openLocalFile("testdata/orders1.pdf", generator.fs)
 	suite.FatalNil(err)
 
-	_, _, err = suite.uploader.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
+	_, _, err = suite.userUploader.CreateUserUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
 	file, err = suite.openLocalFile("testdata/orders2.jpg", generator.fs)
 	suite.FatalNil(err)
 
-	_, _, err = suite.uploader.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
+	_, _, err = suite.userUploader.CreateUserUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
-	err = suite.DB().Load(&document, "Uploads")
+	err = suite.DB().Load(&document, "UserUploads.Upload")
 	suite.FatalNil(err)
-	suite.Equal(3, len(document.Uploads))
+	suite.Equal(3, len(document.UserUploads))
 
 	order.UploadedOrders = document
 	order.UploadedOrdersID = document.ID
@@ -78,7 +78,7 @@ func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
 }
 
 func (suite *PaperworkSuite) TestPDFFromImages() {
-	generator, newGeneratorErr := NewGenerator(suite.DB(), suite.logger, suite.uploader)
+	generator, newGeneratorErr := NewGenerator(suite.DB(), suite.logger, suite.userUploader.Uploader())
 	suite.FatalNil(newGeneratorErr)
 
 	images := []inputFile{
@@ -140,7 +140,7 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 }
 
 func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
-	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
+	generator, err := NewGenerator(suite.DB(), suite.logger, suite.userUploader.Uploader())
 	suite.FatalNil(err)
 
 	images := []inputFile{
@@ -158,7 +158,7 @@ func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
 }
 
 func (suite *PaperworkSuite) TestPDFFromImagesRotation() {
-	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
+	generator, err := NewGenerator(suite.DB(), suite.logger, suite.userUploader.Uploader())
 	suite.FatalNil(err)
 
 	images := []inputFile{
@@ -181,7 +181,9 @@ func (suite *PaperworkSuite) TestPDFFromImagesRotation() {
 func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
 	generator, order := suite.setupOrdersDocument()
 
-	paths, err := generator.ConvertUploadsToPDF(order.UploadedOrders.Uploads)
+	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
+	suite.FatalNil(err)
+	paths, err := generator.ConvertUploadsToPDF(uploads)
 	suite.FatalNil(err)
 
 	suite.Equal(3, len(paths), "wrong number of paths returned")
@@ -190,7 +192,8 @@ func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
 func (suite *PaperworkSuite) TestCreateMergedPDF() {
 	generator, order := suite.setupOrdersDocument()
 
-	uploads := order.UploadedOrders.Uploads
+	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
+	suite.FatalNil(err)
 	file, err := generator.CreateMergedPDFUpload(uploads)
 	suite.FatalNil(err)
 
@@ -207,13 +210,14 @@ func (suite *PaperworkSuite) TestCreateMergedPDF() {
 func (suite *PaperworkSuite) TestCleanup() {
 	generator, order := suite.setupOrdersDocument()
 
-	uploads := order.UploadedOrders.Uploads
-	_, err := generator.CreateMergedPDFUpload(uploads)
+	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
+	suite.FatalNil(err)
+	_, err = generator.CreateMergedPDFUpload(uploads)
 	suite.FatalNil(err)
 
 	generator.Cleanup()
 
-	fs := suite.uploader.Storer.FileSystem()
+	fs := suite.userUploader.FileSystem()
 	exists, existsErr := fs.DirExists(generator.workDir)
 	suite.Nil(existsErr)
 
