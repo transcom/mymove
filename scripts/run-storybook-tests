@@ -25,7 +25,7 @@ function run_tests() {
   docker-compose -f docker-compose.storybook.yml down
 
   if [ "$return_code" -ne "0" ]; then
-    printf "%sLoki Tests FAILD!%s\n" "${RED}" "${NOCOLOR}";
+    printf "%sLoki Tests FAILED!%s\n" "${RED}" "${NOCOLOR}";
   else
     printf "%sLoki Tests Passed!%s\n" "${GREEN}" "${NOCOLOR}";
   fi
