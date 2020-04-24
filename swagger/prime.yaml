@@ -52,6 +52,35 @@ paths:
       description: Gets all move task orders
       operationId: fetchMTOUpdates
       summary: Gets all move task orders
+    post:
+      summary: Creates a move task order
+      description: Creates an instance of moveTaskOrder tied to a service member. This is a support endpoint and will not be available in production.
+      operationId: createMoveTaskOrder
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - moveTaskOrder
+      parameters:
+        - in: body
+          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/CreateMoveTaskOrderPayload'
+      responses:
+        201:
+          description: created instance of moveTaskOrder
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
       - description: ID of move task order to use
@@ -681,11 +710,59 @@ definitions:
       eTag:
         type: string
     type: object
+  CreateMoveTaskOrderPayload:
+    type: object
+    required:
+      - mtoShipments
+      - paymentRequests
+      - moveOrder
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date
+        type: string
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      moveOrder:
+        $ref: '#/definitions/MoveOrder'
+      referenceId:
+        example: 1001-3456
+        type: string
+      isAvailableToPrime:
+        type: boolean
+        x-nullable: true
+      isCanceled:
+        type: boolean
+        x-nullable: true
+      updatedAt:
+        format: date
+        type: string
+      paymentRequests:
+        $ref: '#/definitions/PaymentRequests'
+      mtoServiceItems:
+        type: array
+        items:
+          $ref: "#/definitions/MTOServiceItem"
+      mtoShipments:
+        $ref: '#/definitions/MTOShipments'
+      ppmType:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      ppmEstimatedWeight:
+        type: integer
+      eTag:
+        type: string
   MoveTaskOrder:
     type: object
     required:
       - mtoShipments
-      - mtoServiceItems
       - paymentRequests
     properties:
       id:

@@ -94,6 +94,50 @@ func init() {
             }
           }
         }
+      },
+      "post": {
+        "description": "Creates an instance of moveTaskOrder tied to a service member. This is a support endpoint and will not be available in production.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Creates a move task order",
+        "operationId": "createMoveTaskOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateMoveTaskOrderPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created instance of moveTaskOrder",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
       }
     },
     "/move-task-orders/{moveTaskOrderID}/customer": {
@@ -731,6 +775,74 @@ func init() {
         },
         "title": {
           "type": "string"
+        }
+      }
+    },
+    "CreateMoveTaskOrderPayload": {
+      "type": "object",
+      "required": [
+        "mtoShipments",
+        "paymentRequests",
+        "moveOrder"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isAvailableToPrime": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "isCanceled": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "moveOrder": {
+          "$ref": "#/definitions/MoveOrder"
+        },
+        "moveOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "paymentRequests": {
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
         }
       }
     },
@@ -1414,7 +1526,6 @@ func init() {
       "type": "object",
       "required": [
         "mtoShipments",
-        "mtoServiceItems",
         "paymentRequests"
       ],
       "properties": {
@@ -1814,6 +1925,50 @@ func init() {
             }
           }
         }
+      },
+      "post": {
+        "description": "Creates an instance of moveTaskOrder tied to a service member. This is a support endpoint and will not be available in production.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Creates a move task order",
+        "operationId": "createMoveTaskOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateMoveTaskOrderPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created instance of moveTaskOrder",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
       }
     },
     "/move-task-orders/{moveTaskOrderID}/customer": {
@@ -2538,6 +2693,74 @@ func init() {
         }
       }
     },
+    "CreateMoveTaskOrderPayload": {
+      "type": "object",
+      "required": [
+        "mtoShipments",
+        "paymentRequests",
+        "moveOrder"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isAvailableToPrime": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "isCanceled": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "moveOrder": {
+          "$ref": "#/definitions/MoveOrder"
+        },
+        "moveOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "paymentRequests": {
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
     "CreatePaymentRequestPayload": {
       "type": "object",
       "properties": {
@@ -3218,7 +3441,6 @@ func init() {
       "type": "object",
       "required": [
         "mtoShipments",
-        "mtoServiceItems",
         "paymentRequests"
       ],
       "properties": {

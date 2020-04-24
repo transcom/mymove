@@ -19,9 +19,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MoveTaskOrder move task order
-// swagger:model MoveTaskOrder
-type MoveTaskOrder struct {
+// CreateMoveTaskOrderPayload create move task order payload
+// swagger:model CreateMoveTaskOrderPayload
+type CreateMoveTaskOrderPayload struct {
 
 	// created at
 	// Format: date
@@ -41,7 +41,8 @@ type MoveTaskOrder struct {
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
 	// move order
-	MoveOrder *MoveOrder `json:"moveOrder,omitempty"`
+	// Required: true
+	MoveOrder *MoveOrder `json:"moveOrder"`
 
 	// move order ID
 	// Format: uuid
@@ -73,17 +74,17 @@ type MoveTaskOrder struct {
 }
 
 // MtoServiceItems gets the mto service items of this base type
-func (m *MoveTaskOrder) MtoServiceItems() []MTOServiceItem {
+func (m *CreateMoveTaskOrderPayload) MtoServiceItems() []MTOServiceItem {
 	return m.mtoServiceItemsField
 }
 
 // SetMtoServiceItems sets the mto service items of this base type
-func (m *MoveTaskOrder) SetMtoServiceItems(val []MTOServiceItem) {
+func (m *CreateMoveTaskOrderPayload) SetMtoServiceItems(val []MTOServiceItem) {
 	m.mtoServiceItemsField = val
 }
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
-func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
+func (m *CreateMoveTaskOrderPayload) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
@@ -95,7 +96,7 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
-		MoveOrder *MoveOrder `json:"moveOrder,omitempty"`
+		MoveOrder *MoveOrder `json:"moveOrder"`
 
 		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
 
@@ -130,7 +131,7 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 		propMtoServiceItems = mtoServiceItems
 	}
 
-	var result MoveTaskOrder
+	var result CreateMoveTaskOrderPayload
 
 	// createdAt
 	result.CreatedAt = data.CreatedAt
@@ -180,7 +181,7 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 }
 
 // MarshalJSON marshals this object with a polymorphic type to a JSON structure
-func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
+func (m CreateMoveTaskOrderPayload) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
@@ -194,7 +195,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
-		MoveOrder *MoveOrder `json:"moveOrder,omitempty"`
+		MoveOrder *MoveOrder `json:"moveOrder"`
 
 		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
 
@@ -255,8 +256,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	return swag.ConcatJSON(b1, b2, b3), nil
 }
 
-// Validate validates this move task order
-func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
+// Validate validates this create move task order payload
+func (m *CreateMoveTaskOrderPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCreatedAt(formats); err != nil {
@@ -301,7 +302,7 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
+func (m *CreateMoveTaskOrderPayload) validateCreatedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
@@ -314,7 +315,7 @@ func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateID(formats strfmt.Registry) error {
+func (m *CreateMoveTaskOrderPayload) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -327,10 +328,10 @@ func (m *MoveTaskOrder) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateMoveOrder(formats strfmt.Registry) error {
+func (m *CreateMoveTaskOrderPayload) validateMoveOrder(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MoveOrder) { // not required
-		return nil
+	if err := validate.Required("moveOrder", "body", m.MoveOrder); err != nil {
+		return err
 	}
 
 	if m.MoveOrder != nil {
@@ -345,7 +346,7 @@ func (m *MoveTaskOrder) validateMoveOrder(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateMoveOrderID(formats strfmt.Registry) error {
+func (m *CreateMoveTaskOrderPayload) validateMoveOrderID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MoveOrderID) { // not required
 		return nil
@@ -358,7 +359,7 @@ func (m *MoveTaskOrder) validateMoveOrderID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
+func (m *CreateMoveTaskOrderPayload) validateMtoServiceItems(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MtoServiceItems()) { // not required
 		return nil
@@ -378,7 +379,7 @@ func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateMtoShipments(formats strfmt.Registry) error {
+func (m *CreateMoveTaskOrderPayload) validateMtoShipments(formats strfmt.Registry) error {
 
 	if err := validate.Required("mtoShipments", "body", m.MtoShipments); err != nil {
 		return err
@@ -394,7 +395,7 @@ func (m *MoveTaskOrder) validateMtoShipments(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validatePaymentRequests(formats strfmt.Registry) error {
+func (m *CreateMoveTaskOrderPayload) validatePaymentRequests(formats strfmt.Registry) error {
 
 	if err := validate.Required("paymentRequests", "body", m.PaymentRequests); err != nil {
 		return err
@@ -410,7 +411,7 @@ func (m *MoveTaskOrder) validatePaymentRequests(formats strfmt.Registry) error {
 	return nil
 }
 
-var moveTaskOrderTypePpmTypePropEnum []interface{}
+var createMoveTaskOrderPayloadTypePpmTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -418,28 +419,28 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		moveTaskOrderTypePpmTypePropEnum = append(moveTaskOrderTypePpmTypePropEnum, v)
+		createMoveTaskOrderPayloadTypePpmTypePropEnum = append(createMoveTaskOrderPayloadTypePpmTypePropEnum, v)
 	}
 }
 
 const (
 
-	// MoveTaskOrderPpmTypeFULL captures enum value "FULL"
-	MoveTaskOrderPpmTypeFULL string = "FULL"
+	// CreateMoveTaskOrderPayloadPpmTypeFULL captures enum value "FULL"
+	CreateMoveTaskOrderPayloadPpmTypeFULL string = "FULL"
 
-	// MoveTaskOrderPpmTypePARTIAL captures enum value "PARTIAL"
-	MoveTaskOrderPpmTypePARTIAL string = "PARTIAL"
+	// CreateMoveTaskOrderPayloadPpmTypePARTIAL captures enum value "PARTIAL"
+	CreateMoveTaskOrderPayloadPpmTypePARTIAL string = "PARTIAL"
 )
 
 // prop value enum
-func (m *MoveTaskOrder) validatePpmTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, moveTaskOrderTypePpmTypePropEnum); err != nil {
+func (m *CreateMoveTaskOrderPayload) validatePpmTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, createMoveTaskOrderPayloadTypePpmTypePropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
+func (m *CreateMoveTaskOrderPayload) validatePpmType(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.PpmType) { // not required
 		return nil
@@ -453,7 +454,7 @@ func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
+func (m *CreateMoveTaskOrderPayload) validateUpdatedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -467,7 +468,7 @@ func (m *MoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *MoveTaskOrder) MarshalBinary() ([]byte, error) {
+func (m *CreateMoveTaskOrderPayload) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -475,8 +476,8 @@ func (m *MoveTaskOrder) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *MoveTaskOrder) UnmarshalBinary(b []byte) error {
-	var res MoveTaskOrder
+func (m *CreateMoveTaskOrderPayload) UnmarshalBinary(b []byte) error {
+	var res CreateMoveTaskOrderPayload
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

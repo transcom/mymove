@@ -1,6 +1,8 @@
 package primeapi
 
 import (
+	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -90,4 +92,43 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	}
 	mtoPayload := payloads.MoveTaskOrder(mto)
 	return movetaskorderops.NewUpdateMTOPostCounselingInformationOK().WithPayload(mtoPayload)
+}
+
+// CreateMoveTaskOrderHandler creates a move task order
+type CreateMoveTaskOrderHandler struct {
+	handlers.HandlerContext
+	services.CustomerFetcher
+	services.MoveTaskOrderCreator
+}
+
+// Handle updates to move task order post-counseling
+func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTaskOrderParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	payload := params.Body
+
+	// If customer id was provided, check if customer exists
+	customerIDString := payload.MoveOrder.CustomerID.String()
+	customerID, err := uuid.FromString(customerIDString)
+	if err != nil {
+		logger.Error("Invalid customer: params CustomerID cannot be converted to a UUID",
+			zap.String("CustomerID", customerIDString), zap.Error(err))
+		return movetaskorderops.NewCreateMoveTaskOrderBadRequest()
+	}
+
+	customer, err := h.FetchCustomer(customerID)
+	if err != nil {
+		logger.Error("Customer fetch error", zap.Error(err))
+		switch err {
+		case sql.ErrNoRows:
+			return movetaskorderops.NewCreateMoveTaskOrderBadRequest()
+		default:
+			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError()
+		}
+	}
+
+	fmt.Println("\n\n >>", *customer.FirstName, *customer.LastName)
+
+	fmt.Println("\n\n --")
+	return movetaskorderops.NewCreateMoveTaskOrderCreated()
+
 }
