@@ -805,7 +805,7 @@ jobs:
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
       - run:
           name: clone mymove_admin repo
-          command: git clone -b rd-enable-iam-auth --single-branch https://github.com/transcom/milmove_admin.git
+          command: git clone https://github.com/transcom/milmove_admin.git
           working_directory: ~/transcom
       - run:
           name: install deps
