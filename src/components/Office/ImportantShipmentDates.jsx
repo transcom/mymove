@@ -25,7 +25,7 @@ const ImportantShipmentDates = ({ requestedPickupDate, scheduledPickupDate }) =>
         </h4>
       </div>
 
-      <hr className="border border-base-lighter" />
+      <hr className="border border-base-lighter margin-bottom-105" />
 
       <div>
         <p className={`${cx('date')} margin-top-0 display-inline-block margin-bottom-2`}>{requestedPickupDate}</p>
