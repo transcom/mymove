@@ -20,14 +20,14 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerValidate() {
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	sm := ppm.Move.Orders.ServiceMember
 
-	upload := testdatagen.MakeUpload(suite.DB(), testdatagen.Assertions{
-		Upload: models.Upload{
+	uploadUser := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+		UserUpload: models.UserUpload{
 			UploaderID: sm.UserID,
 		},
 	})
-	upload.DocumentID = nil
-	suite.MustSave(&upload)
-	uploadIds := []strfmt.UUID{*handlers.FmtUUID(upload.ID)}
+	uploadUser.DocumentID = nil
+	suite.MustSave(&uploadUser)
+	uploadIds := []strfmt.UUID{*handlers.FmtUUID(uploadUser.Upload.ID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
@@ -62,10 +62,10 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerValidate() {
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
 
-	// confirm Upload is associated to the new document
+	// confirm UserUpload is associated to the new document
 	createdDocumentID := createdPayload.Document.ID
-	var fetchedUpload models.Upload
-	suite.DB().Find(&fetchedUpload, upload.ID)
+	var fetchedUpload models.UserUpload
+	suite.DB().Find(&fetchedUpload, uploadUser.ID)
 	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
 	suite.Equal(createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
 
@@ -123,14 +123,14 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreateFailure() {
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	sm := ppm.Move.Orders.ServiceMember
 
-	upload := testdatagen.MakeUpload(suite.DB(), testdatagen.Assertions{
-		Upload: models.Upload{
+	uploadUser := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+		UserUpload: models.UserUpload{
 			UploaderID: sm.UserID,
 		},
 	})
-	upload.DocumentID = nil
-	suite.MustSave(&upload)
-	uploadIds := []strfmt.UUID{*handlers.FmtUUID(upload.ID)}
+	uploadUser.DocumentID = nil
+	suite.MustSave(&uploadUser)
+	uploadIds := []strfmt.UUID{*handlers.FmtUUID(uploadUser.Upload.ID)}
 
 	suite.T().Run("car without make and model fails", func(t *testing.T) {
 		request := httptest.NewRequest("POST", "/fake/path", nil)
@@ -203,14 +203,14 @@ func createWeightTicketSetDocument(suite *HandlerSuite, weightTicketSetType stri
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	sm := ppm.Move.Orders.ServiceMember
 
-	upload := testdatagen.MakeUpload(suite.DB(), testdatagen.Assertions{
-		Upload: models.Upload{
+	uploadUser := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+		UserUpload: models.UserUpload{
 			UploaderID: sm.UserID,
 		},
 	})
-	upload.DocumentID = nil
-	suite.MustSave(&upload)
-	uploadIds := []strfmt.UUID{*handlers.FmtUUID(upload.ID)}
+	uploadUser.DocumentID = nil
+	suite.MustSave(&uploadUser)
+	uploadIds := []strfmt.UUID{*handlers.FmtUUID(uploadUser.UploadID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)

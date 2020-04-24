@@ -30,7 +30,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 		return handlers.ResponseForError(logger, err)
 	}
 
-	err = h.DB().Load(ppm, "Move.Orders.UploadedOrders.Uploads")
+	err = h.DB().Load(ppm, "Move.Orders.UploadedOrders.UserUploads.Upload")
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -41,12 +41,12 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Init our tools
-	loader, err := uploader.NewUploader(h.DB(), logger, h.FileStorer(), 100*uploader.MB)
+	loader, err := uploader.NewUserUploader(h.DB(), logger, h.FileStorer(), 100*uploader.MB)
 	if err != nil {
 		logger.Error("could not instantiate uploader", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
-	generator, err := paperwork.NewGenerator(h.DB(), logger, loader)
+	generator, err := paperwork.NewGenerator(h.DB(), logger, loader.Uploader())
 	if err != nil {
 		logger.Error("failed to initialize generator", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
@@ -58,11 +58,20 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}()
 
 	// Start with uploaded orders info
-	uploads := ppm.Move.Orders.UploadedOrders.Uploads
+	uploads, err := models.UploadsFromUserUploads(h.DB(), ppm.Move.Orders.UploadedOrders.UserUploads)
+	if err != nil {
+		logger.Error("failed to get uploads for Orders.UploadedOrders", zap.Error(err))
+		return ppmop.NewCreatePPMAttachmentsFailedDependency()
+	}
 
 	// Flatten out uploads into a slice
 	for _, moveDoc := range moveDocs {
-		uploads = append(uploads, moveDoc.Document.Uploads...)
+		moveDocUploads, moveDocUploadsErr := models.UploadsFromUserUploadsNoDatabase(moveDoc.Document.UserUploads)
+		if moveDocUploadsErr != nil {
+			logger.Error("failed to get uploads for moveDoc.Document.UserUploads", zap.Error(moveDocUploadsErr))
+			return ppmop.NewCreatePPMAttachmentsFailedDependency()
+		}
+		uploads = append(uploads, moveDocUploads...)
 	}
 	if len(uploads) == 0 {
 		return ppmop.NewCreatePPMAttachmentsFailedDependency()
@@ -78,8 +87,8 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	// Add relevant av-.* tags for generated objects (for s3)
 	generatedObjectTags := handlers.FmtString("av-status=CLEAN&av-notes=GENERATED")
 	file := uploader.File{File: mergedPdf, Tags: generatedObjectTags}
-	// Upload merged PDF to S3 and return Upload object
-	pdfUpload, verrs, err := loader.CreateUpload(session.UserID, file, uploader.AllowedTypesPDF)
+	// UserUpload merged PDF to S3 and return UserUpload object
+	pdfUpload, verrs, err := loader.CreateUserUpload(session.UserID, file, uploader.AllowedTypesPDF)
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {
 		case uploader.ErrTooLarge:
@@ -95,6 +104,6 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 
-	uploadPayload := payloadForUploadModel(h.FileStorer(), *pdfUpload, url)
+	uploadPayload := payloadForUploadModel(h.FileStorer(), pdfUpload.Upload, url)
 	return ppmop.NewCreatePPMAttachmentsOK().WithPayload(uploadPayload)
 }

@@ -14,9 +14,10 @@ import (
 	"github.com/imdario/mergo"
 	"github.com/spf13/afero"
 
+	"github.com/transcom/mymove/pkg/uploader"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
-	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // Assertions defines assertions about what the data contains
@@ -26,6 +27,7 @@ type Assertions struct {
 	AdminUser                                models.AdminUser
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
+	Contractor                               models.Contractor
 	Customer                                 models.Customer
 	DestinationDutyStation                   models.DutyStation
 	DistanceCalculation                      models.DistanceCalculation
@@ -54,6 +56,9 @@ type Assertions struct {
 	OriginDutyStation                        models.DutyStation
 	PaymentRequest                           models.PaymentRequest
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
+	PrimeUpload                              models.PrimeUpload
+	PrimeUploader                            *uploader.PrimeUploader
+	ProofOfServiceDoc                        models.ProofOfServiceDoc
 	ReContract                               models.ReContract
 	ReContractYear                           models.ReContractYear
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
@@ -73,7 +78,10 @@ type Assertions struct {
 	TransportationServiceProvider            models.TransportationServiceProvider
 	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
 	Upload                                   models.Upload
+	UploadUseZeroBytes                       bool
 	Uploader                                 *uploader.Uploader
+	UserUpload                               models.UserUpload
+	UserUploader                             *uploader.UserUploader
 	User                                     models.User
 }
 
