@@ -139,20 +139,36 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 
 }
 
-//func (h CreateMoveTaskOrderHandler) CreateOrGetUser(userIDString string, logger handlers.Logger) (*models.User, error) {
-//}
+// createUser creates a user
+func createUser(h CreateMoveTaskOrderHandler, userEmail string, logger handlers.Logger) (*models.User, error) {
+	if userEmail == "" {
+		userEmail = "generatedMTOuser@example.com"
+	}
+	id := uuid.Must(uuid.NewV4())
+	user := models.User{
+		LoginGovUUID:  id,
+		LoginGovEmail: userEmail,
+		Active:        true,
+	}
+	verrs, err := h.DB().ValidateAndCreate(&user)
+	if err != nil || verrs.Count() != 0 {
+		returnErr := services.NewCreateObjectError("User", err, nil, "Error creating a user")
+		return nil, returnErr
+	}
+	return &user, nil
+}
 
-// createOrGetCustomer creates a customer or gets one if id is provided
+// createOrGetCustomer creates a customer or gets one if id was provided
 func createOrGetCustomer(h CreateMoveTaskOrderHandler, customerIDString string, customerBody *primemessages.Customer, logger handlers.Logger) (*models.Customer, error) {
+	// If customer ID string is provided, we should find this customer
 	if customerIDString != "" {
-		// If customer id was provided, check if customer exists
 		customerID, err := uuid.FromString(customerIDString)
 		// Error on bad customer id string
 		if err != nil {
 			returnErr := services.NewInvalidInputError(uuid.Nil, err, nil, "Invalid customerID: params CustomerID cannot be converted to a UUID")
 			return nil, returnErr
 		}
-		// Find customer
+		// Find customer and return
 		customer, err := h.FetchCustomer(customerID)
 		if err != nil {
 			returnErr := services.NewNotFoundError(customerID, "Customer with that ID not found")
@@ -161,26 +177,25 @@ func createOrGetCustomer(h CreateMoveTaskOrderHandler, customerIDString string, 
 		return customer, nil
 
 	}
-	// Else customerIDString is nil
+	// Else customerIDString is empty and we need to create a customer
+	// Since each customer has a unique userid we need to create a user
+	user, err := createUser(h, customerBody.Email, logger)
+	if err != nil {
+		return nil, err
+	}
 
-	if customerBody == nil {
-		returnErr := services.NewCreateObjectError("Customer", nil, nil, "If no customerID was provided, customer details should be provided to create a new customer")
+	// Create the customer model and populate the new user
+	customer := payloads.CustomerModel(customerBody)
+	customer.User = *user
+	customer.UserID = user.ID
+
+	// Create the new customer in the db
+	verrs, err := h.DB().ValidateAndCreate(customer)
+	if err != nil || verrs.Count() > 0 {
+		logger.Error("createOrGetCustomer", zap.String("Error", err.Error()))
+		returnErr := services.NewCreateObjectError("Customer", err, nil, "Error creating a customer")
 		return nil, returnErr
 	}
-	// create a new customer
-	// create a model from the payload
+	return customer, nil
 
-	// create a new user (move to another function TODO)
-	id := uuid.Must(uuid.NewV4())
-	user := models.User{
-		LoginGovUUID:  id,
-		LoginGovEmail: "generatedMTOuser@example.com",
-		Active:        true,
-	}
-	verrs, err := h.DB().ValidateAndCreate(&user)
-	if err != nil || verrs.Count() != 0 {
-		returnErr := services.NewCreateObjectError("User", err, nil, "If no customerID was provided, customer details should be provided to create a new customer")
-		return nil, returnErr
-	}
-	return nil, nil
 }
