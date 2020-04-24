@@ -12,7 +12,7 @@ services:
       - POSTGRES_DB=dev_db
 
   redis:
-    image: redis
+    image: redis:5.0.6
 
   milmove_migrate:
     depends_on:

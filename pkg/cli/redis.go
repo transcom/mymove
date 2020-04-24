@@ -31,6 +31,9 @@ const (
 	// RedisConnectTimeoutFlag specifies how long to wait to establish a
 	// connection to the Redis instance
 	RedisConnectTimeoutFlag string = "redis-connect-timeout-in-seconds"
+	// RedisEnabledFlag specifies whether or not we attempt to connect
+	// to Redis. For example, apps that use mTLS don't need Redis.
+	RedisEnabledFlag string = "redis-enabled"
 )
 
 // InitRedisFlags initializes RedisFlags command line flags
@@ -41,10 +44,16 @@ func InitRedisFlags(flag *pflag.FlagSet) {
 	flag.Int(RedisPortFlag, 6379, "Redis port")
 	flag.Int(RedisDBNameFlag, 0, "Redis database")
 	flag.Int(RedisConnectTimeoutFlag, 2, "Redis connect timeout in seconds")
+	flag.Bool(RedisEnabledFlag, true, "Whether or not Redis is enabled")
 }
 
 // CheckRedis validates Redis command line flags
 func CheckRedis(v *viper.Viper) error {
+	enabled := v.GetBool(RedisEnabledFlag)
+	if !enabled {
+		return nil
+	}
+
 	host := v.GetString(RedisHostFlag)
 	fmt.Println("Redis host is:", host)
 	if err := ValidatePort(v, RedisPortFlag); err != nil {
@@ -69,6 +78,11 @@ func CheckRedis(v *viper.Viper) error {
 // v is the viper Configuration.
 // logger is the application logger.
 func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
+	enabled := v.GetBool(RedisEnabledFlag)
+	if !enabled {
+		return nil, nil
+	}
+
 	redisUser := v.GetString(RedisUserFlag)
 	redisPassword := v.GetString(RedisPasswordFlag)
 	redisHost := v.GetString(RedisHostFlag)
