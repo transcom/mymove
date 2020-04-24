@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { withKnobs, text, object } from '@storybook/addon-knobs';
 import CustomerRemarksAgentsDetails from 'components/CustomerRemarksAgentsDetails';
 
-storiesOf('Components|CustomerRemarksAgentsDetails', module)
+storiesOf('TOO/TIO Components|CustomerRemarksAgentsDetails', module)
   .addDecorator(withKnobs)
   .add('with no details', () => {
     return (
