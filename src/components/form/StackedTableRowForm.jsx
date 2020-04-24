@@ -3,11 +3,14 @@ import PropTypes from 'prop-types';
 
 import { Formik } from 'formik';
 import { Button } from '@trussworks/react-uswds';
-import classNames from 'classnames';
+import classNames from 'classnames/bind';
 import { EditButton } from './IconButtons';
 import { Form } from './Form';
 import { ErrorMessage } from './ErrorMessage';
 import { TextInputMinimal } from './fields';
+import styles from './StackedTableRowForm.module.scss';
+
+const cx = classNames.bind(styles);
 
 export const StackedTableRowForm = ({ label, name, validationSchema, initialValues, onSubmit, onReset, ...props }) => {
   const [show, setShow] = React.useState(false);
@@ -36,7 +39,7 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
     >
       <Form errorCallback={errorCallback}>
         <TextInputMinimal name={name} {...props} />
-        <div className="display-flex">
+        <div className={cx('form-buttons')}>
           <Button type="submit">Submit</Button>
           <Button type="reset" secondary>
             Cancel
@@ -56,7 +59,7 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
   /* eslint-enable react/jsx-props-no-spreading */
   return (
     <tr>
-      <th scope="row" className={classNames({ error: errorMsg })}>
+      <th scope="row" className={`${cx('label')} ${classNames({ error: errorMsg })}`}>
         {label}
       </th>
       <td>{content}</td>

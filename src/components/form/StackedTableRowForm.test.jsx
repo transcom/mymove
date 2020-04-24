@@ -29,7 +29,7 @@ describe('StackedTableRowForm', () => {
     it('renders a tr with correct html', () => {
       const component = renderStackedTableRowForm();
       expect(component.html()).toBe(
-        '<table class="table--stacked"><tbody><tr><th scope="row" class="">Field Name</th><td><span>value</span><button type="button" class="usa-button usa-button--icon usa-button--unstyled float-right" data-testid="button"><span class="icon"><svg>edit.svg</svg></span><span>Edit</span></button></td></tr></tbody></table>',
+        '<table class="table--stacked"><tbody><tr><th scope="row" class="label ">Field Name</th><td><span>value</span><button type="button" class="usa-button usa-button--icon usa-button--unstyled float-right" data-testid="button"><span class="icon"><svg>edit.svg</svg></span><span>Edit</span></button></td></tr></tbody></table>',
       );
     });
 
@@ -44,7 +44,7 @@ describe('StackedTableRowForm', () => {
 
     it('does not add error class th', () => {
       const component = renderStackedTableRowForm();
-      expect(component.find('th').props().className).not.toBe('error');
+      expect(component.find('th').props().className).toBe('label ');
     });
 
     it('does set display on ErrorMessage', () => {
@@ -62,7 +62,7 @@ describe('StackedTableRowForm', () => {
 
       it('adds error class th', () => {
         const component = renderStackedTableRowForm();
-        expect(component.find('th').props().className).toBe('error');
+        expect(component.find('th').props().className).toBe('label error');
       });
 
       it('displays the error message and value', () => {
@@ -84,7 +84,7 @@ describe('StackedTableRowForm', () => {
       jest.spyOn(React, 'useState').mockReturnValueOnce([true, setShow]).mockReturnValueOnce([{}, jest.fn()]);
       const component = renderStackedTableRowForm();
       expect(component.html()).toBe(
-        '<table class="table--stacked"><tbody><tr><th scope="row" class="">Field Name</th><td><form data-testid="form" class="usa-form"><input data-testid="textInput" class="usa-input" name="fieldName" type="text" value="value"><div class="display-flex"><button type="submit" class="usa-button" data-testid="button">Submit</button><button type="reset" class="usa-button usa-button--secondary" data-testid="button">Cancel</button></div></form></td></tr></tbody></table>',
+        '<table class="table--stacked"><tbody><tr><th scope="row" class="label ">Field Name</th><td><form data-testid="form" class="usa-form"><input data-testid="textInput" class="usa-input" name="fieldName" type="text" value="value"><div class="form-buttons"><button type="submit" class="usa-button" data-testid="button">Submit</button><button type="reset" class="usa-button usa-button--secondary" data-testid="button">Cancel</button></div></form></td></tr></tbody></table>',
       );
     });
 
@@ -162,7 +162,7 @@ describe('StackedTableRowForm', () => {
 
       it('adds error class th', () => {
         const component = renderStackedTableRowForm();
-        expect(component.find('th').props().className).toBe('error');
+        expect(component.find('th').props().className).toBe('label error');
       });
     });
   });

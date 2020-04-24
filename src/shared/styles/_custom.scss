@@ -127,9 +127,6 @@ table {
       @include u-border-top(1px);
       @include u-border('base-lighter');
     }
-    td:hover {
-      background: $link-light;
-    }
     .error {
       @include u-border-left(0.5);
       @include u-border-left('error');
