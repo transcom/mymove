@@ -9,7 +9,6 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi"
@@ -62,12 +61,6 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		fetch.NewFetcher(queryBuilder),
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
-	}
-
-	primeAPI.MoveTaskOrderCreateMoveTaskOrderHandler = CreateMoveTaskOrderHandler{
-		context,
-		customer.NewCustomerFetcher(context.DB()),
-		movetaskorder.NewMoveTaskOrderCreator(builder, context.DB()),
 	}
 
 	return primeAPI.Serve(nil)

@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // CreateMoveTaskOrderReader is a Reader for the CreateMoveTaskOrder structure.
@@ -76,20 +76,20 @@ func NewCreateMoveTaskOrderCreated() *CreateMoveTaskOrderCreated {
 created instance of payment request
 */
 type CreateMoveTaskOrderCreated struct {
-	Payload *primemessages.CreateMoveTaskOrderPayload
+	Payload *supportmessages.CreateMoveTaskOrderPayload
 }
 
 func (o *CreateMoveTaskOrderCreated) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderCreated  %+v", 201, o.Payload)
 }
 
-func (o *CreateMoveTaskOrderCreated) GetPayload() *primemessages.CreateMoveTaskOrderPayload {
+func (o *CreateMoveTaskOrderCreated) GetPayload() *supportmessages.CreateMoveTaskOrderPayload {
 	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.CreateMoveTaskOrderPayload)
+	o.Payload = new(supportmessages.CreateMoveTaskOrderPayload)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

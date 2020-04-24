@@ -16,7 +16,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // NewCreateMoveTaskOrderParams creates a new CreateMoveTaskOrderParams object
@@ -64,7 +64,7 @@ for the create move task order operation typically these are written to a http.R
 type CreateMoveTaskOrderParams struct {
 
 	/*Body*/
-	Body *primemessages.CreateMoveTaskOrderPayload
+	Body *supportmessages.CreateMoveTaskOrderPayload
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +105,13 @@ func (o *CreateMoveTaskOrderParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the create move task order params
-func (o *CreateMoveTaskOrderParams) WithBody(body *primemessages.CreateMoveTaskOrderPayload) *CreateMoveTaskOrderParams {
+func (o *CreateMoveTaskOrderParams) WithBody(body *supportmessages.CreateMoveTaskOrderPayload) *CreateMoveTaskOrderParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the create move task order params
-func (o *CreateMoveTaskOrderParams) SetBody(body *primemessages.CreateMoveTaskOrderPayload) {
+func (o *CreateMoveTaskOrderParams) SetBody(body *supportmessages.CreateMoveTaskOrderPayload) {
 	o.Body = body
 }
 

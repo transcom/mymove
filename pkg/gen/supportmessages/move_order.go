@@ -25,6 +25,9 @@ type MoveOrder struct {
 	// confirmation number
 	ConfirmationNumber string `json:"confirmation_number,omitempty"`
 
+	// customer
+	Customer *Customer `json:"customer,omitempty"`
+
 	// customer ID
 	// Format: uuid
 	CustomerID strfmt.UUID `json:"customerID,omitempty"`
@@ -83,6 +86,10 @@ type MoveOrder struct {
 func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateCustomer(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCustomerID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -122,6 +129,24 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveOrder) validateCustomer(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Customer) { // not required
+		return nil
+	}
+
+	if m.Customer != nil {
+		if err := m.Customer.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("customer")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

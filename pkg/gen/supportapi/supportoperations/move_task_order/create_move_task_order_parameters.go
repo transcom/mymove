@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // NewCreateMoveTaskOrderParams creates a new CreateMoveTaskOrderParams object
@@ -36,7 +36,7 @@ type CreateMoveTaskOrderParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *primemessages.CreateMoveTaskOrderPayload
+	Body *supportmessages.CreateMoveTaskOrderPayload
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -50,7 +50,7 @@ func (o *CreateMoveTaskOrderParams) BindRequest(r *http.Request, route *middlewa
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body primemessages.CreateMoveTaskOrderPayload
+		var body supportmessages.CreateMoveTaskOrderPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body"))

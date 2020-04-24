@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // CreateMoveTaskOrderCreatedCode is the HTTP code returned for type CreateMoveTaskOrderCreated
@@ -25,7 +25,7 @@ type CreateMoveTaskOrderCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.CreateMoveTaskOrderPayload `json:"body,omitempty"`
+	Payload *supportmessages.CreateMoveTaskOrderPayload `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderCreated creates CreateMoveTaskOrderCreated with default headers values
@@ -35,13 +35,13 @@ func NewCreateMoveTaskOrderCreated() *CreateMoveTaskOrderCreated {
 }
 
 // WithPayload adds the payload to the create move task order created response
-func (o *CreateMoveTaskOrderCreated) WithPayload(payload *primemessages.CreateMoveTaskOrderPayload) *CreateMoveTaskOrderCreated {
+func (o *CreateMoveTaskOrderCreated) WithPayload(payload *supportmessages.CreateMoveTaskOrderPayload) *CreateMoveTaskOrderCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create move task order created response
-func (o *CreateMoveTaskOrderCreated) SetPayload(payload *primemessages.CreateMoveTaskOrderPayload) {
+func (o *CreateMoveTaskOrderCreated) SetPayload(payload *supportmessages.CreateMoveTaskOrderPayload) {
 	o.Payload = payload
 }
 

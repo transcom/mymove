@@ -29,19 +29,6 @@ func AddressModel(address *primemessages.Address) *models.Address {
 	}
 }
 
-// CustomerModel model
-func CustomerModel(customer *primemessages.Customer) *models.Customer {
-	if customer == nil {
-		return nil
-	}
-	return &models.Customer{
-		ID:        uuid.FromStringOrNil(customer.ID.String()),
-		Agency:    &customer.Branch,
-		FirstName: &customer.FirstName,
-		LastName:  &customer.LastName,
-	}
-}
-
 // MTOAgentModel model
 func MTOAgentModel(mtoAgent *primemessages.MTOAgent) *models.MTOAgent {
 	if mtoAgent == nil {

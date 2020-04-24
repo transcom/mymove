@@ -45,11 +45,6 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_service_item.CreateMTOServiceItem has not yet been implemented")
 		})
 	}
-	if api.MoveTaskOrderCreateMoveTaskOrderHandler == nil {
-		api.MoveTaskOrderCreateMoveTaskOrderHandler = move_task_order.CreateMoveTaskOrderHandlerFunc(func(params move_task_order.CreateMoveTaskOrderParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.CreateMoveTaskOrder has not yet been implemented")
-		})
-	}
 	if api.PaymentRequestsCreatePaymentRequestHandler == nil {
 		api.PaymentRequestsCreatePaymentRequestHandler = payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.CreatePaymentRequest has not yet been implemented")

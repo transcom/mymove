@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	"github.com/transcom/mymove/pkg/services/office_user/customer"
 
 	"github.com/go-openapi/loads"
 
@@ -31,7 +32,15 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
 	}
 
-	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
+	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
+
+	supportAPI.MoveTaskOrderCreateMoveTaskOrderHandler = CreateMoveTaskOrderHandler{
+		context,
+		customer.NewCustomerFetcher(context.DB()),
+		movetaskorder.NewMoveTaskOrderCreator(queryBuilder, context.DB()),
+	}
 
 	return supportAPI.Serve(nil)
 }

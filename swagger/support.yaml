@@ -12,6 +12,48 @@ basePath: /support/v1
 schemes:
   - http
 paths:
+  '/move-task-orders':
+    post:
+      summary: Creates a move task order
+      description: Creates an instance of moveTaskOrder tied to a service member. This is a support endpoint and will not be available in production.
+      operationId: createMoveTaskOrder
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - moveTaskOrder
+      parameters:
+        - in: body
+          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/CreateMoveTaskOrderPayload'
+      responses:
+        '201':
+          description: created instance of payment request
+          schema:
+            $ref: '#/definitions/CreateMoveTaskOrderPayload'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/status':
     patch:
       consumes:
@@ -296,12 +338,12 @@ definitions:
       agency:
         type: string
         title: Agency customer is affilated with
-      first_name:
+      firstName:
         type: string
-        example: John
-      last_name:
+        example: Vanya
+      lastName:
         type: string
-        example: Doe
+        example: Petrovna
       phone:
         type: string
         format: telephone
@@ -312,16 +354,17 @@ definitions:
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
-      current_address:
+      currentAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
-      destination_address:
+      destinationAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       dodID:
         type: string
       userID:
@@ -405,6 +448,8 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      customer:
+        $ref: '#/definitions/Customer'
       customerID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -460,6 +505,55 @@ definitions:
       eTag:
         type: string
     type: object
+  CreateMoveTaskOrderPayload:
+    type: object
+    required:
+      - mtoShipments
+      - paymentRequests
+      - moveOrder
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date
+        type: string
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      moveOrder:
+        $ref: '#/definitions/MoveOrder'
+      referenceId:
+        example: 1001-3456
+        type: string
+      isAvailableToPrime:
+        type: boolean
+        x-nullable: true
+      isCanceled:
+        type: boolean
+        x-nullable: true
+      updatedAt:
+        format: date
+        type: string
+      paymentRequests:
+        $ref: '#/definitions/PaymentRequests'
+      mtoServiceItems:
+        type: array
+        items:
+          $ref: "#/definitions/MTOServiceItem"
+      mtoShipments:
+        $ref: '#/definitions/MTOShipments'
+      ppmType:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      ppmEstimatedWeight:
+        type: integer
+      eTag:
+        type: string
   MoveTaskOrder:
     properties:
       id:

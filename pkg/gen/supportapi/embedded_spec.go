@@ -36,6 +36,70 @@ func init() {
   },
   "basePath": "/support/v1",
   "paths": {
+    "/move-task-orders": {
+      "post": {
+        "description": "Creates an instance of moveTaskOrder tied to a service member. This is a support endpoint and will not be available in production.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Creates a move task order",
+        "operationId": "createMoveTaskOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateMoveTaskOrderPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created instance of payment request",
+            "schema": {
+              "$ref": "#/definitions/CreateMoveTaskOrderPayload"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets an individual move task order",
@@ -370,6 +434,74 @@ func init() {
         }
       }
     },
+    "CreateMoveTaskOrderPayload": {
+      "type": "object",
+      "required": [
+        "mtoShipments",
+        "paymentRequests",
+        "moveOrder"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isAvailableToPrime": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "isCanceled": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "moveOrder": {
+          "$ref": "#/definitions/MoveOrder"
+        },
+        "moveOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "paymentRequests": {
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -377,11 +509,11 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
-        "current_address": {
+        "currentAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destination_address": {
+        "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
@@ -397,18 +529,19 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
-          "example": "John"
+          "example": "Vanya"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
-          "example": "Doe"
+          "example": "Petrovna"
         },
         "phone": {
           "type": "string",
@@ -785,6 +918,9 @@ func init() {
         "confirmation_number": {
           "type": "string",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
           "type": "string",
@@ -1194,6 +1330,85 @@ func init() {
   },
   "basePath": "/support/v1",
   "paths": {
+    "/move-task-orders": {
+      "post": {
+        "description": "Creates an instance of moveTaskOrder tied to a service member. This is a support endpoint and will not be available in production.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Creates a move task order",
+        "operationId": "createMoveTaskOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateMoveTaskOrderPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created instance of payment request",
+            "schema": {
+              "$ref": "#/definitions/CreateMoveTaskOrderPayload"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets an individual move task order",
@@ -1561,6 +1776,74 @@ func init() {
         }
       }
     },
+    "CreateMoveTaskOrderPayload": {
+      "type": "object",
+      "required": [
+        "mtoShipments",
+        "paymentRequests",
+        "moveOrder"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isAvailableToPrime": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "isCanceled": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "moveOrder": {
+          "$ref": "#/definitions/MoveOrder"
+        },
+        "moveOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "paymentRequests": {
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -1568,11 +1851,11 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
-        "current_address": {
+        "currentAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destination_address": {
+        "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
@@ -1588,18 +1871,19 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
-          "example": "John"
+          "example": "Vanya"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
-          "example": "Doe"
+          "example": "Petrovna"
         },
         "phone": {
           "type": "string",
@@ -1976,6 +2260,9 @@ func init() {
         "confirmation_number": {
           "type": "string",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
           "type": "string",
