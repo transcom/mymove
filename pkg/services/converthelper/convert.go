@@ -1,7 +1,6 @@
 package converthelper
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -86,7 +85,7 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	var contractor models.Contractor
 
 	err := db.Where("contract_number = ?", "HTC111-11-1-1111").First(&contractor)
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return uuid.Nil, fmt.Errorf("Could not find contractor, %w", err)
 	}
 	// create mto -> move task order
