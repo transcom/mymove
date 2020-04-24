@@ -122,6 +122,14 @@ paths:
         format: uuid
         type: string
     patch:
+      summary: Updates a shipment's status
+      description: >
+        Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED,
+        `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in
+        `rejectionReason` is required.
+      operationId: patchMTOShipmentStatus
+      tags:
+        - mtoShipment
       consumes:
         - application/json
       produces:
@@ -138,7 +146,7 @@ paths:
           required: true
       responses:
         '200':
-          description: Successfully updated shipment's status
+          description: Successfully updated the shipment's status
           schema:
             $ref: '#/definitions/MTOShipment'
         '404':
@@ -146,11 +154,11 @@ paths:
           schema:
             $ref: '#/responses/NotFound'
         '409':
-          description: Conflict error
+          description: Conflict error due to trying to change the status of shipment that is not currently "SUBMITTED"
           schema:
             $ref: '#/responses/Conflict'
         '412':
-          description: Precondition failed
+          description: Precondition failed, likely due to a stale eTag (If-Match) value
           schema:
             $ref: '#/responses/PreconditionFailed'
         '422':
@@ -161,14 +169,6 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
-      tags:
-        - mtoShipment
-      description: >
-        Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED,
-        `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in
-        `rejectionReason` is required.
-      operationId: patchMTOShipmentStatus
-      summary: Updates a shipment's status
 definitions:
   ClientError:
     type: object
