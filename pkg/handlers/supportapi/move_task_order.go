@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -122,44 +123,51 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 // createMoveTaskOrderAndChildren creates a move task order - this is a support function do not use in production
 func createMoveTaskOrderAndChildren(h CreateMoveTaskOrderHandler, params movetaskorderops.CreateMoveTaskOrderParams, logger handlers.Logger) (*models.MoveTaskOrder, error) {
 
+	var moveTaskOrder *models.MoveTaskOrder
 	payload := params.Body
 
-	// Create or get customer
-	customer, err := createOrGetCustomer(h, payload.MoveOrder.CustomerID.String(), payload.MoveOrder.Customer, logger)
-	if err != nil {
-		fmt.Println("returning here")
-		data, _ := json.Marshal(err)
-		fmt.Printf("\n\n >>1 %s\n", data)
+	transactionError := h.DB().Transaction(func(tx *pop.Connection) error {
+		// Create or get customer
+		customer, err := createOrGetCustomer(tx, h.CustomerFetcher, payload.MoveOrder.CustomerID.String(), payload.MoveOrder.Customer, logger)
+		if err != nil {
+			return err
+		}
+		fmt.Println("\n\n >> Customer created! ", *customer.FirstName, *customer.LastName)
+		fmt.Println(" --")
 
-		return nil, err
+		// Create move order and entitlement
+		moveOrder, err := createMoveOrder(tx, customer, payload.MoveOrder, logger)
+		if err != nil {
+			fmt.Println("returning error here")
+			return err
+		}
+		fmt.Println("\n\n >> moveOrder created", *moveOrder.Grade)
+		fmt.Println(" --")
+
+		// Create move task order
+		moveTaskOrder = payloads.MoveTaskOrderModel(payload)
+		moveTaskOrder.MoveOrder = *moveOrder
+		moveTaskOrder.MoveOrderID = moveOrder.ID
+
+		// Creates the moveOrder and the entitlement at the same time
+		verrs, err := tx.ValidateAndCreate(moveTaskOrder)
+		if err != nil || verrs.Count() > 0 {
+			return services.NewCreateObjectError("MoveTaskOrder", err, verrs, "")
+		}
+		fmt.Println("\n\n >> moveTaskOrder created", moveTaskOrder.ID.String())
+		fmt.Println(" --")
+		return nil
+	})
+
+	if transactionError != nil {
+		return nil, transactionError
 	}
-	fmt.Println("\n\n >> Customer created! ", *customer.FirstName, *customer.LastName)
-	fmt.Println("\n\n --")
-
-	moveOrder, err := createMoveOrder(h, customer, payload.MoveOrder, logger)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("\n\n >> moveOrder created", *moveOrder.Grade)
-	fmt.Println("\n\n --")
-
-	moveTaskOrder := payloads.MoveTaskOrderModel(payload)
-	moveTaskOrder.MoveOrder = *moveOrder
-	moveTaskOrder.MoveOrderID = moveOrder.ID
-
-	// Creates the moveOrder and the entitlement at the same time
-	verrs, err := h.DB().ValidateAndCreate(moveTaskOrder)
-	if err != nil || verrs.Count() > 0 {
-		return nil, services.NewCreateObjectError("MoveTaskOrder", err, verrs, "")
-	}
-	fmt.Println("\n\n >> moveTaskOrder created", moveTaskOrder.ID.String())
-	fmt.Println("\n\n --")
 	return moveTaskOrder, nil
 
 }
 
 // createMoveOrder creates a basic move order - this is a support function do not use in production
-func createMoveOrder(h CreateMoveTaskOrderHandler, customer *models.Customer, moveOrderPayload *supportmessages.MoveOrder, logger handlers.Logger) (*models.MoveOrder, error) {
+func createMoveOrder(tx *pop.Connection, customer *models.Customer, moveOrderPayload *supportmessages.MoveOrder, logger handlers.Logger) (*models.MoveOrder, error) {
 	if moveOrderPayload == nil {
 		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "MoveOrder definition is required to create MoveTaskOrder")
 		return nil, returnErr
@@ -187,7 +195,7 @@ func createMoveOrder(h CreateMoveTaskOrderHandler, customer *models.Customer, mo
 	fmt.Printf("\n\n >> moveOrder model : \n%s\n", data)
 
 	// Creates the moveOrder and the entitlement at the same time
-	verrs, err := h.DB().Eager().ValidateAndCreate(moveOrder)
+	verrs, err := tx.Eager().ValidateAndCreate(moveOrder)
 	if err != nil || verrs.Count() > 0 {
 		return nil, services.NewCreateObjectError("MoveOrder", err, verrs, "")
 	}
@@ -195,7 +203,7 @@ func createMoveOrder(h CreateMoveTaskOrderHandler, customer *models.Customer, mo
 }
 
 // createUser creates a user
-func createUser(h CreateMoveTaskOrderHandler, userEmail *string, logger handlers.Logger) (*models.User, error) {
+func createUser(tx *pop.Connection, userEmail *string, logger handlers.Logger) (*models.User, error) {
 	if userEmail == nil {
 		defaultEmail := "generatedMTOuser@example.com"
 		userEmail = &defaultEmail
@@ -206,7 +214,7 @@ func createUser(h CreateMoveTaskOrderHandler, userEmail *string, logger handlers
 		LoginGovEmail: *userEmail,
 		Active:        true,
 	}
-	verrs, err := h.DB().ValidateAndCreate(&user)
+	verrs, err := tx.ValidateAndCreate(&user)
 	if err != nil || verrs.Count() != 0 {
 		return nil, services.NewCreateObjectError("User", err, nil, "")
 	}
@@ -214,7 +222,7 @@ func createUser(h CreateMoveTaskOrderHandler, userEmail *string, logger handlers
 }
 
 // createOrGetCustomer creates a customer or gets one if id was provided
-func createOrGetCustomer(h CreateMoveTaskOrderHandler, customerIDString string, customerBody *supportmessages.Customer, logger handlers.Logger) (*models.Customer, error) {
+func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, customerIDString string, customerBody *supportmessages.Customer, logger handlers.Logger) (*models.Customer, error) {
 	// If customer ID string is provided, we should find this customer
 	if customerIDString != "" {
 		customerID, err := uuid.FromString(customerIDString)
@@ -224,7 +232,7 @@ func createOrGetCustomer(h CreateMoveTaskOrderHandler, customerIDString string, 
 			return nil, returnErr
 		}
 		// Find customer and return
-		customer, err := h.FetchCustomer(customerID)
+		customer, err := f.FetchCustomer(customerID)
 		if err != nil {
 			returnErr := services.NewNotFoundError(customerID, "Customer with that ID not found")
 			return nil, returnErr
@@ -234,7 +242,7 @@ func createOrGetCustomer(h CreateMoveTaskOrderHandler, customerIDString string, 
 	}
 	// Else customerIDString is empty and we need to create a customer
 	// Since each customer has a unique userid we need to create a user
-	user, err := createUser(h, customerBody.Email, logger)
+	user, err := createUser(tx, customerBody.Email, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +255,7 @@ func createOrGetCustomer(h CreateMoveTaskOrderHandler, customerIDString string, 
 	fmt.Printf("\n\n >> %s\n", data)
 
 	// Create the new customer in the db
-	verrs, err := h.DB().ValidateAndCreate(customer)
+	verrs, err := tx.ValidateAndCreate(customer)
 	if err != nil || verrs.Count() > 0 {
 		e := services.NewCreateObjectError("Customer", err, verrs, "")
 
