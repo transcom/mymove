@@ -38,9 +38,11 @@ type Entitlement struct {
 	PrivatelyOwnedVehicle *bool `json:"privatelyOwnedVehicle,omitempty"`
 
 	// pro gear weight
+	// Read Only: true
 	ProGearWeight int64 `json:"proGearWeight,omitempty"`
 
 	// pro gear weight spouse
+	// Read Only: true
 	ProGearWeightSpouse int64 `json:"proGearWeightSpouse,omitempty"`
 
 	// storage in transit

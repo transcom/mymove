@@ -73,7 +73,7 @@ func NewCreateMoveTaskOrderCreated() *CreateMoveTaskOrderCreated {
 
 /*CreateMoveTaskOrderCreated handles this case with default header values.
 
-created instance of payment request
+Successfully created MoveTaskOrder object.
 */
 type CreateMoveTaskOrderCreated struct {
 	Payload *supportmessages.MoveTaskOrder
@@ -204,21 +204,23 @@ func NewCreateMoveTaskOrderNotFound() *CreateMoveTaskOrderNotFound {
 The requested resource wasn't found.
 */
 type CreateMoveTaskOrderNotFound struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *CreateMoveTaskOrderNotFound) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderNotFound  %+v", 404, o.Payload)
 }
 
-func (o *CreateMoveTaskOrderNotFound) GetPayload() interface{} {
+func (o *CreateMoveTaskOrderNotFound) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -235,21 +237,23 @@ func NewCreateMoveTaskOrderInternalServerError() *CreateMoveTaskOrderInternalSer
 A server error occurred.
 */
 type CreateMoveTaskOrderInternalServerError struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *CreateMoveTaskOrderInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *CreateMoveTaskOrderInternalServerError) GetPayload() interface{} {
+func (o *CreateMoveTaskOrderInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

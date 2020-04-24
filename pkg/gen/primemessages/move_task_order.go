@@ -121,13 +121,9 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 		return err
 	}
 
-	var propMtoServiceItems []MTOServiceItem
-	if string(data.MtoServiceItems) != "null" {
-		mtoServiceItems, err := UnmarshalMTOServiceItemSlice(bytes.NewBuffer(data.MtoServiceItems), runtime.JSONConsumer())
-		if err != nil && err != io.EOF {
-			return err
-		}
-		propMtoServiceItems = mtoServiceItems
+	propMtoServiceItems, err := UnmarshalMTOServiceItemSlice(bytes.NewBuffer(data.MtoServiceItems), runtime.JSONConsumer())
+	if err != nil && err != io.EOF {
+		return err
 	}
 
 	var result MoveTaskOrder
@@ -360,8 +356,8 @@ func (m *MoveTaskOrder) validateMoveOrderID(formats strfmt.Registry) error {
 
 func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MtoServiceItems()) { // not required
-		return nil
+	if err := validate.Required("mtoServiceItems", "body", m.MtoServiceItems()); err != nil {
+		return err
 	}
 
 	for i := 0; i < len(m.MtoServiceItems()); i++ {

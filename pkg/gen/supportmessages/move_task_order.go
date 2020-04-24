@@ -20,51 +20,63 @@ import (
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
-	// created at
+	// Date the MoveTaskOrder was created on.
 	// Format: date
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
-	// e tag
+	// Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)
+	//
+	// It will change everytime the object is updated. Client should store the value.
+	// Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
+	//
 	ETag string `json:"eTag,omitempty"`
 
-	// id
+	// ID of the MoveTaskOrder object.
+	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// is available to prime
+	// Indicates this MoveTaskOrder is available for Prime API handling.
+	//
+	// In production, only MoveTaskOrders for which this is true will be available to the API.
+	//
 	IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
 
-	// is canceled
+	// Indicated this MoveTaskOrder has been canceled.
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
-	// move order
+	// MoveOrder associated with this MoveTaskOrder.
 	// Required: true
 	MoveOrder *MoveOrder `json:"moveOrder"`
 
-	// move order ID
+	// ID of the MoveOrder object
 	// Format: uuid
 	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
 
-	// mto service items
+	// Array of MTOServiceItems associated with this MoveTaskOrder.
 	MtoServiceItems []*MTOServiceItem `json:"mtoServiceItems"`
 
-	// mto shipments
+	// array of MTOShipments associated with the MoveTaskOrder.
 	MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
 
-	// payment requests
+	// Array of PaymentRequests associated with this MoveTaskOrder.
 	PaymentRequests PaymentRequests `json:"paymentRequests,omitempty"`
 
-	// ppm estimated weight
+	// If the move is a PPM, this is the estimated weight in lbs.
 	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
-	// ppm type
+	// If the move is a PPM, indicates whether it is full or partial.
 	// Enum: [FULL PARTIAL]
 	PpmType string `json:"ppmType,omitempty"`
 
-	// reference Id
+	// Unique ID associated with this MoveOrder.
+	//
+	// No two MoveTaskOrders may have the same ID.
+	// Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
+	//
 	ReferenceID string `json:"referenceId,omitempty"`
 
-	// updated at
+	// Date on which this MoveTaskOrder was last updated.
 	// Format: date
 	UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
 }

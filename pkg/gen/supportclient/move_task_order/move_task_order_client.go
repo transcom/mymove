@@ -29,7 +29,18 @@ type Client struct {
 /*
 CreateMoveTaskOrder creates a move task order
 
-Creates an instance of moveTaskOrder tied to a service member. This is a support endpoint and will not be available in production.
+Creates an instance of moveTaskOrder.
+Current this will also create a number of nested objects but not all.
+It will currently create
+* MoveTaskOrder
+* MoveOrder
+* Customer
+* User
+* Entitlement
+
+It will not create addresses or duty stations.
+This is a support endpoint and will not be available in production.
+
 */
 func (a *Client) CreateMoveTaskOrder(params *CreateMoveTaskOrderParams) (*CreateMoveTaskOrderCreated, error) {
 	// TODO: Validate the params before sending

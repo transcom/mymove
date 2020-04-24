@@ -16,7 +16,7 @@ import (
 // CreateMoveTaskOrderCreatedCode is the HTTP code returned for type CreateMoveTaskOrderCreated
 const CreateMoveTaskOrderCreatedCode int = 201
 
-/*CreateMoveTaskOrderCreated created instance of payment request
+/*CreateMoveTaskOrderCreated Successfully created MoveTaskOrder object.
 
 swagger:response createMoveTaskOrderCreated
 */
@@ -197,7 +197,7 @@ type CreateMoveTaskOrderNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderNotFound creates CreateMoveTaskOrderNotFound with default headers values
@@ -207,13 +207,13 @@ func NewCreateMoveTaskOrderNotFound() *CreateMoveTaskOrderNotFound {
 }
 
 // WithPayload adds the payload to the create move task order not found response
-func (o *CreateMoveTaskOrderNotFound) WithPayload(payload interface{}) *CreateMoveTaskOrderNotFound {
+func (o *CreateMoveTaskOrderNotFound) WithPayload(payload *supportmessages.Error) *CreateMoveTaskOrderNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create move task order not found response
-func (o *CreateMoveTaskOrderNotFound) SetPayload(payload interface{}) {
+func (o *CreateMoveTaskOrderNotFound) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -221,9 +221,11 @@ func (o *CreateMoveTaskOrderNotFound) SetPayload(payload interface{}) {
 func (o *CreateMoveTaskOrderNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -239,7 +241,7 @@ type CreateMoveTaskOrderInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderInternalServerError creates CreateMoveTaskOrderInternalServerError with default headers values
@@ -249,13 +251,13 @@ func NewCreateMoveTaskOrderInternalServerError() *CreateMoveTaskOrderInternalSer
 }
 
 // WithPayload adds the payload to the create move task order internal server error response
-func (o *CreateMoveTaskOrderInternalServerError) WithPayload(payload interface{}) *CreateMoveTaskOrderInternalServerError {
+func (o *CreateMoveTaskOrderInternalServerError) WithPayload(payload *supportmessages.Error) *CreateMoveTaskOrderInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create move task order internal server error response
-func (o *CreateMoveTaskOrderInternalServerError) SetPayload(payload interface{}) {
+func (o *CreateMoveTaskOrderInternalServerError) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -263,8 +265,10 @@ func (o *CreateMoveTaskOrderInternalServerError) SetPayload(payload interface{})
 func (o *CreateMoveTaskOrderInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

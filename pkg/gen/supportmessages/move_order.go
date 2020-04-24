@@ -22,33 +22,43 @@ type MoveOrder struct {
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
 
-	// customer ID
+	// ID of the Customer this MoveOrder belongs to.
+	//
+	// If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
+	//
 	// Format: uuid
 	CustomerID strfmt.UUID `json:"customerID,omitempty"`
 
-	// date issued
+	// The date the orders were issued.
 	// Format: date
 	DateIssued strfmt.Date `json:"dateIssued,omitempty"`
 
-	// Will not be created, will be populated in response
+	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
 
-	// Should match an existing duty station
+	// ID of the destination duty station.
+	//
+	// If creating a MoveTaskOrder, this should match an existing duty station.
+	//
 	// Format: uuid
 	DestinationDutyStationID strfmt.UUID `json:"destinationDutyStationID,omitempty"`
 
-	// e tag
+	// Uniquely identifies the state of the MoveOrder object (but not the nested objects)
+	//
+	// It will change everytime the object is updated. Client should store the value.
+	// Updates to this MoveOrder will require that this eTag be passed in with the If-Match header.
+	//
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// entitlement
 	Entitlement *Entitlement `json:"entitlement,omitempty"`
 
-	// id
+	// ID of the MoveOrder object.
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// order number
+	// ID of the military orders associated with this move.
 	OrderNumber *string `json:"orderNumber,omitempty"`
 
 	// order type
@@ -58,17 +68,20 @@ type MoveOrder struct {
 	// order type detail
 	OrderTypeDetail *string `json:"orderTypeDetail,omitempty"`
 
-	// Will not be created, will be populated in response
+	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
 
-	// Should match an existing duty station
+	// ID of the origin duty station.
+	//
+	// If creating a MoveTaskOrder, this should match an existing duty station.
+	//
 	// Format: uuid
 	OriginDutyStationID strfmt.UUID `json:"originDutyStationID,omitempty"`
 
-	// rank
+	// Rank of the service member, must match specific list of available ranks.
 	Rank string `json:"rank,omitempty"`
 
-	// report by date
+	// Date that the service member must report to the new DutyStation by.
 	// Format: date
 	ReportByDate strfmt.Date `json:"reportByDate,omitempty"`
 }

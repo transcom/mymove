@@ -1,9 +1,6 @@
 package supportapi
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -99,7 +96,7 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 
 		switch typedErr := err.(type) {
 		case services.NotFoundError:
-			return movetaskorderops.NewCreateMoveTaskOrderNotFound().WithPayload(errorForPayload)
+			return movetaskorderops.NewCreateMoveTaskOrderNotFound().WithPayload(&errorForPayload)
 		case services.InvalidInputError:
 			errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors)
 			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(errPayload)
@@ -109,7 +106,7 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 			errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), nil)
 			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(errPayload)
 		default:
-			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(errorForPayload)
+			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(&errorForPayload)
 		}
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(moveTaskOrder)
@@ -134,17 +131,12 @@ func createMoveTaskOrderSupport(h CreateMoveTaskOrderHandler, params movetaskord
 		if err != nil {
 			return err
 		}
-		fmt.Println("\n\n >> Customer created! ", *customer.FirstName, *customer.LastName)
-		fmt.Println(" --")
 
 		// Create move order and entitlement
 		moveOrder, err := createMoveOrder(tx, customer, payload.MoveOrder, logger)
 		if err != nil {
-			fmt.Println("returning error here")
 			return err
 		}
-		fmt.Println("\n\n >> moveOrder created", *moveOrder.Grade)
-		fmt.Println(" --")
 
 		// Create move task order
 		moveTaskOrder = payloads.MoveTaskOrderModel(payload)
@@ -158,11 +150,8 @@ func createMoveTaskOrderSupport(h CreateMoveTaskOrderHandler, params movetaskord
 			return services.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 		} else if err != nil {
 			logger.Error("supportapi.createMoveTaskOrderSupport error", zap.Error(err))
-			e := services.NewQueryError("MoveTaskOrder", err, "Unable to create MoveTaskOrder.")
-			return e
+			return services.NewQueryError("MoveTaskOrder", err, "Unable to create MoveTaskOrder.")
 		}
-		fmt.Println("\n\n >> moveTaskOrder created", moveTaskOrder.ID.String())
-		fmt.Println(" --")
 		return nil
 	})
 
@@ -180,18 +169,12 @@ func createMoveOrder(tx *pop.Connection, customer *models.Customer, moveOrderPay
 		return nil, returnErr
 	}
 
-	// We need to create an entitlement
-	// let's try to create both with eager.
-	// assume true
+	// Move order model will also contain the entitlement
 	moveOrder := payloads.MoveOrderModel(moveOrderPayload)
-	moveOrder.Entitlement = payloads.EntitlementModel(moveOrderPayload.Entitlement)
 
 	// Add customer to mO
 	moveOrder.Customer = customer
 	moveOrder.CustomerID = &customer.ID
-
-	data, _ := json.Marshal(moveOrder)
-	fmt.Printf("\n\n >> moveOrder model : \n%s\n", data)
 
 	// Creates the moveOrder and the entitlement at the same time
 	verrs, err := tx.Eager().ValidateAndCreate(moveOrder)
@@ -206,7 +189,8 @@ func createMoveOrder(tx *pop.Connection, customer *models.Customer, moveOrderPay
 	return moveOrder, nil
 }
 
-// createUser creates a user
+// createUser creates a user but this is a fake login.gov user
+// this is support code only, do not use in a production case
 func createUser(tx *pop.Connection, userEmail *string, logger handlers.Logger) (*models.User, error) {
 	if userEmail == nil {
 		defaultEmail := "generatedMTOuser@example.com"
@@ -263,9 +247,6 @@ func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, custome
 	customer := payloads.CustomerModel(customerBody)
 	customer.User = *user
 	customer.UserID = user.ID
-
-	data, _ := json.Marshal(customer) //TODO remove
-	fmt.Printf("\n\n >> %s\n", data)
 
 	// Create the new customer in the db
 	verrs, err := tx.ValidateAndCreate(customer)

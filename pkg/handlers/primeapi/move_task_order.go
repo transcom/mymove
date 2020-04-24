@@ -17,17 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-const (
-	// MilMoveUserType is the type of user for a Service Member
-	MilMoveUserType string = "milmove"
-	// OfficeUserType is the type of user for an Office user
-	OfficeUserType string = "office"
-	// DpsUserType is the type of user for a DPS user
-	DpsUserType string = "dps"
-	// AdminUserType is the type of user for an admin user
-	AdminUserType string = "admin"
-)
-
 // FetchMTOUpdatesHandler lists move task orders with the option to filter since a particular date
 type FetchMTOUpdatesHandler struct {
 	handlers.HandlerContext

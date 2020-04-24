@@ -685,6 +685,7 @@ definitions:
     type: object
     required:
       - mtoShipments
+      - mtoServiceItems
       - paymentRequests
     properties:
       id:

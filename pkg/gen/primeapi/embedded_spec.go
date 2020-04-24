@@ -1414,6 +1414,7 @@ func init() {
       "type": "object",
       "required": [
         "mtoShipments",
+        "mtoServiceItems",
         "paymentRequests"
       ],
       "properties": {
@@ -3217,6 +3218,7 @@ func init() {
       "type": "object",
       "required": [
         "mtoShipments",
+        "mtoServiceItems",
         "paymentRequests"
       ],
       "properties": {
