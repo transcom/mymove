@@ -22,10 +22,10 @@ func MakeContractor(db *pop.Connection, assertions Assertions) models.Contractor
 		contractor.ContractNumber = assertions.Contractor.ContractNumber
 	}
 	if assertions.Contractor.Name != "" {
-		contractor.ContractNumber = assertions.Contractor.Name
+		contractor.Name = assertions.Contractor.Name
 	}
 	if assertions.Contractor.Type != "" {
-		contractor.ContractNumber = assertions.Contractor.Type
+		contractor.Type = assertions.Contractor.Type
 	}
 
 	err := db.Q().Where(`contract_number=$1`, contractor.ContractNumber).First(&contractor)
