@@ -183,6 +183,86 @@ func init() {
         ]
       }
     },
+    "/mto-shipments/{mtoShipmentID}/status": {
+      "patch": {
+        "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Updates a shipment's status",
+        "operationId": "patchMTOShipmentStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PatchMTOShipmentStatus"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the shipment's status",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "409": {
+            "description": "Conflict error due to trying to change the status of shipment that is not currently \"SUBMITTED\"",
+            "schema": {
+              "$ref": "#/responses/Conflict"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match) value",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment being updated",
+          "name": "mtoShipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
         "description": "Approves or rejects a payment request, located using the payment request id. It can also add or update an optional rejection reason to add more context to the status.",
@@ -1028,7 +1108,7 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "PatchMTOShipmentStatusPayload": {
+    "PatchMTOShipmentStatus": {
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -1117,7 +1197,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestPayload": {
+    "UpdatePaymentRequest": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -1458,6 +1538,98 @@ func init() {
           "ppm_office_users"
         ]
       }
+    },
+    "/mto-shipments/{mtoShipmentID}/status": {
+      "patch": {
+        "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Updates a shipment's status",
+        "operationId": "patchMTOShipmentStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PatchMTOShipmentStatus"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the shipment's status",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict error due to trying to change the status of shipment that is not currently \"SUBMITTED\"",
+            "schema": {
+              "description": "Conflict error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match) value",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment being updated",
+          "name": "mtoShipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
@@ -2322,7 +2494,7 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "PatchMTOShipmentStatusPayload": {
+    "PatchMTOShipmentStatus": {
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -2411,7 +2583,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestPayload": {
+    "UpdatePaymentRequest": {
       "type": "object",
       "properties": {
         "eTag": {
