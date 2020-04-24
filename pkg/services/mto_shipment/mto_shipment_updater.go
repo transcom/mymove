@@ -178,11 +178,12 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 		query.NewQueryFilter("id", "=", mtoShipment.ID.String()),
 	}
 	var oldShipment models.MTOShipment
-	err := f.FetchRecord(&oldShipment, queryFilters)
 
+	err := f.FetchRecord(&oldShipment, queryFilters)
 	if err != nil {
-		return &models.MTOShipment{}, err
+		return nil, services.NewNotFoundError(mtoShipment.ID, "")
 	}
+
 	err = setNewShipmentFields(f.planner, f.db, &oldShipment, mtoShipment)
 	if err != nil {
 		return &models.MTOShipment{}, err

@@ -31,7 +31,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 		switch err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.PreconditionFailedError:
