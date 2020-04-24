@@ -1204,6 +1204,17 @@ definitions:
       - bytes
       - createdAt
       - updatedAt
+  UpdatePaymentRequestStatus:
+    properties:
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+      eTag:
+        type: string
+    type: object
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'

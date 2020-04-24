@@ -67,6 +67,67 @@ paths:
         - contracting_officer
         - ppm_office_users
       summary: Change the status of a move task order to make it available to prime
+  '/payment-requests/{paymentRequestID}/status':
+    patch:
+      summary: Updates status of a payment request by id
+      description: Approves or rejects a payment request, located using the payment request id. It can also add or update an optional rejection reason to add more context to the status.
+      operationId: updatePaymentRequestStatus
+      tags:
+        - paymentRequests
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: UUID of payment request
+          format: uuid
+          in: path
+          name: paymentRequestID
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdatePaymentRequestStatus'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: Unique value that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. The same value as the eTag attribute.
+      responses:
+        '200':
+          description: Successfully updated payment request status.
+          schema:
+            $ref: '#/definitions/PaymentRequest'
+        '400':
+          description: The request payload is invalid. Check the payment request body and try again.
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition failed. It is likely the eTag you passed is stale. Fetch the payment request again to get the updated eTag value.
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}':
     parameters:
       - description: ID of move task order to use
@@ -583,12 +644,6 @@ definitions:
         example: documentation was incomplete
         type: string
         x-nullable: true
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
       status:
         $ref: '#/definitions/PaymentRequestStatus'
       paymentRequestNumber:
@@ -794,16 +849,18 @@ definitions:
       eTag:
         type: string
     type: object
-  UpdatePaymentRequestStatusPayload:
+  UpdatePaymentRequestStatus:
     properties:
       rejectionReason:
         example: documentation was incomplete
         type: string
         x-nullable: true
+        description: A written reason to provide context for the status.
       status:
         $ref: '#/definitions/PaymentRequestStatus'
       eTag:
         type: string
+        description: Attribute of the payment request object that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. This matches the value passed in the header for If-Match.
     type: object
   Upload:
     properties:
