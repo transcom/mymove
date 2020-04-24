@@ -240,6 +240,10 @@ paths:
           schema:
             description: This is an MTOShipment.
             $ref: '#/definitions/CreateShipmentPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
           description: created instance of a mto shipment
@@ -597,10 +601,6 @@ definitions:
         $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid

@@ -184,6 +184,12 @@ func init() {
               "description": "This is an MTOShipment.",
               "$ref": "#/definitions/CreateShipmentPayload"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -841,11 +847,6 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -2024,6 +2025,12 @@ func init() {
               "description": "This is an MTOShipment.",
               "$ref": "#/definitions/CreateShipmentPayload"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -2762,11 +2769,6 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"

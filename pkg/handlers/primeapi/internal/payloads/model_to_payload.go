@@ -5,7 +5,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/handlers"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -241,6 +240,28 @@ func PaymentRequests(paymentRequests *models.PaymentRequests) *primemessages.Pay
 	}
 	return &payload
 }
+
+// MTOShipmentFromCreate payload
+func MTOShipmentFromCreate(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
+	payload := &primemessages.MTOShipment{
+		ID:                       strfmt.UUID(mtoShipment.ID.String()),
+		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
+		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:             primemessages.MTOShipmentType(mtoShipment.ShipmentType),
+		PickupAddress:            Address(mtoShipment.PickupAddress),
+		DestinationAddress:       Address(mtoShipment.DestinationAddress),
+		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
+		CustomerRemarks:          mtoShipment.CustomerRemarks,
+		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
+	}
+
+	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
+		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
+	}
+	return payload
+}
+
 
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {

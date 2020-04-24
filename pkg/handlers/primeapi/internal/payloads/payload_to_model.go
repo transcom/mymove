@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"github.com/go-openapi/strfmt"
 	"time"
 
 	"github.com/gobuffalo/validate"
@@ -59,6 +60,28 @@ func MTOAgentsModel(mtoAgents *primemessages.MTOAgents) *models.MTOAgents {
 	}
 
 	return &agents
+}
+
+// ShipmentModel
+func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload, moveTaskOrderId strfmt.UUID) *models.MTOShipment  {
+	if mtoShipment == nil {
+		return nil
+	}
+
+	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
+	//check on moveTaskOrderId type
+	model := &models.MTOShipment{
+		ID:           		uuid.FromStringOrNil(mtoShipment.ID.String()),
+		MoveTaskOrderID: 	uuid.FromStringOrNil(moveTaskOrderId.String()),
+		ShipmentType: 		models.MTOShipmentType(mtoShipment.ShipmentType),
+		RequestedPickupDate: &requestedPickupDate,
+		PickupAddress: 		AddressModel(mtoShipment.PickupAddress),
+		DestinationAddress: AddressModel(mtoShipment.DestinationAddress),
+		MTOAgents: 			*MTOAgentsModel(&mtoShipment.Agents),
+		CustomerRemarks:    mtoShipment.CustomerRemarks,
+	}
+
+	return model
 }
 
 // MTOShipmentModel model
@@ -127,6 +150,20 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 	}
 
 	return model
+}
+
+// MTOServiceItemArray
+
+func MTOServiceItemList(mtoShipment *primemessages.CreateShipmentPayload) []models.MTOServiceItem {
+	if mtoShipment == nil {
+		return nil
+	}
+
+	serviceItemsList := mtoShipment.MtoServiceItems()
+
+	for _, item := range serviceItemsList {
+	//	create mtoServiceItems
+	}
 }
 
 // MTOServiceItemModel model

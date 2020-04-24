@@ -31,6 +31,29 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+
+func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
+	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: mto,
+	})
+
+	testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   mtoShipment,
+			MTOShipmentID: mtoShipment.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
+	})
+
+	params := mtoshipmentops.CreateMTOShipmentParams{}
+
+	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {})
+}
+
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	primeEstimatedWeight := unit.Pound(500)
 	primeEstimatedWeightDate := testdatagen.DateInsidePeakRateCycle
