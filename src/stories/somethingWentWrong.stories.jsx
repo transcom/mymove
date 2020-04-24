@@ -10,10 +10,12 @@ import SomethingWentWrong from '../shared/SomethingWentWrong';
 storiesOf('SomethingWentWrong', module)
   .addDecorator(withKnobs)
   .add('component', () => (
-    <div id="l-nav" style={{ padding: '20px', background: '#f0f0f0' }}>
-      <SomethingWentWrong
-        error={text('SomethingWentWrong.error', 'error')}
-        info={text('SomethingWentWrong.info', 'info')}
-      />
+    <div className="usa-grid">
+      <div style={{ textAlign: 'center' }}>
+        <SomethingWentWrong
+          error={text('SomethingWentWrong.error', 'error')}
+          info={text('SomethingWentWrong.info', 'info')}
+        />
+      </div>
     </div>
   ));
