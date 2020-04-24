@@ -94,7 +94,6 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 	moveTaskOrder, err := createMoveTaskOrderAndChildren(h, params, logger)
 
 	if err != nil {
-		logger.Error("supportapi.CreateMoveTaskOrderHandler error", zap.Error(err))
 		errorForPayload := supportmessages.Error{Message: handlers.FmtString(err.Error())}
 		// if errnew, ok := err.(services.CreateObjectError); ok {
 		// 	fmt.Println("new code", errnew.Unwrap().Error())
@@ -136,17 +135,28 @@ func createMoveTaskOrderAndChildren(h CreateMoveTaskOrderHandler, params movetas
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("\n\n >>", *customer.FirstName, *customer.LastName)
+	fmt.Println("\n\n >> Customer created! ", *customer.FirstName, *customer.LastName)
 	fmt.Println("\n\n --")
 
 	moveOrder, err := createMoveOrder(h, customer, payload.MoveOrder, logger)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("\n\n >>", *moveOrder.Grade)
+	fmt.Println("\n\n >> moveOrder created", *moveOrder.Grade)
 	fmt.Println("\n\n --")
 
-	return nil, err
+	moveTaskOrder := payloads.MoveTaskOrderModel(payload)
+	moveTaskOrder.MoveOrder = *moveOrder
+	moveTaskOrder.MoveOrderID = moveOrder.ID
+
+	// Creates the moveOrder and the entitlement at the same time
+	verrs, err := h.DB().ValidateAndCreate(moveTaskOrder)
+	if err != nil || verrs.Count() > 0 {
+		return nil, services.NewCreateObjectError("MoveTaskkOrder", err, verrs, "")
+	}
+	fmt.Println("\n\n >> moveTaskOrder created", moveTaskOrder.ID.String())
+	fmt.Println("\n\n --")
+	return moveTaskOrder, nil
 
 }
 

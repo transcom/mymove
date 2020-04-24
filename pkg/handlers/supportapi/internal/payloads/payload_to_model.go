@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // CustomerModel model
@@ -67,6 +68,29 @@ func EntitlementModel(entitlementPayload *supportmessages.Entitlement) *models.E
 
 	storageInTransit := int(entitlementPayload.StorageInTransit)
 	model.StorageInTransit = &storageInTransit
+
+	return model
+}
+
+// MoveTaskOrderModel return an MTO model constructed from the payload.
+func MoveTaskOrderModel(mtoPayload *supportmessages.CreateMoveTaskOrderPayload) *models.MoveTaskOrder {
+	if mtoPayload == nil {
+		return nil
+	}
+	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
+	model := &models.MoveTaskOrder{
+		ReferenceID:        mtoPayload.ReferenceID,
+		PPMEstimatedWeight: &ppmEstimatedWeight,
+		PPMType:            &mtoPayload.PpmType,
+	}
+
+	if mtoPayload.IsAvailableToPrime != nil {
+		model.IsAvailableToPrime = *mtoPayload.IsAvailableToPrime
+	}
+
+	if mtoPayload.IsCanceled != nil {
+		model.IsCanceled = *mtoPayload.IsCanceled
+	}
 
 	return model
 }
