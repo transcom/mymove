@@ -18,6 +18,10 @@ func MakeContractor(db *pop.Connection, assertions Assertions) models.Contractor
 		Type:           DefaultContractType,
 	}
 
+	if assertions.Contractor.ContractNumber != "" {
+		contractor.ContractNumber = assertions.Contractor.ContractNumber
+	}
+
 	err := db.Q().Where(`contract_number=$1`, contractor.ContractNumber).First(&contractor)
 	if err != nil && err != sql.ErrNoRows {
 		log.Panic(err)

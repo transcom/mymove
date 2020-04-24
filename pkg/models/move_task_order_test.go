@@ -19,13 +19,13 @@ func (suite *ModelSuite) TestMoveTaskOrderValidation() {
 		suite.verifyValidationErrors(&validMoveTaskOrder, expErrors)
 	})
 
-	suite.T().Run("test valid MoveTaskOrder", func(t *testing.T) {
-		validMoveTaskOrder := models.MoveTaskOrder{}
+	suite.T().Run("test invalid MoveTaskOrder", func(t *testing.T) {
+		invalidMoveTaskOrder := models.MoveTaskOrder{}
 		expErrors := map[string][]string{
 			"move_order_id": {"MoveOrderID can not be blank."},
 			"reference_id":  {"ReferenceID can not be blank."},
 			"contractor_id": {"ContractorID can not be blank."},
 		}
-		suite.verifyValidationErrors(&validMoveTaskOrder, expErrors)
+		suite.verifyValidationErrors(&invalidMoveTaskOrder, expErrors)
 	})
 }

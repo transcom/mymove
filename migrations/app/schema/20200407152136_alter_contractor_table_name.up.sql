@@ -1,1 +1,0 @@
-ALTER TABLE contractor RENAME TO contractors
