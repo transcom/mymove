@@ -21,7 +21,6 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *supportmessages.MoveTas
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
 		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
 		IsCanceled:         &moveTaskOrder.IsCanceled,
-		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
@@ -72,9 +71,6 @@ func MoveOrder(moveOrder *models.MoveOrder) *supportmessages.MoveOrder {
 		OrderType:              moveOrder.OrderType,
 	}
 
-	if moveOrder.Customer != nil {
-		payload.CustomerID = strfmt.UUID(moveOrder.CustomerID.String())
-	}
 	if moveOrder.ReportByDate != nil {
 		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
 	}
@@ -88,7 +84,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *supportmessages.MoveOrder {
 }
 
 // Entitlement payload
-func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlements {
+func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 	if entitlement == nil {
 		return nil
 	}
@@ -111,7 +107,7 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlements 
 	if entitlement.TotalDependents != nil {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
-	return &supportmessages.Entitlements{
+	return &supportmessages.Entitlement{
 		ID:                    strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:      authorizedWeight,
 		DependentsAuthorized:  entitlement.DependentsAuthorized,

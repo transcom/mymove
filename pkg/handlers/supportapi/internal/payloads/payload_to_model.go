@@ -38,9 +38,35 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.MoveOrd
 		OrderTypeDetail: moveOrderPayload.OrderTypeDetail,
 	}
 
+	destinationDutyStationID := uuid.FromStringOrNil(moveOrderPayload.DestinationDutyStationID.String())
+	model.DestinationDutyStationID = &destinationDutyStationID
+
+	originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
+	model.OriginDutyStationID = &originDutyStationID
+
 	reportByDate := time.Time(moveOrderPayload.ReportByDate)
 	if !reportByDate.IsZero() {
 		model.ReportByDate = &reportByDate
 	}
+	return model
+}
+
+// EntitlementModel returns a entitlement model constructed from the entitlement in the payload
+func EntitlementModel(entitlementPayload *supportmessages.Entitlement) *models.Entitlement {
+	if entitlementPayload == nil {
+		return nil
+	}
+	model := &models.Entitlement{
+		DependentsAuthorized:  entitlementPayload.DependentsAuthorized,
+		NonTemporaryStorage:   entitlementPayload.NonTemporaryStorage,
+		PrivatelyOwnedVehicle: entitlementPayload.PrivatelyOwnedVehicle,
+	}
+
+	totalDependents := int(entitlementPayload.TotalDependents)
+	model.TotalDependents = &totalDependents
+
+	storageInTransit := int(entitlementPayload.StorageInTransit)
+	model.StorageInTransit = &storageInTransit
+
 	return model
 }

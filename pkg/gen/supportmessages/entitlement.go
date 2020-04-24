@@ -13,9 +13,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Entitlements entitlements
-// swagger:model Entitlements
-type Entitlements struct {
+// Entitlement entitlement
+// swagger:model Entitlement
+type Entitlement struct {
 
 	// authorized weight
 	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
@@ -24,6 +24,7 @@ type Entitlements struct {
 	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -52,8 +53,8 @@ type Entitlements struct {
 	TotalWeight int64 `json:"totalWeight,omitempty"`
 }
 
-// Validate validates this entitlements
-func (m *Entitlements) Validate(formats strfmt.Registry) error {
+// Validate validates this entitlement
+func (m *Entitlement) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
@@ -66,7 +67,7 @@ func (m *Entitlements) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Entitlements) validateID(formats strfmt.Registry) error {
+func (m *Entitlement) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -80,7 +81,7 @@ func (m *Entitlements) validateID(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *Entitlements) MarshalBinary() ([]byte, error) {
+func (m *Entitlement) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -88,8 +89,8 @@ func (m *Entitlements) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Entitlements) UnmarshalBinary(b []byte) error {
-	var res Entitlements
+func (m *Entitlement) UnmarshalBinary(b []byte) error {
+	var res Entitlement
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -581,7 +581,7 @@ func init() {
         }
       }
     },
-    "Entitlements": {
+    "Entitlement": {
       "type": "object",
       "properties": {
         "authorizedWeight": {
@@ -596,7 +596,8 @@ func init() {
           "example": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -925,14 +926,21 @@ func init() {
           "example": "2020-01-01"
         },
         "destinationDutyStation": {
+          "description": "Will not be created, will be populated in response",
           "$ref": "#/definitions/DutyStation"
+        },
+        "destinationDutyStationID": {
+          "description": "Should match an existing duty station",
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
           "type": "string",
           "readOnly": true
         },
         "entitlement": {
-          "$ref": "#/definitions/Entitlements"
+          "$ref": "#/definitions/Entitlement"
         },
         "id": {
           "type": "string",
@@ -958,7 +966,14 @@ func init() {
           "x-nullable": true
         },
         "originDutyStation": {
+          "description": "Will not be created, will be populated in response",
           "$ref": "#/definitions/DutyStation"
+        },
+        "originDutyStationID": {
+          "description": "Should match an existing duty station",
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
           "type": "string",
@@ -979,24 +994,17 @@ func init() {
     },
     "MoveTaskOrder": {
       "type": "object",
+      "required": [
+        "moveOrder"
+      ],
       "properties": {
         "createdAt": {
           "type": "string",
           "format": "date"
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
         "eTag": {
-          "type": "string"
-        },
-        "entitlements": {
-          "$ref": "#/definitions/Entitlements"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1011,26 +1019,34 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "moveOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "moveOrder": {
+          "$ref": "#/definitions/MoveOrder"
         },
-        "originDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "paymentRequests": {
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
         },
         "referenceId": {
           "type": "string",
           "example": "1001-3456"
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date"
         },
         "updatedAt": {
           "type": "string",
@@ -1902,7 +1918,7 @@ func init() {
         }
       }
     },
-    "Entitlements": {
+    "Entitlement": {
       "type": "object",
       "properties": {
         "authorizedWeight": {
@@ -1917,7 +1933,8 @@ func init() {
           "example": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2246,14 +2263,21 @@ func init() {
           "example": "2020-01-01"
         },
         "destinationDutyStation": {
+          "description": "Will not be created, will be populated in response",
           "$ref": "#/definitions/DutyStation"
+        },
+        "destinationDutyStationID": {
+          "description": "Should match an existing duty station",
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
           "type": "string",
           "readOnly": true
         },
         "entitlement": {
-          "$ref": "#/definitions/Entitlements"
+          "$ref": "#/definitions/Entitlement"
         },
         "id": {
           "type": "string",
@@ -2279,7 +2303,14 @@ func init() {
           "x-nullable": true
         },
         "originDutyStation": {
+          "description": "Will not be created, will be populated in response",
           "$ref": "#/definitions/DutyStation"
+        },
+        "originDutyStationID": {
+          "description": "Should match an existing duty station",
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "rank": {
           "type": "string",
@@ -2300,24 +2331,17 @@ func init() {
     },
     "MoveTaskOrder": {
       "type": "object",
+      "required": [
+        "moveOrder"
+      ],
       "properties": {
         "createdAt": {
           "type": "string",
           "format": "date"
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
         "eTag": {
-          "type": "string"
-        },
-        "entitlements": {
-          "$ref": "#/definitions/Entitlements"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2332,26 +2356,34 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "moveOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "moveOrder": {
+          "$ref": "#/definitions/MoveOrder"
         },
-        "originDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
+        "mtoShipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "paymentRequests": {
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
         },
         "referenceId": {
           "type": "string",
           "example": "1001-3456"
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date"
         },
         "updatedAt": {
           "type": "string",

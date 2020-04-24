@@ -6,6 +6,9 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+	"strconv"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -21,18 +24,9 @@ type MoveTaskOrder struct {
 	// Format: date
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
-	// destination address
-	DestinationAddress *Address `json:"destinationAddress,omitempty"`
-
-	// destination duty station
-	// Format: uuid
-	DestinationDutyStation strfmt.UUID `json:"destinationDutyStation,omitempty"`
-
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
-
-	// entitlements
-	Entitlements *Entitlements `json:"entitlements,omitempty"`
 
 	// id
 	// Format: uuid
@@ -44,23 +38,28 @@ type MoveTaskOrder struct {
 	// is canceled
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
-	// move order ID
-	// Format: uuid
-	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
+	// move order
+	// Required: true
+	MoveOrder *MoveOrder `json:"moveOrder"`
 
-	// origin duty station
-	// Format: uuid
-	OriginDutyStation strfmt.UUID `json:"originDutyStation,omitempty"`
+	// mto service items
+	MtoServiceItems []*MTOServiceItem `json:"mtoServiceItems"`
 
-	// pickup address
-	PickupAddress *Address `json:"pickupAddress,omitempty"`
+	// mto shipments
+	MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
+
+	// payment requests
+	PaymentRequests PaymentRequests `json:"paymentRequests,omitempty"`
+
+	// ppm estimated weight
+	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
+
+	// ppm type
+	// Enum: [FULL PARTIAL]
+	PpmType string `json:"ppmType,omitempty"`
 
 	// reference Id
 	ReferenceID string `json:"referenceId,omitempty"`
-
-	// requested pickup date
-	// Format: date
-	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// updated at
 	// Format: date
@@ -75,35 +74,27 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDestinationAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDestinationDutyStation(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateEntitlements(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateMoveOrderID(formats); err != nil {
+	if err := m.validateMoveOrder(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateOriginDutyStation(formats); err != nil {
+	if err := m.validateMtoServiceItems(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validatePickupAddress(formats); err != nil {
+	if err := m.validateMtoShipments(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateRequestedPickupDate(formats); err != nil {
+	if err := m.validatePaymentRequests(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -130,55 +121,6 @@ func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateDestinationAddress(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.DestinationAddress) { // not required
-		return nil
-	}
-
-	if m.DestinationAddress != nil {
-		if err := m.DestinationAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationAddress")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *MoveTaskOrder) validateDestinationDutyStation(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.DestinationDutyStation) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("destinationDutyStation", "body", "uuid", m.DestinationDutyStation.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MoveTaskOrder) validateEntitlements(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Entitlements) { // not required
-		return nil
-	}
-
-	if m.Entitlements != nil {
-		if err := m.Entitlements.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("entitlements")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *MoveTaskOrder) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
@@ -192,42 +134,16 @@ func (m *MoveTaskOrder) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateMoveOrderID(formats strfmt.Registry) error {
+func (m *MoveTaskOrder) validateMoveOrder(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MoveOrderID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("moveOrderID", "body", "uuid", m.MoveOrderID.String(), formats); err != nil {
+	if err := validate.Required("moveOrder", "body", m.MoveOrder); err != nil {
 		return err
 	}
 
-	return nil
-}
-
-func (m *MoveTaskOrder) validateOriginDutyStation(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.OriginDutyStation) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("originDutyStation", "body", "uuid", m.OriginDutyStation.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MoveTaskOrder) validatePickupAddress(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.PickupAddress) { // not required
-		return nil
-	}
-
-	if m.PickupAddress != nil {
-		if err := m.PickupAddress.Validate(formats); err != nil {
+	if m.MoveOrder != nil {
+		if err := m.MoveOrder.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pickupAddress")
+				return ve.ValidateName("moveOrder")
 			}
 			return err
 		}
@@ -236,13 +152,100 @@ func (m *MoveTaskOrder) validatePickupAddress(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveTaskOrder) validateRequestedPickupDate(formats strfmt.Registry) error {
+func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.RequestedPickupDate) { // not required
+	if swag.IsZero(m.MtoServiceItems) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
+	for i := 0; i < len(m.MtoServiceItems); i++ {
+		if swag.IsZero(m.MtoServiceItems[i]) { // not required
+			continue
+		}
+
+		if m.MtoServiceItems[i] != nil {
+			if err := m.MtoServiceItems[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateMtoShipments(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MtoShipments) { // not required
+		return nil
+	}
+
+	if err := m.MtoShipments.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mtoShipments")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validatePaymentRequests(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PaymentRequests) { // not required
+		return nil
+	}
+
+	if err := m.PaymentRequests.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("paymentRequests")
+		}
+		return err
+	}
+
+	return nil
+}
+
+var moveTaskOrderTypePpmTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["FULL","PARTIAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		moveTaskOrderTypePpmTypePropEnum = append(moveTaskOrderTypePpmTypePropEnum, v)
+	}
+}
+
+const (
+
+	// MoveTaskOrderPpmTypeFULL captures enum value "FULL"
+	MoveTaskOrderPpmTypeFULL string = "FULL"
+
+	// MoveTaskOrderPpmTypePARTIAL captures enum value "PARTIAL"
+	MoveTaskOrderPpmTypePARTIAL string = "PARTIAL"
+)
+
+// prop value enum
+func (m *MoveTaskOrder) validatePpmTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, moveTaskOrderTypePpmTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PpmType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validatePpmTypeEnum("ppmType", "body", m.PpmType); err != nil {
 		return err
 	}
 

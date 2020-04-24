@@ -153,33 +153,35 @@ func createMoveTaskOrderAndChildren(h CreateMoveTaskOrderHandler, params movetas
 // createMoveOrder creates a basic move order - this is a support function do not use in production
 func createMoveOrder(h CreateMoveTaskOrderHandler, customer *models.Customer, moveOrderPayload *supportmessages.MoveOrder, logger handlers.Logger) (*models.MoveOrder, error) {
 	if moveOrderPayload == nil {
+		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "MoveOrder definition is required to create MoveTaskOrder")
+		return nil, returnErr
 	}
-	// create entitlement and move order at same time
-	// move order --> customer (done)
-	// move order --> entitlement
-	// move order --> dutystations (id only)
+
+	// We need to create an entitlement
+	// let's try to create both with eager.
+	// assume true
 	moveOrder := payloads.MoveOrderModel(moveOrderPayload)
+	moveOrder.Entitlement = payloads.EntitlementModel(moveOrderPayload.Entitlement)
+
+	// Check if dutystations are valid uuids
+	// Doesn't check if in database, this will be automatically checked on creation of mO
+	if *moveOrder.DestinationDutyStationID == uuid.Nil ||
+		*moveOrder.OriginDutyStationID == uuid.Nil {
+		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "MoveOrder must contain valid destination and origin duty station UUIDs")
+		return nil, returnErr
+	}
+
+	// Add customer to mO
 	moveOrder.Customer = customer
 	moveOrder.CustomerID = &customer.ID
-	ddsUUID, _ := uuid.FromString("025efeb9-bd3e-47ea-be4f-b41365ee123c")
-	moveOrder.DestinationDutyStationID = &ddsUUID
-	odsUUID, _ := uuid.FromString("db061ae3-5da1-40f2-8317-631318752247")
-	moveOrder.OriginDutyStationID = &odsUUID
-	eID, _ := uuid.FromString("3dd5b72a-75d2-492a-a260-fc7d97a57b13")
-	moveOrder.EntitlementID = &eID
 
 	data, _ := json.Marshal(moveOrder)
 	fmt.Printf("\n\n >> moveOrder model : \n%s\n", data)
 
-	verrs, err := h.DB().ValidateAndCreate(moveOrder)
-	//err := h.DB().Create(moveOrder)
+	// Creates the moveOrder and the entitlement at the same time
+	verrs, err := h.DB().Eager().ValidateAndCreate(moveOrder)
 	if err != nil || verrs.Count() > 0 {
-		returnErr := services.NewCreateObjectError("MoveOrder", err, verrs, "")
-		fmt.Println("\n\n :: ", verrs.Count())
-		for _, key := range verrs.Keys() {
-			fmt.Println(" ::", verrs.Get(key))
-		}
-		return nil, returnErr
+		return nil, services.NewCreateObjectError("MoveOrder", err, verrs, "")
 	}
 	return moveOrder, nil
 }
@@ -198,8 +200,7 @@ func createUser(h CreateMoveTaskOrderHandler, userEmail *string, logger handlers
 	}
 	verrs, err := h.DB().ValidateAndCreate(&user)
 	if err != nil || verrs.Count() != 0 {
-		returnErr := services.NewCreateObjectError("User", err, nil, "Error creating a user")
-		return nil, returnErr
+		return nil, services.NewCreateObjectError("User", err, nil, "")
 	}
 	return &user, nil
 }
@@ -235,15 +236,13 @@ func createOrGetCustomer(h CreateMoveTaskOrderHandler, customerIDString string, 
 	customer.User = *user
 	customer.UserID = user.ID
 
-	data, _ := json.Marshal(customer)
+	data, _ := json.Marshal(customer) //TODO remove
 	fmt.Printf("\n\n >> %s\n", data)
 
 	// Create the new customer in the db
 	verrs, err := h.DB().ValidateAndCreate(customer)
 	if err != nil || verrs.Count() > 0 {
-		logger.Error("createOrGetCustomer", zap.String("Error", err.Error()))
-		returnErr := services.NewCreateObjectError("Customer", err, nil, "Error creating a customer")
-		return nil, returnErr
+		return nil, services.NewCreateObjectError("Customer", err, nil, "")
 	}
 	return customer, nil
 
