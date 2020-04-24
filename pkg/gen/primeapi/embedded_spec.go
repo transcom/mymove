@@ -120,22 +120,40 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "created instance of moveTaskOrder",
+            "description": "created instance of payment request",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/CreateMoveTaskOrderPayload"
             }
           },
           "400": {
-            "description": "invalid request"
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
           },
           "401": {
-            "description": "request requires user authentication"
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
           },
           "403": {
-            "description": "user is not authorized"
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
           },
           "500": {
-            "description": "internal server error"
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
           }
         }
       }
@@ -1951,22 +1969,55 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "created instance of moveTaskOrder",
+            "description": "created instance of payment request",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/CreateMoveTaskOrderPayload"
             }
           },
           "400": {
-            "description": "invalid request"
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
           },
           "401": {
-            "description": "request requires user authentication"
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
           },
           "403": {
-            "description": "user is not authorized"
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
           },
           "500": {
-            "description": "internal server error"
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
           }
         }
       }

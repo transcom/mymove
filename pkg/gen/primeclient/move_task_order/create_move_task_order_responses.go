@@ -48,6 +48,12 @@ func (o *CreateMoveTaskOrderReader) ReadResponse(response runtime.ClientResponse
 			return nil, err
 		}
 		return nil, result
+	case 404:
+		result := NewCreateMoveTaskOrderNotFound()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewCreateMoveTaskOrderInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -67,23 +73,23 @@ func NewCreateMoveTaskOrderCreated() *CreateMoveTaskOrderCreated {
 
 /*CreateMoveTaskOrderCreated handles this case with default header values.
 
-created instance of moveTaskOrder
+created instance of payment request
 */
 type CreateMoveTaskOrderCreated struct {
-	Payload *primemessages.MoveTaskOrder
+	Payload *primemessages.CreateMoveTaskOrderPayload
 }
 
 func (o *CreateMoveTaskOrderCreated) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderCreated  %+v", 201, o.Payload)
 }
 
-func (o *CreateMoveTaskOrderCreated) GetPayload() *primemessages.MoveTaskOrder {
+func (o *CreateMoveTaskOrderCreated) GetPayload() *primemessages.CreateMoveTaskOrderPayload {
 	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.MoveTaskOrder)
+	o.Payload = new(primemessages.CreateMoveTaskOrderPayload)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -100,16 +106,26 @@ func NewCreateMoveTaskOrderBadRequest() *CreateMoveTaskOrderBadRequest {
 
 /*CreateMoveTaskOrderBadRequest handles this case with default header values.
 
-invalid request
+The request payload is invalid
 */
 type CreateMoveTaskOrderBadRequest struct {
+	Payload interface{}
 }
 
 func (o *CreateMoveTaskOrderBadRequest) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderBadRequest ", 400)
+	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderBadRequest  %+v", 400, o.Payload)
+}
+
+func (o *CreateMoveTaskOrderBadRequest) GetPayload() interface{} {
+	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }
@@ -121,16 +137,26 @@ func NewCreateMoveTaskOrderUnauthorized() *CreateMoveTaskOrderUnauthorized {
 
 /*CreateMoveTaskOrderUnauthorized handles this case with default header values.
 
-request requires user authentication
+The request was denied
 */
 type CreateMoveTaskOrderUnauthorized struct {
+	Payload interface{}
 }
 
 func (o *CreateMoveTaskOrderUnauthorized) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderUnauthorized ", 401)
+	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
+}
+
+func (o *CreateMoveTaskOrderUnauthorized) GetPayload() interface{} {
+	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }
@@ -142,16 +168,57 @@ func NewCreateMoveTaskOrderForbidden() *CreateMoveTaskOrderForbidden {
 
 /*CreateMoveTaskOrderForbidden handles this case with default header values.
 
-user is not authorized
+The request was denied
 */
 type CreateMoveTaskOrderForbidden struct {
+	Payload interface{}
 }
 
 func (o *CreateMoveTaskOrderForbidden) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderForbidden ", 403)
+	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderForbidden  %+v", 403, o.Payload)
+}
+
+func (o *CreateMoveTaskOrderForbidden) GetPayload() interface{} {
+	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCreateMoveTaskOrderNotFound creates a CreateMoveTaskOrderNotFound with default headers values
+func NewCreateMoveTaskOrderNotFound() *CreateMoveTaskOrderNotFound {
+	return &CreateMoveTaskOrderNotFound{}
+}
+
+/*CreateMoveTaskOrderNotFound handles this case with default header values.
+
+The requested resource wasn't found
+*/
+type CreateMoveTaskOrderNotFound struct {
+	Payload interface{}
+}
+
+func (o *CreateMoveTaskOrderNotFound) Error() string {
+	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderNotFound  %+v", 404, o.Payload)
+}
+
+func (o *CreateMoveTaskOrderNotFound) GetPayload() interface{} {
+	return o.Payload
+}
+
+func (o *CreateMoveTaskOrderNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }
@@ -163,16 +230,26 @@ func NewCreateMoveTaskOrderInternalServerError() *CreateMoveTaskOrderInternalSer
 
 /*CreateMoveTaskOrderInternalServerError handles this case with default header values.
 
-internal server error
+A server error occurred
 */
 type CreateMoveTaskOrderInternalServerError struct {
+	Payload interface{}
 }
 
 func (o *CreateMoveTaskOrderInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderInternalServerError ", 500)
+	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
+}
+
+func (o *CreateMoveTaskOrderInternalServerError) GetPayload() interface{} {
+	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }

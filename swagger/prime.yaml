@@ -69,18 +69,30 @@ paths:
           schema:
             $ref: '#/definitions/CreateMoveTaskOrderPayload'
       responses:
-        201:
-          description: created instance of moveTaskOrder
+        '201':
+          description: created instance of payment request
           schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        500:
-          description: internal server error
+            $ref: '#/definitions/CreateMoveTaskOrderPayload'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
       - description: ID of move task order to use

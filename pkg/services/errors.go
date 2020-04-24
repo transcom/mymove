@@ -68,3 +68,28 @@ func (e InvalidInputError) Error() string {
 	}
 	return fmt.Sprintf("invalid input for id: %s. %s", e.id.String(), e.ValidationErrors)
 }
+
+// CreateObjectError is returned when object creation in the database failed
+type CreateObjectError struct {
+	objectType       string
+	validationErrors *validate.Errors
+	message          string
+	error
+}
+
+func (e CreateObjectError) Error() string {
+	if e.message != "" {
+		return fmt.Sprintf(e.message)
+	}
+	return fmt.Sprintf("Could not create object of type: %s. %s", e.objectType, e.validationErrors)
+}
+
+// NewCreateObjectError returns an error on object creation
+func NewCreateObjectError(objectType string, err error, validationErrors *validate.Errors, message string) CreateObjectError {
+	return CreateObjectError{
+		objectType:       objectType,
+		error:            err,
+		validationErrors: validationErrors,
+		message:          message,
+	}
+}

@@ -16,7 +16,7 @@ import (
 // CreateMoveTaskOrderCreatedCode is the HTTP code returned for type CreateMoveTaskOrderCreated
 const CreateMoveTaskOrderCreatedCode int = 201
 
-/*CreateMoveTaskOrderCreated created instance of moveTaskOrder
+/*CreateMoveTaskOrderCreated created instance of payment request
 
 swagger:response createMoveTaskOrderCreated
 */
@@ -25,7 +25,7 @@ type CreateMoveTaskOrderCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.MoveTaskOrder `json:"body,omitempty"`
+	Payload *primemessages.CreateMoveTaskOrderPayload `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderCreated creates CreateMoveTaskOrderCreated with default headers values
@@ -35,13 +35,13 @@ func NewCreateMoveTaskOrderCreated() *CreateMoveTaskOrderCreated {
 }
 
 // WithPayload adds the payload to the create move task order created response
-func (o *CreateMoveTaskOrderCreated) WithPayload(payload *primemessages.MoveTaskOrder) *CreateMoveTaskOrderCreated {
+func (o *CreateMoveTaskOrderCreated) WithPayload(payload *primemessages.CreateMoveTaskOrderPayload) *CreateMoveTaskOrderCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create move task order created response
-func (o *CreateMoveTaskOrderCreated) SetPayload(payload *primemessages.MoveTaskOrder) {
+func (o *CreateMoveTaskOrderCreated) SetPayload(payload *primemessages.CreateMoveTaskOrderPayload) {
 	o.Payload = payload
 }
 
@@ -60,11 +60,16 @@ func (o *CreateMoveTaskOrderCreated) WriteResponse(rw http.ResponseWriter, produ
 // CreateMoveTaskOrderBadRequestCode is the HTTP code returned for type CreateMoveTaskOrderBadRequest
 const CreateMoveTaskOrderBadRequestCode int = 400
 
-/*CreateMoveTaskOrderBadRequest invalid request
+/*CreateMoveTaskOrderBadRequest The request payload is invalid
 
 swagger:response createMoveTaskOrderBadRequest
 */
 type CreateMoveTaskOrderBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderBadRequest creates CreateMoveTaskOrderBadRequest with default headers values
@@ -73,22 +78,40 @@ func NewCreateMoveTaskOrderBadRequest() *CreateMoveTaskOrderBadRequest {
 	return &CreateMoveTaskOrderBadRequest{}
 }
 
+// WithPayload adds the payload to the create move task order bad request response
+func (o *CreateMoveTaskOrderBadRequest) WithPayload(payload interface{}) *CreateMoveTaskOrderBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create move task order bad request response
+func (o *CreateMoveTaskOrderBadRequest) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *CreateMoveTaskOrderBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(400)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
 
 // CreateMoveTaskOrderUnauthorizedCode is the HTTP code returned for type CreateMoveTaskOrderUnauthorized
 const CreateMoveTaskOrderUnauthorizedCode int = 401
 
-/*CreateMoveTaskOrderUnauthorized request requires user authentication
+/*CreateMoveTaskOrderUnauthorized The request was denied
 
 swagger:response createMoveTaskOrderUnauthorized
 */
 type CreateMoveTaskOrderUnauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderUnauthorized creates CreateMoveTaskOrderUnauthorized with default headers values
@@ -97,22 +120,40 @@ func NewCreateMoveTaskOrderUnauthorized() *CreateMoveTaskOrderUnauthorized {
 	return &CreateMoveTaskOrderUnauthorized{}
 }
 
+// WithPayload adds the payload to the create move task order unauthorized response
+func (o *CreateMoveTaskOrderUnauthorized) WithPayload(payload interface{}) *CreateMoveTaskOrderUnauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create move task order unauthorized response
+func (o *CreateMoveTaskOrderUnauthorized) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *CreateMoveTaskOrderUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(401)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
 
 // CreateMoveTaskOrderForbiddenCode is the HTTP code returned for type CreateMoveTaskOrderForbidden
 const CreateMoveTaskOrderForbiddenCode int = 403
 
-/*CreateMoveTaskOrderForbidden user is not authorized
+/*CreateMoveTaskOrderForbidden The request was denied
 
 swagger:response createMoveTaskOrderForbidden
 */
 type CreateMoveTaskOrderForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderForbidden creates CreateMoveTaskOrderForbidden with default headers values
@@ -121,22 +162,82 @@ func NewCreateMoveTaskOrderForbidden() *CreateMoveTaskOrderForbidden {
 	return &CreateMoveTaskOrderForbidden{}
 }
 
+// WithPayload adds the payload to the create move task order forbidden response
+func (o *CreateMoveTaskOrderForbidden) WithPayload(payload interface{}) *CreateMoveTaskOrderForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create move task order forbidden response
+func (o *CreateMoveTaskOrderForbidden) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *CreateMoveTaskOrderForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(403)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
+// CreateMoveTaskOrderNotFoundCode is the HTTP code returned for type CreateMoveTaskOrderNotFound
+const CreateMoveTaskOrderNotFoundCode int = 404
+
+/*CreateMoveTaskOrderNotFound The requested resource wasn't found
+
+swagger:response createMoveTaskOrderNotFound
+*/
+type CreateMoveTaskOrderNotFound struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewCreateMoveTaskOrderNotFound creates CreateMoveTaskOrderNotFound with default headers values
+func NewCreateMoveTaskOrderNotFound() *CreateMoveTaskOrderNotFound {
+
+	return &CreateMoveTaskOrderNotFound{}
+}
+
+// WithPayload adds the payload to the create move task order not found response
+func (o *CreateMoveTaskOrderNotFound) WithPayload(payload interface{}) *CreateMoveTaskOrderNotFound {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create move task order not found response
+func (o *CreateMoveTaskOrderNotFound) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateMoveTaskOrderNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(404)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
 
 // CreateMoveTaskOrderInternalServerErrorCode is the HTTP code returned for type CreateMoveTaskOrderInternalServerError
 const CreateMoveTaskOrderInternalServerErrorCode int = 500
 
-/*CreateMoveTaskOrderInternalServerError internal server error
+/*CreateMoveTaskOrderInternalServerError A server error occurred
 
 swagger:response createMoveTaskOrderInternalServerError
 */
 type CreateMoveTaskOrderInternalServerError struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderInternalServerError creates CreateMoveTaskOrderInternalServerError with default headers values
@@ -145,10 +246,23 @@ func NewCreateMoveTaskOrderInternalServerError() *CreateMoveTaskOrderInternalSer
 	return &CreateMoveTaskOrderInternalServerError{}
 }
 
+// WithPayload adds the payload to the create move task order internal server error response
+func (o *CreateMoveTaskOrderInternalServerError) WithPayload(payload interface{}) *CreateMoveTaskOrderInternalServerError {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create move task order internal server error response
+func (o *CreateMoveTaskOrderInternalServerError) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *CreateMoveTaskOrderInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(500)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
