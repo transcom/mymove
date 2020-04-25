@@ -182,7 +182,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			msg := fmt.Sprint("MoveTaskOrder")
+			msg := fmt.Sprint("for MoveTaskOrder")
 			return nil, services.NewNotFoundError(paymentRequest.MoveTaskOrderID, msg)
 		}
 		return nil, fmt.Errorf("could not retrieve MoveTaskOrder with ID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
@@ -219,7 +219,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	err := tx.Eager("ReService").Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			msg := fmt.Sprint("MTO Service Item")
+			msg := fmt.Sprint("for MTO Service Item")
 			return models.PaymentServiceItem{}, models.MTOServiceItem{}, services.NewNotFoundError(paymentServiceItem.MTOServiceItemID, msg)
 		}
 		return *paymentServiceItem, models.MTOServiceItem{}, fmt.Errorf("could not find MTO MTOServiceItemID [%s]: %w", paymentServiceItem.MTOServiceItemID.String(), err)

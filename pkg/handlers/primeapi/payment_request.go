@@ -30,8 +30,15 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	payload := params.Body
 
 	if payload == nil {
+		errPayload := &primemessages.ClientError{
+			Title:    handlers.FmtString(handlers.SQLErrMessage),
+			Detail:   handlers.FmtString("Invalid payment request: params Body is nil"),
+			Instance: handlers.FmtUUID(h.GetTraceID()),
+		}
+		logger.Info("Payment Request",
+			zap.Any("payload", errPayload))
 		logger.Error("Invalid payment request: params Body is nil")
-		return paymentrequestop.NewCreatePaymentRequestBadRequest()
+		return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(errPayload)
 	}
 
 	logger.Info("primeapi.CreatePaymentRequestHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
@@ -41,7 +48,14 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	if err != nil {
 		logger.Error("Invalid payment request: params MoveTaskOrderID cannot be converted to a UUID",
 			zap.String("MoveTaskOrderID", moveTaskOrderIDString), zap.Error(err))
-		return paymentrequestop.NewCreatePaymentRequestBadRequest()
+		errPayload := &primemessages.ClientError{
+			Title:    handlers.FmtString(handlers.SQLErrMessage),
+			Detail:   handlers.FmtString(err.Error()),
+			Instance: handlers.FmtUUID(h.GetTraceID()),
+		}
+		logger.Info("Payment Request",
+			zap.Any("payload", payload))
+		return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(errPayload)
 	}
 
 	isFinal := false
@@ -74,7 +88,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 			}
 
 			payload.Title = handlers.FmtString(handlers.ValidationErrMessage)
-			payload.Detail = handlers.FmtString("The information you provided is invalid.")
+			payload.Detail = handlers.FmtString(err.Error())
 			payload.Instance = handlers.FmtUUID(h.GetTraceID())
 			logger.Info("Payment Request",
 				zap.Any("payload", payload))
@@ -84,7 +98,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		if _, ok := err.(services.NotFoundError); ok {
 			payload := &primemessages.ClientError{
 				Title:    handlers.FmtString(handlers.NotFoundMessage),
-				Detail:   handlers.FmtString("The information you provided is invalid."),
+				Detail:   handlers.FmtString(err.Error()),
 				Instance: handlers.FmtUUID(h.GetTraceID()),
 			}
 			logger.Info("Payment Request",
