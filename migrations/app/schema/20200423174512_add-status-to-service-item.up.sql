@@ -4,4 +4,4 @@ CREATE TYPE service_item_status AS ENUM (
 	'REJECTED'
 );
 
-ALTER TABLE mto_service_items ADD COLUMN status service_item_status;
+ALTER TABLE mto_service_items ADD COLUMN status service_item_status NOT NULL DEFAULT 'SUBMITTED';
