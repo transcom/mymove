@@ -1,6 +1,6 @@
 CREATE TYPE service_item_status AS ENUM (
-    'SUBMITTED',
-    'APPROVED',
+	'SUBMITTED',
+	'APPROVED',
 	'REJECTED'
 );
 
