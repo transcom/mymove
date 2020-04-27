@@ -6,40 +6,32 @@ storiesOf('Components|Alerts', module)
   .add('success', () => (
     <div>
       <Alert heading="Success status" type="success">
-        <React.Fragment key=".0">This is a succinct, helpful success message.</React.Fragment>
+        This is a succinct, helpful success message.
       </Alert>
-      <Alert type="success">
-        <React.Fragment key=".0">This is a succinct, helpful success message.</React.Fragment>
-      </Alert>
+      <Alert type="success">This is a succinct, helpful success message.</Alert>
     </div>
   ))
   .add('warning', () => (
     <div>
       <Alert heading="Warning status" type="warning">
-        <React.Fragment key=".0">This is a succinct, helpful warning message.</React.Fragment>
+        This is a succinct, helpful warning message.
       </Alert>
-      <Alert type="warning">
-        <React.Fragment key=".0">This is a succinct, helpful warning message.</React.Fragment>
-      </Alert>
+      <Alert type="warning">This is a succinct, helpful warning message.</Alert>
     </div>
   ))
   .add('error', () => (
     <div>
       <Alert heading="Error status" type="error">
-        <React.Fragment key=".0">This is a succinct, helpful error message.</React.Fragment>
+        This is a succinct, helpful error message.
       </Alert>
-      <Alert type="error">
-        <React.Fragment key=".0">This is a succinct, helpful error message.</React.Fragment>
-      </Alert>
+      <Alert type="error">This is a succinct, helpful error message.</Alert>
     </div>
   ))
   .add('info', () => (
     <div>
       <Alert heading="Informative status" type="info">
-        <React.Fragment key=".0">This is a succinct, helpful info message.</React.Fragment>
+        This is a succinct, helpful info message.
       </Alert>
-      <Alert type="info">
-        <React.Fragment key=".0">This is a succinct, helpful info message.</React.Fragment>
-      </Alert>
+      <Alert type="info">This is a succinct, helpful info message.</Alert>
     </div>
   ));
