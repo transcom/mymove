@@ -20,17 +20,24 @@ html {
   }
   &--popout {
     @include u-border('base-light');
-    @include u-border('2px');
+    @include u-border('1px');
     @include u-shadow(2);
   }
   &--accent {
-    &--blue {
-      border-top: 8px solid $accent-blue;
-      @include u-shadow(2);
+    &--hhg {
+      @include cont-border-top($accent-hhg);
     }
-    &--yellow {
-      border-top: 8px solid $accent-yellow;
-      @include u-shadow(2);
+    &--ppm {
+      @include cont-border-top($accent-ppm);
+    }
+    &--ub {
+      @include cont-border-top($accent-ub);
+    }
+    &--nts {
+      @include cont-border-top($accent-nts);
+    }
+    &--ntsr {
+      @include cont-border-top($accent-ntsr);
     }
   }
 }
