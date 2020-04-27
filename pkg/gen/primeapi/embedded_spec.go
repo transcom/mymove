@@ -158,7 +158,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
       "put": {
-        "description": "Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the ` + "`" + `UpdateMTOShipment` + "`" + ` definition to see the fields that are modifiable.\n",
+        "description": "Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the documentation to see which fields are modifiable.\n",
         "consumes": [
           "application/json"
         ],
@@ -1912,7 +1912,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
       "put": {
-        "description": "Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the ` + "`" + `UpdateMTOShipment` + "`" + ` definition to see the fields that are modifiable.\n",
+        "description": "Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the documentation to see which fields are modifiable.\n",
         "consumes": [
           "application/json"
         ],

@@ -165,7 +165,7 @@ paths:
       summary: Updates MTO shipment
       description: >
         Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are
-        returned - please refer to the `UpdateMTOShipment` definition to see the fields that are modifiable.
+        returned - please refer to the documentation to see which fields are modifiable.
       operationId: updateMTOShipment
       tags:
         - mtoShipment
@@ -859,7 +859,7 @@ definitions:
     type: string
     title: Shipment Type
     example: HHG
-    enum: &MTOSHIPMENTTYPE
+    enum:
       - HHG
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
@@ -928,7 +928,7 @@ definitions:
     type: string
     title: MTO Agent Type
     example: RELEASING_AGENT
-    enum: &MTOAGENTTYPE
+    enum:
       - RELEASING_AGENT
       - RECEIVING_AGENT
   MTOServiceItem:
