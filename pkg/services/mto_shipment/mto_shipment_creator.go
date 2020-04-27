@@ -2,14 +2,13 @@ package mtoshipment
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/services/fetch"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -17,30 +16,25 @@ import (
 //creating a mtoShipment
 //creating accessorials (find service written for this)
 
-type CreateMTOShipmentQueryBuilder interface {
+type createMTOShipmentQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
-	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
-	Count(model interface{}, filters []services.QueryFilter) (int, error)
-	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
 	CreateOne(model interface{}) (*validate.Errors, error)
 	Transaction(fn func(tx *pop.Connection) error) error
 }
 
 type mtoShipmentCreator struct {
-	db      *pop.Connection
-	builder CreateMTOShipmentQueryBuilder
-	createNewBuilder func(db *pop.Connection) CreateMTOShipmentQueryBuilder
+	db *pop.Connection
+	builder createMTOShipmentQueryBuilder
 	services.Fetcher
-	planner route.Planner
+	createNewBuilder func(db *pop.Connection) createMTOShipmentQueryBuilder
 }
 
-//func (m mtoShipmentCreator) CreateMTOShipment(MTOShipment *models.MTOShipment) (*models.MTOShipment, error) {
-//	panic("implement me")
-//}
-
 // NewMTOShipmentCreator creates a new struct with the service dependencies
-func NewMTOShipmentCreator(db *pop.Connection, builder CreateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner) *mtoShipmentCreator {
-	return &mtoShipmentCreator{db, builder, fetch.NewFetcher(builder), planner}
+func NewMTOShipmentCreator(db *pop.Connection, builder createMTOShipmentQueryBuilder, fetcher services.Fetcher) services.MTOShipmentCreator {
+	createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
+		return query.NewQueryBuilder(db)
+	}
+	return &mtoShipmentCreator{db, builder, fetch.NewFetcher(builder), createNewBuilder }
 }
 
 // CreateMTOShipment updates the mto shipment
@@ -125,3 +119,4 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, eTag
 
 		return &newShipment, nil
 }
+

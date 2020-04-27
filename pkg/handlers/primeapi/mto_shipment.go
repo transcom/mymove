@@ -35,7 +35,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	payload := params.Body
-
 	moveTaskOrderID := params.MoveTaskOrderID
 	eTag := params.IfMatch
 
