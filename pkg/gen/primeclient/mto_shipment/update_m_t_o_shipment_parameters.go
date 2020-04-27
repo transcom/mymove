@@ -66,7 +66,7 @@ type UpdateMTOShipmentParams struct {
 	/*IfMatch*/
 	IfMatch string
 	/*Body*/
-	Body *primemessages.PutMTOShipment
+	Body *primemessages.MTOShipment
 	/*MoveTaskOrderID*/
 	MoveTaskOrderID strfmt.UUID
 	/*MtoShipmentID*/
@@ -122,13 +122,13 @@ func (o *UpdateMTOShipmentParams) SetIfMatch(ifMatch string) {
 }
 
 // WithBody adds the body to the update m t o shipment params
-func (o *UpdateMTOShipmentParams) WithBody(body *primemessages.PutMTOShipment) *UpdateMTOShipmentParams {
+func (o *UpdateMTOShipmentParams) WithBody(body *primemessages.MTOShipment) *UpdateMTOShipmentParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the update m t o shipment params
-func (o *UpdateMTOShipmentParams) SetBody(body *primemessages.PutMTOShipment) {
+func (o *UpdateMTOShipmentParams) SetBody(body *primemessages.MTOShipment) {
 	o.Body = body
 }
 

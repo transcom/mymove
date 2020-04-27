@@ -188,7 +188,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/PutMTOShipment'
+            $ref: '#/definitions/MTOShipment'
         - in: header
           name: If-Match
           type: string
@@ -848,38 +848,6 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
-  PutMTOShipment:
-    properties:
-      scheduledPickupDate:
-        format: date
-        type: string
-      firstAvailableDeliveryDate:
-        format: date
-        type: string
-      primeActualWeight:
-        type: integer
-        example: 4500
-      primeEstimatedWeight:
-        type: integer
-        example: 4500
-      actualPickupDate:
-        format: date
-        type: string
-      requiredDeliveryDate:
-        format: date
-        type: string
-      agents:
-        $ref: '#/definitions/MTOAgents'
-      shipmentType:
-        $ref: '#/definitions/MTOShipmentType'
-      pickupAddress:
-        $ref: '#/definitions/Address'
-      destinationAddress:
-        $ref: '#/definitions/Address'
-      secondaryPickupAddress:
-        $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
-        $ref: '#/definitions/Address'
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update

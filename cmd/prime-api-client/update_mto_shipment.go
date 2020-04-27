@@ -10,8 +10,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/go-openapi/strfmt"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -42,12 +40,6 @@ func checkUpdateMTOShipmentConfig(v *viper.Viper, args []string, logger *log.Log
 	}
 
 	return nil
-}
-
-// UpdateMTOShipmentBody formats the JSON body
-type UpdateMTOShipmentBody struct {
-	ID   strfmt.UUID                  `json:"id"`
-	Body primemessages.PutMTOShipment `json:"body"`
 }
 
 func updateMTOShipment(cmd *cobra.Command, args []string) error {
@@ -94,16 +86,17 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	}
 
 	jsonDecoder := json.NewDecoder(reader)
-	var shipment UpdateMTOShipmentBody
+	var shipment primemessages.MTOShipment
 	err = jsonDecoder.Decode(&shipment)
 	if err != nil {
 		return fmt.Errorf("decoding data failed: %w", err)
 	}
 
 	params := mtoShipment.UpdateMTOShipmentParams{
-		MtoShipmentID: shipment.ID,
-		Body:          &shipment.Body,
-		IfMatch:       v.GetString(ETagFlag),
+		MoveTaskOrderID: shipment.MoveTaskOrderID,
+		MtoShipmentID:   shipment.ID,
+		Body:            &shipment,
+		IfMatch:         v.GetString(ETagFlag),
 	}
 	params.SetTimeout(time.Second * 30)
 

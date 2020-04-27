@@ -190,7 +190,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PutMTOShipment"
+              "$ref": "#/definitions/MTOShipment"
             }
           },
           {
@@ -1285,6 +1285,10 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
         "primeActualWeight": {
           "type": "integer",
           "example": 4500
@@ -1550,56 +1554,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/Upload"
           }
-        }
-      }
-    },
-    "PutMTOShipment": {
-      "properties": {
-        "actualPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "agents": {
-          "$ref": "#/definitions/MTOAgents"
-        },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "firstAvailableDeliveryDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "pointOfContact": {
-          "description": "Email or id of a contact person for this update",
-          "type": "string"
-        },
-        "primeActualWeight": {
-          "type": "integer",
-          "example": 4500
-        },
-        "primeEstimatedWeight": {
-          "type": "integer",
-          "example": 4500
-        },
-        "requiredDeliveryDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "scheduledPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "secondaryDeliveryAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "secondaryPickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "shipmentType": {
-          "$ref": "#/definitions/MTOShipmentType"
         }
       }
     },
@@ -1990,7 +1944,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PutMTOShipment"
+              "$ref": "#/definitions/MTOShipment"
             }
           },
           {
@@ -3157,6 +3111,10 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
         "primeActualWeight": {
           "type": "integer",
           "example": 4500
@@ -3422,56 +3380,6 @@ func init() {
           "items": {
             "$ref": "#/definitions/Upload"
           }
-        }
-      }
-    },
-    "PutMTOShipment": {
-      "properties": {
-        "actualPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "agents": {
-          "$ref": "#/definitions/MTOAgents"
-        },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "firstAvailableDeliveryDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "pointOfContact": {
-          "description": "Email or id of a contact person for this update",
-          "type": "string"
-        },
-        "primeActualWeight": {
-          "type": "integer",
-          "example": 4500
-        },
-        "primeEstimatedWeight": {
-          "type": "integer",
-          "example": 4500
-        },
-        "requiredDeliveryDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "scheduledPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "secondaryDeliveryAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "secondaryPickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "shipmentType": {
-          "$ref": "#/definitions/MTOShipmentType"
         }
       }
     },

@@ -16,27 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// ConvertToMTOShipment passes the fields available for update to the MTOShipment payload object so that it can be
-// manipulated later on
-func ConvertToMTOShipment(updates *primemessages.PutMTOShipment) *primemessages.MTOShipment {
-	shipment := &primemessages.MTOShipment{
-		ScheduledPickupDate:        updates.ScheduledPickupDate,
-		FirstAvailableDeliveryDate: updates.FirstAvailableDeliveryDate,
-		PrimeActualWeight:          updates.PrimeActualWeight,
-		PrimeEstimatedWeight:       updates.PrimeEstimatedWeight,
-		ActualPickupDate:           updates.ActualPickupDate,
-		RequiredDeliveryDate:       updates.RequiredDeliveryDate,
-		Agents:                     updates.Agents,
-		ShipmentType:               updates.ShipmentType,
-		PickupAddress:              updates.PickupAddress,
-		DestinationAddress:         updates.DestinationAddress,
-		SecondaryPickupAddress:     updates.SecondaryPickupAddress,
-		SecondaryDeliveryAddress:   updates.SecondaryDeliveryAddress,
-	}
-
-	return shipment
-}
-
 // UpdateMTOShipmentModel checks that only the fields that can be updated were passed into the payload,
 // then grabs the model
 func UpdateMTOShipmentModel(payload *primemessages.MTOShipment) (*models.MTOShipment, error) {
@@ -123,8 +102,7 @@ type UpdateMTOShipmentHandler struct {
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	shipmentPayload := ConvertToMTOShipment(params.Body)
-	mtoShipment, _ := UpdateMTOShipmentModel(shipmentPayload)
+	mtoShipment, _ := UpdateMTOShipmentModel(params.Body)
 	eTag := params.IfMatch
 	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 
