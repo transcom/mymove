@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 	mtoServiceItemPayload := mtoServiceItemResponse.Payload
 
 	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
-	suite.Equal(mtoServiceItemPayload.Status, "APPROVED")
+	suite.Equal(string(*mtoServiceItemPayload.Status), "APPROVED")
 	suite.Equal(mtoServiceItemPayload.Reason, "")
 }
 
@@ -75,6 +75,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 	mtoServiceItemPayload := mtoServiceItemResponse.Payload
 
 	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
-	suite.Equal(mtoServiceItemPayload.Status, "REJECTED")
+	suite.Equal(string(*mtoServiceItemPayload.Status), "REJECTED")
 	suite.Equal(mtoServiceItemPayload.Reason, "item too heavy")
 }
