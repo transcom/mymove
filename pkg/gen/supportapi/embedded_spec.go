@@ -183,6 +183,103 @@ func init() {
         ]
       }
     },
+    "/service-items/{mtoServiceItemID}/status": {
+      "patch": {
+        "description": "Changes the status of a line item for a move order by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Change the status of a line item for a move order by ID",
+        "operationId": "updateMTOServiceItemStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated status for a line item for a move task order by ID",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of mto service item to use",
+          "name": "mtoServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
         "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required.\n",
@@ -817,6 +914,9 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
+        "reason": {
+          "type": "string"
+        },
         "rejectedAt": {
           "type": "string",
           "format": "date"
@@ -824,8 +924,8 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
-            "APPROVED",
             "SUBMITTED",
+            "APPROVED",
             "REJECTED"
           ]
         },
@@ -843,13 +943,7 @@ func init() {
         }
       }
     },
-    "MTOServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOServiceItem"
-      }
-    },
-    "MTOServiceItemstatus": {
+    "MTOServiceItemStatus": {
       "type": "object",
       "properties": {
         "status": {
@@ -860,6 +954,12 @@ func init() {
             "REJECTED"
           ]
         }
+      }
+    },
+    "MTOServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItem"
       }
     },
     "MTOShipment": {
@@ -1539,6 +1639,121 @@ func init() {
         ]
       }
     },
+    "/service-items/{mtoServiceItemID}/status": {
+      "patch": {
+        "description": "Changes the status of a line item for a move order by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Change the status of a line item for a move order by ID",
+        "operationId": "updateMTOServiceItemStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated status for a line item for a move task order by ID",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of mto service item to use",
+          "name": "mtoServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
         "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required.\n",
@@ -2203,6 +2418,9 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
+        "reason": {
+          "type": "string"
+        },
         "rejectedAt": {
           "type": "string",
           "format": "date"
@@ -2210,8 +2428,8 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
-            "APPROVED",
             "SUBMITTED",
+            "APPROVED",
             "REJECTED"
           ]
         },
@@ -2229,13 +2447,7 @@ func init() {
         }
       }
     },
-    "MTOServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOServiceItem"
-      }
-    },
-    "MTOServiceItemstatus": {
+    "MTOServiceItemStatus": {
       "type": "object",
       "properties": {
         "status": {
@@ -2246,6 +2458,12 @@ func init() {
             "REJECTED"
           ]
         }
+      }
+    },
+    "MTOServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItem"
       }
     },
     "MTOShipment": {

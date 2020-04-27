@@ -75,12 +75,15 @@ type MTOServiceItem struct {
 	// Required: true
 	ReServiceName *string `json:"reServiceName"`
 
+	// reason
+	Reason string `json:"reason,omitempty"`
+
 	// rejected at
 	// Format: date
 	RejectedAt strfmt.Date `json:"rejectedAt,omitempty"`
 
 	// status
-	// Enum: [APPROVED SUBMITTED REJECTED]
+	// Enum: [SUBMITTED APPROVED REJECTED]
 	Status string `json:"status,omitempty"`
 
 	// submitted at
@@ -336,7 +339,7 @@ var mTOServiceItemTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["APPROVED","SUBMITTED","REJECTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVED","REJECTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -346,11 +349,11 @@ func init() {
 
 const (
 
-	// MTOServiceItemStatusAPPROVED captures enum value "APPROVED"
-	MTOServiceItemStatusAPPROVED string = "APPROVED"
-
 	// MTOServiceItemStatusSUBMITTED captures enum value "SUBMITTED"
 	MTOServiceItemStatusSUBMITTED string = "SUBMITTED"
+
+	// MTOServiceItemStatusAPPROVED captures enum value "APPROVED"
+	MTOServiceItemStatusAPPROVED string = "APPROVED"
 
 	// MTOServiceItemStatusREJECTED captures enum value "REJECTED"
 	MTOServiceItemStatusREJECTED string = "REJECTED"

@@ -200,6 +200,21 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 	return payload
 }
 
+// MTOServiceItem payload
+func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.MTOServiceItem {
+	strfmt.MarshalFormat = strfmt.RFC3339Micro
+
+	payload := &supportmessages.MTOServiceItem{
+		ETag:            etag.GenerateEtag(mtoServiceItem.UpdatedAt),
+		ID:              handlers.FmtUUID(mtoServiceItem.ID),
+		MoveTaskOrderID: handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID),
+		MtoShipmentID:   handlers.FmtUUID(*mtoServiceItem.MTOShipmentID),
+		Reason:          *mtoServiceItem.Reason,
+	}
+
+	return payload
+}
+
 // MTOShipments payload
 func MTOShipments(mtoShipments *models.MTOShipments) *supportmessages.MTOShipments {
 	payload := make(supportmessages.MTOShipments, len(*mtoShipments))

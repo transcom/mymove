@@ -174,6 +174,73 @@ paths:
         - contracting_officer
         - ppm_office_users
       summary: Gets a move task order by ID
+  '/service-items/{mtoServiceItemID}/status':
+    parameters:
+      - description: ID of mto service item to use
+        in: path
+        name: mtoServiceItemID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/MTOServiceItem'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: >-
+            Successfully updated status for a line item for a move task order by
+            ID
+          schema:
+            $ref: '#/definitions/MTOServiceItem'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition Failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - mtoServiceItem
+      description: Changes the status of a line item for a move order by ID
+      x-swagger-roles:
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
+      operationId: updateMTOServiceItemStatus
+      summary: Change the status of a line item for a move order by ID
   '/mto-shipments/{mtoShipmentID}/status':
     parameters:
       - description: ID of the shipment being updated
@@ -851,15 +918,17 @@ definitions:
         type: integer
       rate:
         type: integer
+      reason:
+        type: string
       rejectedAt:
         format: date
         type: string
       status:
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
         type: string
+        enum:
+          - SUBMITTED
+          - APPROVED
+          - REJECTED
       submittedAt:
         format: date
         type: string
@@ -883,7 +952,7 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MTOServiceItem'
-  MTOServiceItemstatus:
+  MTOServiceItemStatus:
     properties:
       status:
         enum:

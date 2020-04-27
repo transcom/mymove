@@ -28,6 +28,7 @@ func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOSer
 		MTOShipmentID:   &MTOShipment.ID,
 		ReService:       reService,
 		ReServiceID:     reService.ID,
+		Status:          models.MTOServiceItemStatusSubmitted,
 	}
 	// Overwrite values with those from assertions
 	mergeModels(&MTOServiceItem, assertions.MTOServiceItem)
