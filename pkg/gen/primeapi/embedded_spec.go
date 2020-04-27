@@ -338,6 +338,9 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
+                "moveTaskOrderID": {
+                  "type": "string"
+                },
                 "pointOfContact": {
                   "description": "Email or id of a contact person for this update",
                   "type": "string"
@@ -2113,6 +2116,9 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
+                "moveTaskOrderID": {
+                  "type": "string"
+                },
                 "pointOfContact": {
                   "description": "Email or id of a contact person for this update",
                   "type": "string"
