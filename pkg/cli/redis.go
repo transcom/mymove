@@ -81,7 +81,7 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 		return nil, nil
 	}
 
-	redisUser := v.GetString(RedisUserFlag)
+	//redisUser := v.GetString(RedisUserFlag)
 	redisPassword := v.GetString(RedisPasswordFlag)
 	redisHost := v.GetString(RedisHostFlag)
 	redisPort := strconv.Itoa(v.GetInt(RedisPortFlag))
@@ -90,8 +90,8 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	timeoutDuration := time.Duration(redisConnectTimeout) * time.Second
 
 	redisURITemplate := "redis://%s@%s:%s/%s"
-	redisURL := fmt.Sprintf(redisURITemplate, redisUser, redisPassword, redisHost, redisPort, redisDBName)
-	//redisURL := fmt.Sprintf(redisURITemplate, redisPassword, redisHost, redisPort, redisDBName)
+	//redisURL := fmt.Sprintf(redisURITemplate, redisUser, redisPassword, redisHost, redisPort, redisDBName)
+	redisURL := fmt.Sprintf(redisURITemplate, redisPassword, redisHost, redisPort, redisDBName)
 
 	if err := testRedisConnection(redisURL, logger, timeoutDuration); err != nil {
 		return nil, err
