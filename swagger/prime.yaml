@@ -814,6 +814,9 @@ definitions:
       actualPickupDate:
         format: date
         type: string
+      requiredDeliveryDate:
+        format: date
+        type: string
       agents:
         $ref: '#/definitions/MTOAgents'
       customerRemarks:
@@ -899,14 +902,12 @@ definitions:
       - width
       - height
   MTOServiceItemStatus:
-    properties:
-      status:
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
-        type: string
-    type: object
+    description: Describes all statuses for a MTOServiceItem
+    type: string
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
   MTOServiceItemModelType:
     description: Describes all model sub-types for a MTOServiceItem model
     type: string
@@ -946,6 +947,8 @@ definitions:
         type: string
       reServiceName:
         type: string
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
       modelType: # Base type and sub-types of MTOServiceItem
         $ref: '#/definitions/MTOServiceItemModelType'
       eTag:
@@ -1041,6 +1044,7 @@ definitions:
             type: string
             enum:
               - DCRT # Domestic Crating
+              - DCRTSA # Domestic Crating - Standalone
               - DUCRT # Domestic Uncrating
           item:
             $ref: '#/definitions/MTOServiceItemDimension'
@@ -1130,6 +1134,7 @@ definitions:
       - DBHF
       - DBTF
       - DCRT
+      - DCRTSA
       - DDASIT
       - DDDSIT
       - DDFSIT
@@ -1153,6 +1158,7 @@ definitions:
       - ICOLH
       - ICOUB
       - ICRT
+      - ICRTSA
       - IDASIT
       - IDDSIT
       - IDFSIT
@@ -1198,6 +1204,17 @@ definitions:
       - bytes
       - createdAt
       - updatedAt
+  UpdatePaymentRequestStatus:
+    properties:
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+      eTag:
+        type: string
+    type: object
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'
