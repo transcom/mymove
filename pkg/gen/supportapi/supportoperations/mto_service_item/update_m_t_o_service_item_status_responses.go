@@ -225,6 +225,48 @@ func (o *UpdateMTOServiceItemStatusNotFound) WriteResponse(rw http.ResponseWrite
 	}
 }
 
+// UpdateMTOServiceItemStatusConflictCode is the HTTP code returned for type UpdateMTOServiceItemStatusConflict
+const UpdateMTOServiceItemStatusConflictCode int = 409
+
+/*UpdateMTOServiceItemStatusConflict Conflict error
+
+swagger:response updateMTOServiceItemStatusConflict
+*/
+type UpdateMTOServiceItemStatusConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewUpdateMTOServiceItemStatusConflict creates UpdateMTOServiceItemStatusConflict with default headers values
+func NewUpdateMTOServiceItemStatusConflict() *UpdateMTOServiceItemStatusConflict {
+
+	return &UpdateMTOServiceItemStatusConflict{}
+}
+
+// WithPayload adds the payload to the update m t o service item status conflict response
+func (o *UpdateMTOServiceItemStatusConflict) WithPayload(payload interface{}) *UpdateMTOServiceItemStatusConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update m t o service item status conflict response
+func (o *UpdateMTOServiceItemStatusConflict) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMTOServiceItemStatusConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // UpdateMTOServiceItemStatusPreconditionFailedCode is the HTTP code returned for type UpdateMTOServiceItemStatusPreconditionFailed
 const UpdateMTOServiceItemStatusPreconditionFailedCode int = 412
 

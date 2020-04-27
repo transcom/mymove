@@ -35,14 +35,19 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	err := p.builder.FetchOne(&mtoServiceItem, queryFilters)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(mtoServiceItem.ID, "")
+		return nil, services.NewNotFoundError(mtoServiceItem.ID, "MTOServiceItemID")
+	}
+
+	if mtoServiceItem.Status != models.MTOServiceItemStatusSubmitted || (status != models.MTOServiceItemStatusApproved && status != models.MTOServiceItemStatusRejected) {
+		return nil, services.NewConflictError(mtoServiceItem.ID, "MTOServiceItemID")
 	}
 
 	mtoServiceItem.Status = status
 	mtoServiceItem.UpdatedAt = time.Now()
+
 	if status == models.MTOServiceItemStatusRejected {
 		mtoServiceItem.Reason = &reason
-	} else if status == models.MTOServiceItemStatusApproved && mtoServiceItem.Reason != nil {
+	} else if status == models.MTOServiceItemStatusApproved {
 		mtoServiceItem.Reason = nil
 	}
 

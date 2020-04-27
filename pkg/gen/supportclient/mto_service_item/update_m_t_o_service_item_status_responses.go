@@ -54,6 +54,12 @@ func (o *UpdateMTOServiceItemStatusReader) ReadResponse(response runtime.ClientR
 			return nil, err
 		}
 		return nil, result
+	case 409:
+		result := NewUpdateMTOServiceItemStatusConflict()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 412:
 		result := NewUpdateMTOServiceItemStatusPreconditionFailed()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -226,6 +232,37 @@ func (o *UpdateMTOServiceItemStatusNotFound) GetPayload() interface{} {
 }
 
 func (o *UpdateMTOServiceItemStatusNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewUpdateMTOServiceItemStatusConflict creates a UpdateMTOServiceItemStatusConflict with default headers values
+func NewUpdateMTOServiceItemStatusConflict() *UpdateMTOServiceItemStatusConflict {
+	return &UpdateMTOServiceItemStatusConflict{}
+}
+
+/*UpdateMTOServiceItemStatusConflict handles this case with default header values.
+
+Conflict error
+*/
+type UpdateMTOServiceItemStatusConflict struct {
+	Payload interface{}
+}
+
+func (o *UpdateMTOServiceItemStatusConflict) Error() string {
+	return fmt.Sprintf("[PATCH /service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusConflict  %+v", 409, o.Payload)
+}
+
+func (o *UpdateMTOServiceItemStatusConflict) GetPayload() interface{} {
+	return o.Payload
+}
+
+func (o *UpdateMTOServiceItemStatusConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {

@@ -60,6 +60,8 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ConflictError:
+			return mtoserviceitemops.NewUpdateMTOServiceItemStatusConflict().WithPayload(&supportmessages.Error{Message: handlers.FmtString("Can only update status from SUBMITTED to APPROVED or REJECTED")})
 		default:
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusInternalServerError()
 		}
