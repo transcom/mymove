@@ -323,7 +323,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
 		}
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
 		item := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		payload = &primemessages.MTOServiceItemDomesticCrating{
