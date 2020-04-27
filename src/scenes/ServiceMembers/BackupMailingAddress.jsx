@@ -37,8 +37,8 @@ export class BackupMailingAddress extends Component {
           <div className="grid-col-12">
             <h1 className="sm-heading">Backup mailing address</h1>
             <p>
-              Enter the address where mail will reach you if we can’t reach you at your primary address, such as your
-              parents’ address.
+              Where should we send mail if we can’t reach you at your primary address? You might use a parent's or
+              friend’s address, or a post office box.
             </p>
           </div>
         </div>

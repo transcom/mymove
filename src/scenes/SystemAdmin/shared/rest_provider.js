@@ -1,5 +1,6 @@
 import { stringify } from 'query-string';
 import { diff } from 'deep-object-diff';
+import { snakeCase } from 'lodash';
 import {
   fetchUtils,
   GET_LIST,
@@ -41,7 +42,7 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
         const query = {
-          sort: field,
+          sort: snakeCase(field),
           order: order === 'ASC' ? true : false,
           page: page,
           perPage: perPage,
@@ -77,7 +78,7 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
         const query = {
-          sort: field,
+          sort: snakeCase(field),
           order: order === 'ASC' ? true : false,
           page: page,
           perPage: perPage,
