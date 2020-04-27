@@ -110,13 +110,13 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, eTag
 		}
 		return nil
 	})
-		var newShipment models.MTOShipment
-		err = f.FetchRecord(&newShipment, queryFilters)
+	var newShipment models.MTOShipment
+	err = f.FetchRecord(&newShipment, queryFilters)
 
-		if err != nil {
-			return &models.MTOShipment{}, err
-		}
+	if err != nil {
+		return &models.MTOShipment{}, err
+	}
 
-		return &newShipment, nil
+	return &newShipment, nil
 }
 

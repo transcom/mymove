@@ -62,6 +62,30 @@ func MTOAgentsModel(mtoAgents *primemessages.MTOAgents) *models.MTOAgents {
 	return &agents
 }
 
+// MTOServiceItemArray
+func MTOServiceItemList(mtoShipment *primemessages.CreateShipmentPayload) (*models.MTOServiceItems, *validate.Errors)  {
+
+	if mtoShipment == nil {
+		return nil, nil
+	}
+
+	serviceItemsListFromPayload := mtoShipment.MtoServiceItems()
+
+	serviceItemsList := make(models.MTOServiceItems, len(serviceItemsListFromPayload))
+
+	for i, m := range serviceItemsListFromPayload {
+		serviceItem, verrs := MTOServiceItemModel(m)
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+
+		serviceItemsList[i] = *serviceItem
+	}
+
+	return &serviceItemsList, nil
+}
+
+
 // ShipmentModel
 func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload, moveTaskOrderId strfmt.UUID) *models.MTOShipment  {
 	if mtoShipment == nil {
@@ -69,7 +93,6 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload
 	}
 
 	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
-	//check on moveTaskOrderId type
 	model := &models.MTOShipment{
 		ID:           		uuid.FromStringOrNil(mtoShipment.ID.String()),
 		MoveTaskOrderID: 	uuid.FromStringOrNil(moveTaskOrderId.String()),
@@ -150,20 +173,6 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 	}
 
 	return model
-}
-
-// MTOServiceItemArray
-
-func MTOServiceItemList(mtoShipment *primemessages.CreateShipmentPayload) []models.MTOServiceItem {
-	if mtoShipment == nil {
-		return nil
-	}
-
-	serviceItemsList := mtoShipment.MtoServiceItems()
-
-	for _, item := range serviceItemsList {
-	//	create mtoServiceItems
-	}
 }
 
 // MTOServiceItemModel model

@@ -2,10 +2,10 @@ package primeapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/gofrs/uuid"
+	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
 
@@ -39,34 +39,28 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	eTag := params.IfMatch
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload, moveTaskOrderID)
+	var mtoServiceItemsList models.MTOServiceItems
+
+	//create a fn that loops and uses the payload to create mtoservice items
+	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
+	if verrs != nil && verrs.HasAny() {
+		logger.Error("Error validating mto service item: ", zap.Error(verrs))
+
+		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity()
+	}
 
 	if payload == nil {
 		logger.Error("Invalid mto shipment: params Body is nil")
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
 	}
 
+	mtoShipment.MTOServiceItems = &mtoServiceItemsList
+
 	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, eTag)
-
-	//create a fn that loops and uses the payload to create mtoservice items
-
-	createdServiceItem, verrs, err := h.MTOServiceItemCreator.CreateMTOServiceItem(&serviceItem)
-	if verrs != nil && verrs.HasAny() {
-		logger.Error("Error validating mto service item: ", zap.Error(verrs))
-		payload := payloadForValidationError(handlers.ValidationErrMessage, "The information you provided is invalid.", h.GetTraceID(), verrs)
-
-		return mtoserviceitemop.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payload)
-	}
 
 	// return any errors
 	if err != nil {
 		logger.Error("Error creating mto service item: ", zap.Error(err))
-
-		if strings.Contains(errors.Cause(err).Error(), models.ViolatesForeignKeyConstraint) {
-			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to create a mto service item.", h.GetTraceID())
-
-			return mtoserviceitemop.NewCreateMTOServiceItemNotFound().WithPayload(payload)
-		}
-
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
 	}
 
