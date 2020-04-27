@@ -25,7 +25,7 @@ html {
   }
   &--accent {
     &--hhg {
-      @include cont-border-top($accent-blue);
+      @include cont-border-top($accent-hhg);
     }
     &--ppm {
       @include cont-border-top($accent-ppm);
