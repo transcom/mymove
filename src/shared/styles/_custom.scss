@@ -24,11 +24,8 @@ html {
     @include u-shadow(2);
   }
   &--accent {
-    &--blue, &--hhg {
+    &--hhg {
       @include cont-border-top($accent-blue);
-    }
-    &--yellow {
-      @include cont-border-top($accent-yellow);
     }
     &--ppm {
       @include cont-border-top($accent-ppm);
