@@ -20,7 +20,7 @@ html {
   }
   &--popout {
     @include u-border('base-light');
-    @include u-border('2px');
+    @include u-border('1px');
     @include u-shadow(2);
   }
   &--accent {
