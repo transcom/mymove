@@ -12,6 +12,27 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// ConvertToMTOShipment passes the fields available for update to the MTOShipment payload object so that it can be
+// manipulated later on
+func ConvertToMTOShipment(updates *primemessages.PutMTOShipment) *primemessages.MTOShipment {
+	shipment := &primemessages.MTOShipment{
+		ScheduledPickupDate:        updates.ScheduledPickupDate,
+		FirstAvailableDeliveryDate: updates.FirstAvailableDeliveryDate,
+		PrimeActualWeight:          updates.PrimeActualWeight,
+		PrimeEstimatedWeight:       updates.PrimeEstimatedWeight,
+		ActualPickupDate:           updates.ActualPickupDate,
+		RequiredDeliveryDate:       updates.RequiredDeliveryDate,
+		Agents:                     updates.Agents,
+		ShipmentType:               updates.ShipmentType,
+		PickupAddress:              updates.PickupAddress,
+		DestinationAddress:         updates.DestinationAddress,
+		SecondaryPickupAddress:     updates.SecondaryPickupAddress,
+		SecondaryDeliveryAddress:   updates.SecondaryDeliveryAddress,
+	}
+
+	return shipment
+}
+
 // UpdateMTOShipmentHandler is the handler to update MTO shipments
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerContext
@@ -22,7 +43,8 @@ type UpdateMTOShipmentHandler struct {
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtoShipment := payloads.MTOShipmentModel(params.Body)
+	shipmentPayload := ConvertToMTOShipment(params.Body)
+	mtoShipment := payloads.MTOShipmentModel(shipmentPayload)
 	eTag := params.IfMatch
 	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 

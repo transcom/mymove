@@ -58,9 +58,6 @@ type MTOShipment struct {
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
-	// Email or id of a contact person for this update
-	PointOfContact string `json:"pointOfContact,omitempty"`
-
 	// prime actual weight
 	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
 
@@ -70,6 +67,9 @@ type MTOShipment struct {
 	// prime estimated weight recorded date
 	// Format: date
 	PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
+
+	// rejection reason
+	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// requested pickup date
 	// Format: date

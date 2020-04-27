@@ -44,7 +44,7 @@ type UpdateMTOShipmentParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *primemessages.MTOShipment
+	Body *primemessages.PutMTOShipment
 	/*
 	  Required: true
 	  In: path
@@ -72,7 +72,7 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body primemessages.MTOShipment
+		var body primemessages.PutMTOShipment
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body"))

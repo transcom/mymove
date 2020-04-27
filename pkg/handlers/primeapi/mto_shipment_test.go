@@ -31,6 +31,26 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+// Passes the model fields to the PutMTOShipment payload object so we can facilitate testing
+func ConvertToPutMTOShipment(model *primemessages.MTOShipment) *primemessages.PutMTOShipment {
+	shipment := &primemessages.PutMTOShipment{
+		ScheduledPickupDate:        model.ScheduledPickupDate,
+		FirstAvailableDeliveryDate: model.FirstAvailableDeliveryDate,
+		PrimeActualWeight:          model.PrimeActualWeight,
+		PrimeEstimatedWeight:       model.PrimeEstimatedWeight,
+		ActualPickupDate:           model.ActualPickupDate,
+		RequiredDeliveryDate:       model.RequiredDeliveryDate,
+		Agents:                     model.Agents,
+		ShipmentType:               model.ShipmentType,
+		PickupAddress:              model.PickupAddress,
+		DestinationAddress:         model.DestinationAddress,
+		SecondaryPickupAddress:     model.SecondaryPickupAddress,
+		SecondaryDeliveryAddress:   model.SecondaryDeliveryAddress,
+	}
+
+	return shipment
+}
+
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	primeEstimatedWeight := unit.Pound(500)
 	primeEstimatedWeightDate := testdatagen.DateInsidePeakRateCycle
@@ -77,11 +97,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	req := httptest.NewRequest("PUT", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
 	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+	body := ConvertToPutMTOShipment(payloads.MTOShipment(&mtoShipment))
 	params := mtoshipmentops.UpdateMTOShipmentParams{
 		HTTPRequest:     req,
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 		MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-		Body:            payloads.MTOShipment(&mtoShipment),
+		Body:            body,
 		IfMatch:         eTag,
 	}
 
@@ -195,6 +216,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		ID:              strfmt.UUID(mtoShipment2.ID.String()),
 		MoveTaskOrderID: strfmt.UUID(mtoShipment2.MoveTaskOrderID.String()),
 	}
+	putPayload := ConvertToPutMTOShipment(&payload)
 
 	req2 := httptest.NewRequest("PUT", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto2.ID.String(), mtoShipment2.ID.String()), nil)
 
@@ -203,7 +225,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		HTTPRequest:     req2,
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment2.MoveTaskOrderID),
 		MtoShipmentID:   *handlers.FmtUUID(mtoShipment2.ID),
-		Body:            &payload,
+		Body:            putPayload,
 		IfMatch:         eTag,
 	}
 

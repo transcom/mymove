@@ -162,14 +162,17 @@ paths:
       summary: Gets a the customer associated with a move task order ID
   '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}':
     put:
+      summary: Updates MTO shipment
+      description: >
+        Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are
+        returned - please refer to the `UpdateMTOShipment` definition to see the fields that are modifiable.
+      operationId: updateMTOShipment
+      tags:
+        - mtoShipment
       consumes:
         - application/json
       produces:
         - application/json
-      summary: Updates mto shipment
-      operationId: updateMTOShipment
-      tags:
-        - mtoShipment
       parameters:
         - in: path
           name: moveTaskOrderID
@@ -185,7 +188,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: '#/definitions/PutMTOShipment'
         - in: header
           name: If-Match
           type: string
@@ -841,6 +844,42 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+      rejectionReason:
+        type: string
+        example: MTO Shipment not good enough
+        x-nullable: true
+  PutMTOShipment:
+    properties:
+      scheduledPickupDate:
+        format: date
+        type: string
+      firstAvailableDeliveryDate:
+        format: date
+        type: string
+      primeActualWeight:
+        type: integer
+        example: 4500
+      primeEstimatedWeight:
+        type: integer
+        example: 4500
+      actualPickupDate:
+        format: date
+        type: string
+      requiredDeliveryDate:
+        format: date
+        type: string
+      agents:
+        $ref: '#/definitions/MTOAgents'
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        $ref: '#/definitions/Address'
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update
