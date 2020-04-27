@@ -37,7 +37,7 @@ func (e *errInvalidHostname) Error() string {
 }
 
 // UserSessionCookieName is the key suffix at which we're storing our token cookie
-const UserSessionCookieName = "session_token"
+const UserSessionCookieName = "session_token_mb"
 
 // GorillaCSRFToken is the name of the base CSRF token
 const GorillaCSRFToken = "_gorilla_csrf" // #nosec G101
