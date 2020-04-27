@@ -88,20 +88,20 @@ func NewUpdateMTOServiceItemStatusOK() *UpdateMTOServiceItemStatusOK {
 Successfully updated status for a line item for a move task order by ID
 */
 type UpdateMTOServiceItemStatusOK struct {
-	Payload *supportmessages.MTOServiceItem
+	Payload *supportmessages.UpdateMTOServiceItemStatusPayload
 }
 
 func (o *UpdateMTOServiceItemStatusOK) Error() string {
 	return fmt.Sprintf("[PATCH /service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusOK  %+v", 200, o.Payload)
 }
 
-func (o *UpdateMTOServiceItemStatusOK) GetPayload() *supportmessages.MTOServiceItem {
+func (o *UpdateMTOServiceItemStatusOK) GetPayload() *supportmessages.UpdateMTOServiceItemStatusPayload {
 	return o.Payload
 }
 
 func (o *UpdateMTOServiceItemStatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.MTOServiceItem)
+	o.Payload = new(supportmessages.UpdateMTOServiceItemStatusPayload)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

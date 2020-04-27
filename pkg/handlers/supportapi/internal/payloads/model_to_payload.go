@@ -201,15 +201,15 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 }
 
 // MTOServiceItem payload
-func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.MTOServiceItem {
+func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.UpdateMTOServiceItemStatusPayload {
 	strfmt.MarshalFormat = strfmt.RFC3339Micro
-
-	payload := &supportmessages.MTOServiceItem{
+	status := string(mtoServiceItem.Status)
+	payload := &supportmessages.UpdateMTOServiceItemStatusPayload{
 		ETag:            etag.GenerateEtag(mtoServiceItem.UpdatedAt),
-		ID:              handlers.FmtUUID(mtoServiceItem.ID),
-		MoveTaskOrderID: handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID),
-		MtoShipmentID:   handlers.FmtUUID(*mtoServiceItem.MTOShipmentID),
-		Status:          string(mtoServiceItem.Status),
+		ID:              strfmt.UUID(mtoServiceItem.ID.String()),
+		MoveTaskOrderID: strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()),
+		MtoShipmentID:   strfmt.UUID(mtoServiceItem.MTOShipmentID.String()),
+		Status:          &status,
 	}
 
 	if mtoServiceItem.Reason != nil {

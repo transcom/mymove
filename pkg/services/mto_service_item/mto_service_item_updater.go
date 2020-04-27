@@ -42,6 +42,8 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	mtoServiceItem.UpdatedAt = time.Now()
 	if status == models.MTOServiceItemStatusRejected {
 		mtoServiceItem.Reason = &reason
+	} else if status == models.MTOServiceItemStatusApproved && mtoServiceItem.Reason != nil {
+		mtoServiceItem.Reason = nil
 	}
 
 	verrs, err := p.builder.UpdateOne(&mtoServiceItem, &eTag)

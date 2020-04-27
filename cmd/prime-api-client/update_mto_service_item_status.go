@@ -86,7 +86,7 @@ func updateMTOServiceItemStatus(cmd *cobra.Command, args []string) error {
 	}
 
 	jsonDecoder := json.NewDecoder(reader)
-	var serviceItem supportmessages.MTOServiceItem
+	var serviceItem supportmessages.UpdateMTOServiceItemStatusPayload
 	err = jsonDecoder.Decode(&serviceItem)
 	if err != nil {
 		return fmt.Errorf("decoding data failed: %w", err)

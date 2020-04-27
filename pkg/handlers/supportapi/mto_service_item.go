@@ -43,7 +43,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	mtoServiceItemID := uuid.FromStringOrNil(params.MtoServiceItemID)
-	status := models.MTOServiceItemStatus(params.Body.Status)
+	status := models.MTOServiceItemStatus(*params.Body.Status)
 	eTag := params.IfMatch
 	reason := params.Body.Reason
 

@@ -191,7 +191,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MTOServiceItem'
+            $ref: '#/definitions/UpdateMTOServiceItemStatusPayload'
         - in: header
           name: If-Match
           type: string
@@ -202,7 +202,7 @@ paths:
             Successfully updated status for a line item for a move task order by
             ID
           schema:
-            $ref: '#/definitions/MTOServiceItem'
+            $ref: '#/definitions/UpdateMTOServiceItemStatusPayload'
         '400':
           description: The request payload is invalid
           schema:
@@ -974,7 +974,76 @@ definitions:
       eTag:
         type: string
     type: object
-  UpdatePaymentRequestStatus:
+  UpdateMTOServiceItemStatusPayload:
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceCode:
+        type: string
+      reServiceName:
+        type: string
+      approvedAt:
+        format: date
+        type: string
+      createdAt:
+        format: date
+        type: string
+      deletedAt:
+        format: date
+        type: string
+      description:
+        type: string
+      feeType:
+        enum:
+          - COUNSELING
+          - CRATING
+          - TRUCKING
+          - SHUTTLE
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      quantity:
+        type: integer
+      rate:
+        type: integer
+      reason:
+        type: string
+      rejectedAt:
+        format: date
+        type: string
+      status:
+        type: string
+        enum:
+          - SUBMITTED
+          - APPROVED
+          - REJECTED
+      submittedAt:
+        format: date
+        type: string
+      total:
+        format: cents
+        type: integer
+      updatedAt:
+        format: datetime
+        type: string
+      eTag:
+        type: string
+    required:
+      - status
+    type: object
+  UpdatePaymentRequestStatusPayload:
     properties:
       rejectionReason:
         example: documentation was incomplete
