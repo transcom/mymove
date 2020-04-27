@@ -12,7 +12,7 @@ html {
 //
 .container {
   @include u-bg('white');
-  @include u-padding('3');
+  @include u-padding('2');
   @include u-margin('3');
   @include u-radius('05');
   &--gray {
@@ -44,8 +44,9 @@ html {
     background-color: $base-lighter;
   }
   .container {
-    width: 300px;
-    height: 135px;
+    max-width: 322px;
+    min-width: 300px;
+    min-height: 135px;
   }
 }
 
@@ -167,11 +168,12 @@ table {
   @include u-border(0);
   .table--small th {
     @include u-border('base-lighter');
+    @include u-padding-x(0);
   }
   td {
     @include u-border(0);
     @include u-padding-top(1.5);
-    @include u-padding-left(1);
+    @include u-padding-x(0);
     &:hover {
       background-color: rgba(255, 255, 255, 0);
     }

@@ -13,6 +13,16 @@ import ServiceItemTableHasImg from '../components/ServiceItemTableHasImg';
 import DataPoint from '../components/DataPoint';
 import DataPair from '../components/DataPair';
 
+const dataPointBody = (
+  <>
+    Dorothy Lagomarsino
+    <br />
+    +1 999-999-9999
+    <br />
+    dorothyl@email.com
+  </>
+);
+
 // Tables
 
 storiesOf('Components|Tables', module)
@@ -253,7 +263,7 @@ storiesOf('Components|Tables', module)
       <div className="display-flex">
         <div>
           <h3>Data point</h3>
-          <DataPoint />
+          <DataPoint header="Receiving agent" body={dataPointBody} />
         </div>
         <div style={{ width: '40px' }} />
         <div>
