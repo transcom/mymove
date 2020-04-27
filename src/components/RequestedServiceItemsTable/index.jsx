@@ -15,7 +15,24 @@ const RequestedServiceItemsTable = () => (
         serviceItem: 'Dom. Origin 1st Day SIT',
         code: 'DOMSIT',
         details: {
-          text: "60612 and here's the reason",
+          text: {
+            ZIP: '60612',
+            Reason: "here's the reason",
+          },
+          imgURL: null,
+        },
+      },
+      {
+        id: 'abc-1234',
+        dateRequested: '22 Nov 2020',
+        serviceItem: 'Dom. Destination 1st Day SIT',
+        code: 'DDFSIT',
+        details: {
+          text: {
+            'First available delivery date': '22 Nov 2020',
+            'First customer contact': '22 Nov 2020 12:00pm',
+            'Second customer contact': '22 Nov 2020 12:00pm',
+          },
           imgURL: null,
         },
       },

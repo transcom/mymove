@@ -23,9 +23,23 @@ const ServiceItemTableHasImg = ({ serviceItems }) => {
           <small id="si-thumbnail--caption">{details.text}</small>
         </div>
       );
+    } else if (typeof details === 'object') {
+      const deets = [];
+
+      for (const detail in details.text) {
+        deets.push(
+          <p className="si-details">
+            {detail}: {details.text[detail]}
+          </p>,
+        );
+      }
+
+      detailSection = <div className="si-details">{deets}</div>;
     } else {
       detailSection = <p className="si-details">{details.text}</p>;
     }
+
+    console.log('SECTION: ', detailSection);
 
     return (
       <tr key={id} style={{ height: '80px' }}>
