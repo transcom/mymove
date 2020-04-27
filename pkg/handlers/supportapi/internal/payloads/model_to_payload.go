@@ -209,7 +209,11 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.MTOS
 		ID:              handlers.FmtUUID(mtoServiceItem.ID),
 		MoveTaskOrderID: handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID),
 		MtoShipmentID:   handlers.FmtUUID(*mtoServiceItem.MTOShipmentID),
-		Reason:          *mtoServiceItem.Reason,
+		Status:          string(mtoServiceItem.Status),
+	}
+
+	if mtoServiceItem.Reason != nil {
+		payload.Reason = *mtoServiceItem.Reason
 	}
 
 	return payload

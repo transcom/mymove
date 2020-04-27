@@ -44,7 +44,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 		mtoServiceItem.Reason = &reason
 	}
 
-	verrs, err := p.builder.UpdateOne(mtoServiceItem, &eTag)
+	verrs, err := p.builder.UpdateOne(&mtoServiceItem, &eTag)
 
 	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(mtoServiceItemID, err, verrs, "")
