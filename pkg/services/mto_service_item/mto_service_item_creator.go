@@ -67,7 +67,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 	// set re service for service item
 	serviceItem.ReServiceID = reService.ID
-
+	serviceItem.Status = models.MTOServiceItemStatusSubmitted
 	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
 		if mtoShipment.PrimeEstimatedWeight == nil {
 			return nil, nil, services.NewInvalidInputError(mtoShipmentID, nil, nil,
