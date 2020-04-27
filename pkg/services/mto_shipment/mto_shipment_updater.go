@@ -467,7 +467,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	err := o.builder.FetchOne(&shipment, queryFilters)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(shipment.ID, "")
+		return nil, services.NewNotFoundError(shipmentID, "")
 	}
 
 	if shipment.Status != models.MTOShipmentStatusSubmitted {

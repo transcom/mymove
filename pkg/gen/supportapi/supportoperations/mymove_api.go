@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
 )
 
@@ -42,6 +43,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		JSONProducer:        runtime.JSONProducer(),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrder has not yet been implemented")
+		}),
+		MtoShipmentPatchMTOShipmentStatusHandler: mto_shipment.PatchMTOShipmentStatusHandlerFunc(func(params mto_shipment.PatchMTOShipmentStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentPatchMTOShipmentStatus has not yet been implemented")
 		}),
 		MoveTaskOrderUpdateMoveTaskOrderStatusHandler: move_task_order.UpdateMoveTaskOrderStatusHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderStatus has not yet been implemented")
@@ -82,6 +86,8 @@ type MymoveAPI struct {
 
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
+	// MtoShipmentPatchMTOShipmentStatusHandler sets the operation handler for the patch m t o shipment status operation
+	MtoShipmentPatchMTOShipmentStatusHandler mto_shipment.PatchMTOShipmentStatusHandler
 	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
 	MoveTaskOrderUpdateMoveTaskOrderStatusHandler move_task_order.UpdateMoveTaskOrderStatusHandler
 	// PaymentRequestsUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
@@ -151,6 +157,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
+	}
+
+	if o.MtoShipmentPatchMTOShipmentStatusHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.PatchMTOShipmentStatusHandler")
 	}
 
 	if o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {
@@ -263,6 +273,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}"] = move_task_order.NewGetMoveTaskOrder(o.context, o.MoveTaskOrderGetMoveTaskOrderHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/mto-shipments/{mtoShipmentID}/status"] = mto_shipment.NewPatchMTOShipmentStatus(o.context, o.MtoShipmentPatchMTOShipmentStatusHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
