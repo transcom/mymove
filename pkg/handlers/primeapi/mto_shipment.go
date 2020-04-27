@@ -2,7 +2,6 @@ package primeapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -31,37 +30,32 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	payload := params.Body
+	if payload == nil {
+		logger.Error("Invalid mto shipment: params Body is nil")
+		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
+	}
 	moveTaskOrderID := params.MoveTaskOrderID
 	eTag := params.IfMatch
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload, moveTaskOrderID)
 
-	//create a fn that loops and uses the payload to create mtoservice items
 	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
 	if verrs != nil && verrs.HasAny() {
 		logger.Error("Error validating mto service item: ", zap.Error(verrs))
 
 		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity()
 	}
-
-	if payload == nil {
-		logger.Error("Invalid mto shipment: params Body is nil")
-		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
-	}
-
 	mtoShipment.MTOServiceItems = mtoServiceItemsList
+
 
 	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, eTag)
 
 	// return any errors
 	if err != nil {
 		logger.Error("Error creating mto service item: ", zap.Error(err))
-		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
+		return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
 	}
 
-	if err != nil {
-		return nil
-	}
 	returnPayload := payloads.MTOShipmentFromCreate(mtoShipment)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
 }
