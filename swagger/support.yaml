@@ -1047,7 +1047,7 @@ definitions:
     required:
       - status
     type: object
-  UpdatePaymentRequestStatusPayload:
+  UpdatePaymentRequestStatus:
     properties:
       rejectionReason:
         example: documentation was incomplete

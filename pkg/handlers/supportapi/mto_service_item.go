@@ -2,7 +2,6 @@ package supportapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -21,21 +20,6 @@ import (
 type UpdateMTOServiceItemStatusHandler struct {
 	handlers.HandlerContext
 	services.MTOServiceItemUpdater
-}
-
-func payloadForClientError(title string, detail string, instance uuid.UUID) *supportmessages.ClientError {
-	return &supportmessages.ClientError{
-		Title:    handlers.FmtString(title),
-		Detail:   handlers.FmtString(detail),
-		Instance: handlers.FmtUUID(instance),
-	}
-}
-
-func payloadForValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *supportmessages.ValidationError {
-	return &supportmessages.ValidationError{
-		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
-		ClientError:   *payloadForClientError(title, detail, instance),
-	}
 }
 
 // Handle updates mto server item statuses
