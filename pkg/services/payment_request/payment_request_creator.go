@@ -256,7 +256,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		err := tx.Find(&serviceItemParamKey, paymentServiceItemParam.ServiceItemParamKeyID)
 		if err != nil {
 			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-				msg := fmt.Sprintf("Service Item Param Key")
+				msg := fmt.Sprintf("Service Item Param Key ID")
 				return nil, nil, nil, services.NewNotFoundError(paymentServiceItemParam.ServiceItemParamKeyID, msg)
 			}
 			return nil, nil, nil, fmt.Errorf("could not fetch ServiceItemParamKey with ID [%s]: %w", paymentServiceItemParam.ServiceItemParamKeyID, err)
