@@ -2,11 +2,7 @@ package primeapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/validate"
-	"github.com/pkg/errors"
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -39,7 +35,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	eTag := params.IfMatch
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload, moveTaskOrderID)
-	var mtoServiceItemsList models.MTOServiceItems
 
 	//create a fn that loops and uses the payload to create mtoservice items
 	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
@@ -54,7 +49,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
 	}
 
-	mtoShipment.MTOServiceItems = &mtoServiceItemsList
+	mtoShipment.MTOServiceItems = mtoServiceItemsList
 
 	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, eTag)
 
