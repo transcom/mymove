@@ -23,6 +23,7 @@ repos:
             pkg/server/testdata/officelocal.key$|
             pkg/auth/authentication/auth_test.go$|
             pkg/cli/auth.go$|
+            .envrc.local.template|
           )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*

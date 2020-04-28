@@ -80,7 +80,7 @@ InlineForm.propTypes = {
 storiesOf('Samples|Form', module)
   .add('personal info', () => (
     <div id="samples-orders-container" style={{ padding: '20px' }}>
-      <div className="container container--accent--blue">
+      <div className="container container--accent--hhg">
         <Formik
           initialValues={{ firstName: '', lastName: '', email: '' }}
           validationSchema={Yup.object({

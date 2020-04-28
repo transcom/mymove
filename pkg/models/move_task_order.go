@@ -25,6 +25,7 @@ type MoveTaskOrder struct {
 	IsCanceled         bool            `db:"is_canceled"`
 	PPMEstimatedWeight *unit.Pound     `db:"ppm_estimated_weight"`
 	PPMType            *string         `db:"ppm_type"`
+	ContractorID       uuid.UUID       `db:"contractor_id"`
 	CreatedAt          time.Time       `db:"created_at"`
 	UpdatedAt          time.Time       `db:"updated_at"`
 }
@@ -37,6 +38,7 @@ func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs,
 		&validators.UUIDIsPresent{Field: m.MoveOrderID, Name: "MoveOrderID"},
-		&validators.StringIsPresent{Field: m.ReferenceID, Name: "ReferenceID"})
+		&validators.StringIsPresent{Field: m.ReferenceID, Name: "ReferenceID"},
+		&validators.UUIDIsPresent{Field: m.ContractorID, Name: "ContractorID"})
 	return validate.Validate(vs...), nil
 }

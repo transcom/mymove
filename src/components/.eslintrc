@@ -11,4 +11,12 @@
     "react/require-default-props": ["error", { ignoreFunctionalComponents: true }],
     "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
   }
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "paths": ["src"],
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
+  }
 }
