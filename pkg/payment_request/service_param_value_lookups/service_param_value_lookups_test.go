@@ -1,4 +1,4 @@
-package dbtools
+package serviceparamvaluelookups
 
 import (
 	"testing"
@@ -9,17 +9,13 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type DBToolsServiceSuite struct {
+type ServiceParamValueLookupsSuite struct {
 	testingsuite.PopTestSuite
 	logger Logger
 }
 
-func (suite *DBToolsServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
-func TestDBToolsServiceSuite(t *testing.T) {
-	ts := &DBToolsServiceSuite{
+func TestServiceParamValueLookupsSuite(t *testing.T) {
+	ts := &ServiceParamValueLookupsSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
