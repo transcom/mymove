@@ -10,7 +10,7 @@ class MoveDetails extends Component {
   render() {
     return (
       <div className="maxw-desktop-lg" data-cy="too-move-details">
-        <h1>Move Details</h1>
+        <h1>Move details</h1>
       </div>
     );
   }
