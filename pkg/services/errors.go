@@ -129,3 +129,21 @@ func (e InvalidCreateInputError) Error() string {
 	}
 	return fmt.Sprintf("invalid input for id: %s", e.ValidationErrors)
 }
+
+//ConflictError is returned when a given struct is not found
+type ConflictError struct {
+	id      uuid.UUID
+	message string
+}
+
+func (e ConflictError) Error() string {
+	return fmt.Sprintf("id: %s not found %s", e.id.String(), e.message)
+}
+
+// NewConflictError returns an error for when a struct can not be found
+func NewConflictError(id uuid.UUID, message string) ConflictError {
+	return ConflictError{
+		id:      id,
+		message: message,
+	}
+}

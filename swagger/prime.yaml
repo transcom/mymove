@@ -71,6 +71,8 @@ paths:
           schema:
             type: object
             properties:
+              moveTaskOrderID:
+                type: string
               ppmType:
                 type: string
                 enum:
@@ -951,6 +953,10 @@ definitions:
         type: string
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
+      rejectionReason:
+        example: item was too heavy
+        type: string
+        x-nullable: true
       modelType: # Base type and sub-types of MTOServiceItem
         $ref: '#/definitions/MTOServiceItemModelType'
       eTag:

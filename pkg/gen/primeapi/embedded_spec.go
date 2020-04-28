@@ -338,6 +338,9 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
+                "moveTaskOrderID": {
+                  "type": "string"
+                },
                 "pointOfContact": {
                   "description": "Email or id of a contact person for this update",
                   "type": "string"
@@ -1019,6 +1022,11 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "item was too heavy"
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
@@ -2119,6 +2127,9 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
+                "moveTaskOrderID": {
+                  "type": "string"
+                },
                 "pointOfContact": {
                   "description": "Email or id of a contact person for this update",
                   "type": "string"
@@ -2845,6 +2856,11 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "item was too heavy"
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
