@@ -36,7 +36,7 @@ class MoveTaskOrder extends Component {
     const { mtoShipments } = this.props;
 
     return (
-      <div className="grid-container">
+      <div className="maxw-desktop-lg margin-x-auto">
         {/* eslint-disable-next-line react/prop-types */}
         {mtoShipments.map((mtoShipment) => {
           return (
