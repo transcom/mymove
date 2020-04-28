@@ -4,12 +4,16 @@ import { Button } from '@trussworks/react-uswds';
 import { ReactComponent as Check } from '../../shared/icon/check.svg';
 import { ReactComponent as Ex } from '../../shared/icon/ex.svg';
 
-function generateDetailText(detailObject) {
-  return Object.keys(detailObject.text).map((detail) => {
+function generateDetailText(details, id) {
+  if (typeof details.text === 'string') {
+    return details.text;
+  }
+
+  return Object.keys(details.text).map((detail) => {
     /* eslint-disable */
     return (
-      <p className="font-sans-3xs">
-        {detail}: {detailObject.text[detail]}
+      <p key={id} className="font-sans-3xs">
+        {detail}: {details.text[detail]}
       </p>
     );
     /* eslint-enable */
@@ -19,7 +23,7 @@ function generateDetailText(detailObject) {
 const ServiceItemTableHasImg = ({ serviceItems }) => {
   const tableRows = serviceItems.map(({ id, dateRequested, serviceItem, details }) => {
     let detailSection;
-    if (details.imgURL && typeof details.text === 'object') {
+    if (details.imgURL) {
       detailSection = (
         <div className="display-flex" style={{ alignItems: 'center' }}>
           <div
@@ -31,28 +35,11 @@ const ServiceItemTableHasImg = ({ serviceItems }) => {
             }}
             aria-labelledby="si-thumbnail--caption"
           />
-          <small id="si-thumbnail--caption">{generateDetailText(details)}</small>
+          <small id="si-thumbnail--caption">{generateDetailText(details, id)}</small>
         </div>
       );
-    } else if (details.imgURL) {
-      detailSection = (
-        <div className="display-flex" style={{ alignItems: 'center' }}>
-          <div
-            className="si-thumbnail"
-            style={{
-              width: '100px',
-              height: '100px',
-              backgroundImage: `url(${details.imgURL})`,
-            }}
-            aria-labelledby="si-thumbnail--caption"
-          />
-          <small id="si-thumbnail--caption">{details.text}</small>
-        </div>
-      );
-    } else if (typeof details.text === 'object') {
-      detailSection = <div className="si-details">{generateDetailText(details)}</div>;
     } else {
-      detailSection = <p className="si-details">{details.text}</p>;
+      detailSection = <p className="si-details">{generateDetailText(details, id)}</p>;
     }
 
     return (

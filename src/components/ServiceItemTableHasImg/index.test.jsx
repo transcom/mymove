@@ -41,4 +41,26 @@ describe('ServiceItemTableHasImg', () => {
     expect(wrapper.find('.si-thumbnail').exists()).toBe(false);
     expect(wrapper.find('.si-details').text()).toBe(serviceItems[0].details.text);
   });
+
+  it('should render properly when the detail text is an object', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        dateRequested: '20 Nov 2020',
+        serviceItem: 'Domestic Crating',
+        code: 'DCRT',
+        details: {
+          text: {
+            ZIP: '11111',
+            Reason: 'This is the reason',
+          },
+        },
+      },
+    ];
+
+    const wrapper = shallow(<ServiceItemTableHasImg serviceItems={serviceItems} />);
+
+    expect(wrapper.find('.si-details').contains('This is the reason')).toBe(true);
+    expect(wrapper.find('.si-details').contains('11111')).toBe(true);
+  });
 });
