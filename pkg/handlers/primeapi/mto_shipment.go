@@ -26,10 +26,10 @@ func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MT
 	payload.ID = mtoShipmentID // set the ID from the path into the body for use w/ the model
 	fieldsInError := validate.NewErrors()
 
-	if payload.ID != "00000000-0000-0000-0000-000000000000" && payload.ID != mtoShipmentID {
+	if payload.ID != "" && payload.ID != mtoShipmentID {
 		fieldsInError.Add("id", "value does not agree with mtoShipmentID in path - omit from body or correct")
 	}
-	if payload.MoveTaskOrderID != "00000000-0000-0000-0000-000000000000" {
+	if payload.MoveTaskOrderID != "" {
 		fieldsInError.Add("moveTaskOrderID", "cannot be updated")
 	}
 	createdAt := time.Time(payload.CreatedAt)
@@ -64,7 +64,7 @@ func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MT
 		var updatedAtErr = false
 
 		for _, agent := range payload.Agents {
-			if agent.MtoShipmentID != "00000000-0000-0000-0000-000000000000" && agent.MtoShipmentID != payload.ID && !mtoShipmentIDErr {
+			if agent.MtoShipmentID != "" && agent.MtoShipmentID != payload.ID && !mtoShipmentIDErr {
 				fieldsInError.Add("mtoShipmentID", "cannot be updated for agents")
 				mtoShipmentIDErr = true
 			}
