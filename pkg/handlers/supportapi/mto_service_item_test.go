@@ -112,7 +112,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerUpdateFailed() {
 	mtoServiceItemPayload := mtoServiceItemResponse.Payload
 
 	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusConflict{}, mtoServiceItemResponse)
-	suite.Equal(mtoServiceItemPayload, &supportmessages.Error{Message: handlers.FmtString("Can only update status from SUBMITTED to APPROVED or REJECTED and must have a rejection reason")})
+	suite.Assertions.IsType(mtoServiceItemPayload, &supportmessages.ClientError{})
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedNoReason() {
@@ -140,5 +140,5 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedN
 	mtoServiceItemPayload := mtoServiceItemResponse.Payload
 
 	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusConflict{}, mtoServiceItemResponse)
-	suite.Equal(mtoServiceItemPayload, &supportmessages.Error{Message: handlers.FmtString("Can only update status from SUBMITTED to APPROVED or REJECTED and must have a rejection reason")})
+	suite.Assertions.IsType(mtoServiceItemPayload, &supportmessages.ClientError{})
 }

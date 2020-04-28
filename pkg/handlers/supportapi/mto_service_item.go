@@ -45,7 +45,12 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 		case services.PreconditionFailedError:
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.ConflictError:
-			return mtoserviceitemops.NewUpdateMTOServiceItemStatusConflict().WithPayload(&supportmessages.Error{Message: handlers.FmtString("Can only update status from SUBMITTED to APPROVED or REJECTED and must have a rejection reason")})
+			payload := &supportmessages.ClientError{
+				Title:    handlers.FmtString("This MTO service item is not in a state for the status to be changed"),
+				Detail:   handlers.FmtString("Make sure the MTO service item's status has not already been changed or it has a rejectionReason if you are trying to reject it"),
+				Instance: handlers.FmtUUID(h.GetTraceID()),
+			}
+			return mtoserviceitemops.NewUpdateMTOServiceItemStatusConflict().WithPayload(payload)
 		default:
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusInternalServerError()
 		}
