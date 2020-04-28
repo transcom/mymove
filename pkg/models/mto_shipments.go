@@ -81,7 +81,7 @@ type MTOShipment struct {
 	UpdatedAt                        time.Time         `db:"updated_at"`
 
 	//	Associations
-	MTOServiceItems					*MTOServiceItems   `db:"mto_service_items"`
+	MTOServiceItems					*MTOServiceItems   `has_many:"mto_service_items"`
 }
 
 // MTOShipments is a list of mto shipments

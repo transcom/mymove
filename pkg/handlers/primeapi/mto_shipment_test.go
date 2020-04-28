@@ -38,20 +38,41 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		MoveTaskOrder: mto,
 	})
 
-	testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-		MTOAgent: models.MTOAgent{
-			MTOShipment:   mtoShipment,
-			MTOShipmentID: mtoShipment.ID,
-			FirstName:     swag.String("Test"),
-			LastName:      swag.String("Agent"),
-			Email:         swag.String("test@test.email.com"),
-			MTOAgentType:  models.MTOAgentReceiving,
-		},
+	builder := query.NewQueryBuilder(suite.DB())
+	payload := primemessages.CreateShipmentPayload{
+		CreatedAt:           strfmt.DateTime{},
+		CustomerRemarks:     nil,
+		DestinationAddress:  nil,
+		ID:                  strfmt.UUID(mtoShipment.ID.String()),
+		PickupAddress:       nil,
+		PointOfContact:      "",
+		RequestedPickupDate: strfmt.Date{},
+		ShipmentType:        "",
+	}
+	fetcher := fetch.NewFetcher(builder)
+	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
+
+	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+	params := mtoshipmentops.CreateMTOShipmentParams{
+		HTTPRequest:     req,
+		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+		Body:            &payload,
+		IfMatch:         eTag,
+	}
+
+	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher )
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
+		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
 	})
-
-	params := mtoshipmentops.CreateMTOShipmentParams{}
-
-	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {})
 }
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
