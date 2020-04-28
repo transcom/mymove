@@ -77,34 +77,25 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		logger.Error("Error creating payment request", zap.Error(err))
 		if typedErr, ok := err.(services.InvalidCreateInputError); ok {
 			verrs := typedErr.ValidationErrors
-			payload := &primemessages.ValidationError{
-				InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
-			}
+			title := handlers.ValidationErrMessage
+			detail := err.Error()
+			payload := payloads.ValidationError(title, detail, h.GetTraceID(), verrs)
 
-			payload.Title = handlers.FmtString(handlers.ValidationErrMessage)
-			payload.Detail = handlers.FmtString(err.Error())
-			payload.Instance = handlers.FmtUUID(h.GetTraceID())
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
 		}
 
 		if _, ok := err.(services.NotFoundError); ok {
-			payload := &primemessages.ClientError{
-				Title:    handlers.FmtString(handlers.NotFoundMessage),
-				Detail:   handlers.FmtString(err.Error()),
-				Instance: handlers.FmtUUID(h.GetTraceID()),
-			}
+			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID())
+
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestNotFound().WithPayload(payload)
 		}
 		if _, ok := err.(*services.BadDataError); ok {
-			payload := &primemessages.ClientError{
-				Title:    handlers.FmtString(handlers.SQLErrMessage),
-				Detail:   handlers.FmtString(err.Error()),
-				Instance: handlers.FmtUUID(h.GetTraceID()),
-			}
+			payload := payloads.ClientError(handlers.SQLErrMessage, err.Error(), h.GetTraceID())
+
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(payload)
