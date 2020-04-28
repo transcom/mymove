@@ -218,45 +218,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 	})
 
-	// for testing the validation, although it doesn't currently reach validation due to prior checks that lead to NotFoundError
-	//suite.T().Run("Payment request throws validation error given no mto ID", func(t *testing.T) {
-	//	paymentRequest := models.PaymentRequest{
-	//		IsFinal:         false,
-	//		PaymentServiceItems: models.PaymentServiceItems{
-	//			{
-	//				MTOServiceItemID: mtoServiceItem1.ID,
-	//				MTOServiceItem:   mtoServiceItem1,
-	//				PaymentServiceItemParams: models.PaymentServiceItemParams{
-	//					{
-	//						ServiceItemParamKeyID: serviceItemParamKey1.ID,
-	//						Value:                 "3254",
-	//					},
-	//					{
-	//						ServiceItemParamKeyID: serviceItemParamKey2.ID,
-	//						Value:                 "2019-12-16",
-	//					},
-	//				},
-	//			},
-	//			{
-	//				MTOServiceItemID: mtoServiceItem2.ID,
-	//				MTOServiceItem:   mtoServiceItem2,
-	//				PaymentServiceItemParams: models.PaymentServiceItemParams{
-	//					{
-	//						ServiceItemParamKeyID: serviceItemParamKey1.ID,
-	//						Value:                 "7722",
-	//					},
-	//				},
-	//			},
-	//		},
-	//	}
-	//
-	//	_, err := creator.CreatePaymentRequest(&paymentRequest)
-	//
-	//	suite.Error(err)
-	//	_, ok := err.(services.InvalidCreateInputError)
-	//	suite.Equal(true, ok)
-	//})
-
 	suite.T().Run("Given a non-existent move task order id, the create should fail", func(t *testing.T) {
 		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
