@@ -30,11 +30,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	payload := params.Body
 	logger.Info("primeapi.CreatePaymentRequestHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 	if payload == nil {
-		errPayload := &primemessages.ClientError{
-			Title:    handlers.FmtString(handlers.SQLErrMessage),
-			Detail:   handlers.FmtString("Invalid payment request: params Body is nil"),
-			Instance: handlers.FmtUUID(h.GetTraceID()),
-		}
+		errPayload := payloads.ClientError(handlers.SQLErrMessage, "Invalid payment request: params Body is nil", h.GetTraceID())
 		logger.Error("Invalid payment request: params Body is nil", zap.Any("payload", errPayload))
 		return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(errPayload)
 	}
@@ -44,11 +40,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	if err != nil {
 		logger.Error("Invalid payment request: params MoveTaskOrderID cannot be converted to a UUID",
 			zap.String("MoveTaskOrderID", moveTaskOrderIDString), zap.Error(err))
-		errPayload := &primemessages.ClientError{
-			Title:    handlers.FmtString(handlers.SQLErrMessage),
-			Detail:   handlers.FmtString(err.Error()),
-			Instance: handlers.FmtUUID(h.GetTraceID()),
-		}
+		errPayload := payloads.ClientError(handlers.SQLErrMessage, "Invalid payment request: params Body is nil", h.GetTraceID())
 		return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(errPayload)
 	}
 
