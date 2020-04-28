@@ -9,5 +9,13 @@
     "react/jsx-no-target-blank": "off",
     "react/jsx-curly-brace-presence": "error",
     "react/require-default-props": ["error", { ignoreFunctionalComponents: true }]
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "paths": ["src"],
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
   }
 }

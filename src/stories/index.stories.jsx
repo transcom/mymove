@@ -130,6 +130,8 @@ storiesOf('Global|Colors', module).add('all', () => (
     <ColorGroup group={filterGroup('base')} />
     <h3>Alert Colors</h3>
     <ColorGroup group={filterGroup('alert')} />
+    <h3>Primary Colors</h3>
+    <ColorGroup group={filterGroup('primary')} />
     <h3>Accent Colors</h3>
     <ColorGroup group={filterGroup('accent')} />
   </div>
@@ -282,56 +284,6 @@ storiesOf('Global|Typography', module)
       </small>
     </div>
   ));
-
-// Containers
-
-storiesOf('Components|Containers', module).add('all', () => (
-  <div id="containers" style={{ padding: '20px' }}>
-    <div className="container">
-      <code>
-        <b>Container Default</b>
-        <br />
-        .container
-      </code>
-    </div>
-    <div className="container container--gray">
-      <code>
-        <b>Container Gray</b>
-        <br />
-        .container
-        <br />
-        .container--gray
-      </code>
-    </div>
-    <div className="container container--popout">
-      <code>
-        <b>Container Popout</b>
-        <br />
-        .container
-        <br />
-        .container--popout
-      </code>
-    </div>
-    <div className="container container--accent--blue">
-      <code>
-        <b>Container Accent Blue</b>
-        <br />
-        .container
-        <br />
-        .container--accent--blue
-      </code>
-    </div>
-    <div className="container container--accent--yellow">
-      <code>
-        <b>Container Accent Yellow</b>
-        <br />
-        .container
-        <br />
-        .container--accent--yellow
-      </code>
-    </div>
-  </div>
-));
 
 storiesOf('Components|Headers', module).add('all', () => (
   <div>

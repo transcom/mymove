@@ -4,6 +4,10 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/transcom/mymove/pkg/services/fetch"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+
 	"github.com/go-openapi/loads"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -38,6 +42,13 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
 	}
 	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
+
+	supportAPI.MtoShipmentPatchMTOShipmentStatusHandler = PatchMTOShipmentStatusHandlerFunc{
+		context,
+		fetch.NewFetcher(queryBuilder),
+		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), queryBuilder,
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder), context.Planner()),
+	}
 
 	return supportAPI.Serve(nil)
 }
