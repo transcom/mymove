@@ -1,21 +1,19 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"time"
 
+	openapi "github.com/go-openapi/runtime"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/gen/primeclient/payment_requests"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // initCreatePaymentRequestFlags initializes flags.
@@ -58,6 +56,15 @@ func createPaymentRequest(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
+	// Decode json from file that was passed in
+	filename := v.GetString(FilenameFlag)
+	var paymentRequestParams payment_requests.CreatePaymentRequestParams
+	err = decodeJSONFileToPayload(filename, containsDash(args), &paymentRequestParams)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	paymentRequestParams.SetTimeout(time.Second * 30)
+
 	// cac and api gateway
 	primeGateway, cacStore, errCreateClient := CreatePrimeClient(v)
 	if errCreateClient != nil {
@@ -69,40 +76,21 @@ func createPaymentRequest(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	// Decode json from file that was passed into create-payment-request
-	filename := v.GetString(FilenameFlag)
-	var reader *bufio.Reader
-	if filename != "" {
-		file, fileErr := os.Open(filepath.Clean(filename))
-		if fileErr != nil {
-			logger.Fatal(fileErr)
-		}
-		reader = bufio.NewReader(file)
-	}
-
-	if len(args) > 0 && containsDash(args) {
-		reader = bufio.NewReader(os.Stdin)
-	}
-
-	jsonDecoder := json.NewDecoder(reader)
-	var paymentRequest primemessages.CreatePaymentRequestPayload
-	err = jsonDecoder.Decode(&paymentRequest)
-	if err != nil {
-		return fmt.Errorf("decoding data failed: %w", err)
-	}
-
-	params := payment_requests.CreatePaymentRequestParams{
-		Body: &paymentRequest,
-	}
-	params.SetTimeout(time.Second * 30)
-
-	resp, errCreatePaymentRequest := primeGateway.PaymentRequests.CreatePaymentRequest(&params)
+	resp, errCreatePaymentRequest := primeGateway.PaymentRequests.CreatePaymentRequest(&paymentRequestParams)
 	if errCreatePaymentRequest != nil {
-		// If the response cannot be parsed as JSON you may see an error like
-		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
-		// Likely this is because the API doesn't return JSON response for BadRequest OR
-		// The response type is not being set to text
-		logger.Fatal(errCreatePaymentRequest.Error())
+		// If you see an error like "unknown error (status 422)", it means
+		// we hit a completely unhandled error that we should handle.
+		// We should be enabling said error in the endpoint in swagger.
+		// 422 for example is an Unprocessable Entity and is returned by the swagger
+		// validation before it even hits the handler.
+		if _, ok := err.(*openapi.APIError); ok {
+			apiErr := err.(*openapi.APIError).Response.(openapi.ClientResponse)
+			logger.Fatal(fmt.Sprintf("%s: %s", err, apiErr.Message()))
+		}
+		// If it is a handled error, we should be able to pull out the payload here
+		data, _ := json.Marshal(err)
+		fmt.Printf("%s", data)
+		return nil
 	}
 
 	payload := resp.GetPayload()

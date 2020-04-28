@@ -1,27 +1,23 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"time"
 
+	openapi "github.com/go-openapi/runtime"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	mtoShipment "github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 func initUpdateMTOShipmentFlags(flag *pflag.FlagSet) {
 	flag.String(FilenameFlag, "", "Name of the file being passed in")
-	flag.String(ETagFlag, "", "ETag for the mto shipment being updated")
-
 	flag.SortFlags = false
 }
 
@@ -29,10 +25,6 @@ func checkUpdateMTOShipmentConfig(v *viper.Viper, args []string, logger *log.Log
 	err := CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
-	}
-
-	if v.GetString(ETagFlag) == "" {
-		logger.Fatal(errors.New("update-mto-shipment expects an etag"))
 	}
 
 	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
@@ -45,8 +37,7 @@ func checkUpdateMTOShipmentConfig(v *viper.Viper, args []string, logger *log.Log
 func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
-	//  Create the logger
-	//  Remove the prefix and any datetime data
+	// Create the logger - remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
 	errParseFlags := ParseFlags(cmd, v, args)
@@ -60,6 +51,16 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
+	// Decode json from file that was passed into MTOShipment
+	filename := v.GetString(FilenameFlag)
+	var shipmentPayload mtoShipment.UpdateMTOShipmentParams
+	err = decodeJSONFileToPayload(filename, containsDash(args), &shipmentPayload)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	shipmentPayload.SetTimeout(time.Second * 30)
+
+	// Create the client and open the cacStore
 	primeGateway, cacStore, errCreateClient := CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
@@ -70,43 +71,22 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	// Decode json from file that was passed into MTOShipment
-	filename := v.GetString(FilenameFlag)
-	var reader *bufio.Reader
-	if filename != "" {
-		file, fileErr := os.Open(filepath.Clean(filename))
-		if fileErr != nil {
-			logger.Fatal(fileErr)
-		}
-		reader = bufio.NewReader(file)
-	}
-
-	if len(args) > 0 && containsDash(args) {
-		reader = bufio.NewReader(os.Stdin)
-	}
-
-	jsonDecoder := json.NewDecoder(reader)
-	var shipment primemessages.MTOShipment
-	err = jsonDecoder.Decode(&shipment)
+	// Make the API Call
+	resp, err := primeGateway.MtoShipment.UpdateMTOShipment(&shipmentPayload)
 	if err != nil {
-		return fmt.Errorf("decoding data failed: %w", err)
-	}
-
-	params := mtoShipment.UpdateMTOShipmentParams{
-		MoveTaskOrderID: shipment.MoveTaskOrderID,
-		MtoShipmentID:   shipment.ID,
-		Body:            &shipment,
-		IfMatch:         v.GetString(ETagFlag),
-	}
-	params.SetTimeout(time.Second * 30)
-
-	resp, errUpdateMTOShipment := primeGateway.MtoShipment.UpdateMTOShipment(&params)
-	if errUpdateMTOShipment != nil {
-		// If the response cannot be parsed as JSON you may see an error like
-		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
-		// Likely this is because the API doesn't return JSON response for BadRequest OR
-		// The response type is not being set to text
-		logger.Fatal(errUpdateMTOShipment.Error())
+		// If you see an error like "unknown error (status 422)", it means
+		// we hit a completely unhandled error that we should handle.
+		// We should be enabling said error in the endpoint in swagger.
+		// 422 for example is an Unprocessable Entity and is returned by the swagger
+		// validation before it even hits the handler.
+		if _, ok := err.(*openapi.APIError); ok {
+			apiErr := err.(*openapi.APIError).Response.(openapi.ClientResponse)
+			logger.Fatal(fmt.Sprintf("%s: %s", err, apiErr.Message()))
+		}
+		// If it is a handled error, we should be able to pull out the payload here
+		data, _ := json.Marshal(err)
+		fmt.Printf("%s", data)
+		return nil
 	}
 
 	payload := resp.GetPayload()

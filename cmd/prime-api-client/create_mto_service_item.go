@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
+	openapi "github.com/go-openapi/runtime"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -150,13 +151,21 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 	}
 	params.SetTimeout(time.Second * 30)
 
-	resp, errCreateMTOServiceItem := primeGateway.MtoServiceItem.CreateMTOServiceItem(&params)
-	if errCreateMTOServiceItem != nil {
-		// If the response cannot be parsed as JSON you may see an error like
-		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
-		// Likely this is because the API doesn't return JSON response for BadRequest OR
-		// The response type is not being set to text
-		logger.Fatal(errCreateMTOServiceItem.Error())
+	resp, err := primeGateway.MtoServiceItem.CreateMTOServiceItem(&params)
+	if err != nil {
+		// If you see an error like "unknown error (status 422)", it means
+		// we hit a completely unhandled error that we should handle.
+		// We should be enabling said error in the endpoint in swagger.
+		// 422 for example is an Unprocessable Entity and is returned by the swagger
+		// validation before it even hits the handler.
+		if _, ok := err.(*openapi.APIError); ok {
+			apiErr := err.(*openapi.APIError).Response.(openapi.ClientResponse)
+			logger.Fatal(fmt.Sprintf("%s: %s", err, apiErr.Message()))
+		}
+		// If it is a handled error, we should be able to pull out the payload here
+		data, _ := json.Marshal(err)
+		fmt.Printf("%s", data)
+		return nil
 	}
 
 	payload := resp.GetPayload()
