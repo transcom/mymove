@@ -28,20 +28,16 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	payload := params.Body
-
+	logger.Info("primeapi.CreatePaymentRequestHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 	if payload == nil {
 		errPayload := &primemessages.ClientError{
 			Title:    handlers.FmtString(handlers.SQLErrMessage),
 			Detail:   handlers.FmtString("Invalid payment request: params Body is nil"),
 			Instance: handlers.FmtUUID(h.GetTraceID()),
 		}
-		logger.Info("Payment Request",
-			zap.Any("payload", errPayload))
-		logger.Error("Invalid payment request: params Body is nil")
+		logger.Error("Invalid payment request: params Body is nil", zap.Any("payload", errPayload))
 		return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(errPayload)
 	}
-
-	logger.Info("primeapi.CreatePaymentRequestHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 
 	moveTaskOrderIDString := payload.MoveTaskOrderID.String()
 	mtoID, err := uuid.FromString(moveTaskOrderIDString)
@@ -53,8 +49,6 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 			Detail:   handlers.FmtString(err.Error()),
 			Instance: handlers.FmtUUID(h.GetTraceID()),
 		}
-		logger.Info("Payment Request",
-			zap.Any("payload", payload))
 		return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(errPayload)
 	}
 
@@ -90,7 +84,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 			payload.Title = handlers.FmtString(handlers.ValidationErrMessage)
 			payload.Detail = handlers.FmtString(err.Error())
 			payload.Instance = handlers.FmtUUID(h.GetTraceID())
-			logger.Info("Payment Request",
+			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
 		}
@@ -101,7 +95,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				Detail:   handlers.FmtString(err.Error()),
 				Instance: handlers.FmtUUID(h.GetTraceID()),
 			}
-			logger.Info("Payment Request",
+			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestNotFound().WithPayload(payload)
 		}
@@ -111,16 +105,17 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				Detail:   handlers.FmtString(err.Error()),
 				Instance: handlers.FmtUUID(h.GetTraceID()),
 			}
-			logger.Info("Payment Request",
+			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(payload)
 		}
-		logger.Info("Payment Request",
+		logger.Error("Payment Request",
 			zap.Any("payload", payload))
 		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
 	}
 
 	returnPayload := payloads.PaymentRequest(createdPaymentRequest)
+	logger.Info("Successful payment request creation for mto ID", zap.String("moveID", moveTaskOrderIDString))
 	return paymentrequestop.NewCreatePaymentRequestCreated().WithPayload(returnPayload)
 }
 
