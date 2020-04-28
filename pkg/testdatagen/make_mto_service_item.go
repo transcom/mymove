@@ -21,6 +21,11 @@ func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOSer
 		reService = MakeReService(db, assertions)
 	}
 
+	status := assertions.MTOServiceItem.Status
+	if status == "" {
+		status = models.MTOServiceItemStatusSubmitted
+	}
+
 	MTOServiceItem := models.MTOServiceItem{
 		MoveTaskOrder:   moveTaskOrder,
 		MoveTaskOrderID: moveTaskOrder.ID,
@@ -28,7 +33,7 @@ func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOSer
 		MTOShipmentID:   &MTOShipment.ID,
 		ReService:       reService,
 		ReServiceID:     reService.ID,
-		Status:          models.MTOServiceItemStatusSubmitted,
+		Status:          status,
 	}
 	// Overwrite values with those from assertions
 	mergeModels(&MTOServiceItem, assertions.MTOServiceItem)

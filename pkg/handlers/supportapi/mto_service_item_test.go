@@ -80,3 +80,65 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 	suite.Equal(mtoServiceItemPayload.Status, supportmessages.MTOServiceItemStatusREJECTED)
 	suite.Equal(*mtoServiceItemPayload.RejectionReason, reason)
 }
+
+func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerUpdateFailed() {
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusApproved,
+		},
+	})
+
+	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
+	reason := "item too heavy"
+	mtoServiceItem.Status = models.MTOServiceItemStatusRejected
+	mtoServiceItem.Reason = &reason
+	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
+		HTTPRequest:      request,
+		MtoServiceItemID: mtoServiceItem.ID.String(),
+		Body:             payloads.MTOServiceItem(&mtoServiceItem),
+		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+
+	// make the request
+	handler := UpdateMTOServiceItemStatusHandler{context,
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+	}
+	response := handler.Handle(params)
+
+	mtoServiceItemResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusConflict)
+	mtoServiceItemPayload := mtoServiceItemResponse.Payload
+
+	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusConflict{}, mtoServiceItemResponse)
+	suite.Equal(mtoServiceItemPayload, &supportmessages.Error{Message: handlers.FmtString("Can only update status from SUBMITTED to APPROVED or REJECTED and must have a rejection reason")})
+}
+
+func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedNoReason() {
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+
+	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
+	mtoServiceItem.Status = models.MTOServiceItemStatusRejected
+	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
+		HTTPRequest:      request,
+		MtoServiceItemID: mtoServiceItem.ID.String(),
+		Body:             payloads.MTOServiceItem(&mtoServiceItem),
+		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+
+	// make the request
+	handler := UpdateMTOServiceItemStatusHandler{context,
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+	}
+	response := handler.Handle(params)
+
+	mtoServiceItemResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusConflict)
+	mtoServiceItemPayload := mtoServiceItemResponse.Payload
+
+	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusConflict{}, mtoServiceItemResponse)
+	suite.Equal(mtoServiceItemPayload, &supportmessages.Error{Message: handlers.FmtString("Can only update status from SUBMITTED to APPROVED or REJECTED and must have a rejection reason")})
+}
