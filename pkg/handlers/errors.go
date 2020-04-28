@@ -22,6 +22,9 @@ import (
 // SQLErrMessage represents string value to represent generic sql error to avoid leaking implementation details
 const SQLErrMessage string = "Unhandled SQL error encountered"
 
+// NotFoundMessage string value to represent sql not found
+const NotFoundMessage string = "Not found error"
+
 // NilErrMessage indicates an uninstantiated error was passed
 const NilErrMessage string = "Nil error passed"
 

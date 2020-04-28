@@ -16,7 +16,7 @@ import (
 // CreatePaymentRequestCreatedCode is the HTTP code returned for type CreatePaymentRequestCreated
 const CreatePaymentRequestCreatedCode int = 201
 
-/*CreatePaymentRequestCreated created instance of payment request
+/*CreatePaymentRequestCreated successfully created instance of payment request
 
 swagger:response createPaymentRequestCreated
 */
@@ -60,7 +60,7 @@ func (o *CreatePaymentRequestCreated) WriteResponse(rw http.ResponseWriter, prod
 // CreatePaymentRequestBadRequestCode is the HTTP code returned for type CreatePaymentRequestBadRequest
 const CreatePaymentRequestBadRequestCode int = 400
 
-/*CreatePaymentRequestBadRequest The request payload is invalid
+/*CreatePaymentRequestBadRequest the payment request payload is invalid
 
 swagger:response createPaymentRequestBadRequest
 */
@@ -102,7 +102,7 @@ func (o *CreatePaymentRequestBadRequest) WriteResponse(rw http.ResponseWriter, p
 // CreatePaymentRequestUnauthorizedCode is the HTTP code returned for type CreatePaymentRequestUnauthorized
 const CreatePaymentRequestUnauthorizedCode int = 401
 
-/*CreatePaymentRequestUnauthorized The request was denied
+/*CreatePaymentRequestUnauthorized must be authenticated to use this endpoint
 
 swagger:response createPaymentRequestUnauthorized
 */
@@ -144,7 +144,7 @@ func (o *CreatePaymentRequestUnauthorized) WriteResponse(rw http.ResponseWriter,
 // CreatePaymentRequestForbiddenCode is the HTTP code returned for type CreatePaymentRequestForbidden
 const CreatePaymentRequestForbiddenCode int = 403
 
-/*CreatePaymentRequestForbidden The request was denied
+/*CreatePaymentRequestForbidden not authorized to create a payment request
 
 swagger:response createPaymentRequestForbidden
 */
@@ -222,6 +222,50 @@ func (o *CreatePaymentRequestNotFound) WriteResponse(rw http.ResponseWriter, pro
 	payload := o.Payload
 	if err := producer.Produce(rw, payload); err != nil {
 		panic(err) // let the recovery middleware deal with this
+	}
+}
+
+// CreatePaymentRequestUnprocessableEntityCode is the HTTP code returned for type CreatePaymentRequestUnprocessableEntity
+const CreatePaymentRequestUnprocessableEntityCode int = 422
+
+/*CreatePaymentRequestUnprocessableEntity validation error
+
+swagger:response createPaymentRequestUnprocessableEntity
+*/
+type CreatePaymentRequestUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewCreatePaymentRequestUnprocessableEntity creates CreatePaymentRequestUnprocessableEntity with default headers values
+func NewCreatePaymentRequestUnprocessableEntity() *CreatePaymentRequestUnprocessableEntity {
+
+	return &CreatePaymentRequestUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the create payment request unprocessable entity response
+func (o *CreatePaymentRequestUnprocessableEntity) WithPayload(payload *primemessages.ValidationError) *CreatePaymentRequestUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create payment request unprocessable entity response
+func (o *CreatePaymentRequestUnprocessableEntity) SetPayload(payload *primemessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreatePaymentRequestUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 

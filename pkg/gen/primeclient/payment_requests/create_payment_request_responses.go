@@ -54,6 +54,12 @@ func (o *CreatePaymentRequestReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return nil, result
+	case 422:
+		result := NewCreatePaymentRequestUnprocessableEntity()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewCreatePaymentRequestInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -73,7 +79,7 @@ func NewCreatePaymentRequestCreated() *CreatePaymentRequestCreated {
 
 /*CreatePaymentRequestCreated handles this case with default header values.
 
-created instance of payment request
+successfully created instance of payment request
 */
 type CreatePaymentRequestCreated struct {
 	Payload *primemessages.PaymentRequest
@@ -106,7 +112,7 @@ func NewCreatePaymentRequestBadRequest() *CreatePaymentRequestBadRequest {
 
 /*CreatePaymentRequestBadRequest handles this case with default header values.
 
-The request payload is invalid
+the payment request payload is invalid
 */
 type CreatePaymentRequestBadRequest struct {
 	Payload interface{}
@@ -137,7 +143,7 @@ func NewCreatePaymentRequestUnauthorized() *CreatePaymentRequestUnauthorized {
 
 /*CreatePaymentRequestUnauthorized handles this case with default header values.
 
-The request was denied
+must be authenticated to use this endpoint
 */
 type CreatePaymentRequestUnauthorized struct {
 	Payload interface{}
@@ -168,7 +174,7 @@ func NewCreatePaymentRequestForbidden() *CreatePaymentRequestForbidden {
 
 /*CreatePaymentRequestForbidden handles this case with default header values.
 
-The request was denied
+not authorized to create a payment request
 */
 type CreatePaymentRequestForbidden struct {
 	Payload interface{}
@@ -217,6 +223,39 @@ func (o *CreatePaymentRequestNotFound) readResponse(response runtime.ClientRespo
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCreatePaymentRequestUnprocessableEntity creates a CreatePaymentRequestUnprocessableEntity with default headers values
+func NewCreatePaymentRequestUnprocessableEntity() *CreatePaymentRequestUnprocessableEntity {
+	return &CreatePaymentRequestUnprocessableEntity{}
+}
+
+/*CreatePaymentRequestUnprocessableEntity handles this case with default header values.
+
+validation error
+*/
+type CreatePaymentRequestUnprocessableEntity struct {
+	Payload *primemessages.ValidationError
+}
+
+func (o *CreatePaymentRequestUnprocessableEntity) Error() string {
+	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestUnprocessableEntity  %+v", 422, o.Payload)
+}
+
+func (o *CreatePaymentRequestUnprocessableEntity) GetPayload() *primemessages.ValidationError {
+	return o.Payload
+}
+
+func (o *CreatePaymentRequestUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ValidationError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
