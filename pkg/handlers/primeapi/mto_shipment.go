@@ -29,7 +29,7 @@ func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MT
 	if payload.ID != "" && payload.ID != mtoShipmentID {
 		fieldsInError.Add("id", "value does not agree with mtoShipmentID in path - omit from body or correct")
 	}
-	if payload.MoveTaskOrderID != "" {
+	if payload.MoveTaskOrderID != "" && payload.MoveTaskOrderID != "00000000-0000-0000-0000-000000000000" {
 		fieldsInError.Add("moveTaskOrderID", "cannot be updated")
 	}
 	createdAt := time.Time(payload.CreatedAt)
