@@ -172,7 +172,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
 	})
 
 	suite.T().Run("failed create payment request -- invalid service item ID format", func(t *testing.T) {
@@ -211,7 +211,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
 	})
 
 	suite.T().Run("failed create payment request - validation errors", func(t *testing.T) {
