@@ -2,7 +2,6 @@
 @import '../../shared/styles/mixins';
 
 .label {
-  @include u-padding-top('2');
   @include u-text('ttop');
 }
 
