@@ -68,6 +68,9 @@ func (o *UpdateMTOPostCounselingInformation) ServeHTTP(rw http.ResponseWriter, r
 // swagger:model UpdateMTOPostCounselingInformationBody
 type UpdateMTOPostCounselingInformationBody struct {
 
+	// move task order ID
+	MoveTaskOrderID string `json:"moveTaskOrderID,omitempty"`
+
 	// Email or id of a contact person for this update
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
