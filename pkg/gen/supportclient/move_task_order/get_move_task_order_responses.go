@@ -54,6 +54,12 @@ func (o *GetMoveTaskOrderReader) ReadResponse(response runtime.ClientResponse, c
 			return nil, err
 		}
 		return nil, result
+	case 422:
+		result := NewGetMoveTaskOrderUnprocessableEntity()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewGetMoveTaskOrderInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -217,6 +223,39 @@ func (o *GetMoveTaskOrderNotFound) readResponse(response runtime.ClientResponse,
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewGetMoveTaskOrderUnprocessableEntity creates a GetMoveTaskOrderUnprocessableEntity with default headers values
+func NewGetMoveTaskOrderUnprocessableEntity() *GetMoveTaskOrderUnprocessableEntity {
+	return &GetMoveTaskOrderUnprocessableEntity{}
+}
+
+/*GetMoveTaskOrderUnprocessableEntity handles this case with default header values.
+
+The payload was unprocessable.
+*/
+type GetMoveTaskOrderUnprocessableEntity struct {
+	Payload *supportmessages.Error
+}
+
+func (o *GetMoveTaskOrderUnprocessableEntity) Error() string {
+	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderUnprocessableEntity  %+v", 422, o.Payload)
+}
+
+func (o *GetMoveTaskOrderUnprocessableEntity) GetPayload() *supportmessages.Error {
+	return o.Payload
+}
+
+func (o *GetMoveTaskOrderUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(supportmessages.Error)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

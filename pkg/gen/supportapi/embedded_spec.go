@@ -85,6 +85,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
           "500": {
             "$ref": "#/responses/ServerError"
           }
@@ -132,6 +135,9 @@ func init() {
             "schema": {
               "$ref": "#/responses/NotFound"
             }
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "description": "A server error occurred",
@@ -222,6 +228,9 @@ func init() {
             "schema": {
               "$ref": "#/responses/PreconditionFailed"
             }
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "description": "A server error occurred",
@@ -1252,6 +1261,12 @@ func init() {
       "schema": {
         "$ref": "#/definitions/Error"
       }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
     }
   }
 }`))
@@ -1335,6 +1350,12 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
           "500": {
             "description": "A server error occurred.",
             "schema": {
@@ -1396,6 +1417,12 @@ func init() {
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
@@ -1506,6 +1533,12 @@ func init() {
               }
             }
           },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -2535,6 +2568,12 @@ func init() {
     },
     "ServerError": {
       "description": "A server error occurred.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
