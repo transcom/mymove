@@ -40,7 +40,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 		case services.NotFoundError:
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "UpdateMTOServiceItemStatus", h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError(handlers.ValidationErrMessage, "The information you provided is invalid", h.GetTraceID(), e.ValidationErrors)
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
