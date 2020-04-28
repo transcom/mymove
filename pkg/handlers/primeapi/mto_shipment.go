@@ -25,7 +25,6 @@ import (
 func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MTOShipment) (*models.MTOShipment, *validate.Errors) {
 	payload.ID = mtoShipmentID // set the ID from the path into the body for use w/ the model
 	fieldsInError := validate.NewErrors()
-	println("🆒")
 
 	if payload.ID != "00000000-0000-0000-0000-000000000000" && payload.ID != mtoShipmentID {
 		fieldsInError.Add("id", "value does not agree with mtoShipmentID in path - omit from body or correct")
@@ -109,7 +108,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	if conflictErrs != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(conflictErrs))
 
-		errPayload := payloads.ValidationError(handlers.ValidationErrMessage, "Fields that cannot be updated found in input.",
+		errPayload := payloads.ValidationError(handlers.ValidationErrMessage, "Fields that cannot be updated found in input",
 			uuid.FromStringOrNil(params.MtoShipmentID.String()), conflictErrs)
 
 		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
