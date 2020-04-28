@@ -1,26 +1,24 @@
 import React from 'react';
+import propTypes from 'prop-types';
 
-const DataPoint = () => (
-  <div className="table--datapair">
-    <table className="table--data-point">
-      <thead className="table--small">
-        <tr>
-          <th>Receiving agent</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            Dorothy Lagomarsino
-            <br />
-            +1 999-999-9999
-            <br />
-            dorothyl@email.com
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+const DataPoint = ({ header, body }) => (
+  <table className="table--data-point">
+    <thead className="table--small">
+      <tr>
+        <th>{header}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{body}</td>
+      </tr>
+    </tbody>
+  </table>
 );
+
+DataPoint.propTypes = {
+  header: propTypes.string,
+  body: propTypes.element,
+};
 
 export default DataPoint;

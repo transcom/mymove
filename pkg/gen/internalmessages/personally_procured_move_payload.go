@@ -23,7 +23,7 @@ type PersonallyProcuredMovePayload struct {
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actual_move_date,omitempty"`
 
-	// ZIP/Postal Code
+	// ZIP code
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	AdditionalPickupPostalCode *string `json:"additional_pickup_postal_code,omitempty"`
 
@@ -42,19 +42,19 @@ type PersonallyProcuredMovePayload struct {
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
-	// How many days do you plan to put your stuff in storage?
+	// How many days of storage do you think you'll need?
 	// Maximum: 90
 	// Minimum: 0
 	DaysInStorage *int64 `json:"days_in_storage,omitempty"`
 
-	// ZIP/Postal Code
+	// ZIP code
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	DestinationPostalCode *string `json:"destination_postal_code,omitempty"`
 
 	// Estimated Storage Reimbursement
 	EstimatedStorageReimbursement *string `json:"estimated_storage_reimbursement,omitempty"`
 
-	// Do you have stuff at another pickup location?
+	// Will you move anything from another pickup location?
 	HasAdditionalPostalCode *bool `json:"has_additional_postal_code,omitempty"`
 
 	// Has Pro-Gear
@@ -68,7 +68,7 @@ type PersonallyProcuredMovePayload struct {
 	// Would you like an advance of up to 60% of your PPM incentive?
 	HasRequestedAdvance *bool `json:"has_requested_advance,omitempty"`
 
-	// Are you going to put your stuff in temporary storage before moving into your new home?
+	// Will you put anything in storage?
 	HasSit *bool `json:"has_sit,omitempty"`
 
 	// id
@@ -97,7 +97,7 @@ type PersonallyProcuredMovePayload struct {
 	// Format: date
 	OriginalMoveDate *strfmt.Date `json:"original_move_date,omitempty"`
 
-	// ZIP/Postal Code
+	// ZIP code
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	PickupPostalCode *string `json:"pickup_postal_code,omitempty"`
 

@@ -113,6 +113,9 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 	}
 
 	if updatedShipment.MTOAgents != nil {
+		if oldShipment.MTOAgents == nil {
+			return services.NewInvalidInputError(oldShipment.ID, nil, nil, "MTO Agents do not exist")
+		}
 		for i, oldAgent := range oldShipment.MTOAgents {
 			for _, newAgentInfo := range updatedShipment.MTOAgents {
 				if oldAgent.ID == newAgentInfo.ID {
@@ -463,7 +466,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	err := o.builder.FetchOne(&shipment, queryFilters)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(shipment.ID, "")
+		return nil, services.NewNotFoundError(shipmentID, "")
 	}
 
 	if shipment.Status != models.MTOShipmentStatusSubmitted {

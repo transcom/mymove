@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   database:
-    image: postgres:11.7
+    image: postgres:12.2
     restart: always
     ports:
       - '6432:5432'
@@ -51,14 +51,17 @@ services:
     environment:
       - CLIENT_AUTH_SECRET_KEY
       - CSRF_AUTH_KEY
+      - DB_DEBUG=1
       - DB_ENV=development
       - DB_HOST=database
       - DB_NAME=dev_db
       - DB_PASSWORD=mysecretpassword
       - DB_PORT=5432
+      - DB_REGION=us-west-2
+      - DB_RETRY_INTERVAL=5s
       - DB_SSL_MODE=disable
       - DB_USER=postgres
-      - DEVLOCAL_AUTH=true
+      - DEVLOCAL_AUTH=1
       - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
       - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
       - DPS_AUTH_COOKIE_SECRET_KEY
@@ -73,6 +76,7 @@ services:
       - HTTP_MY_SERVER_NAME=milmovelocal
       - HTTP_OFFICE_SERVER_NAME=officelocal
       - HTTP_PRIME_SERVER_NAME=primelocal
+      - IWS_RBS_ENABLED=1
       - IWS_RBS_HOST
       - LOCAL_STORAGE_ROOT=/tmp
       - LOCAL_STORAGE_WEB_ROOT=storage
@@ -94,5 +98,6 @@ services:
       - SERVE_API_INTERNAL=true
       - SERVE_API_PRIME=true
       - STORAGE_BACKEND=local
+      - TZ=UTC
     volumes:
       - ./tmp:/tmp

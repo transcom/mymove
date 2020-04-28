@@ -103,6 +103,26 @@ func main() {
 	initUpdateMTOStatusFlags(makeAvailableToPrimeCommand.Flags())
 	root.AddCommand(makeAvailableToPrimeCommand)
 
+	updatePaymentRequestStatusCommand := &cobra.Command{
+		Use:          "support-update-payment-request-status",
+		Short:        "Update payment request status for prime",
+		Long:         "Allows prime to update payment request status in non-prod envs",
+		RunE:         updatePaymentRequestStatus,
+		SilenceUsage: true,
+	}
+	initUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
+	root.AddCommand(updatePaymentRequestStatusCommand)
+
+	getMoveTaskOrder := &cobra.Command{
+		Use:          "support-get-mto",
+		Short:        "Get an individual mto",
+		Long:         "Get an individual mto's information",
+		RunE:         getMTO,
+		SilenceUsage: true,
+	}
+	initGetMTOFlags(getMoveTaskOrder.Flags())
+	root.AddCommand(getMoveTaskOrder)
+
 	createPaymentRequestCommand := &cobra.Command{
 		Use:          "create-payment-request",
 		Short:        "Create payment request",
@@ -112,6 +132,16 @@ func main() {
 	}
 	initCreatePaymentRequestFlags(createPaymentRequestCommand.Flags())
 	root.AddCommand(createPaymentRequestCommand)
+
+	patchMTOShipmentStatusCommand := &cobra.Command{
+		Use:          "support-patch-mto-shipment-status",
+		Short:        "Update MTO shipment status for prime",
+		Long:         "Allows prime to update MTO shipment status in non-prod envs",
+		RunE:         patchMTOShipmentStatus,
+		SilenceUsage: true,
+	}
+	initPatchMTOShipmentStatusFlags(patchMTOShipmentStatusCommand.Flags())
+	root.AddCommand(patchMTOShipmentStatusCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",
