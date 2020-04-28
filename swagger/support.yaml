@@ -191,7 +191,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdateMTOServiceItemStatusPayload'
+            $ref: '#/definitions/UpdateMTOServiceItemStatus'
         - in: header
           name: If-Match
           type: string
@@ -202,7 +202,7 @@ paths:
             Successfully updated status for a line item for a move task order by
             ID
           schema:
-            $ref: '#/definitions/UpdateMTOServiceItemStatusPayload'
+            $ref: '#/definitions/UpdateMTOServiceItemStatus'
         '400':
           description: The request payload is invalid
           schema:
@@ -974,7 +974,7 @@ definitions:
       eTag:
         type: string
     type: object
-  UpdateMTOServiceItemStatusPayload:
+  UpdateMTOServiceItemStatus:
     properties:
       moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054

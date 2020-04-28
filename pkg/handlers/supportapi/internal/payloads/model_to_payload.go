@@ -201,9 +201,9 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 }
 
 // MTOServiceItem payload
-func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.UpdateMTOServiceItemStatusPayload {
+func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.UpdateMTOServiceItemStatus {
 	strfmt.MarshalFormat = strfmt.RFC3339Micro
-	payload := &supportmessages.UpdateMTOServiceItemStatusPayload{
+	payload := &supportmessages.UpdateMTOServiceItemStatus{
 		ETag:            etag.GenerateEtag(mtoServiceItem.UpdatedAt),
 		ID:              strfmt.UUID(mtoServiceItem.ID.String()),
 		MoveTaskOrderID: strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()),

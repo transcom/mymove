@@ -15,9 +15,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdateMTOServiceItemStatusPayload update m t o service item status payload
-// swagger:model UpdateMTOServiceItemStatusPayload
-type UpdateMTOServiceItemStatusPayload struct {
+// UpdateMTOServiceItemStatus update m t o service item status
+// swagger:model UpdateMTOServiceItemStatus
+type UpdateMTOServiceItemStatus struct {
 
 	// approved at
 	// Format: date
@@ -92,8 +92,8 @@ type UpdateMTOServiceItemStatusPayload struct {
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
-// Validate validates this update m t o service item status payload
-func (m *UpdateMTOServiceItemStatusPayload) Validate(formats strfmt.Registry) error {
+// Validate validates this update m t o service item status
+func (m *UpdateMTOServiceItemStatus) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateApprovedAt(formats); err != nil {
@@ -150,7 +150,7 @@ func (m *UpdateMTOServiceItemStatusPayload) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatusPayload) validateApprovedAt(formats strfmt.Registry) error {
+func (m *UpdateMTOServiceItemStatus) validateApprovedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ApprovedAt) { // not required
 		return nil
@@ -163,7 +163,7 @@ func (m *UpdateMTOServiceItemStatusPayload) validateApprovedAt(formats strfmt.Re
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatusPayload) validateCreatedAt(formats strfmt.Registry) error {
+func (m *UpdateMTOServiceItemStatus) validateCreatedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
@@ -176,7 +176,7 @@ func (m *UpdateMTOServiceItemStatusPayload) validateCreatedAt(formats strfmt.Reg
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatusPayload) validateDeletedAt(formats strfmt.Registry) error {
+func (m *UpdateMTOServiceItemStatus) validateDeletedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.DeletedAt) { // not required
 		return nil
@@ -189,7 +189,7 @@ func (m *UpdateMTOServiceItemStatusPayload) validateDeletedAt(formats strfmt.Reg
 	return nil
 }
 
-var updateMTOServiceItemStatusPayloadTypeFeeTypePropEnum []interface{}
+var updateMTOServiceItemStatusTypeFeeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -197,34 +197,34 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		updateMTOServiceItemStatusPayloadTypeFeeTypePropEnum = append(updateMTOServiceItemStatusPayloadTypeFeeTypePropEnum, v)
+		updateMTOServiceItemStatusTypeFeeTypePropEnum = append(updateMTOServiceItemStatusTypeFeeTypePropEnum, v)
 	}
 }
 
 const (
 
-	// UpdateMTOServiceItemStatusPayloadFeeTypeCOUNSELING captures enum value "COUNSELING"
-	UpdateMTOServiceItemStatusPayloadFeeTypeCOUNSELING string = "COUNSELING"
+	// UpdateMTOServiceItemStatusFeeTypeCOUNSELING captures enum value "COUNSELING"
+	UpdateMTOServiceItemStatusFeeTypeCOUNSELING string = "COUNSELING"
 
-	// UpdateMTOServiceItemStatusPayloadFeeTypeCRATING captures enum value "CRATING"
-	UpdateMTOServiceItemStatusPayloadFeeTypeCRATING string = "CRATING"
+	// UpdateMTOServiceItemStatusFeeTypeCRATING captures enum value "CRATING"
+	UpdateMTOServiceItemStatusFeeTypeCRATING string = "CRATING"
 
-	// UpdateMTOServiceItemStatusPayloadFeeTypeTRUCKING captures enum value "TRUCKING"
-	UpdateMTOServiceItemStatusPayloadFeeTypeTRUCKING string = "TRUCKING"
+	// UpdateMTOServiceItemStatusFeeTypeTRUCKING captures enum value "TRUCKING"
+	UpdateMTOServiceItemStatusFeeTypeTRUCKING string = "TRUCKING"
 
-	// UpdateMTOServiceItemStatusPayloadFeeTypeSHUTTLE captures enum value "SHUTTLE"
-	UpdateMTOServiceItemStatusPayloadFeeTypeSHUTTLE string = "SHUTTLE"
+	// UpdateMTOServiceItemStatusFeeTypeSHUTTLE captures enum value "SHUTTLE"
+	UpdateMTOServiceItemStatusFeeTypeSHUTTLE string = "SHUTTLE"
 )
 
 // prop value enum
-func (m *UpdateMTOServiceItemStatusPayload) validateFeeTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, updateMTOServiceItemStatusPayloadTypeFeeTypePropEnum); err != nil {
+func (m *UpdateMTOServiceItemStatus) validateFeeTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, updateMTOServiceItemStatusTypeFeeTypePropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatusPayload) validateFeeType(formats strfmt.Registry) error {
+func (m *UpdateMTOServiceItemStatus) validateFeeType(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.FeeType) { // not required
 		return nil
@@ -238,7 +238,7 @@ func (m *UpdateMTOServiceItemStatusPayload) validateFeeType(formats strfmt.Regis
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatusPayload) validateID(formats strfmt.Registry) error {
+func (m *UpdateMTOServiceItemStatus) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -251,7 +251,7 @@ func (m *UpdateMTOServiceItemStatusPayload) validateID(formats strfmt.Registry) 
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatusPayload) validateMoveTaskOrderID(formats strfmt.Registry) error {
+func (m *UpdateMTOServiceItemStatus) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MoveTaskOrderID) { // not required
 		return nil
@@ -264,7 +264,7 @@ func (m *UpdateMTOServiceItemStatusPayload) validateMoveTaskOrderID(formats strf
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatusPayload) validateMtoShipmentID(formats strfmt.Registry) error {
+func (m *UpdateMTOServiceItemStatus) validateMtoShipmentID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MtoShipmentID) { // not required
 		return nil
@@ -277,7 +277,7 @@ func (m *UpdateMTOServiceItemStatusPayload) validateMtoShipmentID(formats strfmt
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatusPayload) validateReServiceID(formats strfmt.Registry) error {
+func (m *UpdateMTOServiceItemStatus) validateReServiceID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ReServiceID) { // not required
 		return nil
@@ -290,7 +290,7 @@ func (m *UpdateMTOServiceItemStatusPayload) validateReServiceID(formats strfmt.R
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatusPayload) validateRejectedAt(formats strfmt.Registry) error {
+func (m *UpdateMTOServiceItemStatus) validateRejectedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.RejectedAt) { // not required
 		return nil
@@ -303,7 +303,7 @@ func (m *UpdateMTOServiceItemStatusPayload) validateRejectedAt(formats strfmt.Re
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatusPayload) validateStatus(formats strfmt.Registry) error {
+func (m *UpdateMTOServiceItemStatus) validateStatus(formats strfmt.Registry) error {
 
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -315,7 +315,7 @@ func (m *UpdateMTOServiceItemStatusPayload) validateStatus(formats strfmt.Regist
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatusPayload) validateSubmittedAt(formats strfmt.Registry) error {
+func (m *UpdateMTOServiceItemStatus) validateSubmittedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.SubmittedAt) { // not required
 		return nil
@@ -328,7 +328,7 @@ func (m *UpdateMTOServiceItemStatusPayload) validateSubmittedAt(formats strfmt.R
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatusPayload) validateUpdatedAt(formats strfmt.Registry) error {
+func (m *UpdateMTOServiceItemStatus) validateUpdatedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -342,7 +342,7 @@ func (m *UpdateMTOServiceItemStatusPayload) validateUpdatedAt(formats strfmt.Reg
 }
 
 // MarshalBinary interface implementation
-func (m *UpdateMTOServiceItemStatusPayload) MarshalBinary() ([]byte, error) {
+func (m *UpdateMTOServiceItemStatus) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -350,8 +350,8 @@ func (m *UpdateMTOServiceItemStatusPayload) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *UpdateMTOServiceItemStatusPayload) UnmarshalBinary(b []byte) error {
-	var res UpdateMTOServiceItemStatusPayload
+func (m *UpdateMTOServiceItemStatus) UnmarshalBinary(b []byte) error {
+	var res UpdateMTOServiceItemStatus
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

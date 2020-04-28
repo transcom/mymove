@@ -66,7 +66,7 @@ type UpdateMTOServiceItemStatusParams struct {
 	/*IfMatch*/
 	IfMatch string
 	/*Body*/
-	Body *supportmessages.UpdateMTOServiceItemStatusPayload
+	Body *supportmessages.UpdateMTOServiceItemStatus
 	/*MtoServiceItemID
 	  ID of mto service item to use
 
@@ -123,13 +123,13 @@ func (o *UpdateMTOServiceItemStatusParams) SetIfMatch(ifMatch string) {
 }
 
 // WithBody adds the body to the update m t o service item status params
-func (o *UpdateMTOServiceItemStatusParams) WithBody(body *supportmessages.UpdateMTOServiceItemStatusPayload) *UpdateMTOServiceItemStatusParams {
+func (o *UpdateMTOServiceItemStatusParams) WithBody(body *supportmessages.UpdateMTOServiceItemStatus) *UpdateMTOServiceItemStatusParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the update m t o service item status params
-func (o *UpdateMTOServiceItemStatusParams) SetBody(body *supportmessages.UpdateMTOServiceItemStatusPayload) {
+func (o *UpdateMTOServiceItemStatusParams) SetBody(body *supportmessages.UpdateMTOServiceItemStatus) {
 	o.Body = body
 }
 

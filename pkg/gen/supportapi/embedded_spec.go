@@ -374,7 +374,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateMTOServiceItemStatusPayload"
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
             }
           },
           {
@@ -388,7 +388,7 @@ func init() {
           "200": {
             "description": "Successfully updated status for a line item for a move task order by ID",
             "schema": {
-              "$ref": "#/definitions/UpdateMTOServiceItemStatusPayload"
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
             }
           },
           "400": {
@@ -1296,7 +1296,7 @@ func init() {
         }
       }
     },
-    "UpdateMTOServiceItemStatusPayload": {
+    "UpdateMTOServiceItemStatus": {
       "type": "object",
       "required": [
         "status"
@@ -1950,7 +1950,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateMTOServiceItemStatusPayload"
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
             }
           },
           {
@@ -1964,7 +1964,7 @@ func init() {
           "200": {
             "description": "Successfully updated status for a line item for a move task order by ID",
             "schema": {
-              "$ref": "#/definitions/UpdateMTOServiceItemStatusPayload"
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
             }
           },
           "400": {
@@ -2893,7 +2893,7 @@ func init() {
         }
       }
     },
-    "UpdateMTOServiceItemStatusPayload": {
+    "UpdateMTOServiceItemStatus": {
       "type": "object",
       "required": [
         "status"
