@@ -922,17 +922,15 @@ definitions:
         type: integer
       rate:
         type: integer
-      reason:
+      rejectionReason:
+        example: item was too heavy
         type: string
+        x-nullable: true
       rejectedAt:
         format: date
         type: string
       status:
-        type: string
-        enum:
-          - SUBMITTED
-          - APPROVED
-          - REJECTED
+        $ref: '#/definitions/MTOServiceItemStatus'
       submittedAt:
         format: date
         type: string
@@ -957,14 +955,12 @@ definitions:
     items:
       $ref: '#/definitions/MTOServiceItem'
   MTOServiceItemStatus:
-    properties:
-      status:
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
-        type: string
-    type: object
+    description: Describes all statuses for a MTOServiceItem
+    type: string
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
   UpdatePaymentRequest:
     properties:
       proofOfServicePackage:
@@ -1022,17 +1018,15 @@ definitions:
         type: integer
       rate:
         type: integer
-      reason:
+      rejectionReason:
+        example: item was too heavy
         type: string
+        x-nullable: true
       rejectedAt:
         format: date
         type: string
       status:
-        type: string
-        enum:
-          - SUBMITTED
-          - APPROVED
-          - REJECTED
+        $ref: '#/definitions/MTOServiceItemStatus'
       submittedAt:
         format: date
         type: string

@@ -3,6 +3,8 @@ package supportapi
 import (
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
+
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -43,8 +45,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 	mtoServiceItemPayload := mtoServiceItemResponse.Payload
 
 	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
-	suite.Equal(string(*mtoServiceItemPayload.Status), "APPROVED")
-	suite.Equal(mtoServiceItemPayload.Reason, "")
+	suite.Equal(mtoServiceItemPayload.Status, supportmessages.MTOServiceItemStatusAPPROVED)
+	suite.NotEqual(mtoServiceItemPayload.RejectionReason, reason)
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() {
@@ -75,6 +77,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 	mtoServiceItemPayload := mtoServiceItemResponse.Payload
 
 	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
-	suite.Equal(string(*mtoServiceItemPayload.Status), "REJECTED")
-	suite.Equal(mtoServiceItemPayload.Reason, "item too heavy")
+	suite.Equal(mtoServiceItemPayload.Status, supportmessages.MTOServiceItemStatusREJECTED)
+	suite.Equal(*mtoServiceItemPayload.RejectionReason, reason)
 }

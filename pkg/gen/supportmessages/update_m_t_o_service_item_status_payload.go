@@ -69,17 +69,16 @@ type UpdateMTOServiceItemStatusPayload struct {
 	// re service name
 	ReServiceName string `json:"reServiceName,omitempty"`
 
-	// reason
-	Reason string `json:"reason,omitempty"`
-
 	// rejected at
 	// Format: date
 	RejectedAt strfmt.Date `json:"rejectedAt,omitempty"`
 
+	// rejection reason
+	RejectionReason *string `json:"rejectionReason,omitempty"`
+
 	// status
 	// Required: true
-	// Enum: [SUBMITTED APPROVED REJECTED]
-	Status *string `json:"status"`
+	Status MTOServiceItemStatus `json:"status"`
 
 	// submitted at
 	// Format: date
@@ -304,46 +303,12 @@ func (m *UpdateMTOServiceItemStatusPayload) validateRejectedAt(formats strfmt.Re
 	return nil
 }
 
-var updateMTOServiceItemStatusPayloadTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVED","REJECTED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		updateMTOServiceItemStatusPayloadTypeStatusPropEnum = append(updateMTOServiceItemStatusPayloadTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// UpdateMTOServiceItemStatusPayloadStatusSUBMITTED captures enum value "SUBMITTED"
-	UpdateMTOServiceItemStatusPayloadStatusSUBMITTED string = "SUBMITTED"
-
-	// UpdateMTOServiceItemStatusPayloadStatusAPPROVED captures enum value "APPROVED"
-	UpdateMTOServiceItemStatusPayloadStatusAPPROVED string = "APPROVED"
-
-	// UpdateMTOServiceItemStatusPayloadStatusREJECTED captures enum value "REJECTED"
-	UpdateMTOServiceItemStatusPayloadStatusREJECTED string = "REJECTED"
-)
-
-// prop value enum
-func (m *UpdateMTOServiceItemStatusPayload) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, updateMTOServiceItemStatusPayloadTypeStatusPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *UpdateMTOServiceItemStatusPayload) validateStatus(formats strfmt.Registry) error {
 
-	if err := validate.Required("status", "body", m.Status); err != nil {
-		return err
-	}
-
-	// value enum
-	if err := m.validateStatusEnum("status", "body", *m.Status); err != nil {
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

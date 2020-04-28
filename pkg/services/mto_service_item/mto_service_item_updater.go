@@ -26,7 +26,7 @@ func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder) services.MTOSe
 	return &mtoServiceItemUpdater{builder}
 }
 
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, reason string, eTag string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, reason *string, eTag string) (*models.MTOServiceItem, error) {
 	var mtoServiceItem models.MTOServiceItem
 
 	queryFilters := []services.QueryFilter{
@@ -46,7 +46,10 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	mtoServiceItem.UpdatedAt = time.Now()
 
 	if status == models.MTOServiceItemStatusRejected {
-		mtoServiceItem.Reason = &reason
+		if reason == nil {
+			return nil, services.NewConflictError(mtoServiceItem.ID, "Rejecting an MTO Service item requires a rejection reason")
+		}
+		mtoServiceItem.Reason = reason
 	} else if status == models.MTOServiceItemStatusApproved {
 		mtoServiceItem.Reason = nil
 	}

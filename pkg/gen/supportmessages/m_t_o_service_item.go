@@ -75,16 +75,15 @@ type MTOServiceItem struct {
 	// Required: true
 	ReServiceName *string `json:"reServiceName"`
 
-	// reason
-	Reason string `json:"reason,omitempty"`
-
 	// rejected at
 	// Format: date
 	RejectedAt strfmt.Date `json:"rejectedAt,omitempty"`
 
+	// rejection reason
+	RejectionReason *string `json:"rejectionReason,omitempty"`
+
 	// status
-	// Enum: [SUBMITTED APPROVED REJECTED]
-	Status string `json:"status,omitempty"`
+	Status MTOServiceItemStatus `json:"status,omitempty"`
 
 	// submitted at
 	// Format: date
@@ -335,46 +334,16 @@ func (m *MTOServiceItem) validateRejectedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-var mTOServiceItemTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVED","REJECTED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		mTOServiceItemTypeStatusPropEnum = append(mTOServiceItemTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// MTOServiceItemStatusSUBMITTED captures enum value "SUBMITTED"
-	MTOServiceItemStatusSUBMITTED string = "SUBMITTED"
-
-	// MTOServiceItemStatusAPPROVED captures enum value "APPROVED"
-	MTOServiceItemStatusAPPROVED string = "APPROVED"
-
-	// MTOServiceItemStatusREJECTED captures enum value "REJECTED"
-	MTOServiceItemStatusREJECTED string = "REJECTED"
-)
-
-// prop value enum
-func (m *MTOServiceItem) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemTypeStatusPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *MTOServiceItem) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

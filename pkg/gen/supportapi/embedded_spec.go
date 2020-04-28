@@ -920,20 +920,17 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
-        "reason": {
-          "type": "string"
-        },
         "rejectedAt": {
           "type": "string",
           "format": "date"
         },
-        "status": {
+        "rejectionReason": {
           "type": "string",
-          "enum": [
-            "SUBMITTED",
-            "APPROVED",
-            "REJECTED"
-          ]
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -950,17 +947,13 @@ func init() {
       }
     },
     "MTOServiceItemStatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
-      }
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOServiceItems": {
       "type": "array",
@@ -1368,20 +1361,17 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
-        "reason": {
-          "type": "string"
-        },
         "rejectedAt": {
           "type": "string",
           "format": "date"
         },
-        "status": {
+        "rejectionReason": {
           "type": "string",
-          "enum": [
-            "SUBMITTED",
-            "APPROVED",
-            "REJECTED"
-          ]
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -2527,20 +2517,17 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
-        "reason": {
-          "type": "string"
-        },
         "rejectedAt": {
           "type": "string",
           "format": "date"
         },
-        "status": {
+        "rejectionReason": {
           "type": "string",
-          "enum": [
-            "SUBMITTED",
-            "APPROVED",
-            "REJECTED"
-          ]
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -2557,17 +2544,13 @@ func init() {
       }
     },
     "MTOServiceItemStatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
-      }
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOServiceItems": {
       "type": "array",
@@ -2975,20 +2958,17 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
-        "reason": {
-          "type": "string"
-        },
         "rejectedAt": {
           "type": "string",
           "format": "date"
         },
-        "status": {
+        "rejectionReason": {
           "type": "string",
-          "enum": [
-            "SUBMITTED",
-            "APPROVED",
-            "REJECTED"
-          ]
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",

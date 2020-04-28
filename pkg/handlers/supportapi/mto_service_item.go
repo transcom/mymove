@@ -27,9 +27,9 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	mtoServiceItemID := uuid.FromStringOrNil(params.MtoServiceItemID)
-	status := models.MTOServiceItemStatus(*params.Body.Status)
+	status := models.MTOServiceItemStatus(params.Body.Status)
 	eTag := params.IfMatch
-	reason := params.Body.Reason
+	reason := params.Body.RejectionReason
 
 	mtoServiceItem, err := h.UpdateMTOServiceItemStatus(mtoServiceItemID, status, reason, eTag)
 
@@ -45,7 +45,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 		case services.PreconditionFailedError:
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.ConflictError:
-			return mtoserviceitemops.NewUpdateMTOServiceItemStatusConflict().WithPayload(&supportmessages.Error{Message: handlers.FmtString("Can only update status from SUBMITTED to APPROVED or REJECTED")})
+			return mtoserviceitemops.NewUpdateMTOServiceItemStatusConflict().WithPayload(&supportmessages.Error{Message: handlers.FmtString("Can only update status from SUBMITTED to APPROVED or REJECTED and must have a rejection reason")})
 		default:
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusInternalServerError()
 		}
