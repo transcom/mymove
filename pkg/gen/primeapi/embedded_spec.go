@@ -1014,6 +1014,11 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         }
@@ -2833,6 +2838,11 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "item was too heavy"
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"

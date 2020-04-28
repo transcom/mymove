@@ -57,6 +57,10 @@ type MTOServiceItem interface {
 	ReServiceName() string
 	SetReServiceName(string)
 
+	// rejection reason
+	RejectionReason() *string
+	SetRejectionReason(*string)
+
 	// status
 	Status() MTOServiceItemStatus
 	SetStatus(MTOServiceItemStatus)
@@ -76,6 +80,8 @@ type mTOServiceItem struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
+
+	rejectionReasonField *string
 
 	statusField MTOServiceItemStatus
 }
@@ -148,6 +154,16 @@ func (m *mTOServiceItem) ReServiceName() string {
 // SetReServiceName sets the re service name of this polymorphic type
 func (m *mTOServiceItem) SetReServiceName(val string) {
 	m.reServiceNameField = val
+}
+
+// RejectionReason gets the rejection reason of this polymorphic type
+func (m *mTOServiceItem) RejectionReason() *string {
+	return m.rejectionReasonField
+}
+
+// SetRejectionReason sets the rejection reason of this polymorphic type
+func (m *mTOServiceItem) SetRejectionReason(val *string) {
+	m.rejectionReasonField = val
 }
 
 // Status gets the status of this polymorphic type
