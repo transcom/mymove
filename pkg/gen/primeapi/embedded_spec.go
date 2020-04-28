@@ -158,7 +158,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
       "put": {
-        "description": "Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the documentation to see which fields are modifiable.\n",
+        "description": "Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the documentation to see which fields are modifiable. Note that some fields may not be manually changed but will be updated automatically.\n",
         "consumes": [
           "application/json"
         ],
@@ -181,6 +181,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
+            "description": "ID of the shipment being updated",
             "name": "mtoShipmentID",
             "in": "path",
             "required": true
@@ -202,13 +203,13 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "updated instance of mto shipment",
+            "description": "Successfully updated the MTO shipment",
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
           },
           "400": {
-            "description": "invalid request",
+            "description": "Invalid request",
             "schema": {
               "$ref": "#/responses/InvalidRequest"
             }
@@ -232,13 +233,19 @@ func init() {
             }
           },
           "412": {
-            "description": "precondition failed",
+            "description": "Precondition failed, likely due to a stale eTag (If-Match) value",
             "schema": {
               "$ref": "#/responses/PreconditionFailed"
             }
           },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
-            "description": "internal server error",
+            "description": "A server error occurred",
             "schema": {
               "$ref": "#/responses/ServerError"
             }
@@ -1712,6 +1719,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "Conflict error",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid",
       "schema": {
@@ -1912,7 +1925,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
       "put": {
-        "description": "Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the documentation to see which fields are modifiable.\n",
+        "description": "Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the documentation to see which fields are modifiable. Note that some fields may not be manually changed but will be updated automatically.\n",
         "consumes": [
           "application/json"
         ],
@@ -1935,6 +1948,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
+            "description": "ID of the shipment being updated",
             "name": "mtoShipmentID",
             "in": "path",
             "required": true
@@ -1956,13 +1970,13 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "updated instance of mto shipment",
+            "description": "Successfully updated the MTO shipment",
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
           },
           "400": {
-            "description": "invalid request",
+            "description": "Invalid request",
             "schema": {
               "description": "The request payload is invalid",
               "schema": {
@@ -1998,7 +2012,7 @@ func init() {
             }
           },
           "412": {
-            "description": "precondition failed",
+            "description": "Precondition failed, likely due to a stale eTag (If-Match) value",
             "schema": {
               "description": "Precondition failed",
               "schema": {
@@ -2006,8 +2020,14 @@ func init() {
               }
             }
           },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
-            "description": "internal server error",
+            "description": "A server error occurred",
             "schema": {
               "description": "A server error occurred",
               "schema": {
@@ -3538,6 +3558,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "Conflict error",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid",
       "schema": {

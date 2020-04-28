@@ -383,19 +383,20 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 	return &payload
 }
 
-// ValidationError describes validation errors from the model or properties
-func ValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
-	return &primemessages.ValidationError{
-		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
-		ClientError:   *clientError(title, detail, instance),
-	}
-}
-
-func clientError(title string, detail string, instance uuid.UUID) *primemessages.ClientError {
+// ClientError is the base obj for errors we return to the user
+func ClientError(title string, detail string, instance uuid.UUID) *primemessages.ClientError {
 	return &primemessages.ClientError{
 		Title:    handlers.FmtString(title),
 		Detail:   handlers.FmtString(detail),
 		Instance: handlers.FmtUUID(instance),
+	}
+}
+
+// ValidationError describes validation errors from the model or properties
+func ValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
+	return &primemessages.ValidationError{
+		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
+		ClientError:   *ClientError(title, detail, instance),
 	}
 }
 

@@ -50,7 +50,7 @@ type UpdateMTOShipmentParams struct {
 	  In: path
 	*/
 	MoveTaskOrderID strfmt.UUID
-	/*
+	/*ID of the shipment being updated
 	  Required: true
 	  In: path
 	*/

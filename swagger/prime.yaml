@@ -165,7 +165,8 @@ paths:
       summary: Updates MTO shipment
       description: >
         Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are
-        returned - please refer to the documentation to see which fields are modifiable.
+        returned - please refer to the documentation to see which fields are modifiable. Note that some fields may not
+        be manually changed but will be updated automatically.
       operationId: updateMTOShipment
       tags:
         - mtoShipment
@@ -181,6 +182,7 @@ paths:
           type: string
         - in: path
           name: mtoShipmentID
+          description: ID of the shipment being updated
           required: true
           format: uuid
           type: string
@@ -195,11 +197,11 @@ paths:
           required: true
       responses:
         '200':
-          description: updated instance of mto shipment
+          description: Successfully updated the MTO shipment
           schema:
             $ref: '#/definitions/MTOShipment'
         '400':
-          description: invalid request
+          description: Invalid request
           schema:
             $ref: '#/responses/InvalidRequest'
         '401':
@@ -215,11 +217,15 @@ paths:
           schema:
             $ref: '#/responses/NotFound'
         '412':
-          description: precondition failed
+          description: Precondition failed, likely due to a stale eTag (If-Match) value
           schema:
             $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
-          description: internal server error
+          description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items':
@@ -1252,5 +1258,9 @@ responses:
       $ref: '#/definitions/Error'
   PreconditionFailed:
     description: Precondition failed
+    schema:
+      $ref: '#/definitions/Error'
+  Conflict:
+    description: Conflict error
     schema:
       $ref: '#/definitions/Error'

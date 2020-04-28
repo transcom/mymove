@@ -3,6 +3,10 @@ package primeapi
 import (
 	"time"
 
+	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
+
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
@@ -18,63 +22,62 @@ import (
 
 // UpdateMTOShipmentModel checks that only the fields that can be updated were passed into the payload,
 // then grabs the model
-func UpdateMTOShipmentModel(payload *primemessages.MTOShipment) (*models.MTOShipment, error) {
-	fieldsInError := make([]string, 0)
+func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MTOShipment) (*models.MTOShipment, *validate.Errors) {
+	payload.ID = mtoShipmentID // set the ID from the path into the body for use w/ the model
+	fieldsInError := validate.NewErrors()
+	println("🆒")
 
-	if payload.MoveTaskOrderID != "0" && payload.MoveTaskOrderID != "00000000-0000-0000-0000-000000000000" {
-		fieldsInError = append(fieldsInError, "moveTaskOrderID")
+	if payload.ID != "00000000-0000-0000-0000-000000000000" && payload.ID != mtoShipmentID {
+		fieldsInError.Add("id", "value does not agree with mtoShipmentID in path - omit from body or correct")
 	}
-
+	if payload.MoveTaskOrderID != "00000000-0000-0000-0000-000000000000" {
+		fieldsInError.Add("moveTaskOrderID", "cannot be updated")
+	}
 	createdAt := time.Time(payload.CreatedAt)
 	if !createdAt.IsZero() {
-		fieldsInError = append(fieldsInError, "createdAt")
+		fieldsInError.Add("createdAt", "cannot be updated")
 	}
-
 	updatedAt := time.Time(payload.UpdatedAt)
 	if !updatedAt.IsZero() {
-		fieldsInError = append(fieldsInError, "updatedAt")
+		fieldsInError.Add("updatedAt", "cannot be manually modified - updated automatically")
 	}
-
 	primeEstimatedWeightRecordedDate := time.Time(payload.PrimeEstimatedWeightRecordedDate)
 	if !primeEstimatedWeightRecordedDate.IsZero() {
-		fieldsInError = append(fieldsInError, "primeEstimatedWeightRecordedDate")
+		fieldsInError.Add("primeEstimatedWeightRecordedDate", "cannot be manually modified - updated automatically")
 	}
-
 	approvedDate := time.Time(payload.ApprovedDate)
 	if !approvedDate.IsZero() {
-		fieldsInError = append(fieldsInError, "approvedDate")
+		fieldsInError.Add("approvedDate", "cannot be manually modified - updated automatically with status change")
 	}
-
 	if payload.Status != "" {
-		fieldsInError = append(fieldsInError, "status")
+		fieldsInError.Add("status", "cannot be updated")
 	}
 	if payload.RejectionReason != nil {
-		fieldsInError = append(fieldsInError, "rejectionReason")
+		fieldsInError.Add("rejectionReason", "cannot be updated")
 	}
 	if payload.CustomerRemarks != nil {
-		fieldsInError = append(fieldsInError, "customerRemarks")
+		fieldsInError.Add("customerRemarks", "cannot be updated")
 	}
 
 	if payload.Agents != nil {
-		var mtoShipmentIDErr bool
-		var createdAtErr bool
-		var updatedAtErr bool
+		var mtoShipmentIDErr = false
+		var createdAtErr = false
+		var updatedAtErr = false
 
 		for _, agent := range payload.Agents {
-			if agent.MtoShipmentID != "0" && agent.MtoShipmentID != "00000000-0000-0000-0000-000000000000" &&
-				agent.MtoShipmentID != payload.ID && !mtoShipmentIDErr {
+			if agent.MtoShipmentID != "00000000-0000-0000-0000-000000000000" && agent.MtoShipmentID != payload.ID && !mtoShipmentIDErr {
+				fieldsInError.Add("mtoShipmentID", "cannot be updated for agents")
 				mtoShipmentIDErr = true
-				fieldsInError = append(fieldsInError, "agents:mtoShipmentID")
 			}
 			createdAt := time.Time(agent.CreatedAt)
 			if !createdAt.IsZero() {
+				fieldsInError.Add("createdAt", "cannot be updated for agents")
 				createdAtErr = true
-				fieldsInError = append(fieldsInError, "agents:createdAt")
 			}
 			updatedAt := time.Time(agent.UpdatedAt)
 			if !updatedAt.IsZero() {
+				fieldsInError.Add("updatedAt", "cannot be manually modified for agents")
 				updatedAtErr = true
-				fieldsInError = append(fieldsInError, "agents:updatedAt")
 			}
 
 			if mtoShipmentIDErr && createdAtErr && updatedAtErr {
@@ -83,8 +86,8 @@ func UpdateMTOShipmentModel(payload *primemessages.MTOShipment) (*models.MTOShip
 		}
 	}
 
-	if len(fieldsInError) > 0 {
-		// todo return error
+	if fieldsInError.HasAny() {
+		return nil, fieldsInError
 	}
 
 	mtoShipment := payloads.MTOShipmentModel(payload)
@@ -102,7 +105,16 @@ type UpdateMTOShipmentHandler struct {
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtoShipment, _ := UpdateMTOShipmentModel(params.Body)
+	mtoShipment, conflictErrs := UpdateMTOShipmentModel(params.MtoShipmentID, params.Body)
+	if conflictErrs != nil {
+		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(conflictErrs))
+
+		errPayload := payloads.ValidationError(handlers.ValidationErrMessage, "Fields that cannot be updated found in input.",
+			uuid.FromStringOrNil(params.MtoShipmentID.String()), conflictErrs)
+
+		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
+	}
+
 	eTag := params.IfMatch
 	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 

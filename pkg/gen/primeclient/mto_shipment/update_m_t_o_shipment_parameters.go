@@ -69,7 +69,10 @@ type UpdateMTOShipmentParams struct {
 	Body *primemessages.MTOShipment
 	/*MoveTaskOrderID*/
 	MoveTaskOrderID strfmt.UUID
-	/*MtoShipmentID*/
+	/*MtoShipmentID
+	  ID of the shipment being updated
+
+	*/
 	MtoShipmentID strfmt.UUID
 
 	timeout    time.Duration

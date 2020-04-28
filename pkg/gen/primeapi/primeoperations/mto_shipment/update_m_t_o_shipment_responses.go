@@ -16,7 +16,7 @@ import (
 // UpdateMTOShipmentOKCode is the HTTP code returned for type UpdateMTOShipmentOK
 const UpdateMTOShipmentOKCode int = 200
 
-/*UpdateMTOShipmentOK updated instance of mto shipment
+/*UpdateMTOShipmentOK Successfully updated the MTO shipment
 
 swagger:response updateMTOShipmentOK
 */
@@ -60,7 +60,7 @@ func (o *UpdateMTOShipmentOK) WriteResponse(rw http.ResponseWriter, producer run
 // UpdateMTOShipmentBadRequestCode is the HTTP code returned for type UpdateMTOShipmentBadRequest
 const UpdateMTOShipmentBadRequestCode int = 400
 
-/*UpdateMTOShipmentBadRequest invalid request
+/*UpdateMTOShipmentBadRequest Invalid request
 
 swagger:response updateMTOShipmentBadRequest
 */
@@ -228,7 +228,7 @@ func (o *UpdateMTOShipmentNotFound) WriteResponse(rw http.ResponseWriter, produc
 // UpdateMTOShipmentPreconditionFailedCode is the HTTP code returned for type UpdateMTOShipmentPreconditionFailed
 const UpdateMTOShipmentPreconditionFailedCode int = 412
 
-/*UpdateMTOShipmentPreconditionFailed precondition failed
+/*UpdateMTOShipmentPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match) value
 
 swagger:response updateMTOShipmentPreconditionFailed
 */
@@ -267,10 +267,54 @@ func (o *UpdateMTOShipmentPreconditionFailed) WriteResponse(rw http.ResponseWrit
 	}
 }
 
+// UpdateMTOShipmentUnprocessableEntityCode is the HTTP code returned for type UpdateMTOShipmentUnprocessableEntity
+const UpdateMTOShipmentUnprocessableEntityCode int = 422
+
+/*UpdateMTOShipmentUnprocessableEntity Validation error
+
+swagger:response updateMTOShipmentUnprocessableEntity
+*/
+type UpdateMTOShipmentUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewUpdateMTOShipmentUnprocessableEntity creates UpdateMTOShipmentUnprocessableEntity with default headers values
+func NewUpdateMTOShipmentUnprocessableEntity() *UpdateMTOShipmentUnprocessableEntity {
+
+	return &UpdateMTOShipmentUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the update m t o shipment unprocessable entity response
+func (o *UpdateMTOShipmentUnprocessableEntity) WithPayload(payload *primemessages.ValidationError) *UpdateMTOShipmentUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update m t o shipment unprocessable entity response
+func (o *UpdateMTOShipmentUnprocessableEntity) SetPayload(payload *primemessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMTOShipmentUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdateMTOShipmentInternalServerErrorCode is the HTTP code returned for type UpdateMTOShipmentInternalServerError
 const UpdateMTOShipmentInternalServerErrorCode int = 500
 
-/*UpdateMTOShipmentInternalServerError internal server error
+/*UpdateMTOShipmentInternalServerError A server error occurred
 
 swagger:response updateMTOShipmentInternalServerError
 */

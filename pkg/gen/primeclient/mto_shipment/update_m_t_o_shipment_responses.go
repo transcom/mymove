@@ -60,6 +60,12 @@ func (o *UpdateMTOShipmentReader) ReadResponse(response runtime.ClientResponse, 
 			return nil, err
 		}
 		return nil, result
+	case 422:
+		result := NewUpdateMTOShipmentUnprocessableEntity()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewUpdateMTOShipmentInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -79,7 +85,7 @@ func NewUpdateMTOShipmentOK() *UpdateMTOShipmentOK {
 
 /*UpdateMTOShipmentOK handles this case with default header values.
 
-updated instance of mto shipment
+Successfully updated the MTO shipment
 */
 type UpdateMTOShipmentOK struct {
 	Payload *primemessages.MTOShipment
@@ -112,7 +118,7 @@ func NewUpdateMTOShipmentBadRequest() *UpdateMTOShipmentBadRequest {
 
 /*UpdateMTOShipmentBadRequest handles this case with default header values.
 
-invalid request
+Invalid request
 */
 type UpdateMTOShipmentBadRequest struct {
 	Payload interface{}
@@ -236,7 +242,7 @@ func NewUpdateMTOShipmentPreconditionFailed() *UpdateMTOShipmentPreconditionFail
 
 /*UpdateMTOShipmentPreconditionFailed handles this case with default header values.
 
-precondition failed
+Precondition failed, likely due to a stale eTag (If-Match) value
 */
 type UpdateMTOShipmentPreconditionFailed struct {
 	Payload interface{}
@@ -260,6 +266,39 @@ func (o *UpdateMTOShipmentPreconditionFailed) readResponse(response runtime.Clie
 	return nil
 }
 
+// NewUpdateMTOShipmentUnprocessableEntity creates a UpdateMTOShipmentUnprocessableEntity with default headers values
+func NewUpdateMTOShipmentUnprocessableEntity() *UpdateMTOShipmentUnprocessableEntity {
+	return &UpdateMTOShipmentUnprocessableEntity{}
+}
+
+/*UpdateMTOShipmentUnprocessableEntity handles this case with default header values.
+
+Validation error
+*/
+type UpdateMTOShipmentUnprocessableEntity struct {
+	Payload *primemessages.ValidationError
+}
+
+func (o *UpdateMTOShipmentUnprocessableEntity) Error() string {
+	return fmt.Sprintf("[PUT /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
+}
+
+func (o *UpdateMTOShipmentUnprocessableEntity) GetPayload() *primemessages.ValidationError {
+	return o.Payload
+}
+
+func (o *UpdateMTOShipmentUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ValidationError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
 // NewUpdateMTOShipmentInternalServerError creates a UpdateMTOShipmentInternalServerError with default headers values
 func NewUpdateMTOShipmentInternalServerError() *UpdateMTOShipmentInternalServerError {
 	return &UpdateMTOShipmentInternalServerError{}
@@ -267,7 +306,7 @@ func NewUpdateMTOShipmentInternalServerError() *UpdateMTOShipmentInternalServerE
 
 /*UpdateMTOShipmentInternalServerError handles this case with default header values.
 
-internal server error
+A server error occurred
 */
 type UpdateMTOShipmentInternalServerError struct {
 	Payload interface{}
