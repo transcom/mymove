@@ -64,12 +64,6 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 	if updatedShipment.ScheduledPickupDate != nil {
 		scheduledPickupTime = *updatedShipment.ScheduledPickupDate
 		oldShipment.ScheduledPickupDate = &scheduledPickupTime
-		requiredDeliveryDate, err := calculateRequiredDeliveryDate(planner, db, *oldShipment.PickupAddress,
-			*oldShipment.DestinationAddress, *updatedShipment.ScheduledPickupDate, updatedShipment.PrimeEstimatedWeight.Int())
-		if err != nil {
-			return err
-		}
-		oldShipment.RequiredDeliveryDate = requiredDeliveryDate
 	}
 
 	if updatedShipment.PrimeEstimatedWeight != nil {
@@ -110,6 +104,16 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 
 	if updatedShipment.ShipmentType != "" {
 		oldShipment.ShipmentType = updatedShipment.ShipmentType
+	}
+
+	// Updated based on existing fields that may have been updated:
+	if oldShipment.ScheduledPickupDate != nil && oldShipment.PrimeEstimatedWeight != nil {
+		requiredDeliveryDate, err := calculateRequiredDeliveryDate(planner, db, *oldShipment.PickupAddress,
+			*oldShipment.DestinationAddress, *updatedShipment.ScheduledPickupDate, oldShipment.PrimeEstimatedWeight.Int())
+		if err != nil {
+			return err
+		}
+		oldShipment.RequiredDeliveryDate = requiredDeliveryDate
 	}
 
 	if updatedShipment.MTOAgents != nil {
