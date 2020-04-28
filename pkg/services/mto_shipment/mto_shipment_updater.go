@@ -39,11 +39,14 @@ func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBui
 
 // setNewShipmentFields validates the updated shipment
 func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment *models.MTOShipment, updatedShipment *models.MTOShipment) error {
+	verrs := validate.NewErrors()
+	oldShipmentCopy := oldShipment // make a copy to restore values in case there were errors while setting
+
 	if updatedShipment.RequestedPickupDate != nil {
 		requestedPickupDate := updatedShipment.RequestedPickupDate
 		// if requestedPickupDate isn't valid then return InvalidInputError
 		if !requestedPickupDate.Equal(*oldShipment.RequestedPickupDate) {
-			return services.NewInvalidInputError(oldShipment.ID, nil, nil, "Requested pickup date must match what customer has requested.")
+			verrs.Add("requestedPickupDate", "must match what customer has requested")
 		}
 		oldShipment.RequestedPickupDate = requestedPickupDate
 	}
@@ -68,14 +71,14 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 
 	if updatedShipment.PrimeEstimatedWeight != nil {
 		if oldShipment.PrimeEstimatedWeight != nil {
-			return services.InvalidInputError{}
+			verrs.Add("primeEstimatedWeight", "cannot be updated after initial estimation")
 		}
 		now := time.Now()
 		if oldShipment.ApprovedDate != nil {
 			err := validatePrimeEstimatedWeightRecordedDate(now, scheduledPickupTime, *oldShipment.ApprovedDate)
 			if err != nil {
-				errorMessage := "The time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight."
-				return services.NewInvalidInputError(oldShipment.ID, err, nil, errorMessage)
+				verrs.Add("primeEstimatedWeight", "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
+				verrs.Add("primeEstimatedWeight", err.Error())
 			}
 		}
 		oldShipment.PrimeEstimatedWeight = updatedShipment.PrimeEstimatedWeight
@@ -111,18 +114,21 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 		requiredDeliveryDate, err := calculateRequiredDeliveryDate(planner, db, *oldShipment.PickupAddress,
 			*oldShipment.DestinationAddress, *updatedShipment.ScheduledPickupDate, oldShipment.PrimeEstimatedWeight.Int())
 		if err != nil {
-			return err
+			verrs.Add("requiredDeliveryDate", err.Error())
 		}
 		oldShipment.RequiredDeliveryDate = requiredDeliveryDate
 	}
 
-	if updatedShipment.MTOAgents != nil {
-		if oldShipment.MTOAgents == nil {
-			return services.NewInvalidInputError(oldShipment.ID, nil, nil, "MTO Agents do not exist")
+	if len(updatedShipment.MTOAgents) > 0 {
+		if len(oldShipment.MTOAgents) < len(updatedShipment.MTOAgents) {
+			verrs.Add("agents", "cannot add MTO agents to a shipment")
 		}
-		for i, oldAgent := range oldShipment.MTOAgents {
-			for _, newAgentInfo := range updatedShipment.MTOAgents {
+
+		for _, newAgentInfo := range updatedShipment.MTOAgents {
+			foundAgent := false
+			for i, oldAgent := range oldShipment.MTOAgents {
 				if oldAgent.ID == newAgentInfo.ID {
+					foundAgent = true
 					if newAgentInfo.MTOAgentType != "" && newAgentInfo.MTOAgentType != oldAgent.MTOAgentType {
 						oldShipment.MTOAgents[i].MTOAgentType = newAgentInfo.MTOAgentType
 					}
@@ -143,7 +149,15 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 					}
 				}
 			}
+			if !foundAgent {
+				verrs.Add("agents", fmt.Sprintf("agent with id=%s not found for this shipment", newAgentInfo.ID.String()))
+			}
 		}
+	}
+
+	if verrs.HasAny() {
+		oldShipment = oldShipmentCopy
+		return services.NewInvalidInputError(oldShipment.ID, nil, verrs, "Invalid input found while updating the shipment.")
 	}
 
 	return nil

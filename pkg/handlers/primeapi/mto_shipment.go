@@ -44,6 +44,10 @@ func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MT
 	if !primeEstimatedWeightRecordedDate.IsZero() {
 		fieldsInError.Add("primeEstimatedWeightRecordedDate", "cannot be manually modified - updated automatically")
 	}
+	requiredDeliveryDate := time.Time(payload.RequiredDeliveryDate)
+	if !requiredDeliveryDate.IsZero() {
+		fieldsInError.Add("requiredDeliveryDate", "cannot be manually modified - updated automatically")
+	}
 	approvedDate := time.Time(payload.ApprovedDate)
 	if !approvedDate.IsZero() {
 		fieldsInError.Add("approvedDate", "cannot be manually modified - updated automatically with status change")
@@ -120,11 +124,12 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
-		switch err.(type) {
+		switch e := err.(type) {
 		case services.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.InvalidInputError:
-			return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+			payload := payloads.ValidationError(handlers.ValidationErrMessage, err.Error(), mtoShipment.ID, e.ValidationErrors)
+			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
