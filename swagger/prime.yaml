@@ -216,6 +216,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error between the fields and values expected and the ones received
+          schema:
+            $ref: '#/definitions/ValidationError'
         '412':
           description: Precondition failed, likely due to a stale eTag (If-Match) value
           schema:
@@ -1258,9 +1262,5 @@ responses:
       $ref: '#/definitions/Error'
   PreconditionFailed:
     description: Precondition failed
-    schema:
-      $ref: '#/definitions/Error'
-  Conflict:
-    description: Conflict error
     schema:
       $ref: '#/definitions/Error'

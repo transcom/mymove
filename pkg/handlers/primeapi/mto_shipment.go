@@ -112,10 +112,10 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	if conflictErrs != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(conflictErrs))
 
-		errPayload := payloads.ValidationError(handlers.ValidationErrMessage, "Fields that cannot be updated found in input",
+		errPayload := payloads.ValidationError(handlers.ConflictErrMessage, "Fields that cannot be updated found in input",
 			uuid.FromStringOrNil(params.MtoShipmentID.String()), conflictErrs)
 
-		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
+		return mtoshipmentops.NewUpdateMTOShipmentConflict().WithPayload(errPayload)
 	}
 
 	eTag := params.IfMatch

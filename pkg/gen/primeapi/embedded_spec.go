@@ -232,6 +232,12 @@ func init() {
               "$ref": "#/responses/NotFound"
             }
           },
+          "409": {
+            "description": "Conflict error between the fields and values expected and the ones received",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match) value",
             "schema": {
@@ -1719,12 +1725,6 @@ func init() {
     }
   },
   "responses": {
-    "Conflict": {
-      "description": "Conflict error",
-      "schema": {
-        "$ref": "#/definitions/Error"
-      }
-    },
     "InvalidRequest": {
       "description": "The request payload is invalid",
       "schema": {
@@ -2011,6 +2011,12 @@ func init() {
               }
             }
           },
+          "409": {
+            "description": "Conflict error between the fields and values expected and the ones received",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match) value",
             "schema": {
@@ -3558,12 +3564,6 @@ func init() {
     }
   },
   "responses": {
-    "Conflict": {
-      "description": "Conflict error",
-      "schema": {
-        "$ref": "#/definitions/Error"
-      }
-    },
     "InvalidRequest": {
       "description": "The request payload is invalid",
       "schema": {
