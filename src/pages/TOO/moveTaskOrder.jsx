@@ -36,11 +36,11 @@ class MoveTaskOrder extends Component {
     const { mtoShipments } = this.props;
 
     return (
-      <div className="maxw-desktop-lg margin-x-auto">
+      <div className="maxw-desktop-lg margin-x-auto" data-cy="too-shipment-container">
         {/* eslint-disable-next-line react/prop-types */}
         {mtoShipments.map((mtoShipment) => {
           return (
-            <ShipmentContainer data-cy="too-shipment-container">
+            <ShipmentContainer>
               <ShipmentHeading
                 key={mtoShipment.id}
                 shipmentInfo={{

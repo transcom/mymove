@@ -16,6 +16,6 @@ describe('MoveTaskOrder', () => {
   );
 
   it('should render the h1', () => {
-    expect(wrapper.find('.grid-container').exists()).toBe(true);
+    expect(wrapper.find({ 'data-cy': 'too-shipment-container' }).exists()).toBe(true);
   });
 });
