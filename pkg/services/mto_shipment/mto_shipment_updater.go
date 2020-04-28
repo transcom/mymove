@@ -207,8 +207,6 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 		return &models.MTOShipment{}, err
 	}
 
-	var verrs *validate.Errors
-
 	err = f.db.Transaction(func(tx *pop.Connection) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
 		encodedUpdatedAt := etag.GenerateEtag(oldShipment.UpdatedAt)
@@ -287,12 +285,6 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 
 		return nil
 	})
-
-	if verrs != nil && verrs.HasAny() {
-		invalidInputError := services.NewInvalidInputError(oldShipment.ID, nil, verrs, "There was an issue with validating the updates")
-
-		return &models.MTOShipment{}, invalidInputError
-	}
 
 	if err != nil {
 		switch err.(type) {
