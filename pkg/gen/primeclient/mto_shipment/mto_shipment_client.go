@@ -41,7 +41,7 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOS
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "updateMTOShipment",
 		Method:             "PUT",
-		PathPattern:        "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},

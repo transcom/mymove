@@ -78,11 +78,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	req := httptest.NewRequest("PUT", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
 	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 	params := mtoshipmentops.UpdateMTOShipmentParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-		Body:            payloads.MTOShipment(&mtoShipment), //todo update tests for new field checker
-		IfMatch:         eTag,
+		HTTPRequest:   req,
+		MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
+		Body:          payloads.MTOShipment(&mtoShipment), //todo update tests for new field checker
+		IfMatch:       eTag,
 	}
 
 	suite.T().Run("Successful PUT - Integration Test", func(t *testing.T) {
@@ -200,11 +199,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	eTag = etag.GenerateEtag(mtoShipment2.UpdatedAt)
 	params = mtoshipmentops.UpdateMTOShipmentParams{
-		HTTPRequest:     req2,
-		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment2.MoveTaskOrderID),
-		MtoShipmentID:   *handlers.FmtUUID(mtoShipment2.ID),
-		Body:            &payload,
-		IfMatch:         eTag,
+		HTTPRequest:   req2,
+		MtoShipmentID: *handlers.FmtUUID(mtoShipment2.ID),
+		Body:          &payload,
+		IfMatch:       eTag,
 	}
 
 	suite.T().Run("Successful PUT - Integration Test with Only Required Fields in Payload", func(t *testing.T) {

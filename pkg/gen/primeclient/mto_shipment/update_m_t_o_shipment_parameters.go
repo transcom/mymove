@@ -67,8 +67,6 @@ type UpdateMTOShipmentParams struct {
 	IfMatch string
 	/*Body*/
 	Body *primemessages.MTOShipment
-	/*MoveTaskOrderID*/
-	MoveTaskOrderID strfmt.UUID
 	/*MtoShipmentID
 	  ID of the shipment being updated
 
@@ -135,17 +133,6 @@ func (o *UpdateMTOShipmentParams) SetBody(body *primemessages.MTOShipment) {
 	o.Body = body
 }
 
-// WithMoveTaskOrderID adds the moveTaskOrderID to the update m t o shipment params
-func (o *UpdateMTOShipmentParams) WithMoveTaskOrderID(moveTaskOrderID strfmt.UUID) *UpdateMTOShipmentParams {
-	o.SetMoveTaskOrderID(moveTaskOrderID)
-	return o
-}
-
-// SetMoveTaskOrderID adds the moveTaskOrderId to the update m t o shipment params
-func (o *UpdateMTOShipmentParams) SetMoveTaskOrderID(moveTaskOrderID strfmt.UUID) {
-	o.MoveTaskOrderID = moveTaskOrderID
-}
-
 // WithMtoShipmentID adds the mtoShipmentID to the update m t o shipment params
 func (o *UpdateMTOShipmentParams) WithMtoShipmentID(mtoShipmentID strfmt.UUID) *UpdateMTOShipmentParams {
 	o.SetMtoShipmentID(mtoShipmentID)
@@ -174,11 +161,6 @@ func (o *UpdateMTOShipmentParams) WriteToRequest(r runtime.ClientRequest, reg st
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err
 		}
-	}
-
-	// path param moveTaskOrderID
-	if err := r.SetPathParam("moveTaskOrderID", o.MoveTaskOrderID.String()); err != nil {
-		return err
 	}
 
 	// path param mtoShipmentID

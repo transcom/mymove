@@ -160,7 +160,14 @@ paths:
       description: Gets a the customer associated with a move task order ID
       operationId: getMoveTaskOrderCustomer
       summary: Gets a the customer associated with a move task order ID
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}':
+  '/mto-shipments/{mtoShipmentID}':
+    parameters:
+      - description: ID of the shipment being updated
+        in: path
+        name: mtoShipmentID
+        required: true
+        format: uuid
+        type: string
     put:
       summary: Updates MTO shipment
       description: >
@@ -175,17 +182,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-        - in: path
-          name: mtoShipmentID
-          description: ID of the shipment being updated
-          required: true
-          format: uuid
-          type: string
         - in: body
           name: body
           required: true

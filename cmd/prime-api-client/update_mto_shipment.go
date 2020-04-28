@@ -93,10 +93,9 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	}
 
 	params := mtoShipment.UpdateMTOShipmentParams{
-		MoveTaskOrderID: shipment.MoveTaskOrderID,
-		MtoShipmentID:   shipment.ID,
-		Body:            &shipment,
-		IfMatch:         v.GetString(ETagFlag),
+		MtoShipmentID: shipment.ID,
+		Body:          &shipment,
+		IfMatch:       v.GetString(ETagFlag),
 	}
 	params.SetTimeout(time.Second * 30)
 
