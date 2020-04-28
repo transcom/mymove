@@ -236,9 +236,6 @@ table {
       fill: #adadad;
     }
   }
-  small {
-    @include u-text('gray-30');
-  }
   &--hasimg {
     table {
       table-layout: fixed;

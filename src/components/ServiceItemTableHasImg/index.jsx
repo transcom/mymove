@@ -4,18 +4,44 @@ import { Button } from '@trussworks/react-uswds';
 import { ReactComponent as Check } from '../../shared/icon/check.svg';
 import { ReactComponent as Ex } from '../../shared/icon/ex.svg';
 
-const ServiceItemTableHasImg = ({ serviceItems }) => {
-  const tableRows = serviceItems.map(({ id, dateRequested, serviceItem, code, details }) => {
-    let detailSection;
+function generateDetailText(detailObject) {
+  return Object.keys(detailObject.text).map((detail) => {
+    /* eslint-disable */
+    return (
+      <p className="font-sans-3xs">
+        {detail}: {detailObject.text[detail]}
+      </p>
+    );
+    /* eslint-enable */
+  });
+}
 
-    if (details.imgURL) {
+const ServiceItemTableHasImg = ({ serviceItems }) => {
+  const tableRows = serviceItems.map(({ id, dateRequested, serviceItem, details }) => {
+    let detailSection;
+    if (details.imgURL && typeof details.text === 'object') {
       detailSection = (
         <div className="display-flex" style={{ alignItems: 'center' }}>
           <div
             className="si-thumbnail"
             style={{
-              width: '56px',
-              height: '42px',
+              width: '100px',
+              height: '100px',
+              backgroundImage: `url(${details.imgURL})`,
+            }}
+            aria-labelledby="si-thumbnail--caption"
+          />
+          <small id="si-thumbnail--caption">{generateDetailText(details)}</small>
+        </div>
+      );
+    } else if (details.imgURL) {
+      detailSection = (
+        <div className="display-flex" style={{ alignItems: 'center' }}>
+          <div
+            className="si-thumbnail"
+            style={{
+              width: '100px',
+              height: '100px',
               backgroundImage: `url(${details.imgURL})`,
             }}
             aria-labelledby="si-thumbnail--caption"
@@ -23,29 +49,19 @@ const ServiceItemTableHasImg = ({ serviceItems }) => {
           <small id="si-thumbnail--caption">{details.text}</small>
         </div>
       );
-    } else if (typeof details === 'object') {
-      const deets = [];
-
-      for (const detail in details.text) {
-        deets.push(
-          <p className="si-details">
-            {detail}: {details.text[detail]}
-          </p>,
-        );
-      }
-
-      detailSection = <div className="si-details">{deets}</div>;
+    } else if (typeof details.text === 'object') {
+      detailSection = <div className="si-details">{generateDetailText(details)}</div>;
     } else {
       detailSection = <p className="si-details">{details.text}</p>;
     }
 
-    console.log('SECTION: ', detailSection);
-
     return (
       <tr key={id} style={{ height: '80px' }}>
-        <td style={{ paddingTop: '19px', verticalAlign: 'top' }}>{dateRequested}</td>
-        <td style={{ paddingTop: '19px', verticalAlign: 'top' }}>{serviceItem}</td>
-        <td style={{ paddingTop: '19px', verticalAlign: 'top' }}>{code}</td>
+        <td style={{ paddingTop: '19px', verticalAlign: 'top' }}>
+          <strong>{serviceItem}</strong>
+          <br />
+          <span>{dateRequested}</span>
+        </td>
         <td style={{ verticalAlign: 'top' }}>{detailSection}</td>
         <td>
           <div className="display-flex">
@@ -70,16 +86,12 @@ const ServiceItemTableHasImg = ({ serviceItems }) => {
   return (
     <div className="table--service-item table--service-item--hasimg">
       <table>
-        <col style={{ width: '120px' }} />
-        <col style={{ width: '170px' }} />
-        <col style={{ width: '100px' }} />
+        <col style={{ width: '300px' }} />
         <col style={{ width: '350px' }} />
         <col />
         <thead className="table--small">
           <tr>
-            <th>Date requested</th>
             <th>Service item</th>
-            <th>Code</th>
             <th>Details</th>
             <th>&nbsp;</th>
           </tr>

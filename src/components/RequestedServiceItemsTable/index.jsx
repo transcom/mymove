@@ -36,6 +36,46 @@ const RequestedServiceItemsTable = () => (
           imgURL: null,
         },
       },
+      {
+        id: 'cba-123',
+        dateRequested: '22 Nov 2020',
+        serviceItem: 'Dom. Origin Shuttle Service',
+        code: 'DOSHUT',
+        details: {
+          text: {
+            'Reason for request': "Here's the reason",
+            'Estimated weight': '3,500lbs',
+          },
+          imgURL: null,
+        },
+      },
+      {
+        id: 'cba-1234',
+        dateRequested: '22 Nov 2020',
+        serviceItem: 'Dom. Destination Shuttle Service',
+        code: 'DDSHUT',
+        details: {
+          text: {
+            'Reason for request': "Here's the reason",
+            'Estimated weight': '3,500lbs',
+          },
+          imgURL: null,
+        },
+      },
+      {
+        id: 'abc12345',
+        dateRequested: '22 Nov 2020',
+        serviceItem: 'Dom. Crating',
+        code: 'DCRT',
+        details: {
+          text: {
+            Description: "Here's the description",
+            'Item dimensions': '84"x26"x42"',
+            'Crate dimensions': '110"x36"x54"',
+          },
+          imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
+        },
+      },
     ]}
   />
 );

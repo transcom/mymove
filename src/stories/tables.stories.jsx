@@ -274,12 +274,16 @@ storiesOf('Components|Tables', module)
       <ServiceItemTableHasImg
         serviceItems={[
           {
-            id: 'abc-123',
-            dateRequested: '20 Nov 2020',
-            serviceItem: 'Domestic Crating',
+            id: 'abc12345',
+            dateRequested: '22 Nov 2020',
+            serviceItem: 'Dom. Crating',
             code: 'DCRT',
             details: {
-              text: 'grandfather clock 7ft x 2ft x 3.5ft',
+              text: {
+                Description: "Here's the description",
+                'Item dimensions': '84"x26"x42"',
+                'Crate dimensions': '110"x36"x54"',
+              },
               imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
             },
           },
