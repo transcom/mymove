@@ -204,7 +204,7 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 
 	err = setNewShipmentFields(f.planner, f.db, &oldShipment, mtoShipment)
 	if err != nil {
-		return &models.MTOShipment{}, err
+		return &oldShipment, err
 	}
 
 	err = f.db.Transaction(func(tx *pop.Connection) error {
