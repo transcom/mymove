@@ -100,6 +100,7 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.MoveT
 		ReferenceID:        mtoPayload.ReferenceID,
 		PPMEstimatedWeight: &ppmEstimatedWeight,
 		PPMType:            &mtoPayload.PpmType,
+		ContractorID:       uuid.FromStringOrNil(mtoPayload.ContractorID.String()),
 	}
 
 	if mtoPayload.IsAvailableToPrime != nil {

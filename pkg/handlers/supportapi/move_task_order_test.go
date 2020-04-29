@@ -52,7 +52,6 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := move_task_order.GetMoveTaskOrderParams{
 		HTTPRequest:     request,
@@ -79,10 +78,13 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	destinationDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{})
 	originDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{})
 	dbCustomer := testdatagen.MakeCustomer(suite.DB(), testdatagen.Assertions{})
+	contractor := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{})
+
 	mtoWithoutCustomer := models.MoveTaskOrder{
 		ReferenceID:        "4857363",
 		IsAvailableToPrime: true,
 		PPMType:            swag.String("FULL"),
+		ContractorID:       contractor.ID,
 		MoveOrder: models.MoveOrder{
 			Grade:                    swag.String("E_6"),
 			OrderNumber:              swag.String("4554"),
@@ -98,7 +100,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 	request := httptest.NewRequest("POST", "/move-task-orders", nil)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
 
 	suite.T().Run("successful create movetaskorder request 201", func(t *testing.T) {
 
@@ -114,7 +115,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
 			customer.NewCustomerFetcher(context.DB()),
-			movetaskorder.NewMoveTaskOrderCreator(queryBuilder, context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -150,7 +150,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
 			customer.NewCustomerFetcher(context.DB()),
-			movetaskorder.NewMoveTaskOrderCreator(queryBuilder, context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -179,7 +178,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
 			customer.NewCustomerFetcher(context.DB()),
-			movetaskorder.NewMoveTaskOrderCreator(queryBuilder, context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -201,7 +199,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
 			customer.NewCustomerFetcher(context.DB()),
-			movetaskorder.NewMoveTaskOrderCreator(queryBuilder, context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -213,10 +210,8 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
 
 		mockFetcher := mocks.CustomerFetcher{}
-		mockCreator := mocks.MoveTaskOrderCreator{}
 		handler := CreateMoveTaskOrderHandler{context,
 			&mockFetcher,
-			&mockCreator,
 		}
 
 		notFoundError := services.NotFoundError{}
@@ -250,7 +245,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
 			customer.NewCustomerFetcher(context.DB()),
-			movetaskorder.NewMoveTaskOrderCreator(queryBuilder, context.DB()),
 		}
 		response := handler.Handle(params)
 

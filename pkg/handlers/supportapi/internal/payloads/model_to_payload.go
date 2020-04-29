@@ -25,6 +25,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *supportmessages.MoveTas
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
 		ReferenceID:        moveTaskOrder.ReferenceID,
+		ContractorID:       strfmt.UUID(moveTaskOrder.ContractorID.String()),
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
@@ -196,6 +197,21 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 
 	if mtoShipment.ApprovedDate != nil {
 		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
+	}
+
+	return payload
+}
+
+// MTOServiceItem payload
+func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.UpdateMTOServiceItemStatus {
+	strfmt.MarshalFormat = strfmt.RFC3339Micro
+	payload := &supportmessages.UpdateMTOServiceItemStatus{
+		ETag:            etag.GenerateEtag(mtoServiceItem.UpdatedAt),
+		ID:              strfmt.UUID(mtoServiceItem.ID.String()),
+		MoveTaskOrderID: strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()),
+		MtoShipmentID:   strfmt.UUID(mtoServiceItem.MTOShipmentID.String()),
+		Status:          supportmessages.MTOServiceItemStatus(mtoServiceItem.Status),
+		RejectionReason: mtoServiceItem.Reason,
 	}
 
 	return payload

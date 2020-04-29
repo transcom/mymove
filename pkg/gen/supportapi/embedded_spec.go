@@ -246,6 +246,280 @@ func init() {
           "ppm_office_users"
         ]
       }
+    },
+    "/mto-shipments/{mtoShipmentID}/status": {
+      "patch": {
+        "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Updates a shipment's status",
+        "operationId": "patchMTOShipmentStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PatchMTOShipmentStatus"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the shipment's status",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "409": {
+            "description": "Conflict error due to trying to change the status of shipment that is not currently \"SUBMITTED\"",
+            "schema": {
+              "$ref": "#/responses/Conflict"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match) value",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment being updated",
+          "name": "mtoShipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/status": {
+      "patch": {
+        "description": "Approves or rejects a payment request, located using the payment request id. It can also add or update an optional rejection reason to add more context to the status.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Updates status of a payment request by id",
+        "operationId": "updatePaymentRequestStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of payment request",
+            "name": "paymentRequestID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdatePaymentRequestStatus"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Unique value that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. The same value as the eTag attribute.",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated payment request status.",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid. Check the payment request body and try again.",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition failed. It is likely the eTag you passed is stale. Fetch the payment request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
+    "/service-items/{mtoServiceItemID}/status": {
+      "patch": {
+        "description": "Changes the status of a line item for a move order by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Change the status of a line item for a move order by ID",
+        "operationId": "updateMTOServiceItemStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated status for a line item for a move task order by ID",
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/responses/Conflict"
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of mto service item to use",
+          "name": "mtoServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
     }
   },
   "definitions": {
@@ -718,13 +992,13 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "status": {
+        "rejectionReason": {
           "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -740,23 +1014,19 @@ func init() {
         }
       }
     },
+    "MTOServiceItemStatus": {
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
     "MTOServiceItems": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
-      }
-    },
-    "MTOServiceItemstatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
       }
     },
     "MTOShipment": {
@@ -937,6 +1207,12 @@ func init() {
         "moveOrder"
       ],
       "properties": {
+        "contractorID": {
+          "description": "ID associated with the contractor, in this case Prime\n",
+          "type": "string",
+          "format": "uuid",
+          "example": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6"
+        },
         "createdAt": {
           "description": "Date the MoveTaskOrder was created on.",
           "type": "string",
@@ -1026,7 +1302,7 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "PatchMTOShipmentStatusPayload": {
+    "PatchMTOShipmentStatus": {
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -1077,14 +1353,6 @@ func init() {
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
-        },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
         }
@@ -1123,7 +1391,98 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestPayload": {
+    "UpdateMTOServiceItemStatus": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "description": {
+          "type": "string"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "feeType": {
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CRATING",
+            "TRUCKING",
+            "SHUTTLE"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "quantity": {
+          "type": "integer"
+        },
+        "rate": {
+          "type": "integer"
+        },
+        "reServiceCode": {
+          "type": "string"
+        },
+        "reServiceID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string"
+        },
+        "rejectedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "total": {
+          "type": "integer",
+          "format": "cents"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "UpdatePaymentRequest": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -1142,13 +1501,15 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {
+          "description": "Attribute of the payment request object that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. This matches the value passed in the header for If-Match.",
           "type": "string"
         },
         "rejectionReason": {
+          "description": "A written reason to provide context for the status.",
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
@@ -1556,6 +1917,331 @@ func init() {
           "ppm_office_users"
         ]
       }
+    },
+    "/mto-shipments/{mtoShipmentID}/status": {
+      "patch": {
+        "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Updates a shipment's status",
+        "operationId": "patchMTOShipmentStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PatchMTOShipmentStatus"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the shipment's status",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict error due to trying to change the status of shipment that is not currently \"SUBMITTED\"",
+            "schema": {
+              "description": "Conflict error.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match) value",
+            "schema": {
+              "description": "A precondition for the request failed.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment being updated",
+          "name": "mtoShipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/status": {
+      "patch": {
+        "description": "Approves or rejects a payment request, located using the payment request id. It can also add or update an optional rejection reason to add more context to the status.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Updates status of a payment request by id",
+        "operationId": "updatePaymentRequestStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of payment request",
+            "name": "paymentRequestID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdatePaymentRequestStatus"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Unique value that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. The same value as the eTag attribute.",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated payment request status.",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid. Check the payment request body and try again.",
+            "schema": {
+              "description": "The parameters were invalid.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition failed. It is likely the eTag you passed is stale. Fetch the payment request again to get the updated eTag value.",
+            "schema": {
+              "description": "A precondition for the request failed.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/service-items/{mtoServiceItemID}/status": {
+      "patch": {
+        "description": "Changes the status of a line item for a move order by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "Change the status of a line item for a move order by ID",
+        "operationId": "updateMTOServiceItemStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated status for a line item for a move task order by ID",
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The parameters were invalid.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "description": "Conflict error.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "description": "A precondition for the request failed.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of mto service item to use",
+          "name": "mtoServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
     }
   },
   "definitions": {
@@ -2028,13 +2714,13 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "status": {
+        "rejectionReason": {
           "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -2050,23 +2736,19 @@ func init() {
         }
       }
     },
+    "MTOServiceItemStatus": {
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
     "MTOServiceItems": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
-      }
-    },
-    "MTOServiceItemstatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
       }
     },
     "MTOShipment": {
@@ -2247,6 +2929,12 @@ func init() {
         "moveOrder"
       ],
       "properties": {
+        "contractorID": {
+          "description": "ID associated with the contractor, in this case Prime\n",
+          "type": "string",
+          "format": "uuid",
+          "example": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6"
+        },
         "createdAt": {
           "description": "Date the MoveTaskOrder was created on.",
           "type": "string",
@@ -2336,7 +3024,7 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "PatchMTOShipmentStatusPayload": {
+    "PatchMTOShipmentStatus": {
       "properties": {
         "rejectionReason": {
           "type": "string",
@@ -2387,14 +3075,6 @@ func init() {
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
-        },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
         }
@@ -2433,7 +3113,98 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestPayload": {
+    "UpdateMTOServiceItemStatus": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "description": {
+          "type": "string"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "feeType": {
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CRATING",
+            "TRUCKING",
+            "SHUTTLE"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "quantity": {
+          "type": "integer"
+        },
+        "rate": {
+          "type": "integer"
+        },
+        "reServiceCode": {
+          "type": "string"
+        },
+        "reServiceID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string"
+        },
+        "rejectedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "total": {
+          "type": "integer",
+          "format": "cents"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "UpdatePaymentRequest": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -2452,13 +3223,15 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {
+          "description": "Attribute of the payment request object that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. This matches the value passed in the header for If-Match.",
           "type": "string"
         },
         "rejectionReason": {
+          "description": "A written reason to provide context for the status.",
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"

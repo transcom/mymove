@@ -82,7 +82,6 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 type CreateMoveTaskOrderHandler struct {
 	handlers.HandlerContext
 	services.CustomerFetcher
-	services.MoveTaskOrderCreator
 }
 
 // Handle updates to move task order post-counseling

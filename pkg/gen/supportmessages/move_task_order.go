@@ -20,6 +20,11 @@ import (
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
+	// ID associated with the contractor, in this case Prime
+	//
+	// Format: uuid
+	ContractorID strfmt.UUID `json:"contractorID,omitempty"`
+
 	// Date the MoveTaskOrder was created on.
 	// Format: date
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
@@ -85,6 +90,10 @@ type MoveTaskOrder struct {
 func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateContractorID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -124,6 +133,19 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveTaskOrder) validateContractorID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ContractorID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("contractorID", "body", "uuid", m.ContractorID.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
