@@ -63,12 +63,16 @@ for the update m t o service item status operation typically these are written t
 */
 type UpdateMTOServiceItemStatusParams struct {
 
-	/*IfMatch*/
+	/*IfMatch
+	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+
+
+	*/
 	IfMatch string
 	/*Body*/
 	Body *supportmessages.UpdateMTOServiceItemStatus
 	/*MtoServiceItemID
-	  ID of mto service item to use
+	  UUID of mto service item to use.
 
 	*/
 	MtoServiceItemID string
