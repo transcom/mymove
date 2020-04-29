@@ -2,10 +2,12 @@ package mtoshipment
 
 import (
 	"fmt"
+
 	"github.com/transcom/mymove/pkg/services/fetch"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -23,7 +25,7 @@ type createMTOShipmentQueryBuilder interface {
 }
 
 type mtoShipmentCreator struct {
-	db *pop.Connection
+	db      *pop.Connection
 	builder createMTOShipmentQueryBuilder
 	services.Fetcher
 	createNewBuilder func(db *pop.Connection) createMTOShipmentQueryBuilder
@@ -34,7 +36,7 @@ func NewMTOShipmentCreator(db *pop.Connection, builder createMTOShipmentQueryBui
 	createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
 		return query.NewQueryBuilder(db)
 	}
-	return &mtoShipmentCreator{db, builder, fetch.NewFetcher(builder), createNewBuilder }
+	return &mtoShipmentCreator{db, builder, fetch.NewFetcher(builder), createNewBuilder}
 }
 
 // CreateMTOShipment updates the mto shipment
@@ -119,4 +121,3 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, eTag
 
 	return &newShipment, nil
 }
-

@@ -1,8 +1,9 @@
 package payloads
 
 import (
-	"github.com/go-openapi/strfmt"
 	"time"
+
+	"github.com/go-openapi/strfmt"
 
 	"github.com/gobuffalo/validate"
 
@@ -62,8 +63,8 @@ func MTOAgentsModel(mtoAgents *primemessages.MTOAgents) *models.MTOAgents {
 	return &agents
 }
 
-// MTOServiceItemArray
-func MTOServiceItemList(mtoShipment *primemessages.CreateShipmentPayload) (*models.MTOServiceItems, *validate.Errors)  {
+// MTOServiceItemList model
+func MTOServiceItemList(mtoShipment *primemessages.CreateShipmentPayload) (*models.MTOServiceItems, *validate.Errors) {
 
 	if mtoShipment == nil {
 		return nil, nil
@@ -85,23 +86,22 @@ func MTOServiceItemList(mtoShipment *primemessages.CreateShipmentPayload) (*mode
 	return &serviceItemsList, nil
 }
 
-
-// ShipmentModel
-func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload, moveTaskOrderId strfmt.UUID) *models.MTOShipment  {
+// MTOShipmentModelFromCreate model
+func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload, moveTaskOrderID strfmt.UUID) *models.MTOShipment {
 	if mtoShipment == nil {
 		return nil
 	}
 
 	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
 	model := &models.MTOShipment{
-		ID:           		uuid.FromStringOrNil(mtoShipment.ID.String()),
-		MoveTaskOrderID: 	uuid.FromStringOrNil(moveTaskOrderId.String()),
-		ShipmentType: 		models.MTOShipmentType(mtoShipment.ShipmentType),
+		ID:                  uuid.FromStringOrNil(mtoShipment.ID.String()),
+		MoveTaskOrderID:     uuid.FromStringOrNil(moveTaskOrderID.String()),
+		ShipmentType:        models.MTOShipmentType(mtoShipment.ShipmentType),
 		RequestedPickupDate: &requestedPickupDate,
-		PickupAddress: 		AddressModel(mtoShipment.PickupAddress),
-		DestinationAddress: AddressModel(mtoShipment.DestinationAddress),
-		MTOAgents: 			*MTOAgentsModel(&mtoShipment.Agents),
-		CustomerRemarks:    mtoShipment.CustomerRemarks,
+		PickupAddress:       AddressModel(mtoShipment.PickupAddress),
+		DestinationAddress:  AddressModel(mtoShipment.DestinationAddress),
+		MTOAgents:           *MTOAgentsModel(&mtoShipment.Agents),
+		CustomerRemarks:     mtoShipment.CustomerRemarks,
 	}
 
 	return model

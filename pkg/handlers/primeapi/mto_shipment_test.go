@@ -31,7 +31,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -61,7 +60,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	}
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher )
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,

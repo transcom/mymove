@@ -34,6 +34,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		logger.Error("Invalid mto shipment: params Body is nil")
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
 	}
+
 	moveTaskOrderID := params.MoveTaskOrderID
 	eTag := params.IfMatch
 
@@ -41,22 +42,19 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
 	if verrs != nil && verrs.HasAny() {
-		logger.Error("Error validating mto service item: ", zap.Error(verrs))
+		logger.Error("Error validating mto service item list: ", zap.Error(verrs))
 
 		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity()
 	}
-	mtoShipment.MTOServiceItems = mtoServiceItemsList
 
-
+	//mtoShipment.MTOServiceItems = *mtoServiceItemsList
 	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, eTag)
-
-	// return any errors
 	if err != nil {
-		logger.Error("Error creating mto service item: ", zap.Error(err))
+		logger.Error("Error creating mto shipment: ", zap.Error(err))
 		return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
 	}
 
-	returnPayload := payloads.MTOShipmentFromCreate(mtoShipment)
+	returnPayload := payloads.MTOShipmentFromCreate(mtoShipment, mtoServiceItemsList)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
 }
 
