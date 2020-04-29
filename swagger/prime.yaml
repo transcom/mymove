@@ -240,10 +240,6 @@ paths:
           schema:
             description: This is an MTOShipment.
             $ref: '#/definitions/CreateShipmentPayload'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
       responses:
         '200':
           description: created instance of a mto shipment

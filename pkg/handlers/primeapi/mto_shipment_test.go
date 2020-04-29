@@ -51,12 +51,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	fetcher := fetch.NewFetcher(builder)
 	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
 
-	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 	params := mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest:     req,
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 		Body:            &payload,
-		IfMatch:         eTag,
 	}
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {

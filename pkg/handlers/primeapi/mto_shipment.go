@@ -36,7 +36,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	}
 
 	moveTaskOrderID := params.MoveTaskOrderID
-	eTag := params.IfMatch
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload, moveTaskOrderID)
 
@@ -48,7 +47,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	}
 
 	//mtoShipment.MTOServiceItems = *mtoServiceItemsList
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, eTag)
+	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
 	if err != nil {
 		logger.Error("Error creating mto shipment: ", zap.Error(err))
 		return mtoshipmentops.NewCreateMTOShipmentInternalServerError()

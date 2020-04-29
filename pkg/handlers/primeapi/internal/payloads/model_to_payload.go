@@ -243,7 +243,7 @@ func PaymentRequests(paymentRequests *models.PaymentRequests) *primemessages.Pay
 }
 
 // MTOShipmentFromCreate payload
-func MTOShipmentFromCreate(mtoShipment *models.MTOShipment, mtoServiceItems *models.MTOServiceItems) *primemessages.MTOShipment {
+func MTOShipmentFromCreate(mtoShipment *models.MTOShipment, mtoServiceItems models.MTOServiceItems) *primemessages.MTOShipment {
 	payload := &primemessages.MTOShipment{
 		ID:                 strfmt.UUID(mtoShipment.ID.String()),
 		Agents:             *MTOAgents(&mtoShipment.MTOAgents),
@@ -260,9 +260,9 @@ func MTOShipmentFromCreate(mtoShipment *models.MTOShipment, mtoServiceItems *mod
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
 		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
 	}
-
+	//make sure this doesnt rely on the service items being passed in as an argument
 	if mtoServiceItems != nil {
-		payload.MtoServiceItemsField = *MTOServiceItems(mtoServiceItems)
+		payload.MtoServiceItemsField = *MTOServiceItems(&mtoServiceItems)
 	}
 
 	return payload

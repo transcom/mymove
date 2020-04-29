@@ -2,13 +2,12 @@ package mtoshipment
 
 import (
 	"fmt"
-
 	"github.com/transcom/mymove/pkg/services/fetch"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 
-	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -36,11 +35,17 @@ func NewMTOShipmentCreator(db *pop.Connection, builder createMTOShipmentQueryBui
 	createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
 		return query.NewQueryBuilder(db)
 	}
-	return &mtoShipmentCreator{db, builder, fetch.NewFetcher(builder), createNewBuilder}
+
+	return &mtoShipmentCreator{
+		db,
+		builder,
+		fetch.NewFetcher(builder),
+		createNewBuilder,
+	}
 }
 
 // CreateMTOShipment updates the mto shipment
-func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serviceItems models.MTOServiceItems) (*models.MTOShipment, error) {
 	var verrs *validate.Errors
 	var err error
 
@@ -58,66 +63,62 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, eTag
 	}
 
 	err = f.db.Transaction(func(tx *pop.Connection) error {
+		// create new builder to use tx
 		txBuilder := f.createNewBuilder(tx)
-		verrs, err = txBuilder.CreateOne(shipment)
 
+		// create pickup and destination addresses
+
+		if shipment.PickupAddress != nil {
+			verrs, err = txBuilder.CreateOne(shipment.PickupAddress)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("%#v %e", verrs, err)
+			}
+
+		}
+
+		if shipment.DestinationAddress != nil {
+			verrs, err = txBuilder.CreateOne(shipment.DestinationAddress)
+
+			if verrs != nil || err != nil {
+				return fmt.Errorf("%#v %e", verrs, err)
+			}
+		}
+
+		// assign addresses to shipment
+		shipment.PickupAddressID = &shipment.PickupAddress.ID
+		shipment.DestinationAddressID = &shipment.DestinationAddress.ID
+
+		// create a shipment
+		verrs, err = txBuilder.CreateOne(&shipment)
 		if verrs != nil || err != nil {
 			return fmt.Errorf("%#v %e", verrs, err)
 		}
 
-		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
-		encodedUpdatedAt := etag.GenerateEtag(shipment.UpdatedAt)
-		if encodedUpdatedAt != eTag {
-			return StaleIdentifierError{StaleIdentifier: eTag}
+		// create MTOAgents List
+		if shipment.MTOAgents != nil {
+			for _, agent := range shipment.MTOAgents {
+				agent.MTOShipmentID = shipment.ID
+				verrs, err = txBuilder.CreateOne(&agent)
+				if err != nil {
+					return err
+				}
+			}
 		}
 
-		if shipment.DestinationAddress != nil || shipment.PickupAddress != nil {
-			addressBaseQuery := `UPDATE addresses
-				SET
-			`
-
-			if shipment.DestinationAddress != nil {
-				destinationAddressQuery := generateAddressQuery()
-				params := generateAddressParams(shipment.DestinationAddress)
-				err = f.db.RawQuery(addressBaseQuery+destinationAddressQuery, params...).Exec()
-			}
-
-			if err != nil {
-				return err
-			}
-
-			if shipment.PickupAddress != nil {
-				pickupAddressQuery := generateAddressQuery()
-				params := generateAddressParams(shipment.PickupAddress)
-				err = f.db.RawQuery(addressBaseQuery+pickupAddressQuery, params...).Exec()
-			}
-
-			if err != nil {
-				return err
-			}
-
-			if shipment.MTOAgents != nil {
-				agentQuery := `UPDATE mto_agents
-					SET
-				`
-				for _, agent := range shipment.MTOAgents {
-					updateAgentQuery := generateAgentQuery()
-					params := generateMTOAgentsParams(agent)
-					err = f.db.RawQuery(agentQuery+updateAgentQuery, params...).Exec()
-					if err != nil {
-						return err
-					}
+		// create MTOServiceItems List
+		if serviceItems != nil {
+			mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(txBuilder)
+			for i, serviceItem := range serviceItems {
+				serviceItem.MTOShipmentID = &shipment.ID
+				serviceItem, verrs, err := mtoServiceItemCreator.CreateMTOServiceItem(&serviceItem)
+				if verrs != nil || err != nil {
+					return fmt.Errorf("%#v %e", verrs, err)
 				}
+				serviceItems[i] = *serviceItem
 			}
 		}
 		return nil
 	})
-	var newShipment models.MTOShipment
-	err = f.FetchRecord(&newShipment, queryFilters)
 
-	if err != nil {
-		return &models.MTOShipment{}, err
-	}
-
-	return &newShipment, nil
+	return shipment, nil
 }

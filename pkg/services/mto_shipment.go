@@ -21,5 +21,5 @@ type MTOShipmentStatusUpdater interface {
 // MTOShipmentCreator is the exported interface for creating a payment request
 //go:generate mockery -name MTOShipmentCreator
 type MTOShipmentCreator interface {
-	CreateMTOShipment(MTOShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	CreateMTOShipment(MTOShipment *models.MTOShipment, MTOServiceItems models.MTOServiceItems) (*models.MTOShipment, error)
 }
