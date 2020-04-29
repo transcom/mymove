@@ -102,7 +102,7 @@ func (o *CreatePaymentRequestBadRequest) WriteResponse(rw http.ResponseWriter, p
 // CreatePaymentRequestUnauthorizedCode is the HTTP code returned for type CreatePaymentRequestUnauthorized
 const CreatePaymentRequestUnauthorizedCode int = 401
 
-/*CreatePaymentRequestUnauthorized The request was denied.
+/*CreatePaymentRequestUnauthorized The request was unauthorized.
 
 swagger:response createPaymentRequestUnauthorized
 */
@@ -144,7 +144,7 @@ func (o *CreatePaymentRequestUnauthorized) WriteResponse(rw http.ResponseWriter,
 // CreatePaymentRequestForbiddenCode is the HTTP code returned for type CreatePaymentRequestForbidden
 const CreatePaymentRequestForbiddenCode int = 403
 
-/*CreatePaymentRequestForbidden The request was denied.
+/*CreatePaymentRequestForbidden The client doesn't have permissions to perform the request.
 
 swagger:response createPaymentRequestForbidden
 */
