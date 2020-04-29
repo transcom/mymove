@@ -12,6 +12,55 @@ basePath: /support/v1
 schemes:
   - http
 paths:
+  '/move-task-orders':
+    post:
+      summary: Creates a move task order
+      description: |
+        Creates an instance of moveTaskOrder.
+        Current this will also create a number of nested objects but not all.
+        It will currently create
+        * MoveTaskOrder
+        * MoveOrder
+        * Customer
+        * User
+        * Entitlement
+
+        It will not create addresses or duty stations.
+        This is a support endpoint and will not be available in production.
+      operationId: createMoveTaskOrder
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - moveTaskOrder
+      parameters:
+        - in: body
+          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+      responses:
+        '201':
+          description: Successfully created MoveTaskOrder object.
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/status':
     patch:
       consumes:
@@ -53,6 +102,8 @@ paths:
           description: Precondition Failed
           schema:
             $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           description: A server error occurred
           schema:
@@ -160,6 +211,8 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           description: A server error occurred
           schema:
@@ -484,12 +537,12 @@ definitions:
       agency:
         type: string
         title: Agency customer is affilated with
-      first_name:
+      firstName:
         type: string
-        example: John
-      last_name:
+        example: Vanya
+      lastName:
         type: string
-        example: Doe
+        example: Petrovna
       phone:
         type: string
         format: telephone
@@ -500,16 +553,17 @@ definitions:
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
-      current_address:
+      currentAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
-      destination_address:
+      destinationAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       dodID:
         type: string
       userID:
@@ -536,7 +590,7 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
-  Entitlements:
+  Entitlement:
     properties:
       id:
         example: 571008b1-b0de-454d-b843-d71be9f02c04
@@ -563,10 +617,12 @@ definitions:
         example: 2000
         type: integer
         x-formatting: weight
+        readOnly: true
       proGearWeightSpouse:
         example: 500
         type: integer
         x-formatting: weight
+        readOnly: true
       storageInTransit:
         example: 90
         type: integer
@@ -579,6 +635,7 @@ definitions:
         type: integer
       eTag:
         type: string
+        readOnly: true
     type: object
   Error:
     properties:
@@ -590,109 +647,160 @@ definitions:
   MoveOrder:
     properties:
       id:
+        description: ID of the MoveOrder object.
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      customer:
+        $ref: '#/definitions/Customer'
       customerID:
+        description: |
+          ID of the Customer this MoveOrder belongs to.
+
+          If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      confirmation_number:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        type: string
-      first_name:
-        type: string
-        example: John
-        readOnly: true
-      last_name:
-        type: string
-        example: Doe
-        readOnly: true
-      grade:
-        type: string
-        example: E_1
-      agency:
-        type: string
-        example: civilian
       entitlement:
-        $ref: '#/definitions/Entitlements'
+        $ref: '#/definitions/Entitlement'
       destinationDutyStation:
         $ref: '#/definitions/DutyStation'
-      originDutyStation:
-        $ref: '#/definitions/DutyStation'
-      moveTaskOrderID:
+      destinationDutyStationID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      order_number:
+        description: |
+          ID of the destination duty station.
+
+          If creating a MoveTaskOrder, this should match an existing duty station.
+      originDutyStation:
+        $ref: '#/definitions/DutyStation'
+      originDutyStationID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        description: |
+          ID of the origin duty station.
+
+          If creating a MoveTaskOrder, this should match an existing duty station.
+      rank:
+        description: Rank of the service member, must match specific list of available ranks.
+        type: string
+        example: E_1
+      reportByDate:
+        description: Date that the service member must report to the new DutyStation by.
+        type: string
+        format: date
+        example: '2020-01-01'
+      orderNumber:
+        description: ID of the military orders associated with this move.
         type: string
         x-nullable: true
         example: '030-00362'
-      order_type:
+      orderType:
         example: GHC
-        type: string
-      order_type_detail:
         type: string
         enum:
           - GHC
           - NTS
         x-nullable: true
-      date_issued:
+      orderTypeDetail:
         type: string
-        format: date
-        example: '2020-01-01'
-      report_by_date:
+        x-nullable: true
+      dateIssued:
+        description: The date the orders were issued.
         type: string
         format: date
         example: '2020-01-01'
       eTag:
+        description: |
+          Uniquely identifies the state of the MoveOrder object (but not the nested objects)
+
+          It will change everytime the object is updated. Client should store the value.
+          Updates to this MoveOrder will require that this eTag be passed in with the If-Match header.
         type: string
+        readOnly: true
     type: object
   MoveTaskOrder:
+    type: object
+    required:
+      - moveOrder
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
+        description: ID of the MoveTaskOrder object.
       createdAt:
         format: date
         type: string
+        description: Date the MoveTaskOrder was created on.
       moveOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+        description: ID of the MoveOrder object
+      moveOrder:
+        $ref: '#/definitions/MoveOrder'
+        description: MoveOrder associated with this MoveTaskOrder.
       referenceId:
         example: 1001-3456
         type: string
+        description: |
+          Unique ID associated with this MoveOrder.
+
+          No two MoveTaskOrders may have the same ID.
+          Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
       isAvailableToPrime:
         type: boolean
         x-nullable: true
+        description: |
+          Indicates this MoveTaskOrder is available for Prime API handling.
+
+          In production, only MoveTaskOrders for which this is true will be available to the API.
       isCanceled:
         type: boolean
         x-nullable: true
+        description:
+          Indicated this MoveTaskOrder has been canceled.
+      contractorID:
+        type: string
+        format: uuid
+        description: |
+          ID associated with the contractor, in this case Prime
+        example: 5db13bb4-6d29-4bdb-bc81-262f4513ecf6
       updatedAt:
         format: date
         type: string
-      destinationAddress:
-        $ref: '#/definitions/Address'
-      pickupAddress:
-        $ref: '#/definitions/Address'
-      destinationDutyStation:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
+        description: Date on which this MoveTaskOrder was last updated.
+      paymentRequests:
+        $ref: '#/definitions/PaymentRequests'
+        description: Array of PaymentRequests associated with this MoveTaskOrder.
+      mtoServiceItems:
+        description: Array of MTOServiceItems associated with this MoveTaskOrder.
+        type: array
+        items:
+          $ref: "#/definitions/MTOServiceItem"
+      mtoShipments:
+        description: array of MTOShipments associated with the MoveTaskOrder.
+        $ref: '#/definitions/MTOShipments'
+      ppmType:
+        description: If the move is a PPM, indicates whether it is full or partial.
         type: string
-      originDutyStation:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      entitlements:
-        $ref: '#/definitions/Entitlements'
-      requestedPickupDate:
-        format: date
-        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      ppmEstimatedWeight:
+        description: If the move is a PPM, this is the estimated weight in lbs.
+        type: integer
       eTag:
+        description: |
+          Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)
+
+          It will change everytime the object is updated. Client should store the value.
+          Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
         type: string
-    type: object
   MoveTaskOrderStatus:
     properties:
       is_available_to_prime:
@@ -1091,26 +1199,30 @@ definitions:
     type: object
 responses:
   InvalidRequest:
-    description: The request payload is invalid
+    description: The parameters were invalid.
     schema:
       $ref: '#/definitions/Error'
   NotFound:
-    description: The requested resource wasn't found
+    description: The requested resource wasn't found.
     schema:
       $ref: '#/definitions/Error'
   PermissionDenied:
-    description: The request was denied
+    description: The request was denied.
     schema:
       $ref: '#/definitions/Error'
   ServerError:
-    description: A server error occurred
+    description: A server error occurred.
     schema:
       $ref: '#/definitions/Error'
+  UnprocessableEntity:
+    description: The payload was unprocessable.
+    schema:
+      $ref: '#/definitions/ValidationError'
   PreconditionFailed:
-    description: Precondition failed
+    description: A precondition for the request failed.
     schema:
       $ref: '#/definitions/Error'
   Conflict:
-    description: Conflict error
+    description: Conflict error.
     schema:
       $ref: '#/definitions/Error'

@@ -225,6 +225,50 @@ func (o *GetMoveTaskOrderNotFound) WriteResponse(rw http.ResponseWriter, produce
 	}
 }
 
+// GetMoveTaskOrderUnprocessableEntityCode is the HTTP code returned for type GetMoveTaskOrderUnprocessableEntity
+const GetMoveTaskOrderUnprocessableEntityCode int = 422
+
+/*GetMoveTaskOrderUnprocessableEntity The payload was unprocessable.
+
+swagger:response getMoveTaskOrderUnprocessableEntity
+*/
+type GetMoveTaskOrderUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *supportmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewGetMoveTaskOrderUnprocessableEntity creates GetMoveTaskOrderUnprocessableEntity with default headers values
+func NewGetMoveTaskOrderUnprocessableEntity() *GetMoveTaskOrderUnprocessableEntity {
+
+	return &GetMoveTaskOrderUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the get move task order unprocessable entity response
+func (o *GetMoveTaskOrderUnprocessableEntity) WithPayload(payload *supportmessages.ValidationError) *GetMoveTaskOrderUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get move task order unprocessable entity response
+func (o *GetMoveTaskOrderUnprocessableEntity) SetPayload(payload *supportmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *GetMoveTaskOrderUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // GetMoveTaskOrderInternalServerErrorCode is the HTTP code returned for type GetMoveTaskOrderInternalServerError
 const GetMoveTaskOrderInternalServerErrorCode int = 500
 
