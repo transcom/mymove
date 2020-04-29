@@ -112,7 +112,7 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 	// Updated based on existing fields that may have been updated:
 	if oldShipment.ScheduledPickupDate != nil && oldShipment.PrimeEstimatedWeight != nil {
 		requiredDeliveryDate, err := calculateRequiredDeliveryDate(planner, db, *oldShipment.PickupAddress,
-			*oldShipment.DestinationAddress, *updatedShipment.ScheduledPickupDate, oldShipment.PrimeEstimatedWeight.Int())
+			*oldShipment.DestinationAddress, *oldShipment.ScheduledPickupDate, oldShipment.PrimeEstimatedWeight.Int())
 		if err != nil {
 			verrs.Add("requiredDeliveryDate", err.Error())
 		}
