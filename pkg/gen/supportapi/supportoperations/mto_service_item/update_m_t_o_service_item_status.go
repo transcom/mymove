@@ -31,9 +31,9 @@ func NewUpdateMTOServiceItemStatus(ctx *middleware.Context, handler UpdateMTOSer
 
 /*UpdateMTOServiceItemStatus swagger:route PATCH /service-items/{mtoServiceItemID}/status mtoServiceItem updateMTOServiceItemStatus
 
-Change the status of a line item for a move order by ID
+Update the status of a service item for a move order by ID.
 
-Changes the status of a line item for a move order by ID
+Updates the status of a service item for a move order to APPROVED or REJECTED.
 
 */
 type UpdateMTOServiceItemStatus struct {
