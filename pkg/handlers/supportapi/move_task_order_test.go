@@ -7,11 +7,14 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
 
@@ -97,7 +100,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 
-	suite.T().Run("successful create movetaskorder request", func(t *testing.T) {
+	suite.T().Run("successful create movetaskorder request 201", func(t *testing.T) {
 
 		// If customerID is provided create MTO without creating a new customer
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
@@ -159,7 +162,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
 		suite.Equal(true, *moveTaskOrdersPayload.IsAvailableToPrime)
 	})
-	suite.T().Run("failed create payment request -- repeat ReferenceID", func(t *testing.T) {
+	suite.T().Run("failed create movetaskorder request 400 -- repeat ReferenceID", func(t *testing.T) {
 
 		// Running the same request should result in the same reference id
 		// If customerID is provided create MTO without creating a new customer
@@ -173,6 +176,77 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			Body:        mtoPayload,
 		}
 
+		// make the request
+		handler := CreateMoveTaskOrderHandler{context,
+			customer.NewCustomerFetcher(context.DB()),
+			movetaskorder.NewMoveTaskOrderCreator(queryBuilder, context.DB()),
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&movetaskorderops.CreateMoveTaskOrderBadRequest{}, response)
+	})
+	suite.T().Run("failed create movetaskorder request 422 -- unprocessable entity", func(t *testing.T) {
+
+		// Running the same request should result in the same reference id
+		// If customerID is provided create MTO without creating a new customer
+		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
+		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
+		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
+
+		params := movetaskorderops.CreateMoveTaskOrderParams{
+			HTTPRequest: request,
+			Body:        mtoPayload,
+		}
+
+		// make the request
+		handler := CreateMoveTaskOrderHandler{context,
+			customer.NewCustomerFetcher(context.DB()),
+			movetaskorder.NewMoveTaskOrderCreator(queryBuilder, context.DB()),
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&movetaskorderops.CreateMoveTaskOrderUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("failed create movetaskorder request 404 -- not found", func(t *testing.T) {
+		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
+		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
+
+		mockFetcher := mocks.CustomerFetcher{}
+		mockCreator := mocks.MoveTaskOrderCreator{}
+		handler := CreateMoveTaskOrderHandler{context,
+			&mockFetcher,
+			&mockCreator,
+		}
+
+		notFoundError := services.NotFoundError{}
+
+		mockFetcher.On("FetchCustomer",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, notFoundError)
+
+		params := movetaskorderops.CreateMoveTaskOrderParams{
+			HTTPRequest: request,
+			Body:        mtoPayload,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&movetaskorderops.CreateMoveTaskOrderNotFound{}, response)
+	})
+
+	suite.T().Run("failed create movetaskorder request 400 -- Invalid Request", func(t *testing.T) {
+		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
+		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
+		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
+		// using a customerID as a dutyStationID should cause a query error
+		mtoPayload.MoveOrder.OriginDutyStationID = strfmt.UUID(dbCustomer.ID.String())
+		params := movetaskorderops.CreateMoveTaskOrderParams{
+			HTTPRequest: request,
+			Body:        mtoPayload,
+		}
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
 			customer.NewCustomerFetcher(context.DB()),

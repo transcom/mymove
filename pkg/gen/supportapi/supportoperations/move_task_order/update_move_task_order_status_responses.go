@@ -279,7 +279,7 @@ type UpdateMoveTaskOrderStatusUnprocessableEntity struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ValidationError `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderStatusUnprocessableEntity creates UpdateMoveTaskOrderStatusUnprocessableEntity with default headers values
@@ -289,13 +289,13 @@ func NewUpdateMoveTaskOrderStatusUnprocessableEntity() *UpdateMoveTaskOrderStatu
 }
 
 // WithPayload adds the payload to the update move task order status unprocessable entity response
-func (o *UpdateMoveTaskOrderStatusUnprocessableEntity) WithPayload(payload *supportmessages.Error) *UpdateMoveTaskOrderStatusUnprocessableEntity {
+func (o *UpdateMoveTaskOrderStatusUnprocessableEntity) WithPayload(payload *supportmessages.ValidationError) *UpdateMoveTaskOrderStatusUnprocessableEntity {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order status unprocessable entity response
-func (o *UpdateMoveTaskOrderStatusUnprocessableEntity) SetPayload(payload *supportmessages.Error) {
+func (o *UpdateMoveTaskOrderStatusUnprocessableEntity) SetPayload(payload *supportmessages.ValidationError) {
 	o.Payload = payload
 }
 

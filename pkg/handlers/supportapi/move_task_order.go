@@ -92,21 +92,20 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 	moveTaskOrder, err := createMoveTaskOrderSupport(h, params, logger)
 
 	if err != nil {
-		errorForPayload := supportmessages.Error{Message: handlers.FmtString(err.Error())}
+		errorPayload := supportmessages.Error{Message: handlers.FmtString(err.Error())}
 
 		switch typedErr := err.(type) {
 		case services.NotFoundError:
-			return movetaskorderops.NewCreateMoveTaskOrderNotFound().WithPayload(&errorForPayload)
+			return movetaskorderops.NewCreateMoveTaskOrderNotFound().WithPayload(&errorPayload)
 		case services.InvalidInputError:
 			errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors)
-			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(errPayload)
+			return movetaskorderops.NewCreateMoveTaskOrderUnprocessableEntity().WithPayload(errPayload)
 		case services.QueryError:
 			// This error is generated when the validation passed but there was an error in creation
 			// Usually this is due to a more complex dependency like a foreign key constraint
-			errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), nil)
-			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(errPayload)
+			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(&errorPayload)
 		default:
-			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(&errorForPayload)
+			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(&errorPayload)
 		}
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(moveTaskOrder)

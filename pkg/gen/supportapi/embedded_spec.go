@@ -1235,7 +1235,7 @@ func init() {
     "InvalidRequest": {
       "description": "The parameters were invalid.",
       "schema": {
-        "$ref": "#/definitions/ValidationError"
+        "$ref": "#/definitions/Error"
       }
     },
     "NotFound": {
@@ -1265,7 +1265,7 @@ func init() {
     "UnprocessableEntity": {
       "description": "The payload was unprocessable.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ValidationError"
       }
     }
   }
@@ -1323,7 +1323,7 @@ func init() {
           "400": {
             "description": "The parameters were invalid.",
             "schema": {
-              "$ref": "#/definitions/ValidationError"
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
@@ -1353,7 +1353,7 @@ func init() {
           "422": {
             "description": "The payload was unprocessable.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -1388,7 +1388,7 @@ func init() {
             "schema": {
               "description": "The parameters were invalid.",
               "schema": {
-                "$ref": "#/definitions/ValidationError"
+                "$ref": "#/definitions/Error"
               }
             }
           },
@@ -1422,7 +1422,7 @@ func init() {
           "422": {
             "description": "The payload was unprocessable.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -1493,7 +1493,7 @@ func init() {
             "schema": {
               "description": "The parameters were invalid.",
               "schema": {
-                "$ref": "#/definitions/ValidationError"
+                "$ref": "#/definitions/Error"
               }
             }
           },
@@ -1536,7 +1536,7 @@ func init() {
           "422": {
             "description": "The payload was unprocessable.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -2545,7 +2545,7 @@ func init() {
     "InvalidRequest": {
       "description": "The parameters were invalid.",
       "schema": {
-        "$ref": "#/definitions/ValidationError"
+        "$ref": "#/definitions/Error"
       }
     },
     "NotFound": {
@@ -2575,7 +2575,7 @@ func init() {
     "UnprocessableEntity": {
       "description": "The payload was unprocessable.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ValidationError"
       }
     }
   }

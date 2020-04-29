@@ -115,20 +115,20 @@ func NewCreateMoveTaskOrderBadRequest() *CreateMoveTaskOrderBadRequest {
 The parameters were invalid.
 */
 type CreateMoveTaskOrderBadRequest struct {
-	Payload *supportmessages.ValidationError
+	Payload *supportmessages.Error
 }
 
 func (o *CreateMoveTaskOrderBadRequest) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *CreateMoveTaskOrderBadRequest) GetPayload() *supportmessages.ValidationError {
+func (o *CreateMoveTaskOrderBadRequest) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.ValidationError)
+	o.Payload = new(supportmessages.Error)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -243,20 +243,20 @@ func NewCreateMoveTaskOrderUnprocessableEntity() *CreateMoveTaskOrderUnprocessab
 The payload was unprocessable.
 */
 type CreateMoveTaskOrderUnprocessableEntity struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ValidationError
 }
 
 func (o *CreateMoveTaskOrderUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderUnprocessableEntity  %+v", 422, o.Payload)
 }
 
-func (o *CreateMoveTaskOrderUnprocessableEntity) GetPayload() *supportmessages.Error {
+func (o *CreateMoveTaskOrderUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ValidationError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

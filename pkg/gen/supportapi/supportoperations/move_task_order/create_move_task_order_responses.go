@@ -69,7 +69,7 @@ type CreateMoveTaskOrderBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.ValidationError `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderBadRequest creates CreateMoveTaskOrderBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewCreateMoveTaskOrderBadRequest() *CreateMoveTaskOrderBadRequest {
 }
 
 // WithPayload adds the payload to the create move task order bad request response
-func (o *CreateMoveTaskOrderBadRequest) WithPayload(payload *supportmessages.ValidationError) *CreateMoveTaskOrderBadRequest {
+func (o *CreateMoveTaskOrderBadRequest) WithPayload(payload *supportmessages.Error) *CreateMoveTaskOrderBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create move task order bad request response
-func (o *CreateMoveTaskOrderBadRequest) SetPayload(payload *supportmessages.ValidationError) {
+func (o *CreateMoveTaskOrderBadRequest) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -241,7 +241,7 @@ type CreateMoveTaskOrderUnprocessableEntity struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ValidationError `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderUnprocessableEntity creates CreateMoveTaskOrderUnprocessableEntity with default headers values
@@ -251,13 +251,13 @@ func NewCreateMoveTaskOrderUnprocessableEntity() *CreateMoveTaskOrderUnprocessab
 }
 
 // WithPayload adds the payload to the create move task order unprocessable entity response
-func (o *CreateMoveTaskOrderUnprocessableEntity) WithPayload(payload *supportmessages.Error) *CreateMoveTaskOrderUnprocessableEntity {
+func (o *CreateMoveTaskOrderUnprocessableEntity) WithPayload(payload *supportmessages.ValidationError) *CreateMoveTaskOrderUnprocessableEntity {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create move task order unprocessable entity response
-func (o *CreateMoveTaskOrderUnprocessableEntity) SetPayload(payload *supportmessages.Error) {
+func (o *CreateMoveTaskOrderUnprocessableEntity) SetPayload(payload *supportmessages.ValidationError) {
 	o.Payload = payload
 }
 

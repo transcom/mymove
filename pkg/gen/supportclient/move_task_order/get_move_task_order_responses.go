@@ -239,20 +239,20 @@ func NewGetMoveTaskOrderUnprocessableEntity() *GetMoveTaskOrderUnprocessableEnti
 The payload was unprocessable.
 */
 type GetMoveTaskOrderUnprocessableEntity struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ValidationError
 }
 
 func (o *GetMoveTaskOrderUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderUnprocessableEntity  %+v", 422, o.Payload)
 }
 
-func (o *GetMoveTaskOrderUnprocessableEntity) GetPayload() *supportmessages.Error {
+func (o *GetMoveTaskOrderUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ValidationError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
