@@ -1727,7 +1727,11 @@ func init() {
         "invalidFields": {
           "type": "object",
           "additionalProperties": {
-            "type": "string"
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }
@@ -3575,7 +3579,11 @@ func init() {
         "invalidFields": {
           "type": "object",
           "additionalProperties": {
-            "type": "string"
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }
