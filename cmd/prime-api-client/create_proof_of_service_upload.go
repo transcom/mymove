@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	//"unsafe"
 
@@ -148,6 +149,7 @@ func createProofOfServiceUpload(cmd *cobra.Command, args []string) error {
 		File:             file,
 		PaymentRequestID: paymentRequestID,
 	}
+	params.SetTimeout(time.Second * 30)
 
 	resp, errCreatePaymentRequestUpload := primeGateway.Uploads.CreateUpload(&params)
 	if errCreatePaymentRequestUpload != nil {
