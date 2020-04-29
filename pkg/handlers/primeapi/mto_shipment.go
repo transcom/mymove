@@ -25,7 +25,7 @@ import (
 func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MTOShipment) (*models.MTOShipment, *validate.Errors) {
 	fieldsInError := validate.NewErrors()
 
-	if payload.ID != "" && payload.ID != mtoShipmentID {
+	if payload.ID != "" && payload.MoveTaskOrderID != "00000000-0000-0000-0000-000000000000" && payload.ID != mtoShipmentID {
 		fieldsInError.Add("id", "value does not agree with mtoShipmentID in path - omit from body or correct")
 	}
 	payload.ID = mtoShipmentID // set the ID from the path into the body for use w/ the model
@@ -69,7 +69,8 @@ func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MT
 		var updatedAtErr = false
 
 		for _, agent := range payload.Agents {
-			if agent.MtoShipmentID != "" && agent.MtoShipmentID != payload.ID && !mtoShipmentIDErr {
+			if agent.MtoShipmentID != "" && payload.MoveTaskOrderID != "00000000-0000-0000-0000-000000000000" &&
+				agent.MtoShipmentID != payload.ID && !mtoShipmentIDErr {
 				fieldsInError.Add("mtoShipmentID", "cannot be updated for agents")
 				mtoShipmentIDErr = true
 			}
