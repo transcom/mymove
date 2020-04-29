@@ -12,65 +12,105 @@ basePath: /support/v1
 schemes:
   - http
 paths:
+  '/move-task-orders/{moveTaskOrderID}':
+    parameters:
+      - description: UUID of move task order to use.
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      summary: Gets a move task order by ID.
+      description: Gets an individual move task order by ID.
+      operationId: getMoveTaskOrder
+      tags:
+        - moveTaskOrder
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieve an individual move task order.
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/status':
+    parameters:
+      - description: UUID of move task order.
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
     patch:
+      summary: Update the status of a move task order to make it available to prime.
+      description: Updates move task order `isAvailableToPrime` to TRUE to make it available to prime.
+      operationId: updateMoveTaskOrderStatus
+      tags:
+        - moveTaskOrder
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
-        - description: ID of move order to use
-          in: path
-          name: moveTaskOrderID
-          required: true
-          type: string
         - in: header
           name: If-Match
           type: string
           required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMoveTaskOrderStatus'
       responses:
         '200':
-          description: Successfully updated move task order status
+          description: Successfully updated move task order status.
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
+          description: The request was unauthorized.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
+          description: The client doesn't have permissions to perform the request.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Changes move task order status to make it available to prime
-      operationId: updateMoveTaskOrderStatus
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
-      summary: Change the status of a move task order to make it available to prime
+          $ref: '#/responses/ServerError'
   '/payment-requests/{paymentRequestID}/status':
+    parameters:
+      - description: UUID of payment request.
+        format: uuid
+        in: path
+        name: paymentRequestID
+        required: true
+        type: string
     patch:
       summary: Updates status of a payment request by id
-      description: Approves or rejects a payment request, located using the payment request id. It can also add or update an optional rejection reason to add more context to the status.
+      description: >
+        Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.
+        A status of REVIEWED can optionally have a `rejectionReason`.
       operationId: updatePaymentRequestStatus
       tags:
         - paymentRequests
@@ -79,182 +119,108 @@ paths:
       produces:
         - application/json
       parameters:
-        - description: UUID of payment request
-          format: uuid
-          in: path
-          name: paymentRequestID
-          required: true
+        - in: header
+          name: If-Match
           type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
         - in: body
           name: body
           required: true
           schema:
             $ref: '#/definitions/UpdatePaymentRequestStatus'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: Unique value that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. The same value as the eTag attribute.
       responses:
         '200':
           description: Successfully updated payment request status.
           schema:
             $ref: '#/definitions/PaymentRequest'
         '400':
-          description: The request payload is invalid. Check the payment request body and try again.
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
+          description: The request was unauthorized.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
+          description: The client doesn't have permissions to perform the request.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition failed. It is likely the eTag you passed is stale. Fetch the payment request again to get the updated eTag value.
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}':
-    parameters:
-      - description: ID of move task order to use
-        in: path
-        name: moveTaskOrderID
-        required: true
-        type: string
-    get:
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: Successfully retrieve an individual move task order
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Gets an individual move task order
-      operationId: getMoveTaskOrder
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
-      summary: Gets a move task order by ID
+          $ref: '#/responses/ServerError'
   '/service-items/{mtoServiceItemID}/status':
     parameters:
-      - description: ID of mto service item to use
+      - description: UUID of mto service item to use.
         in: path
         name: mtoServiceItemID
         required: true
         type: string
     patch:
+      summary: Update the status of a service item for a move order by ID.
+      description: Updates the status of a service item for a move order to APPROVED or REJECTED.
+      operationId: updateMTOServiceItemStatus
+      tags:
+        - mtoServiceItem
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
         - in: body
           name: body
           required: true
           schema:
             $ref: '#/definitions/UpdateMTOServiceItemStatus'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
       responses:
         '200':
-          description: >-
-            Successfully updated status for a line item for a move task order by
-            ID
+          description: Successfully updated service item status for a move task order.
           schema:
             $ref: '#/definitions/UpdateMTOServiceItemStatus'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
+          description: The request was unauthorized.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
+          description: The client doesn't have permissions to perform the request.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '409':
-          description: Conflict error
+          description: Conflict error due to trying to change the status of service item that is not currently "SUBMITTED".
           schema:
             $ref: '#/responses/Conflict'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - mtoServiceItem
-      description: Changes the status of a line item for a move order by ID
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
-      operationId: updateMTOServiceItemStatus
-      summary: Change the status of a line item for a move order by ID
+          $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}/status':
     parameters:
-      - description: ID of the shipment being updated
+      - description: UUID of the shipment being updated.
         in: path
         name: mtoShipmentID
         required: true
         format: uuid
         type: string
     patch:
-      summary: Updates a shipment's status
+      summary: Updates a shipment's status.
       description: >
         Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED,
         `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in
@@ -267,40 +233,45 @@ paths:
       produces:
         - application/json
       parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
         - in: body
           name: body
           required: true
           schema:
             $ref: '#/definitions/PatchMTOShipmentStatus'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
       responses:
         '200':
-          description: Successfully updated the shipment's status
+          description: Successfully updated the shipment's status.
           schema:
             $ref: '#/definitions/MTOShipment'
-        '404':
-          description: The requested resource wasn't found
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
           schema:
-            $ref: '#/responses/NotFound'
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
         '409':
-          description: Conflict error due to trying to change the status of shipment that is not currently "SUBMITTED"
+          description: Conflict error due to trying to change the status of shipment that is not currently "SUBMITTED".
           schema:
             $ref: '#/responses/Conflict'
         '412':
-          description: Precondition failed, likely due to a stale eTag (If-Match) value
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
 definitions:
   ClientError:
     type: object
@@ -693,11 +664,10 @@ definitions:
       eTag:
         type: string
     type: object
-  MoveTaskOrderStatus:
+  UpdateMoveTaskOrderStatus:
     properties:
       is_available_to_prime:
         type: boolean
-    type: object
   MoveOrders:
     items:
       $ref: '#/definitions/MoveOrder'
@@ -1052,7 +1022,7 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       eTag:
         type: string
-        description: Attribute of the payment request object that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. This matches the value passed in the header for If-Match.
+        description: Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending POST or PATCH requests to prevent updating stale data.
     type: object
   Upload:
     properties:
@@ -1106,8 +1076,12 @@ responses:
     description: A server error occurred
     schema:
       $ref: '#/definitions/Error'
+  UnprocessableEntity:
+    description: The payload was unprocessable.
+    schema:
+      $ref: '#/definitions/ValidationError'
   PreconditionFailed:
-    description: Precondition failed
+    description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.
     schema:
       $ref: '#/definitions/Error'
   Conflict:

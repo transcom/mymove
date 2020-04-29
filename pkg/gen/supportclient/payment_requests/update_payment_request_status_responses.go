@@ -118,24 +118,26 @@ func NewUpdatePaymentRequestStatusBadRequest() *UpdatePaymentRequestStatusBadReq
 
 /*UpdatePaymentRequestStatusBadRequest handles this case with default header values.
 
-The request payload is invalid. Check the payment request body and try again.
+The request payload is invalid
 */
 type UpdatePaymentRequestStatusBadRequest struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *UpdatePaymentRequestStatusBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *UpdatePaymentRequestStatusBadRequest) GetPayload() interface{} {
+func (o *UpdatePaymentRequestStatusBadRequest) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *UpdatePaymentRequestStatusBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -149,7 +151,7 @@ func NewUpdatePaymentRequestStatusUnauthorized() *UpdatePaymentRequestStatusUnau
 
 /*UpdatePaymentRequestStatusUnauthorized handles this case with default header values.
 
-The request was denied
+The request was unauthorized.
 */
 type UpdatePaymentRequestStatusUnauthorized struct {
 	Payload interface{}
@@ -180,7 +182,7 @@ func NewUpdatePaymentRequestStatusForbidden() *UpdatePaymentRequestStatusForbidd
 
 /*UpdatePaymentRequestStatusForbidden handles this case with default header values.
 
-The request was denied
+The client doesn't have permissions to perform the request.
 */
 type UpdatePaymentRequestStatusForbidden struct {
 	Payload interface{}
@@ -214,21 +216,23 @@ func NewUpdatePaymentRequestStatusNotFound() *UpdatePaymentRequestStatusNotFound
 The requested resource wasn't found
 */
 type UpdatePaymentRequestStatusNotFound struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *UpdatePaymentRequestStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusNotFound  %+v", 404, o.Payload)
 }
 
-func (o *UpdatePaymentRequestStatusNotFound) GetPayload() interface{} {
+func (o *UpdatePaymentRequestStatusNotFound) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *UpdatePaymentRequestStatusNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -242,24 +246,26 @@ func NewUpdatePaymentRequestStatusPreconditionFailed() *UpdatePaymentRequestStat
 
 /*UpdatePaymentRequestStatusPreconditionFailed handles this case with default header values.
 
-Precondition failed. It is likely the eTag you passed is stale. Fetch the payment request again to get the updated eTag value.
+Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.
 */
 type UpdatePaymentRequestStatusPreconditionFailed struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *UpdatePaymentRequestStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdatePaymentRequestStatusPreconditionFailed) GetPayload() interface{} {
+func (o *UpdatePaymentRequestStatusPreconditionFailed) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *UpdatePaymentRequestStatusPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -273,7 +279,7 @@ func NewUpdatePaymentRequestStatusUnprocessableEntity() *UpdatePaymentRequestSta
 
 /*UpdatePaymentRequestStatusUnprocessableEntity handles this case with default header values.
 
-Validation error
+The payload was unprocessable.
 */
 type UpdatePaymentRequestStatusUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
@@ -309,21 +315,23 @@ func NewUpdatePaymentRequestStatusInternalServerError() *UpdatePaymentRequestSta
 A server error occurred
 */
 type UpdatePaymentRequestStatusInternalServerError struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *UpdatePaymentRequestStatusInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *UpdatePaymentRequestStatusInternalServerError) GetPayload() interface{} {
+func (o *UpdatePaymentRequestStatusInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *UpdatePaymentRequestStatusInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

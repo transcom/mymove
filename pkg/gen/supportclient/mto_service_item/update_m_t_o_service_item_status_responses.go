@@ -91,7 +91,7 @@ func NewUpdateMTOServiceItemStatusOK() *UpdateMTOServiceItemStatusOK {
 
 /*UpdateMTOServiceItemStatusOK handles this case with default header values.
 
-Successfully updated status for a line item for a move task order by ID
+Successfully updated service item status for a move task order.
 */
 type UpdateMTOServiceItemStatusOK struct {
 	Payload *supportmessages.UpdateMTOServiceItemStatus
@@ -127,21 +127,23 @@ func NewUpdateMTOServiceItemStatusBadRequest() *UpdateMTOServiceItemStatusBadReq
 The request payload is invalid
 */
 type UpdateMTOServiceItemStatusBadRequest struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *UpdateMTOServiceItemStatusBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *UpdateMTOServiceItemStatusBadRequest) GetPayload() interface{} {
+func (o *UpdateMTOServiceItemStatusBadRequest) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOServiceItemStatusBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -155,7 +157,7 @@ func NewUpdateMTOServiceItemStatusUnauthorized() *UpdateMTOServiceItemStatusUnau
 
 /*UpdateMTOServiceItemStatusUnauthorized handles this case with default header values.
 
-The request was denied
+The request was unauthorized.
 */
 type UpdateMTOServiceItemStatusUnauthorized struct {
 	Payload interface{}
@@ -186,7 +188,7 @@ func NewUpdateMTOServiceItemStatusForbidden() *UpdateMTOServiceItemStatusForbidd
 
 /*UpdateMTOServiceItemStatusForbidden handles this case with default header values.
 
-The request was denied
+The client doesn't have permissions to perform the request.
 */
 type UpdateMTOServiceItemStatusForbidden struct {
 	Payload interface{}
@@ -220,21 +222,23 @@ func NewUpdateMTOServiceItemStatusNotFound() *UpdateMTOServiceItemStatusNotFound
 The requested resource wasn't found
 */
 type UpdateMTOServiceItemStatusNotFound struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *UpdateMTOServiceItemStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusNotFound  %+v", 404, o.Payload)
 }
 
-func (o *UpdateMTOServiceItemStatusNotFound) GetPayload() interface{} {
+func (o *UpdateMTOServiceItemStatusNotFound) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOServiceItemStatusNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -248,7 +252,7 @@ func NewUpdateMTOServiceItemStatusConflict() *UpdateMTOServiceItemStatusConflict
 
 /*UpdateMTOServiceItemStatusConflict handles this case with default header values.
 
-Conflict error
+Conflict error due to trying to change the status of service item that is not currently "SUBMITTED".
 */
 type UpdateMTOServiceItemStatusConflict struct {
 	Payload interface{}
@@ -279,24 +283,26 @@ func NewUpdateMTOServiceItemStatusPreconditionFailed() *UpdateMTOServiceItemStat
 
 /*UpdateMTOServiceItemStatusPreconditionFailed handles this case with default header values.
 
-Precondition Failed
+Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.
 */
 type UpdateMTOServiceItemStatusPreconditionFailed struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *UpdateMTOServiceItemStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdateMTOServiceItemStatusPreconditionFailed) GetPayload() interface{} {
+func (o *UpdateMTOServiceItemStatusPreconditionFailed) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOServiceItemStatusPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -310,7 +316,7 @@ func NewUpdateMTOServiceItemStatusUnprocessableEntity() *UpdateMTOServiceItemSta
 
 /*UpdateMTOServiceItemStatusUnprocessableEntity handles this case with default header values.
 
-The request payload is invalid
+The payload was unprocessable.
 */
 type UpdateMTOServiceItemStatusUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
@@ -346,21 +352,23 @@ func NewUpdateMTOServiceItemStatusInternalServerError() *UpdateMTOServiceItemSta
 A server error occurred
 */
 type UpdateMTOServiceItemStatusInternalServerError struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *UpdateMTOServiceItemStatusInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *UpdateMTOServiceItemStatusInternalServerError) GetPayload() interface{} {
+func (o *UpdateMTOServiceItemStatusInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOServiceItemStatusInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

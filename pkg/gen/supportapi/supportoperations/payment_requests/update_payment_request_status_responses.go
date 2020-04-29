@@ -60,7 +60,7 @@ func (o *UpdatePaymentRequestStatusOK) WriteResponse(rw http.ResponseWriter, pro
 // UpdatePaymentRequestStatusBadRequestCode is the HTTP code returned for type UpdatePaymentRequestStatusBadRequest
 const UpdatePaymentRequestStatusBadRequestCode int = 400
 
-/*UpdatePaymentRequestStatusBadRequest The request payload is invalid. Check the payment request body and try again.
+/*UpdatePaymentRequestStatusBadRequest The request payload is invalid
 
 swagger:response updatePaymentRequestStatusBadRequest
 */
@@ -69,7 +69,7 @@ type UpdatePaymentRequestStatusBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestStatusBadRequest creates UpdatePaymentRequestStatusBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdatePaymentRequestStatusBadRequest() *UpdatePaymentRequestStatusBadReq
 }
 
 // WithPayload adds the payload to the update payment request status bad request response
-func (o *UpdatePaymentRequestStatusBadRequest) WithPayload(payload interface{}) *UpdatePaymentRequestStatusBadRequest {
+func (o *UpdatePaymentRequestStatusBadRequest) WithPayload(payload *supportmessages.Error) *UpdatePaymentRequestStatusBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request status bad request response
-func (o *UpdatePaymentRequestStatusBadRequest) SetPayload(payload interface{}) {
+func (o *UpdatePaymentRequestStatusBadRequest) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,16 +93,18 @@ func (o *UpdatePaymentRequestStatusBadRequest) SetPayload(payload interface{}) {
 func (o *UpdatePaymentRequestStatusBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdatePaymentRequestStatusUnauthorizedCode is the HTTP code returned for type UpdatePaymentRequestStatusUnauthorized
 const UpdatePaymentRequestStatusUnauthorizedCode int = 401
 
-/*UpdatePaymentRequestStatusUnauthorized The request was denied
+/*UpdatePaymentRequestStatusUnauthorized The request was unauthorized.
 
 swagger:response updatePaymentRequestStatusUnauthorized
 */
@@ -144,7 +146,7 @@ func (o *UpdatePaymentRequestStatusUnauthorized) WriteResponse(rw http.ResponseW
 // UpdatePaymentRequestStatusForbiddenCode is the HTTP code returned for type UpdatePaymentRequestStatusForbidden
 const UpdatePaymentRequestStatusForbiddenCode int = 403
 
-/*UpdatePaymentRequestStatusForbidden The request was denied
+/*UpdatePaymentRequestStatusForbidden The client doesn't have permissions to perform the request.
 
 swagger:response updatePaymentRequestStatusForbidden
 */
@@ -195,7 +197,7 @@ type UpdatePaymentRequestStatusNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestStatusNotFound creates UpdatePaymentRequestStatusNotFound with default headers values
@@ -205,13 +207,13 @@ func NewUpdatePaymentRequestStatusNotFound() *UpdatePaymentRequestStatusNotFound
 }
 
 // WithPayload adds the payload to the update payment request status not found response
-func (o *UpdatePaymentRequestStatusNotFound) WithPayload(payload interface{}) *UpdatePaymentRequestStatusNotFound {
+func (o *UpdatePaymentRequestStatusNotFound) WithPayload(payload *supportmessages.Error) *UpdatePaymentRequestStatusNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request status not found response
-func (o *UpdatePaymentRequestStatusNotFound) SetPayload(payload interface{}) {
+func (o *UpdatePaymentRequestStatusNotFound) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,16 +221,18 @@ func (o *UpdatePaymentRequestStatusNotFound) SetPayload(payload interface{}) {
 func (o *UpdatePaymentRequestStatusNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdatePaymentRequestStatusPreconditionFailedCode is the HTTP code returned for type UpdatePaymentRequestStatusPreconditionFailed
 const UpdatePaymentRequestStatusPreconditionFailedCode int = 412
 
-/*UpdatePaymentRequestStatusPreconditionFailed Precondition failed. It is likely the eTag you passed is stale. Fetch the payment request again to get the updated eTag value.
+/*UpdatePaymentRequestStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.
 
 swagger:response updatePaymentRequestStatusPreconditionFailed
 */
@@ -237,7 +241,7 @@ type UpdatePaymentRequestStatusPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestStatusPreconditionFailed creates UpdatePaymentRequestStatusPreconditionFailed with default headers values
@@ -247,13 +251,13 @@ func NewUpdatePaymentRequestStatusPreconditionFailed() *UpdatePaymentRequestStat
 }
 
 // WithPayload adds the payload to the update payment request status precondition failed response
-func (o *UpdatePaymentRequestStatusPreconditionFailed) WithPayload(payload interface{}) *UpdatePaymentRequestStatusPreconditionFailed {
+func (o *UpdatePaymentRequestStatusPreconditionFailed) WithPayload(payload *supportmessages.Error) *UpdatePaymentRequestStatusPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request status precondition failed response
-func (o *UpdatePaymentRequestStatusPreconditionFailed) SetPayload(payload interface{}) {
+func (o *UpdatePaymentRequestStatusPreconditionFailed) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -261,16 +265,18 @@ func (o *UpdatePaymentRequestStatusPreconditionFailed) SetPayload(payload interf
 func (o *UpdatePaymentRequestStatusPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(412)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdatePaymentRequestStatusUnprocessableEntityCode is the HTTP code returned for type UpdatePaymentRequestStatusUnprocessableEntity
 const UpdatePaymentRequestStatusUnprocessableEntityCode int = 422
 
-/*UpdatePaymentRequestStatusUnprocessableEntity Validation error
+/*UpdatePaymentRequestStatusUnprocessableEntity The payload was unprocessable.
 
 swagger:response updatePaymentRequestStatusUnprocessableEntity
 */
@@ -323,7 +329,7 @@ type UpdatePaymentRequestStatusInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestStatusInternalServerError creates UpdatePaymentRequestStatusInternalServerError with default headers values
@@ -333,13 +339,13 @@ func NewUpdatePaymentRequestStatusInternalServerError() *UpdatePaymentRequestSta
 }
 
 // WithPayload adds the payload to the update payment request status internal server error response
-func (o *UpdatePaymentRequestStatusInternalServerError) WithPayload(payload interface{}) *UpdatePaymentRequestStatusInternalServerError {
+func (o *UpdatePaymentRequestStatusInternalServerError) WithPayload(payload *supportmessages.Error) *UpdatePaymentRequestStatusInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request status internal server error response
-func (o *UpdatePaymentRequestStatusInternalServerError) SetPayload(payload interface{}) {
+func (o *UpdatePaymentRequestStatusInternalServerError) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -347,8 +353,10 @@ func (o *UpdatePaymentRequestStatusInternalServerError) SetPayload(payload inter
 func (o *UpdatePaymentRequestStatusInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

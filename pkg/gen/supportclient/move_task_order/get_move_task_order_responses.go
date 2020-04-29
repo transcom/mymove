@@ -73,7 +73,7 @@ func NewGetMoveTaskOrderOK() *GetMoveTaskOrderOK {
 
 /*GetMoveTaskOrderOK handles this case with default header values.
 
-Successfully retrieve an individual move task order
+Successfully retrieve an individual move task order.
 */
 type GetMoveTaskOrderOK struct {
 	Payload *supportmessages.MoveTaskOrder
@@ -109,21 +109,23 @@ func NewGetMoveTaskOrderBadRequest() *GetMoveTaskOrderBadRequest {
 The request payload is invalid
 */
 type GetMoveTaskOrderBadRequest struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *GetMoveTaskOrderBadRequest) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *GetMoveTaskOrderBadRequest) GetPayload() interface{} {
+func (o *GetMoveTaskOrderBadRequest) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -137,7 +139,7 @@ func NewGetMoveTaskOrderUnauthorized() *GetMoveTaskOrderUnauthorized {
 
 /*GetMoveTaskOrderUnauthorized handles this case with default header values.
 
-The request was denied
+The request was unauthorized.
 */
 type GetMoveTaskOrderUnauthorized struct {
 	Payload interface{}
@@ -168,7 +170,7 @@ func NewGetMoveTaskOrderForbidden() *GetMoveTaskOrderForbidden {
 
 /*GetMoveTaskOrderForbidden handles this case with default header values.
 
-The request was denied
+The client doesn't have permissions to perform the request.
 */
 type GetMoveTaskOrderForbidden struct {
 	Payload interface{}
@@ -202,21 +204,23 @@ func NewGetMoveTaskOrderNotFound() *GetMoveTaskOrderNotFound {
 The requested resource wasn't found
 */
 type GetMoveTaskOrderNotFound struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *GetMoveTaskOrderNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderNotFound  %+v", 404, o.Payload)
 }
 
-func (o *GetMoveTaskOrderNotFound) GetPayload() interface{} {
+func (o *GetMoveTaskOrderNotFound) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -233,21 +237,23 @@ func NewGetMoveTaskOrderInternalServerError() *GetMoveTaskOrderInternalServerErr
 A server error occurred
 */
 type GetMoveTaskOrderInternalServerError struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *GetMoveTaskOrderInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *GetMoveTaskOrderInternalServerError) GetPayload() interface{} {
+func (o *GetMoveTaskOrderInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

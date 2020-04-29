@@ -30,6 +30,24 @@ func (o *PatchMTOShipmentStatusReader) ReadResponse(response runtime.ClientRespo
 			return nil, err
 		}
 		return result, nil
+	case 400:
+		result := NewPatchMTOShipmentStatusBadRequest()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
+	case 401:
+		result := NewPatchMTOShipmentStatusUnauthorized()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
+	case 403:
+		result := NewPatchMTOShipmentStatusForbidden()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 404:
 		result := NewPatchMTOShipmentStatusNotFound()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -73,7 +91,7 @@ func NewPatchMTOShipmentStatusOK() *PatchMTOShipmentStatusOK {
 
 /*PatchMTOShipmentStatusOK handles this case with default header values.
 
-Successfully updated the shipment's status
+Successfully updated the shipment's status.
 */
 type PatchMTOShipmentStatusOK struct {
 	Payload *supportmessages.MTOShipment
@@ -99,6 +117,101 @@ func (o *PatchMTOShipmentStatusOK) readResponse(response runtime.ClientResponse,
 	return nil
 }
 
+// NewPatchMTOShipmentStatusBadRequest creates a PatchMTOShipmentStatusBadRequest with default headers values
+func NewPatchMTOShipmentStatusBadRequest() *PatchMTOShipmentStatusBadRequest {
+	return &PatchMTOShipmentStatusBadRequest{}
+}
+
+/*PatchMTOShipmentStatusBadRequest handles this case with default header values.
+
+The request payload is invalid
+*/
+type PatchMTOShipmentStatusBadRequest struct {
+	Payload *supportmessages.Error
+}
+
+func (o *PatchMTOShipmentStatusBadRequest) Error() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] patchMTOShipmentStatusBadRequest  %+v", 400, o.Payload)
+}
+
+func (o *PatchMTOShipmentStatusBadRequest) GetPayload() *supportmessages.Error {
+	return o.Payload
+}
+
+func (o *PatchMTOShipmentStatusBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(supportmessages.Error)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewPatchMTOShipmentStatusUnauthorized creates a PatchMTOShipmentStatusUnauthorized with default headers values
+func NewPatchMTOShipmentStatusUnauthorized() *PatchMTOShipmentStatusUnauthorized {
+	return &PatchMTOShipmentStatusUnauthorized{}
+}
+
+/*PatchMTOShipmentStatusUnauthorized handles this case with default header values.
+
+The request was unauthorized.
+*/
+type PatchMTOShipmentStatusUnauthorized struct {
+	Payload interface{}
+}
+
+func (o *PatchMTOShipmentStatusUnauthorized) Error() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] patchMTOShipmentStatusUnauthorized  %+v", 401, o.Payload)
+}
+
+func (o *PatchMTOShipmentStatusUnauthorized) GetPayload() interface{} {
+	return o.Payload
+}
+
+func (o *PatchMTOShipmentStatusUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewPatchMTOShipmentStatusForbidden creates a PatchMTOShipmentStatusForbidden with default headers values
+func NewPatchMTOShipmentStatusForbidden() *PatchMTOShipmentStatusForbidden {
+	return &PatchMTOShipmentStatusForbidden{}
+}
+
+/*PatchMTOShipmentStatusForbidden handles this case with default header values.
+
+The client doesn't have permissions to perform the request.
+*/
+type PatchMTOShipmentStatusForbidden struct {
+	Payload interface{}
+}
+
+func (o *PatchMTOShipmentStatusForbidden) Error() string {
+	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] patchMTOShipmentStatusForbidden  %+v", 403, o.Payload)
+}
+
+func (o *PatchMTOShipmentStatusForbidden) GetPayload() interface{} {
+	return o.Payload
+}
+
+func (o *PatchMTOShipmentStatusForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
 // NewPatchMTOShipmentStatusNotFound creates a PatchMTOShipmentStatusNotFound with default headers values
 func NewPatchMTOShipmentStatusNotFound() *PatchMTOShipmentStatusNotFound {
 	return &PatchMTOShipmentStatusNotFound{}
@@ -109,21 +222,23 @@ func NewPatchMTOShipmentStatusNotFound() *PatchMTOShipmentStatusNotFound {
 The requested resource wasn't found
 */
 type PatchMTOShipmentStatusNotFound struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *PatchMTOShipmentStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] patchMTOShipmentStatusNotFound  %+v", 404, o.Payload)
 }
 
-func (o *PatchMTOShipmentStatusNotFound) GetPayload() interface{} {
+func (o *PatchMTOShipmentStatusNotFound) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *PatchMTOShipmentStatusNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -137,7 +252,7 @@ func NewPatchMTOShipmentStatusConflict() *PatchMTOShipmentStatusConflict {
 
 /*PatchMTOShipmentStatusConflict handles this case with default header values.
 
-Conflict error due to trying to change the status of shipment that is not currently "SUBMITTED"
+Conflict error due to trying to change the status of shipment that is not currently "SUBMITTED".
 */
 type PatchMTOShipmentStatusConflict struct {
 	Payload interface{}
@@ -168,24 +283,26 @@ func NewPatchMTOShipmentStatusPreconditionFailed() *PatchMTOShipmentStatusPrecon
 
 /*PatchMTOShipmentStatusPreconditionFailed handles this case with default header values.
 
-Precondition failed, likely due to a stale eTag (If-Match) value
+Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.
 */
 type PatchMTOShipmentStatusPreconditionFailed struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *PatchMTOShipmentStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] patchMTOShipmentStatusPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *PatchMTOShipmentStatusPreconditionFailed) GetPayload() interface{} {
+func (o *PatchMTOShipmentStatusPreconditionFailed) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *PatchMTOShipmentStatusPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -199,7 +316,7 @@ func NewPatchMTOShipmentStatusUnprocessableEntity() *PatchMTOShipmentStatusUnpro
 
 /*PatchMTOShipmentStatusUnprocessableEntity handles this case with default header values.
 
-Validation error
+The payload was unprocessable.
 */
 type PatchMTOShipmentStatusUnprocessableEntity struct {
 	Payload *supportmessages.ValidationError
@@ -235,21 +352,23 @@ func NewPatchMTOShipmentStatusInternalServerError() *PatchMTOShipmentStatusInter
 A server error occurred
 */
 type PatchMTOShipmentStatusInternalServerError struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *PatchMTOShipmentStatusInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] patchMTOShipmentStatusInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *PatchMTOShipmentStatusInternalServerError) GetPayload() interface{} {
+func (o *PatchMTOShipmentStatusInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *PatchMTOShipmentStatusInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

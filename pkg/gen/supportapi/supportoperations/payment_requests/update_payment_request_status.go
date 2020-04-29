@@ -33,7 +33,8 @@ func NewUpdatePaymentRequestStatus(ctx *middleware.Context, handler UpdatePaymen
 
 Updates status of a payment request by id
 
-Approves or rejects a payment request, located using the payment request id. It can also add or update an optional rejection reason to add more context to the status.
+Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID. A status of REVIEWED can optionally have a `rejectionReason`.
+
 
 */
 type UpdatePaymentRequestStatus struct {

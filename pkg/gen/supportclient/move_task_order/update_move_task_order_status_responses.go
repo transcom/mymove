@@ -79,7 +79,7 @@ func NewUpdateMoveTaskOrderStatusOK() *UpdateMoveTaskOrderStatusOK {
 
 /*UpdateMoveTaskOrderStatusOK handles this case with default header values.
 
-Successfully updated move task order status
+Successfully updated move task order status.
 */
 type UpdateMoveTaskOrderStatusOK struct {
 	Payload *supportmessages.MoveTaskOrder
@@ -115,21 +115,23 @@ func NewUpdateMoveTaskOrderStatusBadRequest() *UpdateMoveTaskOrderStatusBadReque
 The request payload is invalid
 */
 type UpdateMoveTaskOrderStatusBadRequest struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *UpdateMoveTaskOrderStatusBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] updateMoveTaskOrderStatusBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *UpdateMoveTaskOrderStatusBadRequest) GetPayload() interface{} {
+func (o *UpdateMoveTaskOrderStatusBadRequest) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMoveTaskOrderStatusBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -143,7 +145,7 @@ func NewUpdateMoveTaskOrderStatusUnauthorized() *UpdateMoveTaskOrderStatusUnauth
 
 /*UpdateMoveTaskOrderStatusUnauthorized handles this case with default header values.
 
-The request was denied
+The request was unauthorized.
 */
 type UpdateMoveTaskOrderStatusUnauthorized struct {
 	Payload interface{}
@@ -174,7 +176,7 @@ func NewUpdateMoveTaskOrderStatusForbidden() *UpdateMoveTaskOrderStatusForbidden
 
 /*UpdateMoveTaskOrderStatusForbidden handles this case with default header values.
 
-The request was denied
+The client doesn't have permissions to perform the request.
 */
 type UpdateMoveTaskOrderStatusForbidden struct {
 	Payload interface{}
@@ -208,21 +210,23 @@ func NewUpdateMoveTaskOrderStatusNotFound() *UpdateMoveTaskOrderStatusNotFound {
 The requested resource wasn't found
 */
 type UpdateMoveTaskOrderStatusNotFound struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *UpdateMoveTaskOrderStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] updateMoveTaskOrderStatusNotFound  %+v", 404, o.Payload)
 }
 
-func (o *UpdateMoveTaskOrderStatusNotFound) GetPayload() interface{} {
+func (o *UpdateMoveTaskOrderStatusNotFound) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMoveTaskOrderStatusNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -236,24 +240,26 @@ func NewUpdateMoveTaskOrderStatusPreconditionFailed() *UpdateMoveTaskOrderStatus
 
 /*UpdateMoveTaskOrderStatusPreconditionFailed handles this case with default header values.
 
-Precondition Failed
+Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.
 */
 type UpdateMoveTaskOrderStatusPreconditionFailed struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *UpdateMoveTaskOrderStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] updateMoveTaskOrderStatusPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdateMoveTaskOrderStatusPreconditionFailed) GetPayload() interface{} {
+func (o *UpdateMoveTaskOrderStatusPreconditionFailed) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMoveTaskOrderStatusPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -270,21 +276,23 @@ func NewUpdateMoveTaskOrderStatusInternalServerError() *UpdateMoveTaskOrderStatu
 A server error occurred
 */
 type UpdateMoveTaskOrderStatusInternalServerError struct {
-	Payload interface{}
+	Payload *supportmessages.Error
 }
 
 func (o *UpdateMoveTaskOrderStatusInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] updateMoveTaskOrderStatusInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *UpdateMoveTaskOrderStatusInternalServerError) GetPayload() interface{} {
+func (o *UpdateMoveTaskOrderStatusInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMoveTaskOrderStatusInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
