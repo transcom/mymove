@@ -1,28 +1,29 @@
 package main
 
 import (
-	"bufio"
+	//"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
-	"time"
 
-	"github.com/spf13/afero"
+	//"unsafe"
+
+	//"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/gen/primeclient/uploads"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
+	//"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // initCreateProofOfServiceUploadFlags initializes flags.
 func initCreateProofOfServiceUploadFlags(flag *pflag.FlagSet) {
-	flag.String(FilenameFlag, "", "Path to the file with the proof of service upload JSON payload")
+	flag.String(FilenameFlag, "", "Path to the file with the create-payment-request-upload JSON payload")
+	flag.String(PaymentRequestID, "", "Payment Request ID to upload the proof of service document to")
 
 	flag.SortFlags = false
 }
@@ -35,38 +36,36 @@ func checkCreateProofOfServiceUploadConfig(v *viper.Viper, args []string, logger
 	}
 
 	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
-		return errors.New("proof-of-service-upload expects a file to be passed in")
+		return errors.New("create-payment-request-upload expects a file to be passed in")
 	}
 
 	return nil
 }
 
-func createAferoFile(filename string, bytes []int) (afero.file, error) {
-	var fs = afero.NewMemMapFs()
-
-	/*
-	file, err := os.Open(filename)
-	if err != nil {
-		//suite.logger.Fatal("Error opening local file", zap.Error(err))
+/*
+func intToByteArray(num int64) []byte {
+	size := int(unsafe.Sizeof(num))
+	arr := make([]byte, size)
+	for i := 0; i < size; i++ {
+		byt := *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&num)) + uintptr(i)))
+		arr[i] = byt
 	}
-	*/
+	return arr
+}
 
-
-	//suite.NotNil(fs)
+func bytesToFile(filename string, data []byte) (afero.File, error) {
+	var fs = afero.NewMemMapFs()
 	uploadFile, err := fs.Create(filename)
 	if err != nil {
-		//suite.logger.Fatal("Error creating afero file", zap.Error(err))
+		return nil, fmt.Errorf("failed to create afero file %w", err)
 	}
 
-	uploadFile.Write(bytes)
+	uploadFile.Write(data)
+	uploadFile.Sync()
 
-	io.ByteWriter(uploadFile, bytes)
-	if err != nil {
-		//suite.logger.Fatal("Error copying to afero file", zap.Error(err))
-	}
-
-	return outputFile, nil
+	return uploadFile, nil
 }
+*/
 
 // createProofOfServiceUpload creates the payment request for an MTO
 func createProofOfServiceUpload(cmd *cobra.Command, args []string) error {
@@ -98,54 +97,65 @@ func createProofOfServiceUpload(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
+	/*
+		// Decode json from file that was passed into proof-of-service-upload
+		filename := v.GetString(FilenameFlag)
+		var reader *bufio.Reader
+		if filename != "" {
+			file, fileErr := os.Open(filepath.Clean(filename))
+			if fileErr != nil {
+				logger.Fatal(fileErr)
+			}
+			reader = bufio.NewReader(file)
+		}
+
+		if len(args) > 0 && containsDash(args) {
+			reader = bufio.NewReader(os.Stdin)
+		}
+
+		jsonDecoder := json.NewDecoder(reader)
+		var upload primemessages.Upload
+		err = jsonDecoder.Decode(&upload)
+		if err != nil {
+			return fmt.Errorf("decoding data failed: %w", err)
+		}
+
+		data := intToByteArray(*upload.Bytes)
+		file, err := bytesToFile(*upload.Filename, data)
+		if err != nil {
+			return fmt.Errorf("failed to create file from Byte: %w", err)
+		}
+	*/
+
 	// Decode json from file that was passed into proof-of-service-upload
 	filename := v.GetString(FilenameFlag)
-	var reader *bufio.Reader
-	if filename != "" {
-		file, fileErr := os.Open(filepath.Clean(filename))
-		if fileErr != nil {
-			logger.Fatal(fileErr)
-		}
-		reader = bufio.NewReader(file)
+	if filename == "" {
+		return fmt.Errorf("failed to open filename: %s", filename)
 	}
 
-	if len(args) > 0 && containsDash(args) {
-		reader = bufio.NewReader(os.Stdin)
+	paymentRequestID := v.GetString(PaymentRequestID)
+	if paymentRequestID == "" {
+		return fmt.Errorf("paymentRequestID required: %s", paymentRequestID)
 	}
 
-	jsonDecoder := json.NewDecoder(reader)
-	var proofOfServiceDocs primemessages.ProofOfServiceDocs
-	err = jsonDecoder.Decode(&proofOfServiceDocs)
-	if err != nil {
-		return fmt.Errorf("decoding data failed: %w", err)
-	}
-
-	for posDoc, _ := range proofOfServiceDocs.Uploads {
-		outputFile, err := suite.helperNewTempFile()
-		suite.Nil(err)
-		defer outputFile.Close()
-
-		written, err := io.Copy(outputFile, download)
-		suite.Nil(err)
-		suite.NotEqual(0, written)
-
-		info, err := outputFile.Stat()
-		suite.Equal(fixtureFileInfo.Size(), info.Size())
+	file, fileErr := os.Open(filepath.Clean(filename))
+	defer file.Close()
+	if fileErr != nil {
+		logger.Fatal(fileErr)
 	}
 
 	params := uploads.CreateUploadParams{
-		File: proofOfServiceDocs.Uploads[0].Bytes
-		Body: &proofOfServiceDocs,
+		File:             file,
+		PaymentRequestID: paymentRequestID,
 	}
-	params.SetTimeout(time.Second * 30)
 
-	resp, errCreatePaymentRequest := primeGateway.PaymentRequests.CreatePaymentRequest(&params)
-	if errCreatePaymentRequest != nil {
+	resp, errCreatePaymentRequestUpload := primeGateway.Uploads.CreateUpload(&params)
+	if errCreatePaymentRequestUpload != nil {
 		// If the response cannot be parsed as JSON you may see an error like
 		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
 		// Likely this is because the API doesn't return JSON response for BadRequest OR
 		// The response type is not being set to text
-		logger.Fatal(errCreatePaymentRequest.Error())
+		logger.Fatal(errCreatePaymentRequestUpload.Error())
 	}
 
 	payload := resp.GetPayload()
