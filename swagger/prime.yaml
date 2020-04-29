@@ -223,25 +223,30 @@ paths:
             $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items':
     post:
+      summary: Creates MTO service items that is added to a Move Task Order and MTO Shipment.
+      description: >
+        Creates MTO service items, which come from the list of services that can be provided.
+        Upon creation these items are added to a Move Task Order and MTO Shipment.
+      operationId: createMTOServiceItem
+      tags:
+        - mtoServiceItem
       consumes:
         - application/json
       produces:
         - application/json
-      summary: Creates mto service items
-      operationId: createMTOServiceItem
-      tags:
-        - mtoServiceItem
       parameters:
         - in: path
           name: moveTaskOrderID
           required: true
           format: uuid
           type: string
+          description: UUID of Move Task Order to use.
         - in: path
           name: mtoShipmentID
           required: true
           format: uuid
           type: string
+          description: UUID of MTO Shipment to use.
         - in: body
           name: body
           schema:
@@ -249,25 +254,25 @@ paths:
             $ref: '#/definitions/MTOServiceItem'
       responses:
         '200':
-          description: created instance of a mto service item
+          description: Successfully created an MTO service item.
           schema:
             $ref: '#/definitions/MTOServiceItem'
         '400':
-          description: invalid request
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
           schema:
-            $ref: '#/responses/InvalidRequest'
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '422':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: internal server error
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
   /payment-requests:
     post:
       consumes:
@@ -929,7 +934,7 @@ definitions:
       - RELEASING_AGENT
       - RECEIVING_AGENT
   MTOServiceItem:
-    description: Polymorphic type. MTOServiceItem describes a base type of a service item
+    description: MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
     type: object
     discriminator: modelType
     properties:
@@ -1236,22 +1241,26 @@ definitions:
       - invalidFields
 responses:
   InvalidRequest:
-    description: The request payload is invalid
+    description: The request payload is invalid.
     schema:
       $ref: '#/definitions/Error'
   NotFound:
-    description: The requested resource wasn't found
+    description: The requested resource wasn't found.
     schema:
       $ref: '#/definitions/Error'
   PermissionDenied:
-    description: The request was denied
+    description: The request was denied.
     schema:
       $ref: '#/definitions/Error'
   ServerError:
-    description: A server error occurred
+    description: A server error occurred.
     schema:
       $ref: '#/definitions/Error'
   PreconditionFailed:
-    description: Precondition failed
+    description: Precondition failed.
     schema:
       $ref: '#/definitions/Error'
+  UnprocessableEntity:
+    description: The payload was unprocessable.
+    schema:
+      $ref: '#/definitions/ValidationError'

@@ -145,7 +145,7 @@ paths:
           name: If-Match
           type: string
           required: true
-          description: Unique value that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. The same value as the eTag attribute.
+          description: Unique value that automatically changes when the request is updated. Required when sending PUT or PATCH requests to prevent updating stale data. The same value as the eTag attribute.
       responses:
         '200':
           description: Successfully updated payment request status.
@@ -1160,7 +1160,7 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       eTag:
         type: string
-        description: Attribute of the payment request object that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. This matches the value passed in the header for If-Match.
+        description: Attribute of the payment request object that automatically changes when the request is updated. Required when sending PUT or PATCH requests to prevent updating stale data. This matches the value passed in the header for If-Match.
     type: object
   Upload:
     properties:

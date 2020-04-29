@@ -64,7 +64,7 @@ for the update payment request status operation typically these are written to a
 type UpdatePaymentRequestStatusParams struct {
 
 	/*IfMatch
-	  Unique value that automatically changes when the request is updated. Required when sending POST or PATCH requests to prevent updating stale data. The same value as the eTag attribute.
+	  Unique value that automatically changes when the request is updated. Required when sending PUT or PATCH requests to prevent updating stale data. The same value as the eTag attribute.
 
 	*/
 	IfMatch string

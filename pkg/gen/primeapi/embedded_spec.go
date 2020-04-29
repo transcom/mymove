@@ -247,6 +247,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
       "post": {
+        "description": "Creates MTO service items, which come from the list of services that can be provided. Upon creation these items are added to a Move Task Order and MTO Shipment.\n",
         "consumes": [
           "application/json"
         ],
@@ -256,12 +257,13 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Creates mto service items",
+        "summary": "Creates MTO service items that is added to a Move Task Order and MTO Shipment.",
         "operationId": "createMTOServiceItem",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
+            "description": "UUID of Move Task Order to use.",
             "name": "moveTaskOrderID",
             "in": "path",
             "required": true
@@ -269,6 +271,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
+            "description": "UUID of MTO Shipment to use.",
             "name": "mtoShipmentID",
             "in": "path",
             "required": true
@@ -284,34 +287,34 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "created instance of a mto service item",
+            "description": "Successfully created an MTO service item.",
             "schema": {
               "$ref": "#/definitions/MTOServiceItem"
             }
           },
           "400": {
-            "description": "invalid request",
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "description": "The request was unauthorized.",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "422": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "internal server error",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -988,7 +991,7 @@ func init() {
       }
     },
     "MTOServiceItem": {
-      "description": "Polymorphic type. MTOServiceItem describes a base type of a service item",
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
       "required": [
         "modelType"
@@ -1721,33 +1724,39 @@ func init() {
   },
   "responses": {
     "InvalidRequest": {
-      "description": "The request payload is invalid",
+      "description": "The request payload is invalid.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "NotFound": {
-      "description": "The requested resource wasn't found",
+      "description": "The requested resource wasn't found.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "PermissionDenied": {
-      "description": "The request was denied",
+      "description": "The request was denied.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "PreconditionFailed": {
-      "description": "Precondition failed",
+      "description": "Precondition failed.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "ServerError": {
-      "description": "A server error occurred",
+      "description": "A server error occurred.",
       "schema": {
         "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
       }
     }
   }
@@ -1801,7 +1810,7 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
+              "description": "The request payload is invalid.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1810,7 +1819,7 @@ func init() {
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1819,7 +1828,7 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1828,7 +1837,7 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
+              "description": "The requested resource wasn't found.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1837,7 +1846,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
+              "description": "A server error occurred.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1867,7 +1876,7 @@ func init() {
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1876,7 +1885,7 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1885,7 +1894,7 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
+              "description": "The requested resource wasn't found.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1900,7 +1909,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
+              "description": "A server error occurred.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1971,7 +1980,7 @@ func init() {
           "400": {
             "description": "invalid request",
             "schema": {
-              "description": "The request payload is invalid",
+              "description": "The request payload is invalid.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1980,7 +1989,7 @@ func init() {
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1989,7 +1998,7 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1998,7 +2007,7 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
+              "description": "The requested resource wasn't found.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2007,7 +2016,7 @@ func init() {
           "412": {
             "description": "precondition failed",
             "schema": {
-              "description": "Precondition failed",
+              "description": "Precondition failed.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2016,7 +2025,7 @@ func init() {
           "500": {
             "description": "internal server error",
             "schema": {
-              "description": "A server error occurred",
+              "description": "A server error occurred.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2027,6 +2036,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
       "post": {
+        "description": "Creates MTO service items, which come from the list of services that can be provided. Upon creation these items are added to a Move Task Order and MTO Shipment.\n",
         "consumes": [
           "application/json"
         ],
@@ -2036,12 +2046,13 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Creates mto service items",
+        "summary": "Creates MTO service items that is added to a Move Task Order and MTO Shipment.",
         "operationId": "createMTOServiceItem",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
+            "description": "UUID of Move Task Order to use.",
             "name": "moveTaskOrderID",
             "in": "path",
             "required": true
@@ -2049,6 +2060,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
+            "description": "UUID of MTO Shipment to use.",
             "name": "mtoShipmentID",
             "in": "path",
             "required": true
@@ -2064,42 +2076,51 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "created instance of a mto service item",
+            "description": "Successfully created an MTO service item.",
             "schema": {
               "$ref": "#/definitions/MTOServiceItem"
             }
           },
           "400": {
-            "description": "invalid request",
+            "description": "The request payload is invalid.",
             "schema": {
-              "description": "The request payload is invalid",
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "The request payload is invalid",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
-            "description": "internal server error",
+            "description": "A server error occurred.",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -2164,7 +2185,7 @@ func init() {
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2173,7 +2194,7 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2182,7 +2203,7 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
+              "description": "The requested resource wasn't found.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2191,7 +2212,7 @@ func init() {
           "412": {
             "description": "precondition failed",
             "schema": {
-              "description": "Precondition failed",
+              "description": "Precondition failed.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2206,7 +2227,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
+              "description": "A server error occurred.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2257,7 +2278,7 @@ func init() {
           "400": {
             "description": "the payment request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
+              "description": "The request payload is invalid.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2266,7 +2287,7 @@ func init() {
           "401": {
             "description": "must be authenticated to use this endpoint",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2275,7 +2296,7 @@ func init() {
           "403": {
             "description": "not authorized to create a payment request",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2284,7 +2305,7 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
+              "description": "The requested resource wasn't found.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2299,7 +2320,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
+              "description": "A server error occurred.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2345,7 +2366,7 @@ func init() {
           "400": {
             "description": "Invalid request",
             "schema": {
-              "description": "The request payload is invalid",
+              "description": "The request payload is invalid.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2354,7 +2375,7 @@ func init() {
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2363,7 +2384,7 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2372,7 +2393,7 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
+              "description": "The requested resource wasn't found.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2381,7 +2402,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
+              "description": "A server error occurred.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2822,7 +2843,7 @@ func init() {
       }
     },
     "MTOServiceItem": {
-      "description": "Polymorphic type. MTOServiceItem describes a base type of a service item",
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
       "required": [
         "modelType"
@@ -3555,33 +3576,39 @@ func init() {
   },
   "responses": {
     "InvalidRequest": {
-      "description": "The request payload is invalid",
+      "description": "The request payload is invalid.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "NotFound": {
-      "description": "The requested resource wasn't found",
+      "description": "The requested resource wasn't found.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "PermissionDenied": {
-      "description": "The request was denied",
+      "description": "The request was denied.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "PreconditionFailed": {
-      "description": "Precondition failed",
+      "description": "Precondition failed.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "ServerError": {
-      "description": "A server error occurred",
+      "description": "A server error occurred.",
       "schema": {
         "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
       }
     }
   }

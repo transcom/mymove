@@ -19,7 +19,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItem Polymorphic type. MTOServiceItem describes a base type of a service item
+// MTOServiceItem MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
 // swagger:discriminator MTOServiceItem modelType
 type MTOServiceItem interface {
 	runtime.Validatable
