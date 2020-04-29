@@ -6,7 +6,7 @@ import styles from './shipmentContainer.module.scss';
 const cx = classNames.bind(styles);
 
 function ShipmentContainer({ children }) {
-  return <div className={`${cx('shipment-container')} container container--accent--blue`}>{children}</div>;
+  return <div className={`${cx('shipment-container')} container container--accent--hhg`}>{children}</div>;
 }
 
 ShipmentContainer.propTypes = {

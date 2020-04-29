@@ -36,7 +36,7 @@
     "query-string": "6",
     "ra-data-simple-rest": "^2.9.9",
     "react": "^16.13.1",
-    "react-admin": "^3.4.2",
+    "react-admin": "^3.4.3",
     "react-app-polyfill": "^1.0.6",
     "react-day-picker": "=7.4.8",
     "react-dom": "^16.13.1",
@@ -67,7 +67,7 @@
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.10.1",
-    "swagger-ui-dist": "^3.25.0",
+    "swagger-ui-dist": "^3.25.1",
     "uswds": "2.6.0",
     "yup": "^0.28.4"
   },

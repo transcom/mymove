@@ -31,6 +31,8 @@ type MTOServiceItemBasic struct {
 
 	reServiceNameField string
 
+	rejectionReasonField *string
+
 	statusField MTOServiceItemStatus
 
 	// re service code
@@ -108,6 +110,16 @@ func (m *MTOServiceItemBasic) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// RejectionReason gets the rejection reason of this subtype
+func (m *MTOServiceItemBasic) RejectionReason() *string {
+	return m.rejectionReasonField
+}
+
+// SetRejectionReason sets the rejection reason of this subtype
+func (m *MTOServiceItemBasic) SetRejectionReason(val *string) {
+	m.rejectionReasonField = val
+}
+
 // Status gets the status of this subtype
 func (m *MTOServiceItemBasic) Status() MTOServiceItemStatus {
 	return m.statusField
@@ -153,6 +165,8 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
@@ -181,6 +195,8 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
+
+	result.rejectionReasonField = base.RejectionReason
 
 	result.statusField = base.Status
 
@@ -223,6 +239,8 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
@@ -239,6 +257,8 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		RejectionReason: m.RejectionReason(),
 
 		Status: m.Status(),
 	},
