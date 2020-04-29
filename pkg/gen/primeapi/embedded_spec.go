@@ -363,7 +363,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Unique value that automatically changes when the request is updated.\nRequired when sending POST or PATCH requests to prevent updating stale data.\nThe same value as the eTag attribute.\n",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -2156,7 +2156,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Unique value that automatically changes when the request is updated.\nRequired when sending POST or PATCH requests to prevent updating stale data.\nThe same value as the eTag attribute.\n",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true

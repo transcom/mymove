@@ -90,10 +90,9 @@ paths:
                 description: Email or id of a contact person for this update.
                 type: string
         - in: header
-          description: |
-            Unique value that automatically changes when the request is updated.
-            Required when sending POST or PATCH requests to prevent updating stale data.
-            The same value as the eTag attribute.
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
           name: If-Match
           type: string
           required: true

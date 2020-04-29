@@ -62,9 +62,7 @@ for the update m t o post counseling information operation typically these are w
 type UpdateMTOPostCounselingInformationParams struct {
 
 	/*IfMatch
-	  Unique value that automatically changes when the request is updated.
-	Required when sending POST or PATCH requests to prevent updating stale data.
-	The same value as the eTag attribute.
+	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
 
 
 	*/
