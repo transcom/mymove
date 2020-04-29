@@ -3,19 +3,19 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import { history, store } from '../../shared/store';
-import Accessorials from './accessorials';
+import MoveTaskOrder from './moveTaskOrder';
 
-describe('Accessorials', () => {
+describe('MoveTaskOrder', () => {
   const wrapper = mount(
     <Provider store={store}>
       clear
       <ConnectedRouter history={history}>
-        <Accessorials />
+        <MoveTaskOrder />
       </ConnectedRouter>
     </Provider>,
   );
 
   it('should render the h1', () => {
-    expect(wrapper.contains(<h1>This is where we will put our accessorial components!</h1>)).toBe(true);
+    expect(wrapper.find({ 'data-cy': 'too-shipment-container' }).exists()).toBe(true);
   });
 });

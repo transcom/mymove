@@ -189,7 +189,7 @@ func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, 
 	}
 	q = q.Where("move_document_type in (?)", convertedTypes...)
 
-	err := q.Eager("Document.Uploads").All(&moveDocs)
+	err := q.Eager("Document.UserUploads.Upload").All(&moveDocs)
 	if err != nil {
 		return MoveDocuments{}, nil
 	}
