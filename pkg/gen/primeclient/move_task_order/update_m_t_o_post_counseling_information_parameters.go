@@ -61,7 +61,13 @@ for the update m t o post counseling information operation typically these are w
 */
 type UpdateMTOPostCounselingInformationParams struct {
 
-	/*IfMatch*/
+	/*IfMatch
+	  Unique value that automatically changes when the request is updated.
+	Required when sending POST or PATCH requests to prevent updating stale data.
+	The same value as the eTag attribute.
+
+
+	*/
 	IfMatch string
 	/*Body*/
 	Body UpdateMTOPostCounselingInformationBody

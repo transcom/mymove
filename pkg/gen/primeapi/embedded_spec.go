@@ -318,7 +318,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "Updates move task order's post counseling information",
+        "description": "Updates moveTaskOrder fields ppmType, ppmEstimatedWeight, and pointOfContact.\n",
         "consumes": [
           "application/json"
         ],
@@ -328,7 +328,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates move task order's post counseling information",
+        "summary": "Updates a move task order's post-counseling information",
         "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
@@ -339,16 +339,19 @@ func init() {
               "type": "object",
               "properties": {
                 "moveTaskOrderID": {
+                  "description": "ID for the move task order to use.",
                   "type": "string"
                 },
                 "pointOfContact": {
-                  "description": "Email or id of a contact person for this update",
+                  "description": "Email or id of a contact person for this update.",
                   "type": "string"
                 },
                 "ppmEstimatedWeight": {
+                  "description": "The estimated weight determined post counseling.",
                   "type": "integer"
                 },
                 "ppmType": {
+                  "description": "Sets a ppm type to an allowed value.",
                   "type": "string",
                   "enum": [
                     "FULL",
@@ -360,6 +363,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "Unique value that automatically changes when the request is updated.\nRequired when sending POST or PATCH requests to prevent updating stale data.\nThe same value as the eTag attribute.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -367,43 +371,43 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated move task order post counseling information",
+            "description": "Successfully updated move task order post-counseling information.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was denied.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The request was denied.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/responses/NotFound"
             }
           },
           "412": {
-            "description": "precondition failed",
+            "description": "Precondition failed.",
             "schema": {
               "$ref": "#/responses/PreconditionFailed"
             }
           },
           "422": {
-            "description": "The request payload is invalid",
+            "description": "The request payload is invalid.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
               "$ref": "#/responses/ServerError"
             }
@@ -2107,7 +2111,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "Updates move task order's post counseling information",
+        "description": "Updates moveTaskOrder fields ppmType, ppmEstimatedWeight, and pointOfContact.\n",
         "consumes": [
           "application/json"
         ],
@@ -2117,7 +2121,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates move task order's post counseling information",
+        "summary": "Updates a move task order's post-counseling information",
         "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
@@ -2128,16 +2132,19 @@ func init() {
               "type": "object",
               "properties": {
                 "moveTaskOrderID": {
+                  "description": "ID for the move task order to use.",
                   "type": "string"
                 },
                 "pointOfContact": {
-                  "description": "Email or id of a contact person for this update",
+                  "description": "Email or id of a contact person for this update.",
                   "type": "string"
                 },
                 "ppmEstimatedWeight": {
+                  "description": "The estimated weight determined post counseling.",
                   "type": "integer"
                 },
                 "ppmType": {
+                  "description": "Sets a ppm type to an allowed value.",
                   "type": "string",
                   "enum": [
                     "FULL",
@@ -2149,6 +2156,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "Unique value that automatically changes when the request is updated.\nRequired when sending POST or PATCH requests to prevent updating stale data.\nThe same value as the eTag attribute.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -2156,13 +2164,13 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated move task order post counseling information",
+            "description": "Successfully updated move task order post-counseling information.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was denied.",
             "schema": {
               "description": "The request was denied",
               "schema": {
@@ -2171,7 +2179,7 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The request was denied.",
             "schema": {
               "description": "The request was denied",
               "schema": {
@@ -2180,7 +2188,7 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
               "description": "The requested resource wasn't found",
               "schema": {
@@ -2189,7 +2197,7 @@ func init() {
             }
           },
           "412": {
-            "description": "precondition failed",
+            "description": "Precondition failed.",
             "schema": {
               "description": "Precondition failed",
               "schema": {
@@ -2198,13 +2206,13 @@ func init() {
             }
           },
           "422": {
-            "description": "The request payload is invalid",
+            "description": "The request payload is invalid.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
               "description": "A server error occurred",
               "schema": {

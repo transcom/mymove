@@ -60,6 +60,9 @@ paths:
         required: true
         type: string
     patch:
+      summary: Updates a move task order's post-counseling information
+      description: |
+        Updates moveTaskOrder fields ppmType, ppmEstimatedWeight, and pointOfContact.
       consumes:
         - application/json
       produces:
@@ -72,55 +75,60 @@ paths:
             type: object
             properties:
               moveTaskOrderID:
+                description: ID for the move task order to use.
                 type: string
               ppmType:
+                description: Sets a ppm type to an allowed value.
                 type: string
                 enum:
                   - FULL
                   - PARTIAL
               ppmEstimatedWeight:
+                description: The estimated weight determined post counseling.
                 type: integer
               pointOfContact:
+                description: Email or id of a contact person for this update.
                 type: string
-                description: Email or id of a contact person for this update
         - in: header
+          description: |
+            Unique value that automatically changes when the request is updated.
+            Required when sending POST or PATCH requests to prevent updating stale data.
+            The same value as the eTag attribute.
           name: If-Match
           type: string
           required: true
       responses:
         '200':
-          description: Successfully updated move task order post counseling information
+          description: Successfully updated move task order post-counseling information.
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '401':
-          description: The request was denied
+          description: The request was denied.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
+          description: The request was denied.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
+          description: The requested resource wasn't found.
           schema:
             $ref: '#/responses/NotFound'
         '412':
-          description: precondition failed
+          description: Precondition failed.
           schema:
             $ref: '#/responses/PreconditionFailed'
         '422':
-          description: The request payload is invalid
+          description: The request payload is invalid.
           schema:
             $ref: '#/definitions/ValidationError'
         '500':
-          description: A server error occurred
+          description: A server error occurred.
           schema:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Updates move task order's post counseling information
       operationId: updateMTOPostCounselingInformation
-      summary: Updates move task order's post counseling information
   '/move-task-orders/{moveTaskOrderID}/customer':
     parameters:
       - description: ID of move order to use

@@ -83,7 +83,7 @@ func NewUpdateMTOPostCounselingInformationOK() *UpdateMTOPostCounselingInformati
 
 /*UpdateMTOPostCounselingInformationOK handles this case with default header values.
 
-Successfully updated move task order post counseling information
+Successfully updated move task order post-counseling information.
 */
 type UpdateMTOPostCounselingInformationOK struct {
 	Payload *primemessages.MoveTaskOrder
@@ -116,7 +116,7 @@ func NewUpdateMTOPostCounselingInformationUnauthorized() *UpdateMTOPostCounselin
 
 /*UpdateMTOPostCounselingInformationUnauthorized handles this case with default header values.
 
-The request was denied
+The request was denied.
 */
 type UpdateMTOPostCounselingInformationUnauthorized struct {
 	Payload interface{}
@@ -147,7 +147,7 @@ func NewUpdateMTOPostCounselingInformationForbidden() *UpdateMTOPostCounselingIn
 
 /*UpdateMTOPostCounselingInformationForbidden handles this case with default header values.
 
-The request was denied
+The request was denied.
 */
 type UpdateMTOPostCounselingInformationForbidden struct {
 	Payload interface{}
@@ -178,7 +178,7 @@ func NewUpdateMTOPostCounselingInformationNotFound() *UpdateMTOPostCounselingInf
 
 /*UpdateMTOPostCounselingInformationNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type UpdateMTOPostCounselingInformationNotFound struct {
 	Payload interface{}
@@ -209,7 +209,7 @@ func NewUpdateMTOPostCounselingInformationPreconditionFailed() *UpdateMTOPostCou
 
 /*UpdateMTOPostCounselingInformationPreconditionFailed handles this case with default header values.
 
-precondition failed
+Precondition failed.
 */
 type UpdateMTOPostCounselingInformationPreconditionFailed struct {
 	Payload interface{}
@@ -240,7 +240,7 @@ func NewUpdateMTOPostCounselingInformationUnprocessableEntity() *UpdateMTOPostCo
 
 /*UpdateMTOPostCounselingInformationUnprocessableEntity handles this case with default header values.
 
-The request payload is invalid
+The request payload is invalid.
 */
 type UpdateMTOPostCounselingInformationUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
@@ -273,7 +273,7 @@ func NewUpdateMTOPostCounselingInformationInternalServerError() *UpdateMTOPostCo
 
 /*UpdateMTOPostCounselingInformationInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type UpdateMTOPostCounselingInformationInternalServerError struct {
 	Payload interface{}
@@ -302,16 +302,16 @@ swagger:model UpdateMTOPostCounselingInformationBody
 */
 type UpdateMTOPostCounselingInformationBody struct {
 
-	// move task order ID
+	// ID for the move task order to use.
 	MoveTaskOrderID string `json:"moveTaskOrderID,omitempty"`
 
-	// Email or id of a contact person for this update
+	// Email or id of a contact person for this update.
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
-	// ppm estimated weight
+	// The estimated weight determined post counseling.
 	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
-	// ppm type
+	// Sets a ppm type to an allowed value.
 	// Enum: [FULL PARTIAL]
 	PpmType string `json:"ppmType,omitempty"`
 }

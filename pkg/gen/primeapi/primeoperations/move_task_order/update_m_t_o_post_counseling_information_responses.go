@@ -16,7 +16,7 @@ import (
 // UpdateMTOPostCounselingInformationOKCode is the HTTP code returned for type UpdateMTOPostCounselingInformationOK
 const UpdateMTOPostCounselingInformationOKCode int = 200
 
-/*UpdateMTOPostCounselingInformationOK Successfully updated move task order post counseling information
+/*UpdateMTOPostCounselingInformationOK Successfully updated move task order post-counseling information.
 
 swagger:response updateMTOPostCounselingInformationOK
 */
@@ -60,7 +60,7 @@ func (o *UpdateMTOPostCounselingInformationOK) WriteResponse(rw http.ResponseWri
 // UpdateMTOPostCounselingInformationUnauthorizedCode is the HTTP code returned for type UpdateMTOPostCounselingInformationUnauthorized
 const UpdateMTOPostCounselingInformationUnauthorizedCode int = 401
 
-/*UpdateMTOPostCounselingInformationUnauthorized The request was denied
+/*UpdateMTOPostCounselingInformationUnauthorized The request was denied.
 
 swagger:response updateMTOPostCounselingInformationUnauthorized
 */
@@ -102,7 +102,7 @@ func (o *UpdateMTOPostCounselingInformationUnauthorized) WriteResponse(rw http.R
 // UpdateMTOPostCounselingInformationForbiddenCode is the HTTP code returned for type UpdateMTOPostCounselingInformationForbidden
 const UpdateMTOPostCounselingInformationForbiddenCode int = 403
 
-/*UpdateMTOPostCounselingInformationForbidden The request was denied
+/*UpdateMTOPostCounselingInformationForbidden The request was denied.
 
 swagger:response updateMTOPostCounselingInformationForbidden
 */
@@ -144,7 +144,7 @@ func (o *UpdateMTOPostCounselingInformationForbidden) WriteResponse(rw http.Resp
 // UpdateMTOPostCounselingInformationNotFoundCode is the HTTP code returned for type UpdateMTOPostCounselingInformationNotFound
 const UpdateMTOPostCounselingInformationNotFoundCode int = 404
 
-/*UpdateMTOPostCounselingInformationNotFound The requested resource wasn't found
+/*UpdateMTOPostCounselingInformationNotFound The requested resource wasn't found.
 
 swagger:response updateMTOPostCounselingInformationNotFound
 */
@@ -186,7 +186,7 @@ func (o *UpdateMTOPostCounselingInformationNotFound) WriteResponse(rw http.Respo
 // UpdateMTOPostCounselingInformationPreconditionFailedCode is the HTTP code returned for type UpdateMTOPostCounselingInformationPreconditionFailed
 const UpdateMTOPostCounselingInformationPreconditionFailedCode int = 412
 
-/*UpdateMTOPostCounselingInformationPreconditionFailed precondition failed
+/*UpdateMTOPostCounselingInformationPreconditionFailed Precondition failed.
 
 swagger:response updateMTOPostCounselingInformationPreconditionFailed
 */
@@ -228,7 +228,7 @@ func (o *UpdateMTOPostCounselingInformationPreconditionFailed) WriteResponse(rw 
 // UpdateMTOPostCounselingInformationUnprocessableEntityCode is the HTTP code returned for type UpdateMTOPostCounselingInformationUnprocessableEntity
 const UpdateMTOPostCounselingInformationUnprocessableEntityCode int = 422
 
-/*UpdateMTOPostCounselingInformationUnprocessableEntity The request payload is invalid
+/*UpdateMTOPostCounselingInformationUnprocessableEntity The request payload is invalid.
 
 swagger:response updateMTOPostCounselingInformationUnprocessableEntity
 */
@@ -272,7 +272,7 @@ func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) WriteResponse(rw
 // UpdateMTOPostCounselingInformationInternalServerErrorCode is the HTTP code returned for type UpdateMTOPostCounselingInformationInternalServerError
 const UpdateMTOPostCounselingInformationInternalServerErrorCode int = 500
 
-/*UpdateMTOPostCounselingInformationInternalServerError A server error occurred
+/*UpdateMTOPostCounselingInformationInternalServerError A server error occurred.
 
 swagger:response updateMTOPostCounselingInformationInternalServerError
 */

@@ -33,7 +33,10 @@ type UpdateMTOPostCounselingInformationParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*
+	/*Unique value that automatically changes when the request is updated.
+	Required when sending POST or PATCH requests to prevent updating stale data.
+	The same value as the eTag attribute.
+
 	  Required: true
 	  In: header
 	*/
