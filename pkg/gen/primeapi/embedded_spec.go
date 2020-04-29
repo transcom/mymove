@@ -422,7 +422,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a payment request",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -445,46 +445,43 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "successfully created instance of payment request",
+            "description": "Successfully created a paymentRequest object.",
             "schema": {
               "$ref": "#/definitions/PaymentRequest"
             }
           },
           "400": {
-            "description": "the payment request payload is invalid",
+            "description": "Request payload is invalid.",
             "schema": {
               "$ref": "#/responses/InvalidRequest"
             }
           },
           "401": {
-            "description": "must be authenticated to use this endpoint",
+            "description": "The request was denied.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "not authorized to create a payment request",
+            "description": "The request was denied.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/responses/NotFound"
             }
           },
           "422": {
-            "description": "validation error",
+            "description": "Invalid values in request payload.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -745,6 +742,10 @@ func init() {
     },
     "CreatePaymentRequestPayload": {
       "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "serviceItems"
+      ],
       "properties": {
         "isFinal": {
           "type": "boolean",
@@ -1698,6 +1699,7 @@ func init() {
       }
     },
     "ValidationError": {
+      "description": "Invalid values in request payload.",
       "required": [
         "invalidFields"
       ],
@@ -2226,7 +2228,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a payment request",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -2249,13 +2251,13 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "successfully created instance of payment request",
+            "description": "Successfully created a paymentRequest object.",
             "schema": {
               "$ref": "#/definitions/PaymentRequest"
             }
           },
           "400": {
-            "description": "the payment request payload is invalid",
+            "description": "Request payload is invalid.",
             "schema": {
               "description": "The request payload is invalid",
               "schema": {
@@ -2264,7 +2266,7 @@ func init() {
             }
           },
           "401": {
-            "description": "must be authenticated to use this endpoint",
+            "description": "The request was denied.",
             "schema": {
               "description": "The request was denied",
               "schema": {
@@ -2273,7 +2275,7 @@ func init() {
             }
           },
           "403": {
-            "description": "not authorized to create a payment request",
+            "description": "The request was denied.",
             "schema": {
               "description": "The request was denied",
               "schema": {
@@ -2282,7 +2284,7 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
               "description": "The requested resource wasn't found",
               "schema": {
@@ -2291,7 +2293,7 @@ func init() {
             }
           },
           "422": {
-            "description": "validation error",
+            "description": "Invalid values in request payload.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -2299,10 +2301,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -2579,6 +2578,10 @@ func init() {
     },
     "CreatePaymentRequestPayload": {
       "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "serviceItems"
+      ],
       "properties": {
         "isFinal": {
           "type": "boolean",
@@ -3532,6 +3535,7 @@ func init() {
       }
     },
     "ValidationError": {
+      "description": "Invalid values in request payload.",
       "required": [
         "invalidFields"
       ],

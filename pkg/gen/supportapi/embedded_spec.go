@@ -38,7 +38,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations.\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrently this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations.\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -1652,7 +1652,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations.\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrently this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations.\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],

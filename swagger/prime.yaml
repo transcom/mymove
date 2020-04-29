@@ -270,6 +270,12 @@ paths:
             $ref: '#/responses/ServerError'
   /payment-requests:
     post:
+      summary: Creates a payment request
+      description: |
+        Creates a new instance of a paymentRequest.
+        A newly created payment request is assigned the status `PENDING`.
+        A move task order can have multiple payment requests, and
+        a final payment request can be marked using boolean `isFinal`.
       consumes:
         - application/json
       produces:
@@ -281,38 +287,34 @@ paths:
             $ref: '#/definitions/CreatePaymentRequestPayload'
       responses:
         '201':
-          description: successfully created instance of payment request
+          description: Successfully created a paymentRequest object.
           schema:
             $ref: '#/definitions/PaymentRequest'
         '400':
-          description: the payment request payload is invalid
+          description: Request payload is invalid.
           schema:
             $ref: '#/responses/InvalidRequest'
         '401':
-          description: must be authenticated to use this endpoint
+          description: The request was denied.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: not authorized to create a payment request
+          description: The request was denied.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
+          description: The requested resource wasn't found.
           schema:
             $ref: '#/responses/NotFound'
         '422':
-          description: validation error
+          description: Invalid values in request payload.
           schema:
             $ref: '#/definitions/ValidationError'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
-      description: Creates a payment request
       operationId: createPaymentRequest
-      summary: Creates a payment request
   /payment-requests/{paymentRequestID}/uploads:
     post:
       summary: Create a new upload for a payment request
@@ -541,6 +543,9 @@ definitions:
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update
+    required:
+      - moveTaskOrderID
+      - serviceItems
   Customer:
     type: object
     properties:
@@ -1224,6 +1229,7 @@ definitions:
         type: string
     type: object
   ValidationError:
+    description: Invalid values in request payload.
     allOf:
       - $ref: '#/definitions/ClientError'
       - type: object

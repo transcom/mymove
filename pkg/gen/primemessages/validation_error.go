@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// ValidationError validation error
+// ValidationError Invalid values in request payload.
 // swagger:model ValidationError
 type ValidationError struct {
 	ClientError

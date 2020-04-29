@@ -79,7 +79,7 @@ func NewCreatePaymentRequestCreated() *CreatePaymentRequestCreated {
 
 /*CreatePaymentRequestCreated handles this case with default header values.
 
-successfully created instance of payment request
+Successfully created a paymentRequest object.
 */
 type CreatePaymentRequestCreated struct {
 	Payload *primemessages.PaymentRequest
@@ -112,7 +112,7 @@ func NewCreatePaymentRequestBadRequest() *CreatePaymentRequestBadRequest {
 
 /*CreatePaymentRequestBadRequest handles this case with default header values.
 
-the payment request payload is invalid
+Request payload is invalid.
 */
 type CreatePaymentRequestBadRequest struct {
 	Payload interface{}
@@ -143,7 +143,7 @@ func NewCreatePaymentRequestUnauthorized() *CreatePaymentRequestUnauthorized {
 
 /*CreatePaymentRequestUnauthorized handles this case with default header values.
 
-must be authenticated to use this endpoint
+The request was denied.
 */
 type CreatePaymentRequestUnauthorized struct {
 	Payload interface{}
@@ -174,7 +174,7 @@ func NewCreatePaymentRequestForbidden() *CreatePaymentRequestForbidden {
 
 /*CreatePaymentRequestForbidden handles this case with default header values.
 
-not authorized to create a payment request
+The request was denied.
 */
 type CreatePaymentRequestForbidden struct {
 	Payload interface{}
@@ -205,7 +205,7 @@ func NewCreatePaymentRequestNotFound() *CreatePaymentRequestNotFound {
 
 /*CreatePaymentRequestNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type CreatePaymentRequestNotFound struct {
 	Payload interface{}
@@ -236,7 +236,7 @@ func NewCreatePaymentRequestUnprocessableEntity() *CreatePaymentRequestUnprocess
 
 /*CreatePaymentRequestUnprocessableEntity handles this case with default header values.
 
-validation error
+Invalid values in request payload.
 */
 type CreatePaymentRequestUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
@@ -272,21 +272,23 @@ func NewCreatePaymentRequestInternalServerError() *CreatePaymentRequestInternalS
 A server error occurred
 */
 type CreatePaymentRequestInternalServerError struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *CreatePaymentRequestInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *CreatePaymentRequestInternalServerError) GetPayload() interface{} {
+func (o *CreatePaymentRequestInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *CreatePaymentRequestInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

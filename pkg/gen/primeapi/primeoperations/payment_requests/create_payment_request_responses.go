@@ -16,7 +16,7 @@ import (
 // CreatePaymentRequestCreatedCode is the HTTP code returned for type CreatePaymentRequestCreated
 const CreatePaymentRequestCreatedCode int = 201
 
-/*CreatePaymentRequestCreated successfully created instance of payment request
+/*CreatePaymentRequestCreated Successfully created a paymentRequest object.
 
 swagger:response createPaymentRequestCreated
 */
@@ -60,7 +60,7 @@ func (o *CreatePaymentRequestCreated) WriteResponse(rw http.ResponseWriter, prod
 // CreatePaymentRequestBadRequestCode is the HTTP code returned for type CreatePaymentRequestBadRequest
 const CreatePaymentRequestBadRequestCode int = 400
 
-/*CreatePaymentRequestBadRequest the payment request payload is invalid
+/*CreatePaymentRequestBadRequest Request payload is invalid.
 
 swagger:response createPaymentRequestBadRequest
 */
@@ -102,7 +102,7 @@ func (o *CreatePaymentRequestBadRequest) WriteResponse(rw http.ResponseWriter, p
 // CreatePaymentRequestUnauthorizedCode is the HTTP code returned for type CreatePaymentRequestUnauthorized
 const CreatePaymentRequestUnauthorizedCode int = 401
 
-/*CreatePaymentRequestUnauthorized must be authenticated to use this endpoint
+/*CreatePaymentRequestUnauthorized The request was denied.
 
 swagger:response createPaymentRequestUnauthorized
 */
@@ -144,7 +144,7 @@ func (o *CreatePaymentRequestUnauthorized) WriteResponse(rw http.ResponseWriter,
 // CreatePaymentRequestForbiddenCode is the HTTP code returned for type CreatePaymentRequestForbidden
 const CreatePaymentRequestForbiddenCode int = 403
 
-/*CreatePaymentRequestForbidden not authorized to create a payment request
+/*CreatePaymentRequestForbidden The request was denied.
 
 swagger:response createPaymentRequestForbidden
 */
@@ -186,7 +186,7 @@ func (o *CreatePaymentRequestForbidden) WriteResponse(rw http.ResponseWriter, pr
 // CreatePaymentRequestNotFoundCode is the HTTP code returned for type CreatePaymentRequestNotFound
 const CreatePaymentRequestNotFoundCode int = 404
 
-/*CreatePaymentRequestNotFound The requested resource wasn't found
+/*CreatePaymentRequestNotFound The requested resource wasn't found.
 
 swagger:response createPaymentRequestNotFound
 */
@@ -228,7 +228,7 @@ func (o *CreatePaymentRequestNotFound) WriteResponse(rw http.ResponseWriter, pro
 // CreatePaymentRequestUnprocessableEntityCode is the HTTP code returned for type CreatePaymentRequestUnprocessableEntity
 const CreatePaymentRequestUnprocessableEntityCode int = 422
 
-/*CreatePaymentRequestUnprocessableEntity validation error
+/*CreatePaymentRequestUnprocessableEntity Invalid values in request payload.
 
 swagger:response createPaymentRequestUnprocessableEntity
 */
@@ -281,7 +281,7 @@ type CreatePaymentRequestInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewCreatePaymentRequestInternalServerError creates CreatePaymentRequestInternalServerError with default headers values
@@ -291,13 +291,13 @@ func NewCreatePaymentRequestInternalServerError() *CreatePaymentRequestInternalS
 }
 
 // WithPayload adds the payload to the create payment request internal server error response
-func (o *CreatePaymentRequestInternalServerError) WithPayload(payload interface{}) *CreatePaymentRequestInternalServerError {
+func (o *CreatePaymentRequestInternalServerError) WithPayload(payload *primemessages.Error) *CreatePaymentRequestInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create payment request internal server error response
-func (o *CreatePaymentRequestInternalServerError) SetPayload(payload interface{}) {
+func (o *CreatePaymentRequestInternalServerError) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -305,8 +305,10 @@ func (o *CreatePaymentRequestInternalServerError) SetPayload(payload interface{}
 func (o *CreatePaymentRequestInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
