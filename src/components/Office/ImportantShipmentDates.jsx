@@ -7,7 +7,7 @@ const cx = classNames.bind(styles);
 
 const ImportantShipmentDates = ({ requestedPickupDate, scheduledPickupDate }) => {
   return (
-    <div className={`container container--gray maxw-tablet ${cx('shipment-dates-container')}`}>
+    <div className={`maxw-tablet ${cx('shipment-dates-container')}`}>
       <div>
         <h4
           className={`${cx(
