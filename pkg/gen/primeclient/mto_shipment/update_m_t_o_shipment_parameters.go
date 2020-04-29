@@ -63,12 +63,16 @@ for the update m t o shipment operation typically these are written to a http.Re
 */
 type UpdateMTOShipmentParams struct {
 
-	/*IfMatch*/
+	/*IfMatch
+	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+
+
+	*/
 	IfMatch string
 	/*Body*/
 	Body *primemessages.MTOShipment
 	/*MtoShipmentID
-	  ID of the shipment being updated
+	  UUID of the shipment being updated.
 
 	*/
 	MtoShipmentID strfmt.UUID

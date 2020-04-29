@@ -333,7 +333,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}": {
       "put": {
-        "description": "Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the documentation to see which fields are modifiable. Note that some fields cannot be manually changed but will still be updated automatically.\n",
+        "description": "Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:\n\n* ` + "`" + `scheduledPickupDate` + "`" + `\n* ` + "`" + `actualPickupDate` + "`" + `\n* ` + "`" + `firstAvailableDeliveryDate` + "`" + `\n* ` + "`" + `destinationAddress` + "`" + `\n* ` + "`" + `pickupAddress` + "`" + `\n* ` + "`" + `secondaryDeliveryAddress` + "`" + `\n* ` + "`" + `secondaryPickupAddress` + "`" + `\n* ` + "`" + `primeEstimatedWeight` + "`" + `\n* ` + "`" + `primeActualWeight` + "`" + `\n* ` + "`" + `shipmentType` + "`" + `\n* ` + "`" + `agents` + "`" + ` - all subfields except ` + "`" + `mtoShipmentID` + "`" + `, ` + "`" + `createdAt` + "`" + `, ` + "`" + `updatedAt` + "`" + `. You cannot add new agents to a shipment.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -343,7 +343,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates MTO shipment",
+        "summary": "Updates MTO shipment by ID",
         "operationId": "updateMTOShipment",
         "parameters": [
           {
@@ -356,6 +356,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -363,58 +364,46 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated the MTO shipment",
+            "description": "Successfully updated the MTO shipment.",
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
           },
           "400": {
-            "description": "Invalid request",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "409": {
-            "description": "Conflict error between the fields and values expected and the ones received",
+            "description": "Conflict error between the fields and values expected and the ones received. Please remove any fields that are not available for update from the request.\n",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
           },
           "412": {
-            "description": "Precondition failed, likely due to a stale eTag (If-Match) value",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
+            "description": "A validation error occurred.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -422,7 +411,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of the shipment being updated",
+          "description": "UUID of the shipment being updated.",
           "name": "mtoShipmentID",
           "in": "path",
           "required": true
@@ -2137,7 +2126,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}": {
       "put": {
-        "description": "Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the documentation to see which fields are modifiable. Note that some fields cannot be manually changed but will still be updated automatically.\n",
+        "description": "Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:\n\n* ` + "`" + `scheduledPickupDate` + "`" + `\n* ` + "`" + `actualPickupDate` + "`" + `\n* ` + "`" + `firstAvailableDeliveryDate` + "`" + `\n* ` + "`" + `destinationAddress` + "`" + `\n* ` + "`" + `pickupAddress` + "`" + `\n* ` + "`" + `secondaryDeliveryAddress` + "`" + `\n* ` + "`" + `secondaryPickupAddress` + "`" + `\n* ` + "`" + `primeEstimatedWeight` + "`" + `\n* ` + "`" + `primeActualWeight` + "`" + `\n* ` + "`" + `shipmentType` + "`" + `\n* ` + "`" + `agents` + "`" + ` - all subfields except ` + "`" + `mtoShipmentID` + "`" + `, ` + "`" + `createdAt` + "`" + `, ` + "`" + `updatedAt` + "`" + `. You cannot add new agents to a shipment.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -2147,7 +2136,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates MTO shipment",
+        "summary": "Updates MTO shipment by ID",
         "operationId": "updateMTOShipment",
         "parameters": [
           {
@@ -2160,6 +2149,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -2167,22 +2157,19 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated the MTO shipment",
+            "description": "Successfully updated the MTO shipment.",
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
           },
           "400": {
-            "description": "Invalid request",
+            "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "description": "The request was denied",
               "schema": {
@@ -2191,7 +2178,7 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "description": "The request was denied",
               "schema": {
@@ -2202,29 +2189,23 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "409": {
-            "description": "Conflict error between the fields and values expected and the ones received",
+            "description": "Conflict error between the fields and values expected and the ones received. Please remove any fields that are not available for update from the request.\n",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
           },
           "412": {
-            "description": "Precondition failed, likely due to a stale eTag (If-Match) value",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "A validation error occurred.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -2232,10 +2213,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -2244,7 +2222,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of the shipment being updated",
+          "description": "UUID of the shipment being updated.",
           "name": "mtoShipmentID",
           "in": "path",
           "required": true

@@ -35,7 +35,8 @@ type UpdateMTOShipmentParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*
+	/*Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+
 	  Required: true
 	  In: header
 	*/
@@ -45,7 +46,7 @@ type UpdateMTOShipmentParams struct {
 	  In: body
 	*/
 	Body *primemessages.MTOShipment
-	/*ID of the shipment being updated
+	/*UUID of the shipment being updated.
 	  Required: true
 	  In: path
 	*/

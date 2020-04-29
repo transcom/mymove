@@ -91,7 +91,7 @@ func NewUpdateMTOShipmentOK() *UpdateMTOShipmentOK {
 
 /*UpdateMTOShipmentOK handles this case with default header values.
 
-Successfully updated the MTO shipment
+Successfully updated the MTO shipment.
 */
 type UpdateMTOShipmentOK struct {
 	Payload *primemessages.MTOShipment
@@ -124,24 +124,26 @@ func NewUpdateMTOShipmentBadRequest() *UpdateMTOShipmentBadRequest {
 
 /*UpdateMTOShipmentBadRequest handles this case with default header values.
 
-Invalid request
+The request payload is invalid
 */
 type UpdateMTOShipmentBadRequest struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOShipmentBadRequest) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *UpdateMTOShipmentBadRequest) GetPayload() interface{} {
+func (o *UpdateMTOShipmentBadRequest) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -155,7 +157,7 @@ func NewUpdateMTOShipmentUnauthorized() *UpdateMTOShipmentUnauthorized {
 
 /*UpdateMTOShipmentUnauthorized handles this case with default header values.
 
-The request was denied
+The request was unauthorized.
 */
 type UpdateMTOShipmentUnauthorized struct {
 	Payload interface{}
@@ -186,7 +188,7 @@ func NewUpdateMTOShipmentForbidden() *UpdateMTOShipmentForbidden {
 
 /*UpdateMTOShipmentForbidden handles this case with default header values.
 
-The request was denied
+The client doesn't have permissions to perform the request.
 */
 type UpdateMTOShipmentForbidden struct {
 	Payload interface{}
@@ -220,21 +222,23 @@ func NewUpdateMTOShipmentNotFound() *UpdateMTOShipmentNotFound {
 The requested resource wasn't found
 */
 type UpdateMTOShipmentNotFound struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOShipmentNotFound) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentNotFound  %+v", 404, o.Payload)
 }
 
-func (o *UpdateMTOShipmentNotFound) GetPayload() interface{} {
+func (o *UpdateMTOShipmentNotFound) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -248,7 +252,8 @@ func NewUpdateMTOShipmentConflict() *UpdateMTOShipmentConflict {
 
 /*UpdateMTOShipmentConflict handles this case with default header values.
 
-Conflict error between the fields and values expected and the ones received
+Conflict error between the fields and values expected and the ones received. Please remove any fields that are not available for update from the request.
+
 */
 type UpdateMTOShipmentConflict struct {
 	Payload *primemessages.ValidationError
@@ -281,24 +286,26 @@ func NewUpdateMTOShipmentPreconditionFailed() *UpdateMTOShipmentPreconditionFail
 
 /*UpdateMTOShipmentPreconditionFailed handles this case with default header values.
 
-Precondition failed, likely due to a stale eTag (If-Match) value
+Precondition failed
 */
 type UpdateMTOShipmentPreconditionFailed struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOShipmentPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdateMTOShipmentPreconditionFailed) GetPayload() interface{} {
+func (o *UpdateMTOShipmentPreconditionFailed) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -312,7 +319,7 @@ func NewUpdateMTOShipmentUnprocessableEntity() *UpdateMTOShipmentUnprocessableEn
 
 /*UpdateMTOShipmentUnprocessableEntity handles this case with default header values.
 
-Validation error
+A validation error occurred.
 */
 type UpdateMTOShipmentUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
@@ -348,21 +355,23 @@ func NewUpdateMTOShipmentInternalServerError() *UpdateMTOShipmentInternalServerE
 A server error occurred
 */
 type UpdateMTOShipmentInternalServerError struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOShipmentInternalServerError) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *UpdateMTOShipmentInternalServerError) GetPayload() interface{} {
+func (o *UpdateMTOShipmentInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

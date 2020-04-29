@@ -27,9 +27,23 @@ type Client struct {
 }
 
 /*
-UpdateMTOShipment updates m t o shipment
+UpdateMTOShipment updates m t o shipment by ID
 
-Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the documentation to see which fields are modifiable. Note that some fields cannot be manually changed but will still be updated automatically.
+Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
+
+* `scheduledPickupDate`
+* `actualPickupDate`
+* `firstAvailableDeliveryDate`
+* `destinationAddress`
+* `pickupAddress`
+* `secondaryDeliveryAddress`
+* `secondaryPickupAddress`
+* `primeEstimatedWeight`
+* `primeActualWeight`
+* `shipmentType`
+* `agents` - all subfields except `mtoShipmentID`, `createdAt`, `updatedAt`. You cannot add new agents to a shipment.
+
+Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
 
 */
 func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOShipmentOK, error) {
