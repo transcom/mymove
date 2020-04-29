@@ -29,7 +29,7 @@ type Client struct {
 /*
 UpdateMTOShipment updates m t o shipment
 
-Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the documentation to see which fields are modifiable. Note that some fields may not be manually changed but will be updated automatically.
+Updates an existing shipment for a Move Task Order (MTO). Only certain fields can be updated, but all values are returned - please refer to the documentation to see which fields are modifiable. Note that some fields cannot be manually changed but will still be updated automatically.
 
 */
 func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOShipmentOK, error) {
