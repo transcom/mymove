@@ -36,6 +36,64 @@ func init() {
   },
   "basePath": "/support/v1",
   "paths": {
+    "/move-task-orders": {
+      "post": {
+        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations.\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Creates a move task order",
+        "operationId": "createMoveTaskOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created MoveTaskOrder object.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets an individual move task order by ID.",
@@ -600,11 +658,11 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
-        "current_address": {
+        "currentAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destination_address": {
+        "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
@@ -620,18 +678,19 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
-          "example": "John"
+          "example": "Vanya"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
-          "example": "Doe"
+          "example": "Petrovna"
         },
         "phone": {
           "type": "string",
@@ -671,7 +730,7 @@ func init() {
         }
       }
     },
-    "Entitlements": {
+    "Entitlement": {
       "type": "object",
       "properties": {
         "authorizedWeight": {
@@ -686,7 +745,8 @@ func init() {
           "example": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -706,11 +766,13 @@ func init() {
         "proGearWeight": {
           "type": "integer",
           "x-formatting": "weight",
+          "readOnly": true,
           "example": 2000
         },
         "proGearWeightSpouse": {
           "type": "integer",
           "x-formatting": "weight",
+          "readOnly": true,
           "example": 500
         },
         "storageInTransit": {
@@ -997,20 +1059,17 @@ func init() {
     "MoveOrder": {
       "type": "object",
       "properties": {
-        "agency": {
-          "type": "string",
-          "example": "civilian"
-        },
-        "confirmation_number": {
-          "type": "string",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
+          "description": "ID of the Customer this MoveOrder belongs to.\n\nIf creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.\n",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "date_issued": {
+        "dateIssued": {
+          "description": "The date the orders were issued.",
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
@@ -1018,57 +1077,61 @@ func init() {
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
-        "eTag": {
-          "type": "string"
-        },
-        "entitlement": {
-          "$ref": "#/definitions/Entitlements"
-        },
-        "first_name": {
-          "type": "string",
-          "readOnly": true,
-          "example": "John"
-        },
-        "grade": {
-          "type": "string",
-          "example": "E_1"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "last_name": {
-          "type": "string",
-          "readOnly": true,
-          "example": "Doe"
-        },
-        "moveTaskOrderID": {
+        "destinationDutyStationID": {
+          "description": "ID of the destination duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "order_number": {
+        "eTag": {
+          "description": "Uniquely identifies the state of the MoveOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveOrder will require that this eTag be passed in with the If-Match header.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "entitlement": {
+          "$ref": "#/definitions/Entitlement"
+        },
+        "id": {
+          "description": "ID of the MoveOrder object.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "orderNumber": {
+          "description": "ID of the military orders associated with this move.",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
         },
-        "order_type": {
-          "type": "string",
-          "example": "GHC"
-        },
-        "order_type_detail": {
+        "orderType": {
           "type": "string",
           "enum": [
             "GHC",
             "NTS"
           ],
+          "x-nullable": true,
+          "example": "GHC"
+        },
+        "orderTypeDetail": {
+          "type": "string",
           "x-nullable": true
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
-        "report_by_date": {
+        "originDutyStationID": {
+          "description": "ID of the origin duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "description": "Rank of the service member, must match specific list of available ranks.",
+          "type": "string",
+          "example": "E_1"
+        },
+        "reportByDate": {
+          "description": "Date that the service member must report to the new DutyStation by.",
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
@@ -1083,60 +1146,86 @@ func init() {
     },
     "MoveTaskOrder": {
       "type": "object",
+      "required": [
+        "moveOrder"
+      ],
       "properties": {
+        "contractorID": {
+          "description": "ID associated with the contractor, in this case Prime\n",
+          "type": "string",
+          "format": "uuid",
+          "example": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6"
+        },
         "createdAt": {
+          "description": "Date the MoveTaskOrder was created on.",
           "type": "string",
           "format": "date"
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
         "eTag": {
+          "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
           "type": "string"
         },
-        "entitlements": {
-          "$ref": "#/definitions/Entitlements"
-        },
         "id": {
+          "description": "ID of the MoveTaskOrder object.",
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "isAvailableToPrime": {
+          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is true will be available to the API.\n",
           "type": "boolean",
           "x-nullable": true
         },
         "isCanceled": {
+          "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
           "x-nullable": true
         },
+        "moveOrder": {
+          "description": "MoveOrder associated with this MoveTaskOrder.",
+          "$ref": "#/definitions/MoveOrder"
+        },
         "moveOrderID": {
+          "description": "ID of the MoveOrder object",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "originDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        "mtoServiceItems": {
+          "description": "Array of MTOServiceItems associated with this MoveTaskOrder.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
+        "mtoShipments": {
+          "description": "array of MTOShipments associated with the MoveTaskOrder.",
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "paymentRequests": {
+          "description": "Array of PaymentRequests associated with this MoveTaskOrder.",
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "description": "If the move is a PPM, this is the estimated weight in lbs.",
+          "type": "integer"
+        },
+        "ppmType": {
+          "description": "If the move is a PPM, indicates whether it is full or partial.",
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
         },
         "referenceId": {
+          "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
           "type": "string",
           "example": "1001-3456"
         },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
         "updatedAt": {
+          "description": "Date on which this MoveTaskOrder was last updated.",
           "type": "string",
           "format": "date"
         }
@@ -1441,25 +1530,25 @@ func init() {
   },
   "responses": {
     "Conflict": {
-      "description": "Conflict error",
+      "description": "Conflict error.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "InvalidRequest": {
-      "description": "The request payload is invalid",
+      "description": "The parameters were invalid.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "NotFound": {
-      "description": "The requested resource wasn't found",
+      "description": "The requested resource wasn't found.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "PermissionDenied": {
-      "description": "The request was denied",
+      "description": "The request was denied.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
@@ -1471,7 +1560,7 @@ func init() {
       }
     },
     "ServerError": {
-      "description": "A server error occurred",
+      "description": "A server error occurred.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
@@ -1503,6 +1592,82 @@ func init() {
   },
   "basePath": "/support/v1",
   "paths": {
+    "/move-task-orders": {
+      "post": {
+        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations.\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Creates a move task order",
+        "operationId": "createMoveTaskOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created MoveTaskOrder object.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "description": "The parameters were invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets an individual move task order by ID.",
@@ -1522,7 +1687,7 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
+            "description": "The parameters were invalid.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1530,7 +1695,7 @@ func init() {
           "401": {
             "description": "The request was unauthorized.",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1539,20 +1704,20 @@ func init() {
           "403": {
             "description": "The client doesn't have permissions to perform the request.",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1608,7 +1773,7 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
+            "description": "The parameters were invalid.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1616,7 +1781,7 @@ func init() {
           "401": {
             "description": "The request was unauthorized.",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1625,14 +1790,14 @@ func init() {
           "403": {
             "description": "The client doesn't have permissions to perform the request.",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1644,7 +1809,7 @@ func init() {
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1700,7 +1865,7 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
+            "description": "The parameters were invalid.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1708,7 +1873,7 @@ func init() {
           "401": {
             "description": "The request was unauthorized.",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1717,14 +1882,14 @@ func init() {
           "403": {
             "description": "The client doesn't have permissions to perform the request.",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1732,7 +1897,7 @@ func init() {
           "409": {
             "description": "Conflict error due to trying to change the status of shipment that is not currently \"SUBMITTED\".",
             "schema": {
-              "description": "Conflict error",
+              "description": "Conflict error.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1751,7 +1916,7 @@ func init() {
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1808,7 +1973,7 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
+            "description": "The parameters were invalid.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1816,7 +1981,7 @@ func init() {
           "401": {
             "description": "The request was unauthorized.",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1825,14 +1990,14 @@ func init() {
           "403": {
             "description": "The client doesn't have permissions to perform the request.",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1850,7 +2015,7 @@ func init() {
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1907,7 +2072,7 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
+            "description": "The parameters were invalid.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1915,7 +2080,7 @@ func init() {
           "401": {
             "description": "The request was unauthorized.",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1924,14 +2089,14 @@ func init() {
           "403": {
             "description": "The client doesn't have permissions to perform the request.",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1939,7 +2104,7 @@ func init() {
           "409": {
             "description": "Conflict error due to trying to change the status of service item that is not currently \"SUBMITTED\".",
             "schema": {
-              "description": "Conflict error",
+              "description": "Conflict error.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -1958,7 +2123,7 @@ func init() {
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -2169,11 +2334,11 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
-        "current_address": {
+        "currentAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destination_address": {
+        "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
@@ -2189,18 +2354,19 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
-          "example": "John"
+          "example": "Vanya"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
-          "example": "Doe"
+          "example": "Petrovna"
         },
         "phone": {
           "type": "string",
@@ -2240,7 +2406,7 @@ func init() {
         }
       }
     },
-    "Entitlements": {
+    "Entitlement": {
       "type": "object",
       "properties": {
         "authorizedWeight": {
@@ -2255,7 +2421,8 @@ func init() {
           "example": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2275,11 +2442,13 @@ func init() {
         "proGearWeight": {
           "type": "integer",
           "x-formatting": "weight",
+          "readOnly": true,
           "example": 2000
         },
         "proGearWeightSpouse": {
           "type": "integer",
           "x-formatting": "weight",
+          "readOnly": true,
           "example": 500
         },
         "storageInTransit": {
@@ -2566,20 +2735,17 @@ func init() {
     "MoveOrder": {
       "type": "object",
       "properties": {
-        "agency": {
-          "type": "string",
-          "example": "civilian"
-        },
-        "confirmation_number": {
-          "type": "string",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
+          "description": "ID of the Customer this MoveOrder belongs to.\n\nIf creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.\n",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "date_issued": {
+        "dateIssued": {
+          "description": "The date the orders were issued.",
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
@@ -2587,57 +2753,61 @@ func init() {
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
-        "eTag": {
-          "type": "string"
-        },
-        "entitlement": {
-          "$ref": "#/definitions/Entitlements"
-        },
-        "first_name": {
-          "type": "string",
-          "readOnly": true,
-          "example": "John"
-        },
-        "grade": {
-          "type": "string",
-          "example": "E_1"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "last_name": {
-          "type": "string",
-          "readOnly": true,
-          "example": "Doe"
-        },
-        "moveTaskOrderID": {
+        "destinationDutyStationID": {
+          "description": "ID of the destination duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "order_number": {
+        "eTag": {
+          "description": "Uniquely identifies the state of the MoveOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveOrder will require that this eTag be passed in with the If-Match header.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "entitlement": {
+          "$ref": "#/definitions/Entitlement"
+        },
+        "id": {
+          "description": "ID of the MoveOrder object.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "orderNumber": {
+          "description": "ID of the military orders associated with this move.",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
         },
-        "order_type": {
-          "type": "string",
-          "example": "GHC"
-        },
-        "order_type_detail": {
+        "orderType": {
           "type": "string",
           "enum": [
             "GHC",
             "NTS"
           ],
+          "x-nullable": true,
+          "example": "GHC"
+        },
+        "orderTypeDetail": {
+          "type": "string",
           "x-nullable": true
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
-        "report_by_date": {
+        "originDutyStationID": {
+          "description": "ID of the origin duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "description": "Rank of the service member, must match specific list of available ranks.",
+          "type": "string",
+          "example": "E_1"
+        },
+        "reportByDate": {
+          "description": "Date that the service member must report to the new DutyStation by.",
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
@@ -2652,60 +2822,86 @@ func init() {
     },
     "MoveTaskOrder": {
       "type": "object",
+      "required": [
+        "moveOrder"
+      ],
       "properties": {
+        "contractorID": {
+          "description": "ID associated with the contractor, in this case Prime\n",
+          "type": "string",
+          "format": "uuid",
+          "example": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6"
+        },
         "createdAt": {
+          "description": "Date the MoveTaskOrder was created on.",
           "type": "string",
           "format": "date"
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
         "eTag": {
+          "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
           "type": "string"
         },
-        "entitlements": {
-          "$ref": "#/definitions/Entitlements"
-        },
         "id": {
+          "description": "ID of the MoveTaskOrder object.",
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "isAvailableToPrime": {
+          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is true will be available to the API.\n",
           "type": "boolean",
           "x-nullable": true
         },
         "isCanceled": {
+          "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
           "x-nullable": true
         },
+        "moveOrder": {
+          "description": "MoveOrder associated with this MoveTaskOrder.",
+          "$ref": "#/definitions/MoveOrder"
+        },
         "moveOrderID": {
+          "description": "ID of the MoveOrder object",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "originDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        "mtoServiceItems": {
+          "description": "Array of MTOServiceItems associated with this MoveTaskOrder.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
+        "mtoShipments": {
+          "description": "array of MTOShipments associated with the MoveTaskOrder.",
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "paymentRequests": {
+          "description": "Array of PaymentRequests associated with this MoveTaskOrder.",
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "description": "If the move is a PPM, this is the estimated weight in lbs.",
+          "type": "integer"
+        },
+        "ppmType": {
+          "description": "If the move is a PPM, indicates whether it is full or partial.",
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
         },
         "referenceId": {
+          "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
           "type": "string",
           "example": "1001-3456"
         },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
         "updatedAt": {
+          "description": "Date on which this MoveTaskOrder was last updated.",
           "type": "string",
           "format": "date"
         }
@@ -3010,25 +3206,25 @@ func init() {
   },
   "responses": {
     "Conflict": {
-      "description": "Conflict error",
+      "description": "Conflict error.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "InvalidRequest": {
-      "description": "The request payload is invalid",
+      "description": "The parameters were invalid.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "NotFound": {
-      "description": "The requested resource wasn't found",
+      "description": "The requested resource wasn't found.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "PermissionDenied": {
-      "description": "The request was denied",
+      "description": "The request was denied.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
@@ -3040,7 +3236,7 @@ func init() {
       }
     },
     "ServerError": {
-      "description": "A server error occurred",
+      "description": "A server error occurred.",
       "schema": {
         "$ref": "#/definitions/Error"
       }

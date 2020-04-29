@@ -118,7 +118,7 @@ func NewUpdatePaymentRequestStatusBadRequest() *UpdatePaymentRequestStatusBadReq
 
 /*UpdatePaymentRequestStatusBadRequest handles this case with default header values.
 
-The request payload is invalid
+The parameters were invalid.
 */
 type UpdatePaymentRequestStatusBadRequest struct {
 	Payload *supportmessages.Error
@@ -213,7 +213,7 @@ func NewUpdatePaymentRequestStatusNotFound() *UpdatePaymentRequestStatusNotFound
 
 /*UpdatePaymentRequestStatusNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type UpdatePaymentRequestStatusNotFound struct {
 	Payload *supportmessages.Error
@@ -312,7 +312,7 @@ func NewUpdatePaymentRequestStatusInternalServerError() *UpdatePaymentRequestSta
 
 /*UpdatePaymentRequestStatusInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type UpdatePaymentRequestStatusInternalServerError struct {
 	Payload *supportmessages.Error

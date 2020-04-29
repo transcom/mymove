@@ -60,7 +60,7 @@ func (o *UpdateMoveTaskOrderStatusOK) WriteResponse(rw http.ResponseWriter, prod
 // UpdateMoveTaskOrderStatusBadRequestCode is the HTTP code returned for type UpdateMoveTaskOrderStatusBadRequest
 const UpdateMoveTaskOrderStatusBadRequestCode int = 400
 
-/*UpdateMoveTaskOrderStatusBadRequest The request payload is invalid
+/*UpdateMoveTaskOrderStatusBadRequest The parameters were invalid.
 
 swagger:response updateMoveTaskOrderStatusBadRequest
 */
@@ -188,7 +188,7 @@ func (o *UpdateMoveTaskOrderStatusForbidden) WriteResponse(rw http.ResponseWrite
 // UpdateMoveTaskOrderStatusNotFoundCode is the HTTP code returned for type UpdateMoveTaskOrderStatusNotFound
 const UpdateMoveTaskOrderStatusNotFoundCode int = 404
 
-/*UpdateMoveTaskOrderStatusNotFound The requested resource wasn't found
+/*UpdateMoveTaskOrderStatusNotFound The requested resource wasn't found.
 
 swagger:response updateMoveTaskOrderStatusNotFound
 */
@@ -276,7 +276,7 @@ func (o *UpdateMoveTaskOrderStatusPreconditionFailed) WriteResponse(rw http.Resp
 // UpdateMoveTaskOrderStatusInternalServerErrorCode is the HTTP code returned for type UpdateMoveTaskOrderStatusInternalServerError
 const UpdateMoveTaskOrderStatusInternalServerErrorCode int = 500
 
-/*UpdateMoveTaskOrderStatusInternalServerError A server error occurred
+/*UpdateMoveTaskOrderStatusInternalServerError A server error occurred.
 
 swagger:response updateMoveTaskOrderStatusInternalServerError
 */

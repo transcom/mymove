@@ -106,7 +106,7 @@ func NewGetMoveTaskOrderBadRequest() *GetMoveTaskOrderBadRequest {
 
 /*GetMoveTaskOrderBadRequest handles this case with default header values.
 
-The request payload is invalid
+The parameters were invalid.
 */
 type GetMoveTaskOrderBadRequest struct {
 	Payload *supportmessages.Error
@@ -201,7 +201,7 @@ func NewGetMoveTaskOrderNotFound() *GetMoveTaskOrderNotFound {
 
 /*GetMoveTaskOrderNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type GetMoveTaskOrderNotFound struct {
 	Payload *supportmessages.Error
@@ -234,7 +234,7 @@ func NewGetMoveTaskOrderInternalServerError() *GetMoveTaskOrderInternalServerErr
 
 /*GetMoveTaskOrderInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type GetMoveTaskOrderInternalServerError struct {
 	Payload *supportmessages.Error

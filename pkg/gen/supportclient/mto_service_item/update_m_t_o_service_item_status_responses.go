@@ -124,7 +124,7 @@ func NewUpdateMTOServiceItemStatusBadRequest() *UpdateMTOServiceItemStatusBadReq
 
 /*UpdateMTOServiceItemStatusBadRequest handles this case with default header values.
 
-The request payload is invalid
+The parameters were invalid.
 */
 type UpdateMTOServiceItemStatusBadRequest struct {
 	Payload *supportmessages.Error
@@ -219,7 +219,7 @@ func NewUpdateMTOServiceItemStatusNotFound() *UpdateMTOServiceItemStatusNotFound
 
 /*UpdateMTOServiceItemStatusNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type UpdateMTOServiceItemStatusNotFound struct {
 	Payload *supportmessages.Error
@@ -349,7 +349,7 @@ func NewUpdateMTOServiceItemStatusInternalServerError() *UpdateMTOServiceItemSta
 
 /*UpdateMTOServiceItemStatusInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type UpdateMTOServiceItemStatusInternalServerError struct {
 	Payload *supportmessages.Error

@@ -60,7 +60,7 @@ func (o *PatchMTOShipmentStatusOK) WriteResponse(rw http.ResponseWriter, produce
 // PatchMTOShipmentStatusBadRequestCode is the HTTP code returned for type PatchMTOShipmentStatusBadRequest
 const PatchMTOShipmentStatusBadRequestCode int = 400
 
-/*PatchMTOShipmentStatusBadRequest The request payload is invalid
+/*PatchMTOShipmentStatusBadRequest The parameters were invalid.
 
 swagger:response patchMTOShipmentStatusBadRequest
 */
@@ -188,7 +188,7 @@ func (o *PatchMTOShipmentStatusForbidden) WriteResponse(rw http.ResponseWriter, 
 // PatchMTOShipmentStatusNotFoundCode is the HTTP code returned for type PatchMTOShipmentStatusNotFound
 const PatchMTOShipmentStatusNotFoundCode int = 404
 
-/*PatchMTOShipmentStatusNotFound The requested resource wasn't found
+/*PatchMTOShipmentStatusNotFound The requested resource wasn't found.
 
 swagger:response patchMTOShipmentStatusNotFound
 */
@@ -362,7 +362,7 @@ func (o *PatchMTOShipmentStatusUnprocessableEntity) WriteResponse(rw http.Respon
 // PatchMTOShipmentStatusInternalServerErrorCode is the HTTP code returned for type PatchMTOShipmentStatusInternalServerError
 const PatchMTOShipmentStatusInternalServerErrorCode int = 500
 
-/*PatchMTOShipmentStatusInternalServerError A server error occurred
+/*PatchMTOShipmentStatusInternalServerError A server error occurred.
 
 swagger:response patchMTOShipmentStatusInternalServerError
 */

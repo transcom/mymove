@@ -124,7 +124,7 @@ func NewPatchMTOShipmentStatusBadRequest() *PatchMTOShipmentStatusBadRequest {
 
 /*PatchMTOShipmentStatusBadRequest handles this case with default header values.
 
-The request payload is invalid
+The parameters were invalid.
 */
 type PatchMTOShipmentStatusBadRequest struct {
 	Payload *supportmessages.Error
@@ -219,7 +219,7 @@ func NewPatchMTOShipmentStatusNotFound() *PatchMTOShipmentStatusNotFound {
 
 /*PatchMTOShipmentStatusNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type PatchMTOShipmentStatusNotFound struct {
 	Payload *supportmessages.Error
@@ -349,7 +349,7 @@ func NewPatchMTOShipmentStatusInternalServerError() *PatchMTOShipmentStatusInter
 
 /*PatchMTOShipmentStatusInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type PatchMTOShipmentStatusInternalServerError struct {
 	Payload *supportmessages.Error

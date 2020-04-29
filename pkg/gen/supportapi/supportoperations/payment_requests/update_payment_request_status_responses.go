@@ -60,7 +60,7 @@ func (o *UpdatePaymentRequestStatusOK) WriteResponse(rw http.ResponseWriter, pro
 // UpdatePaymentRequestStatusBadRequestCode is the HTTP code returned for type UpdatePaymentRequestStatusBadRequest
 const UpdatePaymentRequestStatusBadRequestCode int = 400
 
-/*UpdatePaymentRequestStatusBadRequest The request payload is invalid
+/*UpdatePaymentRequestStatusBadRequest The parameters were invalid.
 
 swagger:response updatePaymentRequestStatusBadRequest
 */
@@ -188,7 +188,7 @@ func (o *UpdatePaymentRequestStatusForbidden) WriteResponse(rw http.ResponseWrit
 // UpdatePaymentRequestStatusNotFoundCode is the HTTP code returned for type UpdatePaymentRequestStatusNotFound
 const UpdatePaymentRequestStatusNotFoundCode int = 404
 
-/*UpdatePaymentRequestStatusNotFound The requested resource wasn't found
+/*UpdatePaymentRequestStatusNotFound The requested resource wasn't found.
 
 swagger:response updatePaymentRequestStatusNotFound
 */
@@ -320,7 +320,7 @@ func (o *UpdatePaymentRequestStatusUnprocessableEntity) WriteResponse(rw http.Re
 // UpdatePaymentRequestStatusInternalServerErrorCode is the HTTP code returned for type UpdatePaymentRequestStatusInternalServerError
 const UpdatePaymentRequestStatusInternalServerErrorCode int = 500
 
-/*UpdatePaymentRequestStatusInternalServerError A server error occurred
+/*UpdatePaymentRequestStatusInternalServerError A server error occurred.
 
 swagger:response updatePaymentRequestStatusInternalServerError
 */

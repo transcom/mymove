@@ -60,7 +60,7 @@ func (o *UpdateMTOServiceItemStatusOK) WriteResponse(rw http.ResponseWriter, pro
 // UpdateMTOServiceItemStatusBadRequestCode is the HTTP code returned for type UpdateMTOServiceItemStatusBadRequest
 const UpdateMTOServiceItemStatusBadRequestCode int = 400
 
-/*UpdateMTOServiceItemStatusBadRequest The request payload is invalid
+/*UpdateMTOServiceItemStatusBadRequest The parameters were invalid.
 
 swagger:response updateMTOServiceItemStatusBadRequest
 */
@@ -188,7 +188,7 @@ func (o *UpdateMTOServiceItemStatusForbidden) WriteResponse(rw http.ResponseWrit
 // UpdateMTOServiceItemStatusNotFoundCode is the HTTP code returned for type UpdateMTOServiceItemStatusNotFound
 const UpdateMTOServiceItemStatusNotFoundCode int = 404
 
-/*UpdateMTOServiceItemStatusNotFound The requested resource wasn't found
+/*UpdateMTOServiceItemStatusNotFound The requested resource wasn't found.
 
 swagger:response updateMTOServiceItemStatusNotFound
 */
@@ -362,7 +362,7 @@ func (o *UpdateMTOServiceItemStatusUnprocessableEntity) WriteResponse(rw http.Re
 // UpdateMTOServiceItemStatusInternalServerErrorCode is the HTTP code returned for type UpdateMTOServiceItemStatusInternalServerError
 const UpdateMTOServiceItemStatusInternalServerErrorCode int = 500
 
-/*UpdateMTOServiceItemStatusInternalServerError A server error occurred
+/*UpdateMTOServiceItemStatusInternalServerError A server error occurred.
 
 swagger:response updateMTOServiceItemStatusInternalServerError
 */

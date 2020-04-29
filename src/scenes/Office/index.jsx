@@ -34,6 +34,7 @@ const TIO = lazy(() => import('./TIO/tio'));
 const TOOVerificationInProgress = lazy(() => import('./TOO/tooVerificationInProgress'));
 const PaymentRequestShow = lazy(() => import('./TIO/paymentRequestShow'));
 const PaymentRequestIndex = lazy(() => import('./TIO/paymentRequestIndex'));
+const MoveDetails = lazy(() => import('pages/TOO/moveDetails'));
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
@@ -165,6 +166,7 @@ export class OfficeWrapper extends Component {
                   <Switch>
                     {too && <PrivateRoute path="/too/customer-moves" exact component={TOO} />}
                     {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOMoveTaskOrder} />}
+                    {too && <PrivateRoute path="/moves/:moveId" exact component={MoveDetails} />}
                     {too && (
                       <PrivateRoute
                         path="/too/customer-moves/:moveOrderId/customer/:customerId"
