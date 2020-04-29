@@ -60,7 +60,7 @@ func (o *UpdateMTOPostCounselingInformationOK) WriteResponse(rw http.ResponseWri
 // UpdateMTOPostCounselingInformationUnauthorizedCode is the HTTP code returned for type UpdateMTOPostCounselingInformationUnauthorized
 const UpdateMTOPostCounselingInformationUnauthorizedCode int = 401
 
-/*UpdateMTOPostCounselingInformationUnauthorized The request was denied.
+/*UpdateMTOPostCounselingInformationUnauthorized The request was unauthorized.
 
 swagger:response updateMTOPostCounselingInformationUnauthorized
 */
@@ -102,7 +102,7 @@ func (o *UpdateMTOPostCounselingInformationUnauthorized) WriteResponse(rw http.R
 // UpdateMTOPostCounselingInformationForbiddenCode is the HTTP code returned for type UpdateMTOPostCounselingInformationForbidden
 const UpdateMTOPostCounselingInformationForbiddenCode int = 403
 
-/*UpdateMTOPostCounselingInformationForbidden The request was denied.
+/*UpdateMTOPostCounselingInformationForbidden The client doesn't have permissions to perform the request.
 
 swagger:response updateMTOPostCounselingInformationForbidden
 */

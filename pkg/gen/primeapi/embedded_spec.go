@@ -377,13 +377,13 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was denied.",
+            "description": "The request was unauthorized.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "The request was denied.",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
@@ -2170,7 +2170,7 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was denied.",
+            "description": "The request was unauthorized.",
             "schema": {
               "description": "The request was denied",
               "schema": {
@@ -2179,7 +2179,7 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied.",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "description": "The request was denied",
               "schema": {

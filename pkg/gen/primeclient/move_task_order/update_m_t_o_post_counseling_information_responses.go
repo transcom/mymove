@@ -116,7 +116,7 @@ func NewUpdateMTOPostCounselingInformationUnauthorized() *UpdateMTOPostCounselin
 
 /*UpdateMTOPostCounselingInformationUnauthorized handles this case with default header values.
 
-The request was denied.
+The request was unauthorized.
 */
 type UpdateMTOPostCounselingInformationUnauthorized struct {
 	Payload interface{}
@@ -147,7 +147,7 @@ func NewUpdateMTOPostCounselingInformationForbidden() *UpdateMTOPostCounselingIn
 
 /*UpdateMTOPostCounselingInformationForbidden handles this case with default header values.
 
-The request was denied.
+The client doesn't have permissions to perform the request.
 */
 type UpdateMTOPostCounselingInformationForbidden struct {
 	Payload interface{}
