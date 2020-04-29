@@ -3,10 +3,11 @@ package mtoshipment
 import (
 	"testing"
 
+	"github.com/transcom/mymove/pkg/services/fetch"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -31,14 +32,13 @@ func (t *testMTOShipmentQueryBuilder) Transaction(fn func(tx *pop.Connection) er
 
 func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 	moveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
-	mtoShipment := models.MTOShipment{
-		MoveTaskOrderID: moveTaskOrder.ID,
-	}
-
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder,
+	})
 	serviceItemsList := testdatagen.MakeMTOServiceItems(suite.DB())
 
 	// Happy path
-	suite.T().Run("If thse user is created successfully it should be returned", func(t *testing.T) {
+	suite.T().Run("If the shipment is created successfully it should be returned", func(t *testing.T) {
 		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
 			return nil, nil
 		}
@@ -55,14 +55,19 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 			fakeTransaction: fakeTx,
 		}
 
+		fetcher := fetch.NewFetcher(builder)
+
 		fakeCreateNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
 			return builder
 		}
 
 		creator := mtoShipmentCreator{
-			builder:          builder,
-			createNewBuilder: fakeCreateNewBuilder,
+			suite.DB(),
+			builder,
+			fetcher,
+			fakeCreateNewBuilder,
 		}
+
 		createdShipment, err := creator.CreateMTOShipment(&mtoShipment, serviceItemsList)
 
 		suite.NoError(err)
