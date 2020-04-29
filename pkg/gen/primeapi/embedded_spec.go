@@ -184,12 +184,6 @@ func init() {
               "description": "This is an MTOShipment.",
               "$ref": "#/definitions/CreateShipmentPayload"
             }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
@@ -2031,12 +2025,6 @@ func init() {
               "description": "This is an MTOShipment.",
               "$ref": "#/definitions/CreateShipmentPayload"
             }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {

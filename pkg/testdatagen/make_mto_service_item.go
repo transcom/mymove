@@ -36,3 +36,10 @@ func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOSer
 
 	return MTOServiceItem
 }
+
+// MakeMTOServiceItems makes an array of MTOServiceItems
+func MakeMTOServiceItems(db *pop.Connection) models.MTOServiceItems {
+	var serviceItemList models.MTOServiceItems
+	serviceItemList = append(serviceItemList, MakeMTOServiceItem(db, Assertions{}))
+	return serviceItemList
+}

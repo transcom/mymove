@@ -6,7 +6,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 
-	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -36,10 +35,10 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		MoveTaskOrderID: moveTaskOrder.ID,
 	}
 
-	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+	serviceItemsList := testdatagen.MakeMTOServiceItems(suite.DB())
 
 	// Happy path
-	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
+	suite.T().Run("If thse user is created successfully it should be returned", func(t *testing.T) {
 		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
 			return nil, nil
 		}
@@ -64,7 +63,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 			builder:          builder,
 			createNewBuilder: fakeCreateNewBuilder,
 		}
-		createdShipment, err := creator.CreateMTOShipment(&mtoShipment, eTag)
+		createdShipment, err := creator.CreateMTOShipment(&mtoShipment, serviceItemsList)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)

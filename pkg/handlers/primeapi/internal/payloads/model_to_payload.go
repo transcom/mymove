@@ -242,32 +242,6 @@ func PaymentRequests(paymentRequests *models.PaymentRequests) *primemessages.Pay
 	return &payload
 }
 
-// MTOShipmentFromCreate payload
-func MTOShipmentFromCreate(mtoShipment *models.MTOShipment, mtoServiceItems models.MTOServiceItems) *primemessages.MTOShipment {
-	payload := &primemessages.MTOShipment{
-		ID:                 strfmt.UUID(mtoShipment.ID.String()),
-		Agents:             *MTOAgents(&mtoShipment.MTOAgents),
-		MoveTaskOrderID:    strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:       primemessages.MTOShipmentType(mtoShipment.ShipmentType),
-		PickupAddress:      Address(mtoShipment.PickupAddress),
-		DestinationAddress: Address(mtoShipment.DestinationAddress),
-		CreatedAt:          strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:          strfmt.DateTime(mtoShipment.UpdatedAt),
-		CustomerRemarks:    mtoShipment.CustomerRemarks,
-		ETag:               etag.GenerateEtag(mtoShipment.UpdatedAt),
-	}
-
-	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
-		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
-	}
-	//make sure this doesnt rely on the service items being passed in as an argument
-	if mtoServiceItems != nil {
-		payload.MtoServiceItemsField = *MTOServiceItems(&mtoServiceItems)
-	}
-
-	return payload
-}
-
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	payload := &primemessages.MTOShipment{

@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"fmt"
+
 	"github.com/transcom/mymove/pkg/services/fetch"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 

@@ -79,9 +79,6 @@ type MTOShipment struct {
 	RejectionReason                  *string           `db:"rejection_reason"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
-
-	//	Associations
-	//MTOServiceItems					MTOServiceItems   `has_many:"mto_service_items"`
 }
 
 // MTOShipments is a list of mto shipments

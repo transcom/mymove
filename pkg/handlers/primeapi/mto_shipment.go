@@ -53,7 +53,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
 	}
 
-	returnPayload := payloads.MTOShipmentFromCreate(mtoShipment, mtoServiceItemsList)
+	returnPayload := payloads.MTOShipment(mtoShipment)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
 }
 

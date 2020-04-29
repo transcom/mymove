@@ -63,8 +63,6 @@ for the create m t o shipment operation typically these are written to a http.Re
 */
 type CreateMTOShipmentParams struct {
 
-	/*IfMatch*/
-	IfMatch string
 	/*Body*/
 	Body *primemessages.CreateShipmentPayload
 	/*MoveTaskOrderID*/
@@ -108,17 +106,6 @@ func (o *CreateMTOShipmentParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithIfMatch adds the ifMatch to the create m t o shipment params
-func (o *CreateMTOShipmentParams) WithIfMatch(ifMatch string) *CreateMTOShipmentParams {
-	o.SetIfMatch(ifMatch)
-	return o
-}
-
-// SetIfMatch adds the ifMatch to the create m t o shipment params
-func (o *CreateMTOShipmentParams) SetIfMatch(ifMatch string) {
-	o.IfMatch = ifMatch
-}
-
 // WithBody adds the body to the create m t o shipment params
 func (o *CreateMTOShipmentParams) WithBody(body *primemessages.CreateShipmentPayload) *CreateMTOShipmentParams {
 	o.SetBody(body)
@@ -148,11 +135,6 @@ func (o *CreateMTOShipmentParams) WriteToRequest(r runtime.ClientRequest, reg st
 		return err
 	}
 	var res []error
-
-	// header param If-Match
-	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
-		return err
-	}
 
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {

@@ -59,7 +59,7 @@ type MTOShipment struct {
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
-	MtoServiceItemsField []MTOServiceItem
+	mtoServiceItemsField []MTOServiceItem
 
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
@@ -105,12 +105,12 @@ type MTOShipment struct {
 
 // MtoServiceItems gets the mto service items of this base type
 func (m *MTOShipment) MtoServiceItems() []MTOServiceItem {
-	return m.MtoServiceItemsField
+	return m.mtoServiceItemsField
 }
 
 // SetMtoServiceItems sets the mto service items of this base type
 func (m *MTOShipment) SetMtoServiceItems(val []MTOServiceItem) {
-	m.MtoServiceItemsField = val
+	m.mtoServiceItemsField = val
 }
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
@@ -212,7 +212,7 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	result.MoveTaskOrderID = data.MoveTaskOrderID
 
 	// mtoServiceItems
-	result.MtoServiceItemsField = propMtoServiceItems
+	result.mtoServiceItemsField = propMtoServiceItems
 
 	// pickupAddress
 	result.PickupAddress = data.PickupAddress
@@ -357,7 +357,7 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 		MtoServiceItems []MTOServiceItem `json:"mtoServiceItems"`
 	}{
 
-		MtoServiceItems: m.MtoServiceItemsField,
+		MtoServiceItems: m.mtoServiceItemsField,
 	},
 	)
 	if err != nil {
@@ -569,7 +569,7 @@ func (m *MTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
 
 	for i := 0; i < len(m.MtoServiceItems()); i++ {
 
-		if err := m.MtoServiceItemsField[i].Validate(formats); err != nil {
+		if err := m.mtoServiceItemsField[i].Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
 			}
