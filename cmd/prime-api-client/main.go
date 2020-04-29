@@ -83,6 +83,16 @@ func main() {
 	initUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
 	root.AddCommand(updateMTOShipmentCommand)
 
+	updatePostCounselingInfo := &cobra.Command{
+		Use:          "update-post-counseling-info",
+		Short:        "update post counseling info",
+		Long:         "update post counseling info such as discovering that customer has a PPM",
+		RunE:         updatePostCounselingInfo,
+		SilenceUsage: true,
+	}
+	initUpdatePostCounselingInfoFlags(updatePostCounselingInfo.Flags())
+	root.AddCommand(updatePostCounselingInfo)
+
 	createMTOServiceItemCommand := &cobra.Command{
 		Use:          "create-mto-service-item",
 		Short:        "Create mto service item",
@@ -122,6 +132,16 @@ func main() {
 	}
 	initGetMTOFlags(getMoveTaskOrder.Flags())
 	root.AddCommand(getMoveTaskOrder)
+
+	updateMTOServiceItemStatus := &cobra.Command{
+		Use:          "support-update-mto-service-item-status",
+		Short:        "Update service item status",
+		Long:         "Approve or reject a service item",
+		RunE:         updateMTOServiceItemStatus,
+		SilenceUsage: true,
+	}
+	initUpdateMTOServiceItemStatusFlags(updateMTOServiceItemStatus.Flags())
+	root.AddCommand(updateMTOServiceItemStatus)
 
 	createPaymentRequestCommand := &cobra.Command{
 		Use:          "create-payment-request",

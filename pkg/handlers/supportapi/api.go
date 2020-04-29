@@ -50,5 +50,6 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder), context.Planner()),
 	}
 
+	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{context, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)}
 	return supportAPI.Serve(nil)
 }
