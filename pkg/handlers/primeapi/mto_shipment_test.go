@@ -136,7 +136,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		notFoundParams := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   params.HTTPRequest,
 			MtoShipmentID: strfmt.UUID("00000000-0000-0000-0000-000000000000"),
-			Body:          params.Body,
+			Body:          &primemessages.MTOShipment{},
 			IfMatch:       params.IfMatch,
 		}
 		response := handler.Handle(notFoundParams)
