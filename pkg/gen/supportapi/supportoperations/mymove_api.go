@@ -63,7 +63,12 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	}
 }
 
-/*MymoveAPI The API for move.mil */
+/*MymoveAPI The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.
+
+This API is not available in production.
+
+All endpoints are located at `primelocal/support/v1/`.
+*/
 type MymoveAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context

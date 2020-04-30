@@ -23,8 +23,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil",
-    "title": "move.mil API",
+    "description": "The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.\n\nThis API is not available in production.\n\nAll endpoints are located at ` + "`" + `primelocal/support/v1/` + "`" + `.\n",
+    "title": "Milmove Support API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -38,7 +38,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations.\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -96,7 +96,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
-        "description": "Gets an individual move task order by ID.",
+        "description": "Gets an individual move task order by ID. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "produces": [
           "application/json"
         ],
@@ -147,7 +147,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime.",
+        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -221,7 +221,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
-        "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required.\n",
+        "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED,\n` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in\n` + "`" + `rejectionReason` + "`" + ` is required. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -305,7 +305,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID. A status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -383,7 +383,7 @@ func init() {
     },
     "/service-items/{mtoServiceItemID}/status": {
       "patch": {
-        "description": "Updates the status of a service item for a move order to APPROVED or REJECTED.",
+        "description": "Updates the status of a service item for a move order to APPROVED or REJECTED. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -1579,8 +1579,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil",
-    "title": "move.mil API",
+    "description": "The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.\n\nThis API is not available in production.\n\nAll endpoints are located at ` + "`" + `primelocal/support/v1/` + "`" + `.\n",
+    "title": "Milmove Support API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -1594,7 +1594,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations.\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -1670,7 +1670,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
-        "description": "Gets an individual move task order by ID.",
+        "description": "Gets an individual move task order by ID. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "produces": [
           "application/json"
         ],
@@ -1736,7 +1736,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime.",
+        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -1828,7 +1828,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
-        "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required.\n",
+        "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED,\n` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in\n` + "`" + `rejectionReason` + "`" + ` is required. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -1936,7 +1936,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID. A status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -2035,7 +2035,7 @@ func init() {
     },
     "/service-items/{mtoServiceItemID}/status": {
       "patch": {
-        "description": "Updates the status of a service item for a move order to APPROVED or REJECTED.",
+        "description": "Updates the status of a service item for a move order to APPROVED or REJECTED. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
