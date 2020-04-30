@@ -135,7 +135,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.T().Run("PUT failure - 404", func(t *testing.T) {
 		notFoundParams := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   params.HTTPRequest,
-			MtoShipmentID: strfmt.UUID("00000000-0000-0000-0000-000000000000"),
+			MtoShipmentID: strfmt.UUID(uuid.Nil.String()),
 			Body:          &primemessages.MTOShipment{},
 			IfMatch:       params.IfMatch,
 		}

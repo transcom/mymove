@@ -1228,6 +1228,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
+          "description": "date when the shipment was given the status \"APPROVED\"",
           "type": "string",
           "format": "date",
           "readOnly": true
@@ -3078,6 +3079,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
+          "description": "date when the shipment was given the status \"APPROVED\"",
           "type": "string",
           "format": "date",
           "readOnly": true

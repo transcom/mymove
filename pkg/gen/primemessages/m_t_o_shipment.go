@@ -26,7 +26,7 @@ type MTOShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
-	// approved date
+	// date when the shipment was given the status "APPROVED"
 	// Read Only: true
 	// Format: date
 	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
