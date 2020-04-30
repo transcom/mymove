@@ -33,7 +33,10 @@ func NewGetMoveTaskOrder(ctx *middleware.Context, handler GetMoveTaskOrderHandle
 
 Gets a move task order by ID.
 
-Gets an individual move task order by ID.
+Gets an individual move task order by ID. <br />
+<br />
+This is a support endpoint and will not be available in production.
+
 
 */
 type GetMoveTaskOrder struct {
