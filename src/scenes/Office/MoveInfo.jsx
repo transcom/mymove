@@ -176,12 +176,20 @@ class MoveInfo extends Component {
   };
 
   renderPPMTabStatus = () => {
+    const ppmCompleted = this.props.ppm.status === 'COMPLETED';
     if (this.props.ppm.status === 'APPROVED') {
       if (this.props.ppmAdvance.status === 'APPROVED' || !this.props.ppmAdvance.status) {
         return (
           <span className="status">
             <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />
             Move pending
+          </span>
+        );
+      } else if (ppmCompleted) {
+        return (
+          <span className="status">
+            <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />
+            COMPLETED
           </span>
         );
       } else {
