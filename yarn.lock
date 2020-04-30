@@ -2330,10 +2330,10 @@
     "@babel/runtime" "^7.5.5"
     "@testing-library/dom" "^5.6.1"
 
-"@trussworks/react-uswds@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-1.1.0.tgz#a38e8bb1639be307bd4dba8551c4f37bf99357c6"
-  integrity sha512-L64N6ClB/WTCEN6IhKhdjI6g/MpNvmQgt9mWkKQ4zA6/rmtz3fzwhwVEepWhAE9C5Ml8h6+i3R7fDLuWwhO2Bg==
+"@trussworks/react-uswds@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-1.2.0.tgz#ff8a5d1cd370c4cab8a05f747371355a3a784bd0"
+  integrity sha512-07RCbBgVn0G3WhnJbDHuH2Uz29bnWdvBqvsMKCtvbu0PS30HecEVNEaQG2AnLoSwEx/2HpD9TIJdqVJ1YqugOg==
   dependencies:
     classnames "^2.2.6"
     react "^16.10.0"
