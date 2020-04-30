@@ -31,7 +31,10 @@ func NewCreateMTOServiceItem(ctx *middleware.Context, handler CreateMTOServiceIt
 
 /*CreateMTOServiceItem swagger:route POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items mtoServiceItem createMTOServiceItem
 
-Creates mto service items
+Creates MTO service items that is added to a Move Task Order and MTO Shipment.
+
+Creates MTO service items, which come from the list of services that can be provided. Upon creation these items are added to a Move Task Order and MTO Shipment.
+
 
 */
 type CreateMTOServiceItem struct {

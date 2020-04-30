@@ -283,7 +283,7 @@ func NewUpdateMTOServiceItemStatusPreconditionFailed() *UpdateMTOServiceItemStat
 
 /*UpdateMTOServiceItemStatusPreconditionFailed handles this case with default header values.
 
-Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.
+Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
 type UpdateMTOServiceItemStatusPreconditionFailed struct {
 	Payload *supportmessages.Error

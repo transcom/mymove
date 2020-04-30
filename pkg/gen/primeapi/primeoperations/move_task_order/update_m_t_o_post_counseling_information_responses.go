@@ -186,7 +186,7 @@ func (o *UpdateMTOPostCounselingInformationNotFound) WriteResponse(rw http.Respo
 // UpdateMTOPostCounselingInformationPreconditionFailedCode is the HTTP code returned for type UpdateMTOPostCounselingInformationPreconditionFailed
 const UpdateMTOPostCounselingInformationPreconditionFailedCode int = 412
 
-/*UpdateMTOPostCounselingInformationPreconditionFailed precondition failed
+/*UpdateMTOPostCounselingInformationPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updateMTOPostCounselingInformationPreconditionFailed
 */
@@ -195,7 +195,7 @@ type UpdateMTOPostCounselingInformationPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOPostCounselingInformationPreconditionFailed creates UpdateMTOPostCounselingInformationPreconditionFailed with default headers values
@@ -205,13 +205,13 @@ func NewUpdateMTOPostCounselingInformationPreconditionFailed() *UpdateMTOPostCou
 }
 
 // WithPayload adds the payload to the update m t o post counseling information precondition failed response
-func (o *UpdateMTOPostCounselingInformationPreconditionFailed) WithPayload(payload interface{}) *UpdateMTOPostCounselingInformationPreconditionFailed {
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) WithPayload(payload *primemessages.Error) *UpdateMTOPostCounselingInformationPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o post counseling information precondition failed response
-func (o *UpdateMTOPostCounselingInformationPreconditionFailed) SetPayload(payload interface{}) {
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,16 +219,18 @@ func (o *UpdateMTOPostCounselingInformationPreconditionFailed) SetPayload(payloa
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(412)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMTOPostCounselingInformationUnprocessableEntityCode is the HTTP code returned for type UpdateMTOPostCounselingInformationUnprocessableEntity
 const UpdateMTOPostCounselingInformationUnprocessableEntityCode int = 422
 
-/*UpdateMTOPostCounselingInformationUnprocessableEntity The request payload is invalid
+/*UpdateMTOPostCounselingInformationUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateMTOPostCounselingInformationUnprocessableEntity
 */

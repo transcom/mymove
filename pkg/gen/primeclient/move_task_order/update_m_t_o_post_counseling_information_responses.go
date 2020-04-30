@@ -209,24 +209,26 @@ func NewUpdateMTOPostCounselingInformationPreconditionFailed() *UpdateMTOPostCou
 
 /*UpdateMTOPostCounselingInformationPreconditionFailed handles this case with default header values.
 
-precondition failed
+Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
 type UpdateMTOPostCounselingInformationPreconditionFailed struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationPreconditionFailed) GetPayload() interface{} {
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -240,7 +242,7 @@ func NewUpdateMTOPostCounselingInformationUnprocessableEntity() *UpdateMTOPostCo
 
 /*UpdateMTOPostCounselingInformationUnprocessableEntity handles this case with default header values.
 
-The request payload is invalid
+The payload was unprocessable.
 */
 type UpdateMTOPostCounselingInformationUnprocessableEntity struct {
 	Payload *primemessages.ValidationError

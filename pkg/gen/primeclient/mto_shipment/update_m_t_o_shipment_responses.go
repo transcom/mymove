@@ -236,24 +236,26 @@ func NewUpdateMTOShipmentPreconditionFailed() *UpdateMTOShipmentPreconditionFail
 
 /*UpdateMTOShipmentPreconditionFailed handles this case with default header values.
 
-precondition failed
+Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
 type UpdateMTOShipmentPreconditionFailed struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOShipmentPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PUT /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdateMTOShipmentPreconditionFailed) GetPayload() interface{} {
+func (o *UpdateMTOShipmentPreconditionFailed) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

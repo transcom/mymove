@@ -27,7 +27,10 @@ type Client struct {
 }
 
 /*
-CreateMTOServiceItem creates mto service items
+CreateMTOServiceItem creates m t o service items that is added to a move task order and m t o shipment
+
+Creates MTO service items, which come from the list of services that can be provided. Upon creation these items are added to a Move Task Order and MTO Shipment.
+
 */
 func (a *Client) CreateMTOServiceItem(params *CreateMTOServiceItemParams) (*CreateMTOServiceItemOK, error) {
 	// TODO: Validate the params before sending

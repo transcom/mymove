@@ -186,7 +186,7 @@ func (o *GetMoveTaskOrderCustomerNotFound) WriteResponse(rw http.ResponseWriter,
 // GetMoveTaskOrderCustomerUnprocessableEntityCode is the HTTP code returned for type GetMoveTaskOrderCustomerUnprocessableEntity
 const GetMoveTaskOrderCustomerUnprocessableEntityCode int = 422
 
-/*GetMoveTaskOrderCustomerUnprocessableEntity The request payload is invalid
+/*GetMoveTaskOrderCustomerUnprocessableEntity The payload was unprocessable.
 
 swagger:response getMoveTaskOrderCustomerUnprocessableEntity
 */

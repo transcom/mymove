@@ -236,7 +236,7 @@ func NewCreatePaymentRequestUnprocessableEntity() *CreatePaymentRequestUnprocess
 
 /*CreatePaymentRequestUnprocessableEntity handles this case with default header values.
 
-validation error
+The payload was unprocessable.
 */
 type CreatePaymentRequestUnprocessableEntity struct {
 	Payload *primemessages.ValidationError

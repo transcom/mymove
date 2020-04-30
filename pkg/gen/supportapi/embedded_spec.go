@@ -1447,7 +1447,7 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "description": "Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for ` + "`" + `If-Match` + "`" + `. Required when sending POST or PATCH requests to prevent updating stale data.",
+          "description": "Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for ` + "`" + `If-Match` + "`" + `. Required when sending PUT or PATCH requests to prevent updating stale data.",
           "type": "string"
         },
         "rejectionReason": {
@@ -1554,7 +1554,7 @@ func init() {
       }
     },
     "PreconditionFailed": {
-      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.",
+      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
@@ -1803,7 +1803,7 @@ func init() {
             }
           },
           "412": {
-            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.",
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -1904,7 +1904,7 @@ func init() {
             }
           },
           "412": {
-            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.",
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -2003,7 +2003,7 @@ func init() {
             }
           },
           "412": {
-            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.",
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -2111,7 +2111,7 @@ func init() {
             }
           },
           "412": {
-            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.",
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -3123,7 +3123,7 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "description": "Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for ` + "`" + `If-Match` + "`" + `. Required when sending POST or PATCH requests to prevent updating stale data.",
+          "description": "Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for ` + "`" + `If-Match` + "`" + `. Required when sending PUT or PATCH requests to prevent updating stale data.",
           "type": "string"
         },
         "rejectionReason": {
@@ -3230,7 +3230,7 @@ func init() {
       }
     },
     "PreconditionFailed": {
-      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.",
+      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
