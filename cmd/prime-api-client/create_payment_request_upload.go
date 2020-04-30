@@ -1,7 +1,6 @@
 package main
 
 import (
-	//"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,27 +9,23 @@ import (
 	"path/filepath"
 	"time"
 
-	//"unsafe"
-
-	//"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/gen/primeclient/uploads"
-	//"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-// initCreateProofOfServiceUploadFlags initializes flags.
-func initCreateProofOfServiceUploadFlags(flag *pflag.FlagSet) {
-	flag.String(FilenameFlag, "", "Path to the file with the create-payment-request-upload JSON payload")
+// initCreatePaymentRequestUploadFlags initializes flags.
+func initCreatePaymentRequestUploadFlags(flag *pflag.FlagSet) {
+	flag.String(FilenameFlag, "", "Path to the upload file for create-payment-request-upload payload")
 	flag.String(PaymentRequestID, "", "Payment Request ID to upload the proof of service document to")
 
 	flag.SortFlags = false
 }
 
-// checkCreateProofOfServiceUploadConfig checks the args.
-func checkCreateProofOfServiceUploadConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+// checkCreatePaymentRequestUploadConfig checks the args.
+func checkCreatePaymentRequestUploadConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := CheckRootConfig(v)
 	if err != nil {
 		return err
@@ -43,33 +38,8 @@ func checkCreateProofOfServiceUploadConfig(v *viper.Viper, args []string, logger
 	return nil
 }
 
-/*
-func intToByteArray(num int64) []byte {
-	size := int(unsafe.Sizeof(num))
-	arr := make([]byte, size)
-	for i := 0; i < size; i++ {
-		byt := *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&num)) + uintptr(i)))
-		arr[i] = byt
-	}
-	return arr
-}
-
-func bytesToFile(filename string, data []byte) (afero.File, error) {
-	var fs = afero.NewMemMapFs()
-	uploadFile, err := fs.Create(filename)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create afero file %w", err)
-	}
-
-	uploadFile.Write(data)
-	uploadFile.Sync()
-
-	return uploadFile, nil
-}
-*/
-
-// createProofOfServiceUpload creates the payment request for an MTO
-func createProofOfServiceUpload(cmd *cobra.Command, args []string) error {
+// createPaymentRequestUpload creates the payment request for an MTO
+func createPaymentRequestUpload(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	// Create the logger
@@ -82,7 +52,7 @@ func createProofOfServiceUpload(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkCreateProofOfServiceUploadConfig(v, args, logger)
+	err := checkCreatePaymentRequestUploadConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -98,37 +68,7 @@ func createProofOfServiceUpload(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	/*
-		// Decode json from file that was passed into proof-of-service-upload
-		filename := v.GetString(FilenameFlag)
-		var reader *bufio.Reader
-		if filename != "" {
-			file, fileErr := os.Open(filepath.Clean(filename))
-			if fileErr != nil {
-				logger.Fatal(fileErr)
-			}
-			reader = bufio.NewReader(file)
-		}
-
-		if len(args) > 0 && containsDash(args) {
-			reader = bufio.NewReader(os.Stdin)
-		}
-
-		jsonDecoder := json.NewDecoder(reader)
-		var upload primemessages.Upload
-		err = jsonDecoder.Decode(&upload)
-		if err != nil {
-			return fmt.Errorf("decoding data failed: %w", err)
-		}
-
-		data := intToByteArray(*upload.Bytes)
-		file, err := bytesToFile(*upload.Filename, data)
-		if err != nil {
-			return fmt.Errorf("failed to create file from Byte: %w", err)
-		}
-	*/
-
-	// Decode json from file that was passed into proof-of-service-upload
+	// Decode json from file that was passed into create-payment-request-upload
 	filename := v.GetString(FilenameFlag)
 	if filename == "" {
 		return fmt.Errorf("failed to open filename: %s", filename)

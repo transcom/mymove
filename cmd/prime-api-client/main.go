@@ -137,10 +137,10 @@ func main() {
 		Use:          "create-payment-request-upload",
 		Short:        "Create payment request upload",
 		Long:         "Create payment request upload for a payment request",
-		RunE:         createProofOfServiceUpload,
+		RunE:         createPaymentRequestUpload,
 		SilenceUsage: true,
 	}
-	initCreateProofOfServiceUploadFlags(createPaymentRequestUploadCommand.Flags())
+	initCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
 	root.AddCommand(createPaymentRequestUploadCommand)
 
 	patchMTOShipmentStatusCommand := &cobra.Command{
