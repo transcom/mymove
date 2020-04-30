@@ -43,7 +43,7 @@ func InitRedisFlags(flag *pflag.FlagSet) {
 	flag.String(RedisHostFlag, "localhost", "Redis hostname")
 	flag.Int(RedisPortFlag, 6379, "Redis port")
 	flag.Int(RedisDBNameFlag, 0, "Redis database")
-	flag.Int(RedisConnectTimeoutFlag, 60, "Redis connect timeout in seconds")
+	flag.Int(RedisConnectTimeoutFlag, 10, "Redis connect timeout in seconds")
 	flag.Bool(RedisEnabledFlag, true, "Whether or not Redis is enabled")
 }
 
@@ -89,8 +89,6 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	redisConnectTimeout := v.GetInt(RedisConnectTimeoutFlag)
 	timeoutDuration := time.Duration(redisConnectTimeout) * time.Second
 
-	logger.Info("redis password is:", zap.String("password", redisPassword))
-	logger.Info("redis host is:", zap.String("host", redisHost))
 	redisURITemplate := "redis://%s@%s:%s/%s"
 	//redisURL := fmt.Sprintf(redisURITemplate, redisUser, redisPassword, redisHost, redisPort, redisDBName)
 	redisURL := fmt.Sprintf(redisURITemplate, redisPassword, redisHost, redisPort, redisDBName)
