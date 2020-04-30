@@ -26,19 +26,11 @@ type CreateShipmentPayload struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
-	// created at
-	// Format: datetime
-	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
-
 	// customer remarks
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
-
-	// id
-	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
 
 	mtoServiceItemsField []MTOServiceItem
 
@@ -71,13 +63,9 @@ func (m *CreateShipmentPayload) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		Agents MTOAgents `json:"agents,omitempty"`
 
-		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
-
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 		DestinationAddress *Address `json:"destinationAddress,omitempty"`
-
-		ID strfmt.UUID `json:"id,omitempty"`
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
 
@@ -111,17 +99,11 @@ func (m *CreateShipmentPayload) UnmarshalJSON(raw []byte) error {
 	// agents
 	result.Agents = data.Agents
 
-	// createdAt
-	result.CreatedAt = data.CreatedAt
-
 	// customerRemarks
 	result.CustomerRemarks = data.CustomerRemarks
 
 	// destinationAddress
 	result.DestinationAddress = data.DestinationAddress
-
-	// id
-	result.ID = data.ID
 
 	// mtoServiceItems
 	result.mtoServiceItemsField = propMtoServiceItems
@@ -150,13 +132,9 @@ func (m CreateShipmentPayload) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 		Agents MTOAgents `json:"agents,omitempty"`
 
-		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
-
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 		DestinationAddress *Address `json:"destinationAddress,omitempty"`
-
-		ID strfmt.UUID `json:"id,omitempty"`
 
 		PickupAddress *Address `json:"pickupAddress,omitempty"`
 
@@ -169,13 +147,9 @@ func (m CreateShipmentPayload) MarshalJSON() ([]byte, error) {
 
 		Agents: m.Agents,
 
-		CreatedAt: m.CreatedAt,
-
 		CustomerRemarks: m.CustomerRemarks,
 
 		DestinationAddress: m.DestinationAddress,
-
-		ID: m.ID,
 
 		PickupAddress: m.PickupAddress,
 
@@ -211,15 +185,7 @@ func (m *CreateShipmentPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDestinationAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -261,19 +227,6 @@ func (m *CreateShipmentPayload) validateAgents(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CreateShipmentPayload) validateCreatedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.CreatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *CreateShipmentPayload) validateDestinationAddress(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.DestinationAddress) { // not required
@@ -287,19 +240,6 @@ func (m *CreateShipmentPayload) validateDestinationAddress(formats strfmt.Regist
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *CreateShipmentPayload) validateID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
 	}
 
 	return nil

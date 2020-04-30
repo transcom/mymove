@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/go-openapi/swag"
 
@@ -57,7 +56,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 		Body: &primemessages.CreateShipmentPayload{
 			Agents:          nil,
-			CreatedAt:       strfmt.DateTime(time.Now()),
 			CustomerRemarks: mtoShipment.CustomerRemarks,
 			DestinationAddress: &primemessages.Address{
 				City:           &mtoShipment.DestinationAddress.City,
@@ -69,7 +67,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				StreetAddress2: mtoShipment.DestinationAddress.StreetAddress2,
 				StreetAddress3: mtoShipment.DestinationAddress.StreetAddress3,
 			},
-			ID: strfmt.UUID(mtoShipment.ID.String()),
 			PickupAddress: &primemessages.Address{
 				City:           &mtoShipment.PickupAddress.City,
 				Country:        mtoShipment.PickupAddress.Country,
@@ -96,8 +93,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 
-		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
-		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
 	})
 
 	suite.T().Run("POST failure - 500", func(t *testing.T) {

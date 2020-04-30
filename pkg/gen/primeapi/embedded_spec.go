@@ -837,10 +837,6 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
-        "createdAt": {
-          "type": "string",
-          "format": "datetime"
-        },
         "customerRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -848,11 +844,6 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
           "type": "array",
@@ -2789,10 +2780,6 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
-        "createdAt": {
-          "type": "string",
-          "format": "datetime"
-        },
         "customerRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -2800,11 +2787,6 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
           "type": "array",

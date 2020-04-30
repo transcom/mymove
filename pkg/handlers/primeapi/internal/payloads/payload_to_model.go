@@ -94,7 +94,6 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload
 
 	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
 	model := &models.MTOShipment{
-		ID:                  uuid.FromStringOrNil(mtoShipment.ID.String()),
 		MoveTaskOrderID:     uuid.FromStringOrNil(moveTaskOrderID.String()),
 		ShipmentType:        models.MTOShipmentType(mtoShipment.ShipmentType),
 		RequestedPickupDate: &requestedPickupDate,
