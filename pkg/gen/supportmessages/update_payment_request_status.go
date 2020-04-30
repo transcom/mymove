@@ -16,7 +16,7 @@ import (
 // swagger:model UpdatePaymentRequestStatus
 type UpdatePaymentRequestStatus struct {
 
-	// Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending POST or PATCH requests to prevent updating stale data.
+	// Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
 	ETag string `json:"eTag,omitempty"`
 
 	// A written reason to provide context for the status.

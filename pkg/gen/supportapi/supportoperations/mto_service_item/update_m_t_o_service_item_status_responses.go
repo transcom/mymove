@@ -274,7 +274,7 @@ func (o *UpdateMTOServiceItemStatusConflict) WriteResponse(rw http.ResponseWrite
 // UpdateMTOServiceItemStatusPreconditionFailedCode is the HTTP code returned for type UpdateMTOServiceItemStatusPreconditionFailed
 const UpdateMTOServiceItemStatusPreconditionFailedCode int = 412
 
-/*UpdateMTOServiceItemStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.
+/*UpdateMTOServiceItemStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updateMTOServiceItemStatusPreconditionFailed
 */

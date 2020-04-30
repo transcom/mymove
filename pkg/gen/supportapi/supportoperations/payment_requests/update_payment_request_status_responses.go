@@ -232,7 +232,7 @@ func (o *UpdatePaymentRequestStatusNotFound) WriteResponse(rw http.ResponseWrite
 // UpdatePaymentRequestStatusPreconditionFailedCode is the HTTP code returned for type UpdatePaymentRequestStatusPreconditionFailed
 const UpdatePaymentRequestStatusPreconditionFailedCode int = 412
 
-/*UpdatePaymentRequestStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.
+/*UpdatePaymentRequestStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updatePaymentRequestStatusPreconditionFailed
 */
