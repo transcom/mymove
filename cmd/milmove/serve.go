@@ -317,11 +317,14 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 }
 
 func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]interface{}) map[string]interface{} {
+	logger.Info("redisHealthCheck called")
 	conn := pool.Get()
 	defer conn.Close()
 
+	logger.Info("attempting to fetch a key from Redis")
 	_, redisErr := redis.Bytes(conn.Do("GET", "scs:session:foo"))
 	if redisErr == redis.ErrNil {
+		logger.Info("key not found in Redis")
 		redisErr = nil
 	} else if redisErr != nil {
 		logger.Error("Failed Redis health check", zap.Error(redisErr))
@@ -688,7 +691,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			"gitBranch": gitBranch,
 			"gitCommit": gitCommit,
 		}
-
+		logger.Info("starting DB and Redis health checks")
 		// Check and see if we should disable DB query with '?database=false'
 		// Disabling the DB is useful for Route53 health checks which require the TLS
 		// handshake be less than 4 seconds and the status code return in less than
@@ -697,13 +700,18 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 		// Always show DB unless key set to "false"
 		if !ok || (ok && showDB[0] != "false") {
+			logger.Info("connecting to the DB for health check")
 			dbErr := dbConnection.RawQuery("SELECT 1;").Exec()
 			if dbErr != nil {
 				logger.Error("Failed database health check", zap.Error(dbErr))
 			}
 			data["database"] = dbErr == nil
 
-			data = redisHealthCheck(redisPool, logger, data)
+			enabled := v.GetBool(cli.RedisEnabledFlag)
+			if enabled {
+				logger.Info("REDIS_ENABLED flag is true, so proceeding with Redis health check")
+				data = redisHealthCheck(redisPool, logger, data)
+			}
 		}
 
 		newEncoderErr := json.NewEncoder(w).Encode(data)
