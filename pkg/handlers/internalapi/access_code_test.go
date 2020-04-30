@@ -5,17 +5,16 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/services/mocks"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate"
-
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/cli"
 	accesscodeops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -41,6 +40,9 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Success() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context.SetFeatureFlag(
+		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: true},
+	)
 	accessCodeFetcher := &mocks.AccessCodeFetcher{}
 	accessCodeFetcher.On("FetchAccessCode",
 		mock.AnythingOfType("uuid.UUID"),
@@ -56,6 +58,30 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Success() {
 	suite.NotNil(fetchAccessCodePayload)
 	suite.Assertions.IsType(&accesscodeops.FetchAccessCodeOK{}, response)
 	suite.Equal(*fetchAccessCodePayload.Code, code)
+}
+
+func (suite *HandlerSuite) TestFetchAccessCodeHandler_FeatureFlagIsOff() {
+	// create user
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+
+	// makes request
+	request := httptest.NewRequest("GET", "/access_codes", nil)
+	request = suite.AuthenticateRequest(request, serviceMember)
+
+	params := accesscodeops.FetchAccessCodeParams{
+		HTTPRequest: request,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context.SetFeatureFlag(
+		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: false},
+	)
+	accessCodeFetcher := &mocks.AccessCodeFetcher{}
+	handler := FetchAccessCodeHandler{context, accessCodeFetcher}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	suite.Nil(response)
 }
 
 func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {

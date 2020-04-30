@@ -81,6 +81,10 @@ type MTOShipment struct {
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
+	// required delivery date
+	// Format: date
+	RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
+
 	// scheduled pickup date
 	// Format: date
 	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
@@ -419,6 +423,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateRequiredDeliveryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateScheduledPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -619,6 +627,19 @@ func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error
 	}
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateRequiredDeliveryDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.RequiredDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("requiredDeliveryDate", "body", "date", m.RequiredDeliveryDate.String(), formats); err != nil {
 		return err
 	}
 
