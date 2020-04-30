@@ -809,6 +809,7 @@ definitions:
         type: string
         readOnly: true
       approvedDate:
+        description: date when the shipment was given the status "APPROVED"
         format: date
         type: string
         readOnly: true
