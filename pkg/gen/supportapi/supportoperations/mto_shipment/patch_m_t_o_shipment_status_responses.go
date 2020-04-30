@@ -274,7 +274,7 @@ func (o *PatchMTOShipmentStatusConflict) WriteResponse(rw http.ResponseWriter, p
 // PatchMTOShipmentStatusPreconditionFailedCode is the HTTP code returned for type PatchMTOShipmentStatusPreconditionFailed
 const PatchMTOShipmentStatusPreconditionFailedCode int = 412
 
-/*PatchMTOShipmentStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.
+/*PatchMTOShipmentStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response patchMTOShipmentStatusPreconditionFailed
 */
