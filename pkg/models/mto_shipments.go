@@ -50,7 +50,6 @@ const (
 )
 
 // MTOShipment is an object representing data for a move task order shipment
-// TODO add mto service items as nullable list
 type MTOShipment struct {
 	ID                               uuid.UUID         `db:"id"`
 	MoveTaskOrder                    MoveTaskOrder     `belongs_to:"move_task_orders"`

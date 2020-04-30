@@ -126,8 +126,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			&mockCreator,
 		}
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/{MoveTaskOrderID}/mto_shipments"), nil)
-
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 		}

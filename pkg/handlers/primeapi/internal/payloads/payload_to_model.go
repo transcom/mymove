@@ -175,6 +175,10 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
 	}
 
+	if mtoShipment.Agents != nil {
+		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
+	}
+
 	return model
 }
 

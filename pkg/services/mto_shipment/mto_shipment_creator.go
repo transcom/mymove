@@ -15,10 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-//fetching an MTO
-//creating a mtoShipment
-//creating accessorials (find service written for this)
-
 type createMTOShipmentQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
 	CreateOne(model interface{}) (*validate.Errors, error)
