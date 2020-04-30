@@ -92,6 +92,14 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		shipment.PickupAddressID = &shipment.PickupAddress.ID
 		shipment.DestinationAddressID = &shipment.DestinationAddress.ID
 
+		// check that required items to create shipment are present
+		if shipment.RequestedPickupDate == nil {
+			return errors.New("requested pickup date missing")
+		}
+		if shipment.ShipmentType == "" {
+			return errors.New("shipment type missing")
+		}
+
 		// create a shipment
 		verrs, err = txBuilder.CreateOne(&shipment)
 		if verrs != nil || err != nil {

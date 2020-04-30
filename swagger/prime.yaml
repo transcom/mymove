@@ -601,13 +601,6 @@ definitions:
         $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      createdAt:
-        format: datetime
-        type: string
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update

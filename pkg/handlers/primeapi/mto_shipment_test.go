@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				StreetAddress2: mtoShipment.PickupAddress.StreetAddress2,
 				StreetAddress3: mtoShipment.PickupAddress.StreetAddress3,
 			},
-			PointOfContact:      "",
+			PointOfContact:      "John Doe",
 			RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
 			ShipmentType:        primemessages.MTOShipmentTypeHHG,
 		},
@@ -98,6 +98,47 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
 		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
+	})
+
+	suite.T().Run("POST failure - 500", func(t *testing.T) {
+		mockCreator := mocks.MTOShipmentCreator{}
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockCreator,
+		}
+		internalServerErr := errors.New("ServerError")
+
+		mockCreator.On("CreateMTOShipment",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, internalServerErr)
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
+	})
+
+	suite.T().Run("POST failure - 400 -- nil body", func(t *testing.T) {
+		mockCreator := mocks.MTOShipmentCreator{}
+
+		err := services.NotFoundError{}
+		mockCreator.On("CreateMTOShipment",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, err)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockCreator,
+		}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/{MoveTaskOrderID}/mto_shipments"), nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
 	})
 }
 
