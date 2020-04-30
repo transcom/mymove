@@ -931,7 +931,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -956,6 +957,7 @@ func init() {
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "phone": {
@@ -966,7 +968,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         }
       }
     },
@@ -1262,22 +1265,26 @@ func init() {
         },
         "approvedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "datetime",
+          "readOnly": true
         },
         "customerRemarks": {
           "type": "string",
           "x-nullable": true,
+          "readOnly": true,
           "example": "handle with care"
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "firstAvailableDeliveryDate": {
           "type": "string",
@@ -1286,11 +1293,13 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
@@ -1310,20 +1319,24 @@ func init() {
         },
         "primeEstimatedWeightRecordedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
+          "readOnly": true,
           "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "requiredDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -1344,11 +1357,13 @@ func init() {
             "APPROVED",
             "SUBMITTED",
             "REJECTED"
-          ]
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "datetime",
+          "readOnly": true
         }
       }
     },
@@ -2772,7 +2787,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2797,6 +2813,7 @@ func init() {
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "phone": {
@@ -2807,7 +2824,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         }
       }
     },
@@ -3103,22 +3121,26 @@ func init() {
         },
         "approvedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "datetime",
+          "readOnly": true
         },
         "customerRemarks": {
           "type": "string",
           "x-nullable": true,
+          "readOnly": true,
           "example": "handle with care"
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "firstAvailableDeliveryDate": {
           "type": "string",
@@ -3127,11 +3149,13 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
@@ -3151,20 +3175,24 @@ func init() {
         },
         "primeEstimatedWeightRecordedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
+          "readOnly": true,
           "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "requiredDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -3185,11 +3213,13 @@ func init() {
             "APPROVED",
             "SUBMITTED",
             "REJECTED"
-          ]
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "datetime",
+          "readOnly": true
         }
       }
     },

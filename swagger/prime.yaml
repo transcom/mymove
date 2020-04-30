@@ -771,12 +771,15 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       createdAt:
         format: date
         type: string
+        readOnly: true
       updatedAt:
         format: date
         type: string
+        readOnly: true
       firstName:
         type: string
         x-nullable: true
@@ -802,25 +805,31 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       createdAt:
         format: datetime
         type: string
+        readOnly: true
       updatedAt:
         format: datetime
         type: string
+        readOnly: true
       approvedDate:
         format: date
         type: string
+        readOnly: true
       scheduledPickupDate:
         format: date
         type: string
       requestedPickupDate:
         format: date
         type: string
+        readOnly: true
       firstAvailableDeliveryDate:
         format: date
         type: string
@@ -833,16 +842,19 @@ definitions:
       primeEstimatedWeightRecordedDate:
         format: date
         type: string
+        readOnly: true
       actualPickupDate:
         format: date
         type: string
       requiredDeliveryDate:
         format: date
         type: string
+        readOnly: true
       agents:
         $ref: '#/definitions/MTOAgents'
       customerRemarks:
         type: string
+        readOnly: true
         example: handle with care
         x-nullable: true
       shipmentType:
@@ -857,14 +869,17 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+        readOnly: true
       status:
         type: string
+        readOnly: true
         enum:
           - APPROVED
           - SUBMITTED
           - REJECTED
       rejectionReason:
         type: string
+        readOnly: true
         example: MTO Shipment not good enough
         x-nullable: true
       pointOfContact:
