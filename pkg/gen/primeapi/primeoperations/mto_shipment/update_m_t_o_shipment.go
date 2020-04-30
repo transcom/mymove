@@ -31,7 +31,9 @@ func NewUpdateMTOShipment(ctx *middleware.Context, handler UpdateMTOShipmentHand
 
 /*UpdateMTOShipment swagger:route PUT /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID} mtoShipment updateMTOShipment
 
-Updates mto shipment
+Updates MTO shipment
+
+Updates MTO shipment.
 
 */
 type UpdateMTOShipment struct {

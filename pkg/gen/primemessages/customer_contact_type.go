@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// CustomerContactType Describes a customer contact type for a MTOServiceItemDomesticDestSIT
+// CustomerContactType Describes a customer contact type for a MTOServiceItemDomesticDestSIT.
 // swagger:model CustomerContactType
 type CustomerContactType string
 
