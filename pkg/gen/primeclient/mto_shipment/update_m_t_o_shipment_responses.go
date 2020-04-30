@@ -124,7 +124,7 @@ func NewUpdateMTOShipmentBadRequest() *UpdateMTOShipmentBadRequest {
 
 /*UpdateMTOShipmentBadRequest handles this case with default header values.
 
-The request payload is invalid
+The request payload is invalid.
 */
 type UpdateMTOShipmentBadRequest struct {
 	Payload *primemessages.Error
@@ -219,7 +219,7 @@ func NewUpdateMTOShipmentNotFound() *UpdateMTOShipmentNotFound {
 
 /*UpdateMTOShipmentNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type UpdateMTOShipmentNotFound struct {
 	Payload *primemessages.Error
@@ -256,23 +256,21 @@ Conflict error between the fields and values expected and the ones received. Ple
 
 */
 type UpdateMTOShipmentConflict struct {
-	Payload *primemessages.ValidationError
+	Payload interface{}
 }
 
 func (o *UpdateMTOShipmentConflict) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentConflict  %+v", 409, o.Payload)
 }
 
-func (o *UpdateMTOShipmentConflict) GetPayload() *primemessages.ValidationError {
+func (o *UpdateMTOShipmentConflict) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.ValidationError)
-
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -286,7 +284,7 @@ func NewUpdateMTOShipmentPreconditionFailed() *UpdateMTOShipmentPreconditionFail
 
 /*UpdateMTOShipmentPreconditionFailed handles this case with default header values.
 
-Precondition failed
+Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
 type UpdateMTOShipmentPreconditionFailed struct {
 	Payload *primemessages.Error
@@ -319,7 +317,7 @@ func NewUpdateMTOShipmentUnprocessableEntity() *UpdateMTOShipmentUnprocessableEn
 
 /*UpdateMTOShipmentUnprocessableEntity handles this case with default header values.
 
-A validation error occurred.
+The payload was unprocessable.
 */
 type UpdateMTOShipmentUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
@@ -352,7 +350,7 @@ func NewUpdateMTOShipmentInternalServerError() *UpdateMTOShipmentInternalServerE
 
 /*UpdateMTOShipmentInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type UpdateMTOShipmentInternalServerError struct {
 	Payload *primemessages.Error

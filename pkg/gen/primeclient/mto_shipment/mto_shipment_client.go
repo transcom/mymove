@@ -27,7 +27,7 @@ type Client struct {
 }
 
 /*
-UpdateMTOShipment updates m t o shipment by ID
+UpdateMTOShipment updates m t o shipment
 
 Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
 

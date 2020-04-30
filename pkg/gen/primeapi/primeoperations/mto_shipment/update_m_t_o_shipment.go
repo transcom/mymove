@@ -31,7 +31,7 @@ func NewUpdateMTOShipment(ctx *middleware.Context, handler UpdateMTOShipmentHand
 
 /*UpdateMTOShipment swagger:route PUT /mto-shipments/{mtoShipmentID} mtoShipment updateMTOShipment
 
-Updates MTO shipment by ID
+Updates MTO shipment
 
 Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
 
