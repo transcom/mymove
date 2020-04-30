@@ -16,7 +16,7 @@ import (
 // FetchMTOUpdatesOKCode is the HTTP code returned for type FetchMTOUpdatesOK
 const FetchMTOUpdatesOKCode int = 200
 
-/*FetchMTOUpdatesOK Successfully retrieved all move task orders
+/*FetchMTOUpdatesOK Successfully retrieved move task orders where `isAvailableToPrime` is TRUE.
 
 swagger:response fetchMTOUpdatesOK
 */
@@ -63,7 +63,7 @@ func (o *FetchMTOUpdatesOK) WriteResponse(rw http.ResponseWriter, producer runti
 // FetchMTOUpdatesBadRequestCode is the HTTP code returned for type FetchMTOUpdatesBadRequest
 const FetchMTOUpdatesBadRequestCode int = 400
 
-/*FetchMTOUpdatesBadRequest The request payload is invalid
+/*FetchMTOUpdatesBadRequest The request payload is invalid.
 
 swagger:response fetchMTOUpdatesBadRequest
 */
@@ -72,7 +72,7 @@ type FetchMTOUpdatesBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewFetchMTOUpdatesBadRequest creates FetchMTOUpdatesBadRequest with default headers values
@@ -82,13 +82,13 @@ func NewFetchMTOUpdatesBadRequest() *FetchMTOUpdatesBadRequest {
 }
 
 // WithPayload adds the payload to the fetch m t o updates bad request response
-func (o *FetchMTOUpdatesBadRequest) WithPayload(payload interface{}) *FetchMTOUpdatesBadRequest {
+func (o *FetchMTOUpdatesBadRequest) WithPayload(payload *primemessages.Error) *FetchMTOUpdatesBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fetch m t o updates bad request response
-func (o *FetchMTOUpdatesBadRequest) SetPayload(payload interface{}) {
+func (o *FetchMTOUpdatesBadRequest) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -96,16 +96,18 @@ func (o *FetchMTOUpdatesBadRequest) SetPayload(payload interface{}) {
 func (o *FetchMTOUpdatesBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // FetchMTOUpdatesUnauthorizedCode is the HTTP code returned for type FetchMTOUpdatesUnauthorized
 const FetchMTOUpdatesUnauthorizedCode int = 401
 
-/*FetchMTOUpdatesUnauthorized The request was denied
+/*FetchMTOUpdatesUnauthorized The request was unauthorized.
 
 swagger:response fetchMTOUpdatesUnauthorized
 */
@@ -147,7 +149,7 @@ func (o *FetchMTOUpdatesUnauthorized) WriteResponse(rw http.ResponseWriter, prod
 // FetchMTOUpdatesForbiddenCode is the HTTP code returned for type FetchMTOUpdatesForbidden
 const FetchMTOUpdatesForbiddenCode int = 403
 
-/*FetchMTOUpdatesForbidden The request was denied
+/*FetchMTOUpdatesForbidden The client doesn't have permissions to perform the request.
 
 swagger:response fetchMTOUpdatesForbidden
 */
@@ -189,7 +191,7 @@ func (o *FetchMTOUpdatesForbidden) WriteResponse(rw http.ResponseWriter, produce
 // FetchMTOUpdatesNotFoundCode is the HTTP code returned for type FetchMTOUpdatesNotFound
 const FetchMTOUpdatesNotFoundCode int = 404
 
-/*FetchMTOUpdatesNotFound The requested resource wasn't found
+/*FetchMTOUpdatesNotFound The requested resource wasn't found.
 
 swagger:response fetchMTOUpdatesNotFound
 */
@@ -198,7 +200,7 @@ type FetchMTOUpdatesNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewFetchMTOUpdatesNotFound creates FetchMTOUpdatesNotFound with default headers values
@@ -208,13 +210,13 @@ func NewFetchMTOUpdatesNotFound() *FetchMTOUpdatesNotFound {
 }
 
 // WithPayload adds the payload to the fetch m t o updates not found response
-func (o *FetchMTOUpdatesNotFound) WithPayload(payload interface{}) *FetchMTOUpdatesNotFound {
+func (o *FetchMTOUpdatesNotFound) WithPayload(payload *primemessages.Error) *FetchMTOUpdatesNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fetch m t o updates not found response
-func (o *FetchMTOUpdatesNotFound) SetPayload(payload interface{}) {
+func (o *FetchMTOUpdatesNotFound) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -222,16 +224,18 @@ func (o *FetchMTOUpdatesNotFound) SetPayload(payload interface{}) {
 func (o *FetchMTOUpdatesNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // FetchMTOUpdatesInternalServerErrorCode is the HTTP code returned for type FetchMTOUpdatesInternalServerError
 const FetchMTOUpdatesInternalServerErrorCode int = 500
 
-/*FetchMTOUpdatesInternalServerError A server error occurred
+/*FetchMTOUpdatesInternalServerError A server error occurred.
 
 swagger:response fetchMTOUpdatesInternalServerError
 */
@@ -240,7 +244,7 @@ type FetchMTOUpdatesInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewFetchMTOUpdatesInternalServerError creates FetchMTOUpdatesInternalServerError with default headers values
@@ -250,13 +254,13 @@ func NewFetchMTOUpdatesInternalServerError() *FetchMTOUpdatesInternalServerError
 }
 
 // WithPayload adds the payload to the fetch m t o updates internal server error response
-func (o *FetchMTOUpdatesInternalServerError) WithPayload(payload interface{}) *FetchMTOUpdatesInternalServerError {
+func (o *FetchMTOUpdatesInternalServerError) WithPayload(payload *primemessages.Error) *FetchMTOUpdatesInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fetch m t o updates internal server error response
-func (o *FetchMTOUpdatesInternalServerError) SetPayload(payload interface{}) {
+func (o *FetchMTOUpdatesInternalServerError) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -264,8 +268,10 @@ func (o *FetchMTOUpdatesInternalServerError) SetPayload(payload interface{}) {
 func (o *FetchMTOUpdatesInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

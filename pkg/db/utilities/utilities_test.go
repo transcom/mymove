@@ -128,30 +128,44 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssoci
 	suite.Nil(document.DeletedAt)
 
 	upload := models.Upload{
-		DocumentID:  &document.ID,
-		UploaderID:  document.ServiceMember.UserID,
 		Filename:    "test.pdf",
 		Bytes:       1048576,
 		ContentType: "application/pdf",
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+		UploadType:  models.UploadTypeUSER,
 	}
+	suite.MustSave(&upload)
+	userUpload1 := models.UserUpload{
+		DocumentID: &document.ID,
+		UploaderID: document.ServiceMember.UserID,
+		UploadID:   upload.ID,
+		Upload:     upload,
+	}
+	suite.MustSave(&userUpload1)
 	upload2 := models.Upload{
-		DocumentID:  &document.ID,
-		UploaderID:  document.ServiceMember.UserID,
 		Filename:    "test2.pdf",
 		Bytes:       1048576,
 		ContentType: "application/pdf",
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+		UploadType:  models.UploadTypeUSER,
 	}
-	suite.MustSave(&upload)
 	suite.MustSave(&upload2)
+	userUpload2 := models.UserUpload{
+		DocumentID: &document.ID,
+		UploaderID: document.ServiceMember.UserID,
+		UploadID:   upload2.ID,
+		Upload:     upload2,
+	}
+	suite.MustSave(&userUpload2)
 	suite.Nil(upload.DeletedAt)
 	suite.Nil(upload2.DeletedAt)
+	suite.Nil(userUpload1.DeletedAt)
+	suite.Nil(userUpload2.DeletedAt)
 
 	err := utilities.SoftDestroy(suite.DB(), &document)
 
 	suite.NoError(err)
 	suite.NotNil(document.DeletedAt)
-	suite.NotNil(document.Uploads[0].DeletedAt)
-	suite.NotNil(document.Uploads[1].DeletedAt)
+	suite.NotNil(document.UserUploads[0].DeletedAt)
+	suite.NotNil(document.UserUploads[1].DeletedAt)
 }

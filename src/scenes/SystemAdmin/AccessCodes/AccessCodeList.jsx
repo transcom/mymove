@@ -25,7 +25,7 @@ const AccessCodeList = (props) => (
       <TextField source="id" reference="access_codes" />
       <TextField source="code" reference="access_codes" />
       <TextField source="moveType" reference="access_codes" />
-      <TextField source="locator" reference="access_codes" />
+      <TextField source="locator" reference="access_codes" sortable={false} />
     </Datagrid>
   </List>
 );

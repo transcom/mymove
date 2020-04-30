@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -217,18 +218,21 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 	})
 
-	badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
-
 	suite.T().Run("Given a non-existent move task order id, the create should fail", func(t *testing.T) {
+		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: badID,
 			IsFinal:         false,
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+
 		suite.Error(err)
+		_, ok := err.(services.NotFoundError)
+		suite.Equal(true, ok)
 	})
 
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {
+		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -240,9 +244,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+		_, ok := err.(services.NotFoundError)
+		suite.Equal(true, ok)
 	})
 
 	suite.T().Run("Given a non-existent service item param key id, the create should fail", func(t *testing.T) {
+		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -261,6 +268,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+		_, ok := err.(services.NotFoundError)
+		suite.Equal(true, ok)
 	})
 
 	suite.T().Run("Given a non-existent service item param key name, the create should fail", func(t *testing.T) {
@@ -282,6 +291,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+		_, ok := err.(*services.BadDataError)
+		suite.Equal(true, ok)
 	})
 
 	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {

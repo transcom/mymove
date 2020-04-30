@@ -5,16 +5,17 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-// UploadUpdater is a service object to invoices adding an Upload
+// UploadUpdater is a service object to invoices adding an UserUpload
 type UploadUpdater struct {
-	DB       *pop.Connection
-	Uploader *uploader.Uploader
+	DB           *pop.Connection
+	UserUploader *uploader.UserUploader
 }
 
 // saveInvoice using DB Transaction
@@ -37,31 +38,36 @@ func (u UploadUpdater) saveInvoice(invoice *models.Invoice) error {
 	return nil
 }
 
-// DeleteUpload deletes an existing Upload
-// This function should be called before adding an Upload to an Invoice so that the
-// Upload is removed from the database and from S3 storage before adding a new Upload to Invoice
+// DeleteUpload deletes an existing UserUpload
+// This function should be called before adding an UserUpload to an Invoice so that the
+// UserUpload is removed from the database and from S3 storage before adding a new UserUpload to Invoice
 func (u UploadUpdater) DeleteUpload(invoice *models.Invoice) error {
 
 	// Check that there is an upload object
-	if invoice.Upload != nil {
-		if invoice.Upload.StorageKey != "" {
+	if invoice.UserUpload != nil && invoice.UserUpload.Upload.ID != uuid.Nil {
+		if invoice.UserUpload.Upload.StorageKey != "" {
 
-			deleteUpload := invoice.Upload
+			deleteUploadForUser := invoice.UserUpload
 
-			// Remove association to Upload that is to be deleted
-			invoice.UploadID = nil
-			invoice.Upload = nil
+			// Remove association to UserUpload that is to be deleted
+			invoice.UserUploadID = nil
+			invoice.UserUpload = nil
 			err := u.saveInvoice(invoice)
 			var logString string
 			if err != nil {
-				logString = fmt.Sprintf("Failed to saveInvoice with uploadID: %s", invoice.UploadID)
+				logString = fmt.Sprintf("Failed to saveInvoice with UserUploadID: %s", invoice.UserUploadID)
 				return errors.Wrap(err, logString)
 			}
 
-			// Delete Upload
-			err = u.Uploader.DeleteUpload(deleteUpload)
+			// Delete UserUpload
+			err = u.UserUploader.DeleteUserUpload(deleteUploadForUser)
 			if err != nil {
-				logString = fmt.Sprintf("Failed to DeleteUpload for Upload.ID [%s] and StorageKey [%s]", deleteUpload.ID, deleteUpload.StorageKey)
+				var storageKey string
+				if deleteUploadForUser.Upload.ID != uuid.Nil {
+					storageKey = deleteUploadForUser.Upload.StorageKey
+				}
+
+				logString = fmt.Sprintf("Failed to DeleteUpload for UserUpload.ID [%s] and StorageKey [%s]", deleteUploadForUser.ID, storageKey)
 				return errors.Wrap(err, logString)
 			}
 		}
@@ -69,23 +75,23 @@ func (u UploadUpdater) DeleteUpload(invoice *models.Invoice) error {
 	return nil
 }
 
-// Call updates the Invoice Upload and removes an old Upload if present
-func (u UploadUpdater) Call(invoice *models.Invoice, upload *models.Upload) (*validate.Errors, error) {
+// Call updates the Invoice UserUpload and removes an old UserUpload if present
+func (u UploadUpdater) Call(invoice *models.Invoice, userUpload *models.UserUpload) (*validate.Errors, error) {
 	verrs := validate.NewErrors()
-	if upload == nil {
-		return verrs, errors.New("upload is nil")
+	if userUpload == nil {
+		return verrs, errors.New("userUpload is nil")
 	}
 	if invoice == nil {
 		return verrs, errors.New("invoice is nil")
 	}
 
 	var err error
-	// Save new Upload to Invoice
-	invoice.Upload = upload
-	invoice.UploadID = &upload.ID
+	// Save new UserUpload to Invoice
+	invoice.UserUpload = userUpload
+	invoice.UserUploadID = &userUpload.ID
 	err = u.saveInvoice(invoice)
 	if err != nil {
-		return verrs, errors.Wrap(err, "Could not save Invoice for UploadUpdater -- save new upload")
+		return verrs, errors.Wrap(err, "Could not save Invoice for UploadUpdater -- save new userUpload")
 	}
 
 	return verrs, nil

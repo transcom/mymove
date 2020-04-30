@@ -21,10 +21,10 @@ type Customer struct {
 	Agency string `json:"agency,omitempty"`
 
 	// current address
-	CurrentAddress *Address `json:"current_address,omitempty"`
+	CurrentAddress *Address `json:"currentAddress,omitempty"`
 
 	// destination address
-	DestinationAddress *Address `json:"destination_address,omitempty"`
+	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
 	// dod ID
 	DodID string `json:"dodID,omitempty"`
@@ -37,14 +37,15 @@ type Customer struct {
 	Email *string `json:"email,omitempty"`
 
 	// first name
-	FirstName string `json:"first_name,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
 
 	// id
+	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// last name
-	LastName string `json:"last_name,omitempty"`
+	LastName string `json:"lastName,omitempty"`
 
 	// phone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
@@ -98,7 +99,7 @@ func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
 	if m.CurrentAddress != nil {
 		if err := m.CurrentAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("current_address")
+				return ve.ValidateName("currentAddress")
 			}
 			return err
 		}
@@ -116,7 +117,7 @@ func (m *Customer) validateDestinationAddress(formats strfmt.Registry) error {
 	if m.DestinationAddress != nil {
 		if err := m.DestinationAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destination_address")
+				return ve.ValidateName("destinationAddress")
 			}
 			return err
 		}
