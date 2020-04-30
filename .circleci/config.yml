@@ -1171,17 +1171,17 @@ workflows:
             branches:
               only: master
 
-      # - deploy_prod_storybook:
-      #     requires:
-      #       - storybook_tests
-      #     filters:
-      #       branches:
-      #         only: master
-      #
-      # - storybook_tests:
-      #     requires:
-      #       - anti_virus
-      #       - pre_deps_yarn
+      - deploy_prod_storybook:
+          requires:
+            - storybook_tests
+          filters:
+            branches:
+              only: master
+
+      - storybook_tests:
+          requires:
+            - anti_virus
+            - pre_deps_yarn
 
 experimental:
   notify:
