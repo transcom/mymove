@@ -2,7 +2,7 @@ import React from 'react';
 
 import { storiesOf } from '@storybook/react';
 
-import RequestedServiceItemsTable from '../components/RequestedServiceItemsTable';
+import RequestedServiceItemsTable from '../components/Office/RequestedServiceItemsTable';
 
 storiesOf('Components|RequestedServiceItemsTable', module).add('default', () => {
   const serviceItems = [
