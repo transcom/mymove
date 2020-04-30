@@ -338,6 +338,9 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
+                "moveTaskOrderID": {
+                  "type": "string"
+                },
                 "pointOfContact": {
                   "description": "Email or id of a contact person for this update",
                   "type": "string"
@@ -442,25 +445,25 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "created instance of payment request",
+            "description": "successfully created instance of payment request",
             "schema": {
               "$ref": "#/definitions/PaymentRequest"
             }
           },
           "400": {
-            "description": "The request payload is invalid",
+            "description": "the payment request payload is invalid",
             "schema": {
               "$ref": "#/responses/InvalidRequest"
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "must be authenticated to use this endpoint",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "not authorized to create a payment request",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
@@ -469,6 +472,12 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/responses/NotFound"
+            }
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -1013,6 +1022,11 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "item was too heavy"
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
@@ -1632,6 +1646,22 @@ func init() {
               }
             }
           }
+        }
+      }
+    },
+    "UpdatePaymentRequestStatus": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
         }
       }
     },
@@ -2097,6 +2127,9 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
+                "moveTaskOrderID": {
+                  "type": "string"
+                },
                 "pointOfContact": {
                   "description": "Email or id of a contact person for this update",
                   "type": "string"
@@ -2216,13 +2249,13 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "created instance of payment request",
+            "description": "successfully created instance of payment request",
             "schema": {
               "$ref": "#/definitions/PaymentRequest"
             }
           },
           "400": {
-            "description": "The request payload is invalid",
+            "description": "the payment request payload is invalid",
             "schema": {
               "description": "The request payload is invalid",
               "schema": {
@@ -2231,7 +2264,7 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "must be authenticated to use this endpoint",
             "schema": {
               "description": "The request was denied",
               "schema": {
@@ -2240,7 +2273,7 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "not authorized to create a payment request",
             "schema": {
               "description": "The request was denied",
               "schema": {
@@ -2255,6 +2288,12 @@ func init() {
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+            }
+          },
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -2817,6 +2856,11 @@ func init() {
         },
         "reServiceName": {
           "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "item was too heavy"
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
@@ -3436,6 +3480,22 @@ func init() {
               }
             }
           }
+        }
+      }
+    },
+    "UpdatePaymentRequestStatus": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
         }
       }
     },

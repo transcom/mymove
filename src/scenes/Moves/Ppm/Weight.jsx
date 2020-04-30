@@ -329,7 +329,7 @@ export class PpmWeight extends Component {
               <RadioButton
                 inputClassName="usa-radio__input inline_radio"
                 labelClassName="usa-radio__label inline_radio"
-                label="Not Sure"
+                label="Not sure"
                 value="Not Sure"
                 name="includesProgear"
                 checked={includesProgear === 'Not Sure'}
@@ -369,7 +369,7 @@ export class PpmWeight extends Component {
                   <RadioButton
                     inputClassName="usa-radio__input inline_radio"
                     labelClassName="usa-radio__label inline_radio"
-                    label="Not Sure"
+                    label="Not sure"
                     value="Not Sure"
                     name="isProgearMoreThan1000"
                     checked={isProgearMoreThan1000 === 'Not Sure'}
