@@ -36,7 +36,7 @@ func NewUpdateMTOPostCounselingInformation(ctx *middleware.Context, handler Upda
 
 /*UpdateMTOPostCounselingInformation swagger:route PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info moveTaskOrder updateMTOPostCounselingInformation
 
-Updates move task order's post counseling information.
+Updates move task order's post counseling information
 
 Updates move task order fields ppmType, ppmEstimatedWeight, and pointOfContact.
 

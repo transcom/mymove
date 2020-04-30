@@ -69,7 +69,7 @@ paths:
         required: true
         type: string
     get:
-      summary: Gets a move task order by ID.
+      summary: Gets a move task order by ID
       description: Gets an individual move task order by ID.
       operationId: getMoveTaskOrder
       tags:
@@ -104,7 +104,7 @@ paths:
         required: true
         type: string
     patch:
-      summary: Update the status of a move task order to make it available to prime.
+      summary: Update the status of a move task order to make it available to prime
       description: Updates move task order `isAvailableToPrime` to TRUE to make it available to prime.
       operationId: updateMoveTaskOrderStatus
       tags:
@@ -211,7 +211,7 @@ paths:
         required: true
         type: string
     patch:
-      summary: Update the status of a service item for a move order by ID.
+      summary: Update the status of a service item for a move order by ID
       description: Updates the status of a service item for a move order to APPROVED or REJECTED.
       operationId: updateMTOServiceItemStatus
       tags:
@@ -269,7 +269,7 @@ paths:
         format: uuid
         type: string
     patch:
-      summary: Updates a shipment's status.
+      summary: Updates a shipment's status
       description: >
         Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED,
         `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in

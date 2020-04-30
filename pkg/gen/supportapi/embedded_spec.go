@@ -103,7 +103,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets a move task order by ID.",
+        "summary": "Gets a move task order by ID",
         "operationId": "getMoveTaskOrder",
         "responses": {
           "200": {
@@ -157,7 +157,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Update the status of a move task order to make it available to prime.",
+        "summary": "Update the status of a move task order to make it available to prime",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -231,7 +231,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates a shipment's status.",
+        "summary": "Updates a shipment's status",
         "operationId": "patchMTOShipmentStatus",
         "parameters": [
           {
@@ -393,7 +393,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Update the status of a service item for a move order by ID.",
+        "summary": "Update the status of a service item for a move order by ID",
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
@@ -1677,7 +1677,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets a move task order by ID.",
+        "summary": "Gets a move task order by ID",
         "operationId": "getMoveTaskOrder",
         "responses": {
           "200": {
@@ -1746,7 +1746,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Update the status of a move task order to make it available to prime.",
+        "summary": "Update the status of a move task order to make it available to prime",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -1838,7 +1838,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates a shipment's status.",
+        "summary": "Updates a shipment's status",
         "operationId": "patchMTOShipmentStatus",
         "parameters": [
           {
@@ -2045,7 +2045,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Update the status of a service item for a move order by ID.",
+        "summary": "Update the status of a service item for a move order by ID",
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {

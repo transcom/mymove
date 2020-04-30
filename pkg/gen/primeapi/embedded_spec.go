@@ -45,7 +45,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE.",
+        "summary": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
@@ -96,7 +96,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets the customer associated with a move task order ID.",
+        "summary": "Gets the customer associated with a move task order ID",
         "operationId": "getMoveTaskOrderCustomer",
         "responses": {
           "200": {
@@ -150,7 +150,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates MTO shipment.",
+        "summary": "Updates MTO shipment",
         "operationId": "updateMTOShipment",
         "parameters": [
           {
@@ -231,7 +231,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Creates MTO service items that is added to a Move Task Order and MTO Shipment.",
+        "summary": "Creates MTO service items that is added to a Move Task Order and MTO Shipment",
         "operationId": "createMTOServiceItem",
         "parameters": [
           {
@@ -305,7 +305,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates move task order's post counseling information.",
+        "summary": "Updates move task order's post counseling information",
         "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
@@ -464,7 +464,7 @@ func init() {
         "tags": [
           "uploads"
         ],
-        "summary": "Create a new upload for a payment request.",
+        "summary": "Create a new upload for a payment request",
         "operationId": "createUpload",
         "parameters": [
           {
@@ -1747,7 +1747,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE.",
+        "summary": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
@@ -1813,7 +1813,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets the customer associated with a move task order ID.",
+        "summary": "Gets the customer associated with a move task order ID",
         "operationId": "getMoveTaskOrderCustomer",
         "responses": {
           "200": {
@@ -1882,7 +1882,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates MTO shipment.",
+        "summary": "Updates MTO shipment",
         "operationId": "updateMTOShipment",
         "parameters": [
           {
@@ -1981,7 +1981,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Creates MTO service items that is added to a Move Task Order and MTO Shipment.",
+        "summary": "Creates MTO service items that is added to a Move Task Order and MTO Shipment",
         "operationId": "createMTOServiceItem",
         "parameters": [
           {
@@ -2073,7 +2073,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates move task order's post counseling information.",
+        "summary": "Updates move task order's post counseling information",
         "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
@@ -2262,7 +2262,7 @@ func init() {
         "tags": [
           "uploads"
         ],
-        "summary": "Create a new upload for a payment request.",
+        "summary": "Create a new upload for a payment request",
         "operationId": "createUpload",
         "parameters": [
           {
