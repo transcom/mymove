@@ -281,11 +281,13 @@ paths:
             $ref: '#/definitions/CreatePaymentRequestPayload'
       responses:
         '201':
-          description: Successfully created a payment request.
+          description: Successfully created a paymentRequest object.
           schema:
             $ref: '#/definitions/PaymentRequest'
         '400':
-          $ref: '#/responses/InvalidRequest'
+          description: Request payload is invalid.
+          schema:
+            $ref: '#/definitions/ClientError'
         '401':
           description: The request was unauthorized.
           schema:
@@ -295,7 +297,9 @@ paths:
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          $ref: '#/responses/NotFound'
+          description: The requested resource wasn't found.
+          schema:
+            $ref: '#/definitions/ClientError'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':

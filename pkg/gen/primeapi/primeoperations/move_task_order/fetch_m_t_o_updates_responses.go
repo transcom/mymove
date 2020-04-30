@@ -16,7 +16,7 @@ import (
 // FetchMTOUpdatesOKCode is the HTTP code returned for type FetchMTOUpdatesOK
 const FetchMTOUpdatesOKCode int = 200
 
-/*FetchMTOUpdatesOK Successfully retrieved all move task orders.
+/*FetchMTOUpdatesOK Successfully retrieved move task orders where `isAvailableToPrime` is TRUE.
 
 swagger:response fetchMTOUpdatesOK
 */
@@ -63,7 +63,7 @@ func (o *FetchMTOUpdatesOK) WriteResponse(rw http.ResponseWriter, producer runti
 // FetchMTOUpdatesBadRequestCode is the HTTP code returned for type FetchMTOUpdatesBadRequest
 const FetchMTOUpdatesBadRequestCode int = 400
 
-/*FetchMTOUpdatesBadRequest The request payload is invalid
+/*FetchMTOUpdatesBadRequest The request payload is invalid.
 
 swagger:response fetchMTOUpdatesBadRequest
 */
@@ -191,7 +191,7 @@ func (o *FetchMTOUpdatesForbidden) WriteResponse(rw http.ResponseWriter, produce
 // FetchMTOUpdatesNotFoundCode is the HTTP code returned for type FetchMTOUpdatesNotFound
 const FetchMTOUpdatesNotFoundCode int = 404
 
-/*FetchMTOUpdatesNotFound The requested resource wasn't found
+/*FetchMTOUpdatesNotFound The requested resource wasn't found.
 
 swagger:response fetchMTOUpdatesNotFound
 */
@@ -235,7 +235,7 @@ func (o *FetchMTOUpdatesNotFound) WriteResponse(rw http.ResponseWriter, producer
 // FetchMTOUpdatesInternalServerErrorCode is the HTTP code returned for type FetchMTOUpdatesInternalServerError
 const FetchMTOUpdatesInternalServerErrorCode int = 500
 
-/*FetchMTOUpdatesInternalServerError A server error occurred
+/*FetchMTOUpdatesInternalServerError A server error occurred.
 
 swagger:response fetchMTOUpdatesInternalServerError
 */

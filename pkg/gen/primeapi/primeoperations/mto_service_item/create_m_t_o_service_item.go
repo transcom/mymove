@@ -33,7 +33,7 @@ func NewCreateMTOServiceItem(ctx *middleware.Context, handler CreateMTOServiceIt
 
 Creates MTO service items that is added to a Move Task Order and MTO Shipment.
 
-Creates MTO service items, which come from the list of services that can be provided. Upon creation these items are added to a Move Task Order and MTO Shipment.
+Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.
 
 
 */

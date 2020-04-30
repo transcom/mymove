@@ -38,27 +38,27 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move task orders",
+        "description": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE. This prevents viewing any move task orders that have not been made available to the Prime.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move task orders",
+        "summary": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE.",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
             "type": "integer",
             "format": "timestamp",
-            "description": "Only return MTOs updated since this time",
+            "description": "Only return move task orders updated since this time.",
             "name": "since",
             "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved all move task orders.",
+            "description": "Successfully retrieved move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrders"
             }
@@ -89,18 +89,18 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/customer": {
       "get": {
-        "description": "Gets a the customer associated with a move task order ID",
+        "description": "Gets the customer associated with a move task order ID.",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets a the customer associated with a move task order ID",
+        "summary": "Gets the customer associated with a move task order ID.",
         "operationId": "getMoveTaskOrderCustomer",
         "responses": {
           "200": {
-            "description": "Successfully retrieved customer associated with move task order",
+            "description": "Successfully retrieved customer associated with move task order.",
             "schema": {
               "$ref": "#/definitions/Customer"
             }
@@ -131,7 +131,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move order to use.",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -140,7 +140,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
       "put": {
-        "description": "something",
+        "description": "Updates MTO shipment.",
         "consumes": [
           "application/json"
         ],
@@ -150,12 +150,13 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates mto shipment",
+        "summary": "Updates MTO shipment.",
         "operationId": "updateMTOShipment",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
+            "description": "UUID of the move task order being used.",
             "name": "moveTaskOrderID",
             "in": "path",
             "required": true
@@ -163,6 +164,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
+            "description": "UUID of the move task order shipment being updated.",
             "name": "mtoShipmentID",
             "in": "path",
             "required": true
@@ -177,6 +179,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -184,7 +187,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "updated instance of mto shipment",
+            "description": "Successfully updated MTO shipment.",
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -218,7 +221,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
       "post": {
-        "description": "Creates MTO service items, which come from the list of services that can be provided. Upon creation these items are added to a Move Task Order and MTO Shipment.\n",
+        "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.\n",
         "consumes": [
           "application/json"
         ],
@@ -345,7 +348,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated move task order post counseling information.",
+            "description": "Successfully updated move task order with post counseling information.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
@@ -388,7 +391,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a payment request",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -411,43 +414,40 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "successfully created instance of payment request",
+            "description": "Successfully created a paymentRequest object.",
             "schema": {
               "$ref": "#/definitions/PaymentRequest"
             }
           },
           "400": {
-            "description": "the payment request payload is invalid",
+            "description": "Request payload is invalid.",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
-            "description": "must be authenticated to use this endpoint",
+            "description": "The request was unauthorized.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "not authorized to create a payment request",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -457,6 +457,9 @@ func init() {
         "description": "Uploads represent a single digital file, such as a JPEG, PNG, or PDF.",
         "consumes": [
           "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
         ],
         "tags": [
           "uploads"
@@ -481,7 +484,7 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "Created upload",
+            "description": "Successfully created upload of digital file.",
             "schema": {
               "$ref": "#/definitions/Upload"
             }
@@ -710,7 +713,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "pointOfContact": {
-          "description": "Email or id of a contact person for this update",
+          "description": "Email or id of a contact person for this update.",
           "type": "string"
         },
         "serviceItems": {
@@ -771,7 +774,7 @@ func init() {
       }
     },
     "CustomerContactType": {
-      "description": "Describes a customer contact type for a MTOServiceItemDomesticDestSIT",
+      "description": "Describes a customer contact type for a MTOServiceItemDomesticDestSIT.",
       "type": "string",
       "enum": [
         "FIRST",
@@ -779,7 +782,7 @@ func init() {
       ]
     },
     "DimensionType": {
-      "description": "Describes a dimension type for a MTOServiceItemDimension",
+      "description": "Describes a dimension type for a MTOServiceItemDimension.",
       "type": "string",
       "enum": [
         "ITEM",
@@ -989,7 +992,7 @@ func init() {
       "discriminator": "modelType"
     },
     "MTOServiceItemBasic": {
-      "description": "Describes a basic service item subtype of a MTOServiceItem",
+      "description": "Describes a basic service item subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -1008,7 +1011,7 @@ func init() {
       ]
     },
     "MTOServiceItemDDFSIT": {
-      "description": "Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem",
+      "description": "Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -1051,7 +1054,7 @@ func init() {
       ]
     },
     "MTOServiceItemDOFSIT": {
-      "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem",
+      "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -1081,7 +1084,7 @@ func init() {
       ]
     },
     "MTOServiceItemDimension": {
-      "description": "Describes a dimension object for the MTOServiceItem",
+      "description": "Describes a dimension object for the MTOServiceItem.",
       "type": "object",
       "required": [
         "length",
@@ -1118,7 +1121,7 @@ func init() {
       }
     },
     "MTOServiceItemDomesticCrating": {
-      "description": "Describes a domestic crating/uncrating service item subtype of a MTOServiceItem",
+      "description": "Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -1155,7 +1158,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model",
+      "description": "Describes all model sub-types for a MTOServiceItem model.",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -1166,7 +1169,7 @@ func init() {
       ]
     },
     "MTOServiceItemShuttle": {
-      "description": "Describes a shuttle service item",
+      "description": "Describes a shuttle service item.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -1192,14 +1195,14 @@ func init() {
             },
             "reason": {
               "type": "string",
-              "example": "Storage items need to be picked up"
+              "example": "Storage items need to be picked up."
             }
           }
         }
       ]
     },
     "MTOServiceItemStatus": {
-      "description": "Describes all statuses for a MTOServiceItem",
+      "description": "Describes all statuses for a MTOServiceItem.",
       "type": "string",
       "enum": [
         "SUBMITTED",
@@ -1253,7 +1256,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "pointOfContact": {
-          "description": "Email or id of a contact person for this update",
+          "description": "Email or id of a contact person for this update.",
           "type": "string"
         },
         "primeActualWeight": {
@@ -1733,42 +1736,35 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move task orders",
+        "description": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE. This prevents viewing any move task orders that have not been made available to the Prime.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move task orders",
+        "summary": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE.",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
             "type": "integer",
             "format": "timestamp",
-            "description": "Only return MTOs updated since this time",
+            "description": "Only return move task orders updated since this time.",
             "name": "since",
             "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved all move task orders.",
+            "description": "Successfully retrieved move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrders"
             }
           },
           "400": {
-            "description": "The request payload is invalid",
+            "description": "The request payload is invalid.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "The request payload is invalid.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           },
           "401": {
@@ -1790,29 +1786,15 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "The requested resource wasn't found.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "A server error occurred.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           }
         }
@@ -1820,18 +1802,18 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/customer": {
       "get": {
-        "description": "Gets a the customer associated with a move task order ID",
+        "description": "Gets the customer associated with a move task order ID.",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets a the customer associated with a move task order ID",
+        "summary": "Gets the customer associated with a move task order ID.",
         "operationId": "getMoveTaskOrderCustomer",
         "responses": {
           "200": {
-            "description": "Successfully retrieved customer associated with move task order",
+            "description": "Successfully retrieved customer associated with move task order.",
             "schema": {
               "$ref": "#/definitions/Customer"
             }
@@ -1855,16 +1837,9 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "The requested resource wasn't found.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           },
           "422": {
@@ -1874,16 +1849,9 @@ func init() {
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "A server error occurred.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           }
         }
@@ -1891,7 +1859,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move order to use",
+          "description": "ID of move order to use.",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -1900,7 +1868,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
       "put": {
-        "description": "something",
+        "description": "Updates MTO shipment.",
         "consumes": [
           "application/json"
         ],
@@ -1910,12 +1878,13 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates mto shipment",
+        "summary": "Updates MTO shipment.",
         "operationId": "updateMTOShipment",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
+            "description": "UUID of the move task order being used.",
             "name": "moveTaskOrderID",
             "in": "path",
             "required": true
@@ -1923,6 +1892,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
+            "description": "UUID of the move task order shipment being updated.",
             "name": "mtoShipmentID",
             "in": "path",
             "required": true
@@ -1937,6 +1907,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -1944,22 +1915,15 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "updated instance of mto shipment",
+            "description": "Successfully updated MTO shipment.",
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
           },
           "400": {
-            "description": "The request payload is invalid",
+            "description": "The request payload is invalid.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "The request payload is invalid.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           },
           "401": {
@@ -1981,16 +1945,9 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "The requested resource wasn't found.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           },
           "412": {
@@ -2000,16 +1957,9 @@ func init() {
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "A server error occurred.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           }
         }
@@ -2017,7 +1967,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
       "post": {
-        "description": "Creates MTO service items, which come from the list of services that can be provided. Upon creation these items are added to a Move Task Order and MTO Shipment.\n",
+        "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.\n",
         "consumes": [
           "application/json"
         ],
@@ -2162,7 +2112,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated move task order post counseling information.",
+            "description": "Successfully updated move task order with post counseling information.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
@@ -2186,16 +2136,9 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "The requested resource wasn't found.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           },
           "412": {
@@ -2211,16 +2154,9 @@ func init() {
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "A server error occurred.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           }
         }
@@ -2237,7 +2173,7 @@ func init() {
     },
     "/payment-requests": {
       "post": {
-        "description": "Creates a payment request",
+        "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -2260,22 +2196,19 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "successfully created instance of payment request",
+            "description": "Successfully created a paymentRequest object.",
             "schema": {
               "$ref": "#/definitions/PaymentRequest"
             }
           },
           "400": {
-            "description": "the payment request payload is invalid",
+            "description": "Request payload is invalid.",
             "schema": {
-              "description": "The request payload is invalid.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
-            "description": "must be authenticated to use this endpoint",
+            "description": "The request was unauthorized.",
             "schema": {
               "description": "The request was denied.",
               "schema": {
@@ -2284,7 +2217,7 @@ func init() {
             }
           },
           "403": {
-            "description": "not authorized to create a payment request",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "description": "The request was denied.",
               "schema": {
@@ -2293,12 +2226,9 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
-              "description": "The requested resource wasn't found.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
@@ -2308,12 +2238,9 @@ func init() {
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
-              "description": "A server error occurred.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -2324,6 +2251,9 @@ func init() {
         "description": "Uploads represent a single digital file, such as a JPEG, PNG, or PDF.",
         "consumes": [
           "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
         ],
         "tags": [
           "uploads"
@@ -2348,22 +2278,15 @@ func init() {
         ],
         "responses": {
           "201": {
-            "description": "Created upload",
+            "description": "Successfully created upload of digital file.",
             "schema": {
               "$ref": "#/definitions/Upload"
             }
           },
           "400": {
-            "description": "The request payload is invalid",
+            "description": "The request payload is invalid.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "The request payload is invalid.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           },
           "401": {
@@ -2385,29 +2308,15 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "The requested resource wasn't found.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           },
           "500": {
-            "description": "A server error occurred",
+            "description": "A server error occurred.",
             "schema": {
-<<<<<<< Updated upstream
-              "description": "A server error occurred.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-=======
               "$ref": "#/definitions/Error"
->>>>>>> Stashed changes
             }
           }
         }
@@ -2613,7 +2522,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "pointOfContact": {
-          "description": "Email or id of a contact person for this update",
+          "description": "Email or id of a contact person for this update.",
           "type": "string"
         },
         "serviceItems": {
@@ -2674,7 +2583,7 @@ func init() {
       }
     },
     "CustomerContactType": {
-      "description": "Describes a customer contact type for a MTOServiceItemDomesticDestSIT",
+      "description": "Describes a customer contact type for a MTOServiceItemDomesticDestSIT.",
       "type": "string",
       "enum": [
         "FIRST",
@@ -2682,7 +2591,7 @@ func init() {
       ]
     },
     "DimensionType": {
-      "description": "Describes a dimension type for a MTOServiceItemDimension",
+      "description": "Describes a dimension type for a MTOServiceItemDimension.",
       "type": "string",
       "enum": [
         "ITEM",
@@ -2892,7 +2801,7 @@ func init() {
       "discriminator": "modelType"
     },
     "MTOServiceItemBasic": {
-      "description": "Describes a basic service item subtype of a MTOServiceItem",
+      "description": "Describes a basic service item subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -2911,7 +2820,7 @@ func init() {
       ]
     },
     "MTOServiceItemDDFSIT": {
-      "description": "Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem",
+      "description": "Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -2954,7 +2863,7 @@ func init() {
       ]
     },
     "MTOServiceItemDOFSIT": {
-      "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem",
+      "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -2984,7 +2893,7 @@ func init() {
       ]
     },
     "MTOServiceItemDimension": {
-      "description": "Describes a dimension object for the MTOServiceItem",
+      "description": "Describes a dimension object for the MTOServiceItem.",
       "type": "object",
       "required": [
         "length",
@@ -3021,7 +2930,7 @@ func init() {
       }
     },
     "MTOServiceItemDomesticCrating": {
-      "description": "Describes a domestic crating/uncrating service item subtype of a MTOServiceItem",
+      "description": "Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -3058,7 +2967,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model",
+      "description": "Describes all model sub-types for a MTOServiceItem model.",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -3069,7 +2978,7 @@ func init() {
       ]
     },
     "MTOServiceItemShuttle": {
-      "description": "Describes a shuttle service item",
+      "description": "Describes a shuttle service item.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -3095,14 +3004,14 @@ func init() {
             },
             "reason": {
               "type": "string",
-              "example": "Storage items need to be picked up"
+              "example": "Storage items need to be picked up."
             }
           }
         }
       ]
     },
     "MTOServiceItemStatus": {
-      "description": "Describes all statuses for a MTOServiceItem",
+      "description": "Describes all statuses for a MTOServiceItem.",
       "type": "string",
       "enum": [
         "SUBMITTED",
@@ -3156,7 +3065,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "pointOfContact": {
-          "description": "Email or id of a contact person for this update",
+          "description": "Email or id of a contact person for this update.",
           "type": "string"
         },
         "primeActualWeight": {

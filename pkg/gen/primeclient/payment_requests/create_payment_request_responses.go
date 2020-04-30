@@ -79,7 +79,7 @@ func NewCreatePaymentRequestCreated() *CreatePaymentRequestCreated {
 
 /*CreatePaymentRequestCreated handles this case with default header values.
 
-successfully created instance of payment request
+Successfully created a paymentRequest object.
 */
 type CreatePaymentRequestCreated struct {
 	Payload *primemessages.PaymentRequest
@@ -112,24 +112,26 @@ func NewCreatePaymentRequestBadRequest() *CreatePaymentRequestBadRequest {
 
 /*CreatePaymentRequestBadRequest handles this case with default header values.
 
-the payment request payload is invalid
+Request payload is invalid.
 */
 type CreatePaymentRequestBadRequest struct {
-	Payload interface{}
+	Payload *primemessages.ClientError
 }
 
 func (o *CreatePaymentRequestBadRequest) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *CreatePaymentRequestBadRequest) GetPayload() interface{} {
+func (o *CreatePaymentRequestBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreatePaymentRequestBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -143,7 +145,7 @@ func NewCreatePaymentRequestUnauthorized() *CreatePaymentRequestUnauthorized {
 
 /*CreatePaymentRequestUnauthorized handles this case with default header values.
 
-must be authenticated to use this endpoint
+The request was unauthorized.
 */
 type CreatePaymentRequestUnauthorized struct {
 	Payload interface{}
@@ -174,7 +176,7 @@ func NewCreatePaymentRequestForbidden() *CreatePaymentRequestForbidden {
 
 /*CreatePaymentRequestForbidden handles this case with default header values.
 
-not authorized to create a payment request
+The client doesn't have permissions to perform the request.
 */
 type CreatePaymentRequestForbidden struct {
 	Payload interface{}
@@ -205,24 +207,26 @@ func NewCreatePaymentRequestNotFound() *CreatePaymentRequestNotFound {
 
 /*CreatePaymentRequestNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type CreatePaymentRequestNotFound struct {
-	Payload interface{}
+	Payload *primemessages.ClientError
 }
 
 func (o *CreatePaymentRequestNotFound) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestNotFound  %+v", 404, o.Payload)
 }
 
-func (o *CreatePaymentRequestNotFound) GetPayload() interface{} {
+func (o *CreatePaymentRequestNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreatePaymentRequestNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -269,24 +273,26 @@ func NewCreatePaymentRequestInternalServerError() *CreatePaymentRequestInternalS
 
 /*CreatePaymentRequestInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type CreatePaymentRequestInternalServerError struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *CreatePaymentRequestInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *CreatePaymentRequestInternalServerError) GetPayload() interface{} {
+func (o *CreatePaymentRequestInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *CreatePaymentRequestInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

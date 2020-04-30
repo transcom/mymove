@@ -16,7 +16,7 @@ import (
 // UpdateMTOShipmentOKCode is the HTTP code returned for type UpdateMTOShipmentOK
 const UpdateMTOShipmentOKCode int = 200
 
-/*UpdateMTOShipmentOK updated instance of mto shipment
+/*UpdateMTOShipmentOK Successfully updated MTO shipment.
 
 swagger:response updateMTOShipmentOK
 */
@@ -60,7 +60,7 @@ func (o *UpdateMTOShipmentOK) WriteResponse(rw http.ResponseWriter, producer run
 // UpdateMTOShipmentBadRequestCode is the HTTP code returned for type UpdateMTOShipmentBadRequest
 const UpdateMTOShipmentBadRequestCode int = 400
 
-/*UpdateMTOShipmentBadRequest The request payload is invalid
+/*UpdateMTOShipmentBadRequest The request payload is invalid.
 
 swagger:response updateMTOShipmentBadRequest
 */
@@ -188,7 +188,7 @@ func (o *UpdateMTOShipmentForbidden) WriteResponse(rw http.ResponseWriter, produ
 // UpdateMTOShipmentNotFoundCode is the HTTP code returned for type UpdateMTOShipmentNotFound
 const UpdateMTOShipmentNotFoundCode int = 404
 
-/*UpdateMTOShipmentNotFound The requested resource wasn't found
+/*UpdateMTOShipmentNotFound The requested resource wasn't found.
 
 swagger:response updateMTOShipmentNotFound
 */
@@ -276,7 +276,7 @@ func (o *UpdateMTOShipmentPreconditionFailed) WriteResponse(rw http.ResponseWrit
 // UpdateMTOShipmentInternalServerErrorCode is the HTTP code returned for type UpdateMTOShipmentInternalServerError
 const UpdateMTOShipmentInternalServerErrorCode int = 500
 
-/*UpdateMTOShipmentInternalServerError A server error occurred
+/*UpdateMTOShipmentInternalServerError A server error occurred.
 
 swagger:response updateMTOShipmentInternalServerError
 */

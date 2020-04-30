@@ -16,7 +16,7 @@ import (
 // CreateUploadCreatedCode is the HTTP code returned for type CreateUploadCreated
 const CreateUploadCreatedCode int = 201
 
-/*CreateUploadCreated Created upload
+/*CreateUploadCreated Successfully created upload of digital file.
 
 swagger:response createUploadCreated
 */
@@ -60,7 +60,7 @@ func (o *CreateUploadCreated) WriteResponse(rw http.ResponseWriter, producer run
 // CreateUploadBadRequestCode is the HTTP code returned for type CreateUploadBadRequest
 const CreateUploadBadRequestCode int = 400
 
-/*CreateUploadBadRequest The request payload is invalid
+/*CreateUploadBadRequest The request payload is invalid.
 
 swagger:response createUploadBadRequest
 */
@@ -188,7 +188,7 @@ func (o *CreateUploadForbidden) WriteResponse(rw http.ResponseWriter, producer r
 // CreateUploadNotFoundCode is the HTTP code returned for type CreateUploadNotFound
 const CreateUploadNotFoundCode int = 404
 
-/*CreateUploadNotFound The requested resource wasn't found
+/*CreateUploadNotFound The requested resource wasn't found.
 
 swagger:response createUploadNotFound
 */
@@ -232,7 +232,7 @@ func (o *CreateUploadNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 // CreateUploadInternalServerErrorCode is the HTTP code returned for type CreateUploadInternalServerError
 const CreateUploadInternalServerErrorCode int = 500
 
-/*CreateUploadInternalServerError A server error occurred
+/*CreateUploadInternalServerError A server error occurred.
 
 swagger:response createUploadInternalServerError
 */

@@ -73,7 +73,7 @@ func NewFetchMTOUpdatesOK() *FetchMTOUpdatesOK {
 
 /*FetchMTOUpdatesOK handles this case with default header values.
 
-Successfully retrieved all move task orders.
+Successfully retrieved move task orders where `isAvailableToPrime` is TRUE.
 */
 type FetchMTOUpdatesOK struct {
 	Payload primemessages.MoveTaskOrders
@@ -104,7 +104,7 @@ func NewFetchMTOUpdatesBadRequest() *FetchMTOUpdatesBadRequest {
 
 /*FetchMTOUpdatesBadRequest handles this case with default header values.
 
-The request payload is invalid
+The request payload is invalid.
 */
 type FetchMTOUpdatesBadRequest struct {
 	Payload *primemessages.Error
@@ -199,7 +199,7 @@ func NewFetchMTOUpdatesNotFound() *FetchMTOUpdatesNotFound {
 
 /*FetchMTOUpdatesNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type FetchMTOUpdatesNotFound struct {
 	Payload *primemessages.Error
@@ -232,7 +232,7 @@ func NewFetchMTOUpdatesInternalServerError() *FetchMTOUpdatesInternalServerError
 
 /*FetchMTOUpdatesInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type FetchMTOUpdatesInternalServerError struct {
 	Payload *primemessages.Error

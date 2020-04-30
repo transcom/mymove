@@ -79,7 +79,7 @@ func NewUpdateMTOShipmentOK() *UpdateMTOShipmentOK {
 
 /*UpdateMTOShipmentOK handles this case with default header values.
 
-updated instance of mto shipment
+Successfully updated MTO shipment.
 */
 type UpdateMTOShipmentOK struct {
 	Payload *primemessages.MTOShipment
@@ -112,7 +112,7 @@ func NewUpdateMTOShipmentBadRequest() *UpdateMTOShipmentBadRequest {
 
 /*UpdateMTOShipmentBadRequest handles this case with default header values.
 
-The request payload is invalid
+The request payload is invalid.
 */
 type UpdateMTOShipmentBadRequest struct {
 	Payload *primemessages.Error
@@ -207,7 +207,7 @@ func NewUpdateMTOShipmentNotFound() *UpdateMTOShipmentNotFound {
 
 /*UpdateMTOShipmentNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type UpdateMTOShipmentNotFound struct {
 	Payload *primemessages.Error
@@ -273,7 +273,7 @@ func NewUpdateMTOShipmentInternalServerError() *UpdateMTOShipmentInternalServerE
 
 /*UpdateMTOShipmentInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type UpdateMTOShipmentInternalServerError struct {
 	Payload *primemessages.Error

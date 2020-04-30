@@ -73,7 +73,7 @@ func NewCreateUploadCreated() *CreateUploadCreated {
 
 /*CreateUploadCreated handles this case with default header values.
 
-Created upload
+Successfully created upload of digital file.
 */
 type CreateUploadCreated struct {
 	Payload *primemessages.Upload
@@ -106,7 +106,7 @@ func NewCreateUploadBadRequest() *CreateUploadBadRequest {
 
 /*CreateUploadBadRequest handles this case with default header values.
 
-The request payload is invalid
+The request payload is invalid.
 */
 type CreateUploadBadRequest struct {
 	Payload *primemessages.Error
@@ -201,7 +201,7 @@ func NewCreateUploadNotFound() *CreateUploadNotFound {
 
 /*CreateUploadNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type CreateUploadNotFound struct {
 	Payload *primemessages.Error
@@ -234,7 +234,7 @@ func NewCreateUploadInternalServerError() *CreateUploadInternalServerError {
 
 /*CreateUploadInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type CreateUploadInternalServerError struct {
 	Payload *primemessages.Error

@@ -16,7 +16,7 @@ import (
 // GetMoveTaskOrderCustomerOKCode is the HTTP code returned for type GetMoveTaskOrderCustomerOK
 const GetMoveTaskOrderCustomerOKCode int = 200
 
-/*GetMoveTaskOrderCustomerOK Successfully retrieved customer associated with move task order
+/*GetMoveTaskOrderCustomerOK Successfully retrieved customer associated with move task order.
 
 swagger:response getMoveTaskOrderCustomerOK
 */
@@ -144,7 +144,7 @@ func (o *GetMoveTaskOrderCustomerForbidden) WriteResponse(rw http.ResponseWriter
 // GetMoveTaskOrderCustomerNotFoundCode is the HTTP code returned for type GetMoveTaskOrderCustomerNotFound
 const GetMoveTaskOrderCustomerNotFoundCode int = 404
 
-/*GetMoveTaskOrderCustomerNotFound The requested resource wasn't found
+/*GetMoveTaskOrderCustomerNotFound The requested resource wasn't found.
 
 swagger:response getMoveTaskOrderCustomerNotFound
 */
@@ -232,7 +232,7 @@ func (o *GetMoveTaskOrderCustomerUnprocessableEntity) WriteResponse(rw http.Resp
 // GetMoveTaskOrderCustomerInternalServerErrorCode is the HTTP code returned for type GetMoveTaskOrderCustomerInternalServerError
 const GetMoveTaskOrderCustomerInternalServerErrorCode int = 500
 
-/*GetMoveTaskOrderCustomerInternalServerError A server error occurred
+/*GetMoveTaskOrderCustomerInternalServerError A server error occurred.
 
 swagger:response getMoveTaskOrderCustomerInternalServerError
 */

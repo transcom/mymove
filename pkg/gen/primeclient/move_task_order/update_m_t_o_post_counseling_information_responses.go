@@ -83,7 +83,7 @@ func NewUpdateMTOPostCounselingInformationOK() *UpdateMTOPostCounselingInformati
 
 /*UpdateMTOPostCounselingInformationOK handles this case with default header values.
 
-Successfully updated move task order post counseling information.
+Successfully updated move task order with post counseling information.
 */
 type UpdateMTOPostCounselingInformationOK struct {
 	Payload *primemessages.MoveTaskOrder
@@ -178,7 +178,7 @@ func NewUpdateMTOPostCounselingInformationNotFound() *UpdateMTOPostCounselingInf
 
 /*UpdateMTOPostCounselingInformationNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type UpdateMTOPostCounselingInformationNotFound struct {
 	Payload *primemessages.Error
@@ -277,7 +277,7 @@ func NewUpdateMTOPostCounselingInformationInternalServerError() *UpdateMTOPostCo
 
 /*UpdateMTOPostCounselingInformationInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type UpdateMTOPostCounselingInformationInternalServerError struct {
 	Payload *primemessages.Error

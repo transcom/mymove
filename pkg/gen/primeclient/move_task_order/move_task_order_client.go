@@ -27,9 +27,10 @@ type Client struct {
 }
 
 /*
-FetchMTOUpdates gets all move task orders
+FetchMTOUpdates gets all move task orders where is available to prime is t r u e
 
-Gets all move task orders
+Gets all move task orders where `isAvailableToPrime` is TRUE. This prevents viewing any move task orders that have not been made available to the Prime.
+
 */
 func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdatesOK, error) {
 	// TODO: Validate the params before sending
@@ -63,9 +64,9 @@ func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdate
 }
 
 /*
-GetMoveTaskOrderCustomer gets a the customer associated with a move task order ID
+GetMoveTaskOrderCustomer gets the customer associated with a move task order ID
 
-Gets a the customer associated with a move task order ID
+Gets the customer associated with a move task order ID.
 */
 func (a *Client) GetMoveTaskOrderCustomer(params *GetMoveTaskOrderCustomerParams) (*GetMoveTaskOrderCustomerOK, error) {
 	// TODO: Validate the params before sending

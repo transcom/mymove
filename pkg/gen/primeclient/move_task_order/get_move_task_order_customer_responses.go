@@ -73,7 +73,7 @@ func NewGetMoveTaskOrderCustomerOK() *GetMoveTaskOrderCustomerOK {
 
 /*GetMoveTaskOrderCustomerOK handles this case with default header values.
 
-Successfully retrieved customer associated with move task order
+Successfully retrieved customer associated with move task order.
 */
 type GetMoveTaskOrderCustomerOK struct {
 	Payload *primemessages.Customer
@@ -168,7 +168,7 @@ func NewGetMoveTaskOrderCustomerNotFound() *GetMoveTaskOrderCustomerNotFound {
 
 /*GetMoveTaskOrderCustomerNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type GetMoveTaskOrderCustomerNotFound struct {
 	Payload *primemessages.Error
@@ -234,7 +234,7 @@ func NewGetMoveTaskOrderCustomerInternalServerError() *GetMoveTaskOrderCustomerI
 
 /*GetMoveTaskOrderCustomerInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type GetMoveTaskOrderCustomerInternalServerError struct {
 	Payload *primemessages.Error
