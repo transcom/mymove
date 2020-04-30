@@ -20,7 +20,6 @@ import (
 
 func initUpdateMTOServiceItemStatusFlags(flag *pflag.FlagSet) {
 	flag.String(FilenameFlag, "", "Name of the file being passed in")
-	flag.String(ETagFlag, "", "ETag for the mto service item being updated")
 
 	flag.SortFlags = false
 }
@@ -29,10 +28,6 @@ func checkUpdateMTOServiceItemStatusConfig(v *viper.Viper, args []string, logger
 	err := CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
-	}
-
-	if v.GetString(ETagFlag) == "" {
-		logger.Fatal(errors.New("support-update-mto-service-item-status expects an etag"))
 	}
 
 	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {

@@ -8,7 +8,6 @@ import (
 	"os"
 	"time"
 
-	openapi "github.com/go-openapi/runtime"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -18,7 +17,6 @@ import (
 
 func initUpdateMTOStatusFlags(flag *pflag.FlagSet) {
 	flag.String(FilenameFlag, "", "Name of the file being passed in")
-	flag.String(ETagFlag, "", "ETag for the mto shipment being updated")
 
 	flag.SortFlags = false
 }
@@ -27,10 +25,6 @@ func checkUpdateMTOStatusConfig(v *viper.Viper, args []string, logger *log.Logge
 	err := CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
-	}
-
-	if v.GetString(ETagFlag) == "" {
-		logger.Fatal(errors.New("make-available-to-prime expects an etag"))
 	}
 
 	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
@@ -80,19 +74,7 @@ func updateMTOStatus(cmd *cobra.Command, args []string) error {
 
 	resp, errUpdateMTOStatus := supportGateway.MoveTaskOrder.UpdateMoveTaskOrderStatus(&updateMTOParams)
 	if errUpdateMTOStatus != nil {
-		// If you see an error like "unknown error (status 422)", it means
-		// we hit a completely unhandled error that we should handle.
-		// We should be enabling said error in the endpoint in swagger.
-		// 422 for example is an Unprocessable Entity and is returned by the swagger
-		// validation before it even hits the handler.
-		if _, ok := err.(*openapi.APIError); ok {
-			apiErr := err.(*openapi.APIError).Response.(openapi.ClientResponse)
-			logger.Fatal(fmt.Sprintf("%s: %s", err, apiErr.Message()))
-		}
-		// If it is a handled error, we should be able to pull out the payload here
-		data, _ := json.Marshal(errUpdateMTOStatus)
-		fmt.Printf("%s", data)
-		return nil
+		return handleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()
