@@ -33,6 +33,8 @@ func NewUpdateMTOShipment(ctx *middleware.Context, handler UpdateMTOShipmentHand
 
 Updates mto shipment
 
+something
+
 */
 type UpdateMTOShipment struct {
 	Context *middleware.Context

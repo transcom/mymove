@@ -101,7 +101,7 @@ func (a *Client) GetMoveTaskOrderCustomer(params *GetMoveTaskOrderCustomerParams
 /*
 UpdateMTOPostCounselingInformation updates move task order s post counseling information
 
-Updates move task order's post counseling information
+Updates move task order fields ppmType, ppmEstimatedWeight, and pointOfContact.
 */
 func (a *Client) UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams) (*UpdateMTOPostCounselingInformationOK, error) {
 	// TODO: Validate the params before sending

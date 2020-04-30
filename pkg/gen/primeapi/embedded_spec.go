@@ -58,40 +58,31 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved all move task orders",
+            "description": "Successfully retrieved all move task orders.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrders"
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -115,31 +106,25 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -155,6 +140,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
       "put": {
+        "description": "something",
         "consumes": [
           "application/json"
         ],
@@ -204,37 +190,28 @@ func init() {
             }
           },
           "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
           "500": {
-            "description": "internal server error",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -315,7 +292,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "Updates move task order's post counseling information",
+        "description": "Updates move task order fields ppmType, ppmEstimatedWeight, and pointOfContact.",
         "consumes": [
           "application/json"
         ],
@@ -325,7 +302,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates move task order's post counseling information",
+        "summary": "Updates move task order's post counseling information.",
         "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
@@ -336,16 +313,19 @@ func init() {
               "type": "object",
               "properties": {
                 "moveTaskOrderID": {
+                  "description": "UUID for the move task order to use.",
                   "type": "string"
                 },
                 "pointOfContact": {
-                  "description": "Email or id of a contact person for this update",
+                  "description": "Email or id of a contact person for this update.",
                   "type": "string"
                 },
                 "ppmEstimatedWeight": {
+                  "description": "The estimated weight determined post counseling.",
                   "type": "integer"
                 },
                 "ppmType": {
+                  "description": "Sets a ppmType to an allowed value.",
                   "type": "string",
                   "enum": [
                     "FULL",
@@ -357,6 +337,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -364,28 +345,25 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated move task order post counseling information",
+            "description": "Successfully updated move task order post counseling information.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
@@ -394,17 +372,14 @@ func init() {
             "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move task order to use",
+          "description": "ID of move task order to use.",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -486,19 +461,19 @@ func init() {
         "tags": [
           "uploads"
         ],
-        "summary": "Create a new upload for a payment request",
+        "summary": "Create a new upload for a payment request.",
         "operationId": "createUpload",
         "parameters": [
           {
             "type": "string",
-            "description": "ID of payment request to use",
+            "description": "UUID of payment request to use.",
             "name": "paymentRequestID",
             "in": "path",
             "required": true
           },
           {
             "type": "file",
-            "description": "The file to upload",
+            "description": "The file to upload.",
             "name": "file",
             "in": "formData",
             "required": true
@@ -512,34 +487,25 @@ func init() {
             }
           },
           "400": {
-            "description": "Invalid request",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -1787,7 +1753,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved all move task orders",
+            "description": "Successfully retrieved all move task orders.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrders"
             }
@@ -1795,14 +1761,18 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
+<<<<<<< Updated upstream
               "description": "The request payload is invalid.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "description": "The request was denied.",
               "schema": {
@@ -1811,7 +1781,7 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "description": "The request was denied.",
               "schema": {
@@ -1822,19 +1792,27 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
+<<<<<<< Updated upstream
               "description": "The requested resource wasn't found.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
+<<<<<<< Updated upstream
               "description": "A server error occurred.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           }
         }
@@ -1859,7 +1837,7 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "description": "The request was denied.",
               "schema": {
@@ -1868,7 +1846,7 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "description": "The request was denied.",
               "schema": {
@@ -1879,10 +1857,14 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
+<<<<<<< Updated upstream
               "description": "The requested resource wasn't found.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           },
           "422": {
@@ -1894,10 +1876,14 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
+<<<<<<< Updated upstream
               "description": "A server error occurred.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           }
         }
@@ -1914,6 +1900,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
       "put": {
+        "description": "something",
         "consumes": [
           "application/json"
         ],
@@ -1963,16 +1950,20 @@ func init() {
             }
           },
           "400": {
-            "description": "invalid request",
+            "description": "The request payload is invalid",
             "schema": {
+<<<<<<< Updated upstream
               "description": "The request payload is invalid.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "description": "The request was denied.",
               "schema": {
@@ -1981,7 +1972,7 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "description": "The request was denied.",
               "schema": {
@@ -1992,10 +1983,14 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
+<<<<<<< Updated upstream
               "description": "The requested resource wasn't found.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           },
           "412": {
@@ -2005,12 +2000,16 @@ func init() {
             }
           },
           "500": {
-            "description": "internal server error",
+            "description": "A server error occurred",
             "schema": {
+<<<<<<< Updated upstream
               "description": "A server error occurred.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           }
         }
@@ -2110,7 +2109,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "Updates move task order's post counseling information",
+        "description": "Updates move task order fields ppmType, ppmEstimatedWeight, and pointOfContact.",
         "consumes": [
           "application/json"
         ],
@@ -2120,7 +2119,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates move task order's post counseling information",
+        "summary": "Updates move task order's post counseling information.",
         "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
@@ -2131,16 +2130,19 @@ func init() {
               "type": "object",
               "properties": {
                 "moveTaskOrderID": {
+                  "description": "UUID for the move task order to use.",
                   "type": "string"
                 },
                 "pointOfContact": {
-                  "description": "Email or id of a contact person for this update",
+                  "description": "Email or id of a contact person for this update.",
                   "type": "string"
                 },
                 "ppmEstimatedWeight": {
+                  "description": "The estimated weight determined post counseling.",
                   "type": "integer"
                 },
                 "ppmType": {
+                  "description": "Sets a ppmType to an allowed value.",
                   "type": "string",
                   "enum": [
                     "FULL",
@@ -2152,6 +2154,7 @@ func init() {
           },
           {
             "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
             "name": "If-Match",
             "in": "header",
             "required": true
@@ -2159,13 +2162,13 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated move task order post counseling information",
+            "description": "Successfully updated move task order post counseling information.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "description": "The request was denied.",
               "schema": {
@@ -2174,7 +2177,7 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "description": "The request was denied.",
               "schema": {
@@ -2185,10 +2188,14 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
+<<<<<<< Updated upstream
               "description": "The requested resource wasn't found.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           },
           "412": {
@@ -2206,10 +2213,14 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
+<<<<<<< Updated upstream
               "description": "A server error occurred.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           }
         }
@@ -2217,7 +2228,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
-          "description": "ID of move task order to use",
+          "description": "ID of move task order to use.",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -2317,19 +2328,19 @@ func init() {
         "tags": [
           "uploads"
         ],
-        "summary": "Create a new upload for a payment request",
+        "summary": "Create a new upload for a payment request.",
         "operationId": "createUpload",
         "parameters": [
           {
             "type": "string",
-            "description": "ID of payment request to use",
+            "description": "UUID of payment request to use.",
             "name": "paymentRequestID",
             "in": "path",
             "required": true
           },
           {
             "type": "file",
-            "description": "The file to upload",
+            "description": "The file to upload.",
             "name": "file",
             "in": "formData",
             "required": true
@@ -2343,16 +2354,20 @@ func init() {
             }
           },
           "400": {
-            "description": "Invalid request",
+            "description": "The request payload is invalid",
             "schema": {
+<<<<<<< Updated upstream
               "description": "The request payload is invalid.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "description": "The request was denied.",
               "schema": {
@@ -2361,7 +2376,7 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "description": "The request was denied.",
               "schema": {
@@ -2372,19 +2387,27 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
+<<<<<<< Updated upstream
               "description": "The requested resource wasn't found.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
+<<<<<<< Updated upstream
               "description": "A server error occurred.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+=======
+              "$ref": "#/definitions/Error"
+>>>>>>> Stashed changes
             }
           }
         }

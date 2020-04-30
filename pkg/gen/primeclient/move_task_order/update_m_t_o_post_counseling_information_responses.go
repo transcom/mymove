@@ -83,7 +83,7 @@ func NewUpdateMTOPostCounselingInformationOK() *UpdateMTOPostCounselingInformati
 
 /*UpdateMTOPostCounselingInformationOK handles this case with default header values.
 
-Successfully updated move task order post counseling information
+Successfully updated move task order post counseling information.
 */
 type UpdateMTOPostCounselingInformationOK struct {
 	Payload *primemessages.MoveTaskOrder
@@ -116,7 +116,7 @@ func NewUpdateMTOPostCounselingInformationUnauthorized() *UpdateMTOPostCounselin
 
 /*UpdateMTOPostCounselingInformationUnauthorized handles this case with default header values.
 
-The request was denied
+The request was unauthorized.
 */
 type UpdateMTOPostCounselingInformationUnauthorized struct {
 	Payload interface{}
@@ -147,7 +147,7 @@ func NewUpdateMTOPostCounselingInformationForbidden() *UpdateMTOPostCounselingIn
 
 /*UpdateMTOPostCounselingInformationForbidden handles this case with default header values.
 
-The request was denied
+The client doesn't have permissions to perform the request.
 */
 type UpdateMTOPostCounselingInformationForbidden struct {
 	Payload interface{}
@@ -181,21 +181,23 @@ func NewUpdateMTOPostCounselingInformationNotFound() *UpdateMTOPostCounselingInf
 The requested resource wasn't found
 */
 type UpdateMTOPostCounselingInformationNotFound struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOPostCounselingInformationNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationNotFound  %+v", 404, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationNotFound) GetPayload() interface{} {
+func (o *UpdateMTOPostCounselingInformationNotFound) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -278,21 +280,23 @@ func NewUpdateMTOPostCounselingInformationInternalServerError() *UpdateMTOPostCo
 A server error occurred
 */
 type UpdateMTOPostCounselingInformationInternalServerError struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOPostCounselingInformationInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationInternalServerError) GetPayload() interface{} {
+func (o *UpdateMTOPostCounselingInformationInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -304,16 +308,16 @@ swagger:model UpdateMTOPostCounselingInformationBody
 */
 type UpdateMTOPostCounselingInformationBody struct {
 
-	// move task order ID
+	// UUID for the move task order to use.
 	MoveTaskOrderID string `json:"moveTaskOrderID,omitempty"`
 
-	// Email or id of a contact person for this update
+	// Email or id of a contact person for this update.
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
-	// ppm estimated weight
+	// The estimated weight determined post counseling.
 	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
-	// ppm type
+	// Sets a ppmType to an allowed value.
 	// Enum: [FULL PARTIAL]
 	PpmType string `json:"ppmType,omitempty"`
 }

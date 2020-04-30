@@ -14,6 +14,13 @@ schemes:
 paths:
   /move-task-orders:
     get:
+      summary: Gets all move task orders where `isAvailableToPrime` is TRUE.
+      description: >
+        Gets all move task orders where `isAvailableToPrime` is TRUE.
+        This prevents viewing any move task orders that have not been made available to the Prime.
+      operationId: fetchMTOUpdates
+      tags:
+        - moveTaskOrder
       produces:
         - application/json
       parameters:
@@ -21,49 +28,43 @@ paths:
           name: since
           type: integer
           format: timestamp
-          description: Only return MTOs updated since this time
+          description: Only return move task orders updated since this time.
       responses:
         '200':
-          description: Successfully retrieved all move task orders
+          description: Successfully retrieved move task orders where `isAvailableToPrime` is TRUE.
           schema:
             $ref: '#/definitions/MoveTaskOrders'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
+          description: The request was unauthorized.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
+          description: The client doesn't have permissions to perform the request.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Gets all move task orders
-      operationId: fetchMTOUpdates
-      summary: Gets all move task orders
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
-      - description: ID of move task order to use
+      - description: ID of move task order to use.
         in: path
         name: moveTaskOrderID
         required: true
         type: string
     patch:
+      summary: Updates move task order's post counseling information.
+      description: Updates move task order fields ppmType, ppmEstimatedWeight, and pointOfContact.
+      operationId: updateMTOPostCounselingInformation
       consumes:
         - application/json
       produces:
         - application/json
+      tags:
+        - moveTaskOrder
       parameters:
         - in: body
           name: body
@@ -72,111 +73,107 @@ paths:
             type: object
             properties:
               moveTaskOrderID:
+                description: UUID for the move task order to use.
                 type: string
               ppmType:
+                description: Sets a ppmType to an allowed value.
                 type: string
                 enum:
                   - FULL
                   - PARTIAL
               ppmEstimatedWeight:
+                description: The estimated weight determined post counseling.
                 type: integer
               pointOfContact:
+                description: Email or id of a contact person for this update.
                 type: string
-                description: Email or id of a contact person for this update
         - in: header
           name: If-Match
           type: string
           required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
       responses:
         '200':
-          description: Successfully updated move task order post counseling information
+          description: Successfully updated move task order with post counseling information.
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '401':
-          description: The request was denied
+          description: The request was unauthorized.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
+          description: The client doesn't have permissions to perform the request.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Updates move task order's post counseling information
-      operationId: updateMTOPostCounselingInformation
-      summary: Updates move task order's post counseling information
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/customer':
     parameters:
-      - description: ID of move order to use
+      - description: ID of move order to use.
         in: path
         name: moveTaskOrderID
         required: true
         type: string
     get:
+      summary: Gets the customer associated with a move task order ID.
+      description: Gets the customer associated with a move task order ID.
+      operationId: getMoveTaskOrderCustomer
+      tags:
+        - moveTaskOrder
       produces:
         - application/json
       parameters: []
       responses:
         '200':
-          description: Successfully retrieved customer associated with move task order
+          description: Successfully retrieved customer associated with move task order.
           schema:
             $ref: '#/definitions/Customer'
         '401':
-          description: The request was denied
+          description: The request was unauthorized.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
+          description: The client doesn't have permissions to perform the request.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Gets a the customer associated with a move task order ID
-      operationId: getMoveTaskOrderCustomer
-      summary: Gets a the customer associated with a move task order ID
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}':
     put:
+      summary: Updates MTO shipment.
+      description: Updates MTO shipment.
+      operationId: updateMTOShipment
+      tags:
+        - mtoShipment
       consumes:
         - application/json
       produces:
         - application/json
-      summary: Updates mto shipment
-      operationId: updateMTOShipment
-      tags:
-        - mtoShipment
       parameters:
         - in: path
           name: moveTaskOrderID
           required: true
           format: uuid
           type: string
+          description: UUID of the move task order being used.
         - in: path
           name: mtoShipmentID
           required: true
           format: uuid
           type: string
+          description: UUID of the move task order shipment being updated.
         - in: body
           name: body
           required: true
@@ -186,39 +183,36 @@ paths:
           name: If-Match
           type: string
           required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
       responses:
         '200':
-          description: updated instance of mto shipment
+          description: Successfully updated MTO shipment.
           schema:
             $ref: '#/definitions/MTOShipment'
         '400':
-          description: invalid request
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
+          description: The request was unauthorized.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
+          description: The client doesn't have permissions to perform the request.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '500':
-          description: internal server error
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items':
     post:
       summary: Creates MTO service items that is added to a Move Task Order and MTO Shipment.
       description: >
-        Creates MTO service items, which come from the list of services that can be provided.
-        Upon creation these items are added to a Move Task Order and MTO Shipment.
+        Creates a new instance of mtoServiceItem, which come from the list of services that can be provided.
+        Upon creation these items are associated with a Move Task Order and an MTO Shipment.
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
@@ -267,6 +261,15 @@ paths:
           $ref: '#/responses/ServerError'
   /payment-requests:
     post:
+      summary: Creates a payment request
+      description: |
+        Creates a new instance of a paymentRequest.
+        A newly created payment request is assigned the status `PENDING`.
+        A move task order can have multiple payment requests, and
+        a final payment request can be marked using boolean `isFinal`.
+      operationId: createPaymentRequest
+      tags:
+        - paymentRequests
       consumes:
         - application/json
       produces:
@@ -278,81 +281,66 @@ paths:
             $ref: '#/definitions/CreatePaymentRequestPayload'
       responses:
         '201':
-          description: successfully created instance of payment request
+          description: Successfully created a payment request.
           schema:
             $ref: '#/definitions/PaymentRequest'
         '400':
-          description: the payment request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: must be authenticated to use this endpoint
+          description: The request was unauthorized.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: not authorized to create a payment request
+          description: The client doesn't have permissions to perform the request.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - paymentRequests
-      description: Creates a payment request
-      operationId: createPaymentRequest
-      summary: Creates a payment request
+          $ref: '#/responses/ServerError'
   /payment-requests/{paymentRequestID}/uploads:
     post:
-      summary: Create a new upload for a payment request
+      summary: Create a new upload for a payment request.
       description: Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
       operationId: createUpload
       tags:
         - uploads
       consumes:
         - multipart/form-data
+      produces:
+        - application/json
       parameters:
         - in: path
           name: paymentRequestID
           type: string
-          description: ID of payment request to use
+          description: UUID of payment request to use.
           required: true
         - in: formData
           name: file
           type: file
-          description: The file to upload
+          description: The file to upload.
           required: true
       responses:
         '201':
-          description: Created upload
+          description: Successfully created upload of digital file.
           schema:
             $ref: '#/definitions/Upload'
         '400':
-          description: Invalid request
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
+          description: The request was unauthorized.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
+          description: The client doesn't have permissions to perform the request.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
 definitions:
   Address:
     type: object
@@ -535,7 +523,7 @@ definitions:
         type: array
       pointOfContact:
         type: string
-        description: Email or id of a contact person for this update
+        description: Email or id of a contact person for this update.
   Customer:
     type: object
     properties:
@@ -842,7 +830,7 @@ definitions:
           - REJECTED
       pointOfContact:
         type: string
-        description: Email or id of a contact person for this update
+        description: Email or id of a contact person for this update.
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -860,19 +848,19 @@ definitions:
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
   DimensionType:
-    description: Describes a dimension type for a MTOServiceItemDimension
+    description: Describes a dimension type for a MTOServiceItemDimension.
     type: string
     enum:
       - ITEM
       - CRATE
   CustomerContactType:
-    description: Describes a customer contact type for a MTOServiceItemDomesticDestSIT
+    description: Describes a customer contact type for a MTOServiceItemDomesticDestSIT.
     type: string
     enum:
       - FIRST
       - SECOND
   MTOServiceItemDimension:
-    description: Describes a dimension object for the MTOServiceItem
+    description: Describes a dimension object for the MTOServiceItem.
     type: object
     properties:
       id:
@@ -901,14 +889,14 @@ definitions:
       - width
       - height
   MTOServiceItemStatus:
-    description: Describes all statuses for a MTOServiceItem
+    description: Describes all statuses for a MTOServiceItem.
     type: string
     enum:
       - SUBMITTED
       - APPROVED
       - REJECTED
   MTOServiceItemModelType:
-    description: Describes all model sub-types for a MTOServiceItem model
+    description: Describes all model sub-types for a MTOServiceItem model.
     type: string
     enum:
       - MTOServiceItemBasic
@@ -959,7 +947,7 @@ definitions:
     required:
       - modelType
   MTOServiceItemBasic:
-    description: Describes a basic service item subtype of a MTOServiceItem
+    description: Describes a basic service item subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
@@ -969,7 +957,7 @@ definitions:
         required:
           - reServiceCode
   MTOServiceItemDOFSIT:
-    description: Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem
+    description: Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
@@ -988,7 +976,7 @@ definitions:
           - reason
           - pickupPostalCode
   MTOServiceItemDDFSIT:
-    description: Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem
+    description: Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
@@ -1017,7 +1005,7 @@ definitions:
           - timeMilitary2
           - firstAvailableDeliveryDate2
   MTOServiceItemShuttle:
-    description: Describes a shuttle service item
+    description: Describes a shuttle service item.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
@@ -1029,7 +1017,7 @@ definitions:
               - DDSHUT # Domestic Destination Shuttle Service
           reason:
             type: string
-            example: Storage items need to be picked up
+            example: Storage items need to be picked up.
           description:
             type: string
             example: Things to be moved to the place by shuttle.
@@ -1038,7 +1026,7 @@ definitions:
           - reServiceCode
           - description
   MTOServiceItemDomesticCrating:
-    description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem
+    description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
