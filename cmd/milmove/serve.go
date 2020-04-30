@@ -322,7 +322,12 @@ func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]inte
 	defer conn.Close()
 
 	logger.Info("attempting to fetch a key from Redis")
-	_, redisErr := redis.Bytes(conn.Do("GET", "scs:session:foo"))
+	fetchKey, fetchErr := conn.Do("GET", "scs:session:foo")
+	if fetchErr != nil {
+		fmt.Println("fetchErr is:", fetchErr)
+	}
+
+	_, redisErr := redis.Bytes(fetchKey, fetchErr)
 	fmt.Println("redisErr is:", redisErr)
 	if redisErr == redis.ErrNil {
 		logger.Info("key not found in Redis")
@@ -714,7 +719,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 				data = redisHealthCheck(redisPool, logger, data)
 			}
 		}
-
+		fmt.Println("data after redis health check:", data)
 		newEncoderErr := json.NewEncoder(w).Encode(data)
 		if newEncoderErr != nil {
 			logger.Error("Failed encoding health check response", zap.Error(newEncoderErr))
