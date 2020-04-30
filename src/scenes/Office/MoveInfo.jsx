@@ -11,6 +11,7 @@ import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
+import greenCheck from 'shared/icon/check.svg';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import moment from 'moment';
@@ -188,7 +189,7 @@ class MoveInfo extends Component {
       } else if (ppmCompleted) {
         return (
           <span className="status">
-            <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />
+            <FontAwesomeIcon className="icon approval-completed" icon={greenCheck} />
             COMPLETED
           </span>
         );
