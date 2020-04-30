@@ -528,6 +528,9 @@ definitions:
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update.
+    required:
+      - moveTaskOrderID
+      - serviceItems
   Customer:
     type: object
     properties:

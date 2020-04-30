@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(serviceItemID1),
@@ -139,7 +139,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
 			},
 		}
@@ -167,7 +167,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: badFormatID,
+				MoveTaskOrderID: &badFormatID,
 			},
 		}
 
@@ -194,7 +194,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -240,7 +240,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(serviceItemID1),
@@ -294,7 +294,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(serviceItemID1),
@@ -337,7 +337,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
 				ServiceItems: []*primemessages.ServiceItem{
 					{

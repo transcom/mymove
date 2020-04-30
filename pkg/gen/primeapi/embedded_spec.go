@@ -702,6 +702,10 @@ func init() {
     },
     "CreatePaymentRequestPayload": {
       "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "serviceItems"
+      ],
       "properties": {
         "isFinal": {
           "type": "boolean",
@@ -2511,6 +2515,10 @@ func init() {
     },
     "CreatePaymentRequestPayload": {
       "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "serviceItems"
+      ],
       "properties": {
         "isFinal": {
           "type": "boolean",
