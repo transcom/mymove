@@ -7,7 +7,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
-DB_DOCKER_CONTAINER_IMAGE = postgres:11.7
+DB_DOCKER_CONTAINER_IMAGE = postgres:12.2
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
@@ -145,10 +145,7 @@ client_deps_update: .check_node_version.stamp ## Update client dependencies
 .PHONY: client_deps
 client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## Install client dependencies
 .client_deps.stamp: yarn.lock
-	# setting network concurrency to 1 because using the default failed with errors trying to extract package tar files saying they were corrupt.
-	# this was workaround that seemed to fix the issue See for details https://github.com/yarnpkg/yarn/issues/7212
-	# This is caused by a timing issue when using react-uswds branch. It can be removed once we switch to a released version
-	yarn install --network-concurrency 1
+	yarn install
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
 
@@ -627,6 +624,10 @@ db_test_psql: ## Open PostgreSQL shell for Test DB
 .PHONY: e2e_test
 e2e_test: bin/gin server_generate server_build client_build db_e2e_init ## Run e2e (end-to-end) integration tests
 	$(AWS_VAULT) ./scripts/run-e2e-test
+
+.PHONY: e2e_mtls_test_docker
+e2e_mtls_test_docker: ## Run e2e (end-to-end) integration tests with docker
+	$(AWS_VAULT) ./scripts/run-e2e-mtls-test-docker
 
 .PHONY: e2e_test_docker
 e2e_test_docker: ## Run e2e (end-to-end) integration tests with docker

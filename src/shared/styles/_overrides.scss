@@ -133,6 +133,10 @@
   &--cyan {
     background-color: #a8f2ff;
   }
+  &--teal {
+        background-color: $accent-teal;
+    @include u-text('white');
+  }
   &--alert {
     border-radius: 100%;
     width: 24px;
@@ -143,6 +147,14 @@
       vertical-align: sub;
       path {
         fill: #fff;
+      }
+    }
+    &--small {
+      width: 20px;
+      height: 20px;
+      svg {
+        vertical-align: baseline;
+        height: 12px;
       }
     }
   }

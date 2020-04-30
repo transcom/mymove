@@ -49,6 +49,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0042](0042-optimistic-locking.md) - Use If-Match / E-tags for optimistic locking
 - [ADR-0043](0043-prime-time.md) - *Handling time in the Prime API*
 - [ADR-0044](0044-params-styling.md) - Use camelCase for API params
+- [ADR-0045](0045-nesting-swagger-paths.md) - Nesting Swagger paths in the Prime API with multiple IDs
 
 <!-- adrlogstop -->
 

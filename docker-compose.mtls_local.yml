@@ -1,0 +1,93 @@
+version: '3.3'
+
+services:
+  database:
+    image: postgres:12.2
+    restart: always
+    ports:
+      - '6432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=dev_db
+
+  milmove_migrate:
+    depends_on:
+      - database
+    build:
+      context: .
+      dockerfile: Dockerfile.migrations_local
+    links:
+      - database
+    environment:
+      - DB_ENV=development
+      - DB_HOST=database
+      - DB_NAME=dev_db
+      - DB_PASSWORD=mysecretpassword
+      - DB_PORT=5432
+      - DB_SSL_MODE=disable
+      - DB_USER=postgres
+      - ENVIRONMENT=test
+      - MIGRATION_PATH=file:///migrate/schema;file:///migrate/secure
+      - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
+    entrypoint:
+      - '/bin/milmove'
+      - 'migrate'
+    volumes:
+      - ./migrations/app/secure:/migrate/secure
+
+  milmove:
+    depends_on:
+      - database
+      - milmove_migrate
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    links:
+      - database
+    ports:
+      - '9443:9443'
+    environment:
+      - CLIENT_AUTH_SECRET_KEY
+      - CSRF_AUTH_KEY
+      - DB_DEBUG=1
+      - DB_ENV=development
+      - DB_HOST=database
+      - DB_NAME=dev_db
+      - DB_PASSWORD=mysecretpassword
+      - DB_PORT=5432
+      - DB_REGION=us-west-2
+      - DB_RETRY_INTERVAL=5s
+      - DB_SSL_MODE=disable
+      - DB_USER=postgres
+      - DEVLOCAL_AUTH=1
+      - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
+      - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+      - DPS_AUTH_COOKIE_SECRET_KEY
+      - DPS_COOKIE_EXPIRES_IN_MINUTES
+      - EIA_KEY=db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+      - ENVIRONMENT=test
+      - FEATURE_FLAG_ACCESS_CODE=false
+      - HTTP_PRIME_SERVER_NAME=primelocal
+      - AWS_CF_DOMAIN=assets.devlocal.move.mil
+      - IWS_RBS_ENABLED=1
+      - IWS_RBS_HOST
+      - LOCAL_STORAGE_ROOT=/tmp
+      - LOCAL_STORAGE_WEB_ROOT=storage
+      - LOGIN_GOV_ADMIN_CLIENT_ID
+      - LOGIN_GOV_CALLBACK_PORT=4000
+      - LOGIN_GOV_CALLBACK_PROTOCOL
+      - LOGIN_GOV_HOSTNAME
+      - LOGIN_GOV_MY_CLIENT_ID
+      - LOGIN_GOV_OFFICE_CLIENT_ID
+      - LOGIN_GOV_SECRET_KEY
+      - MOVE_MIL_DOD_CA_CERT
+      - MOVE_MIL_DOD_TLS_CERT
+      - MOVE_MIL_DOD_TLS_KEY
+      - MUTUAL_TLS_ENABLED=1
+      - PGPASSWORD=mysecretpassword
+      - SERVE_API_PRIME=true
+      - STORAGE_BACKEND=local
+      - TZ=UTC
+    volumes:
+      - ./tmp:/tmp

@@ -78,5 +78,6 @@ If you are looking to understand choices made in this project, see the list of [
 * 0042 [Use If-Match / E-tags for optimistic locking](adr/0042-optimistic-locking.md#use-if-match-e-tags-for-optimistic-locking)
 * 0043 [*Handling time in the Prime API*](adr/0043-prime-time.md#handling-time-in-the-prime-api)
 * 0044 [Use camelCase for API params](adr/0044-params-styling.md#use-camelcase-for-api-params)
+* 0045 [Nesting Swagger paths in the Prime API with multiple IDs](adr/0045-nesting-swagger-paths.md#nesting-swagger-paths-in-the-prime-api-with-multiple-ids)
 
 <!--endindex-->
