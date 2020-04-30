@@ -1,6 +1,7 @@
 package mtoshipment
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -68,13 +69,13 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		txBuilder := f.createNewBuilder(tx)
 
 		// create pickup and destination addresses
-
 		if shipment.PickupAddress != nil {
 			verrs, err = txBuilder.CreateOne(shipment.PickupAddress)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)
 			}
-
+		} else {
+			return errors.New("pickup address missing")
 		}
 
 		if shipment.DestinationAddress != nil {
@@ -83,6 +84,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)
 			}
+		} else {
+			return errors.New("destination address missing")
 		}
 
 		// assign addresses to shipment

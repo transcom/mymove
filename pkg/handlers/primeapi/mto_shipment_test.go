@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/go-openapi/swag"
 
@@ -32,42 +33,67 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
+	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			PickupAddress:        &pickupAddress,
+			PickupAddressID:      &pickupAddress.ID,
+			DestinationAddress:   &destinationAddress,
+			DestinationAddressID: &destinationAddress.ID,
+		},
+	})
 
-	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
-		mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: mto,
-		})
+	mtoShipment.MoveTaskOrderID = mto.ID
 
-		fmt.Printf("%+v\n", mtoShipment)
-		mtoShipment.MoveTaskOrderID = mto.ID
+	builder := query.NewQueryBuilder(suite.DB())
 
-		builder := query.NewQueryBuilder(suite.DB())
-		fetcher := fetch.NewFetcher(builder)
-		req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
+	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
 
-		params := mtoshipmentops.CreateMTOShipmentParams{
-			HTTPRequest:     req,
-			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-			Body: &primemessages.CreateShipmentPayload{
-				Agents:              nil,
-				CreatedAt:           strfmt.DateTime{},
-				CustomerRemarks:     nil,
-				DestinationAddress:  nil,
-				ID:                  "",
-				PickupAddress:       nil,
-				PointOfContact:      "",
-				RequestedPickupDate: strfmt.Date{},
-				ShipmentType:        "",
+	params := mtoshipmentops.CreateMTOShipmentParams{
+		HTTPRequest:     req,
+		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+		Body: &primemessages.CreateShipmentPayload{
+			Agents:          nil,
+			CreatedAt:       strfmt.DateTime(time.Now()),
+			CustomerRemarks: mtoShipment.CustomerRemarks,
+			DestinationAddress: &primemessages.Address{
+				City:           &mtoShipment.DestinationAddress.City,
+				Country:        mtoShipment.DestinationAddress.Country,
+				ID:             strfmt.UUID(mtoShipment.DestinationAddress.ID.String()),
+				PostalCode:     &mtoShipment.DestinationAddress.PostalCode,
+				State:          &mtoShipment.DestinationAddress.State,
+				StreetAddress1: &mtoShipment.DestinationAddress.StreetAddress1,
+				StreetAddress2: mtoShipment.DestinationAddress.StreetAddress2,
+				StreetAddress3: mtoShipment.DestinationAddress.StreetAddress3,
 			},
-		}
+			ID: strfmt.UUID(mtoShipment.ID.String()),
+			PickupAddress: &primemessages.Address{
+				City:           &mtoShipment.PickupAddress.City,
+				Country:        mtoShipment.PickupAddress.Country,
+				ID:             strfmt.UUID(mtoShipment.PickupAddress.ID.String()),
+				PostalCode:     &mtoShipment.PickupAddress.PostalCode,
+				State:          &mtoShipment.PickupAddress.State,
+				StreetAddress1: &mtoShipment.PickupAddress.StreetAddress1,
+				StreetAddress2: mtoShipment.PickupAddress.StreetAddress2,
+				StreetAddress3: mtoShipment.PickupAddress.StreetAddress3,
+			},
+			PointOfContact:      "",
+			RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
+			ShipmentType:        primemessages.MTOShipmentTypeHHG,
+		},
+	}
+	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
 		}
-
 		response := handler.Handle(params)
+
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
