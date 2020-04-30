@@ -323,6 +323,7 @@ func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]inte
 
 	logger.Info("attempting to fetch a key from Redis")
 	_, redisErr := redis.Bytes(conn.Do("GET", "scs:session:foo"))
+	fmt.Println("redisErr is:", redisErr)
 	if redisErr == redis.ErrNil {
 		logger.Info("key not found in Redis")
 		redisErr = nil
@@ -330,7 +331,7 @@ func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]inte
 		logger.Error("Failed Redis health check", zap.Error(redisErr))
 	}
 	data["redis"] = redisErr == nil
-
+	fmt.Println("health check data is:", data)
 	return data
 }
 
