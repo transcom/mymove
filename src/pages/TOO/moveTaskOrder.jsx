@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import ShipmentContainer from '../../components/Office/ShipmentContainer';
 import ShipmentHeading from '../../components/Office/ShipmentHeading';
+import ImportantShipmentDates from '../../components/Office/ImportantShipmentDates';
 import { getMTOShipments, selectMTOShiomentsByMTOId } from '../../shared/Entities/modules/mtoShipments';
 import '../../index.scss';
 import '../../ghc_index.scss';
@@ -36,27 +37,34 @@ class MoveTaskOrder extends Component {
     const { mtoShipments } = this.props;
 
     return (
-      <div className="maxw-desktop-lg margin-x-auto" data-cy="too-shipment-container">
-        {/* eslint-disable-next-line react/prop-types */}
-        {mtoShipments.map((mtoShipment) => {
-          return (
-            <ShipmentContainer>
-              <ShipmentHeading
-                key={mtoShipment.id}
-                shipmentInfo={{
-                  shipmentType: formatShipmentType(mtoShipment.shipmentType),
-                  originCity: get(mtoShipment.pickupAddress, 'city'),
-                  originState: get(mtoShipment.pickupAddress, 'state'),
-                  originPostalCode: get(mtoShipment.pickupAddress, 'postal_code'),
-                  destinationCity: get(mtoShipment.destinationAddress, 'city'),
-                  destinationState: get(mtoShipment.destinationAddress, 'state'),
-                  destinationPostalCode: get(mtoShipment.destinationAddress, 'postal_code'),
-                  scheduledPickupDate: formatShipmentDate(mtoShipment.scheduledPickupDate),
-                }}
-              />
-            </ShipmentContainer>
-          );
-        })}
+      <div style={{ display: 'flex' }}>
+        <div className="" style={{ width: '75%' }} data-cy="too-shipment-container">
+          {/* eslint-disable-next-line react/prop-types */}
+          {mtoShipments.map((mtoShipment) => {
+            return (
+              <ShipmentContainer>
+                <ShipmentHeading
+                  key={mtoShipment.id}
+                  shipmentInfo={{
+                    shipmentType: formatShipmentType(mtoShipment.shipmentType),
+                    originCity: get(mtoShipment.pickupAddress, 'city'),
+                    originState: get(mtoShipment.pickupAddress, 'state'),
+                    originPostalCode: get(mtoShipment.pickupAddress, 'postal_code'),
+                    destinationCity: get(mtoShipment.destinationAddress, 'city'),
+                    destinationState: get(mtoShipment.destinationAddress, 'state'),
+                    destinationPostalCode: get(mtoShipment.destinationAddress, 'postal_code'),
+                    scheduledPickupDate: formatShipmentDate(mtoShipment.scheduledPickupDate),
+                  }}
+                />
+
+                <ImportantShipmentDates
+                  requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
+                  scheduledPickupDate={formatShipmentDate(mtoShipment.scheduledPickupDate)}
+                />
+              </ShipmentContainer>
+            );
+          })}
+        </div>
       </div>
     );
   }

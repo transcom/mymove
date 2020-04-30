@@ -105,8 +105,37 @@ func NewInvalidInputError(id uuid.UUID, err error, validationErrors *validate.Er
 func (e InvalidInputError) Error() string {
 	if e.message != "" {
 		return fmt.Sprintf(e.message)
+	} else if e.id == uuid.Nil {
+		return fmt.Sprintf("Invalid input received. %s", e.ValidationErrors)
 	}
-	return fmt.Sprintf("invalid input for id: %s. %s", e.id.String(), e.ValidationErrors)
+	return fmt.Sprintf("Invalid input for id: %s. %s", e.id.String(), e.ValidationErrors)
+}
+
+// QueryError is returned when a query in the database failed.
+// Use InvalidInputError if you have validation errors to report.
+// QueryError is used if you passed validation but the query still failed.
+type QueryError struct {
+	objectType string
+	message    string
+	err        error
+}
+
+func (e QueryError) Error() string {
+	if e.message != "" {
+		return fmt.Sprintf(e.message)
+	}
+	return fmt.Sprintf("Could not complete query related to object of type: %s.", e.objectType)
+}
+
+// NewQueryError returns an error on a query to the database
+// It will create a default error message based on the objectType
+// You can override the default message with the msgOverride param
+func NewQueryError(objectType string, err error, msgOverride string) QueryError {
+	return QueryError{
+		objectType: objectType,
+		err:        err,
+		message:    msgOverride,
+	}
 }
 
 //InvalidCreateInputError is returned when an update fails a validation rule

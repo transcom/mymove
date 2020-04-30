@@ -42,6 +42,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
+		MoveTaskOrderCreateMoveTaskOrderHandler: move_task_order.CreateMoveTaskOrderHandlerFunc(func(params move_task_order.CreateMoveTaskOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveTaskOrderCreateMoveTaskOrder has not yet been implemented")
+		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrder has not yet been implemented")
 		}),
@@ -60,7 +63,12 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	}
 }
 
-/*MymoveAPI The API for move.mil */
+/*MymoveAPI The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.
+
+This API is not available in production.
+
+All endpoints are located at `primelocal/support/v1/`.
+*/
 type MymoveAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context
@@ -88,6 +96,8 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// MoveTaskOrderCreateMoveTaskOrderHandler sets the operation handler for the create move task order operation
+	MoveTaskOrderCreateMoveTaskOrderHandler move_task_order.CreateMoveTaskOrderHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// MtoShipmentPatchMTOShipmentStatusHandler sets the operation handler for the patch m t o shipment status operation
@@ -159,6 +169,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
+	}
+
+	if o.MoveTaskOrderCreateMoveTaskOrderHandler == nil {
+		unregistered = append(unregistered, "move_task_order.CreateMoveTaskOrderHandler")
 	}
 
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
@@ -278,6 +292,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/move-task-orders"] = move_task_order.NewCreateMoveTaskOrder(o.context, o.MoveTaskOrderCreateMoveTaskOrderHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

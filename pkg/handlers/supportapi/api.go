@@ -4,19 +4,19 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/transcom/mymove/pkg/services/fetch"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-
 	"github.com/go-openapi/loads"
 
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-
+	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/services/query"
 
-	"github.com/transcom/mymove/pkg/gen/supportapi"
 	supportops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+
+	"github.com/transcom/mymove/pkg/gen/supportapi"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -36,12 +36,20 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
 	}
 
+	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
+
+	supportAPI.MoveTaskOrderCreateMoveTaskOrderHandler = CreateMoveTaskOrderHandler{
+		context,
+		customer.NewCustomerFetcher(context.DB()),
+	}
+
 	supportAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
 		HandlerContext:              context,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
 	}
-	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
 
 	supportAPI.MtoShipmentPatchMTOShipmentStatusHandler = PatchMTOShipmentStatusHandlerFunc{
 		context,

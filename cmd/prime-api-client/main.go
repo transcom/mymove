@@ -73,6 +73,16 @@ func main() {
 	initFetchMTOsFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
 
+	createMTOCommand := &cobra.Command{
+		Use:          "support-create-mto",
+		Short:        "fetch mtos",
+		Long:         "fetch move task orders",
+		RunE:         createMTO,
+		SilenceUsage: true,
+	}
+	initCreateMTOFlags(createMTOCommand.Flags())
+	root.AddCommand(createMTOCommand)
+
 	updateMTOShipmentCommand := &cobra.Command{
 		Use:          "update-mto-shipment",
 		Short:        "Update MTO shipment",

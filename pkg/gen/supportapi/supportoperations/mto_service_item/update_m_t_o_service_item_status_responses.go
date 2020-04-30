@@ -16,7 +16,7 @@ import (
 // UpdateMTOServiceItemStatusOKCode is the HTTP code returned for type UpdateMTOServiceItemStatusOK
 const UpdateMTOServiceItemStatusOKCode int = 200
 
-/*UpdateMTOServiceItemStatusOK Successfully updated status for a line item for a move task order by ID
+/*UpdateMTOServiceItemStatusOK Successfully updated service item status for a move task order.
 
 swagger:response updateMTOServiceItemStatusOK
 */
@@ -60,7 +60,7 @@ func (o *UpdateMTOServiceItemStatusOK) WriteResponse(rw http.ResponseWriter, pro
 // UpdateMTOServiceItemStatusBadRequestCode is the HTTP code returned for type UpdateMTOServiceItemStatusBadRequest
 const UpdateMTOServiceItemStatusBadRequestCode int = 400
 
-/*UpdateMTOServiceItemStatusBadRequest The request payload is invalid
+/*UpdateMTOServiceItemStatusBadRequest The parameters were invalid.
 
 swagger:response updateMTOServiceItemStatusBadRequest
 */
@@ -69,7 +69,7 @@ type UpdateMTOServiceItemStatusBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOServiceItemStatusBadRequest creates UpdateMTOServiceItemStatusBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdateMTOServiceItemStatusBadRequest() *UpdateMTOServiceItemStatusBadReq
 }
 
 // WithPayload adds the payload to the update m t o service item status bad request response
-func (o *UpdateMTOServiceItemStatusBadRequest) WithPayload(payload interface{}) *UpdateMTOServiceItemStatusBadRequest {
+func (o *UpdateMTOServiceItemStatusBadRequest) WithPayload(payload *supportmessages.Error) *UpdateMTOServiceItemStatusBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o service item status bad request response
-func (o *UpdateMTOServiceItemStatusBadRequest) SetPayload(payload interface{}) {
+func (o *UpdateMTOServiceItemStatusBadRequest) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,16 +93,18 @@ func (o *UpdateMTOServiceItemStatusBadRequest) SetPayload(payload interface{}) {
 func (o *UpdateMTOServiceItemStatusBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMTOServiceItemStatusUnauthorizedCode is the HTTP code returned for type UpdateMTOServiceItemStatusUnauthorized
 const UpdateMTOServiceItemStatusUnauthorizedCode int = 401
 
-/*UpdateMTOServiceItemStatusUnauthorized The request was denied
+/*UpdateMTOServiceItemStatusUnauthorized The request was unauthorized.
 
 swagger:response updateMTOServiceItemStatusUnauthorized
 */
@@ -144,7 +146,7 @@ func (o *UpdateMTOServiceItemStatusUnauthorized) WriteResponse(rw http.ResponseW
 // UpdateMTOServiceItemStatusForbiddenCode is the HTTP code returned for type UpdateMTOServiceItemStatusForbidden
 const UpdateMTOServiceItemStatusForbiddenCode int = 403
 
-/*UpdateMTOServiceItemStatusForbidden The request was denied
+/*UpdateMTOServiceItemStatusForbidden The client doesn't have permissions to perform the request.
 
 swagger:response updateMTOServiceItemStatusForbidden
 */
@@ -186,7 +188,7 @@ func (o *UpdateMTOServiceItemStatusForbidden) WriteResponse(rw http.ResponseWrit
 // UpdateMTOServiceItemStatusNotFoundCode is the HTTP code returned for type UpdateMTOServiceItemStatusNotFound
 const UpdateMTOServiceItemStatusNotFoundCode int = 404
 
-/*UpdateMTOServiceItemStatusNotFound The requested resource wasn't found
+/*UpdateMTOServiceItemStatusNotFound The requested resource wasn't found.
 
 swagger:response updateMTOServiceItemStatusNotFound
 */
@@ -195,7 +197,7 @@ type UpdateMTOServiceItemStatusNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOServiceItemStatusNotFound creates UpdateMTOServiceItemStatusNotFound with default headers values
@@ -205,13 +207,13 @@ func NewUpdateMTOServiceItemStatusNotFound() *UpdateMTOServiceItemStatusNotFound
 }
 
 // WithPayload adds the payload to the update m t o service item status not found response
-func (o *UpdateMTOServiceItemStatusNotFound) WithPayload(payload interface{}) *UpdateMTOServiceItemStatusNotFound {
+func (o *UpdateMTOServiceItemStatusNotFound) WithPayload(payload *supportmessages.Error) *UpdateMTOServiceItemStatusNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o service item status not found response
-func (o *UpdateMTOServiceItemStatusNotFound) SetPayload(payload interface{}) {
+func (o *UpdateMTOServiceItemStatusNotFound) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,16 +221,18 @@ func (o *UpdateMTOServiceItemStatusNotFound) SetPayload(payload interface{}) {
 func (o *UpdateMTOServiceItemStatusNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMTOServiceItemStatusConflictCode is the HTTP code returned for type UpdateMTOServiceItemStatusConflict
 const UpdateMTOServiceItemStatusConflictCode int = 409
 
-/*UpdateMTOServiceItemStatusConflict Conflict error
+/*UpdateMTOServiceItemStatusConflict Conflict error due to trying to change the status of service item that is not currently "SUBMITTED".
 
 swagger:response updateMTOServiceItemStatusConflict
 */
@@ -270,7 +274,7 @@ func (o *UpdateMTOServiceItemStatusConflict) WriteResponse(rw http.ResponseWrite
 // UpdateMTOServiceItemStatusPreconditionFailedCode is the HTTP code returned for type UpdateMTOServiceItemStatusPreconditionFailed
 const UpdateMTOServiceItemStatusPreconditionFailedCode int = 412
 
-/*UpdateMTOServiceItemStatusPreconditionFailed Precondition Failed
+/*UpdateMTOServiceItemStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updateMTOServiceItemStatusPreconditionFailed
 */
@@ -279,7 +283,7 @@ type UpdateMTOServiceItemStatusPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOServiceItemStatusPreconditionFailed creates UpdateMTOServiceItemStatusPreconditionFailed with default headers values
@@ -289,13 +293,13 @@ func NewUpdateMTOServiceItemStatusPreconditionFailed() *UpdateMTOServiceItemStat
 }
 
 // WithPayload adds the payload to the update m t o service item status precondition failed response
-func (o *UpdateMTOServiceItemStatusPreconditionFailed) WithPayload(payload interface{}) *UpdateMTOServiceItemStatusPreconditionFailed {
+func (o *UpdateMTOServiceItemStatusPreconditionFailed) WithPayload(payload *supportmessages.Error) *UpdateMTOServiceItemStatusPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o service item status precondition failed response
-func (o *UpdateMTOServiceItemStatusPreconditionFailed) SetPayload(payload interface{}) {
+func (o *UpdateMTOServiceItemStatusPreconditionFailed) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -303,16 +307,18 @@ func (o *UpdateMTOServiceItemStatusPreconditionFailed) SetPayload(payload interf
 func (o *UpdateMTOServiceItemStatusPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(412)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMTOServiceItemStatusUnprocessableEntityCode is the HTTP code returned for type UpdateMTOServiceItemStatusUnprocessableEntity
 const UpdateMTOServiceItemStatusUnprocessableEntityCode int = 422
 
-/*UpdateMTOServiceItemStatusUnprocessableEntity The request payload is invalid
+/*UpdateMTOServiceItemStatusUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateMTOServiceItemStatusUnprocessableEntity
 */
@@ -356,7 +362,7 @@ func (o *UpdateMTOServiceItemStatusUnprocessableEntity) WriteResponse(rw http.Re
 // UpdateMTOServiceItemStatusInternalServerErrorCode is the HTTP code returned for type UpdateMTOServiceItemStatusInternalServerError
 const UpdateMTOServiceItemStatusInternalServerErrorCode int = 500
 
-/*UpdateMTOServiceItemStatusInternalServerError A server error occurred
+/*UpdateMTOServiceItemStatusInternalServerError A server error occurred.
 
 swagger:response updateMTOServiceItemStatusInternalServerError
 */
@@ -365,7 +371,7 @@ type UpdateMTOServiceItemStatusInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOServiceItemStatusInternalServerError creates UpdateMTOServiceItemStatusInternalServerError with default headers values
@@ -375,13 +381,13 @@ func NewUpdateMTOServiceItemStatusInternalServerError() *UpdateMTOServiceItemSta
 }
 
 // WithPayload adds the payload to the update m t o service item status internal server error response
-func (o *UpdateMTOServiceItemStatusInternalServerError) WithPayload(payload interface{}) *UpdateMTOServiceItemStatusInternalServerError {
+func (o *UpdateMTOServiceItemStatusInternalServerError) WithPayload(payload *supportmessages.Error) *UpdateMTOServiceItemStatusInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o service item status internal server error response
-func (o *UpdateMTOServiceItemStatusInternalServerError) SetPayload(payload interface{}) {
+func (o *UpdateMTOServiceItemStatusInternalServerError) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -389,8 +395,10 @@ func (o *UpdateMTOServiceItemStatusInternalServerError) SetPayload(payload inter
 func (o *UpdateMTOServiceItemStatusInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

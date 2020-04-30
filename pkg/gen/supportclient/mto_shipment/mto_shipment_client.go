@@ -29,7 +29,11 @@ type Client struct {
 /*
 PatchMTOShipmentStatus updates a shipment s status
 
-Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in `rejectionReason` is required.
+Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED,
+`rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in
+`rejectionReason` is required. <br />
+<br />
+This is a support endpoint and will not be available in production.
 
 */
 func (a *Client) PatchMTOShipmentStatus(params *PatchMTOShipmentStatusParams) (*PatchMTOShipmentStatusOK, error) {
