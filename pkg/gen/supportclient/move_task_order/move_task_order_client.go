@@ -77,7 +77,9 @@ func (a *Client) CreateMoveTaskOrder(params *CreateMoveTaskOrderParams) (*Create
 /*
 GetMoveTaskOrder gets a move task order by ID
 
-Gets an individual move task order by ID. <br /> <br /> This is a support endpoint and will not be available in production.
+Gets an individual move task order by ID. <br />
+<br />
+This is a support endpoint and will not be available in production.
 
 */
 func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error) {
@@ -114,7 +116,9 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 /*
 UpdateMoveTaskOrderStatus updates the status of a move task order to make it available to prime
 
-Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. <br /> <br /> This is a support endpoint and will not be available in production.
+Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. <br />
+<br />
+This is a support endpoint and will not be available in production.
 
 */
 func (a *Client) UpdateMoveTaskOrderStatus(params *UpdateMoveTaskOrderStatusParams) (*UpdateMoveTaskOrderStatusOK, error) {
