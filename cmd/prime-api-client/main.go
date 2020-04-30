@@ -75,8 +75,8 @@ func main() {
 
 	updateMTOShipmentCommand := &cobra.Command{
 		Use:          "update-mto-shipment",
-		Short:        "update mto shipment",
-		Long:         "update move task order shipment",
+		Short:        "Update MTO shipment",
+		Long:         "Update a Move Task Order shipment using the shipment's ID",
 		RunE:         updateMTOShipment,
 		SilenceUsage: true,
 	}
