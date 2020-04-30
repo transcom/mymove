@@ -58,9 +58,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			Agents:          nil,
 			CustomerRemarks: mtoShipment.CustomerRemarks,
 			DestinationAddress: &primemessages.Address{
-				City:           &mtoShipment.DestinationAddress.City,
-				Country:        mtoShipment.DestinationAddress.Country,
-				ID:             strfmt.UUID(mtoShipment.DestinationAddress.ID.String()),
+				City:    &mtoShipment.DestinationAddress.City,
+				Country: mtoShipment.DestinationAddress.Country,
+				//ID:             strfmt.UUID(mtoShipment.DestinationAddress.ID.String()),
 				PostalCode:     &mtoShipment.DestinationAddress.PostalCode,
 				State:          &mtoShipment.DestinationAddress.State,
 				StreetAddress1: &mtoShipment.DestinationAddress.StreetAddress1,
@@ -68,9 +68,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				StreetAddress3: mtoShipment.DestinationAddress.StreetAddress3,
 			},
 			PickupAddress: &primemessages.Address{
-				City:           &mtoShipment.PickupAddress.City,
-				Country:        mtoShipment.PickupAddress.Country,
-				ID:             strfmt.UUID(mtoShipment.PickupAddress.ID.String()),
+				City:    &mtoShipment.PickupAddress.City,
+				Country: mtoShipment.PickupAddress.Country,
+				//ID:             strfmt.UUID(mtoShipment.PickupAddress.ID.String()),
 				PostalCode:     &mtoShipment.PickupAddress.PostalCode,
 				State:          &mtoShipment.PickupAddress.State,
 				StreetAddress1: &mtoShipment.PickupAddress.StreetAddress1,
@@ -96,35 +96,52 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.T().Run("POST failure - 500", func(t *testing.T) {
-		mockCreator := mocks.MTOShipmentCreator{}
+
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			&mockCreator,
+			creator,
 		}
-		internalServerErr := errors.New("ServerError")
 
-		mockCreator.On("CreateMTOShipment",
-			mock.Anything,
-			mock.Anything,
-		).Return(nil, internalServerErr)
+		badParams := params
+		badParams.Body.PickupAddress = nil
 
-		response := handler.Handle(params)
+		response := handler.Handle(badParams)
+
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
 	})
 
-	suite.T().Run("POST failure - 400 -- nil body", func(t *testing.T) {
-		mockCreator := mocks.MTOShipmentCreator{}
+	suite.T().Run("POST failure - 404 -- not found", func(t *testing.T) {
 
-		err := services.NotFoundError{}
-		mockCreator.On("CreateMTOShipment",
-			mock.Anything,
-			mock.Anything,
-		).Return(nil, err)
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			&mockCreator,
+			creator,
 		}
+
+		uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
+		badParams := params
+		badParams.MoveTaskOrderID = strfmt.UUID(uuidString)
+
+		response := handler.Handle(badParams)
+
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentNotFound{}, response)
+	})
+
+	suite.T().Run("POST failure - 400 -- nil body", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/{MoveTaskOrderID}/mto_shipments"), nil)
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,

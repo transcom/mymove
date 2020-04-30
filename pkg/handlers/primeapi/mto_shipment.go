@@ -1,6 +1,8 @@
 package primeapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
@@ -39,6 +41,8 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload, moveTaskOrderID)
 
+	fmt.Printf("%#v", mtoShipment)
+
 	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
 	if verrs != nil && verrs.HasAny() {
 		logger.Error("Error validating mto service item list: ", zap.Error(verrs))
@@ -49,6 +53,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	//mtoShipment.MTOServiceItems = *mtoServiceItemsList
 	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
 	if err != nil {
+		switch err.(type) {
+		case services.NotFoundError:
+			logger.Error("move task order not found", zap.Error(err))
+			return mtoshipmentops.NewCreateMTOShipmentNotFound()
+		}
 		logger.Error("Error creating mto shipment: ", zap.Error(err))
 		return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
 	}

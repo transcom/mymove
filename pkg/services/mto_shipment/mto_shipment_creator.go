@@ -68,7 +68,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		if shipment.PickupAddress != nil {
 			verrs, err = txBuilder.CreateOne(shipment.PickupAddress)
 			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
+				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
 		} else {
 			return errors.New("pickup address missing")
@@ -78,7 +78,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			verrs, err = txBuilder.CreateOne(shipment.DestinationAddress)
 
 			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
+				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
 			}
 		} else {
 			return errors.New("destination address missing")
@@ -95,11 +95,13 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		if shipment.ShipmentType == "" {
 			return errors.New("shipment type missing")
 		}
+		//assign status to shipment submitted
+		shipment.Status = models.MTOShipmentStatusSubmitted
 
 		// create a shipment
 		verrs, err = txBuilder.CreateOne(&shipment)
 		if verrs != nil || err != nil {
-			return fmt.Errorf("%#v %e", verrs, err)
+			return fmt.Errorf("failed to create shipment %s %e", verrs.Error(), err)
 		}
 
 		// create MTOAgents List
@@ -118,9 +120,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(txBuilder)
 			for i, serviceItem := range serviceItems {
 				serviceItem.MTOShipmentID = &shipment.ID
-				serviceItem, verrs, err := mtoServiceItemCreator.CreateMTOServiceItem(&serviceItem)
-				if verrs != nil || err != nil {
-					return fmt.Errorf("%#v %e", verrs, err)
+				serviceItem, verrs, error := mtoServiceItemCreator.CreateMTOServiceItem(&serviceItem)
+				if verrs != nil || error != nil {
+					return fmt.Errorf("%#v %e", verrs, error)
 				}
 				serviceItems[i] = *serviceItem
 			}
@@ -128,5 +130,5 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		return nil
 	})
 
-	return shipment, nil
+	return shipment, err
 }
