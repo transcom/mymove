@@ -2,11 +2,16 @@ swagger: '2.0'
 info:
   contact:
     email: dp3@truss.works
-  description: The API for move.mil
+  description: |
+    The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.
+
+    This API is not available in production.
+
+    All endpoints are located at `primelocal/support/v1/`.
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
-  title: move.mil API
+  title: Milmove Support API
   version: 0.0.1
 basePath: /support/v1
 schemes:

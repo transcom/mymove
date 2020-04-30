@@ -23,8 +23,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil",
-    "title": "move.mil API",
+    "description": "The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.\n\nThis API is not available in production.\n\nAll endpoints are located at ` + "`" + `primelocal/support/v1/` + "`" + `.\n",
+    "title": "Milmove Support API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -1579,8 +1579,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil",
-    "title": "move.mil API",
+    "description": "The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.\n\nThis API is not available in production.\n\nAll endpoints are located at ` + "`" + `primelocal/support/v1/` + "`" + `.\n",
+    "title": "Milmove Support API",
     "contact": {
       "email": "dp3@truss.works"
     },
