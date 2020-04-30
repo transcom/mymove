@@ -32,32 +32,35 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
-	})
-
-	builder := query.NewQueryBuilder(suite.DB())
-	payload := primemessages.CreateShipmentPayload{
-		CreatedAt:           strfmt.DateTime{},
-		CustomerRemarks:     nil,
-		DestinationAddress:  nil,
-		ID:                  strfmt.UUID(mtoShipment.ID.String()),
-		PickupAddress:       nil,
-		PointOfContact:      "",
-		RequestedPickupDate: strfmt.Date{},
-		ShipmentType:        "",
-	}
-	fetcher := fetch.NewFetcher(builder)
-	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
-
-	params := mtoshipmentops.CreateMTOShipmentParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		Body:            &payload,
-	}
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
+		mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MoveTaskOrder: mto,
+		})
+
+		fmt.Printf("%+v\n", mtoShipment)
+		mtoShipment.MoveTaskOrderID = mto.ID
+
+		builder := query.NewQueryBuilder(suite.DB())
+		fetcher := fetch.NewFetcher(builder)
+		req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+			Body: &primemessages.CreateShipmentPayload{
+				Agents:              nil,
+				CreatedAt:           strfmt.DateTime{},
+				CustomerRemarks:     nil,
+				DestinationAddress:  nil,
+				ID:                  "",
+				PickupAddress:       nil,
+				PointOfContact:      "",
+				RequestedPickupDate: strfmt.Date{},
+				ShipmentType:        "",
+			},
+		}
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),

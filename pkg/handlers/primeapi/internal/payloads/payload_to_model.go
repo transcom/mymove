@@ -100,8 +100,11 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload
 		RequestedPickupDate: &requestedPickupDate,
 		PickupAddress:       AddressModel(mtoShipment.PickupAddress),
 		DestinationAddress:  AddressModel(mtoShipment.DestinationAddress),
-		MTOAgents:           *MTOAgentsModel(&mtoShipment.Agents),
 		CustomerRemarks:     mtoShipment.CustomerRemarks,
+	}
+
+	if mtoShipment.Agents != nil {
+		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
 
 	return model
@@ -166,10 +169,6 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
 		secondaryDeliveryAddressID := uuid.FromStringOrNil(mtoShipment.SecondaryDeliveryAddress.ID.String())
 		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
-	}
-
-	if mtoShipment.Agents != nil {
-		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
 
 	return model
