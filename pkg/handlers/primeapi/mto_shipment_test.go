@@ -37,12 +37,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
-		MTOShipment: models.MTOShipment{
-			PickupAddress:        &pickupAddress,
-			PickupAddressID:      &pickupAddress.ID,
-			DestinationAddress:   &destinationAddress,
-			DestinationAddressID: &destinationAddress.ID,
-		},
+		MTOShipment:   models.MTOShipment{},
 	})
 
 	mtoShipment.MoveTaskOrderID = mto.ID
@@ -56,26 +51,24 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 		Body: &primemessages.CreateShipmentPayload{
 			Agents:          nil,
-			CustomerRemarks: mtoShipment.CustomerRemarks,
+			CustomerRemarks: nil,
 			DestinationAddress: &primemessages.Address{
-				City:    &mtoShipment.DestinationAddress.City,
-				Country: mtoShipment.DestinationAddress.Country,
-				//ID:             strfmt.UUID(mtoShipment.DestinationAddress.ID.String()),
-				PostalCode:     &mtoShipment.DestinationAddress.PostalCode,
-				State:          &mtoShipment.DestinationAddress.State,
-				StreetAddress1: &mtoShipment.DestinationAddress.StreetAddress1,
-				StreetAddress2: mtoShipment.DestinationAddress.StreetAddress2,
-				StreetAddress3: mtoShipment.DestinationAddress.StreetAddress3,
+				City:           &destinationAddress.City,
+				Country:        destinationAddress.Country,
+				PostalCode:     &destinationAddress.PostalCode,
+				State:          &destinationAddress.State,
+				StreetAddress1: &destinationAddress.StreetAddress1,
+				StreetAddress2: destinationAddress.StreetAddress2,
+				StreetAddress3: destinationAddress.StreetAddress3,
 			},
 			PickupAddress: &primemessages.Address{
-				City:    &mtoShipment.PickupAddress.City,
-				Country: mtoShipment.PickupAddress.Country,
-				//ID:             strfmt.UUID(mtoShipment.PickupAddress.ID.String()),
-				PostalCode:     &mtoShipment.PickupAddress.PostalCode,
-				State:          &mtoShipment.PickupAddress.State,
-				StreetAddress1: &mtoShipment.PickupAddress.StreetAddress1,
-				StreetAddress2: mtoShipment.PickupAddress.StreetAddress2,
-				StreetAddress3: mtoShipment.PickupAddress.StreetAddress3,
+				City:           &pickupAddress.City,
+				Country:        pickupAddress.Country,
+				PostalCode:     &pickupAddress.PostalCode,
+				State:          &pickupAddress.State,
+				StreetAddress1: &pickupAddress.StreetAddress1,
+				StreetAddress2: pickupAddress.StreetAddress2,
+				StreetAddress3: pickupAddress.StreetAddress3,
 			},
 			PointOfContact:      "John Doe",
 			RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),

@@ -211,11 +211,23 @@ paths:
             $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/mto-shipments':
     post:
+      summary: Creates an mto shipment
+      description:
+        Creates an instance of mtoShipment
+        Required fields include
+        * Shipment Type
+        * Customer requested pick-up date
+        * Pick-up Address
+        * Delivery Address
+        * Releasing / Receiving agents
+        Optional fields include
+        * Customer Remarks
+        * Releasing / Receiving agents
+        * An array of optional accessorial service item codes
       consumes:
         - application/json
       produces:
         - application/json
-      summary: Creates a mto shipment
       operationId: createMTOShipment
       tags:
         - mtoShipment
