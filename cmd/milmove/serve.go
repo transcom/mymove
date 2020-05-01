@@ -765,6 +765,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		primeMux.Use(primeDetectionMiddleware)
 		primeMux.Use(clientCertMiddleware)
 		primeMux.Use(authentication.PrimeAuthorizationMiddleware(logger))
+		primeMux.Use(middleware.Trace(logger, &handlerContext)) // injects trace id into the context
+		primeMux.Use(middleware.ContextLogger("milmove_trace_id", logger))
 		primeMux.Use(middleware.NoCache(logger))
 		primeMux.Use(middleware.RequestLogger(logger))
 		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))
@@ -784,6 +786,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		supportMux.Use(supportDetectionMiddleware)
 		supportMux.Use(clientCertMiddleware)
 		supportMux.Use(authentication.PrimeAuthorizationMiddleware(logger))
+		supportMux.Use(middleware.Trace(logger, &handlerContext)) // injects trace id into the context
+		supportMux.Use(middleware.ContextLogger("milmove_trace_id", logger))
 		supportMux.Use(middleware.NoCache(logger))
 		supportMux.Use(middleware.RequestLogger(logger))
 		supportMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.SupportSwaggerFlag)))
