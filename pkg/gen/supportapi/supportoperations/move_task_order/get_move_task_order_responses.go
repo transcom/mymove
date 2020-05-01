@@ -16,7 +16,7 @@ import (
 // GetMoveTaskOrderOKCode is the HTTP code returned for type GetMoveTaskOrderOK
 const GetMoveTaskOrderOKCode int = 200
 
-/*GetMoveTaskOrderOK Successfully retrieve an individual move task order
+/*GetMoveTaskOrderOK Successfully retrieve an individual move task order.
 
 swagger:response getMoveTaskOrderOK
 */
@@ -60,7 +60,7 @@ func (o *GetMoveTaskOrderOK) WriteResponse(rw http.ResponseWriter, producer runt
 // GetMoveTaskOrderBadRequestCode is the HTTP code returned for type GetMoveTaskOrderBadRequest
 const GetMoveTaskOrderBadRequestCode int = 400
 
-/*GetMoveTaskOrderBadRequest The request payload is invalid
+/*GetMoveTaskOrderBadRequest The parameters were invalid.
 
 swagger:response getMoveTaskOrderBadRequest
 */
@@ -69,7 +69,7 @@ type GetMoveTaskOrderBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetMoveTaskOrderBadRequest creates GetMoveTaskOrderBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewGetMoveTaskOrderBadRequest() *GetMoveTaskOrderBadRequest {
 }
 
 // WithPayload adds the payload to the get move task order bad request response
-func (o *GetMoveTaskOrderBadRequest) WithPayload(payload interface{}) *GetMoveTaskOrderBadRequest {
+func (o *GetMoveTaskOrderBadRequest) WithPayload(payload *supportmessages.Error) *GetMoveTaskOrderBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move task order bad request response
-func (o *GetMoveTaskOrderBadRequest) SetPayload(payload interface{}) {
+func (o *GetMoveTaskOrderBadRequest) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,16 +93,18 @@ func (o *GetMoveTaskOrderBadRequest) SetPayload(payload interface{}) {
 func (o *GetMoveTaskOrderBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // GetMoveTaskOrderUnauthorizedCode is the HTTP code returned for type GetMoveTaskOrderUnauthorized
 const GetMoveTaskOrderUnauthorizedCode int = 401
 
-/*GetMoveTaskOrderUnauthorized The request was denied
+/*GetMoveTaskOrderUnauthorized The request was unauthorized.
 
 swagger:response getMoveTaskOrderUnauthorized
 */
@@ -144,7 +146,7 @@ func (o *GetMoveTaskOrderUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 // GetMoveTaskOrderForbiddenCode is the HTTP code returned for type GetMoveTaskOrderForbidden
 const GetMoveTaskOrderForbiddenCode int = 403
 
-/*GetMoveTaskOrderForbidden The request was denied
+/*GetMoveTaskOrderForbidden The client doesn't have permissions to perform the request.
 
 swagger:response getMoveTaskOrderForbidden
 */
@@ -186,7 +188,7 @@ func (o *GetMoveTaskOrderForbidden) WriteResponse(rw http.ResponseWriter, produc
 // GetMoveTaskOrderNotFoundCode is the HTTP code returned for type GetMoveTaskOrderNotFound
 const GetMoveTaskOrderNotFoundCode int = 404
 
-/*GetMoveTaskOrderNotFound The requested resource wasn't found
+/*GetMoveTaskOrderNotFound The requested resource wasn't found.
 
 swagger:response getMoveTaskOrderNotFound
 */
@@ -195,7 +197,7 @@ type GetMoveTaskOrderNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetMoveTaskOrderNotFound creates GetMoveTaskOrderNotFound with default headers values
@@ -205,13 +207,13 @@ func NewGetMoveTaskOrderNotFound() *GetMoveTaskOrderNotFound {
 }
 
 // WithPayload adds the payload to the get move task order not found response
-func (o *GetMoveTaskOrderNotFound) WithPayload(payload interface{}) *GetMoveTaskOrderNotFound {
+func (o *GetMoveTaskOrderNotFound) WithPayload(payload *supportmessages.Error) *GetMoveTaskOrderNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move task order not found response
-func (o *GetMoveTaskOrderNotFound) SetPayload(payload interface{}) {
+func (o *GetMoveTaskOrderNotFound) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,16 +221,18 @@ func (o *GetMoveTaskOrderNotFound) SetPayload(payload interface{}) {
 func (o *GetMoveTaskOrderNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // GetMoveTaskOrderInternalServerErrorCode is the HTTP code returned for type GetMoveTaskOrderInternalServerError
 const GetMoveTaskOrderInternalServerErrorCode int = 500
 
-/*GetMoveTaskOrderInternalServerError A server error occurred
+/*GetMoveTaskOrderInternalServerError A server error occurred.
 
 swagger:response getMoveTaskOrderInternalServerError
 */
@@ -237,7 +241,7 @@ type GetMoveTaskOrderInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetMoveTaskOrderInternalServerError creates GetMoveTaskOrderInternalServerError with default headers values
@@ -247,13 +251,13 @@ func NewGetMoveTaskOrderInternalServerError() *GetMoveTaskOrderInternalServerErr
 }
 
 // WithPayload adds the payload to the get move task order internal server error response
-func (o *GetMoveTaskOrderInternalServerError) WithPayload(payload interface{}) *GetMoveTaskOrderInternalServerError {
+func (o *GetMoveTaskOrderInternalServerError) WithPayload(payload *supportmessages.Error) *GetMoveTaskOrderInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move task order internal server error response
-func (o *GetMoveTaskOrderInternalServerError) SetPayload(payload interface{}) {
+func (o *GetMoveTaskOrderInternalServerError) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -261,8 +265,10 @@ func (o *GetMoveTaskOrderInternalServerError) SetPayload(payload interface{}) {
 func (o *GetMoveTaskOrderInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

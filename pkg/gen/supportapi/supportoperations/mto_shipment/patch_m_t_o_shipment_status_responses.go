@@ -16,7 +16,7 @@ import (
 // PatchMTOShipmentStatusOKCode is the HTTP code returned for type PatchMTOShipmentStatusOK
 const PatchMTOShipmentStatusOKCode int = 200
 
-/*PatchMTOShipmentStatusOK Successfully updated the shipment's status
+/*PatchMTOShipmentStatusOK Successfully updated the shipment's status.
 
 swagger:response patchMTOShipmentStatusOK
 */
@@ -57,10 +57,138 @@ func (o *PatchMTOShipmentStatusOK) WriteResponse(rw http.ResponseWriter, produce
 	}
 }
 
+// PatchMTOShipmentStatusBadRequestCode is the HTTP code returned for type PatchMTOShipmentStatusBadRequest
+const PatchMTOShipmentStatusBadRequestCode int = 400
+
+/*PatchMTOShipmentStatusBadRequest The parameters were invalid.
+
+swagger:response patchMTOShipmentStatusBadRequest
+*/
+type PatchMTOShipmentStatusBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *supportmessages.Error `json:"body,omitempty"`
+}
+
+// NewPatchMTOShipmentStatusBadRequest creates PatchMTOShipmentStatusBadRequest with default headers values
+func NewPatchMTOShipmentStatusBadRequest() *PatchMTOShipmentStatusBadRequest {
+
+	return &PatchMTOShipmentStatusBadRequest{}
+}
+
+// WithPayload adds the payload to the patch m t o shipment status bad request response
+func (o *PatchMTOShipmentStatusBadRequest) WithPayload(payload *supportmessages.Error) *PatchMTOShipmentStatusBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the patch m t o shipment status bad request response
+func (o *PatchMTOShipmentStatusBadRequest) SetPayload(payload *supportmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *PatchMTOShipmentStatusBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(400)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+// PatchMTOShipmentStatusUnauthorizedCode is the HTTP code returned for type PatchMTOShipmentStatusUnauthorized
+const PatchMTOShipmentStatusUnauthorizedCode int = 401
+
+/*PatchMTOShipmentStatusUnauthorized The request was unauthorized.
+
+swagger:response patchMTOShipmentStatusUnauthorized
+*/
+type PatchMTOShipmentStatusUnauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewPatchMTOShipmentStatusUnauthorized creates PatchMTOShipmentStatusUnauthorized with default headers values
+func NewPatchMTOShipmentStatusUnauthorized() *PatchMTOShipmentStatusUnauthorized {
+
+	return &PatchMTOShipmentStatusUnauthorized{}
+}
+
+// WithPayload adds the payload to the patch m t o shipment status unauthorized response
+func (o *PatchMTOShipmentStatusUnauthorized) WithPayload(payload interface{}) *PatchMTOShipmentStatusUnauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the patch m t o shipment status unauthorized response
+func (o *PatchMTOShipmentStatusUnauthorized) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *PatchMTOShipmentStatusUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
+// PatchMTOShipmentStatusForbiddenCode is the HTTP code returned for type PatchMTOShipmentStatusForbidden
+const PatchMTOShipmentStatusForbiddenCode int = 403
+
+/*PatchMTOShipmentStatusForbidden The client doesn't have permissions to perform the request.
+
+swagger:response patchMTOShipmentStatusForbidden
+*/
+type PatchMTOShipmentStatusForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewPatchMTOShipmentStatusForbidden creates PatchMTOShipmentStatusForbidden with default headers values
+func NewPatchMTOShipmentStatusForbidden() *PatchMTOShipmentStatusForbidden {
+
+	return &PatchMTOShipmentStatusForbidden{}
+}
+
+// WithPayload adds the payload to the patch m t o shipment status forbidden response
+func (o *PatchMTOShipmentStatusForbidden) WithPayload(payload interface{}) *PatchMTOShipmentStatusForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the patch m t o shipment status forbidden response
+func (o *PatchMTOShipmentStatusForbidden) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *PatchMTOShipmentStatusForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(403)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // PatchMTOShipmentStatusNotFoundCode is the HTTP code returned for type PatchMTOShipmentStatusNotFound
 const PatchMTOShipmentStatusNotFoundCode int = 404
 
-/*PatchMTOShipmentStatusNotFound The requested resource wasn't found
+/*PatchMTOShipmentStatusNotFound The requested resource wasn't found.
 
 swagger:response patchMTOShipmentStatusNotFound
 */
@@ -69,7 +197,7 @@ type PatchMTOShipmentStatusNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewPatchMTOShipmentStatusNotFound creates PatchMTOShipmentStatusNotFound with default headers values
@@ -79,13 +207,13 @@ func NewPatchMTOShipmentStatusNotFound() *PatchMTOShipmentStatusNotFound {
 }
 
 // WithPayload adds the payload to the patch m t o shipment status not found response
-func (o *PatchMTOShipmentStatusNotFound) WithPayload(payload interface{}) *PatchMTOShipmentStatusNotFound {
+func (o *PatchMTOShipmentStatusNotFound) WithPayload(payload *supportmessages.Error) *PatchMTOShipmentStatusNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the patch m t o shipment status not found response
-func (o *PatchMTOShipmentStatusNotFound) SetPayload(payload interface{}) {
+func (o *PatchMTOShipmentStatusNotFound) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,16 +221,18 @@ func (o *PatchMTOShipmentStatusNotFound) SetPayload(payload interface{}) {
 func (o *PatchMTOShipmentStatusNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // PatchMTOShipmentStatusConflictCode is the HTTP code returned for type PatchMTOShipmentStatusConflict
 const PatchMTOShipmentStatusConflictCode int = 409
 
-/*PatchMTOShipmentStatusConflict Conflict error due to trying to change the status of shipment that is not currently "SUBMITTED"
+/*PatchMTOShipmentStatusConflict Conflict error due to trying to change the status of shipment that is not currently "SUBMITTED".
 
 swagger:response patchMTOShipmentStatusConflict
 */
@@ -144,7 +274,7 @@ func (o *PatchMTOShipmentStatusConflict) WriteResponse(rw http.ResponseWriter, p
 // PatchMTOShipmentStatusPreconditionFailedCode is the HTTP code returned for type PatchMTOShipmentStatusPreconditionFailed
 const PatchMTOShipmentStatusPreconditionFailedCode int = 412
 
-/*PatchMTOShipmentStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match) value
+/*PatchMTOShipmentStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response patchMTOShipmentStatusPreconditionFailed
 */
@@ -153,7 +283,7 @@ type PatchMTOShipmentStatusPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewPatchMTOShipmentStatusPreconditionFailed creates PatchMTOShipmentStatusPreconditionFailed with default headers values
@@ -163,13 +293,13 @@ func NewPatchMTOShipmentStatusPreconditionFailed() *PatchMTOShipmentStatusPrecon
 }
 
 // WithPayload adds the payload to the patch m t o shipment status precondition failed response
-func (o *PatchMTOShipmentStatusPreconditionFailed) WithPayload(payload interface{}) *PatchMTOShipmentStatusPreconditionFailed {
+func (o *PatchMTOShipmentStatusPreconditionFailed) WithPayload(payload *supportmessages.Error) *PatchMTOShipmentStatusPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the patch m t o shipment status precondition failed response
-func (o *PatchMTOShipmentStatusPreconditionFailed) SetPayload(payload interface{}) {
+func (o *PatchMTOShipmentStatusPreconditionFailed) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,16 +307,18 @@ func (o *PatchMTOShipmentStatusPreconditionFailed) SetPayload(payload interface{
 func (o *PatchMTOShipmentStatusPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(412)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // PatchMTOShipmentStatusUnprocessableEntityCode is the HTTP code returned for type PatchMTOShipmentStatusUnprocessableEntity
 const PatchMTOShipmentStatusUnprocessableEntityCode int = 422
 
-/*PatchMTOShipmentStatusUnprocessableEntity Validation error
+/*PatchMTOShipmentStatusUnprocessableEntity The payload was unprocessable.
 
 swagger:response patchMTOShipmentStatusUnprocessableEntity
 */
@@ -230,7 +362,7 @@ func (o *PatchMTOShipmentStatusUnprocessableEntity) WriteResponse(rw http.Respon
 // PatchMTOShipmentStatusInternalServerErrorCode is the HTTP code returned for type PatchMTOShipmentStatusInternalServerError
 const PatchMTOShipmentStatusInternalServerErrorCode int = 500
 
-/*PatchMTOShipmentStatusInternalServerError A server error occurred
+/*PatchMTOShipmentStatusInternalServerError A server error occurred.
 
 swagger:response patchMTOShipmentStatusInternalServerError
 */
@@ -239,7 +371,7 @@ type PatchMTOShipmentStatusInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewPatchMTOShipmentStatusInternalServerError creates PatchMTOShipmentStatusInternalServerError with default headers values
@@ -249,13 +381,13 @@ func NewPatchMTOShipmentStatusInternalServerError() *PatchMTOShipmentStatusInter
 }
 
 // WithPayload adds the payload to the patch m t o shipment status internal server error response
-func (o *PatchMTOShipmentStatusInternalServerError) WithPayload(payload interface{}) *PatchMTOShipmentStatusInternalServerError {
+func (o *PatchMTOShipmentStatusInternalServerError) WithPayload(payload *supportmessages.Error) *PatchMTOShipmentStatusInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the patch m t o shipment status internal server error response
-func (o *PatchMTOShipmentStatusInternalServerError) SetPayload(payload interface{}) {
+func (o *PatchMTOShipmentStatusInternalServerError) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -263,8 +395,10 @@ func (o *PatchMTOShipmentStatusInternalServerError) SetPayload(payload interface
 func (o *PatchMTOShipmentStatusInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
