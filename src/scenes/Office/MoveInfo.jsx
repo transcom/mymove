@@ -186,13 +186,6 @@ class MoveInfo extends Component {
             Move pending
           </span>
         );
-      } else if (ppmCompleted) {
-        return (
-          <span className="status">
-            <FontAwesomeIcon className="icon approval-completed" icon={greenCheck} />
-            COMPLETED
-          </span>
-        );
       } else {
         return (
           <span className="status">
@@ -201,6 +194,13 @@ class MoveInfo extends Component {
           </span>
         );
       }
+    } else if (ppmCompleted) {
+      return (
+        <span className="status">
+          <FontAwesomeIcon className="icon approval-completed" icon={greenCheck} />
+          COMPLETED
+        </span>
+      );
     } else {
       return (
         <span className="status">

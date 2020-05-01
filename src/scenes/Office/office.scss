@@ -333,6 +333,11 @@ head .panel-subhead {
   color: #cd3504;
 }
 
+.approval-completed {
+  color: green;
+  cursor: pointer;
+}
+
 .approval-blocked {
   color: gray;
 }
