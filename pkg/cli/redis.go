@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	//"strings"
-	//"time"
+	"time"
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/pkg/errors"
@@ -102,7 +102,8 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	}
 
 	pool := &redis.Pool{
-		MaxIdle: 10,
+		MaxIdle:     10,
+		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			connection, err := redis.Dial(
 				"tcp",
