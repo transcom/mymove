@@ -4,7 +4,7 @@ import { storiesOf } from '@storybook/react';
 
 import RequestedServiceItemsTable from '../components/Office/RequestedServiceItemsTable';
 
-storiesOf('Components|RequestedServiceItemsTable', module).add('default', () => {
+storiesOf('TOO/TIO Components|RequestedServiceItemsTable', module).add('default', () => {
   const serviceItems = [
     {
       id: 'abc-123',
