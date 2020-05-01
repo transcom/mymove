@@ -372,12 +372,6 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
-          "409": {
-            "description": "Conflict error between the fields and values expected and the ones received. Please remove any fields that are not available for update from the request.\n",
-            "schema": {
-              "$ref": "#/responses/Conflict"
-            }
-          },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
@@ -1707,12 +1701,6 @@ func init() {
     }
   },
   "responses": {
-    "Conflict": {
-      "description": "There was a conflict with the request.",
-      "schema": {
-        "$ref": "#/definitions/ValidationError"
-      }
-    },
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {
@@ -2182,15 +2170,6 @@ func init() {
             "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/Error"
-            }
-          },
-          "409": {
-            "description": "Conflict error between the fields and values expected and the ones received. Please remove any fields that are not available for update from the request.\n",
-            "schema": {
-              "description": "There was a conflict with the request.",
-              "schema": {
-                "$ref": "#/definitions/ValidationError"
-              }
             }
           },
           "412": {
@@ -3558,12 +3537,6 @@ func init() {
     }
   },
   "responses": {
-    "Conflict": {
-      "description": "There was a conflict with the request.",
-      "schema": {
-        "$ref": "#/definitions/ValidationError"
-      }
-    },
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {

@@ -212,12 +212,6 @@ paths:
             $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
-        '409':
-          description: >
-            Conflict error between the fields and values expected and the ones received.
-            Please remove any fields that are not available for update from the request.
-          schema:
-            $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -1287,9 +1281,5 @@ responses:
       $ref: '#/definitions/Error'
   UnprocessableEntity:
     description: The payload was unprocessable.
-    schema:
-      $ref: '#/definitions/ValidationError'
-  Conflict:
-    description: There was a conflict with the request.
     schema:
       $ref: '#/definitions/ValidationError'

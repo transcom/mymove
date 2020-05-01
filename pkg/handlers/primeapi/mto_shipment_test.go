@@ -143,7 +143,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
 	})
 
-	suite.T().Run("PUT failure - 409", func(t *testing.T) {
+	suite.T().Run("PUT failure - 422 (extra fields)", func(t *testing.T) {
 		remarks := fmt.Sprintf("test conflict %s", time.Now())
 		conflictParams := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   params.HTTPRequest,
@@ -152,7 +152,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			IfMatch:       params.IfMatch,
 		}
 		response := handler.Handle(conflictParams)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentConflict{}, response)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
 	})
 
 	suite.T().Run("PUT failure - 412", func(t *testing.T) {

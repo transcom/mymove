@@ -112,14 +112,14 @@ type UpdateMTOShipmentHandler struct {
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtoShipment, conflictErrs := UpdateMTOShipmentModel(params.MtoShipmentID, params.Body)
-	if conflictErrs != nil {
-		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(conflictErrs))
+	mtoShipment, fieldErrs := UpdateMTOShipmentModel(params.MtoShipmentID, params.Body)
+	if fieldErrs != nil {
+		logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(fieldErrs))
 
-		errPayload := payloads.ValidationError(handlers.ConflictErrMessage, "Fields that cannot be updated found in input",
-			uuid.FromStringOrNil(params.MtoShipmentID.String()), conflictErrs)
+		errPayload := payloads.ValidationError(handlers.ValidationErrMessage, "Fields that cannot be updated found in input",
+			uuid.FromStringOrNil(params.MtoShipmentID.String()), fieldErrs)
 
-		return mtoshipmentops.NewUpdateMTOShipmentConflict().WithPayload(errPayload)
+		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
 	}
 
 	eTag := params.IfMatch

@@ -229,49 +229,6 @@ func (o *UpdateMTOShipmentNotFound) WriteResponse(rw http.ResponseWriter, produc
 	}
 }
 
-// UpdateMTOShipmentConflictCode is the HTTP code returned for type UpdateMTOShipmentConflict
-const UpdateMTOShipmentConflictCode int = 409
-
-/*UpdateMTOShipmentConflict Conflict error between the fields and values expected and the ones received. Please remove any fields that are not available for update from the request.
-
-
-swagger:response updateMTOShipmentConflict
-*/
-type UpdateMTOShipmentConflict struct {
-
-	/*
-	  In: Body
-	*/
-	Payload interface{} `json:"body,omitempty"`
-}
-
-// NewUpdateMTOShipmentConflict creates UpdateMTOShipmentConflict with default headers values
-func NewUpdateMTOShipmentConflict() *UpdateMTOShipmentConflict {
-
-	return &UpdateMTOShipmentConflict{}
-}
-
-// WithPayload adds the payload to the update m t o shipment conflict response
-func (o *UpdateMTOShipmentConflict) WithPayload(payload interface{}) *UpdateMTOShipmentConflict {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the update m t o shipment conflict response
-func (o *UpdateMTOShipmentConflict) SetPayload(payload interface{}) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UpdateMTOShipmentConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(409)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-}
-
 // UpdateMTOShipmentPreconditionFailedCode is the HTTP code returned for type UpdateMTOShipmentPreconditionFailed
 const UpdateMTOShipmentPreconditionFailedCode int = 412
 

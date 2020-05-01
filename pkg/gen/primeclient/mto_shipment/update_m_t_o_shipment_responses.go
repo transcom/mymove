@@ -54,12 +54,6 @@ func (o *UpdateMTOShipmentReader) ReadResponse(response runtime.ClientResponse, 
 			return nil, err
 		}
 		return nil, result
-	case 409:
-		result := NewUpdateMTOShipmentConflict()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
 	case 412:
 		result := NewUpdateMTOShipmentPreconditionFailed()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -239,38 +233,6 @@ func (o *UpdateMTOShipmentNotFound) readResponse(response runtime.ClientResponse
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewUpdateMTOShipmentConflict creates a UpdateMTOShipmentConflict with default headers values
-func NewUpdateMTOShipmentConflict() *UpdateMTOShipmentConflict {
-	return &UpdateMTOShipmentConflict{}
-}
-
-/*UpdateMTOShipmentConflict handles this case with default header values.
-
-Conflict error between the fields and values expected and the ones received. Please remove any fields that are not available for update from the request.
-
-*/
-type UpdateMTOShipmentConflict struct {
-	Payload interface{}
-}
-
-func (o *UpdateMTOShipmentConflict) Error() string {
-	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentConflict  %+v", 409, o.Payload)
-}
-
-func (o *UpdateMTOShipmentConflict) GetPayload() interface{} {
-	return o.Payload
-}
-
-func (o *UpdateMTOShipmentConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
