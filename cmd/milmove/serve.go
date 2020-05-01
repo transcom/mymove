@@ -712,14 +712,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 				logger.Error("Failed database health check", zap.Error(dbErr))
 			}
 			data["database"] = dbErr == nil
-
+			fmt.Println("data after DB health check:", data)
 			enabled := v.GetBool(cli.RedisEnabledFlag)
 			if enabled {
 				logger.Info("REDIS_ENABLED flag is true, so proceeding with Redis health check")
 				data = redisHealthCheck(redisPool, logger, data)
 			}
 		}
-		fmt.Println("data after redis health check:", data)
+		fmt.Println("data after all health checks:", data)
 		newEncoderErr := json.NewEncoder(w).Encode(data)
 		if newEncoderErr != nil {
 			logger.Error("Failed encoding health check response", zap.Error(newEncoderErr))
