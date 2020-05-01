@@ -232,7 +232,7 @@ func (o *UpdateMoveTaskOrderStatusNotFound) WriteResponse(rw http.ResponseWriter
 // UpdateMoveTaskOrderStatusPreconditionFailedCode is the HTTP code returned for type UpdateMoveTaskOrderStatusPreconditionFailed
 const UpdateMoveTaskOrderStatusPreconditionFailedCode int = 412
 
-/*UpdateMoveTaskOrderStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the payment request again to get the updated eTag value.
+/*UpdateMoveTaskOrderStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updateMoveTaskOrderStatusPreconditionFailed
 */

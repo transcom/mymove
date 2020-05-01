@@ -36,6 +36,18 @@ func (o *CreateMTOServiceItemReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return nil, result
+	case 401:
+		result := NewCreateMTOServiceItemUnauthorized()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
+	case 403:
+		result := NewCreateMTOServiceItemForbidden()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 404:
 		result := NewCreateMTOServiceItemNotFound()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -67,7 +79,7 @@ func NewCreateMTOServiceItemOK() *CreateMTOServiceItemOK {
 
 /*CreateMTOServiceItemOK handles this case with default header values.
 
-created instance of a mto service item
+Successfully created an MTO service item.
 */
 type CreateMTOServiceItemOK struct {
 	Payload primemessages.MTOServiceItem
@@ -100,21 +112,85 @@ func NewCreateMTOServiceItemBadRequest() *CreateMTOServiceItemBadRequest {
 
 /*CreateMTOServiceItemBadRequest handles this case with default header values.
 
-invalid request
+The request payload is invalid.
 */
 type CreateMTOServiceItemBadRequest struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *CreateMTOServiceItemBadRequest) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *CreateMTOServiceItemBadRequest) GetPayload() interface{} {
+func (o *CreateMTOServiceItemBadRequest) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *CreateMTOServiceItemBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.Error)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCreateMTOServiceItemUnauthorized creates a CreateMTOServiceItemUnauthorized with default headers values
+func NewCreateMTOServiceItemUnauthorized() *CreateMTOServiceItemUnauthorized {
+	return &CreateMTOServiceItemUnauthorized{}
+}
+
+/*CreateMTOServiceItemUnauthorized handles this case with default header values.
+
+The request was unauthorized.
+*/
+type CreateMTOServiceItemUnauthorized struct {
+	Payload interface{}
+}
+
+func (o *CreateMTOServiceItemUnauthorized) Error() string {
+	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemUnauthorized  %+v", 401, o.Payload)
+}
+
+func (o *CreateMTOServiceItemUnauthorized) GetPayload() interface{} {
+	return o.Payload
+}
+
+func (o *CreateMTOServiceItemUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	// response payload
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCreateMTOServiceItemForbidden creates a CreateMTOServiceItemForbidden with default headers values
+func NewCreateMTOServiceItemForbidden() *CreateMTOServiceItemForbidden {
+	return &CreateMTOServiceItemForbidden{}
+}
+
+/*CreateMTOServiceItemForbidden handles this case with default header values.
+
+The client doesn't have permissions to perform the request.
+*/
+type CreateMTOServiceItemForbidden struct {
+	Payload interface{}
+}
+
+func (o *CreateMTOServiceItemForbidden) Error() string {
+	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemForbidden  %+v", 403, o.Payload)
+}
+
+func (o *CreateMTOServiceItemForbidden) GetPayload() interface{} {
+	return o.Payload
+}
+
+func (o *CreateMTOServiceItemForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
@@ -131,24 +207,26 @@ func NewCreateMTOServiceItemNotFound() *CreateMTOServiceItemNotFound {
 
 /*CreateMTOServiceItemNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type CreateMTOServiceItemNotFound struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *CreateMTOServiceItemNotFound) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemNotFound  %+v", 404, o.Payload)
 }
 
-func (o *CreateMTOServiceItemNotFound) GetPayload() interface{} {
+func (o *CreateMTOServiceItemNotFound) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *CreateMTOServiceItemNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -162,7 +240,7 @@ func NewCreateMTOServiceItemUnprocessableEntity() *CreateMTOServiceItemUnprocess
 
 /*CreateMTOServiceItemUnprocessableEntity handles this case with default header values.
 
-The request payload is invalid
+The payload was unprocessable.
 */
 type CreateMTOServiceItemUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
@@ -195,24 +273,26 @@ func NewCreateMTOServiceItemInternalServerError() *CreateMTOServiceItemInternalS
 
 /*CreateMTOServiceItemInternalServerError handles this case with default header values.
 
-internal server error
+A server error occurred.
 */
 type CreateMTOServiceItemInternalServerError struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *CreateMTOServiceItemInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *CreateMTOServiceItemInternalServerError) GetPayload() interface{} {
+func (o *CreateMTOServiceItemInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *CreateMTOServiceItemInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

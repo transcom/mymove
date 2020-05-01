@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemBasic Describes a basic service item subtype of a MTOServiceItem
+// MTOServiceItemBasic Describes a basic service item subtype of a MTOServiceItem.
 // swagger:model MTOServiceItemBasic
 type MTOServiceItemBasic struct {
 	eTagField string

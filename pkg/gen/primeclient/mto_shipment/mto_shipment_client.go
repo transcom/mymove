@@ -27,7 +27,7 @@ type Client struct {
 }
 
 /*
-CreateMTOShipment creates a mto shipment
+CreateMTOShipment creates m t o shipment
 */
 func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOShipmentOK, error) {
 	// TODO: Validate the params before sending
@@ -61,7 +61,7 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOS
 }
 
 /*
-UpdateMTOShipment updates mto shipment
+UpdateMTOShipment updates m t o shipment
 */
 func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOShipmentOK, error) {
 	// TODO: Validate the params before sending

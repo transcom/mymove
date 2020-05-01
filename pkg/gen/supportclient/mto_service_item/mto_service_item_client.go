@@ -29,7 +29,10 @@ type Client struct {
 /*
 UpdateMTOServiceItemStatus updates the status of a service item for a move order by ID
 
-Updates the status of a service item for a move order to APPROVED or REJECTED.
+Updates the status of a service item for a move order to APPROVED or REJECTED. <br />
+<br />
+This is a support endpoint and will not be available in production.
+
 */
 func (a *Client) UpdateMTOServiceItemStatus(params *UpdateMTOServiceItemStatusParams) (*UpdateMTOServiceItemStatusOK, error) {
 	// TODO: Validate the params before sending
