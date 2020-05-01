@@ -324,11 +324,11 @@ func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]inte
 	logger.Info("attempting to fetch a key from Redis")
 	fetchKey, fetchErr := conn.Do("GET", "scs:session:foo")
 	if fetchErr != nil {
-		fmt.Println("fetchErr is:", fetchErr)
+		logger.Error("failed to fetch redis key", zap.Error(fetchErr))
 	}
 
 	_, redisErr := redis.Bytes(fetchKey, fetchErr)
-	fmt.Println("redisErr is:", redisErr)
+	logger.Info(fmt.Sprintf("redisErr is: %s", redisErr))
 	if redisErr == redis.ErrNil {
 		logger.Info("key not found in Redis")
 		redisErr = nil
@@ -336,7 +336,7 @@ func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]inte
 		logger.Error("Failed Redis health check", zap.Error(redisErr))
 	}
 	data["redis"] = redisErr == nil
-	fmt.Println("health check data is:", data)
+	logger.Info(fmt.Sprintf("health check data is: %s", data))
 	return data
 }
 
@@ -712,14 +712,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 				logger.Error("Failed database health check", zap.Error(dbErr))
 			}
 			data["database"] = dbErr == nil
-			fmt.Println("data after DB health check:", data)
+			logger.Info(fmt.Sprintf("data after DB health check: %s", data))
 			enabled := v.GetBool(cli.RedisEnabledFlag)
 			if enabled {
 				logger.Info("REDIS_ENABLED flag is true, so proceeding with Redis health check")
 				data = redisHealthCheck(redisPool, logger, data)
 			}
 		}
-		fmt.Println("data after all health checks:", data)
+		logger.Info(fmt.Sprintf("data after all health checks: %s", data))
 		newEncoderErr := json.NewEncoder(w).Encode(data)
 		if newEncoderErr != nil {
 			logger.Error("Failed encoding health check response", zap.Error(newEncoderErr))
