@@ -3,10 +3,13 @@ package mtoshipment
 import (
 	"testing"
 
-	"github.com/transcom/mymove/pkg/services/fetch"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -31,41 +34,30 @@ func (t *testMTOShipmentQueryBuilder) Transaction(fn func(tx *pop.Connection) er
 }
 
 func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
-	moveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: moveTaskOrder,
-	})
-	serviceItemsList := testdatagen.MakeMTOServiceItems(suite.DB())
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
 
 	// Happy path
 	suite.T().Run("If the shipment is created successfully it should be returned", func(t *testing.T) {
-		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
-			return nil, nil
-		}
-		fakeFetchOne := func(model interface{}, filters []services.QueryFilter) error {
-			return nil
-		}
-		fakeTx := func(fn func(tx *pop.Connection) error) error {
-			return fn(&pop.Connection{})
-		}
 
-		builder := &testMTOShipmentQueryBuilder{
-			fakeCreateOne:   fakeCreateOne,
-			fakeFetchOne:    fakeFetchOne,
-			fakeTransaction: fakeTx,
+		mtoShipment.PickupAddressID = nil
+		mtoShipment.PickupAddress.ID = uuid.Nil
+		mtoShipment.DestinationAddressID = nil
+		mtoShipment.DestinationAddress.ID = uuid.Nil
+		mtoShipment.ID = uuid.Nil
+
+		serviceItemsList := models.MTOServiceItems{}
+		builder := query.NewQueryBuilder(suite.DB())
+		createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
+			return builder
 		}
 
 		fetcher := fetch.NewFetcher(builder)
-
-		fakeCreateNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
-			return builder
-		}
 
 		creator := mtoShipmentCreator{
 			suite.DB(),
 			builder,
 			fetcher,
-			fakeCreateNewBuilder,
+			createNewBuilder,
 		}
 
 		createdShipment, err := creator.CreateMTOShipment(&mtoShipment, serviceItemsList)
@@ -74,4 +66,62 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		suite.NotNil(createdShipment)
 	})
 
+	suite.T().Run("If the shipment has mto service items", func(t *testing.T) {
+
+		mtoShipment.PickupAddressID = nil
+		mtoShipment.PickupAddress.ID = uuid.Nil
+		mtoShipment.DestinationAddressID = nil
+		mtoShipment.DestinationAddress.ID = uuid.Nil
+		mtoShipment.ID = uuid.Nil
+
+		builder := query.NewQueryBuilder(suite.DB())
+		createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
+			return builder
+		}
+
+		fetcher := fetch.NewFetcher(builder)
+
+		creator := mtoShipmentCreator{
+			suite.DB(),
+			builder,
+			fetcher,
+			createNewBuilder,
+		}
+
+		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeCS,
+				Name: "ReServiceCodeCS",
+			},
+		})
+
+		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDCRT,
+				Name: "ReServiceCodeDCRT",
+			},
+		})
+
+		serviceItemsList := []models.MTOServiceItem{
+			{
+				MoveTaskOrderID: mtoShipment.MoveTaskOrder.ID,
+				MoveTaskOrder:   mtoShipment.MoveTaskOrder,
+				ReService: models.ReService{
+					Code: models.ReServiceCodeCS,
+				},
+			},
+			{
+				MoveTaskOrderID: mtoShipment.MoveTaskOrder.ID,
+				MoveTaskOrder:   mtoShipment.MoveTaskOrder,
+				ReService: models.ReService{
+					Code: models.ReServiceCodeDCRT,
+				},
+			},
+		}
+
+		createdShipment, err := creator.CreateMTOShipment(&mtoShipment, serviceItemsList)
+
+		suite.NoError(err)
+		suite.NotNil(createdShipment)
+	})
 }
