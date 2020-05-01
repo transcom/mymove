@@ -206,9 +206,7 @@ paths:
         '412':
           $ref: '#/responses/PreconditionFailed'
         '500':
-          description: internal server error
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/mto-shipments':
     post:
       summary: Creates an mto shipment
@@ -583,10 +581,10 @@ definitions:
         type: array
       pointOfContact:
         type: string
-        description: Email or id of a contact person for this update
-        required:
-          - moveTaskOrderID
-          - serviceItems
+        description: Email or id of a contact person for this update.
+    required:
+      - moveTaskOrderID
+      - serviceItems
   CreateShipmentPayload:
     type: object
     properties:

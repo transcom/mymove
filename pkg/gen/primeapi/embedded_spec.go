@@ -140,6 +140,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments": {
       "post": {
+        "description": "Creates an instance of mtoShipment Required fields include * Shipment Type * Customer requested pick-up date * Pick-up Address * Delivery Address * Releasing / Receiving agents Optional fields include * Customer Remarks * Releasing / Receiving agents * An array of optional accessorial service item codes",
         "consumes": [
           "application/json"
         ],
@@ -149,7 +150,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Creates a mto shipment",
+        "summary": "Creates an mto shipment",
         "operationId": "createMTOShipment",
         "parameters": [
           {
@@ -1972,6 +1973,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments": {
       "post": {
+        "description": "Creates an instance of mtoShipment Required fields include * Shipment Type * Customer requested pick-up date * Pick-up Address * Delivery Address * Releasing / Receiving agents Optional fields include * Customer Remarks * Releasing / Receiving agents * An array of optional accessorial service item codes",
         "consumes": [
           "application/json"
         ],
@@ -1981,7 +1983,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Creates a mto shipment",
+        "summary": "Creates an mto shipment",
         "operationId": "createMTOShipment",
         "parameters": [
           {
@@ -2010,7 +2012,7 @@ func init() {
           "400": {
             "description": "invalid request",
             "schema": {
-              "description": "The request payload is invalid",
+              "description": "The request payload is invalid.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2019,7 +2021,7 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
+              "description": "The requested resource wasn't found.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -2034,7 +2036,7 @@ func init() {
           "500": {
             "description": "internal server error",
             "schema": {
-              "description": "A server error occurred",
+              "description": "A server error occurred.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }

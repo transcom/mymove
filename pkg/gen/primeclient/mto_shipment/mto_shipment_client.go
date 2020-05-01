@@ -27,7 +27,9 @@ type Client struct {
 }
 
 /*
-CreateMTOShipment creates a mto shipment
+CreateMTOShipment creates an mto shipment
+
+Creates an instance of mtoShipment Required fields include * Shipment Type * Customer requested pick-up date * Pick-up Address * Delivery Address * Releasing / Receiving agents Optional fields include * Customer Remarks * Releasing / Receiving agents * An array of optional accessorial service item codes
 */
 func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOShipmentOK, error) {
 	// TODO: Validate the params before sending
