@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// DimensionType Describes a dimension type for a MTOServiceItemDimension
+// DimensionType Describes a dimension type for a MTOServiceItemDimension.
 // swagger:model DimensionType
 type DimensionType string
 

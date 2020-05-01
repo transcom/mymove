@@ -27,7 +27,9 @@ type Client struct {
 }
 
 /*
-UpdateMTOShipment updates mto shipment
+UpdateMTOShipment updates m t o shipment
+
+Updates MTO shipment.
 */
 func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOShipmentOK, error) {
 	// TODO: Validate the params before sending

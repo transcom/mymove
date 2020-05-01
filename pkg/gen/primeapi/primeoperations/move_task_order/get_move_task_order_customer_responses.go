@@ -16,7 +16,7 @@ import (
 // GetMoveTaskOrderCustomerOKCode is the HTTP code returned for type GetMoveTaskOrderCustomerOK
 const GetMoveTaskOrderCustomerOKCode int = 200
 
-/*GetMoveTaskOrderCustomerOK Successfully retrieved customer associated with move task order
+/*GetMoveTaskOrderCustomerOK Successfully retrieved customer associated with move task order.
 
 swagger:response getMoveTaskOrderCustomerOK
 */
@@ -60,7 +60,7 @@ func (o *GetMoveTaskOrderCustomerOK) WriteResponse(rw http.ResponseWriter, produ
 // GetMoveTaskOrderCustomerUnauthorizedCode is the HTTP code returned for type GetMoveTaskOrderCustomerUnauthorized
 const GetMoveTaskOrderCustomerUnauthorizedCode int = 401
 
-/*GetMoveTaskOrderCustomerUnauthorized The request was denied
+/*GetMoveTaskOrderCustomerUnauthorized The request was unauthorized.
 
 swagger:response getMoveTaskOrderCustomerUnauthorized
 */
@@ -102,7 +102,7 @@ func (o *GetMoveTaskOrderCustomerUnauthorized) WriteResponse(rw http.ResponseWri
 // GetMoveTaskOrderCustomerForbiddenCode is the HTTP code returned for type GetMoveTaskOrderCustomerForbidden
 const GetMoveTaskOrderCustomerForbiddenCode int = 403
 
-/*GetMoveTaskOrderCustomerForbidden The request was denied
+/*GetMoveTaskOrderCustomerForbidden The client doesn't have permissions to perform the request.
 
 swagger:response getMoveTaskOrderCustomerForbidden
 */
@@ -144,7 +144,7 @@ func (o *GetMoveTaskOrderCustomerForbidden) WriteResponse(rw http.ResponseWriter
 // GetMoveTaskOrderCustomerNotFoundCode is the HTTP code returned for type GetMoveTaskOrderCustomerNotFound
 const GetMoveTaskOrderCustomerNotFoundCode int = 404
 
-/*GetMoveTaskOrderCustomerNotFound The requested resource wasn't found
+/*GetMoveTaskOrderCustomerNotFound The requested resource wasn't found.
 
 swagger:response getMoveTaskOrderCustomerNotFound
 */
@@ -153,7 +153,7 @@ type GetMoveTaskOrderCustomerNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewGetMoveTaskOrderCustomerNotFound creates GetMoveTaskOrderCustomerNotFound with default headers values
@@ -163,13 +163,13 @@ func NewGetMoveTaskOrderCustomerNotFound() *GetMoveTaskOrderCustomerNotFound {
 }
 
 // WithPayload adds the payload to the get move task order customer not found response
-func (o *GetMoveTaskOrderCustomerNotFound) WithPayload(payload interface{}) *GetMoveTaskOrderCustomerNotFound {
+func (o *GetMoveTaskOrderCustomerNotFound) WithPayload(payload *primemessages.Error) *GetMoveTaskOrderCustomerNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move task order customer not found response
-func (o *GetMoveTaskOrderCustomerNotFound) SetPayload(payload interface{}) {
+func (o *GetMoveTaskOrderCustomerNotFound) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,16 +177,18 @@ func (o *GetMoveTaskOrderCustomerNotFound) SetPayload(payload interface{}) {
 func (o *GetMoveTaskOrderCustomerNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // GetMoveTaskOrderCustomerUnprocessableEntityCode is the HTTP code returned for type GetMoveTaskOrderCustomerUnprocessableEntity
 const GetMoveTaskOrderCustomerUnprocessableEntityCode int = 422
 
-/*GetMoveTaskOrderCustomerUnprocessableEntity The request payload is invalid
+/*GetMoveTaskOrderCustomerUnprocessableEntity The payload was unprocessable.
 
 swagger:response getMoveTaskOrderCustomerUnprocessableEntity
 */
@@ -230,7 +232,7 @@ func (o *GetMoveTaskOrderCustomerUnprocessableEntity) WriteResponse(rw http.Resp
 // GetMoveTaskOrderCustomerInternalServerErrorCode is the HTTP code returned for type GetMoveTaskOrderCustomerInternalServerError
 const GetMoveTaskOrderCustomerInternalServerErrorCode int = 500
 
-/*GetMoveTaskOrderCustomerInternalServerError A server error occurred
+/*GetMoveTaskOrderCustomerInternalServerError A server error occurred.
 
 swagger:response getMoveTaskOrderCustomerInternalServerError
 */
@@ -239,7 +241,7 @@ type GetMoveTaskOrderCustomerInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewGetMoveTaskOrderCustomerInternalServerError creates GetMoveTaskOrderCustomerInternalServerError with default headers values
@@ -249,13 +251,13 @@ func NewGetMoveTaskOrderCustomerInternalServerError() *GetMoveTaskOrderCustomerI
 }
 
 // WithPayload adds the payload to the get move task order customer internal server error response
-func (o *GetMoveTaskOrderCustomerInternalServerError) WithPayload(payload interface{}) *GetMoveTaskOrderCustomerInternalServerError {
+func (o *GetMoveTaskOrderCustomerInternalServerError) WithPayload(payload *primemessages.Error) *GetMoveTaskOrderCustomerInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move task order customer internal server error response
-func (o *GetMoveTaskOrderCustomerInternalServerError) SetPayload(payload interface{}) {
+func (o *GetMoveTaskOrderCustomerInternalServerError) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -263,8 +265,10 @@ func (o *GetMoveTaskOrderCustomerInternalServerError) SetPayload(payload interfa
 func (o *GetMoveTaskOrderCustomerInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemDomesticCrating Describes a domestic crating/uncrating service item subtype of a MTOServiceItem
+// MTOServiceItemDomesticCrating Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
 // swagger:model MTOServiceItemDomesticCrating
 type MTOServiceItemDomesticCrating struct {
 	eTagField string

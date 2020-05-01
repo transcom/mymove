@@ -73,7 +73,7 @@ func NewGetMoveTaskOrderCustomerOK() *GetMoveTaskOrderCustomerOK {
 
 /*GetMoveTaskOrderCustomerOK handles this case with default header values.
 
-Successfully retrieved customer associated with move task order
+Successfully retrieved customer associated with move task order.
 */
 type GetMoveTaskOrderCustomerOK struct {
 	Payload *primemessages.Customer
@@ -106,7 +106,7 @@ func NewGetMoveTaskOrderCustomerUnauthorized() *GetMoveTaskOrderCustomerUnauthor
 
 /*GetMoveTaskOrderCustomerUnauthorized handles this case with default header values.
 
-The request was denied
+The request was unauthorized.
 */
 type GetMoveTaskOrderCustomerUnauthorized struct {
 	Payload interface{}
@@ -137,7 +137,7 @@ func NewGetMoveTaskOrderCustomerForbidden() *GetMoveTaskOrderCustomerForbidden {
 
 /*GetMoveTaskOrderCustomerForbidden handles this case with default header values.
 
-The request was denied
+The client doesn't have permissions to perform the request.
 */
 type GetMoveTaskOrderCustomerForbidden struct {
 	Payload interface{}
@@ -168,24 +168,26 @@ func NewGetMoveTaskOrderCustomerNotFound() *GetMoveTaskOrderCustomerNotFound {
 
 /*GetMoveTaskOrderCustomerNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type GetMoveTaskOrderCustomerNotFound struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *GetMoveTaskOrderCustomerNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/customer][%d] getMoveTaskOrderCustomerNotFound  %+v", 404, o.Payload)
 }
 
-func (o *GetMoveTaskOrderCustomerNotFound) GetPayload() interface{} {
+func (o *GetMoveTaskOrderCustomerNotFound) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderCustomerNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -199,7 +201,7 @@ func NewGetMoveTaskOrderCustomerUnprocessableEntity() *GetMoveTaskOrderCustomerU
 
 /*GetMoveTaskOrderCustomerUnprocessableEntity handles this case with default header values.
 
-The request payload is invalid
+The payload was unprocessable.
 */
 type GetMoveTaskOrderCustomerUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
@@ -232,24 +234,26 @@ func NewGetMoveTaskOrderCustomerInternalServerError() *GetMoveTaskOrderCustomerI
 
 /*GetMoveTaskOrderCustomerInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type GetMoveTaskOrderCustomerInternalServerError struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *GetMoveTaskOrderCustomerInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/customer][%d] getMoveTaskOrderCustomerInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *GetMoveTaskOrderCustomerInternalServerError) GetPayload() interface{} {
+func (o *GetMoveTaskOrderCustomerInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderCustomerInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

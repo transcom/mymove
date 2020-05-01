@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemShuttle Describes a shuttle service item
+// MTOServiceItemShuttle Describes a shuttle service item.
 // swagger:model MTOServiceItemShuttle
 type MTOServiceItemShuttle struct {
 	eTagField string
