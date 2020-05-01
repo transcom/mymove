@@ -1686,6 +1686,10 @@ definitions:
         type: string
       description:
         type: string
+      reason:
+        type: string
+      pickupPostalCode:
+        type: string
       feeType:
         enum:
           - COUNSELING
@@ -1724,6 +1728,8 @@ definitions:
       - reServiceCode
       - reServiceName
       - mtoShipmentID
+      - reason
+      - pickupPostalCode
     type: object
   MTOServiceItems:
     type: array
