@@ -28,7 +28,7 @@
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.5",
     "marked": "^1.0.0",
-    "moment": "^2.22.1",
+    "moment": "^2.25.1",
     "node-sass": "^4.14.0",
     "normalizr": "^3.6.0",
     "path-to-regexp": "^6.1.0",
