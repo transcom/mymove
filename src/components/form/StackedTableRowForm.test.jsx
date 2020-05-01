@@ -5,12 +5,12 @@ import { mount } from 'enzyme';
 import { EditButton, ErrorMessage, Form, StackedTableRowForm } from '.';
 
 describe('StackedTableRowForm', () => {
-  const renderStackedTableRowForm = (submit, reset) => {
+  const renderStackedTableRowForm = (submit, reset, value = 'value') => {
     return mount(
       <table className="table--stacked">
         <tbody>
           <StackedTableRowForm
-            initialValues={{ fieldName: 'value' }}
+            initialValues={{ fieldName: value }}
             validationSchema={Yup.object({
               ordersNumber: Yup.string().max(15, 'Must be 15 characters or less').required('Required'),
             })}
@@ -30,6 +30,13 @@ describe('StackedTableRowForm', () => {
       const component = renderStackedTableRowForm();
       expect(component.html()).toBe(
         '<table class="table--stacked"><tbody><tr><th scope="row" class="label ">Field Name</th><td><span>value</span><button type="button" class="usa-button usa-button--icon usa-button--unstyled float-right" data-testid="button"><span class="icon"><svg>edit.svg</svg></span><span>Edit</span></button></td></tr></tbody></table>',
+      );
+    });
+
+    it('renders a span with nbsp when no value', () => {
+      const component = renderStackedTableRowForm(null, null, null);
+      expect(component.html()).toBe(
+        '<table class="table--stacked"><tbody><tr><th scope="row" class="label ">Field Name</th><td><span>&nbsp;</span><button type="button" class="usa-button usa-button--icon usa-button--unstyled float-right" data-testid="button"><span class="icon"><svg>edit.svg</svg></span><span>Edit</span></button></td></tr></tbody></table>',
       );
     });
 

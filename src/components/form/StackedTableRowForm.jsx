@@ -52,7 +52,7 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
       <ErrorMessage className="display-inline" display={!!errorMsg}>
         {errorMsg}
       </ErrorMessage>
-      {value ? <span>{value}</span> : null}
+      <span>{value || '\u00A0'}</span>
       <EditButton type="button" className="float-right" unstyled onClick={() => setShow(true)} />
     </>
   );
