@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import RequestedServiceItemsTable from './index';
+import RequestedServiceItemsTable from './RequestedServiceItemsTable';
 
 describe('RequestedServiceItemsTable', () => {
   it('show the correct number of service items in the table', () => {
