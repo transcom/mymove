@@ -30,7 +30,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 
-	//"github.com/gomodule/redigo/redis"
+	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -317,29 +317,40 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 	}
 }
 
-// func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]interface{}) map[string]interface{} {
-// 	logger.Info("redisHealthCheck called")
-// 	conn := pool.Get()
-// 	defer conn.Close()
+func panicOnError(err error, msg string) {
+	if err != nil {
+		log.Fatalf("%v: %v", msg, err)
+		panic(fmt.Sprintf("%v: %v", msg, err))
+	}
+}
 
-// 	logger.Info("attempting to fetch a key from Redis")
-// 	fetchKey, fetchErr := conn.Do("GET", "scs:session:foo")
-// 	if fetchErr != nil {
-// 		logger.Error("failed to fetch redis key", zap.Error(fetchErr))
-// 	}
+func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]interface{}) map[string]interface{} {
+	logger.Info("redisHealthCheck called")
+	conn := pool.Get()
+	defer conn.Close()
 
-// 	_, redisErr := redis.Bytes(fetchKey, fetchErr)
-// 	logger.Info(fmt.Sprintf("redisErr is: %s", redisErr))
-// 	if redisErr == redis.ErrNil {
-// 		logger.Info("key not found in Redis")
-// 		redisErr = nil
-// 	} else if redisErr != nil {
-// 		logger.Error("Failed Redis health check", zap.Error(redisErr))
-// 	}
-// 	data["redis"] = redisErr == nil
-// 	logger.Info(fmt.Sprintf("health check data is: %s", data))
-// 	return data
-// }
+	pong, err := redis.String(conn.Do("PING"))
+	panicOnError(err, "Cannot ping Redis")
+	logger.Info("Redis Ping", zap.String("pong", pong))
+
+	// logger.Info("attempting to fetch a key from Redis")
+	// fetchKey, fetchErr := conn.Do("GET", "scs:session:foo")
+	// if fetchErr != nil {
+	// 	logger.Error("failed to fetch redis key", zap.Error(fetchErr))
+	// }
+
+	// _, redisErr := redis.Bytes(fetchKey, fetchErr)
+	// logger.Info(fmt.Sprintf("redisErr is: %s", redisErr))
+	// if redisErr == redis.ErrNil {
+	// 	logger.Info("key not found in Redis")
+	// 	redisErr = nil
+	// } else if redisErr != nil {
+	// 	logger.Error("Failed Redis health check", zap.Error(redisErr))
+	// }
+	data["redis"] = err == nil
+	logger.Info(fmt.Sprintf("health check data is: %s", data))
+	return data
+}
 
 func serveFunction(cmd *cobra.Command, args []string) error {
 
@@ -714,11 +725,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			}
 			data["database"] = dbErr == nil
 			logger.Info(fmt.Sprintf("data after DB health check: %s", data))
-			// enabled := v.GetBool(cli.RedisEnabledFlag)
-			// if enabled {
-			// 	logger.Info("REDIS_ENABLED flag is true, so proceeding with Redis health check")
-			// 	data = redisHealthCheck(redisPool, logger, data)
-			// }
+			enabled := v.GetBool(cli.RedisEnabledFlag)
+			if enabled {
+				logger.Info("REDIS_ENABLED flag is true, so proceeding with Redis health check")
+				data = redisHealthCheck(redisPool, logger, data)
+			}
 		}
 		logger.Info(fmt.Sprintf("data after all health checks: %s", data))
 		newEncoderErr := json.NewEncoder(w).Encode(data)

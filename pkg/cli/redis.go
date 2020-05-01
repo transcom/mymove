@@ -2,11 +2,12 @@ package cli
 
 import (
 	"fmt"
-	"net/url"
+	//"net/url"
 	"regexp"
 	"strconv"
-	"strings"
-	"time"
+
+	//"strings"
+	//"time"
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/pkg/errors"
@@ -85,17 +86,16 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	redisPassword := v.GetString(RedisPasswordFlag)
 	redisHost := v.GetString(RedisHostFlag)
 	redisPort := strconv.Itoa(v.GetInt(RedisPortFlag))
-	redisDBName := v.GetString(RedisDBNameFlag)
-	redisConnectTimeout := v.GetInt(RedisConnectTimeoutFlag)
-	timeoutDuration := time.Duration(redisConnectTimeout) * time.Second
+	redisDBName := v.GetInt(RedisDBNameFlag)
+	//redisConnectTimeout := v.GetInt(RedisConnectTimeoutFlag)
+	//timeoutDuration := time.Duration(redisConnectTimeout) * time.Second
 
-	redisURITemplate := "redis://%s@%s:%s/%s"
-	//redisURL := fmt.Sprintf(redisURITemplate, redisUser, redisPassword, redisHost, redisPort, redisDBName)
-	redisURL := fmt.Sprintf(redisURITemplate, redisPassword, redisHost, redisPort, redisDBName)
+	redisURITemplate := "%s:%s"
+	redisURL := fmt.Sprintf(redisURITemplate, redisHost, redisPort)
 
-	if err := testRedisConnection(redisURL, logger, timeoutDuration); err != nil {
-		return nil, err
-	}
+	// if err := testRedisConnection(redisURL, logger, timeoutDuration); err != nil {
+	// 	return nil, err
+	// }
 
 	if err := logRedisConnection(redisURL, logger); err != nil {
 		return nil, err
@@ -104,18 +104,37 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	pool := &redis.Pool{
 		MaxIdle: 10,
 		Dial: func() (redis.Conn, error) {
-			connection, err := redis.DialURL(redisURL, redis.DialConnectTimeout(timeoutDuration))
+			connection, err := redis.Dial(
+				"tcp",
+				redisURL,
+				redis.DialDatabase(redisDBName),
+				redis.DialPassword(redisPassword),
+			)
 			if err != nil {
 				return nil, err
 			}
-			return connection, nil
+			// if redisPassword != "" {
+			// 	logger.Info("redis password is not empty")
+			// 	if _, err := connection.Do("AUTH", redisPassword); err != nil {
+			// 		connection.Close()
+			// 		return nil, err
+			// 	}
+			// }
+			return connection, err
 		},
+		// Dial: func() (redis.Conn, error) {
+		// 	connection, err := redis.DialURL(redisURL, redis.DialConnectTimeout(timeoutDuration))
+		// 	if err != nil {
+		// 		return nil, err
+		// 	}
+		// 	return connection, nil
+		// },
 	}
 
 	return pool, nil
 }
 
-// ValidateRedisHost validates the REDIS_HOST environment variable in prd
+// ValidateRedisHost validates the REDIS_HOST environment variable in prod
 func ValidateRedisHost(v *viper.Viper, flagname string) error {
 	r := regexp.MustCompile(`([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}`)
 
@@ -131,37 +150,31 @@ func ValidateRedisHost(v *viper.Viper, flagname string) error {
 func ValidateRedisConnectTimeout(v *viper.Viper, flagname string) error {
 	timeout := v.GetInt(flagname)
 
-	if timeout < 1 || timeout > 240 {
+	if timeout < 1 || timeout > 10 {
 		return errors.Errorf("%s should be between 1 and 5 seconds", flagname)
 	}
 
 	return nil
 }
 
-func testRedisConnection(redisURL string, logger Logger, timeout time.Duration) error {
-	_, err := redis.DialURL(redisURL, redis.DialConnectTimeout(timeout))
-	if err != nil {
-		errorString := fmt.Sprintf("Failed to connect to Redis after %s", timeout)
-		logger.Error(errorString, zap.Error(err))
-		return err
-	}
+// func testRedisConnection(redisURL string, logger Logger, timeout time.Duration) error {
+// 	_, err := redis.DialURL(redisURL, redis.DialConnectTimeout(timeout))
+// 	if err != nil {
+// 		errorString := fmt.Sprintf("Failed to connect to Redis after %s", timeout)
+// 		logger.Error(errorString, zap.Error(err))
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func logRedisConnection(redisURL string, logger Logger) error {
-	parsedURL, err := url.Parse(redisURL)
-	if err != nil {
-		return errors.Errorf("%s is an invalid redis URL", redisURL)
-	}
-	password, _ := parsedURL.User.Password()
-	var maskedURL string
-	if password != "" {
-		maskedURL = strings.Replace(redisURL, password, "*****", 1)
-	} else {
-		maskedURL = redisURL
-	}
-	logger.Info("Connecting to Redis", zap.String("url", maskedURL))
+	// parsedURL, err := url.Parse(redisURL)
+	// if err != nil {
+	// 	return errors.Errorf("%s is an invalid redis URL", redisURL)
+	// }
+
+	logger.Info("Connecting to Redis", zap.String("url", redisURL))
 
 	return nil
 }
