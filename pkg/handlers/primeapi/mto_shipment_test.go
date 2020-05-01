@@ -82,6 +82,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			ShipmentType:        primemessages.MTOShipmentTypeHHG,
 		},
 	}
+
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)

@@ -99,7 +99,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		shipment.Status = models.MTOShipmentStatusSubmitted
 
 		// create a shipment
-		verrs, err = txBuilder.CreateOne(&shipment)
+		verrs, err = txBuilder.CreateOne(shipment)
+
 		if verrs != nil || err != nil {
 			return fmt.Errorf("failed to create shipment %s %e", verrs.Error(), err)
 		}
