@@ -62,7 +62,7 @@ for the get move task order customer operation typically these are written to a 
 type GetMoveTaskOrderCustomerParams struct {
 
 	/*MoveTaskOrderID
-	  ID of move order to use
+	  ID of move order to use.
 
 	*/
 	MoveTaskOrderID string
