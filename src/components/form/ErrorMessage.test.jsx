@@ -34,4 +34,11 @@ describe('ErrorMessage', () => {
       expect(wrapper.find(UswdsErrorMessage).length).toBe(0);
     });
   });
+  describe('with no error message text', () => {
+    it('should NOT render the USWDS ErrorMessage', () => {
+      const wrapper = shallow(<ErrorMessage display className="sample-class" />);
+
+      expect(wrapper.find(UswdsErrorMessage).length).toBe(0);
+    });
+  });
 });
