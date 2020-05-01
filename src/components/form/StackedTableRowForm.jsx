@@ -58,7 +58,7 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
   );
   /* eslint-enable react/jsx-props-no-spreading */
   return (
-    <tr>
+    <tr className={cx('stacked-table-row')}>
       <th scope="row" className={`${cx('label')} ${classNames({ error: errorMsg })}`}>
         {label}
       </th>

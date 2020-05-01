@@ -15,3 +15,9 @@
     }
   }
 }
+
+.stacked-table-row {
+  :global .usa-button--unstyled {
+    @include u-margin-top('2px');
+  }
+}
