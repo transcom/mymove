@@ -102,6 +102,7 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	}
 
 	pool := &redis.Pool{
+		MaxIdle: 10,
 		Dial: func() (redis.Conn, error) {
 			connection, err := redis.DialURL(redisURL, redis.DialConnectTimeout(timeoutDuration))
 			if err != nil {
