@@ -165,3 +165,9 @@
     height: 23px;
   }
 }
+
+//Alerts
+
+.usa-alert__heading {
+  @include u-text('bold');
+}
