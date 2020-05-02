@@ -158,12 +158,17 @@ func displayPaymentRequestServiceItemParams(si models.PaymentServiceItem, tx *po
 		fmt.Println(string(s))
 	}
 
+	var num int
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("\nPress <0> to display Payment Request: ")
 	text, _ := reader.ReadString('\n')
 	text = strings.TrimSpace(text)
-	num, err := strconv.Atoi(text)
+	num, err = strconv.Atoi(text)
 	fmt.Println(text)
+
+	if err != nil {
+		return 0, err
+	}
 
 	return num, nil
 }
@@ -247,7 +252,7 @@ func reviewPaymentRequest(cmd *cobra.Command, args []string) error {
 
 	for cont := true; cont; cont, _, err = displayPaymentRequest(existingPaymentRequest, prServiceItems, db) {
 		if err != nil {
-			return fmt.Errorf("failed to display payment request with ID %w: %s", paymentRequestID, err)
+			return fmt.Errorf("failed to display payment request with ID %s %w: ", paymentRequestID, err)
 		}
 	}
 
