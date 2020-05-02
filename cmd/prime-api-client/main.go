@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
 	"github.com/transcom/mymove/pkg/cli"
 )
 
@@ -142,6 +141,16 @@ func main() {
 	}
 	initCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
 	root.AddCommand(createPaymentRequestUploadCommand)
+
+	reviewPaymentRequestCommand := &cobra.Command{
+		Use:          "review-payment-request",
+		Short:        "Review payment request",
+		Long:         "Review payment request",
+		RunE:         reviewPaymentRequest,
+		SilenceUsage: true,
+	}
+	initReviewPaymentRequestFlags(reviewPaymentRequestCommand.Flags())
+	root.AddCommand(reviewPaymentRequestCommand)
 
 	patchMTOShipmentStatusCommand := &cobra.Command{
 		Use:          "support-patch-mto-shipment-status",
