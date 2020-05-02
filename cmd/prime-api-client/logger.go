@@ -11,4 +11,3 @@ type logger interface {
 	Warn(msg string, fields ...zap.Field)
 	Fatal(msg string, fields ...zap.Field)
 }
-

@@ -173,7 +173,6 @@ func displayPaymentRequestServiceItemParams(si models.PaymentServiceItem, tx *po
 	return num, nil
 }
 
-
 // reviewPaymentRequest reviews the payment request for an MTO
 func reviewPaymentRequest(cmd *cobra.Command, args []string) error {
 	v := viper.New()
