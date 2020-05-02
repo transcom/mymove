@@ -317,38 +317,18 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 	}
 }
 
-func panicOnError(err error, msg string) {
-	if err != nil {
-		log.Fatalf("%v: %v", msg, err)
-		panic(fmt.Sprintf("%v: %v", msg, err))
-	}
-}
-
 func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]interface{}) map[string]interface{} {
-	logger.Info("redisHealthCheck called")
 	conn := pool.Get()
 	defer conn.Close()
 
 	pong, err := redis.String(conn.Do("PING"))
-	panicOnError(err, "Cannot ping Redis")
-	logger.Info("Redis Ping", zap.String("pong", pong))
+	if err != nil {
+		logger.Error("Failed to ping Redis during health check", zap.Error(err))
+	}
+	logger.Info("Health check Redis ping", zap.String("ping_response", pong))
 
-	// logger.Info("attempting to fetch a key from Redis")
-	// fetchKey, fetchErr := conn.Do("GET", "scs:session:foo")
-	// if fetchErr != nil {
-	// 	logger.Error("failed to fetch redis key", zap.Error(fetchErr))
-	// }
-
-	// _, redisErr := redis.Bytes(fetchKey, fetchErr)
-	// logger.Info(fmt.Sprintf("redisErr is: %s", redisErr))
-	// if redisErr == redis.ErrNil {
-	// 	logger.Info("key not found in Redis")
-	// 	redisErr = nil
-	// } else if redisErr != nil {
-	// 	logger.Error("Failed Redis health check", zap.Error(redisErr))
-	// }
 	data["redis"] = err == nil
-	logger.Info(fmt.Sprintf("health check data is: %s", data))
+
 	return data
 }
 
@@ -709,7 +689,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			"gitBranch": gitBranch,
 			"gitCommit": gitCommit,
 		}
-		logger.Info("starting DB and Redis health checks")
 		// Check and see if we should disable DB query with '?database=false'
 		// Disabling the DB is useful for Route53 health checks which require the TLS
 		// handshake be less than 4 seconds and the status code return in less than
@@ -724,14 +703,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 				logger.Error("Failed database health check", zap.Error(dbErr))
 			}
 			data["database"] = dbErr == nil
-			logger.Info(fmt.Sprintf("data after DB health check: %s", data))
 			enabled := v.GetBool(cli.RedisEnabledFlag)
 			if enabled {
-				logger.Info("REDIS_ENABLED flag is true, so proceeding with Redis health check")
 				data = redisHealthCheck(redisPool, logger, data)
 			}
 		}
-		logger.Info(fmt.Sprintf("data after all health checks: %s", data))
 		newEncoderErr := json.NewEncoder(w).Encode(data)
 		if newEncoderErr != nil {
 			logger.Error("Failed encoding health check response", zap.Error(newEncoderErr))
