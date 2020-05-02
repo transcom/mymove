@@ -1,13 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -15,7 +13,6 @@ import (
 	"github.com/spf13/viper"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/gen/supportclient/mto_service_item"
-	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 func initUpdateMTOServiceItemStatusFlags(flag *pflag.FlagSet) {
@@ -55,55 +52,32 @@ func updateMTOServiceItemStatus(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
+	// Decode json from file that was passed into MTO Service item
+	filename := v.GetString(FilenameFlag)
+	var updateServiceItemParams mtoserviceitem.UpdateMTOServiceItemStatusParams
+	err = decodeJSONFileToPayload(filename, containsDash(args), &updateServiceItemParams)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	updateServiceItemParams.SetTimeout(time.Second * 30)
+
+	// Create the client and open the cacStore
 	supportGateway, cacStore, errCreateClient := CreateSupportClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
-
 	// Defer closing the store until after the API call has completed
 	if cacStore != nil {
 		defer cacStore.Close()
 	}
 
-	// Decode json from file that was passed into MTO Service item
-	filename := v.GetString(FilenameFlag)
-	var reader *bufio.Reader
-	if filename != "" {
-		file, fileErr := os.Open(filepath.Clean(filename))
-		if fileErr != nil {
-			logger.Fatal(fileErr)
-		}
-		reader = bufio.NewReader(file)
-	}
-
-	if len(args) > 0 && containsDash(args) {
-		reader = bufio.NewReader(os.Stdin)
-	}
-
-	jsonDecoder := json.NewDecoder(reader)
-	var serviceItem supportmessages.UpdateMTOServiceItemStatus
-	err = jsonDecoder.Decode(&serviceItem)
+	// Make the API Call
+	resp, err := supportGateway.MtoServiceItem.UpdateMTOServiceItemStatus(&updateServiceItemParams)
 	if err != nil {
-		return fmt.Errorf("decoding data failed: %w", err)
+		return handleGatewayError(err, logger)
 	}
 
-	params := mtoserviceitem.UpdateMTOServiceItemStatusParams{
-		MtoServiceItemID: serviceItem.ID.String(),
-		Body:             &serviceItem,
-		IfMatch:          v.GetString(ETagFlag),
-	}
-
-	params.SetTimeout(time.Second * 30)
-
-	resp, errUpdateMTOServiceItemStatus := supportGateway.MtoServiceItem.UpdateMTOServiceItemStatus(&params)
-	if errUpdateMTOServiceItemStatus != nil {
-		// If the response cannot be parsed as JSON you may see an error like
-		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
-		// Likely this is because the API doesn't return JSON response for BadRequest OR
-		// The response type is not being set to text
-		logger.Fatal(errUpdateMTOServiceItemStatus.Error())
-	}
-
+	// Get the successful response payload and convert to json for output
 	payload := resp.GetPayload()
 	if payload != nil {
 		payload, errJSONMarshall := json.Marshal(payload)

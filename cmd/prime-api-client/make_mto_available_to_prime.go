@@ -72,8 +72,8 @@ func updateMTOStatus(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	resp, errUpdateMTOStatus := supportGateway.MoveTaskOrder.UpdateMoveTaskOrderStatus(&updateMTOParams)
-	if errUpdateMTOStatus != nil {
+	resp, err := supportGateway.MoveTaskOrder.UpdateMoveTaskOrderStatus(&updateMTOParams)
+	if err != nil {
 		return handleGatewayError(err, logger)
 	}
 

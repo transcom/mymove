@@ -153,10 +153,11 @@ func main() {
 		Short: "Make mto available to prime",
 		Long: `
   This command makes an MTO available for prime consumption.
+  This is a support endpoint and is not available in production.
   It requires the caller to pass in a file using the --filename arg.
   The file should contain path parameters and headers.
 
-  Endpoint path: /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items
+  Endpoint path: /move-task-orders/{moveTaskOrderID}/status
   The file should contain json as follows:
   	{
   	"moveTaskOrderID": <uuid string>,
@@ -170,9 +171,22 @@ func main() {
 	root.AddCommand(makeAvailableToPrimeCommand)
 
 	updatePaymentRequestStatusCommand := &cobra.Command{
-		Use:          "support-update-payment-request-status",
-		Short:        "Update payment request status for prime",
-		Long:         "Allows prime to update payment request status in non-prod envs",
+		Use:   "support-update-payment-request-status",
+		Short: "Update payment request status for prime",
+		Long: `
+  This command allows prime to update payment request status.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and headers.
+
+  Endpoint path: /payment-requests/{paymentRequestID}/status
+  The file should contain json as follows:
+    {
+      "paymentRequestID": <uuid string>,
+      "ifMatch": <etag>,
+      "body" : <paymentRequestStatus>
+    }
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         updatePaymentRequestStatus,
 		SilenceUsage: true,
 	}
@@ -184,8 +198,10 @@ func main() {
 		Short: "Get an individual mto",
 		Long: `
   This command gets a single move task order by ID
+  This is a support endpoint and is not available in production.
   It requires the caller to pass in a file using the --filename arg.
   The file should contain path parameters and headers.
+
   Endpoint path: /move-task-orders/{moveTaskOrderID}
   The file should contain json as follows:
   	{
@@ -199,9 +215,22 @@ func main() {
 	root.AddCommand(getMoveTaskOrder)
 
 	updateMTOServiceItemStatus := &cobra.Command{
-		Use:          "support-update-mto-service-item-status",
-		Short:        "Update service item status",
-		Long:         "Approve or reject a service item",
+		Use:   "support-update-mto-service-item-status",
+		Short: "Update service item status",
+		Long: `
+  This command allows prime to update the MTO service item status.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain a body defining the request body.
+
+  Endpoint path: service-items/{mtoServiceItemID}/status
+    {
+      "mtoServiceItemID": <uuid string>,
+      "ifMatch": <etag>,
+      "body": {
+        "status": "APPROVED"
+    }
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         updateMTOServiceItemStatus,
 		SilenceUsage: true,
 	}
@@ -228,9 +257,22 @@ func main() {
 	root.AddCommand(createPaymentRequestCommand)
 
 	patchMTOShipmentStatusCommand := &cobra.Command{
-		Use:          "support-patch-mto-shipment-status",
-		Short:        "Update MTO shipment status for prime",
-		Long:         "Allows prime to update MTO shipment status in non-prod envs",
+		Use:   "support-patch-mto-shipment-status",
+		Short: "Update MTO shipment status for prime",
+		Long: `
+  This command allows prime to update the MTO shipment status.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain a body defining the request body.
+
+  Endpoint path: /mto-shipments/{mtoShipmentID}/status
+  The file should contain json as follows:
+    {
+      "mtoShipmentID": <uuid string>,
+      "ifMatch": <etag>,
+      "body": <MtoShipmentRequestStatus>,
+    }
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         patchMTOShipmentStatus,
 		SilenceUsage: true,
 	}
