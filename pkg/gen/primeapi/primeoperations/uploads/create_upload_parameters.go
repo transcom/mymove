@@ -33,12 +33,12 @@ type CreateUploadParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*The file to upload
+	/*The file to upload.
 	  Required: true
 	  In: formData
 	*/
 	File io.ReadCloser
-	/*ID of payment request to use
+	/*UUID of payment request to use.
 	  Required: true
 	  In: path
 	*/

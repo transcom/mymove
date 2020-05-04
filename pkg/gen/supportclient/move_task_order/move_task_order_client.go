@@ -38,7 +38,8 @@ It will currently create
 * User
 * Entitlement
 
-It will not create addresses or duty stations.
+It will not create addresses or duty stations. <br />
+<br />
 This is a support endpoint and will not be available in production.
 
 */
@@ -76,7 +77,10 @@ func (a *Client) CreateMoveTaskOrder(params *CreateMoveTaskOrderParams) (*Create
 /*
 GetMoveTaskOrder gets a move task order by ID
 
-Gets an individual move task order
+Gets an individual move task order by ID. <br />
+<br />
+This is a support endpoint and will not be available in production.
+
 */
 func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error) {
 	// TODO: Validate the params before sending
@@ -110,9 +114,12 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 }
 
 /*
-UpdateMoveTaskOrderStatus changes the status of a move task order to make it available to prime
+UpdateMoveTaskOrderStatus updates the status of a move task order to make it available to prime
 
-Changes move task order status to make it available to prime
+Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. <br />
+<br />
+This is a support endpoint and will not be available in production.
+
 */
 func (a *Client) UpdateMoveTaskOrderStatus(params *UpdateMoveTaskOrderStatusParams) (*UpdateMoveTaskOrderStatusOK, error) {
 	// TODO: Validate the params before sending
