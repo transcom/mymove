@@ -65,9 +65,15 @@ type CreateMTOServiceItemParams struct {
 
 	/*Body*/
 	Body primemessages.MTOServiceItem
-	/*MoveTaskOrderID*/
+	/*MoveTaskOrderID
+	  UUID of Move Task Order to use.
+
+	*/
 	MoveTaskOrderID strfmt.UUID
-	/*MtoShipmentID*/
+	/*MtoShipmentID
+	  UUID of MTO Shipment to use.
+
+	*/
 	MtoShipmentID strfmt.UUID
 
 	timeout    time.Duration
