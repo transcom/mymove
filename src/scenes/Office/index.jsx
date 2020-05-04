@@ -16,6 +16,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import QueueHeader from 'shared/Header/Office';
+import Authorization from 'shared/User/Authorization';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import './office.scss';
@@ -164,7 +165,13 @@ export class OfficeWrapper extends Component {
                 )}
                 <Suspense fallback={<LoadingPlaceholder />}>
                   <Switch>
-                    {too && <PrivateRoute path="/too/customer-moves" exact component={TOO} />}
+                    {too && (
+                      <PrivateRoute
+                        path="/too/customer-moves"
+                        exact
+                        component={Authorization(TOO, 'transportation_ordering_officer')}
+                      />
+                    )}
                     {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOMoveTaskOrder} />}
                     {too && <PrivateRoute path="/moves/:moveId" exact component={MoveDetails} />}
                     {too && (
