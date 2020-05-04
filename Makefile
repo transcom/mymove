@@ -190,9 +190,6 @@ admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 
 ### Go Tool Targets
 
-bin/gin: .check_go_version.stamp .check_gopath.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
-
 bin/soda: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
 
@@ -295,40 +292,28 @@ pkg/gen/: pkg/assets/assets.go $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 
 .PHONY: server_build
-server_build: bin/milmove ## Build the server
+server_build: bin/milmove ## Build the golang server
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
 server_run_standalone: check_log_dir server_build client_build db_dev_run
 	DEBUG_LOGGING=true ./bin/milmove serve 2>&1 | tee -a log/dev.log
 
-# This command will rebuild the swagger go code and rerun server on any changes
-server_run:
+server_run: ## run the golang server and rebuild when golang or swagger files change
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
-# This command runs the server behind gin, a hot-reload server
-# Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
-# Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run
-	INTERFACE=localhost DEBUG_LOGGING=true \
-	$(AWS_VAULT) ./bin/gin \
-		--build ./cmd/milmove \
-		--bin /bin/milmove_gin \
-		--laddr 127.0.0.1 --port "$(GIN_PORT)" \
-		--excludeDir node_modules \
-		--immediate \
-		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
-		serve \
-		2>&1 | tee -a log/dev.log
+
+.PHONY: server_run_default
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## run the golang server and rebuild when golang files change
+	@nodemon --exec "go build -i -o ./bin/milmove_air ./cmd/milmove && ./bin/milmove_air serve" | tee -a log/dev.log
 
 .PHONY: server_run_debug
-server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## Debug the server
+server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## run the server with debugging available
 	scripts/kill-process-on-port 8080
 	scripts/kill-process-on-port 9443
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
-build_tools: bin/gin \
-	bin/mockery \
+build_tools: bin/mockery \
 	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
@@ -622,7 +607,7 @@ db_test_psql: ## Open PostgreSQL shell for Test DB
 #
 
 .PHONY: e2e_test
-e2e_test: bin/gin server_generate server_build client_build db_e2e_init ## Run e2e (end-to-end) integration tests
+e2e_test: server_generate server_build client_build db_e2e_init ## Run e2e (end-to-end) integration tests
 	$(AWS_VAULT) ./scripts/run-e2e-test
 
 .PHONY: e2e_mtls_test_docker

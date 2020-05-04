@@ -107,6 +107,7 @@
     "loki": "^0.20.3",
     "mime-types": "^2.1.27",
     "mockdate": "^2.0.2",
+    "nodemon": "2.0.3",
     "prettier": "=2.0.5"
   },
   "browserslist": [

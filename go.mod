@@ -3,13 +3,10 @@ module github.com/transcom/mymove
 go 1.14
 
 require (
-	github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.5
 	github.com/aws/aws-sdk-go v1.30.18
 	github.com/cockroachdb/cockroach-go v0.0.0-20200411195601-6f5842749cfc // indirect
-	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
-	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.2
 	github.com/dustin/go-humanize v1.0.0
@@ -47,7 +44,6 @@ require (
 	github.com/leodido/go-urn v1.2.0
 	github.com/lib/pq v1.4.0
 	github.com/markbates/goth v1.64.0
-	github.com/mattn/go-shellwords v1.0.6 // indirect
 	github.com/mitchellh/mapstructure v1.3.0
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
@@ -73,7 +69,6 @@ require (
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
-	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 	pault.ag/go/pksigner v1.0.2
 )
 
