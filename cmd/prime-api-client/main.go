@@ -163,6 +163,16 @@ func main() {
 	initCreatePaymentRequestFlags(createPaymentRequestCommand.Flags())
 	root.AddCommand(createPaymentRequestCommand)
 
+	createPaymentRequestUploadCommand := &cobra.Command{
+		Use:          "create-payment-request-upload",
+		Short:        "Create payment request upload",
+		Long:         "Create payment request upload for a payment request",
+		RunE:         createPaymentRequestUpload,
+		SilenceUsage: true,
+	}
+	initCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
+	root.AddCommand(createPaymentRequestUploadCommand)
+
 	patchMTOShipmentStatusCommand := &cobra.Command{
 		Use:          "support-patch-mto-shipment-status",
 		Short:        "Update MTO shipment status for prime",

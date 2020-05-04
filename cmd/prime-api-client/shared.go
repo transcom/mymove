@@ -5,6 +5,8 @@ const (
 	FilenameFlag string = "filename"
 	// ETagFlag is the etag for the mto shipment being updated
 	ETagFlag string = "etag"
+	// PaymentRequestID is the ID of payment request to use
+	PaymentRequestID string = "paymentRequestID"
 )
 
 func containsDash(args []string) bool {
