@@ -73,8 +73,8 @@ func getMTO(cmd *cobra.Command, args []string) error {
 	}
 	getMTOParams.SetTimeout(time.Second * 30)
 
-	resp, errGetMTO := supportGateway.MoveTaskOrder.GetMoveTaskOrder(&getMTOParams)
-	if errGetMTO != nil {
+	resp, err := supportGateway.MoveTaskOrder.GetMoveTaskOrder(&getMTOParams)
+	if err != nil {
 		return handleGatewayError(err, logger)
 	}
 

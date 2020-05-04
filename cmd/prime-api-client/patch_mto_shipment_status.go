@@ -71,8 +71,8 @@ func patchMTOShipmentStatus(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	resp, errPatchMTOShipmentStatus := supportGateway.MtoShipment.PatchMTOShipmentStatus(&patchMTOShipmentParams)
-	if errPatchMTOShipmentStatus != nil {
+	resp, err := supportGateway.MtoShipment.PatchMTOShipmentStatus(&patchMTOShipmentParams)
+	if err != nil {
 		return handleGatewayError(err, logger)
 	}
 

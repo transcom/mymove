@@ -75,8 +75,8 @@ func createPaymentRequest(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	resp, errCreatePaymentRequest := primeGateway.PaymentRequests.CreatePaymentRequest(&paymentRequestParams)
-	if errCreatePaymentRequest != nil {
+	resp, err := primeGateway.PaymentRequests.CreatePaymentRequest(&paymentRequestParams)
+	if err != nil {
 		return handleGatewayError(err, logger)
 	}
 
