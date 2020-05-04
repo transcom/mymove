@@ -74,9 +74,18 @@ func main() {
 	root.AddCommand(fetchMTOsCommand)
 
 	createMTOCommand := &cobra.Command{
-		Use:          "support-create-mto",
-		Short:        "fetch mtos",
-		Long:         "fetch move task orders",
+		Use:   "support-create-mto",
+		Short: "Create a MoveTaskOrder",
+		Long: `
+  This command creates a MoveTaskOrder object.
+  It requires the caller to pass in a file using the --filename param.
+
+  Endpoint path: /move-task-orders
+  The file should contain json as follows:
+    {
+      "body": <MoveTaskOrder>
+    }
+  Please see API documentation for full details on the MoveTaskOrder definition.`,
 		RunE:         createMTO,
 		SilenceUsage: true,
 	}
@@ -84,9 +93,22 @@ func main() {
 	root.AddCommand(createMTOCommand)
 
 	updateMTOShipmentCommand := &cobra.Command{
-		Use:          "update-mto-shipment",
-		Short:        "update mto shipment",
-		Long:         "update move task order shipment",
+		Use:   "update-mto-shipment",
+		Short: "update mto shipment",
+		Long: `
+  This command updates an MTO shipment.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters, headers and a body for the payload.
+
+  Endpoint path: move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}
+  The file should contain json as follows:
+  	{
+      "moveTaskOrderID": <uuid string>,
+      "mtoShipmentID": <uuid string>,
+      "ifMatch": <eTag>,
+      "body": <MTOShipment>
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         updateMTOShipment,
 		SilenceUsage: true,
 	}
@@ -104,9 +126,22 @@ func main() {
 	root.AddCommand(updatePostCounselingInfo)
 
 	createMTOServiceItemCommand := &cobra.Command{
-		Use:          "create-mto-service-item",
-		Short:        "Create mto service item",
-		Long:         "Create move task order service item for move task order and/or shipment",
+		Use:   "create-mto-service-item",
+		Short: "Create mto service item",
+		Long: `
+  This command creates an MTO service item on an MTO shipment.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and headers and a body for the payload.
+
+  Endpoint path: /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items
+  The file should contain json as follows:
+  	{
+  	"moveTaskOrderID": <uuid string>,
+  	"mtoShipmentID": <uuid string>,
+  	"ifMatch": <eTag>,
+  	"body": <MTOServiceItem>
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         createMTOServiceItem,
 		SilenceUsage: true,
 	}
@@ -114,9 +149,21 @@ func main() {
 	root.AddCommand(createMTOServiceItemCommand)
 
 	makeAvailableToPrimeCommand := &cobra.Command{
-		Use:          "support-make-mto-available-to-prime",
-		Short:        "Make mto available to prime",
-		Long:         "Makes an mto available to the prime for prime-api consumption",
+		Use:   "support-make-mto-available-to-prime",
+		Short: "Make mto available to prime",
+		Long: `
+  This command makes an MTO available for prime consumption.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and headers.
+
+  Endpoint path: /move-task-orders/{moveTaskOrderID}/status
+  The file should contain json as follows:
+  	{
+  	"moveTaskOrderID": <uuid string>,
+  	"ifMatch": <eTag>,
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         updateMTOStatus,
 		SilenceUsage: true,
 	}
@@ -124,9 +171,22 @@ func main() {
 	root.AddCommand(makeAvailableToPrimeCommand)
 
 	updatePaymentRequestStatusCommand := &cobra.Command{
-		Use:          "support-update-payment-request-status",
-		Short:        "Update payment request status for prime",
-		Long:         "Allows prime to update payment request status in non-prod envs",
+		Use:   "support-update-payment-request-status",
+		Short: "Update payment request status for prime",
+		Long: `
+  This command allows prime to update payment request status.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and headers.
+
+  Endpoint path: /payment-requests/{paymentRequestID}/status
+  The file should contain json as follows:
+    {
+      "paymentRequestID": <uuid string>,
+      "ifMatch": <etag>,
+      "body" : <paymentRequestStatus>
+    }
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         updatePaymentRequestStatus,
 		SilenceUsage: true,
 	}
@@ -134,9 +194,20 @@ func main() {
 	root.AddCommand(updatePaymentRequestStatusCommand)
 
 	getMoveTaskOrder := &cobra.Command{
-		Use:          "support-get-mto",
-		Short:        "Get an individual mto",
-		Long:         "Get an individual mto's information",
+		Use:   "support-get-mto",
+		Short: "Get an individual mto",
+		Long: `
+  This command gets a single move task order by ID
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and headers.
+
+  Endpoint path: /move-task-orders/{moveTaskOrderID}
+  The file should contain json as follows:
+  	{
+  	"moveTaskOrderID": <uuid string>,
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         getMTO,
 		SilenceUsage: true,
 	}
@@ -144,9 +215,22 @@ func main() {
 	root.AddCommand(getMoveTaskOrder)
 
 	updateMTOServiceItemStatus := &cobra.Command{
-		Use:          "support-update-mto-service-item-status",
-		Short:        "Update service item status",
-		Long:         "Approve or reject a service item",
+		Use:   "support-update-mto-service-item-status",
+		Short: "Update service item status",
+		Long: `
+  This command allows prime to update the MTO service item status.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain a body defining the request body.
+
+  Endpoint path: service-items/{mtoServiceItemID}/status
+    {
+      "mtoServiceItemID": <uuid string>,
+      "ifMatch": <etag>,
+      "body": {
+        "status": "APPROVED"
+    }
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         updateMTOServiceItemStatus,
 		SilenceUsage: true,
 	}
@@ -154,9 +238,18 @@ func main() {
 	root.AddCommand(updateMTOServiceItemStatus)
 
 	createPaymentRequestCommand := &cobra.Command{
-		Use:          "create-payment-request",
-		Short:        "Create payment request",
-		Long:         "Create payment request for a move task order",
+		Use:   "create-payment-request",
+		Short: "Create payment request",
+		Long: `
+  This command gets a single move task order by ID
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain a body defining the PaymentRequest object.
+  Endpoint path: /payment-requests
+  The file should contain json as follows:
+  	{
+  	"body": <PaymentRequest>,
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         createPaymentRequest,
 		SilenceUsage: true,
 	}
@@ -174,9 +267,22 @@ func main() {
 	root.AddCommand(createPaymentRequestUploadCommand)
 
 	patchMTOShipmentStatusCommand := &cobra.Command{
-		Use:          "support-patch-mto-shipment-status",
-		Short:        "Update MTO shipment status for prime",
-		Long:         "Allows prime to update MTO shipment status in non-prod envs",
+		Use:   "support-patch-mto-shipment-status",
+		Short: "Update MTO shipment status for prime",
+		Long: `
+  This command allows prime to update the MTO shipment status.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain a body defining the request body.
+
+  Endpoint path: /mto-shipments/{mtoShipmentID}/status
+  The file should contain json as follows:
+    {
+      "mtoShipmentID": <uuid string>,
+      "ifMatch": <etag>,
+      "body": <MtoShipmentRequestStatus>,
+    }
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         patchMTOShipmentStatus,
 		SilenceUsage: true,
 	}

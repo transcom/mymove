@@ -19,7 +19,6 @@ import (
 
 func initUpdatePostCounselingInfoFlags(flag *pflag.FlagSet) {
 	flag.String(FilenameFlag, "", "Name of the file being passed in")
-	flag.String(ETagFlag, "", "ETag for the mto shipment being updated")
 
 	flag.SortFlags = false
 }
@@ -28,10 +27,6 @@ func checkUpdatePostCounselingInfoConfig(v *viper.Viper, args []string, logger *
 	err := CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
-	}
-
-	if v.GetString(ETagFlag) == "" {
-		logger.Fatal(errors.New("update-post-counseling-info expects an etag"))
 	}
 
 	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
