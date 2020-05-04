@@ -177,6 +177,14 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 	if payload.WeightEstimate != nil {
 		ppm.WeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.WeightEstimate)
 	}
+	if payload.IncentiveEstimateMax != nil {
+		incentiveEstimateMax := unit.Cents(int(*payload.IncentiveEstimateMax))
+		ppm.IncentiveEstimateMax = &incentiveEstimateMax
+	}
+	if payload.IncentiveEstimateMin != nil {
+		incentiveEstimateMin := unit.Cents(int(*payload.IncentiveEstimateMin))
+		ppm.IncentiveEstimateMin = &incentiveEstimateMin
+	}
 	if payload.NetWeight != nil {
 		ppm.NetWeight = handlers.PoundPtrFromInt64Ptr(payload.NetWeight)
 	}

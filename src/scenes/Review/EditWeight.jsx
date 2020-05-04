@@ -9,8 +9,14 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { loadPPMs, updatePPM, selectActivePPMForMove, updatePPMEstimate } from 'shared/Entities/modules/ppms';
-import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
+import {
+  loadPPMs,
+  updatePPM,
+  selectActivePPMForMove,
+  updatePPMEstimate,
+  getPpmWeightEstimate,
+} from 'shared/Entities/modules/ppms';
+// import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
@@ -59,8 +65,7 @@ let EditWeightForm = (props) => {
     valid,
     entitlement,
     dirty,
-    incentive_estimate_min,
-    incentive_estimate_max,
+    currentPPM,
     onWeightChange,
     initialValues,
   } = props;
@@ -68,12 +73,14 @@ let EditWeightForm = (props) => {
   let incentiveClass = '';
   let fieldClass = dirty ? 'warn' : '';
   let advanceError = false;
+  const incentiveEstimateMin = get(currentPPM, 'currentPPM.incentive_estimate_min');
+  const incentiveEstimateMax = get(currentPPM, 'currentPPM.incentive_estimate_max');
   const advanceAmt = get(initialValues, 'advance.requested_amount', 0);
-  if (incentive_estimate_max && advanceAmt && incentive_estimate_max < formatCents(advanceAmt)) {
+  if (incentiveEstimateMax && advanceAmt && incentiveEstimateMax < formatCents(advanceAmt)) {
     advanceError = true;
     incentiveClass = 'error';
     fieldClass = 'error';
-  } else if (get(initialValues, 'incentive_estimate_min') !== incentive_estimate_min) {
+  } else if (get(initialValues, 'incentive_estimate_min') !== incentiveEstimateMin) {
     // Min and max are linked, so we only need to check one
     incentiveClass = 'warn';
   }
@@ -130,12 +137,12 @@ let EditWeightForm = (props) => {
                   <p>Estimated Incentive</p>
                   <p className={incentiveClass}>
                     <strong>
-                      {formatCentsRange(incentive_estimate_min, incentive_estimate_max) || 'Unable to Calculate'}
+                      {formatCentsRange(incentiveEstimateMin, incentiveEstimateMax) || 'Unable to Calculate'}
                     </strong>
                   </p>
                   {initialValues &&
                     initialValues.incentive_estimate_min &&
-                    initialValues.incentive_estimate_min !== incentive_estimate_min && (
+                    initialValues.incentive_estimate_min !== incentiveEstimateMin && (
                       <p className="subtext">
                         Originally{' '}
                         {formatCentsRange(initialValues.incentive_estimate_min, initialValues.incentive_estimate_max)}
@@ -275,16 +282,7 @@ class EditWeight extends Component {
   }
 
   render() {
-    const {
-      error,
-      schema,
-      entitlement,
-      incentive_estimate_min,
-      incentive_estimate_max,
-      hasEstimateError,
-      rateEngineError,
-      currentPPM,
-    } = this.props;
+    const { error, schema, entitlement, hasEstimateError, rateEngineError, currentPPM } = this.props;
     return (
       <div className="grid-container usa-prose">
         {error && (
@@ -307,8 +305,8 @@ class EditWeight extends Component {
           <div className="grid-col-12">
             <EditWeightForm
               initialValues={currentPPM}
-              incentive_estimate_min={incentive_estimate_min}
-              incentive_estimate_max={incentive_estimate_max}
+              incentive_estimate_min={currentPPM.incentive_estimate_min}
+              incentive_estimate_max={currentPPM.incentive_estimate_max}
               onSubmit={this.updatePpm}
               onWeightChange={this.onWeightChange}
               entitlement={entitlement}
