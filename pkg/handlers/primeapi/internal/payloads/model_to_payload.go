@@ -196,12 +196,14 @@ func MTOAgent(mtoAgent *models.MTOAgent) *primemessages.MTOAgent {
 
 	return &primemessages.MTOAgent{
 		AgentType:     primemessages.MTOAgentType(mtoAgent.MTOAgentType),
-		Email:         mtoAgent.Email,
 		FirstName:     mtoAgent.FirstName,
-		ID:            strfmt.UUID(mtoAgent.ID.String()),
 		LastName:      mtoAgent.LastName,
-		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
 		Phone:         mtoAgent.Phone,
+		Email:         mtoAgent.Email,
+		ID:            strfmt.UUID(mtoAgent.ID.String()),
+		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
+		CreatedAt:     strfmt.Date(mtoAgent.CreatedAt),
+		UpdatedAt:     strfmt.Date(mtoAgent.UpdatedAt),
 	}
 }
 
