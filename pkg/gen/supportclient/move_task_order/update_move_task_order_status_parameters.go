@@ -15,6 +15,8 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // NewUpdateMoveTaskOrderStatusParams creates a new UpdateMoveTaskOrderStatusParams object
@@ -61,10 +63,16 @@ for the update move task order status operation typically these are written to a
 */
 type UpdateMoveTaskOrderStatusParams struct {
 
-	/*IfMatch*/
+	/*IfMatch
+	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+
+
+	*/
 	IfMatch string
+	/*Body*/
+	Body *supportmessages.UpdateMoveTaskOrderStatus
 	/*MoveTaskOrderID
-	  ID of move order to use
+	  UUID of move task order.
 
 	*/
 	MoveTaskOrderID string
@@ -118,6 +126,17 @@ func (o *UpdateMoveTaskOrderStatusParams) SetIfMatch(ifMatch string) {
 	o.IfMatch = ifMatch
 }
 
+// WithBody adds the body to the update move task order status params
+func (o *UpdateMoveTaskOrderStatusParams) WithBody(body *supportmessages.UpdateMoveTaskOrderStatus) *UpdateMoveTaskOrderStatusParams {
+	o.SetBody(body)
+	return o
+}
+
+// SetBody adds the body to the update move task order status params
+func (o *UpdateMoveTaskOrderStatusParams) SetBody(body *supportmessages.UpdateMoveTaskOrderStatus) {
+	o.Body = body
+}
+
 // WithMoveTaskOrderID adds the moveTaskOrderID to the update move task order status params
 func (o *UpdateMoveTaskOrderStatusParams) WithMoveTaskOrderID(moveTaskOrderID string) *UpdateMoveTaskOrderStatusParams {
 	o.SetMoveTaskOrderID(moveTaskOrderID)
@@ -140,6 +159,12 @@ func (o *UpdateMoveTaskOrderStatusParams) WriteToRequest(r runtime.ClientRequest
 	// header param If-Match
 	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
 		return err
+	}
+
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	// path param moveTaskOrderID

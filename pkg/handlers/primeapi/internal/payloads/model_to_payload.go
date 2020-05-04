@@ -96,7 +96,6 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
-	reportByDate := strfmt.Date(*moveOrder.ReportByDate)
 	entitlements := Entitlement(moveOrder.Entitlement)
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
@@ -109,8 +108,10 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 		LinesOfAccounting:      moveOrder.LinesOfAccounting,
 		Rank:                   moveOrder.Grade,
 		ConfirmationNumber:     moveOrder.ConfirmationNumber,
-		ReportByDate:           reportByDate,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
+	}
+	if moveOrder.ReportByDate != nil {
+		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
 	}
 	return &payload
 }
@@ -323,7 +324,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
 		}
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
 		item := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		payload = &primemessages.MTOServiceItemDomesticCrating{
@@ -368,8 +369,9 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
 	payload.SetReServiceID(strfmt.UUID(mtoServiceItem.ReServiceID.String()))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)
+	payload.SetStatus(primemessages.MTOServiceItemStatus(mtoServiceItem.Status))
+	payload.SetRejectionReason(mtoServiceItem.Reason)
 	payload.SetETag(etag.GenerateEtag(mtoServiceItem.UpdatedAt))
-
 	return payload
 }
 
@@ -387,11 +389,12 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 func ValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
 	return &primemessages.ValidationError{
 		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
-		ClientError:   *clientError(title, detail, instance),
+		ClientError:   *ClientError(title, detail, instance),
 	}
 }
 
-func clientError(title string, detail string, instance uuid.UUID) *primemessages.ClientError {
+// ClientError describes errors in a standard structure to be returned in the payload
+func ClientError(title string, detail string, instance uuid.UUID) *primemessages.ClientError {
 	return &primemessages.ClientError{
 		Title:    handlers.FmtString(title),
 		Detail:   handlers.FmtString(detail),

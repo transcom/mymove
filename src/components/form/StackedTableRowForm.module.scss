@@ -1,0 +1,23 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+
+.label {
+  @include u-text('ttop');
+}
+
+.form-buttons {
+  @include u-display('flex');
+
+  :global .usa-button {
+    @include u-margin-top('2');
+    &:first-of-type {
+      @include u-margin-left(0);
+    }
+  }
+}
+
+.stacked-table-row {
+  :global .usa-button--unstyled {
+    @include u-margin-top('2px');
+  }
+}

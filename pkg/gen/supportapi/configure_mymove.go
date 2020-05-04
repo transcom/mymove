@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
 )
@@ -36,6 +37,11 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.MoveTaskOrderCreateMoveTaskOrderHandler == nil {
+		api.MoveTaskOrderCreateMoveTaskOrderHandler = move_task_order.CreateMoveTaskOrderHandlerFunc(func(params move_task_order.CreateMoveTaskOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.CreateMoveTaskOrder has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		api.MoveTaskOrderGetMoveTaskOrderHandler = move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
@@ -44,6 +50,11 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentPatchMTOShipmentStatusHandler == nil {
 		api.MtoShipmentPatchMTOShipmentStatusHandler = mto_shipment.PatchMTOShipmentStatusHandlerFunc(func(params mto_shipment.PatchMTOShipmentStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.PatchMTOShipmentStatus has not yet been implemented")
+		})
+	}
+	if api.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
+		api.MtoServiceItemUpdateMTOServiceItemStatusHandler = mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemStatus has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {

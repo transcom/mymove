@@ -71,6 +71,7 @@ func (o *moveTaskOrderCreator) createDefaultServiceItems(moveTaskOrder *models.M
 		defaultServiceItems[reService.ID] = models.MTOServiceItem{
 			ReServiceID:     reService.ID,
 			MoveTaskOrderID: moveTaskOrder.ID,
+			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 	}
 
