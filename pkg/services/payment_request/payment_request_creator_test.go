@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -67,7 +68,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		},
 	})
 
-	creator := NewPaymentRequestCreator(suite.DB())
+	creator := NewPaymentRequestCreator(suite.DB(), route.NewTestingPlanner(0))
 
 	suite.T().Run("Payment request is created successfully (using IncomingKey)", func(t *testing.T) {
 		paymentRequest := models.PaymentRequest{

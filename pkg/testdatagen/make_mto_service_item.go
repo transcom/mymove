@@ -18,7 +18,7 @@ func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOSer
 	}
 	reService := assertions.ReService
 	if isZeroUUID(reService.ID) {
-		reService = MakeReService(db, assertions)
+		reService = FetchOrMakeReService(db, assertions)
 	}
 
 	status := assertions.MTOServiceItem.Status

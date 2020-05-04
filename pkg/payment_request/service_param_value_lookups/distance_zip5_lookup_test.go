@@ -2,9 +2,8 @@ package serviceparamvaluelookups
 
 import (
 	"errors"
-	"fmt"
+	"strconv"
 	"testing"
-	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -13,16 +12,10 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
-	key := "RequestedPickupDate"
+func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
+	key := "DistanceZip5"
 
-	requestedPickupDate := time.Date(testdatagen.TestYear, time.May, 18, 0, 0, 0, 0, time.UTC)
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
-		testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				RequestedPickupDate: &requestedPickupDate,
-			},
-		})
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
@@ -34,27 +27,10 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
 
 	suite.T().Run("golden path", func(t *testing.T) {
-		valueStr, err := paramLookup.ServiceParamValue(key)
+		distanceStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
-		expected := fmt.Sprintf("%d-%02d-%02d", testdatagen.TestYear, time.May, 18)
-		suite.Equal(expected, valueStr)
-	})
-
-	suite.T().Run("nil requested pickup date", func(t *testing.T) {
-		// Set the requested pickup date to nil
-		mtoShipment := mtoServiceItem.MTOShipment
-		oldRequestedPickupDate := mtoShipment.RequestedPickupDate
-		mtoShipment.RequestedPickupDate = nil
-		suite.MustSave(&mtoShipment)
-
-		valueStr, err := paramLookup.ServiceParamValue(key)
-		suite.Error(err)
-		expected := fmt.Sprintf("could not find a requested pickup date for MTOShipmentID [%s]", mtoShipment.ID)
-		suite.Contains(err.Error(), expected)
-		suite.Equal("", valueStr)
-
-		mtoShipment.RequestedPickupDate = oldRequestedPickupDate
-		suite.MustSave(&mtoShipment)
+		expected := strconv.Itoa(defaultDistance)
+		suite.Equal(expected, distanceStr)
 	})
 
 	suite.T().Run("nil MTOShipmentID", func(t *testing.T) {
