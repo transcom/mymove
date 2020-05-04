@@ -35,6 +35,11 @@ func checkCreatePaymentRequestUploadConfig(v *viper.Viper, args []string, logger
 		return errors.New("create-payment-request-upload expects a file to be passed in")
 	}
 
+	// Get the paymentRequestID to use for the upload file
+	if v.GetString(PaymentRequestID) == "" && (len(args) < 1 || len(args) > 0) {
+		return errors.New("create-payment-request-upload expects a PaymentRequestID to be passed in")
+	}
+
 	return nil
 }
 
@@ -68,16 +73,11 @@ func createPaymentRequestUpload(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	// Decode json from file that was passed into create-payment-request-upload
+	// Get the filename for the upload file to upload with command create-payment-request-upload
 	filename := v.GetString(FilenameFlag)
-	if filename == "" {
-		return fmt.Errorf("failed to open filename: %s", filename)
-	}
 
+	// Get the paymentRequestID to use for the upload file
 	paymentRequestID := v.GetString(PaymentRequestID)
-	if paymentRequestID == "" {
-		return fmt.Errorf("paymentRequestID required: %s", paymentRequestID)
-	}
 
 	file, fileErr := os.Open(filepath.Clean(filename))
 	defer file.Close()
