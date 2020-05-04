@@ -155,12 +155,17 @@ function mapStateToProps(state, ownProps) {
     ppm.move_id,
   );
   const ppmEstimateStatus = getRequestStatus(state, getPPMEstimateLabel);
+  let hasError = false;
+
+  if (ppmEstimateStatus.error) {
+    hasError = true;
+  }
 
   return {
     ...ownProps,
     advance,
     ppmEstimate: {
-      hasEstimateError: ppmEstimateStatus,
+      hasEstimateError: hasError,
       hasEstimateSuccess: state.ppm.hasEstimateSuccess,
       hasEstimateInProgress: state.ppm.hasEstimateInProgress,
       rateEngineError: state.ppm.rateEngineError || null,
