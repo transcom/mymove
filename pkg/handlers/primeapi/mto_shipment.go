@@ -26,6 +26,44 @@ type CreateMTOShipmentHandler struct {
 	mtoShipmentCreator services.MTOShipmentCreator
 }
 
+// Handle creates the mto shipment
+func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
+
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	payload := params.Body
+	if payload == nil {
+		logger.Error("Invalid mto shipment: params Body is nil")
+		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
+	}
+
+	moveTaskOrderID := params.MoveTaskOrderID
+
+	mtoShipment := payloads.MTOShipmentModelFromCreate(payload, moveTaskOrderID)
+
+	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
+	if verrs != nil && verrs.HasAny() {
+		logger.Error("Error validating mto service item list: ", zap.Error(verrs))
+
+		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity()
+	}
+
+	//mtoShipment.MTOServiceItems = *mtoServiceItemsList
+	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
+	if err != nil {
+		switch err.(type) {
+		case services.NotFoundError:
+			logger.Error("move task order not found", zap.Error(err))
+			return mtoshipmentops.NewCreateMTOShipmentNotFound()
+		}
+		logger.Error("Error creating mto shipment: ", zap.Error(err))
+		return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
+	}
+
+	returnPayload := payloads.MTOShipment(mtoShipment)
+	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
+}
+
 // UpdateMTOShipmentModel checks that only the fields that can be updated were passed into the payload,
 // then grabs the model
 func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MTOShipment) (*models.MTOShipment, *validate.Errors) {
@@ -112,44 +150,6 @@ func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MT
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerContext
 	mtoShipmentUpdater services.MTOShipmentUpdater
-}
-
-// Handle creates the mto shipment
-func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
-
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
-	payload := params.Body
-	if payload == nil {
-		logger.Error("Invalid mto shipment: params Body is nil")
-		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
-	}
-
-	moveTaskOrderID := params.MoveTaskOrderID
-
-	mtoShipment := payloads.MTOShipmentModelFromCreate(payload, moveTaskOrderID)
-
-	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
-	if verrs != nil && verrs.HasAny() {
-		logger.Error("Error validating mto service item list: ", zap.Error(verrs))
-
-		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity()
-	}
-
-	//mtoShipment.MTOServiceItems = *mtoServiceItemsList
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
-	if err != nil {
-		switch err.(type) {
-		case services.NotFoundError:
-			logger.Error("move task order not found", zap.Error(err))
-			return mtoshipmentops.NewCreateMTOShipmentNotFound()
-		}
-		logger.Error("Error creating mto shipment: ", zap.Error(err))
-		return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
-	}
-
-	returnPayload := payloads.MTOShipment(mtoShipment)
-	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
 }
 
 // Handle handler that updates a mto shipment
