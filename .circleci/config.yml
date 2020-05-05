@@ -1182,6 +1182,10 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_yarn
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          filters:
+            branches:
+              ignore: mb-sesh
 
 experimental:
   notify:
