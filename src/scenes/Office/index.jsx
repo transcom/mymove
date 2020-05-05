@@ -167,6 +167,7 @@ export class OfficeWrapper extends Component {
                     {too && <PrivateRoute path="/too/customer-moves" exact component={TOO} />}
                     {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOMoveTaskOrder} />}
                     {too && <PrivateRoute path="/moves/:moveId" exact component={MoveDetails} />}
+                    {/*TODO: remove CustomerDetails route when ready*/}
                     {too && (
                       <PrivateRoute
                         path="/too/customer-moves/:moveOrderId/customer/:customerId"
