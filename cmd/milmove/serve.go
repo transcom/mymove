@@ -739,8 +739,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 				logger.Error("Failed database health check", zap.Error(dbErr))
 			}
 			data["database"] = dbErr == nil
-			enabled := v.GetBool(cli.RedisEnabledFlag)
-			if enabled {
+			redisEnabled := v.GetBool(cli.RedisEnabledFlag)
+			if redisEnabled {
 				data = redisHealthCheck(redisPool, logger, data)
 			}
 		}
