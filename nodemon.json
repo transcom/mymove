@@ -1,0 +1,35 @@
+{
+  "verbose": true,
+  "ignore": [
+    "*.js",
+    "*.jsx",
+    ".loki/*",
+    ".storybook/*",
+    ".vscode/*",
+    "anti-virus/*",
+    "bin/*",
+    "build/*",
+    "config/*",
+    "cypress/*",
+    "docs/*",
+    "log/*",
+    "migrations/*",
+    "node_modules/*",
+    "public/*",
+    "scripts/*",
+    "src/*",
+    "tmp/"],
+  "env": {
+    "INTERFACE": "localhost",
+    "DEBUG_LOGGING": "true"
+  },
+  "execMap": {
+    "go": "go"
+  },
+  "ext": "go yaml",
+  "watch": [
+    "internal/",
+    "pkg/",
+    "swagger/"
+  ]
+}
