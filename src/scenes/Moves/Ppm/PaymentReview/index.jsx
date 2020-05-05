@@ -100,33 +100,16 @@ class PaymentReview extends Component {
   };
 
   applyClickHandlers = () => {
-    this.setState({ moveSubmissionError: false }); // TODO: make this not asynchronous
-    Promise.all([this.submitCertificate(), this.props.submitExpenseDocs()])
-      .then(() => {
-        this.props.history.push('/');
-      })
-      .catch(() => {
-        this.setState({ moveSubmissionError: true });
-        scrollToTop();
-      });
-
-    // this.setState(
-    //   { moveSubmissionError: false },
-    //   Promise.all([this.submitCertificate(), this.props.submitExpenseDocs()])
-    //     .then(() => {
-    //       return this.props.updatePPM(moveId, currentPPM.id, {
-    //         incentive_estimate_min: incentiveEstimateMin,
-    //         incentive_estimate_max: incentiveEstimateMax,
-    //       });
-    //     })
-    //     .then(() => {
-    //       this.props.history.push('/');
-    //     })
-    //     .catch(() => {
-    //       this.setState({ moveSubmissionError: true });
-    //       scrollToTop();
-    //     }),
-    // ); // TODO: make this not asynchronous
+    this.setState({ moveSubmissionError: false }, () =>
+      Promise.all([this.submitCertificate(), this.props.submitExpenseDocs()])
+        .then(() => {
+          this.props.history.push('/');
+        })
+        .catch(() => {
+          this.setState({ moveSubmissionError: true });
+          scrollToTop();
+        }),
+    );
   };
 
   render() {
