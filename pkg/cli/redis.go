@@ -102,6 +102,7 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	redisMaxIdle := v.GetInt(RedisMaxIdleFlag)
 	redisIdleTimeout := v.GetDuration(RedisIdleTimeoutFlag)
 
+	// Log the redis URI
 	s := "redis://:%s@%s:%d?db=%d"
 	redisURI := fmt.Sprintf(s, "*****", redisHost, redisPort, redisDBName)
 	if redisPassword == "" {
@@ -115,12 +116,40 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 		MinVersion: tls.VersionTLS12,
 	}
 
-	// Confirm the connection works
-	logger.Info("Setting up the Redis connection...")
-
 	// Redis Dial requires a minimal URI containing just the host and port
 	redisURLTemplate := "%s:%s"
 	redisURL := fmt.Sprintf(redisURLTemplate, redisHost, strconv.Itoa(redisPort))
+
+	if testRedisErr := testRedisConnection(redisURL, redisPassword, redisDBName, redisConnectTimeout, redisSSLEnabled, &redisTLSConfig, logger); testRedisErr != nil {
+		return nil, testRedisErr
+	}
+
+	pool := &redis.Pool{
+		MaxIdle:     redisMaxIdle,
+		IdleTimeout: redisIdleTimeout,
+		Dial: func() (redis.Conn, error) {
+			connection, connectionErr := redis.Dial(
+				"tcp",
+				redisURL,
+				redis.DialDatabase(redisDBName),
+				redis.DialPassword(redisPassword),
+				redis.DialConnectTimeout(redisConnectTimeout),
+				redis.DialUseTLS(redisSSLEnabled),
+				redis.DialTLSConfig(&redisTLSConfig),
+			)
+			if connectionErr != nil {
+				return nil, connectionErr
+			}
+			return connection, nil
+		},
+	}
+
+	return pool, nil
+}
+
+func testRedisConnection(redisURL, redisPassword string, redisDBName int, redisConnectTimeout time.Duration, redisSSLEnabled bool, redisTLSConfig *tls.Config, logger Logger) error {
+	// Confirm the connection works
+	logger.Info("Testing Redis connection...")
 
 	redisConnection, redisConnectionErr := redis.Dial(
 		"tcp",
@@ -129,8 +158,9 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 		redis.DialPassword(redisPassword),
 		redis.DialConnectTimeout(redisConnectTimeout),
 		redis.DialUseTLS(redisSSLEnabled),
-		redis.DialTLSConfig(&redisTLSConfig),
+		redis.DialTLSConfig(redisTLSConfig),
 	)
+	defer redisConnection.Close()
 
 	errorString := fmt.Sprintf("Failed to connect to Redis after %s", redisConnectTimeout)
 	var finalErrorString string
@@ -140,7 +170,7 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 
 	if redisConnectionErr != nil {
 		logger.Error(finalErrorString, zap.Error(redisConnectionErr))
-		return nil, redisConnectionErr
+		return redisConnectionErr
 	}
 	logger.Info("...Redis connection successful!")
 
@@ -148,18 +178,10 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	_, pingErr := redis.String(redisConnection.Do("PING"))
 	if pingErr != nil {
 		logger.Error("failed to ping Redis", zap.Error(pingErr))
-		return nil, pingErr
+		return pingErr
 	}
 
 	logger.Info("...Redis ping successful!")
 
-	pool := &redis.Pool{
-		MaxIdle:     redisMaxIdle,
-		IdleTimeout: redisIdleTimeout,
-		Dial: func() (redis.Conn, error) {
-			return redisConnection, nil
-		},
-	}
-
-	return pool, nil
+	return nil
 }
