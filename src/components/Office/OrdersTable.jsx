@@ -22,37 +22,35 @@ function OrdersTable({ ordersInfo }) {
         <tbody>
           <tr>
             <th scope="row">Current Duty Station</th>
-            <td data-cy="currentDutyStation">{ordersInfo.currentDutyStation ? ordersInfo.currentDutyStation : ''}</td>
+            <td data-cy="currentDutyStation">{ordersInfo.currentDutyStation}</td>
           </tr>
           <tr>
             <th scope="row">New duty station</th>
-            <td data-cy="newDutyStation">{ordersInfo.newDutyStation ? ordersInfo.newDutyStation : ''}</td>
+            <td data-cy="newDutyStation">{ordersInfo.newDutyStation}</td>
           </tr>
           <tr>
             <th scope="row">Date issuedc</th>
-            <td data-cy="issuedDate">{ordersInfo.issuedDate ? ordersInfo.issuedDate : ''}</td>
+            <td data-cy="issuedDate">{ordersInfo.issuedDate}</td>
           </tr>
           <tr>
             <th scope="row">Report by date</th>
-            <td data-cy="reportByDate">{ordersInfo.reportByDate ? ordersInfo.reportByDate : ''}</td>
+            <td data-cy="reportByDate">{ordersInfo.reportByDate}</td>
           </tr>
           <tr>
             <th scope="row">Department indicator</th>
-            <td data-cy="departmentIndicator">
-              {ordersInfo.departmentIndicator ? ordersInfo.departmentIndicator : ''}
-            </td>
+            <td data-cy="departmentIndicator">{ordersInfo.departmentIndicator}</td>
           </tr>
           <tr>
             <th scope="row">Orders number</th>
-            <td data-cy="ordersNumber">{ordersInfo.ordersNumber ? ordersInfo.ordersNumber : ''}</td>
+            <td data-cy="ordersNumber">{ordersInfo.ordersNumber}</td>
           </tr>
           <tr>
             <th scope="row">Orders type</th>
-            <td data-cy="ordersType">{ordersInfo.ordersType ? ordersInfo.ordersType : ''}</td>
+            <td data-cy="ordersType">{ordersInfo.ordersType}</td>
           </tr>
           <tr>
             <th scope="row">Orders type detail</th>
-            <td data-cy="ordersTypeDetail">{ordersInfo.ordersTypeDetail ? ordersInfo.ordersTypeDetail : ''}</td>
+            <td data-cy="ordersTypeDetail">{ordersInfo.ordersTypeDetail}</td>
           </tr>
           <tr>
             <th scope="row">TAC / MDC</th>
