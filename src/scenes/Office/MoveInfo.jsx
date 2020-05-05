@@ -287,7 +287,8 @@ class MoveInfo extends Component {
                   Basics
                 </span>
                 <span className="status">
-                  <FontAwesomeIcon className="icon approval-completed" icon={faCheck} />
+                  {moveApproved && <FontAwesomeIcon className="icon approval-completed" icon={faCheck} />}
+                  {!moveApproved && <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />}
                   {capitalize(this.props.moveStatus)}
                 </span>
               </NavTab>
