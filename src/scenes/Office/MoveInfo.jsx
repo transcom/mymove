@@ -180,7 +180,7 @@ class MoveInfo extends Component {
       if (this.props.ppmAdvance.status === 'APPROVED' || !this.props.ppmAdvance.status) {
         return (
           <span className="status">
-            <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />
+            <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
             Move pending
           </span>
         );
@@ -196,7 +196,7 @@ class MoveInfo extends Component {
       return (
         <span className="status">
           <FontAwesomeIcon className="icon approval-completed" icon={faCheck} />
-          COMPLETED
+          Completed
         </span>
       );
     } else {
@@ -287,7 +287,7 @@ class MoveInfo extends Component {
                   Basics
                 </span>
                 <span className="status">
-                  <FontAwesomeIcon className="icon" icon={faCheck} />
+                  <FontAwesomeIcon className="icon approval-completed" icon={faCheck} />
                   {capitalize(this.props.moveStatus)}
                 </span>
               </NavTab>
