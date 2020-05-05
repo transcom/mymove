@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"crypto/tls"
 	"fmt"
 	"strconv"
 	"time"
@@ -29,6 +30,12 @@ const (
 	// RedisEnabledFlag specifies whether or not we attempt to connect
 	// to Redis. For example, apps that use mTLS don't need Redis.
 	RedisEnabledFlag string = "redis-enabled"
+	// RedisSSLEnabledFlag specifies if SSL mode is enabled for connections
+	RedisSSLEnabledFlag string = "redis-ssl-enabled"
+	// RedisMaxIdleFlag specifies the maximum number of idle connections in the pool
+	RedisMaxIdleFlag string = "redis-max-idle"
+	// RedisIdleTimeoutFlag Closes connections after this duration
+	RedisIdleTimeoutFlag string = "redis-idle-timeout"
 )
 
 // InitRedisFlags initializes RedisFlags command line flags
@@ -37,8 +44,11 @@ func InitRedisFlags(flag *pflag.FlagSet) {
 	flag.String(RedisHostFlag, "localhost", "Redis hostname")
 	flag.Int(RedisPortFlag, 6379, "Redis port")
 	flag.Int(RedisDBNameFlag, 0, "Redis database")
-	flag.Int(RedisConnectTimeoutFlag, 2, "Redis connect timeout in seconds")
+	flag.Duration(RedisConnectTimeoutFlag, 2*time.Second, "Redis connect timeout in seconds")
+	flag.Int(RedisMaxIdleFlag, 10, "Redis maximum number of idle connections in the pool")
+	flag.Duration(RedisIdleTimeoutFlag, 240*time.Second, "Redis idle timeout in seconds")
 	flag.Bool(RedisEnabledFlag, true, "Whether or not Redis is enabled")
+	flag.Bool(RedisSSLEnabledFlag, false, "Whether or not Redis SSL is enabled")
 }
 
 // CheckRedis validates Redis command line flags
@@ -56,8 +66,19 @@ func CheckRedis(v *viper.Viper) error {
 		return err
 	}
 
-	if err := ValidateRedisConnectTimeout(v, RedisConnectTimeoutFlag); err != nil {
-		return err
+	connectTimeout := v.GetDuration(RedisConnectTimeoutFlag)
+	if connectTimeout < 1*time.Second || connectTimeout > 5*time.Second {
+		return errors.Errorf("%s should be between 1 and 5 seconds", RedisConnectTimeoutFlag)
+	}
+
+	maxIdle := v.GetInt(RedisMaxIdleFlag)
+	if maxIdle < 1 || maxIdle > 20 {
+		return errors.Errorf("%s should be between 1 and 20", RedisMaxIdleFlag)
+	}
+
+	idleTimeout := v.GetDuration(RedisIdleTimeoutFlag)
+	if idleTimeout < 30*time.Second || idleTimeout > 300*time.Second {
+		return errors.Errorf("%s should be between 30 and 300 seconds", RedisIdleTimeoutFlag)
 	}
 
 	return nil
@@ -76,8 +97,10 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	redisHost := v.GetString(RedisHostFlag)
 	redisPort := v.GetInt(RedisPortFlag)
 	redisDBName := v.GetInt(RedisDBNameFlag)
-	redisConnectTimeout := v.GetInt(RedisConnectTimeoutFlag)
-	timeoutDuration := time.Duration(redisConnectTimeout) * time.Second
+	redisConnectTimeout := v.GetDuration(RedisConnectTimeoutFlag)
+	redisSSLEnabled := v.GetBool(RedisSSLEnabledFlag)
+	redisMaxIdle := v.GetInt(RedisMaxIdleFlag)
+	redisIdleTimeout := v.GetDuration(RedisIdleTimeoutFlag)
 
 	s := "redis://:%s@%s:%d?db=%d"
 	redisURI := fmt.Sprintf(s, "*****", redisHost, redisPort, redisDBName)
@@ -87,73 +110,56 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	}
 	logger.Info("Connecting to Redis", zap.String("url", redisURI))
 
-	redisURITemplate := "%s:%s"
-	redisURL := fmt.Sprintf(redisURITemplate, redisHost, strconv.Itoa(redisPort))
-	if err := testRedisConnection(redisURL, redisPassword, redisDBName, timeoutDuration, logger); err != nil {
-		return nil, err
+	// Configure Redis TLS Config
+	redisTLSConfig := tls.Config{
+		MinVersion: tls.VersionTLS12,
 	}
 
-	pool := &redis.Pool{
-		MaxIdle:     10,
-		IdleTimeout: 240 * time.Second,
-		Dial: func() (redis.Conn, error) {
-			connection, err := redis.Dial(
-				"tcp",
-				redisURL,
-				redis.DialDatabase(redisDBName),
-				redis.DialPassword(redisPassword),
-				redis.DialConnectTimeout(timeoutDuration),
-			)
-			if err != nil {
-				return nil, err
-			}
-			return connection, err
-		},
-	}
+	// Confirm the connection works
+	logger.Info("Setting up the Redis connection...")
 
-	return pool, nil
-}
+	// Redis Dial requires a minimal URI containing just the host and port
+	redisURLTemplate := "%s:%s"
+	redisURL := fmt.Sprintf(redisURLTemplate, redisHost, strconv.Itoa(redisPort))
 
-// ValidateRedisConnectTimeout validates a Redis connect timeout passed in from
-// the command line
-func ValidateRedisConnectTimeout(v *viper.Viper, flagname string) error {
-	timeout := v.GetInt(flagname)
-
-	if timeout < 1 || timeout > 5 {
-		return errors.Errorf("%s should be between 1 and 5 seconds", flagname)
-	}
-
-	return nil
-}
-
-func testRedisConnection(redisURL string, redisPassword string, redisDBName int, timeout time.Duration, logger Logger) error {
-	logger.Info("Testing Redis connection...")
-
-	connection, err := redis.Dial(
+	redisConnection, redisConnectionErr := redis.Dial(
 		"tcp",
 		redisURL,
 		redis.DialDatabase(redisDBName),
 		redis.DialPassword(redisPassword),
-		redis.DialConnectTimeout(timeout),
+		redis.DialConnectTimeout(redisConnectTimeout),
+		redis.DialUseTLS(redisSSLEnabled),
+		redis.DialTLSConfig(&redisTLSConfig),
 	)
 
-	errorString := fmt.Sprintf("Failed to connect to Redis after %s", timeout)
+	errorString := fmt.Sprintf("Failed to connect to Redis after %s", redisConnectTimeout)
 	var finalErrorString string
 	if redisPassword == "" {
 		finalErrorString = errorString + ". No password provided."
 	}
-	if err != nil {
-		logger.Error(finalErrorString, zap.Error(err))
-		return err
+
+	if redisConnectionErr != nil {
+		logger.Error(finalErrorString, zap.Error(redisConnectionErr))
+		return nil, redisConnectionErr
 	}
 	logger.Info("...Redis connection successful!")
 
 	logger.Info("Starting Redis ping...")
-	_, pingError := redis.String(connection.Do("PING"))
-	if err != nil {
-		logger.Error("failed to ping Redis", zap.Error(pingError))
+	_, pingErr := redis.String(redisConnection.Do("PING"))
+	if pingErr != nil {
+		logger.Error("failed to ping Redis", zap.Error(pingErr))
+		return nil, pingErr
 	}
+
 	logger.Info("...Redis ping successful!")
 
-	return nil
+	pool := &redis.Pool{
+		MaxIdle:     redisMaxIdle,
+		IdleTimeout: redisIdleTimeout,
+		Dial: func() (redis.Conn, error) {
+			return redisConnection, nil
+		},
+	}
+
+	return pool, nil
 }
