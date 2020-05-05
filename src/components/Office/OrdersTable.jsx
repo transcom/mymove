@@ -1,6 +1,5 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
-import { DocsButton } from '../form';
 
 function OrdersTable({ ordersInfo }) {
   return (
@@ -10,7 +9,9 @@ function OrdersTable({ ordersInfo }) {
           <h4>Orders</h4>
         </div>
         <div>
-          <DocsButton label="View orders" />
+          <button type="button" className="usa-button usa-button--secondary">
+            <span>View & edit orders</span>
+          </button>
         </div>
       </div>
       <table className="table--stacked">
@@ -21,43 +22,45 @@ function OrdersTable({ ordersInfo }) {
         <tbody>
           <tr>
             <th scope="row">Current Duty Station</th>
-            <td>{ordersInfo.currentDutyStation ? ordersInfo.currentDutyStation : ''}</td>
+            <td data-cy="currentDutyStation">{ordersInfo.currentDutyStation ? ordersInfo.currentDutyStation : ''}</td>
           </tr>
           <tr>
             <th scope="row">New duty station</th>
-            <td>{ordersInfo.newDutyStation ? ordersInfo.newDutyStation : ''}</td>
+            <td data-cy="newDutyStation">{ordersInfo.newDutyStation ? ordersInfo.newDutyStation : ''}</td>
           </tr>
           <tr>
             <th scope="row">Date issuedc</th>
-            <td>{ordersInfo.issuedDate ? ordersInfo.issuedDate : ''}</td>
+            <td data-cy="issuedDate">{ordersInfo.issuedDate ? ordersInfo.issuedDate : ''}</td>
           </tr>
           <tr>
             <th scope="row">Report by date</th>
-            <td>{ordersInfo.reportByDate ? ordersInfo.reportByDate : ''}</td>
+            <td data-cy="reportByDate">{ordersInfo.reportByDate ? ordersInfo.reportByDate : ''}</td>
           </tr>
           <tr>
             <th scope="row">Department indicator</th>
-            <td>{ordersInfo.departmentIndicator ? ordersInfo.departmentIndicator : ''}</td>
+            <td data-cy="departmentIndicator">
+              {ordersInfo.departmentIndicator ? ordersInfo.departmentIndicator : ''}
+            </td>
           </tr>
           <tr>
             <th scope="row">Orders number</th>
-            <td>{ordersInfo.ordersNumber ? ordersInfo.ordersNumber : ''}</td>
+            <td data-cy="ordersNumber">{ordersInfo.ordersNumber ? ordersInfo.ordersNumber : ''}</td>
           </tr>
           <tr>
             <th scope="row">Orders type</th>
-            <td>{ordersInfo.ordersType ? ordersInfo.ordersType : ''}</td>
+            <td data-cy="ordersType">{ordersInfo.ordersType ? ordersInfo.ordersType : ''}</td>
           </tr>
           <tr>
             <th scope="row">Orders type detail</th>
-            <td>{ordersInfo.ordersTypeDetail ? ordersInfo.ordersTypeDetail : ''}</td>
+            <td data-cy="ordersTypeDetail">{ordersInfo.ordersTypeDetail ? ordersInfo.ordersTypeDetail : ''}</td>
           </tr>
           <tr>
             <th scope="row">TAC / MDC</th>
-            <td>{ordersInfo.tacMDC ? ordersInfo.tacMDC : ''}</td>
+            <td data-cy="tacMDC">{ordersInfo.tacMDC ? ordersInfo.tacMDC : ''}</td>
           </tr>
           <tr>
             <th scope="row">SAC / SDN</th>
-            <td>{ordersInfo.sacSDN ? ordersInfo.sacSDN : ''}</td>
+            <td data-cy="sacSDN">{ordersInfo.sacSDN ? ordersInfo.sacSDN : ''}</td>
           </tr>
         </tbody>
       </table>
