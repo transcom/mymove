@@ -337,6 +337,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var logger *zap.Logger
 	var dbConnection *pop.Connection
 	dbClose := &sync.Once{}
+	var redisPool *redis.Pool
+	redisClose := &sync.Once{}
 
 	defer func() {
 		if logger != nil {
@@ -348,6 +350,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 					logger.Info("closing database connections")
 					if err := dbConnection.Close(); err != nil {
 						logger.Error("error closing database connections", zap.Error(err))
+					}
+				})
+			}
+			if redisPool != nil {
+				redisClose.Do(func() {
+					logger.Info("closing redis connections")
+					if err := redisPool.Close(); err != nil {
+						logger.Error("error closing redis connections", zap.Error(err))
 					}
 				})
 			}
@@ -496,6 +506,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// Create a connection to Redis
+	redisPool, errRedisConnection := cli.InitRedis(v, logger)
+	if errRedisConnection != nil {
+		logger.Fatal("Invalid Redis Configuration", zap.Error(errRedisConnection))
+	}
+
 	// Collect the servernames into a handy struct
 	appnames := auth.ApplicationServername{
 		MilServername:    v.GetString(cli.HTTPMyServerNameFlag),
@@ -516,10 +532,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	gob.Register(auth.Session{})
 	var sessionManager *scs.SessionManager
 	sessionManager = scs.New()
-	redisPool, err := cli.InitRedis(v, logger)
-	if err != nil {
-		logger.Fatal("Invalid Redis Configuration", zap.Error(err))
-	}
 	sessionManager.Store = redisstore.New(redisPool)
 
 	// IdleTimeout controls the maximum length of time a session can be inactive
@@ -1119,6 +1131,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		dbCloseErr = dbConnection.Close()
 	})
 
+	var redisCloseErr error
+	redisClose.Do(func() {
+		logger.Info("closing redis connections")
+		redisCloseErr = redisPool.Close()
+	})
+
 	shutdownError := false
 	shutdownErrors.Range(func(key, value interface{}) bool {
 		if srv, ok := key.(*server.NamedServer); ok {
@@ -1134,6 +1152,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	if dbCloseErr != nil {
 		logger.Error("error closing database connections", zap.Error(dbCloseErr))
+	}
+
+	if redisCloseErr != nil {
+		logger.Error("error closing redis connections", zap.Error(redisCloseErr))
 	}
 
 	logger.Sync()
