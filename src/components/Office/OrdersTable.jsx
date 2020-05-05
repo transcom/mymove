@@ -1,0 +1,86 @@
+import React from 'react';
+import * as PropTypes from 'prop-types';
+
+function OrdersTable({ ordersInfo }) {
+  return (
+    <div>
+      <div className="stackedtable-header">
+        <div>
+          <h4>Orders</h4>
+        </div>
+        <div>
+          <button type="button" className="usa-button usa-button--secondary">
+            <span>View & edit orders</span>
+          </button>
+        </div>
+      </div>
+      <table className="table--stacked">
+        <colgroup>
+          <col style={{ width: '25%' }} />
+          <col style={{ width: '75%' }} />
+        </colgroup>
+        <tbody>
+          <tr>
+            <th scope="row">Current Duty Station</th>
+            <td data-cy="currentDutyStation">{ordersInfo.currentDutyStation ? ordersInfo.currentDutyStation : ''}</td>
+          </tr>
+          <tr>
+            <th scope="row">New duty station</th>
+            <td data-cy="newDutyStation">{ordersInfo.newDutyStation ? ordersInfo.newDutyStation : ''}</td>
+          </tr>
+          <tr>
+            <th scope="row">Date issuedc</th>
+            <td data-cy="issuedDate">{ordersInfo.issuedDate ? ordersInfo.issuedDate : ''}</td>
+          </tr>
+          <tr>
+            <th scope="row">Report by date</th>
+            <td data-cy="reportByDate">{ordersInfo.reportByDate ? ordersInfo.reportByDate : ''}</td>
+          </tr>
+          <tr>
+            <th scope="row">Department indicator</th>
+            <td data-cy="departmentIndicator">
+              {ordersInfo.departmentIndicator ? ordersInfo.departmentIndicator : ''}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Orders number</th>
+            <td data-cy="ordersNumber">{ordersInfo.ordersNumber ? ordersInfo.ordersNumber : ''}</td>
+          </tr>
+          <tr>
+            <th scope="row">Orders type</th>
+            <td data-cy="ordersType">{ordersInfo.ordersType ? ordersInfo.ordersType : ''}</td>
+          </tr>
+          <tr>
+            <th scope="row">Orders type detail</th>
+            <td data-cy="ordersTypeDetail">{ordersInfo.ordersTypeDetail ? ordersInfo.ordersTypeDetail : ''}</td>
+          </tr>
+          <tr>
+            <th scope="row">TAC / MDC</th>
+            <td data-cy="tacMDC">{ordersInfo.tacMDC ? ordersInfo.tacMDC : ''}</td>
+          </tr>
+          <tr>
+            <th scope="row">SAC / SDN</th>
+            <td data-cy="sacSDN">{ordersInfo.sacSDN ? ordersInfo.sacSDN : ''}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+OrdersTable.propTypes = {
+  ordersInfo: PropTypes.shape({
+    currentDutyStation: PropTypes.string,
+    newDutyStation: PropTypes.string,
+    issuedDate: PropTypes.string,
+    reportByDate: PropTypes.string,
+    departmentIndicator: PropTypes.string,
+    ordersNumber: PropTypes.string,
+    ordersType: PropTypes.string,
+    ordersTypeDetail: PropTypes.string,
+    tacMDC: PropTypes.string,
+    sacSDN: PropTypes.string,
+  }).isRequired,
+};
+
+export default OrdersTable;
