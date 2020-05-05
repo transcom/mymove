@@ -8,6 +8,8 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # as possible.
 # https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
 DB_DOCKER_CONTAINER_IMAGE = postgres:12.2
+REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
+REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
@@ -34,6 +36,8 @@ DB_PORT_DEV=5432
 DB_PORT_TEST=5433
 DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
+REDIS_PORT=6379
+REDIS_PORT_DOCKER=6379
 ifdef CIRCLECI
 	DB_PORT_DEV=5432
 	DB_PORT_TEST=5432
@@ -299,7 +303,7 @@ server_build: bin/milmove ## Build the server
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
-server_run_standalone: check_log_dir server_build client_build db_dev_run
+server_run_standalone: check_log_dir server_build client_build db_dev_run redis_run
 	DEBUG_LOGGING=true ./bin/milmove serve 2>&1 | tee -a log/dev.log
 
 # This command will rebuild the swagger go code and rerun server on any changes
@@ -308,7 +312,7 @@ server_run:
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run redis_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
@@ -321,7 +325,7 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		2>&1 | tee -a log/dev.log
 
 .PHONY: server_run_debug
-server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## Debug the server
+server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run redis_run ## Debug the server
 	scripts/kill-process-on-port 8080
 	scripts/kill-process-on-port 9443
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
@@ -429,6 +433,34 @@ server_test_docker_down:
 
 #
 # ----- END SERVER TARGETS -----
+#
+
+#
+# ----- START REDIS TARGETS -----
+#
+
+.PHONY: redis_pull
+redis_pull: ## Pull redis image
+	docker pull $(REDIS_DOCKER_CONTAINER_IMAGE)
+
+.PHONY: redis_destroy
+redis_destroy: ## Destroy Redis
+	@echo "Destroying the ${REDIS_DOCKER_CONTAINER} docker redis container..."
+	docker rm -f $(REDIS_DOCKER_CONTAINER) || echo "No Redis container"
+
+.PHONY: redis_run
+redis_run: ## Run Redis
+	@echo "Starting the ${REDIS_DOCKER_CONTAINER} docker redis container..."
+	docker start $(REDIS_DOCKER_CONTAINER) || \
+		docker run -d --name $(REDIS_DOCKER_CONTAINER) \
+			-p $(REDIS_PORT):$(REDIS_PORT_DOCKER) \
+			$(REDIS_DOCKER_CONTAINER_IMAGE)
+
+.PHONY: redis_reset
+redis_reset: redis_destroy redis_run ## Reset Redis
+
+#
+# ----- END REDIS TARGETS -----
 #
 
 #
