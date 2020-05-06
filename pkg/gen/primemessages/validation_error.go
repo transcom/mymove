@@ -21,7 +21,7 @@ type ValidationError struct {
 
 	// invalid fields
 	// Required: true
-	InvalidFields map[string]string `json:"invalidFields"`
+	InvalidFields map[string][]string `json:"invalidFields"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
@@ -42,7 +42,7 @@ func (m *ValidationError) UnmarshalJSON(raw []byte) error {
 
 	// now for regular properties
 	var propsValidationError struct {
-		InvalidFields map[string]string `json:"invalidFields"`
+		InvalidFields map[string][]string `json:"invalidFields"`
 	}
 	if err := swag.ReadJSON(raw, &propsValidationError); err != nil {
 		return err
@@ -70,7 +70,7 @@ func (m ValidationError) MarshalJSON() ([]byte, error) {
 
 	// now for regular properties
 	var propsValidationError struct {
-		InvalidFields map[string]string `json:"invalidFields"`
+		InvalidFields map[string][]string `json:"invalidFields"`
 	}
 	propsValidationError.InvalidFields = m.InvalidFields
 

@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/pkg/errors"
@@ -78,7 +80,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	suite.T().Run("Patch failure - 404", func(t *testing.T) {
 		notFoundParams := mtoshipmentops.PatchMTOShipmentStatusParams{
 			HTTPRequest:   params.HTTPRequest,
-			MtoShipmentID: strfmt.UUID("00000000-0000-0000-0000-000000000000"),
+			MtoShipmentID: strfmt.UUID(uuid.Nil.String()),
 			Body:          params.Body,
 			IfMatch:       params.IfMatch,
 		}

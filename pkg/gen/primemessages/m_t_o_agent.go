@@ -21,6 +21,7 @@ type MTOAgent struct {
 	AgentType MTOAgentType `json:"agentType,omitempty"`
 
 	// created at
+	// Read Only: true
 	// Format: date
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
@@ -40,6 +41,7 @@ type MTOAgent struct {
 	LastName *string `json:"lastName,omitempty"`
 
 	// mto shipment ID
+	// Read Only: true
 	// Format: uuid
 	MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
@@ -48,6 +50,7 @@ type MTOAgent struct {
 	Phone *string `json:"phone,omitempty"`
 
 	// updated at
+	// Read Only: true
 	// Format: date
 	UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
 }
