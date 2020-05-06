@@ -2028,12 +2028,7 @@ func init() {
           "format": "date"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -2048,6 +2043,15 @@ func init() {
           "format": "datetime"
         }
       }
+    },
+    "MTOServiceItemStatus": {
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOServiceItems": {
       "type": "array",
@@ -4854,12 +4858,7 @@ func init() {
           "format": "date"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -4874,6 +4873,15 @@ func init() {
           "format": "datetime"
         }
       }
+    },
+    "MTOServiceItemStatus": {
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOServiceItems": {
       "type": "array",

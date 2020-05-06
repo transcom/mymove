@@ -1,0 +1,18 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+@import '../../shared/styles/custom';
+
+.shipment-dates-container {
+  @extend .container;
+  @extend.container--gray;
+  @include u-padding-top(0);
+  @include u-padding-x('2');
+  @include u-padding-bottom('05');
+  @include u-margin-x(0);
+}
+
+.header, .date {
+  width: 50%;
+}
+

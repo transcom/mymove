@@ -12,7 +12,8 @@
   justify-content: center;
   height: 42px;
   @include u-margin('1');
-  .icon svg path {
+  .icon svg path,
+  .icon svg polygon {
     fill: white;
   }
   &:hover,
@@ -69,7 +70,7 @@
   } //close &--secondary
   &--icon {
     .icon {
-      @include u-padding-right('1');
+      @include u-padding-x('1');
     }
   }
   &--small {
@@ -82,8 +83,11 @@
     @include u-bg('transparent');
     @include u-text('primary-vivid');
     @include u-text('no-underline');
+    @include u-margin(0);
+    @include u-padding-y(0);
+    @include u-height('auto');
     .icon {
-      @include u-padding-right('1');
+      @include u-padding-x('1');
       svg path {
         fill: $primary;
       }
@@ -118,6 +122,8 @@
 .usa-tag {
   background-color: $mm-gold;
   color: $base-darkest;
+  @include u-text('normal');
+  vertical-align: middle;
   &--green {
     background-color: $success-light;
   }
@@ -129,6 +135,10 @@
   }
   &--cyan {
     background-color: #a8f2ff;
+  }
+  &--teal {
+        background-color: $accent-teal;
+    @include u-text('white');
   }
   &--alert {
     border-radius: 100%;
@@ -142,11 +152,25 @@
         fill: #fff;
       }
     }
+    &--small {
+      width: 20px;
+      height: 20px;
+      svg {
+        vertical-align: baseline;
+        height: 12px;
+      }
+    }
   }
   &--large {
     @include u-font('body', 'sm'); //16px
-    @include u-padding-x(1.5); //12px
-    padding-top: 6px;
-    padding-bottom: 6px;
+    @include u-padding-x(1); //12px
+    padding-top: 0px;
+    height: 23px;
   }
+}
+
+//Alerts
+
+.usa-alert__heading {
+  @include u-text('bold');
 }

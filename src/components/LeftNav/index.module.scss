@@ -1,0 +1,74 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+//Left Nav
+
+
+.sidebar {
+  position: relative;
+  width: 15vw;
+  max-width: 230px;
+  min-width: 230px;
+}
+
+nav {
+  @include u-font-size('body', 'xs'); //15px
+  @include u-text('no-underline');
+  @include u-text('gray-50');
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  @include u-radius('md'); //4px
+  @include u-bg('white');
+  display: flex;
+  flex-direction: column;
+  @include u-padding-x(0); //20px
+  @include u-padding-y(0);
+  width: 227px;
+  @include u-margin(0);
+  position: fixed;
+  a {
+    @include u-padding-y(1.5); //12px
+    @include u-padding-x(2.5); //20px
+    @include u-border(0);
+    display: flex;
+    justify-content: space-between;
+    &:not(:first-child) {
+      border-top: 0.5px solid;
+      @include u-border-y('base-lighter');
+    }
+    &:not(:last-child) {
+      border-bottom: 0.5px solid;
+      @include u-border-y('base-lighter');
+    }
+    &:hover {
+      @include u-text('no-underline');
+      @include u-text('primary-vivid');
+    }
+    &:active,
+    &.active {
+      @include u-text('bold');
+      @include u-text('black');
+      @include u-border-left(0.5); //4px
+      @include u-border-left('primary-vivid');
+    }
+    &:visited {
+      @include u-text('gray-50');
+    }
+  }
+  .active {
+    @include u-text('bold');
+    @include u-text('black');
+    @include u-border-left(0.5); //4px
+    @include u-border-left('primary-vivid');
+    @include u-padding-left(2);
+    //changes to 16px to get the active item to still left align to the other items. accounts for the 4px of border.
+  }
+}
+
+nav a:first-child:active, nav a.active:first-child  {
+      border-top-left-radius: 4px;
+}
+nav a:last-child:active {
+      border-bottom-left-radius: 4px;
+}

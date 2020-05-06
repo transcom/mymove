@@ -8,6 +8,15 @@
     "jsx-a11y/anchor-is-valid": "off",
     "react/jsx-no-target-blank": "off",
     "react/jsx-curly-brace-presence": "error",
-    "react/require-default-props": ["error", { ignoreFunctionalComponents: true }]
+    "react/require-default-props": ["error", { ignoreFunctionalComponents: true }],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "paths": ["src"],
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
   }
 }

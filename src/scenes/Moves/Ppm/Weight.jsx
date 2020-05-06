@@ -6,9 +6,15 @@ import PropTypes from 'prop-types';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
-import { getPpmWeightEstimate } from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { loadPPMs, updatePPM, selectActivePPMForMove, updatePPMEstimate } from 'shared/Entities/modules/ppms';
+import {
+  loadPPMs,
+  updatePPM,
+  selectActivePPMForMove,
+  updatePPMEstimate,
+  getPpmWeightEstimate,
+  selectPPMEstimateRange,
+} from 'shared/Entities/modules/ppms';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
@@ -30,6 +36,7 @@ export class PpmWeight extends Component {
       pendingPpmWeight: 0,
       includesProgear: 'No',
       isProgearMoreThan1000: 'No',
+      hasEstimateError: false,
     };
 
     this.onWeightSelected = this.onWeightSelected.bind(this);
@@ -85,7 +92,7 @@ export class PpmWeight extends Component {
   // this method is used to set the incentive on page load
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
-  updateIncentive() {
+  updateIncentive = () => {
     const { currentPPM, originDutyStationZip, tempCurrentPPM } = this.props;
     const weight = this.state.pendingPpmWeight;
 
@@ -100,8 +107,10 @@ export class PpmWeight extends Component {
         ? currentPPM.pickup_postal_code
         : tempCurrentPPM.pickup_postal_code;
 
-    this.props.getPpmWeightEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight);
-  }
+    this.props
+      .getPpmWeightEstimate(origMoveDate, pickupPostalCode, originDutyStationZip, this.props.orders.id, weight)
+      .catch(() => this.setState({ hasEstimateError: true }));
+  };
 
   handleSubmit = () => {
     const ppmBody = {
@@ -203,19 +212,19 @@ export class PpmWeight extends Component {
   }
 
   chooseIncentiveRangeText(hasEstimateError) {
-    const { incentive_estimate_min, incentive_estimate_max } = this.props;
+    const { incentiveEstimateMin, incentiveEstimateMax } = this.props;
     if (hasEstimateError) {
       return (
-        <td className="incentive">
+        <div className="incentive">
           Not ready yet{' '}
           <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
-        </td>
+        </div>
       );
     } else {
       return (
-        <td data-cy="incentive-range-values" className="incentive">
-          {formatCentsRange(incentive_estimate_min, incentive_estimate_max)}
-        </td>
+        <div data-cy="incentive-range-values" className="incentive">
+          {formatCentsRange(incentiveEstimateMin, incentiveEstimateMax)}
+        </div>
       );
     }
   }
@@ -256,16 +265,15 @@ export class PpmWeight extends Component {
 
   render() {
     const {
-      incentive_estimate_min,
-      incentive_estimate_max,
+      incentiveEstimateMin,
+      incentiveEstimateMax,
       pages,
       pageKey,
       hasEstimateInProgress,
       error,
-      hasEstimateError,
       rateEngineError,
     } = this.props;
-    const { includesProgear, isProgearMoreThan1000 } = this.state;
+    const { includesProgear, isProgearMoreThan1000, hasEstimateError } = this.state;
 
     return (
       <div>
@@ -277,7 +285,7 @@ export class PpmWeight extends Component {
             serverError={error}
             additionalValues={{
               hasEstimateInProgress,
-              incentive_estimate_max,
+              incentiveEstimateMax,
             }}
             readyToSubmit={!hasShortHaulError(rateEngineError)}
           >
@@ -329,7 +337,7 @@ export class PpmWeight extends Component {
               <RadioButton
                 inputClassName="usa-radio__input inline_radio"
                 labelClassName="usa-radio__label inline_radio"
-                label="Not Sure"
+                label="Not sure"
                 value="Not Sure"
                 name="includesProgear"
                 checked={includesProgear === 'Not Sure'}
@@ -343,7 +351,7 @@ export class PpmWeight extends Component {
               <>
                 <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
                   You can be paid for moving up to 2,500 lbs of pro-gear, in addition to your weight entitlement of{' '}
-                  {formatCentsRange(incentive_estimate_min, incentive_estimate_max)}.
+                  {formatCentsRange(incentiveEstimateMin, incentiveEstimateMax)}.
                 </div>
                 <div className="radio-group-wrapper normalize-margins">
                   <h3>Do you think your pro-gear weighs 1000 lbs or more?</h3>
@@ -369,7 +377,7 @@ export class PpmWeight extends Component {
                   <RadioButton
                     inputClassName="usa-radio__input inline_radio"
                     labelClassName="usa-radio__label inline_radio"
-                    label="Not Sure"
+                    label="Not sure"
                     value="Not Sure"
                     name="isProgearMoreThan1000"
                     checked={isProgearMoreThan1000 === 'Not Sure'}
@@ -408,6 +416,8 @@ function mapStateToProps(state) {
 
   const props = {
     ...state.ppm,
+    incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
+    incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
     currentPPM: selectActivePPMForMove(state, moveID),
     entitlement: loadEntitlementsFromState(state),
     schema: schema,

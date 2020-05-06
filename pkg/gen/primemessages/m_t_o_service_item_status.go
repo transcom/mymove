@@ -11,93 +11,56 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
-	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemStatus m t o service item status
+// MTOServiceItemStatus Describes all statuses for a MTOServiceItem.
 // swagger:model MTOServiceItemStatus
-type MTOServiceItemStatus struct {
+type MTOServiceItemStatus string
 
-	// status
-	// Enum: [APPROVED SUBMITTED REJECTED]
-	Status string `json:"status,omitempty"`
+const (
+
+	// MTOServiceItemStatusSUBMITTED captures enum value "SUBMITTED"
+	MTOServiceItemStatusSUBMITTED MTOServiceItemStatus = "SUBMITTED"
+
+	// MTOServiceItemStatusAPPROVED captures enum value "APPROVED"
+	MTOServiceItemStatusAPPROVED MTOServiceItemStatus = "APPROVED"
+
+	// MTOServiceItemStatusREJECTED captures enum value "REJECTED"
+	MTOServiceItemStatusREJECTED MTOServiceItemStatus = "REJECTED"
+)
+
+// for schema
+var mTOServiceItemStatusEnum []interface{}
+
+func init() {
+	var res []MTOServiceItemStatus
+	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVED","REJECTED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mTOServiceItemStatusEnum = append(mTOServiceItemStatusEnum, v)
+	}
+}
+
+func (m MTOServiceItemStatus) validateMTOServiceItemStatusEnum(path, location string, value MTOServiceItemStatus) error {
+	if err := validate.Enum(path, location, value, mTOServiceItemStatusEnum); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Validate validates this m t o service item status
-func (m *MTOServiceItemStatus) Validate(formats strfmt.Registry) error {
+func (m MTOServiceItemStatus) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateStatus(formats); err != nil {
-		res = append(res, err)
+	// value enum
+	if err := m.validateMTOServiceItemStatusEnum("", "body", m); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-var mTOServiceItemStatusTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["APPROVED","SUBMITTED","REJECTED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		mTOServiceItemStatusTypeStatusPropEnum = append(mTOServiceItemStatusTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// MTOServiceItemStatusStatusAPPROVED captures enum value "APPROVED"
-	MTOServiceItemStatusStatusAPPROVED string = "APPROVED"
-
-	// MTOServiceItemStatusStatusSUBMITTED captures enum value "SUBMITTED"
-	MTOServiceItemStatusStatusSUBMITTED string = "SUBMITTED"
-
-	// MTOServiceItemStatusStatusREJECTED captures enum value "REJECTED"
-	MTOServiceItemStatusStatusREJECTED string = "REJECTED"
-)
-
-// prop value enum
-func (m *MTOServiceItemStatus) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemStatusTypeStatusPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *MTOServiceItemStatus) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *MTOServiceItemStatus) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *MTOServiceItemStatus) UnmarshalBinary(b []byte) error {
-	var res MTOServiceItemStatus
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
 	return nil
 }

@@ -3,6 +3,8 @@ package payloads
 import (
 	"time"
 
+	"github.com/go-openapi/strfmt"
+
 	"github.com/gobuffalo/validate"
 
 	"github.com/gofrs/uuid"
@@ -61,6 +63,52 @@ func MTOAgentsModel(mtoAgents *primemessages.MTOAgents) *models.MTOAgents {
 	return &agents
 }
 
+// MTOServiceItemList model
+func MTOServiceItemList(mtoShipment *primemessages.CreateShipmentPayload) (models.MTOServiceItems, *validate.Errors) {
+
+	if mtoShipment == nil {
+		return nil, nil
+	}
+
+	serviceItemsListFromPayload := mtoShipment.MtoServiceItems()
+
+	serviceItemsList := make(models.MTOServiceItems, len(serviceItemsListFromPayload))
+
+	for i, m := range serviceItemsListFromPayload {
+		serviceItem, verrs := MTOServiceItemModel(m)
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+
+		serviceItemsList[i] = *serviceItem
+	}
+
+	return serviceItemsList, nil
+}
+
+// MTOShipmentModelFromCreate model
+func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload, moveTaskOrderID strfmt.UUID) *models.MTOShipment {
+	if mtoShipment == nil {
+		return nil
+	}
+
+	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
+	model := &models.MTOShipment{
+		MoveTaskOrderID:     uuid.FromStringOrNil(moveTaskOrderID.String()),
+		ShipmentType:        models.MTOShipmentType(mtoShipment.ShipmentType),
+		RequestedPickupDate: &requestedPickupDate,
+		PickupAddress:       AddressModel(mtoShipment.PickupAddress),
+		DestinationAddress:  AddressModel(mtoShipment.DestinationAddress),
+		CustomerRemarks:     mtoShipment.CustomerRemarks,
+	}
+
+	if mtoShipment.Agents != nil {
+		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
+	}
+
+	return model
+}
+
 // MTOShipmentModel model
 func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipment {
 	if mtoShipment == nil {
@@ -90,6 +138,11 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 	actualPickupDate := time.Time(mtoShipment.ActualPickupDate)
 	if !actualPickupDate.IsZero() {
 		model.ActualPickupDate = &actualPickupDate
+	}
+
+	requiredDeliveryDate := time.Time(mtoShipment.RequiredDeliveryDate)
+	if !requiredDeliveryDate.IsZero() {
+		model.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
 	if mtoShipment.PickupAddress != nil {

@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemShuttle Describes a shuttle service item
+// MTOServiceItemShuttle Describes a shuttle service item.
 // swagger:model MTOServiceItemShuttle
 type MTOServiceItemShuttle struct {
 	eTagField string
@@ -30,6 +30,10 @@ type MTOServiceItemShuttle struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
+
+	rejectionReasonField *string
+
+	statusField MTOServiceItemStatus
 
 	// description
 	// Required: true
@@ -115,6 +119,26 @@ func (m *MTOServiceItemShuttle) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// RejectionReason gets the rejection reason of this subtype
+func (m *MTOServiceItemShuttle) RejectionReason() *string {
+	return m.rejectionReasonField
+}
+
+// SetRejectionReason sets the rejection reason of this subtype
+func (m *MTOServiceItemShuttle) SetRejectionReason(val *string) {
+	m.rejectionReasonField = val
+}
+
+// Status gets the status of this subtype
+func (m *MTOServiceItemShuttle) Status() MTOServiceItemStatus {
+	return m.statusField
+}
+
+// SetStatus sets the status of this subtype
+func (m *MTOServiceItemShuttle) SetStatus(val MTOServiceItemStatus) {
+	m.statusField = val
+}
+
 // Description gets the description of this subtype
 
 // ReServiceCode gets the re service code of this subtype
@@ -162,6 +186,10 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
 	dec = json.NewDecoder(buf)
@@ -189,6 +217,10 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
+
+	result.rejectionReasonField = base.RejectionReason
+
+	result.statusField = base.Status
 
 	result.Description = data.Description
 
@@ -245,6 +277,10 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
 		ETag: m.ETag(),
@@ -260,6 +296,10 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		RejectionReason: m.RejectionReason(),
+
+		Status: m.Status(),
 	},
 	)
 	if err != nil {
@@ -286,6 +326,10 @@ func (m *MTOServiceItemShuttle) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -353,6 +397,22 @@ func (m *MTOServiceItemShuttle) validateReServiceID(formats strfmt.Registry) err
 	}
 
 	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
+	if err := m.Status().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

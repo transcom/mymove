@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemBasic Describes a basic service item subtype of a MTOServiceItem
+// MTOServiceItemBasic Describes a basic service item subtype of a MTOServiceItem.
 // swagger:model MTOServiceItemBasic
 type MTOServiceItemBasic struct {
 	eTagField string
@@ -30,6 +30,10 @@ type MTOServiceItemBasic struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
+
+	rejectionReasonField *string
+
+	statusField MTOServiceItemStatus
 
 	// re service code
 	// Required: true
@@ -106,6 +110,26 @@ func (m *MTOServiceItemBasic) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// RejectionReason gets the rejection reason of this subtype
+func (m *MTOServiceItemBasic) RejectionReason() *string {
+	return m.rejectionReasonField
+}
+
+// SetRejectionReason sets the rejection reason of this subtype
+func (m *MTOServiceItemBasic) SetRejectionReason(val *string) {
+	m.rejectionReasonField = val
+}
+
+// Status gets the status of this subtype
+func (m *MTOServiceItemBasic) Status() MTOServiceItemStatus {
+	return m.statusField
+}
+
+// SetStatus sets the status of this subtype
+func (m *MTOServiceItemBasic) SetStatus(val MTOServiceItemStatus) {
+	m.statusField = val
+}
+
 // ReServiceCode gets the re service code of this subtype
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
@@ -140,6 +164,10 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
 	dec = json.NewDecoder(buf)
@@ -167,6 +195,10 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
+
+	result.rejectionReasonField = base.RejectionReason
+
+	result.statusField = base.Status
 
 	result.ReServiceCode = data.ReServiceCode
 
@@ -206,6 +238,10 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
 		ETag: m.ETag(),
@@ -221,6 +257,10 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		RejectionReason: m.RejectionReason(),
+
+		Status: m.Status(),
 	},
 	)
 	if err != nil {
@@ -247,6 +287,10 @@ func (m *MTOServiceItemBasic) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -306,6 +350,22 @@ func (m *MTOServiceItemBasic) validateReServiceID(formats strfmt.Registry) error
 	}
 
 	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemBasic) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
+	if err := m.Status().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

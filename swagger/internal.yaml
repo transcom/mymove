@@ -53,7 +53,7 @@ definitions:
     x-display-value:
       ARMY: Army
       NAVY: Navy
-      MARINES: Marines
+      MARINES: Marine Corps
       AIR_FORCE: Air Force
       COAST_GUARD: Coast Guard
   DutyStationPayload:
@@ -151,35 +151,35 @@ definitions:
       pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Do you have stuff at another pickup location?
+        title: Will you move anything from another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_sit:
         type: boolean
         x-nullable: true
-        title: Are you going to put your stuff in temporary storage before moving into your new home?
+        title: Will you put anything in storage?
       days_in_storage:
         type: integer
-        title: How many days do you plan to put your stuff in storage?
+        title: How many days of storage do you think you'll need?
         minimum: 0
         maximum: 90
         x-nullable: true
@@ -240,35 +240,35 @@ definitions:
       pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Do you have stuff at another pickup location?
+        title: Will you move anything from another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_sit:
         type: boolean
         x-nullable: true
-        title: Are you going to put your stuff in temporary storage before moving into your new home?
+        title: Will you put anything in storage?
       days_in_storage:
         type: integer
-        title: How many days do you plan to put your stuff in storage?
+        title: How many days of storage do you think you'll need?
         minimum: 0
         maximum: 90
         x-nullable: true
@@ -335,35 +335,35 @@ definitions:
       pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Do you have stuff at another pickup location?
+        title: Will you move anything from another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_sit:
         type: boolean
         x-nullable: true
-        title: Are you going to put your stuff in temporary storage before moving into your new home?
+        title: Will you put anything in storage?
       days_in_storage:
         type: integer
-        title: How many days do you plan to put your stuff in storage?
+        title: How many days of storage do you think you'll need?
         minimum: 0
         maximum: 90
         x-nullable: true
@@ -381,6 +381,16 @@ definitions:
         type: integer
         minimum: 1
         title: Net Weight
+        x-nullable: true
+      incentive_estimate_max:
+        type: integer
+        minimum: 1
+        title: Incentive Estimate Max
+        x-nullable: true
+      incentive_estimate_min:
+        type: integer
+        minimum: 1
+        title: Incentive Estimate Min
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -446,35 +456,35 @@ definitions:
       pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Do you have stuff at another pickup location?
+        title: Will you move anything from another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_sit:
         type: boolean
         x-nullable: true
-        title: Are you going to put your stuff in temporary storage before moving into your new home?
+        title: Will you put anything in storage?
       days_in_storage:
         type: integer
-        title: How many days do you plan to put your stuff in storage?
+        title: How many days of storage do you think you'll need?
         minimum: 0
         maximum: 90
         x-nullable: true
@@ -1128,17 +1138,17 @@ definitions:
         type: string
         example: John
         x-nullable: true
-        title: First Name
+        title: First name
       middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Name
+        title: Middle name
       last_name:
         type: string
         example: Donut
         x-nullable: true
-        title: Last Name
+        title: Last name
       suffix:
         type: string
         example: Jr.
@@ -1150,7 +1160,7 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Best Contact Phone
+        title: Best contact phone
       secondary_telephone:
         type: string
         format: telephone
@@ -1234,17 +1244,17 @@ definitions:
         type: string
         example: John
         x-nullable: true
-        title: First Name
+        title: First name
       middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Name
+        title: Middle name
       last_name:
         type: string
         example: Donut
         x-nullable: true
-        title: Last Name
+        title: Last name
       suffix:
         type: string
         example: Jr.
@@ -1256,21 +1266,21 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Best Contact Phone
+        title: Best contact phone
       secondary_telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Alternate Phone
+        title: Alternate phone
       personal_email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
-        title: Personal Email
+        title: Personal email
       phone_is_preferred:
         type: boolean
         x-nullable: true
@@ -1320,17 +1330,17 @@ definitions:
         type: string
         example: John
         x-nullable: true
-        title: First Name
+        title: First name
       middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Name
+        title: Middle name
       last_name:
         type: string
         example: Donut
         x-nullable: true
-        title: Last Name
+        title: Last name
       suffix:
         type: string
         example: Jr.

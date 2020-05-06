@@ -45,7 +45,7 @@ func fetchMTOs(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
-	primeGateway, cacStore, errCreateClient := CreateClient(v)
+	primeGateway, cacStore, errCreateClient := CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -57,13 +57,9 @@ func fetchMTOs(cmd *cobra.Command, args []string) error {
 
 	var params mto.FetchMTOUpdatesParams
 	params.SetTimeout(time.Second * 30)
-	resp, errFetchMTOUpdates := primeGateway.MoveTaskOrder.FetchMTOUpdates(&params)
-	if errFetchMTOUpdates != nil {
-		// If the response cannot be parsed as JSON you may see an error like
-		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
-		// Likely this is because the API doesn't return JSON response for BadRequest OR
-		// The response type is not being set to text
-		logger.Fatal(errFetchMTOUpdates.Error())
+	resp, err := primeGateway.MoveTaskOrder.FetchMTOUpdates(&params)
+	if err != nil {
+		return handleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()
