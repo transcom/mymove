@@ -45,6 +45,11 @@ export const UPLOAD_SCAN_STATUS = {
   PROCESSING: 'PROCESSING',
 };
 
+export const SHIPMENT_TYPE = {
+  HHG: 'HHG',
+  NTS: 'NTS',
+};
+
 // These constants are used to track network requests using component state
 export const isError = 'REQUEST_ERROR';
 export const isLoading = 'REQUEST_LOADING';
