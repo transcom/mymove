@@ -138,71 +138,6 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/mto-shipments": {
-      "post": {
-        "description": "Creates an instance of mtoShipment Required fields include * Shipment Type * Customer requested pick-up date * Pick-up Address * Delivery Address * Releasing / Receiving agents Optional fields include * Customer Remarks * Releasing / Receiving agents * An array of optional accessorial service item codes",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Creates an mto shipment",
-        "operationId": "createMTOShipment",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "description": "This is an MTOShipment.",
-              "$ref": "#/definitions/CreateShipmentPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "created instance of a mto shipment",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "422": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "internal server error",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      }
-    },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
       "post": {
         "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.\n",
@@ -372,6 +307,51 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Creates MTO shipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipmentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     },
     "/mto-shipments/{mtoShipmentID}": {
       "put": {
@@ -790,6 +770,9 @@ func init() {
     },
     "CreateShipmentPayload": {
       "type": "object",
+      "required": [
+        "moveTaskOrderID"
+      ],
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -801,6 +784,11 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
           "type": "array",
@@ -1991,80 +1979,6 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/mto-shipments": {
-      "post": {
-        "description": "Creates an instance of mtoShipment Required fields include * Shipment Type * Customer requested pick-up date * Pick-up Address * Delivery Address * Releasing / Receiving agents Optional fields include * Customer Remarks * Releasing / Receiving agents * An array of optional accessorial service item codes",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Creates an mto shipment",
-        "operationId": "createMTOShipment",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "description": "This is an MTOShipment.",
-              "$ref": "#/definitions/CreateShipmentPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "created instance of a mto shipment",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "description": "The request payload is invalid.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "422": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "internal server error",
-            "schema": {
-              "description": "A server error occurred.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      }
-    },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
       "post": {
         "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.\n",
@@ -2270,6 +2184,63 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Creates MTO shipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipmentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/mto-shipments/{mtoShipmentID}": {
       "put": {
@@ -2736,6 +2707,9 @@ func init() {
     },
     "CreateShipmentPayload": {
       "type": "object",
+      "required": [
+        "moveTaskOrderID"
+      ],
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -2747,6 +2721,11 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
           "type": "array",

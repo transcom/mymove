@@ -48,9 +48,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
 
 	params := mtoshipmentops.CreateMTOShipmentParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+		HTTPRequest: req,
 		Body: &primemessages.CreateShipmentPayload{
+			MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 			Agents:          nil,
 			CustomerRemarks: nil,
 			DestinationAddress: &primemessages.Address{
@@ -120,7 +120,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
 		badParams := params
-		badParams.MoveTaskOrderID = strfmt.UUID(uuidString)
+		badParams.Body.MoveTaskOrderID = handlers.FmtUUID(uuid.FromStringOrNil(uuidString))
 
 		response := handler.Handle(badParams)
 
