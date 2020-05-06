@@ -18,7 +18,7 @@ func (p *RequestPaymentHelper) ValidServiceParamList(mtoServiceItem models.MTOSe
 		}
 		if found == false {
 			hasError = true
-			errorString = errorString + " Param Key <" + serviceParam.ServiceItemParamKey.Key + ">"
+			errorString = errorString + " Param Key <" + serviceParam.ServiceItemParamKey.Key.String() + ">"
 		}
 	}
 

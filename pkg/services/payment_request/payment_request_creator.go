@@ -122,12 +122,12 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			// Get values for needed service item params (do lookups)
 			paramLookup := serviceparamlookups.ServiceParamLookupInitialize(tx, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID)
 			for _, reServiceParam := range reServiceParams {
-				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key]; !found {
+				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key.String()]; !found {
 					// create the missing service item param
 					var param *models.PaymentServiceItemParam
 					param, err = p.createServiceItemParamFromLookup(tx, paramLookup, reServiceParam, paymentServiceItem)
 					if err != nil {
-						errMessage := "Failed to create service item param for param key <" + reServiceParam.ServiceItemParamKey.Key + "> " + errMessageString
+						errMessage := "Failed to create service item param for param key <" + reServiceParam.ServiceItemParamKey.Key.String() + "> " + errMessageString
 						return fmt.Errorf("%s err: %w", errMessage, err)
 					}
 					if param != nil {
@@ -264,7 +264,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		if serviceItemParamKey.ID == uuid.Nil || serviceItemParamKey.Key == "" {
 			return nil, nil, nil, fmt.Errorf("ServiceItemParamKeyID [%s]: has invalid Key <%s> or UUID <%s> ", paymentServiceItemParam.ServiceItemParamKeyID, serviceItemParamKey.Key, serviceItemParamKey.ID.String())
 		}
-		key = serviceItemParamKey.Key
+		key = serviceItemParamKey.Key.String()
 		value = paymentServiceItemParam.Value
 		createParam = true
 	} else if paymentServiceItemParam.IncomingKey != "" {
@@ -308,7 +308,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connection, paramLookup *serviceparamlookups.ServiceItemParamKeyData, serviceParam models.ServiceParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, error) {
 	// key not found in map
 	// Did not find service item param needed for pricing, add it to the list
-	value, err := paramLookup.ServiceParamValue(serviceParam.ServiceItemParamKey.Key)
+	value, err := paramLookup.ServiceParamValue(serviceParam.ServiceItemParamKey.Key.String())
 	if err != nil {
 		errMessage := "Failed to lookup ServiceParamValue for param key <" + serviceParam.ServiceItemParamKey.Key + "> "
 		return nil, fmt.Errorf("%s err: %w", errMessage, err)
@@ -320,7 +320,7 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connect
 		PaymentServiceItem:    paymentServiceItem,
 		ServiceItemParamKeyID: serviceParam.ServiceItemParamKey.ID,
 		ServiceItemParamKey:   serviceParam.ServiceItemParamKey,
-		IncomingKey:           serviceParam.ServiceItemParamKey.Key,
+		IncomingKey:           serviceParam.ServiceItemParamKey.Key.String(),
 		Value:                 value,
 	}
 

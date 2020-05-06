@@ -3,6 +3,8 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
@@ -40,22 +42,11 @@ func ServiceParamLookupInitialize(
 		MoveTaskOrderID:  moveTaskOrderID,
 	}
 
+	for _, key := range models.ValidServiceItemParamName {
+		s.lookups[key] = NotImplementedLookup{}
+	}
+
 	s.lookups["RequestedPickupDate"] = RequestedPickupDateLookup{}
-	s.lookups["WeightBilledActual"] = NotImplementedLookup{}
-	s.lookups["WeightActual"] = NotImplementedLookup{}
-	s.lookups["WeightEstimated"] = NotImplementedLookup{}
-	s.lookups["DistanceZip3"] = NotImplementedLookup{}
-	s.lookups["ZipPickupAddress"] = NotImplementedLookup{}
-	s.lookups["ZipDestAddress"] = NotImplementedLookup{}
-	s.lookups["ServiceAreaOrigin"] = NotImplementedLookup{}
-	//s.lookups["RequestedPickupDate"] = RequestedPickupDateLookup{}
-	//s.lookups["WeightBilledActual"] = WeightBilledActualLookup{}
-	//s.lookups["WeightActual"] = WeightActualLookup{}
-	//s.lookups["WeightEstimated"] = WeightEstimatedLookup{}
-	//s.lookups["DistanceZip3"] = DistanceZip3Lookup{}
-	//s.lookups["ZipPickupAddress"] = ZipPickupAddressLookup{}
-	//s.lookups["ZipDestAddress"] = ZipDestAddressLookup{}
-	//s.lookups["ServiceAreaOrigin"] = ServiceAreaOriginLookup{}
 
 	return &s
 }
