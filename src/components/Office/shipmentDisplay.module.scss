@@ -25,11 +25,6 @@
       background: none;
     }
 
-    th:last-child {
-      @include u-text-align('right');
-      @include u-padding-right('2');
-    }
-
     th:first-child {
       @include u-padding-left('2');
     }
