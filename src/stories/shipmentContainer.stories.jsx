@@ -9,8 +9,8 @@ storiesOf('TOO/TIO Components|ShipmentContainer', module)
   .add('Shipment Container', () => (
     <ShipmentContainer containerType={text('ShipmentContainer.containerType', 'HHG')}>
       <ShipmentHeading
-        shipmentType={text('ShipmentType', 'Household Goods')}
         shipmentInfo={{
+          shipmentType: text('ShipmentInfo.shipmentType', 'Household Goods'),
           originCity: text('ShipmentInfo.originCity', 'San Antonio'),
           originState: text('ShipmentInfo.originState', 'TX'),
           originPostalCode: text('ShipmentInfo.originPostalCode', '98421'),

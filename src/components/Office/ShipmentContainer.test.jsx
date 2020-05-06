@@ -33,7 +33,7 @@ describe('Shipment Container', () => {
   });
   it('renders a container with className container--accent--hhg', () => {
     const wrapper = shallow(
-      <ShipmentContainer containerType="HHG">
+      <ShipmentContainer shipmentType="HHG">
         <ShipmentHeading shipmentInfo={headingInfo} />
       </ShipmentContainer>,
     );
@@ -41,7 +41,7 @@ describe('Shipment Container', () => {
   });
   it('renders a container with className container--accent--nts', () => {
     const wrapper = shallow(
-      <ShipmentContainer containerType="NTS">
+      <ShipmentContainer shipmentType="NTS">
         <ShipmentHeading shipmentInfo={headingInfo} />
       </ShipmentContainer>,
     );
