@@ -259,12 +259,13 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items':
+  '/mto-service-items':
     post:
       summary: Creates MTO service items that is added to a Move Task Order and MTO Shipment
       description: >
         Creates a new instance of mtoServiceItem, which come from the list of services that can be provided.
         Upon creation these items are associated with a Move Task Order and an MTO Shipment.
+        Must include UUIDs for the MTO and MTO Shipment connected to this service item.
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
@@ -273,18 +274,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-          description: UUID of Move Task Order to use.
-        - in: path
-          name: mtoShipmentID
-          required: true
-          format: uuid
-          type: string
-          description: UUID of MTO Shipment to use.
         - in: body
           name: body
           schema:

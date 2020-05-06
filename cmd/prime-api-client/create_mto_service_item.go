@@ -144,9 +144,7 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 
 	// Let's make a request!
 	params := mtoServiceItem.CreateMTOServiceItemParams{
-		MoveTaskOrderID: serviceItem.MoveTaskOrderID(),
-		MtoShipmentID:   serviceItem.MtoShipmentID(),
-		Body:            serviceItem,
+		Body: serviceItem,
 	}
 	params.SetTimeout(time.Second * 30)
 
