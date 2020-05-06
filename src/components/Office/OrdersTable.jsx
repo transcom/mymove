@@ -10,7 +10,7 @@ function OrdersTable({ ordersInfo }) {
           <h4>Orders</h4>
         </div>
         <div>
-          <Button className="usa-button usa-button--secondary">
+          <Button secondary>
             <span>View & edit orders</span>
           </Button>
         </div>
