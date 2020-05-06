@@ -16,7 +16,7 @@ import (
 // UpdateMTOShipmentOKCode is the HTTP code returned for type UpdateMTOShipmentOK
 const UpdateMTOShipmentOKCode int = 200
 
-/*UpdateMTOShipmentOK Successfully updated MTO shipment.
+/*UpdateMTOShipmentOK Successfully updated the MTO shipment.
 
 swagger:response updateMTOShipmentOK
 */
@@ -265,6 +265,50 @@ func (o *UpdateMTOShipmentPreconditionFailed) SetPayload(payload *primemessages.
 func (o *UpdateMTOShipmentPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(412)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+// UpdateMTOShipmentUnprocessableEntityCode is the HTTP code returned for type UpdateMTOShipmentUnprocessableEntity
+const UpdateMTOShipmentUnprocessableEntityCode int = 422
+
+/*UpdateMTOShipmentUnprocessableEntity The payload was unprocessable.
+
+swagger:response updateMTOShipmentUnprocessableEntity
+*/
+type UpdateMTOShipmentUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewUpdateMTOShipmentUnprocessableEntity creates UpdateMTOShipmentUnprocessableEntity with default headers values
+func NewUpdateMTOShipmentUnprocessableEntity() *UpdateMTOShipmentUnprocessableEntity {
+
+	return &UpdateMTOShipmentUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the update m t o shipment unprocessable entity response
+func (o *UpdateMTOShipmentUnprocessableEntity) WithPayload(payload *primemessages.ValidationError) *UpdateMTOShipmentUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update m t o shipment unprocessable entity response
+func (o *UpdateMTOShipmentUnprocessableEntity) SetPayload(payload *primemessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMTOShipmentUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {
