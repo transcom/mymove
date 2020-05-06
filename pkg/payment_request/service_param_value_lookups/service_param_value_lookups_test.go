@@ -18,6 +18,10 @@ type ServiceParamValueLookupsSuite struct {
 	planner route.Planner
 }
 
+func (suite *ServiceParamValueLookupsSuite) SetupTest() {
+	suite.DB().TruncateAll()
+}
+
 func TestServiceParamValueLookupsSuite(t *testing.T) {
 	ts := &ServiceParamValueLookupsSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
