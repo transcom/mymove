@@ -16,7 +16,6 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import QueueHeader from 'shared/Header/Office';
-import Authorization from 'shared/User/Authorization';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import './office.scss';
@@ -113,6 +112,7 @@ export class OfficeWrapper extends Component {
                       <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
                   )}
+                  requiredRole="ppm_office_users"
                 />
                 <PrivateRoute
                   path="/queues/:queueType"
@@ -121,6 +121,7 @@ export class OfficeWrapper extends Component {
                       <RenderWithOrWithoutHeader component={Queues} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
                   )}
+                  requiredRole="ppm_office_users"
                 />
                 <PrivateRoute
                   path="/moves/:moveId/orders"
@@ -134,6 +135,7 @@ export class OfficeWrapper extends Component {
                       />
                     </Suspense>
                   )}
+                  requiredRole="ppm_office_users"
                 />
                 <PrivateRoute
                   path="/moves/:moveId/documents/:moveDocumentId?"
@@ -147,6 +149,7 @@ export class OfficeWrapper extends Component {
                       />
                     </Suspense>
                   )}
+                  requiredRole="ppm_office_users"
                 />
                 {!isProduction && (
                   <PrivateRoute
@@ -167,23 +170,57 @@ export class OfficeWrapper extends Component {
                   <Switch>
                     {too && (
                       <PrivateRoute
-                        path="/too/customer-moves"
+                        path="/moves/queue"
                         exact
-                        component={Authorization(TOO, 'transportation_ordering_officer')}
+                        component={TOO}
+                        requiredRole="transportation_ordering_officer"
                       />
                     )}
-                    {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOMoveTaskOrder} />}
-                    {too && <PrivateRoute path="/moves/:moveId" exact component={MoveDetails} />}
                     {too && (
                       <PrivateRoute
-                        path="/too/customer-moves/:moveOrderId/customer/:customerId"
+                        path="/move/mto/:moveTaskOrderId"
+                        exact
+                        component={TOOMoveTaskOrder}
+                        requiredRole="transportation_ordering_officer"
+                      />
+                    )}
+                    {too && (
+                      <PrivateRoute
+                        path="/moves/:moveId"
+                        exact
+                        component={MoveDetails}
+                        requiredRole="transportation_ordering_officer"
+                      />
+                    )}
+                    {too && (
+                      <PrivateRoute
+                        path="/moves/:moveOrderId/customer/:customerId"
                         component={CustomerDetails}
+                        requiredRole="transportation_ordering_officer"
                       />
                     )}
                     {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
-                    {tio && <PrivateRoute path="/tio/placeholder" component={TIO} />}
-                    {tio && <PrivateRoute path="/payment_requests/:id" component={PaymentRequestShow} />}
-                    {tio && <PrivateRoute path="/payment_requests" component={PaymentRequestIndex} />}
+                    {tio && (
+                      <PrivateRoute
+                        path="/tio/placeholder"
+                        component={TIO}
+                        requiredRole="transportation_invoicing_officer"
+                      />
+                    )}
+                    {tio && (
+                      <PrivateRoute
+                        path="/payment_requests/:id"
+                        component={PaymentRequestShow}
+                        requiredRole="transportation_invoicing_officer"
+                      />
+                    )}
+                    {tio && (
+                      <PrivateRoute
+                        path="/payment_requests"
+                        component={PaymentRequestIndex}
+                        requiredRole="transportation_invoicing_officer"
+                      />
+                    )}
                   </Switch>
                 </Suspense>
               </Switch>
