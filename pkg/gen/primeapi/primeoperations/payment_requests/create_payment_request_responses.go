@@ -16,7 +16,7 @@ import (
 // CreatePaymentRequestCreatedCode is the HTTP code returned for type CreatePaymentRequestCreated
 const CreatePaymentRequestCreatedCode int = 201
 
-/*CreatePaymentRequestCreated successfully created instance of payment request
+/*CreatePaymentRequestCreated Successfully created a paymentRequest object.
 
 swagger:response createPaymentRequestCreated
 */
@@ -60,7 +60,7 @@ func (o *CreatePaymentRequestCreated) WriteResponse(rw http.ResponseWriter, prod
 // CreatePaymentRequestBadRequestCode is the HTTP code returned for type CreatePaymentRequestBadRequest
 const CreatePaymentRequestBadRequestCode int = 400
 
-/*CreatePaymentRequestBadRequest the payment request payload is invalid
+/*CreatePaymentRequestBadRequest Request payload is invalid.
 
 swagger:response createPaymentRequestBadRequest
 */
@@ -69,7 +69,7 @@ type CreatePaymentRequestBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreatePaymentRequestBadRequest creates CreatePaymentRequestBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewCreatePaymentRequestBadRequest() *CreatePaymentRequestBadRequest {
 }
 
 // WithPayload adds the payload to the create payment request bad request response
-func (o *CreatePaymentRequestBadRequest) WithPayload(payload interface{}) *CreatePaymentRequestBadRequest {
+func (o *CreatePaymentRequestBadRequest) WithPayload(payload *primemessages.ClientError) *CreatePaymentRequestBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create payment request bad request response
-func (o *CreatePaymentRequestBadRequest) SetPayload(payload interface{}) {
+func (o *CreatePaymentRequestBadRequest) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -93,16 +93,18 @@ func (o *CreatePaymentRequestBadRequest) SetPayload(payload interface{}) {
 func (o *CreatePaymentRequestBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // CreatePaymentRequestUnauthorizedCode is the HTTP code returned for type CreatePaymentRequestUnauthorized
 const CreatePaymentRequestUnauthorizedCode int = 401
 
-/*CreatePaymentRequestUnauthorized must be authenticated to use this endpoint
+/*CreatePaymentRequestUnauthorized The request was unauthorized.
 
 swagger:response createPaymentRequestUnauthorized
 */
@@ -144,7 +146,7 @@ func (o *CreatePaymentRequestUnauthorized) WriteResponse(rw http.ResponseWriter,
 // CreatePaymentRequestForbiddenCode is the HTTP code returned for type CreatePaymentRequestForbidden
 const CreatePaymentRequestForbiddenCode int = 403
 
-/*CreatePaymentRequestForbidden not authorized to create a payment request
+/*CreatePaymentRequestForbidden The client doesn't have permissions to perform the request.
 
 swagger:response createPaymentRequestForbidden
 */
@@ -186,7 +188,7 @@ func (o *CreatePaymentRequestForbidden) WriteResponse(rw http.ResponseWriter, pr
 // CreatePaymentRequestNotFoundCode is the HTTP code returned for type CreatePaymentRequestNotFound
 const CreatePaymentRequestNotFoundCode int = 404
 
-/*CreatePaymentRequestNotFound The requested resource wasn't found
+/*CreatePaymentRequestNotFound The requested resource wasn't found.
 
 swagger:response createPaymentRequestNotFound
 */
@@ -195,7 +197,7 @@ type CreatePaymentRequestNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreatePaymentRequestNotFound creates CreatePaymentRequestNotFound with default headers values
@@ -205,13 +207,13 @@ func NewCreatePaymentRequestNotFound() *CreatePaymentRequestNotFound {
 }
 
 // WithPayload adds the payload to the create payment request not found response
-func (o *CreatePaymentRequestNotFound) WithPayload(payload interface{}) *CreatePaymentRequestNotFound {
+func (o *CreatePaymentRequestNotFound) WithPayload(payload *primemessages.ClientError) *CreatePaymentRequestNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create payment request not found response
-func (o *CreatePaymentRequestNotFound) SetPayload(payload interface{}) {
+func (o *CreatePaymentRequestNotFound) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -219,16 +221,18 @@ func (o *CreatePaymentRequestNotFound) SetPayload(payload interface{}) {
 func (o *CreatePaymentRequestNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // CreatePaymentRequestUnprocessableEntityCode is the HTTP code returned for type CreatePaymentRequestUnprocessableEntity
 const CreatePaymentRequestUnprocessableEntityCode int = 422
 
-/*CreatePaymentRequestUnprocessableEntity validation error
+/*CreatePaymentRequestUnprocessableEntity The payload was unprocessable.
 
 swagger:response createPaymentRequestUnprocessableEntity
 */
@@ -272,7 +276,7 @@ func (o *CreatePaymentRequestUnprocessableEntity) WriteResponse(rw http.Response
 // CreatePaymentRequestInternalServerErrorCode is the HTTP code returned for type CreatePaymentRequestInternalServerError
 const CreatePaymentRequestInternalServerErrorCode int = 500
 
-/*CreatePaymentRequestInternalServerError A server error occurred
+/*CreatePaymentRequestInternalServerError A server error occurred.
 
 swagger:response createPaymentRequestInternalServerError
 */
@@ -281,7 +285,7 @@ type CreatePaymentRequestInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewCreatePaymentRequestInternalServerError creates CreatePaymentRequestInternalServerError with default headers values
@@ -291,13 +295,13 @@ func NewCreatePaymentRequestInternalServerError() *CreatePaymentRequestInternalS
 }
 
 // WithPayload adds the payload to the create payment request internal server error response
-func (o *CreatePaymentRequestInternalServerError) WithPayload(payload interface{}) *CreatePaymentRequestInternalServerError {
+func (o *CreatePaymentRequestInternalServerError) WithPayload(payload *primemessages.Error) *CreatePaymentRequestInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create payment request internal server error response
-func (o *CreatePaymentRequestInternalServerError) SetPayload(payload interface{}) {
+func (o *CreatePaymentRequestInternalServerError) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -305,8 +309,10 @@ func (o *CreatePaymentRequestInternalServerError) SetPayload(payload interface{}
 func (o *CreatePaymentRequestInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

@@ -1,18 +1,18 @@
 package primeapi
 
 import (
-	"go.uber.org/zap"
-
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-
-	"github.com/transcom/mymove/pkg/gen/primemessages"
-
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+
 	"github.com/gofrs/uuid"
 
+	"go.uber.org/zap"
+
 	uploadop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/uploads"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
 
 func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload {
@@ -20,6 +20,8 @@ func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload 
 		Bytes:       &u.Bytes,
 		ContentType: &u.ContentType,
 		Filename:    &u.Filename,
+		CreatedAt:   (*strfmt.DateTime)(&u.CreatedAt),
+		UpdatedAt:   (*strfmt.DateTime)(&u.UpdatedAt),
 	}
 }
 

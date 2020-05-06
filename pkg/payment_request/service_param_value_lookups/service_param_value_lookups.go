@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 
+	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -10,6 +11,7 @@ import (
 
 // ServiceItemParamKeyData contains service item parameter keys
 type ServiceItemParamKeyData struct {
+	db                 *pop.Connection
 	lookups            map[string]ServiceItemParamKeyLookup
 	PayloadServiceItem primemessages.ServiceItem
 	MTOServiceItemID   uuid.UUID
@@ -24,12 +26,14 @@ type ServiceItemParamKeyLookup interface {
 
 // ServiceParamLookupInitialize initializes service parameter lookup
 func ServiceParamLookupInitialize(
+	db *pop.Connection,
 	mtoServiceItemID uuid.UUID,
 	paymentRequestID uuid.UUID,
 	moveTaskOrderID uuid.UUID,
 ) *ServiceItemParamKeyData {
 
 	s := ServiceItemParamKeyData{
+		db:               db,
 		lookups:          make(map[string]ServiceItemParamKeyLookup),
 		MTOServiceItemID: mtoServiceItemID,
 		PaymentRequestID: paymentRequestID,

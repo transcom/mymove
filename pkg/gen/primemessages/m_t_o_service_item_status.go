@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemStatus Describes all statuses for a MTOServiceItem
+// MTOServiceItemStatus Describes all statuses for a MTOServiceItem.
 // swagger:model MTOServiceItemStatus
 type MTOServiceItemStatus string
 

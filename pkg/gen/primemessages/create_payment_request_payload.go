@@ -23,13 +23,15 @@ type CreatePaymentRequestPayload struct {
 	IsFinal *bool `json:"isFinal,omitempty"`
 
 	// move task order ID
+	// Required: true
 	// Format: uuid
-	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
-	// Email or id of a contact person for this update
+	// Email or id of a contact person for this update.
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
 	// service items
+	// Required: true
 	ServiceItems []*ServiceItem `json:"serviceItems"`
 }
 
@@ -53,8 +55,8 @@ func (m *CreatePaymentRequestPayload) Validate(formats strfmt.Registry) error {
 
 func (m *CreatePaymentRequestPayload) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MoveTaskOrderID) { // not required
-		return nil
+	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
@@ -66,8 +68,8 @@ func (m *CreatePaymentRequestPayload) validateMoveTaskOrderID(formats strfmt.Reg
 
 func (m *CreatePaymentRequestPayload) validateServiceItems(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ServiceItems) { // not required
-		return nil
+	if err := validate.Required("serviceItems", "body", m.ServiceItems); err != nil {
+		return err
 	}
 
 	for i := 0; i < len(m.ServiceItems); i++ {

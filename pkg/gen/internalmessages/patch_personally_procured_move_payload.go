@@ -59,6 +59,14 @@ type PatchPersonallyProcuredMovePayload struct {
 	// Will you put anything in storage?
 	HasSit *bool `json:"has_sit,omitempty"`
 
+	// Incentive Estimate Max
+	// Minimum: 1
+	IncentiveEstimateMax *int64 `json:"incentive_estimate_max,omitempty"`
+
+	// Incentive Estimate Min
+	// Minimum: 1
+	IncentiveEstimateMin *int64 `json:"incentive_estimate_min,omitempty"`
+
 	// Net Weight
 	// Minimum: 1
 	NetWeight *int64 `json:"net_weight,omitempty"`
@@ -116,6 +124,14 @@ func (m *PatchPersonallyProcuredMovePayload) Validate(formats strfmt.Registry) e
 	}
 
 	if err := m.validateHasProGearOverThousand(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateIncentiveEstimateMax(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateIncentiveEstimateMin(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -327,6 +343,32 @@ func (m *PatchPersonallyProcuredMovePayload) validateHasProGearOverThousand(form
 
 	// value enum
 	if err := m.validateHasProGearOverThousandEnum("has_pro_gear_over_thousand", "body", *m.HasProGearOverThousand); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PatchPersonallyProcuredMovePayload) validateIncentiveEstimateMax(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.IncentiveEstimateMax) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("incentive_estimate_max", "body", int64(*m.IncentiveEstimateMax), 1, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PatchPersonallyProcuredMovePayload) validateIncentiveEstimateMin(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.IncentiveEstimateMin) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("incentive_estimate_min", "body", int64(*m.IncentiveEstimateMin), 1, false); err != nil {
 		return err
 	}
 
