@@ -232,10 +232,11 @@ type ServiceItemParamKeys []ServiceItemParamKey
 func (s *ServiceItemParamKey) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: s.Key.String(), Name: "Key"},
+		&validators.StringInclusion{Field: s.Key.String(), Name: "Key", List: ValidServiceItemParamName},
 		&validators.StringIsPresent{Field: s.Description, Name: "Description"},
 		&validators.StringIsPresent{Field: string(s.Type), Name: "Type"},
-		&validators.StringIsPresent{Field: string(s.Origin), Name: "Origin"},
 		&validators.StringInclusion{Field: s.Type.String(), Name: "Type", List: validServiceItemParamType},
+		&validators.StringIsPresent{Field: string(s.Origin), Name: "Origin"},
 		&validators.StringInclusion{Field: s.Origin.String(), Name: "Origin", List: validServiceItemParamOrigin},
 	), nil
 }

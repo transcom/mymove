@@ -1,6 +1,6 @@
 package serviceparamvaluelookups
 
-// NotImplementedLookup is the weight estimated lookup
+// NotImplementedLookup is the default for unimplemented service item param keys in look-ups
 type NotImplementedLookup struct {
 }
 
