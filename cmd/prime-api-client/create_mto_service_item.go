@@ -131,11 +131,11 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 		serviceItemParams.SetBody(&params.Body)
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:
 		var params dDFSITParams
-		err = decodeJSONFileToPayload(filename, containsDash(args), params)
+		err = decodeJSONFileToPayload(filename, containsDash(args), &params)
 		serviceItemParams.SetBody(&params.Body)
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
 		var params domesticCratingParams
-		err = decodeJSONFileToPayload(filename, containsDash(args), params)
+		err = decodeJSONFileToPayload(filename, containsDash(args), &params)
 		serviceItemParams.SetBody(&params.Body)
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
 		var params shuttleParams
