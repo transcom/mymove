@@ -6,22 +6,40 @@ import SaveCancelButtons from './SaveCancelButtons';
 import React, { Component, Fragment } from 'react';
 import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
+
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { loadPPMs, updatePPM, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
-import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
-import 'scenes/Moves/Ppm/DateAndLocation.css';
+import {
+  loadPPMs,
+  updatePPM,
+  selectActivePPMForMove,
+  updatePPMEstimate,
+  getPPMSITEstimate,
+  selectPPMSITEstimate,
+} from 'shared/Entities/modules/ppms';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
+import { formatCents } from 'shared/formatters';
+
+import 'scenes/Moves/Ppm/DateAndLocation.css';
 
 const sitEstimateDebounceTime = 300;
 
 let EditDateAndLocationForm = (props) => {
-  const { handleSubmit, currentOrders, getSitEstimate, schema, valid, sitReimbursement, submitting } = props;
+  const {
+    handleSubmit,
+    currentOrders,
+    getSitEstimate,
+    sitEstimate,
+    schema,
+    valid,
+    sitReimbursement,
+    submitting,
+  } = props;
+  const displayedSITReimbursement = sitEstimate ? '$' + formatCents(sitEstimate) : sitReimbursement;
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">
@@ -63,10 +81,10 @@ let EditDateAndLocationForm = (props) => {
                   required
                 />{' '}
                 <span className="grey">You can choose up to 90 days.</span>
-                {sitReimbursement && (
+                {displayedSITReimbursement && (
                   <div data-cy="storage-estimate" className="storage-estimate">
-                    You can spend up to {sitReimbursement} on private storage. Save your receipts to submit with your
-                    PPM paperwork.
+                    You can spend up to {displayedSITReimbursement} on private storage. Save your receipts to submit
+                    with your PPM paperwork.
                   </div>
                 )}
               </Fragment>
@@ -120,9 +138,9 @@ class EditDateAndLocation extends Component {
     }
   };
 
-  getSitEstimate = (moveDate, sitDays, pickupZip, orders, weight) => {
+  getSitEstimate = (moveDate, sitDays, pickupZip, ordersID, weight) => {
     if (sitDays <= 90 && pickupZip.length === 5) {
-      this.props.getPpmSitEstimate(moveDate, sitDays, pickupZip, orders.id, weight);
+      this.props.getPPMSITEstimate(moveDate, sitDays, pickupZip, ordersID, weight);
     }
   };
 
@@ -149,6 +167,19 @@ class EditDateAndLocation extends Component {
     scrollToTop();
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.currentPPM !== this.props.currentPPM && prevProps.currentOrders !== this.props.currentOrders) {
+      const currentPPM = this.props.currentPPM;
+      this.props.getPPMSITEstimate(
+        currentPPM.original_move_date,
+        currentPPM.days_in_storage,
+        currentPPM.pickup_postal_code,
+        this.currentOrders.id,
+        currentPPM.weight_estimate,
+      );
+    }
+  }
+
   render() {
     const {
       initialValues,
@@ -157,6 +188,7 @@ class EditDateAndLocation extends Component {
       sitReimbursement,
       currentOrders,
       error,
+      sitEstimate,
       entitiesSitReimbursement,
     } = this.props;
     return (
@@ -172,6 +204,7 @@ class EditDateAndLocation extends Component {
           <EditDateAndLocationForm
             onSubmit={this.handleSubmit}
             getSitEstimate={this.getDebouncedSitEstimate}
+            sitEstimate={sitEstimate}
             initialValues={initialValues}
             schema={schema}
             formValues={formValues}
@@ -205,6 +238,7 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     error: get(state, 'ppm.error'),
     hasSubmitError: get(state, 'ppm.hasSubmitError'),
+    sitEstimate: selectPPMSITEstimate(state),
     entitiesSitReimbursement: get(
       selectActivePPMForMove(state, get(state, 'moves.currentMove.id')),
       'estimated_storage_reimbursement',
@@ -227,7 +261,7 @@ function mapDispatchToProps(dispatch) {
       push,
       updatePPM,
       loadPPMs,
-      getPpmSitEstimate,
+      getPPMSITEstimate,
       editBegin,
       editSuccessful,
       entitlementChangeBegin,
