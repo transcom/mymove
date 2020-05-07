@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder(suite.DB())
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
+	req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 	params := mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
@@ -136,7 +136,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			creator,
 		}
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/{MoveTaskOrderID}/mto_shipments"), nil)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,

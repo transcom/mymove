@@ -2,7 +2,6 @@ package primeapi
 
 import (
 	"errors"
-	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -43,7 +42,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	})
 	builder := query.NewQueryBuilder(suite.DB())
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s/mto_service_items", mto.ID.String(), mtoShipment.ID.String()), nil)
+	req := httptest.NewRequest("POST", "/mto-service-items", nil)
 
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID:  mto.ID,
@@ -214,7 +213,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 	})
 	builder := query.NewQueryBuilder(suite.DB())
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s/mto_service_items", mto.ID.String(), mtoShipment.ID.String()), nil)
+	req := httptest.NewRequest("POST", "/mto-service-items", nil)
 
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID: mto.ID,
@@ -335,7 +334,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 	})
 	builder := query.NewQueryBuilder(suite.DB())
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s/mto_service_items", mto.ID.String(), mtoShipment.ID.String()), nil)
+	req := httptest.NewRequest("POST", "/mto-service-items", nil)
 
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID: mto.ID,
