@@ -9,7 +9,7 @@ import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 
 const SubmittedPpmMoveDetails = (props) => {
-  const { advance, ppm, currentPPM, tempCurrentPPM } = props;
+  const { advance, ppm, currentPPM, tempCurrentPPM, hasEstimateError } = props;
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
@@ -25,7 +25,7 @@ const SubmittedPpmMoveDetails = (props) => {
       <div>Weight (est.): {weightEstimate} lbs</div>
       <div>
         Incentive (est.):{' '}
-        {ppm.hasEstimateError ? (
+        {ppm.hasEstimateError || hasEstimateError ? (
           <>
             Not ready yet{' '}
             <IconWithTooltip
