@@ -203,87 +203,6 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
-      "put": {
-        "description": "Updates MTO shipment.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Updates MTO shipment",
-        "operationId": "updateMTOShipment",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move task order being used.",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move task order shipment being updated.",
-            "name": "mtoShipmentID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated MTO shipment.",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
       "post": {
         "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.\n",
@@ -453,6 +372,82 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/mto-shipments/{mtoShipmentID}": {
+      "put": {
+        "description": "Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:\n\n* ` + "`" + `scheduledPickupDate` + "`" + `\n* ` + "`" + `actualPickupDate` + "`" + `\n* ` + "`" + `firstAvailableDeliveryDate` + "`" + `\n* ` + "`" + `destinationAddress` + "`" + `\n* ` + "`" + `pickupAddress` + "`" + `\n* ` + "`" + `secondaryDeliveryAddress` + "`" + `\n* ` + "`" + `secondaryPickupAddress` + "`" + `\n* ` + "`" + `primeEstimatedWeight` + "`" + `\n* ` + "`" + `primeActualWeight` + "`" + `\n* ` + "`" + `shipmentType` + "`" + `\n* ` + "`" + `agents` + "`" + ` - all subfields except ` + "`" + `mtoShipmentID` + "`" + `, ` + "`" + `createdAt` + "`" + `, ` + "`" + `updatedAt` + "`" + `. You cannot add new agents to a shipment.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Updates MTO shipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment being updated.",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     },
     "/payment-requests": {
       "post": {
@@ -995,7 +990,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -1020,6 +1016,7 @@ func init() {
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "phone": {
@@ -1030,7 +1027,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         }
       }
     },
@@ -1325,23 +1323,28 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
+          "description": "date when the shipment was given the status \"APPROVED\"",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "datetime",
+          "readOnly": true
         },
         "customerRemarks": {
           "type": "string",
           "x-nullable": true,
+          "readOnly": true,
           "example": "handle with care"
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "firstAvailableDeliveryDate": {
           "type": "string",
@@ -1350,11 +1353,13 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
@@ -1374,15 +1379,24 @@ func init() {
         },
         "primeEstimatedWeightRecordedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "requiredDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -1403,11 +1417,13 @@ func init() {
             "APPROVED",
             "SUBMITTED",
             "REJECTED"
-          ]
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "datetime",
+          "readOnly": true
         }
       }
     },
@@ -1775,7 +1791,11 @@ func init() {
         "invalidFields": {
           "type": "object",
           "additionalProperties": {
-            "type": "string"
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }
@@ -2045,105 +2065,6 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
-      "put": {
-        "description": "Updates MTO shipment.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Updates MTO shipment",
-        "operationId": "updateMTOShipment",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move task order being used.",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the move task order shipment being updated.",
-            "name": "mtoShipmentID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated MTO shipment.",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "412": {
-            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
       "post": {
         "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.\n",
@@ -2349,6 +2270,103 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/mto-shipments/{mtoShipmentID}": {
+      "put": {
+        "description": "Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:\n\n* ` + "`" + `scheduledPickupDate` + "`" + `\n* ` + "`" + `actualPickupDate` + "`" + `\n* ` + "`" + `firstAvailableDeliveryDate` + "`" + `\n* ` + "`" + `destinationAddress` + "`" + `\n* ` + "`" + `pickupAddress` + "`" + `\n* ` + "`" + `secondaryDeliveryAddress` + "`" + `\n* ` + "`" + `secondaryPickupAddress` + "`" + `\n* ` + "`" + `primeEstimatedWeight` + "`" + `\n* ` + "`" + `primeActualWeight` + "`" + `\n* ` + "`" + `shipmentType` + "`" + `\n* ` + "`" + `agents` + "`" + ` - all subfields except ` + "`" + `mtoShipmentID` + "`" + `, ` + "`" + `createdAt` + "`" + `, ` + "`" + `updatedAt` + "`" + `. You cannot add new agents to a shipment.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Updates MTO shipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment being updated.",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/payment-requests": {
       "post": {
@@ -2918,7 +2936,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2943,6 +2962,7 @@ func init() {
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "phone": {
@@ -2953,7 +2973,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         }
       }
     },
@@ -3248,23 +3269,28 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
+          "description": "date when the shipment was given the status \"APPROVED\"",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "datetime",
+          "readOnly": true
         },
         "customerRemarks": {
           "type": "string",
           "x-nullable": true,
+          "readOnly": true,
           "example": "handle with care"
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "firstAvailableDeliveryDate": {
           "type": "string",
@@ -3273,11 +3299,13 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
@@ -3297,15 +3325,24 @@ func init() {
         },
         "primeEstimatedWeightRecordedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "requiredDeliveryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "scheduledPickupDate": {
           "type": "string",
@@ -3326,11 +3363,13 @@ func init() {
             "APPROVED",
             "SUBMITTED",
             "REJECTED"
-          ]
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "datetime",
+          "readOnly": true
         }
       }
     },
@@ -3698,7 +3737,11 @@ func init() {
         "invalidFields": {
           "type": "object",
           "additionalProperties": {
-            "type": "string"
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }

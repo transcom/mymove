@@ -5,7 +5,7 @@ set -eu -o pipefail
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-VERSION="v5.3"
+VERSION="v5.4"
 
 VAULT_VERSION=$(type -p aws-vault && aws-vault --version)
 
