@@ -31,7 +31,7 @@ func NewCreateUpload(ctx *middleware.Context, handler CreateUploadHandler) *Crea
 
 /*CreateUpload swagger:route POST /payment-requests/{paymentRequestID}/uploads uploads createUpload
 
-Create a new upload for a payment request
+createUpload
 
 Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
 

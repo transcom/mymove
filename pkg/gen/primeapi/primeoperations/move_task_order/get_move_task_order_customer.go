@@ -31,7 +31,7 @@ func NewGetMoveTaskOrderCustomer(ctx *middleware.Context, handler GetMoveTaskOrd
 
 /*GetMoveTaskOrderCustomer swagger:route GET /move-task-orders/{moveTaskOrderID}/customer moveTaskOrder getMoveTaskOrderCustomer
 
-Gets the customer associated with a move task order ID
+getMoveTaskOrderCustomer
 
 Gets the customer associated with a move task order ID.
 

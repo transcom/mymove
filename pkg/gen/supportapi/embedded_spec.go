@@ -48,7 +48,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Creates a move task order",
+        "summary": "createMoveTaskOrder",
         "operationId": "createMoveTaskOrder",
         "parameters": [
           {
@@ -103,7 +103,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets a move task order by ID",
+        "summary": "getMoveTaskOrder",
         "operationId": "getMoveTaskOrder",
         "responses": {
           "200": {
@@ -157,7 +157,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Update the status of a move task order to make it available to prime",
+        "summary": "updateMoveTaskOrderStatus",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -231,7 +231,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates a shipment's status",
+        "summary": "patchMTOShipmentStatus",
         "operationId": "patchMTOShipmentStatus",
         "parameters": [
           {
@@ -315,7 +315,7 @@ func init() {
         "tags": [
           "paymentRequests"
         ],
-        "summary": "Updates status of a payment request by id",
+        "summary": "updatePaymentRequestStatus",
         "operationId": "updatePaymentRequestStatus",
         "parameters": [
           {
@@ -393,7 +393,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Update the status of a service item for a move order by ID",
+        "summary": "updateMTOServiceItemStatus",
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
@@ -1604,7 +1604,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Creates a move task order",
+        "summary": "createMoveTaskOrder",
         "operationId": "createMoveTaskOrder",
         "parameters": [
           {
@@ -1677,7 +1677,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets a move task order by ID",
+        "summary": "getMoveTaskOrder",
         "operationId": "getMoveTaskOrder",
         "responses": {
           "200": {
@@ -1746,7 +1746,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Update the status of a move task order to make it available to prime",
+        "summary": "updateMoveTaskOrderStatus",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -1838,7 +1838,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates a shipment's status",
+        "summary": "patchMTOShipmentStatus",
         "operationId": "patchMTOShipmentStatus",
         "parameters": [
           {
@@ -1946,7 +1946,7 @@ func init() {
         "tags": [
           "paymentRequests"
         ],
-        "summary": "Updates status of a payment request by id",
+        "summary": "updatePaymentRequestStatus",
         "operationId": "updatePaymentRequestStatus",
         "parameters": [
           {
@@ -2045,7 +2045,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Update the status of a service item for a move order by ID",
+        "summary": "updateMTOServiceItemStatus",
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {

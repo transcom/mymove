@@ -23,8 +23,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API for move.mil",
-    "title": "move.mil API",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the details and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
+    "title": "Milmove Prime API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -45,7 +45,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE",
+        "summary": "fetchMTOUpdates",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
@@ -96,7 +96,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets the customer associated with a move task order ID",
+        "summary": "getMoveTaskOrderCustomer",
         "operationId": "getMoveTaskOrderCustomer",
         "responses": {
           "200": {
@@ -150,7 +150,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Creates an mto shipment",
+        "summary": "createMTOShipment",
         "operationId": "createMTOShipment",
         "parameters": [
           {
@@ -215,7 +215,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Creates MTO service items that is added to a Move Task Order and MTO Shipment",
+        "summary": "createMTOServiceItem",
         "operationId": "createMTOServiceItem",
         "parameters": [
           {
@@ -279,7 +279,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "Updates move task order fields ppmType, ppmEstimatedWeight, and pointOfContact.",
+        "description": "Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.",
         "consumes": [
           "application/json"
         ],
@@ -289,7 +289,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates move task order's post counseling information",
+        "summary": "updateMTOPostCounselingInformation",
         "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
@@ -385,7 +385,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates MTO shipment",
+        "summary": "updateMTOShipment",
         "operationId": "updateMTOShipment",
         "parameters": [
           {
@@ -461,7 +461,7 @@ func init() {
         "tags": [
           "paymentRequests"
         ],
-        "summary": "Creates a payment request",
+        "summary": "createPaymentRequest",
         "operationId": "createPaymentRequest",
         "parameters": [
           {
@@ -524,7 +524,7 @@ func init() {
         "tags": [
           "uploads"
         ],
-        "summary": "Create a new upload for a payment request",
+        "summary": "createUpload",
         "operationId": "createUpload",
         "parameters": [
           {
@@ -1846,8 +1846,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API for move.mil",
-    "title": "move.mil API",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the details and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
+    "title": "Milmove Prime API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -1868,7 +1868,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE",
+        "summary": "fetchMTOUpdates",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
@@ -1934,7 +1934,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets the customer associated with a move task order ID",
+        "summary": "getMoveTaskOrderCustomer",
         "operationId": "getMoveTaskOrderCustomer",
         "responses": {
           "200": {
@@ -2003,7 +2003,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Creates an mto shipment",
+        "summary": "createMTOShipment",
         "operationId": "createMTOShipment",
         "parameters": [
           {
@@ -2077,7 +2077,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Creates MTO service items that is added to a Move Task Order and MTO Shipment",
+        "summary": "createMTOServiceItem",
         "operationId": "createMTOServiceItem",
         "parameters": [
           {
@@ -2159,7 +2159,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "Updates move task order fields ppmType, ppmEstimatedWeight, and pointOfContact.",
+        "description": "Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.",
         "consumes": [
           "application/json"
         ],
@@ -2169,7 +2169,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates move task order's post counseling information",
+        "summary": "updateMTOPostCounselingInformation",
         "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
@@ -2283,7 +2283,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates MTO shipment",
+        "summary": "updateMTOShipment",
         "operationId": "updateMTOShipment",
         "parameters": [
           {
@@ -2380,7 +2380,7 @@ func init() {
         "tags": [
           "paymentRequests"
         ],
-        "summary": "Creates a payment request",
+        "summary": "createPaymentRequest",
         "operationId": "createPaymentRequest",
         "parameters": [
           {
@@ -2455,7 +2455,7 @@ func init() {
         "tags": [
           "uploads"
         ],
-        "summary": "Create a new upload for a payment request",
+        "summary": "createUpload",
         "operationId": "createUpload",
         "parameters": [
           {
