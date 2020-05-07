@@ -234,12 +234,27 @@ func (context *Context) GetFeatureFlag(flag string) bool {
 	return false
 }
 
+// sessionManager returns the session manager corresponding to the current app.
+// A user can be signed in at the same time across multiple apps.
+func (context Context) sessionManager(session *auth.Session) *scs.SessionManager {
+	if session.IsMilApp() {
+		return context.sessionManagers[0]
+	} else if session.IsAdminApp() {
+		return context.sessionManagers[1]
+	} else if session.IsOfficeApp() {
+		return context.sessionManagers[2]
+	}
+
+	return nil
+}
+
 // Context is the common handler type for auth handlers
 type Context struct {
 	logger           Logger
 	loginGovProvider LoginGovProvider
 	callbackTemplate string
 	featureFlags     map[string]bool
+	sessionManagers  [3]*scs.SessionManager
 }
 
 // FeatureFlag holds the name of a feature flag and if it is enabled
@@ -249,11 +264,12 @@ type FeatureFlag struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
+func NewAuthContext(logger Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int, sessionManagers [3]*scs.SessionManager) Context {
 	context := Context{
 		logger:           logger,
 		loginGovProvider: loginGovProvider,
 		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),
+		sessionManagers:  sessionManagers,
 	}
 	return context
 }
@@ -261,14 +277,12 @@ func NewAuthContext(logger Logger, loginGovProvider LoginGovProvider, callbackPr
 // LogoutHandler handles logging the user out of login.gov
 type LogoutHandler struct {
 	Context
-	sessionManager *scs.SessionManager
 }
 
 // NewLogoutHandler creates a new LogoutHandler
-func NewLogoutHandler(ac Context, sessionManager *scs.SessionManager) LogoutHandler {
+func NewLogoutHandler(ac Context) LogoutHandler {
 	logoutHandler := LogoutHandler{
-		Context:        ac,
-		sessionManager: sessionManager,
+		Context: ac,
 	}
 	return logoutHandler
 }
@@ -288,7 +302,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			} else {
 				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
 			}
-			h.sessionManager.Destroy(r.Context())
+			h.sessionManager(session).Destroy(r.Context())
 			auth.DeleteCSRFCookies(w)
 
 			fmt.Fprint(w, logoutURL)
@@ -307,14 +321,12 @@ const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
 type RedirectHandler struct {
 	Context
 	UseSecureCookie bool
-	sessionManager  *scs.SessionManager
 }
 
 // NewRedirectHandler creates a new RedirectHandler
-func NewRedirectHandler(ac Context, sessionManager *scs.SessionManager) RedirectHandler {
+func NewRedirectHandler(ac Context) RedirectHandler {
 	handler := RedirectHandler{
-		Context:        ac,
-		sessionManager: sessionManager,
+		Context: ac,
 	}
 	return handler
 }
@@ -369,16 +381,14 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // CallbackHandler processes a callback from login.gov
 type CallbackHandler struct {
 	Context
-	db             *pop.Connection
-	sessionManager *scs.SessionManager
+	db *pop.Connection
 }
 
 // NewCallbackHandler creates a new CallbackHandler
-func NewCallbackHandler(ac Context, db *pop.Connection, sessionManager *scs.SessionManager) CallbackHandler {
+func NewCallbackHandler(ac Context, db *pop.Connection) CallbackHandler {
 	handler := CallbackHandler{
-		Context:        ac,
-		db:             db,
-		sessionManager: sessionManager,
+		Context: ac,
+		db:      db,
 	}
 	return handler
 }
@@ -440,7 +450,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		auth.DeleteCookie(w, StateCookieName(session))
 
 		// This operation will delete all cookies from the session
-		h.sessionManager.Destroy(r.Context())
+		h.sessionManager(session).Destroy(r.Context())
 
 		// set error query
 		landingQuery := landingURL.Query()
@@ -526,13 +536,13 @@ var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, sess
 			return
 		}
 	}
-	err = h.sessionManager.RenewToken(r.Context())
+	err = h.sessionManager(session).RenewToken(r.Context())
 	if err != nil {
 		h.logger.Error("Error renewing session token", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	h.sessionManager.Put(r.Context(), "session", session)
+	h.sessionManager(session).Put(r.Context(), "session", session)
 	h.logger.Info("logged in", zap.Any("session", session))
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 	return
@@ -647,13 +657,13 @@ var authorizeKnownUserNew = func(userIdentity *models.UserIdentity, h CallbackHa
 	session.LastName = userIdentity.LastName()
 	session.Middle = userIdentity.Middle()
 
-	error := h.sessionManager.RenewToken(r.Context())
+	error := h.sessionManager(session).RenewToken(r.Context())
 	if error != nil {
 		h.logger.Error("Error renewing session token", zap.Error(error))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	h.sessionManager.Put(r.Context(), "session", session)
+	h.sessionManager(session).Put(r.Context(), "session", session)
 
 	h.logger.Info("logged in", zap.Any("session", session))
 
@@ -764,13 +774,13 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 
 	// The session token must be renewed during sign in to prevent
 	// session fixation attacks
-	err := h.sessionManager.RenewToken(r.Context())
+	err := h.sessionManager(session).RenewToken(r.Context())
 	if err != nil {
 		h.logger.Error("Error renewing session token", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	h.sessionManager.Put(r.Context(), "session", session)
+	h.sessionManager(session).Put(r.Context(), "session", session)
 
 	h.logger.Info("logged in", zap.Any("session", session))
 
@@ -842,13 +852,13 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 		return
 	}
 
-	err = h.sessionManager.RenewToken(r.Context())
+	err = h.sessionManager(session).RenewToken(r.Context())
 	if err != nil {
 		h.logger.Error("Error renewing session token", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	h.sessionManager.Put(r.Context(), "session", session)
+	h.sessionManager(session).Put(r.Context(), "session", session)
 
 	h.logger.Info("logged in", zap.Any("session", session))
 

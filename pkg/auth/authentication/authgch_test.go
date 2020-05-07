@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/alexedwards/scs/v2"
-
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/transcom/mymove/pkg/cli"
@@ -50,17 +48,16 @@ func (suite *AuthSuite) TestCreateTOO() {
 	}
 	req.AddCookie(&cookie)
 	callbackPort := 1234
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
+	sessionManagers := setupSessionManagers()
+	officeSession := sessionManagers[2]
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		sessionManager,
 	}
 	rr := httptest.NewRecorder()
 	h.SetFeatureFlag(FeatureFlag{Name: cli.FeatureFlagRoleBasedAuth, Active: true})
-	sessionManager.LoadAndSave(h).ServeHTTP(rr, req)
+	officeSession.LoadAndSave(h).ServeHTTP(rr, req)
 	suite.Equal(rr.Code, 307)
 }
 

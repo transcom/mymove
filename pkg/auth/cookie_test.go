@@ -9,10 +9,29 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/alexedwards/scs/v2/memstore"
 )
 
 func (suite *authSuite) SetupTest() {
 	gob.Register(Session{})
+}
+
+func setupSessionManagers() [3]*scs.SessionManager {
+	var milSession, adminSession, officeSession *scs.SessionManager
+	store := memstore.New()
+	milSession = scs.New()
+	milSession.Store = store
+	milSession.Cookie.Name = "mil_session_token"
+
+	adminSession = scs.New()
+	adminSession.Store = store
+	adminSession.Cookie.Name = "admin_session_token"
+
+	officeSession = scs.New()
+	officeSession.Store = store
+	officeSession.Cookie.Name = "office_session_token"
+
+	return [3]*scs.SessionManager{milSession, adminSession, officeSession}
 }
 
 func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseRecorder, *http.Request) {
@@ -36,20 +55,20 @@ func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseR
 
 func (suite *authSuite) TestSessionCookieMiddlewareWithBadToken() {
 	fakeToken := "some_token"
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
+	sessionManagers := setupSessionManagers()
+	milSession := sessionManagers[0]
 
 	var resultingSession *Session
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
 	appnames := ApplicationTestServername()
-	middleware := SessionCookieMiddleware(suite.logger, appnames, sessionManager)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, appnames, sessionManagers)(handler)
 
 	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
 	rr, req := getHandlerParamsWithToken(fakeToken, expiry)
 
-	sessionManager.LoadAndSave(middleware).ServeHTTP(rr, req)
+	milSession.LoadAndSave(middleware).ServeHTTP(rr, req)
 
 	// We should be not be redirected since we're not enforcing auth
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
@@ -105,9 +124,9 @@ func (suite *authSuite) TestMaskedCSRFMiddlewareCreatesNewToken() {
 
 func (suite *authSuite) TestMiddlewareConstructor() {
 	appnames := ApplicationTestServername()
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
-	adm := SessionCookieMiddleware(suite.logger, appnames, sessionManager)
+	sessionManagers := setupSessionManagers()
+
+	adm := SessionCookieMiddleware(suite.logger, appnames, sessionManagers)
 	suite.NotNil(adm)
 }
 
@@ -122,18 +141,18 @@ func (suite *authSuite) TestMiddlewareMilApp() {
 		suite.False(session.IsAdminApp(), "first should not be admin app")
 		suite.Equal(appnames.MilServername, session.Hostname)
 	})
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
-	milMoveMiddleware := SessionCookieMiddleware(suite.logger, appnames, sessionManager)(milMoveTestHandler)
+	sessionManagers := setupSessionManagers()
+	milSession := sessionManagers[0]
+	milMoveMiddleware := SessionCookieMiddleware(suite.logger, appnames, sessionManagers)(milMoveTestHandler)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", appnames.MilServername), nil)
-	sessionManager.LoadAndSave(milMoveMiddleware).ServeHTTP(rr, req)
+	milSession.LoadAndSave(milMoveMiddleware).ServeHTTP(rr, req)
 
 	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", appnames.MilServername), nil)
-	sessionManager.LoadAndSave(milMoveMiddleware).ServeHTTP(rr, req)
+	milSession.LoadAndSave(milMoveMiddleware).ServeHTTP(rr, req)
 
 	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", strings.ToUpper(appnames.MilServername)), nil)
-	sessionManager.LoadAndSave(milMoveMiddleware).ServeHTTP(rr, req)
+	milSession.LoadAndSave(milMoveMiddleware).ServeHTTP(rr, req)
 }
 
 func (suite *authSuite) TestMiddlwareOfficeApp() {
@@ -147,18 +166,18 @@ func (suite *authSuite) TestMiddlwareOfficeApp() {
 		suite.False(session.IsAdminApp(), "should not be admin app")
 		suite.Equal(appnames.OfficeServername, session.Hostname)
 	})
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
-	officeMiddleware := SessionCookieMiddleware(suite.logger, appnames, sessionManager)(officeTestHandler)
+	sessionManagers := setupSessionManagers()
+	officeSession := sessionManagers[2]
+	officeMiddleware := SessionCookieMiddleware(suite.logger, appnames, sessionManagers)(officeTestHandler)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", appnames.OfficeServername), nil)
-	sessionManager.LoadAndSave(officeMiddleware).ServeHTTP(rr, req)
+	officeSession.LoadAndSave(officeMiddleware).ServeHTTP(rr, req)
 
 	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", appnames.OfficeServername), nil)
-	sessionManager.LoadAndSave(officeMiddleware).ServeHTTP(rr, req)
+	officeSession.LoadAndSave(officeMiddleware).ServeHTTP(rr, req)
 
 	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", strings.ToUpper(appnames.OfficeServername)), nil)
-	sessionManager.LoadAndSave(officeMiddleware).ServeHTTP(rr, req)
+	officeSession.LoadAndSave(officeMiddleware).ServeHTTP(rr, req)
 }
 
 func (suite *authSuite) TestMiddlwareAdminApp() {
@@ -172,18 +191,18 @@ func (suite *authSuite) TestMiddlwareAdminApp() {
 		suite.True(session.IsAdminApp(), "should be admin app")
 		suite.Equal(AdminTestHost, session.Hostname)
 	})
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
-	adminMiddleware := SessionCookieMiddleware(suite.logger, appnames, sessionManager)(adminTestHandler)
+	sessionManagers := setupSessionManagers()
+	adminSession := sessionManagers[1]
+	adminMiddleware := SessionCookieMiddleware(suite.logger, appnames, sessionManagers)(adminTestHandler)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", AdminTestHost), nil)
-	sessionManager.LoadAndSave(adminMiddleware).ServeHTTP(rr, req)
+	adminSession.LoadAndSave(adminMiddleware).ServeHTTP(rr, req)
 
 	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", AdminTestHost), nil)
-	sessionManager.LoadAndSave(adminMiddleware).ServeHTTP(rr, req)
+	adminSession.LoadAndSave(adminMiddleware).ServeHTTP(rr, req)
 
 	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", strings.ToUpper(AdminTestHost)), nil)
-	sessionManager.LoadAndSave(adminMiddleware).ServeHTTP(rr, req)
+	adminSession.LoadAndSave(adminMiddleware).ServeHTTP(rr, req)
 }
 
 func (suite *authSuite) TestMiddlewareBadApp() {
@@ -193,11 +212,11 @@ func (suite *authSuite) TestMiddlewareBadApp() {
 		suite.Fail("Should not be called")
 	})
 	appnames := ApplicationTestServername()
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
-	noAppMiddleware := SessionCookieMiddleware(suite.logger, appnames, sessionManager)(noAppTestHandler)
+	sessionManagers := setupSessionManagers()
+	milSession := sessionManagers[0]
+	noAppMiddleware := SessionCookieMiddleware(suite.logger, appnames, sessionManagers)(noAppTestHandler)
 
 	req := httptest.NewRequest("GET", "http://totally.bogus.hostname/some_url", nil)
-	sessionManager.LoadAndSave(noAppMiddleware).ServeHTTP(rr, req)
+	milSession.LoadAndSave(noAppMiddleware).ServeHTTP(rr, req)
 	suite.Equal(http.StatusBadRequest, rr.Code, "Should get an error ")
 }

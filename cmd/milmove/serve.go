@@ -529,36 +529,59 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Registering login provider", zap.Error(err))
 	}
 
+	var milSession, adminSession, officeSession *scs.SessionManager
+
 	gob.Register(auth.Session{})
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
-	sessionManager.Store = redisstore.New(redisPool)
+
+	milSession = scs.New()
+	milSession.Store = redisstore.New(redisPool)
+	milSession.Cookie.Name = "mil_session_token"
+
+	adminSession = scs.New()
+	adminSession.Store = redisstore.New(redisPool)
+	adminSession.Cookie.Name = "admin_session_token"
+
+	officeSession = scs.New()
+	officeSession.Store = redisstore.New(redisPool)
+	officeSession.Cookie.Name = "office_session_token"
 
 	// IdleTimeout controls the maximum length of time a session can be inactive
 	// before it expires. The default is 15 minutes. To disable idle timeout in
 	// a non-production environment, set SESSION_IDLE_TIMEOUT_IN_MINUTES to 0.
 	idleTimeout := v.GetDuration(cli.SessionIdleTimeoutInMinutesFlag) * time.Minute
-	sessionManager.IdleTimeout = idleTimeout
+	milSession.IdleTimeout = idleTimeout
+	adminSession.IdleTimeout = idleTimeout
+	officeSession.IdleTimeout = idleTimeout
 
 	// Lifetime controls the maximum length of time that a session is valid for
 	// before it expires. The lifetime is an 'absolute expiry' which is set when
 	// the session is first created or renewed (such as when a user signs in)
 	// and does not change. The default value is 24 hours.
 	lifetime := v.GetDuration(cli.SessionLifetimeInHoursFlag) * time.Hour
-	sessionManager.Lifetime = lifetime
+	milSession.Lifetime = lifetime
+	adminSession.Lifetime = lifetime
+	officeSession.Lifetime = lifetime
 
-	sessionManager.Cookie.Path = "/"
+	milSession.Cookie.Path = "/"
+	adminSession.Cookie.Path = "/"
+	officeSession.Cookie.Path = "/"
 
 	// A value of false means the session cookie will be deleted when the
 	// browser is closed.
-	sessionManager.Cookie.Persist = false
+	milSession.Cookie.Persist = false
+	adminSession.Cookie.Persist = false
+	officeSession.Cookie.Persist = false
 
 	useSecureCookie := !isDevOrTest
 	if useSecureCookie {
-		sessionManager.Cookie.Secure = true
+		milSession.Cookie.Secure = true
+		adminSession.Cookie.Secure = true
+		officeSession.Cookie.Secure = true
 	}
+
+	sessionManagers := [3]*scs.SessionManager{milSession, adminSession, officeSession}
 	// Session management and authentication middleware
-	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, appnames, sessionManager)
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, appnames, sessionManagers)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 	if v.GetBool(cli.FeatureFlagRoleBasedAuth) {
@@ -569,6 +592,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	roleAuthMiddleware := authentication.RoleAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+	handlerContext.SetSessionManagers(sessionManagers)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
 	handlerContext.SetUseSecureCookie(useSecureCookie)
 	handlerContext.SetAppNames(appnames)
@@ -907,7 +931,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/"), csrf.CookieName(auth.GorillaCSRFToken)))
 	root.Use(maskedCSRFMiddleware)
 
-	site.Handle(pat.New("/*"), sessionManager.LoadAndSave(root))
+	site.Handle(
+		pat.New("/*"),
+		milSession.LoadAndSave(adminSession.LoadAndSave(officeSession.LoadAndSave(root))))
 
 	if v.GetBool(cli.ServeAPIInternalFlag) {
 		internalMux := goji.SubMux()
@@ -925,7 +951,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
-		api := internalapi.NewInternalAPI(handlerContext, sessionManager)
+		api := internalapi.NewInternalAPI(handlerContext)
 		internalAPIMux.Handle(pat.New("/*"), api.Serve(nil))
 		if handlerContext.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
 			internalAPIMux.Use(roleAuthMiddleware(api.Context()))
@@ -975,7 +1001,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
+	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
 	authContext.SetFeatureFlag(
 		authentication.FeatureFlag{
 			Name:   cli.FeatureFlagRoleBasedAuth,
@@ -984,18 +1010,18 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), authentication.NewRedirectHandler(authContext, sessionManager))
-	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, sessionManager))
-	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, sessionManager))
+	authMux.Handle(pat.Get("/login-gov"), authentication.NewRedirectHandler(authContext))
+	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection))
+	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext))
 
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
-		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection, sessionManager))
-		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, appnames, sessionManager))
-		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames, sessionManager))
-		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, sessionManager))
+		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
+		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, appnames))
+		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames))
+		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames))
 
 		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")
