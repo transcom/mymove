@@ -7,9 +7,7 @@ import styles from './shipmentContainer.module.scss';
 const cx = classNames.bind(styles);
 
 const ShipmentContainer = ({ className, children, shipmentType }) => {
-  const containerClasses = cx({
-    container: true,
-    'shipment-container': true,
+  const containerClasses = cx('container', 'shipment-container', {
     'container--accent--hhg': shipmentType === SHIPMENT_TYPE.HHG,
     'container--accent--nts': shipmentType === SHIPMENT_TYPE.NTS,
   });
@@ -26,7 +24,7 @@ ShipmentContainer.propTypes = {
 
 ShipmentContainer.defaultProps = {
   shipmentType: SHIPMENT_TYPE.HHG,
-  className: {},
+  className: '',
 };
 
 export default ShipmentContainer;
