@@ -150,10 +150,25 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}':
+  '/mto-shipments/{mtoShipmentID}':
     put:
       summary: Updates MTO shipment
-      description: Updates MTO shipment.
+      description: |
+        Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
+
+        * `scheduledPickupDate`
+        * `actualPickupDate`
+        * `firstAvailableDeliveryDate`
+        * `destinationAddress`
+        * `pickupAddress`
+        * `secondaryDeliveryAddress`
+        * `secondaryPickupAddress`
+        * `primeEstimatedWeight`
+        * `primeActualWeight`
+        * `shipmentType`
+        * `agents` - all subfields except `mtoShipmentID`, `createdAt`, `updatedAt`. You cannot add new agents to a shipment.
+
+        Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
       operationId: updateMTOShipment
       tags:
         - mtoShipment
@@ -163,17 +178,11 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-          description: UUID of the move task order being used.
-        - in: path
           name: mtoShipmentID
+          description: UUID of the shipment being updated.
           required: true
           format: uuid
           type: string
-          description: UUID of the move task order shipment being updated.
         - in: body
           name: body
           required: true
@@ -188,7 +197,7 @@ paths:
             the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
       responses:
         '200':
-          description: Successfully updated MTO shipment.
+          description: Successfully updated the MTO shipment.
           schema:
             $ref: '#/definitions/MTOShipment'
         '400':
@@ -205,6 +214,8 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/mto-shipments':
@@ -822,12 +833,15 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       createdAt:
         format: date
         type: string
+        readOnly: true
       updatedAt:
         format: date
         type: string
+        readOnly: true
       firstName:
         type: string
         x-nullable: true
@@ -853,25 +867,32 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       createdAt:
         format: datetime
         type: string
+        readOnly: true
       updatedAt:
         format: datetime
         type: string
+        readOnly: true
       approvedDate:
+        description: date when the shipment was given the status "APPROVED"
         format: date
         type: string
+        readOnly: true
       scheduledPickupDate:
         format: date
         type: string
       requestedPickupDate:
         format: date
         type: string
+        readOnly: true
       firstAvailableDeliveryDate:
         format: date
         type: string
@@ -884,16 +905,19 @@ definitions:
       primeEstimatedWeightRecordedDate:
         format: date
         type: string
+        readOnly: true
       actualPickupDate:
         format: date
         type: string
       requiredDeliveryDate:
         format: date
         type: string
+        readOnly: true
       agents:
         $ref: '#/definitions/MTOAgents'
       customerRemarks:
         type: string
+        readOnly: true
         example: handle with care
         x-nullable: true
       shipmentType:
@@ -908,12 +932,19 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+        readOnly: true
       status:
         type: string
+        readOnly: true
         enum:
           - APPROVED
           - SUBMITTED
           - REJECTED
+      rejectionReason:
+        type: string
+        readOnly: true
+        example: MTO Shipment not good enough
+        x-nullable: true
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update.
@@ -925,7 +956,7 @@ definitions:
     type: string
     title: Shipment Type
     example: HHG
-    enum: &MTOSHIPMENTTYPE
+    enum:
       - HHG
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
@@ -994,7 +1025,7 @@ definitions:
     type: string
     title: MTO Agent Type
     example: RELEASING_AGENT
-    enum: &MTOAGENTTYPE
+    enum:
       - RELEASING_AGENT
       - RECEIVING_AGENT
   MTOServiceItem:
@@ -1300,7 +1331,10 @@ definitions:
       invalidFields:
         type: object
         additionalProperties:
-          type: string
+          description: List of errors for the field
+          type: array
+          items:
+            type: string
     required:
       - invalidFields
 responses:

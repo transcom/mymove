@@ -4916,13 +4916,13 @@ create-react-context@0.3.0, create-react-context@^0.3.0:
     gud "^1.0.0"
     warning "^4.0.3"
 
-cross-fetch@0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-0.0.8.tgz#01ed94dc407df2c00f1807fde700a7cfa48a205c"
-  integrity sha1-Ae2U3EB98sAPGAf95wCnz6SKIFw=
+cross-fetch@^3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.0.4.tgz#7bef7020207e684a7638ef5f2f698e24d9eb283c"
+  integrity sha512-MSHgpjQqgbT/94D4CyADeNoYh52zMkCX4pcJvPP5WqPsLFMKjr2TCMg381ox5qI0ii2dPwaLx/00477knXqXVw==
   dependencies:
-    node-fetch "1.7.3"
-    whatwg-fetch "2.0.3"
+    node-fetch "2.6.0"
+    whatwg-fetch "3.0.0"
 
 cross-spawn@6.0.5, cross-spawn@^6.0.0, cross-spawn@^6.0.5:
   version "6.0.5"
@@ -5247,10 +5247,10 @@ damerau-levenshtein@^1.0.4:
   resolved "https://registry.yarnpkg.com/damerau-levenshtein/-/damerau-levenshtein-1.0.6.tgz#143c1641cb3d85c60c32329e26899adea8701791"
   integrity sha512-JVrozIeElnj3QzfUIt8tB8YMluBJom4Vw9qTPpjGYQ9fYlB3D/rb6OordUxf3xeFB35LKWs0xqcO5U6ySvBtug==
 
-danger@^10.1.1:
-  version "10.1.1"
-  resolved "https://registry.yarnpkg.com/danger/-/danger-10.1.1.tgz#25400316f27720f14059476c6b9ab40d96564681"
-  integrity sha512-kRJW7TrVYe3nzTILRahXuEvG/+EZwyHrDXTTHA6nkd+4Ga+F4A4AFNkT7d0hEi7OlhhVx8W9BkxNcSO1xEJrAA==
+danger@^10.2.0:
+  version "10.2.0"
+  resolved "https://registry.yarnpkg.com/danger/-/danger-10.2.0.tgz#e3500c2003aa85dca029ba695cd04a85afcc34ff"
+  integrity sha512-3fVMm3l5Nu5hVh8ddHYmB5iMQcDgECGXXeU2cql1y9yuLq7SYHGt6hbXkEQyEg6z1UGhmRKoCR+iHc2Emnvusg==
   dependencies:
     "@babel/polyfill" "^7.2.5"
     "@octokit/rest" "^16.43.1"
@@ -10456,18 +10456,18 @@ node-dir@^0.1.10:
   dependencies:
     minimatch "^3.0.2"
 
-node-fetch@1.7.3, node-fetch@^1.0.1:
+node-fetch@2.6.0, node-fetch@^2.3.0, node-fetch@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
+  integrity sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==
+
+node-fetch@^1.0.1:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-1.7.3.tgz#980f6f72d85211a5347c6b2bc18c5b84c3eb47ef"
   integrity sha512-NhZ4CsKx7cYm2vSrBAr2PvFOe6sWDf0UYLRqA6svUYg7+/TSfVAu49jYC4BvQ4Sms9SZgdqGBgroqfDhJdTyKQ==
   dependencies:
     encoding "^0.1.11"
     is-stream "^1.0.1"
-
-node-fetch@^2.3.0, node-fetch@^2.6.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
-  integrity sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==
 
 node-forge@0.9.0:
   version "0.9.0"
@@ -14903,17 +14903,17 @@ svgo@^1.0.0, svgo@^1.2.2:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swagger-client@^3.10.1:
-  version "3.10.1"
-  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.10.1.tgz#c0180922e4c938a0e7b8adc44c56cf032ec9e804"
-  integrity sha512-dlmAUcJcCVcIWJCJPqEdfPGLdGvzvF/lh6Hx1KLt9Hwgb74uA9GugpJEk0UzwgsRMVqfkzW/DK5tGVyKPesiFg==
+swagger-client@^3.10.2:
+  version "3.10.2"
+  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.10.2.tgz#660e5e0c4378de64ba5e7943977c9937ed3ba6c2"
+  integrity sha512-Ey/nTz1gr/rOuenuhVHYMYMofDwcniIYiT/SyjR40pOyMKX8NmKfMDFbcqkp62eldiqMx3BGv/GotcfWXCgU1w==
   dependencies:
     "@babel/runtime-corejs2" "^7.0.0"
     "@kyleshockey/object-assign-deep" "^0.4.0"
     btoa "1.1.2"
     buffer "^5.1.0"
     cookie "^0.3.1"
-    cross-fetch "0.0.8"
+    cross-fetch "^3.0.4"
     deep-extend "^0.5.1"
     encode-3986 "^1.0.0"
     fast-json-patch "~2.1.0"
@@ -14927,10 +14927,10 @@ swagger-client@^3.10.1:
     utf8-bytes "0.0.1"
     utfstring "^2.0.0"
 
-swagger-ui-dist@^3.25.1:
-  version "3.25.1"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.25.1.tgz#8aa9c3217849722f6d8c7fac6b2222f9082227bb"
-  integrity sha512-Sw/K95j1pT9TZtLKiHDEml7YqcXC9thTTQjxrvNgd9j1KzOIxpo/5lhHuUMAN/hxVAHetzmcBcQaBjywRXog8w==
+swagger-ui-dist@^3.25.2:
+  version "3.25.2"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.25.2.tgz#d973f67051fe7e0c0f118142816e7fd523820a13"
+  integrity sha512-VkpLR5u8wuWs0tKfPxUFVcnVFk5gwLIkwhaiZjX2hnVOr/5Sx+oBVOwKFf++4r/KlX1UqVfzFfUpPyeEDppdHg==
 
 symbol-observable@^1.0.3, symbol-observable@^1.0.4, symbol-observable@^1.2.0:
   version "1.2.0"
@@ -15901,12 +15901,7 @@ whatwg-encoding@^1.0.1, whatwg-encoding@^1.0.3, whatwg-encoding@^1.0.5:
   dependencies:
     iconv-lite "0.4.24"
 
-whatwg-fetch@2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-2.0.3.tgz#9c84ec2dcf68187ff00bc64e1274b442176e1c84"
-  integrity sha1-nITsLc9oGH/wC8ZOEnS0QhduHIQ=
-
-whatwg-fetch@>=0.10.0, whatwg-fetch@^3.0.0:
+whatwg-fetch@3.0.0, whatwg-fetch@>=0.10.0, whatwg-fetch@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-3.0.0.tgz#fc804e458cc460009b1a2b966bc8817d2578aefb"
   integrity sha512-9GSJUgz1D4MfyKU7KRqwOjXCXTqWdFNvEr7eUBYchQiVc744mqK/MzXPNR2WsPkmkOa4ywfg8C2n8h+13Bey1Q==

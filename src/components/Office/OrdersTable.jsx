@@ -1,5 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 function OrdersTable({ ordersInfo }) {
   return (
@@ -9,9 +10,9 @@ function OrdersTable({ ordersInfo }) {
           <h4>Orders</h4>
         </div>
         <div>
-          <button type="button" className="usa-button usa-button--secondary">
+          <Button secondary>
             <span>View & edit orders</span>
-          </button>
+          </Button>
         </div>
       </div>
       <table className="table--stacked">
