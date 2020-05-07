@@ -69,3 +69,19 @@ describe('ShipmentInfo tests', () => {
     });
   });
 });
+
+// not sure how much granularity there should be here
+// describe('Shows correct status and icon below tab heading', () => {
+// // click into a new move, Basics tab displays faClock and 'Submitted'
+//   // office user process the Orders in Document viewer
+//   // then clicks 'Approve Basics'
+//   // and refreshes the page
+//     // the Basics tab displays faCheck and 'Approved'
+
+// // click into the PPM tab, tab should display faClock and one of the following:
+// // ‘Move pending’ ‘Payment requested’ ‘In review’
+//   // office user processes weight tickets
+//   // then clicks 'Approve PPM'
+//   // and refreshes the page
+//     // PPM tab displays faClock and
+// }
