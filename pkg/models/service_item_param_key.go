@@ -18,64 +18,36 @@ func (s ServiceItemParamName) String() string {
 }
 
 const (
-	// ServiceItemParamNameRequestedPickupDate is the param key name RequestedPickupDate
-	ServiceItemParamNameRequestedPickupDate ServiceItemParamName = "RequestedPickupDate"
-	// ServiceItemParamNameWeightBilledActual is the param key name WeightBilledActual
-	ServiceItemParamNameWeightBilledActual ServiceItemParamName = "WeightBilledActual"
-	// ServiceItemParamNameWeightActual is the param key name WeightActual
-	ServiceItemParamNameWeightActual ServiceItemParamName = "WeightActual"
-	// ServiceItemParamNameWeightEstimated is the param key name WeightEstimated
-	ServiceItemParamNameWeightEstimated ServiceItemParamName = "WeightEstimated"
-	// ServiceItemParamNameDistanceZip5 is the param key name DistanceZip5
-	ServiceItemParamNameDistanceZip5 ServiceItemParamName = "DistanceZip5"
-	// ServiceItemParamNameDistanceZip3 is the param key name DistanceZip3
-	ServiceItemParamNameDistanceZip3 ServiceItemParamName = "DistanceZip3"
-	// ServiceItemParamNameZipPickupAddress is the param key name ZipPickupAddress
-	ServiceItemParamNameZipPickupAddress ServiceItemParamName = "ZipPickupAddress"
-	// ServiceItemParamNameZipDestAddress is the param key name ZipDestAddress
-	ServiceItemParamNameZipDestAddress ServiceItemParamName = "ZipDestAddress"
-	// ServiceItemParamNameServiceAreaOrigin is the param key name ServiceAreaOrigin
-	ServiceItemParamNameServiceAreaOrigin ServiceItemParamName = "ServiceAreaOrigin"
-	// ServiceItemParamNameNumberDaysSIT is the param key name NumberDaysSIT
-	ServiceItemParamNameNumberDaysSIT ServiceItemParamName = "NumberDaysSIT"
-	// ServiceItemParamNameMarketOrigin is the param key name MarketOrigin
-	ServiceItemParamNameMarketOrigin ServiceItemParamName = "MarketOrigin"
-	// ServiceItemParamNameMarketDest is the param key name MarketDest
-	ServiceItemParamNameMarketDest ServiceItemParamName = "MarketDest"
 	// ServiceItemParamNameCanStandAlone is the param key name CanStandAlone
 	ServiceItemParamNameCanStandAlone ServiceItemParamName = "CanStandAlone"
 	// ServiceItemParamNameCubicFeetBilled is the param key name CubicFeetBilled
 	ServiceItemParamNameCubicFeetBilled ServiceItemParamName = "CubicFeetBilled"
 	// ServiceItemParamNameCubicFeetCrating is the param key name CubicFeetCrating
 	ServiceItemParamNameCubicFeetCrating ServiceItemParamName = "CubicFeetCrating"
+	// ServiceItemParamNameDistanceZip3 is the param key name DistanceZip3
+	ServiceItemParamNameDistanceZip3 ServiceItemParamName = "DistanceZip3"
+	// ServiceItemParamNameDistanceZip5 is the param key name DistanceZip5
+	ServiceItemParamNameDistanceZip5 ServiceItemParamName = "DistanceZip5"
 	// ServiceItemParamNameDistanceZip5SITOrigin is the param key name DistanceZip5SITOrigin
 	ServiceItemParamNameDistanceZip5SITOrigin ServiceItemParamName = "DistanceZip5SITOrigin"
 	// ServiceItemParamNameDistanceZip5SITDest is the param key name DistanceZip5SITDest
 	ServiceItemParamNameDistanceZip5SITDest ServiceItemParamName = "DistanceZip5SITDest"
 	// ServiceItemParamNameEIAFuelPrice is the param key name EIAFuelPrice
 	ServiceItemParamNameEIAFuelPrice ServiceItemParamName = "EIAFuelPrice"
-	// ServiceItemParamNameServiceAreaDest is the param key name ServiceAreaDest
-	ServiceItemParamNameServiceAreaDest ServiceItemParamName = "ServiceAreaDest"
-	// ServiceItemParamNameSITScheduleOrigin is the param key name SITScheduleOrigin
-	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
-	// ServiceItemParamNameSITScheduleDest is the param key name SITScheduleDest
-	ServiceItemParamNameSITScheduleDest ServiceItemParamName = "SITScheduleDest"
-	// ServiceItemParamNameServicesScheduleOrigin is the param key name ServicesScheduleOrigin
-	ServiceItemParamNameServicesScheduleOrigin ServiceItemParamName = "ServicesScheduleOrigin"
-	// ServiceItemParamNameServicesScheduleDest is the param key name ServicesScheduleDest
-	ServiceItemParamNameServicesScheduleDest ServiceItemParamName = "ServicesScheduleDest"
-	// ServiceItemParamNamePriceAreaOrigin is the param key name PriceAreaOrigin
-	ServiceItemParamNamePriceAreaOrigin ServiceItemParamName = "PriceAreaOrigin"
+	// ServiceItemParamNameMarketDest is the param key name MarketDest
+	ServiceItemParamNameMarketDest ServiceItemParamName = "MarketDest"
+	// ServiceItemParamNameMarketOrigin is the param key name MarketOrigin
+	ServiceItemParamNameMarketOrigin ServiceItemParamName = "MarketOrigin"
+	// ServiceItemParamNameNumberDaysSIT is the param key name NumberDaysSIT
+	ServiceItemParamNameNumberDaysSIT ServiceItemParamName = "NumberDaysSIT"
 	// ServiceItemParamNamePriceAreaDest is the param key name PriceAreaDest
 	ServiceItemParamNamePriceAreaDest ServiceItemParamName = "PriceAreaDest"
-	// ServiceItemParamNamePriceAreaIntlOrigin is the param key name PriceAreaIntlOrigin
-	ServiceItemParamNamePriceAreaIntlOrigin ServiceItemParamName = "PriceAreaIntlOrigin"
 	// ServiceItemParamNamePriceAreaIntlDest is the param key name PriceAreaIntlDest
 	ServiceItemParamNamePriceAreaIntlDest ServiceItemParamName = "PriceAreaIntlDest"
-	// ServiceItemParamNameRateAreaNonStdOrigin is the param key name RateAreaNonStdOrigin
-	ServiceItemParamNameRateAreaNonStdOrigin ServiceItemParamName = "RateAreaNonStdOrigin"
-	// ServiceItemParamNameRateAreaNonStdDest is the param key name RateAreaNonStdDest
-	ServiceItemParamNameRateAreaNonStdDest ServiceItemParamName = "RateAreaNonStdDest"
+	// ServiceItemParamNamePriceAreaIntlOrigin is the param key name PriceAreaIntlOrigin
+	ServiceItemParamNamePriceAreaIntlOrigin ServiceItemParamName = "PriceAreaIntlOrigin"
+	// ServiceItemParamNamePriceAreaOrigin is the param key name PriceAreaOrigin
+	ServiceItemParamNamePriceAreaOrigin ServiceItemParamName = "PriceAreaOrigin"
 	// ServiceItemParamNamePSILinehaulDom is the param key name PSI_LinehaulDom
 	ServiceItemParamNamePSILinehaulDom ServiceItemParamName = "PSI_LinehaulDom"
 	// ServiceItemParamNamePSILinehaulDomPrice is the param key name PSI_LinehaulDomPrice
@@ -84,14 +56,22 @@ const (
 	ServiceItemParamNamePSILinehaulShort ServiceItemParamName = "PSI_LinehaulShort"
 	// ServiceItemParamNamePSILinehaulShortPrice is the param key name PSI_LinehaulShortPrice
 	ServiceItemParamNamePSILinehaulShortPrice ServiceItemParamName = "PSI_LinehaulShortPrice"
-	// ServiceItemParamNamePSIPriceDomOrigin is the param key name PSI_PriceDomOrigin
-	ServiceItemParamNamePSIPriceDomOrigin ServiceItemParamName = "PSI_PriceDomOrigin"
-	// ServiceItemParamNamePSIPriceDomOriginPrice is the param key name PSI_PriceDomOriginPrice
-	ServiceItemParamNamePSIPriceDomOriginPrice ServiceItemParamName = "PSI_PriceDomOriginPrice"
+	// ServiceItemParamNamePSIPackingDom is the param key name PSI_PackingDom
+	ServiceItemParamNamePSIPackingDom ServiceItemParamName = "PSI_PackingDom"
+	// ServiceItemParamNamePSIPackingDomPrice is the param key name PSI_PackingDomPrice
+	ServiceItemParamNamePSIPackingDomPrice ServiceItemParamName = "PSI_PackingDomPrice"
+	// ServiceItemParamNamePSIPackingHHGIntl is the param key name PSI_PackingHHGIntl
+	ServiceItemParamNamePSIPackingHHGIntl ServiceItemParamName = "PSI_PackingHHGIntl"
+	// ServiceItemParamNamePSIPackingHHGIntlPrice is the param key name PSI_PackingHHGIntlPrice
+	ServiceItemParamNamePSIPackingHHGIntlPrice ServiceItemParamName = "PSI_PackingHHGIntlPrice"
 	// ServiceItemParamNamePSIPriceDomDest is the param key name PSI_PriceDomDest
 	ServiceItemParamNamePSIPriceDomDest ServiceItemParamName = "PSI_PriceDomDest"
 	// ServiceItemParamNamePSIPriceDomDestPrice is the param key name PSI_PriceDomDestPrice
 	ServiceItemParamNamePSIPriceDomDestPrice ServiceItemParamName = "PSI_PriceDomDestPrice"
+	// ServiceItemParamNamePSIPriceDomOrigin is the param key name PSI_PriceDomOrigin
+	ServiceItemParamNamePSIPriceDomOrigin ServiceItemParamName = "PSI_PriceDomOrigin"
+	// ServiceItemParamNamePSIPriceDomOriginPrice is the param key name PSI_PriceDomOriginPrice
+	ServiceItemParamNamePSIPriceDomOriginPrice ServiceItemParamName = "PSI_PriceDomOriginPrice"
 	// ServiceItemParamNamePSIShippingLinehaulIntlCO is the param key name PSI_ShippingLinehaulIntlCO
 	ServiceItemParamNamePSIShippingLinehaulIntlCO ServiceItemParamName = "PSI_ShippingLinehaulIntlCO"
 	// ServiceItemParamNamePSIShippingLinehaulIntlCOPrice is the param key name PSI_ShippingLinehaulIntlCOPrice
@@ -104,14 +84,36 @@ const (
 	ServiceItemParamNamePSIShippingLinehaulIntlOO ServiceItemParamName = "PSI_ShippingLinehaulIntlOO"
 	// ServiceItemParamNamePSIShippingLinehaulIntlOOPrice is the param key name PSI_ShippingLinehaulIntlOOPrice
 	ServiceItemParamNamePSIShippingLinehaulIntlOOPrice ServiceItemParamName = "PSI_ShippingLinehaulIntlOOPrice"
-	// ServiceItemParamNamePSIPackingDom is the param key name PSI_PackingDom
-	ServiceItemParamNamePSIPackingDom ServiceItemParamName = "PSI_PackingDom"
-	// ServiceItemParamNamePSIPackingDomPrice is the param key name PSI_PackingDomPrice
-	ServiceItemParamNamePSIPackingDomPrice ServiceItemParamName = "PSI_PackingDomPrice"
-	// ServiceItemParamNamePSIPackingHHGIntl is the param key name PSI_PackingHHGIntl
-	ServiceItemParamNamePSIPackingHHGIntl ServiceItemParamName = "PSI_PackingHHGIntl"
-	// ServiceItemParamNamePSIPackingHHGIntlPrice is the param key name PSI_PackingHHGIntlPrice
-	ServiceItemParamNamePSIPackingHHGIntlPrice ServiceItemParamName = "PSI_PackingHHGIntlPrice"
+	// ServiceItemParamNameRateAreaNonStdDest is the param key name RateAreaNonStdDest
+	ServiceItemParamNameRateAreaNonStdDest ServiceItemParamName = "RateAreaNonStdDest"
+	// ServiceItemParamNameRateAreaNonStdOrigin is the param key name RateAreaNonStdOrigin
+	ServiceItemParamNameRateAreaNonStdOrigin ServiceItemParamName = "RateAreaNonStdOrigin"
+	// ServiceItemParamNameRequestedPickupDate is the param key name RequestedPickupDate
+	ServiceItemParamNameRequestedPickupDate ServiceItemParamName = "RequestedPickupDate"
+	// ServiceItemParamNameServiceAreaDest is the param key name ServiceAreaDest
+	ServiceItemParamNameServiceAreaDest ServiceItemParamName = "ServiceAreaDest"
+	// ServiceItemParamNameServiceAreaOrigin is the param key name ServiceAreaOrigin
+	ServiceItemParamNameServiceAreaOrigin ServiceItemParamName = "ServiceAreaOrigin"
+	// ServiceItemParamNameServicesScheduleDest is the param key name ServicesScheduleDest
+	ServiceItemParamNameServicesScheduleDest ServiceItemParamName = "ServicesScheduleDest"
+	// ServiceItemParamNameServicesScheduleOrigin is the param key name ServicesScheduleOrigin
+	ServiceItemParamNameServicesScheduleOrigin ServiceItemParamName = "ServicesScheduleOrigin"
+	// ServiceItemParamNameSITScheduleDest is the param key name SITScheduleDest
+	ServiceItemParamNameSITScheduleDest ServiceItemParamName = "SITScheduleDest"
+	// ServiceItemParamNameSITScheduleOrigin is the param key name SITScheduleOrigin
+	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
+	// ServiceItemParamNameWeightActual is the param key name WeightActual
+	ServiceItemParamNameWeightActual ServiceItemParamName = "WeightActual"
+	// ServiceItemParamNameWeightBilledActual is the param key name WeightBilledActual
+	ServiceItemParamNameWeightBilledActual ServiceItemParamName = "WeightBilledActual"
+	// ServiceItemParamNameWeightEstimated is the param key name WeightEstimated
+	ServiceItemParamNameWeightEstimated ServiceItemParamName = "WeightEstimated"
+	// ServiceItemParamNameZipDestAddress is the param key name ZipDestAddress
+	ServiceItemParamNameZipDestAddress ServiceItemParamName = "ZipDestAddress"
+	// ServiceItemParamNameZipPickupAddress is the param key name ZipPickupAddress
+	ServiceItemParamNameZipPickupAddress ServiceItemParamName = "ZipPickupAddress"
+	// ServiceItemParamNameZipSITAddress is the param key name ZipSITAddress
+	ServiceItemParamNameZipSITAddress ServiceItemParamName = "ZipSITAddress"
 )
 
 // ServiceItemParamType is a type of service item parameter
@@ -150,53 +152,54 @@ const (
 
 // ValidServiceItemParamName lists all valid service item param key names
 var ValidServiceItemParamName = []string{
-	string(ServiceItemParamNameRequestedPickupDate),
-	string(ServiceItemParamNameWeightBilledActual),
-	string(ServiceItemParamNameWeightActual),
-	string(ServiceItemParamNameWeightEstimated),
-	string(ServiceItemParamNameDistanceZip5),
-	string(ServiceItemParamNameDistanceZip3),
-	string(ServiceItemParamNameZipPickupAddress),
-	string(ServiceItemParamNameZipDestAddress),
-	string(ServiceItemParamNameServiceAreaOrigin),
-	string(ServiceItemParamNameNumberDaysSIT),
-	string(ServiceItemParamNameMarketOrigin),
-	string(ServiceItemParamNameMarketDest),
 	string(ServiceItemParamNameCanStandAlone),
 	string(ServiceItemParamNameCubicFeetBilled),
 	string(ServiceItemParamNameCubicFeetCrating),
-	string(ServiceItemParamNameDistanceZip5SITOrigin),
+	string(ServiceItemParamNameDistanceZip3),
+	string(ServiceItemParamNameDistanceZip5),
 	string(ServiceItemParamNameDistanceZip5SITDest),
+	string(ServiceItemParamNameDistanceZip5SITOrigin),
 	string(ServiceItemParamNameEIAFuelPrice),
-	string(ServiceItemParamNameServiceAreaDest),
-	string(ServiceItemParamNameSITScheduleOrigin),
-	string(ServiceItemParamNameSITScheduleDest),
-	string(ServiceItemParamNameServicesScheduleOrigin),
-	string(ServiceItemParamNameServicesScheduleDest),
-	string(ServiceItemParamNamePriceAreaOrigin),
+	string(ServiceItemParamNameMarketDest),
+	string(ServiceItemParamNameMarketOrigin),
+	string(ServiceItemParamNameNumberDaysSIT),
 	string(ServiceItemParamNamePriceAreaDest),
-	string(ServiceItemParamNamePriceAreaIntlOrigin),
 	string(ServiceItemParamNamePriceAreaIntlDest),
-	string(ServiceItemParamNameRateAreaNonStdOrigin),
-	string(ServiceItemParamNameRateAreaNonStdDest),
+	string(ServiceItemParamNamePriceAreaIntlOrigin),
+	string(ServiceItemParamNamePriceAreaOrigin),
 	string(ServiceItemParamNamePSILinehaulDom),
 	string(ServiceItemParamNamePSILinehaulDomPrice),
 	string(ServiceItemParamNamePSILinehaulShort),
 	string(ServiceItemParamNamePSILinehaulShortPrice),
-	string(ServiceItemParamNamePSIPriceDomOrigin),
-	string(ServiceItemParamNamePSIPriceDomOriginPrice),
+	string(ServiceItemParamNamePSIPackingDom),
+	string(ServiceItemParamNamePSIPackingDomPrice),
+	string(ServiceItemParamNamePSIPackingHHGIntl),
+	string(ServiceItemParamNamePSIPackingHHGIntlPrice),
 	string(ServiceItemParamNamePSIPriceDomDest),
 	string(ServiceItemParamNamePSIPriceDomDestPrice),
+	string(ServiceItemParamNamePSIPriceDomOrigin),
+	string(ServiceItemParamNamePSIPriceDomOriginPrice),
 	string(ServiceItemParamNamePSIShippingLinehaulIntlCO),
 	string(ServiceItemParamNamePSIShippingLinehaulIntlCOPrice),
 	string(ServiceItemParamNamePSIShippingLinehaulIntlOC),
 	string(ServiceItemParamNamePSIShippingLinehaulIntlOCPrice),
 	string(ServiceItemParamNamePSIShippingLinehaulIntlOO),
 	string(ServiceItemParamNamePSIShippingLinehaulIntlOOPrice),
-	string(ServiceItemParamNamePSIPackingDom),
-	string(ServiceItemParamNamePSIPackingDomPrice),
-	string(ServiceItemParamNamePSIPackingHHGIntl),
-	string(ServiceItemParamNamePSIPackingHHGIntlPrice),
+	string(ServiceItemParamNameRateAreaNonStdDest),
+	string(ServiceItemParamNameRateAreaNonStdOrigin),
+	string(ServiceItemParamNameRequestedPickupDate),
+	string(ServiceItemParamNameServiceAreaDest),
+	string(ServiceItemParamNameServiceAreaOrigin),
+	string(ServiceItemParamNameServicesScheduleDest),
+	string(ServiceItemParamNameServicesScheduleOrigin),
+	string(ServiceItemParamNameSITScheduleDest),
+	string(ServiceItemParamNameSITScheduleOrigin),
+	string(ServiceItemParamNameWeightActual),
+	string(ServiceItemParamNameWeightBilledActual),
+	string(ServiceItemParamNameWeightEstimated),
+	string(ServiceItemParamNameZipDestAddress),
+	string(ServiceItemParamNameZipPickupAddress),
+	string(ServiceItemParamNameZipSITAddress),
 }
 
 var validServiceItemParamType = []string{
