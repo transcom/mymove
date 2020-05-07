@@ -92,8 +92,6 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusSubmitted),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
-	vs = append(vs, &validators.UUIDIsPresent{Field: *m.PickupAddressID, Name: "PickupAddressID"})
-	vs = append(vs, &validators.UUIDIsPresent{Field: *m.DestinationAddressID, Name: "DestinationAddressID"})
 	if m.PrimeEstimatedWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeEstimatedWeight.Int(), Compared: -1, Name: "PrimeEstimatedWeight"})
 	}
