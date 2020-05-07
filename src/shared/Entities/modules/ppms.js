@@ -113,6 +113,26 @@ export function updatePPMEstimate(moveId, personallyProcuredMoveId, label = upda
   );
 }
 
+export function getPPMSITEstimate(
+  moveDate,
+  sitDays,
+  originZip,
+  ordersID,
+  weightEstimate,
+  label = getPPMSITEstimateLabel,
+) {
+  const swaggerTag = 'ppm.showPPMSitEstimate';
+  const schemaKey = 'ppmSITEstimate';
+  const payload = {
+    original_move_date: moveDate,
+    days_in_storage: sitDays,
+    origin_zip: originZip,
+    orders_id: ordersID,
+    weight_estimate: weightEstimate,
+  };
+  return swaggerRequest(getClient, swaggerTag, payload, { label, schemaKey });
+}
+
 export function downloadPPMAttachments(ppmId, docTypes, label = downloadPPMAttachmentsLabel) {
   const swaggerTag = 'ppm.createPPMAttachments';
   const payload = { personallyProcuredMoveId: ppmId, docTypes };
@@ -138,17 +158,11 @@ export function selectPPMEstimateRange(state) {
   return {};
 }
 
-export function getPPMSITEstimate(
-  moveDate,
-  sitDays,
-  originZip,
-  destZip,
-  weightEstimate,
-  label = getPPMSITEstimateLabel,
-) {
-  const swaggerTag = 'ppm.showPPMSitEstimate';
-  const payload = { moveDate, sitDays, originZip, destZip, weightEstimate };
-  return swaggerRequest(getClient, swaggerTag, payload, { label });
+export function selectPPMSITEstimate(state) {
+  if (state.entities.ppmSITEstimate) {
+    return state.entities.ppmSITEstimate.undefined.estimate;
+  }
+  return '';
 }
 
 export function selectReimbursement(state, reimbursementId) {

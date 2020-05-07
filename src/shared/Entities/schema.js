@@ -125,6 +125,8 @@ export const storageInTransit = new schema.Entity('storageInTransits');
 
 export const storageInTransits = new schema.Array(storageInTransit);
 
+export const ppmSITEstimate = new schema.Entity('ppmSITEstimate');
+
 // AccessCodes
 export const accessCode = new schema.Entity('accessCodes');
 
