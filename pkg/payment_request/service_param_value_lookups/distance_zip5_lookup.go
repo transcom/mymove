@@ -49,8 +49,7 @@ func (r DistanceZip5Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 		return "", services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
 	}
 
-	// Now calculate the distance
-	// TODO: Should this be distance between addresses?  Or distance between zip5s?  Currently doing zip5s.
+	// Now calculate the distance between zip5s
 	pickupZip := mtoServiceItem.MTOShipment.PickupAddress.PostalCode
 	destinationZip := mtoServiceItem.MTOShipment.DestinationAddress.PostalCode
 	distanceMiles, err := planner.Zip5TransitDistance(pickupZip, destinationZip)
