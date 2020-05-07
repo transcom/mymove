@@ -7,7 +7,7 @@ import ShipmentHeading from '../components/Office/ShipmentHeading';
 storiesOf('TOO/TIO Components|ShipmentContainer', module)
   .addDecorator(withKnobs)
   .add('Shipment Container', () => (
-    <ShipmentContainer containerType={text('ShipmentContainer.containerType', 'HHG')}>
+    <ShipmentContainer shipmentType={text('ShipmentContainer.containerType', 'HHG')}>
       <ShipmentHeading
         shipmentInfo={{
           shipmentType: text('ShipmentInfo.shipmentType', 'Household Goods'),
