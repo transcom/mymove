@@ -13,6 +13,7 @@ import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
 import { detectIE11, no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
+import SelectApplication from 'shared/User/SelectApplication';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import QueueHeader from 'shared/Header/Office';
@@ -105,6 +106,7 @@ export class OfficeWrapper extends Component {
                     />
                   )}
                 />
+                <Route exact path="/select-application" component={SelectApplication} />
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
                   component={(props) => (
@@ -112,7 +114,7 @@ export class OfficeWrapper extends Component {
                       <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
                   )}
-                  requiredRole="ppm_office_users"
+                  requiredRoles={['transportation_ordering_officer', 'transportation_invoicing_officer']}
                 />
                 <PrivateRoute
                   path="/queues/:queueType"
@@ -121,7 +123,7 @@ export class OfficeWrapper extends Component {
                       <RenderWithOrWithoutHeader component={Queues} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
                   )}
-                  requiredRole="ppm_office_users"
+                  requiredRoles={['ppm_office_users']}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/orders"
@@ -135,7 +137,7 @@ export class OfficeWrapper extends Component {
                       />
                     </Suspense>
                   )}
-                  requiredRole="ppm_office_users"
+                  requiredRoles={['ppm_office_users']}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/documents/:moveDocumentId?"
@@ -149,7 +151,7 @@ export class OfficeWrapper extends Component {
                       />
                     </Suspense>
                   )}
-                  requiredRole="ppm_office_users"
+                  requiredRoles={['ppm_office_users']}
                 />
                 {!isProduction && (
                   <PrivateRoute
@@ -173,7 +175,7 @@ export class OfficeWrapper extends Component {
                         path="/moves/queue"
                         exact
                         component={TOO}
-                        requiredRole="transportation_ordering_officer"
+                        requiredRoles={['transportation_ordering_officer']}
                       />
                     )}
                     {too && (
@@ -181,7 +183,7 @@ export class OfficeWrapper extends Component {
                         path="/move/mto/:moveTaskOrderId"
                         exact
                         component={TOOMoveTaskOrder}
-                        requiredRole="transportation_ordering_officer"
+                        requiredRoles={['transportation_ordering_officer']}
                       />
                     )}
                     {too && (
@@ -189,14 +191,14 @@ export class OfficeWrapper extends Component {
                         path="/moves/:moveId"
                         exact
                         component={MoveDetails}
-                        requiredRole="transportation_ordering_officer"
+                        requiredRoles={['transportation_ordering_officer']}
                       />
                     )}
                     {too && (
                       <PrivateRoute
                         path="/moves/:moveOrderId/customer/:customerId"
                         component={CustomerDetails}
-                        requiredRole="transportation_ordering_officer"
+                        requiredRoles={['transportation_ordering_officer']}
                       />
                     )}
                     {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
@@ -204,21 +206,21 @@ export class OfficeWrapper extends Component {
                       <PrivateRoute
                         path="/tio/placeholder"
                         component={TIO}
-                        requiredRole="transportation_invoicing_officer"
+                        requiredRoles={['transportation_invoicing_officer']}
                       />
                     )}
                     {tio && (
                       <PrivateRoute
                         path="/payment_requests/:id"
                         component={PaymentRequestShow}
-                        requiredRole="transportation_invoicing_officer"
+                        requiredRoles={['transportation_invoicing_officer']}
                       />
                     )}
                     {tio && (
                       <PrivateRoute
                         path="/payment_requests"
                         component={PaymentRequestIndex}
-                        requiredRole="transportation_invoicing_officer"
+                        requiredRoles={['transportation_invoicing_officer']}
                       />
                     )}
                   </Switch>
