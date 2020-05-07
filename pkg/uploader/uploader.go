@@ -152,8 +152,6 @@ func (u *Uploader) CreateUpload(file File, allowedTypes AllowedFileTypes) (*mode
 
 	if info.Size() > u.FileSizeLimit.Int64() {
 		u.logger.Error("upload exceeds file size limit",
-			zap.String("DocumentID", documentID.String()),
-			zap.String("UserID", userID.String()),
 			zap.Int64("FileSize", info.Size()),
 			zap.Int64("FileSizeLimit", u.FileSizeLimit.Int64()),
 		)
@@ -170,8 +168,6 @@ func (u *Uploader) CreateUpload(file File, allowedTypes AllowedFileTypes) (*mode
 	validator.IsValid(responseVErrors)
 	if responseVErrors.HasAny() {
 		u.logger.Error("Invalid content type for upload",
-			zap.String("DocumentID", documentID.String()),
-			zap.String("UserID", userID.String()),
 			zap.String("ContentType", contentType),
 		)
 		return nil, responseVErrors, nil
