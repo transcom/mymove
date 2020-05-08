@@ -46,7 +46,7 @@ func ServiceParamLookupInitialize(
 		s.lookups[key] = NotImplementedLookup{}
 	}
 
-	s.lookups["RequestedPickupDate"] = RequestedPickupDateLookup{}
+	s.lookups[models.ServiceItemParamNameRequestedPickupDate.String()] = RequestedPickupDateLookup{}
 
 	return &s
 }
