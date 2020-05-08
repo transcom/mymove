@@ -127,7 +127,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 					var param *models.PaymentServiceItemParam
 					param, err = p.createServiceItemParamFromLookup(tx, paramLookup, reServiceParam, paymentServiceItem)
 					if err != nil {
-						errMessage := "Failed to create service item param for param key <" + reServiceParam.ServiceItemParamKey.Key.String() + "> " + errMessageString
+						errMessage := fmt.Sprintf("Failed to create service item param for param key <%s> %s", reServiceParam.ServiceItemParamKey.Key, errMessageString)
 						return fmt.Errorf("%s err: %w", errMessage, err)
 					}
 					if param != nil {
