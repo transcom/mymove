@@ -106,7 +106,12 @@ export class OfficeWrapper extends Component {
                     />
                   )}
                 />
-                <Route exact path="/select-application" component={SelectApplication} />
+                <PrivateRoute
+                  exact
+                  path="/select-application"
+                  component={SelectApplication}
+                  requiredRoles={['transportation_ordering_officer', 'transportation_invoicing_officer']}
+                />
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
                   component={(props) => (
@@ -114,7 +119,6 @@ export class OfficeWrapper extends Component {
                       <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
                   )}
-                  requiredRoles={['transportation_ordering_officer', 'transportation_invoicing_officer']}
                 />
                 <PrivateRoute
                   path="/queues/:queueType"
@@ -204,7 +208,7 @@ export class OfficeWrapper extends Component {
                     {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
                     {tio && (
                       <PrivateRoute
-                        path="/tio/placeholder"
+                        path="/invoicing/queue"
                         component={TIO}
                         requiredRoles={['transportation_invoicing_officer']}
                       />

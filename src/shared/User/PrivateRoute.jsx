@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { selectCurrentUser, selectGetCurrentUserIsLoading } from 'shared/Data/users';
 import SignIn from './SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import { intersection } from 'lodash';
 
 // this was adapted from https://github.com/ReactTraining/react-router/blob/master/packages/react-router-redux/examples/AuthExample.js
@@ -21,7 +21,7 @@ class PrivateRouteContainer extends React.Component {
         requiredRoles,
       )
     )
-      return <Route {...props} />;
+      return wrapRouteForMultipleRoles(<Route {...props} />, userRoles);
     else if (userIsLoggedIn) return <Redirect exact to={redirectURLForRole(userRoles[0].roleType)} />;
     else if (loginIsLoading) return <LoadingPlaceholder />;
     else return <Route path={path} component={SignIn} />;
@@ -44,9 +44,22 @@ function redirectURLForRole(role) {
     case 'transportation_ordering_officer':
       return '/moves/queue';
     case 'transportation_invoicing_officer':
-      return '/tio/placeholder';
+      return '/invoicing/queue';
     default:
       return '/';
+  }
+}
+
+function wrapRouteForMultipleRoles(route, userRoles) {
+  if (userRoles?.length > 1 && route.props.location.pathname !== '/select-application') {
+    return (
+      <div>
+        <Link to="/select-application">Select application</Link>
+        {route}
+      </div>
+    );
+  } else {
+    return route;
   }
 }
 

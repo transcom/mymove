@@ -24,6 +24,10 @@ describe('Office Home Page', function () {
   });
 });
 
+describe('Office authorization', () => {
+  it('redirects TOO to TOO queue', () => {});
+});
+
 describe('Queue staleness indicator', () => {
   it('displays the correct time ago text', () => {
     cy.clock();
