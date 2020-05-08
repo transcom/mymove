@@ -188,7 +188,7 @@ class MoveInfo extends Component {
         return (
           <span className="status">
             <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
-            Payment Requested
+            Payment requested
           </span>
         );
       }

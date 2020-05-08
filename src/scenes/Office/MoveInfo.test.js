@@ -42,8 +42,8 @@ describe('Loads MoveInfo', () => {
   });
 });
 
-let wrapper;
 describe('ShipmentInfo tests', () => {
+  let wrapper;
   describe('Shows correct queue to return to', () => {
     it('when a referrer is set in history', () => {
       wrapper = mount(
@@ -70,18 +70,31 @@ describe('ShipmentInfo tests', () => {
   });
 });
 
-// not sure how much granularity there should be here
-// describe('Shows correct status and icon below tab heading', () => {
-// // click into a new move, Basics tab displays faClock and 'Submitted'
-//   // office user process the Orders in Document viewer
-//   // then clicks 'Approve Basics'
-//   // and refreshes the page
-//     // the Basics tab displays faCheck and 'Approved'
-
 // // click into the PPM tab, tab should display faClock and one of the following:
 // // ‘Move pending’ ‘Payment requested’ ‘In review’
 //   // office user processes weight tickets
 //   // then clicks 'Approve PPM'
 //   // and refreshes the page
 //     // PPM tab displays faClock and
-// }
+// possible statuses
+// DRAFT don't think this is touched here
+// SUBMITTED
+// APPROVED
+// PAYMENT_REQUESTED // In review
+// COMPLETED
+// CANCELED
+describe('Shows correct status and icon on tab heading', () => {
+  // let wrapper;
+  it('Should show red clock icon and `Move Pending` when PPM status is SUBMITTED', () => {
+    // SUBMITTED
+  });
+  it('Should show red clock icon and `Move pending` when PPM status is APPROVED', () => {
+    // APPROVED
+  });
+  it('Should show red clock icon and `Payment requested` when PPM status is PAYMENT_REQUESTED', () => {
+    // PAYMENT_REQUESTED
+  });
+  it('Should show green check icon and `Completed` when PPM status is COMPLETED', () => {
+    // COMPLETED
+  });
+});
