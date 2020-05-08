@@ -119,41 +119,6 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/customer':
-    parameters:
-      - description: ID of move order to use.
-        in: path
-        name: moveTaskOrderID
-        required: true
-        type: string
-    get:
-      summary: getMoveTaskOrderCustomer
-      description: Gets the customer associated with a move task order ID.
-      operationId: getMoveTaskOrderCustomer
-      tags:
-        - moveTaskOrder
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: Successfully retrieved customer associated with move task order.
-          schema:
-            $ref: '#/definitions/Customer'
-        '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}':
     put:
       summary: updateMTOShipment
@@ -806,7 +771,7 @@ definitions:
       mtoServiceItems:
         type: array
         items:
-          $ref: "#/definitions/MTOServiceItem"
+          $ref: '#/definitions/MTOServiceItem'
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
       ppmType:
