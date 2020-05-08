@@ -21,6 +21,7 @@
   * [Function Declarations](#function-declarations)
   * [Ordering imports](#ordering-imports)
   * [Using Redux](#using-redux)
+  * [Creating Forms](#creating-forms)
   * [CSS Styling Standards](#css-styling-standards)
     * [Using Sass and CSS Modules](#using-sass-and-css-modules)
     * [Classnames](#classnames)
@@ -171,6 +172,10 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
 
 * Connect higher level components to Redux, pass down props to less significant children. (Avoid connecting everything to Redux.)
 * Use [ducks](https://github.com/erikras/ducks-modular-redux) for organizing code.
+
+### Creating Forms
+
+MilMove is transitioning to use Formik for rendering forms for data entry. For details please read the [How to create a form using Formik](https://github.com/transcom/mymove/wiki/create-a-form-using-formik) page.
 
 ### CSS Styling Standards
 
