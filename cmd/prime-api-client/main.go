@@ -94,16 +94,15 @@ func main() {
 
 	updateMTOShipmentCommand := &cobra.Command{
 		Use:   "update-mto-shipment",
-		Short: "update mto shipment",
+		Short: "Update MTO shipment",
 		Long: `
   This command updates an MTO shipment.
   It requires the caller to pass in a file using the --filename arg.
   The file should contain path parameters, headers and a body for the payload.
 
-  Endpoint path: move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}
+  Endpoint path: /mto-shipments/{mtoShipmentID}
   The file should contain json as follows:
   	{
-      "moveTaskOrderID": <uuid string>,
       "mtoShipmentID": <uuid string>,
       "ifMatch": <eTag>,
       "body": <MTOShipment>

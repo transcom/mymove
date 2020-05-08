@@ -387,10 +387,24 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 	return &payload
 }
 
+// ValidationErrorsResponse is a middleware.Responder for a set of validation errors
+type ValidationErrorsResponse struct {
+	Errors map[string][]string `json:"errors,omitempty"`
+}
+
+// NewValidationErrorsResponse returns a new validations errors response
+func NewValidationErrorsResponse(verrs *validate.Errors) *ValidationErrorsResponse {
+	errors := make(map[string][]string)
+	for _, key := range verrs.Keys() {
+		errors[key] = verrs.Get(key)
+	}
+	return &ValidationErrorsResponse{Errors: errors}
+}
+
 // ValidationError describes validation errors from the model or properties
 func ValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
 	return &primemessages.ValidationError{
-		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
+		InvalidFields: NewValidationErrorsResponse(validationErrors).Errors,
 		ClientError:   *ClientError(title, detail, instance),
 	}
 }

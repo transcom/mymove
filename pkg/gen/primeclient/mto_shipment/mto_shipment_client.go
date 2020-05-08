@@ -65,7 +65,22 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOS
 /*
 UpdateMTOShipment updates m t o shipment
 
-Updates MTO shipment.
+Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
+
+* `scheduledPickupDate`
+* `actualPickupDate`
+* `firstAvailableDeliveryDate`
+* `destinationAddress`
+* `pickupAddress`
+* `secondaryDeliveryAddress`
+* `secondaryPickupAddress`
+* `primeEstimatedWeight`
+* `primeActualWeight`
+* `shipmentType`
+* `agents` - all subfields except `mtoShipmentID`, `createdAt`, `updatedAt`. You cannot add new agents to a shipment.
+
+Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
+
 */
 func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOShipmentOK, error) {
 	// TODO: Validate the params before sending
@@ -76,7 +91,7 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOS
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "updateMTOShipment",
 		Method:             "PUT",
-		PathPattern:        "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},

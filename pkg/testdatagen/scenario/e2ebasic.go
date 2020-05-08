@@ -1153,4 +1153,15 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		MoveTaskOrder: mto2,
 	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("3624d82f-fa87-47f5-a09a-2d5639e45c02"),
+		},
+		MoveTaskOrder: mto2,
+		MTOShipment:   mtoShipment3,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
+		},
+	})
 }

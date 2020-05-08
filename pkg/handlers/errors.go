@@ -31,6 +31,9 @@ const NilErrMessage string = "Nil error passed"
 // ValidationErrMessage indicates that some fields were invalid
 const ValidationErrMessage string = "Validation Error"
 
+// ConflictErrMessage indicates that there was a conflict with input values
+const ConflictErrMessage string = "Conflict Error"
+
 // ValidationErrorsResponse is a middleware.Responder for a set of validation errors
 type ValidationErrorsResponse struct {
 	Errors map[string]string `json:"errors,omitempty"`
