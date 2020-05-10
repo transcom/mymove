@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
-	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -19,10 +18,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-	"time"
 
-	"github.com/alexedwards/scs/redisstore"
-	"github.com/alexedwards/scs/v2"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -529,57 +525,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Registering login provider", zap.Error(err))
 	}
 
-	var milSession, adminSession, officeSession *scs.SessionManager
-
-	gob.Register(auth.Session{})
-
-	milSession = scs.New()
-	milSession.Store = redisstore.New(redisPool)
-	milSession.Cookie.Name = "mil_session_token"
-
-	adminSession = scs.New()
-	adminSession.Store = redisstore.New(redisPool)
-	adminSession.Cookie.Name = "admin_session_token"
-
-	officeSession = scs.New()
-	officeSession.Store = redisstore.New(redisPool)
-	officeSession.Cookie.Name = "office_session_token"
-
-	// IdleTimeout controls the maximum length of time a session can be inactive
-	// before it expires. The default is 15 minutes. To disable idle timeout in
-	// a non-production environment, set SESSION_IDLE_TIMEOUT_IN_MINUTES to 0.
-	idleTimeout := v.GetDuration(cli.SessionIdleTimeoutInMinutesFlag) * time.Minute
-	milSession.IdleTimeout = idleTimeout
-	adminSession.IdleTimeout = idleTimeout
-	officeSession.IdleTimeout = idleTimeout
-
-	// Lifetime controls the maximum length of time that a session is valid for
-	// before it expires. The lifetime is an 'absolute expiry' which is set when
-	// the session is first created or renewed (such as when a user signs in)
-	// and does not change. The default value is 24 hours.
-	lifetime := v.GetDuration(cli.SessionLifetimeInHoursFlag) * time.Hour
-	milSession.Lifetime = lifetime
-	adminSession.Lifetime = lifetime
-	officeSession.Lifetime = lifetime
-
-	milSession.Cookie.Path = "/"
-	adminSession.Cookie.Path = "/"
-	officeSession.Cookie.Path = "/"
-
-	// A value of false means the session cookie will be deleted when the
-	// browser is closed.
-	milSession.Cookie.Persist = false
-	adminSession.Cookie.Persist = false
-	officeSession.Cookie.Persist = false
-
 	useSecureCookie := !isDevOrTest
-	if useSecureCookie {
-		milSession.Cookie.Secure = true
-		adminSession.Cookie.Secure = true
-		officeSession.Cookie.Secure = true
-	}
+	sessionManagers := auth.SetupSessionManagers(v, redisPool, useSecureCookie)
+	milSession := sessionManagers[0]
+	adminSession := sessionManagers[1]
+	officeSession := sessionManagers[2]
 
-	sessionManagers := [3]*scs.SessionManager{milSession, adminSession, officeSession}
 	// Session management and authentication middleware
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, appnames, sessionManagers)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)

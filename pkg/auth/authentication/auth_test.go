@@ -503,7 +503,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	suite.Equal(2, len(rr2.Result().Cookies()))
 	// check for blank value for cookie login gov state value and the session cookie value
 	for _, cookie := range rr2.Result().Cookies() {
-		if cookie.Name == cookieName || cookie.Name == fmt.Sprintf("%s_%s", string(session.ApplicationName), auth.UserSessionCookieName) {
+		if cookie.Name == cookieName || cookie.Name == "office_session_token" {
 			suite.Equal("blank", cookie.Value)
 			suite.Equal("/", cookie.Path)
 		}

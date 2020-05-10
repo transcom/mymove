@@ -122,7 +122,7 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit client_deps redis_pull bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -450,6 +450,10 @@ redis_destroy: ## Destroy Redis
 
 .PHONY: redis_run
 redis_run: ## Run Redis
+ifndef CIRCLECI
+		@echo "Stopping the Redis brew service in case it's running..."
+		brew services stop redis 2> /dev/null || true
+endif
 	@echo "Starting the ${REDIS_DOCKER_CONTAINER} docker redis container..."
 	docker start $(REDIS_DOCKER_CONTAINER) || \
 		docker run -d --name $(REDIS_DOCKER_CONTAINER) \

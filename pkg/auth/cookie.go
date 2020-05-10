@@ -36,9 +36,6 @@ func (e *errInvalidHostname) Error() string {
 	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, or %s", e.Hostname, e.MilApp, e.OfficeApp, e.AdminApp)
 }
 
-// UserSessionCookieName is the key suffix at which we're storing our token cookie
-const UserSessionCookieName = "session_token_mb"
-
 // GorillaCSRFToken is the name of the base CSRF token
 const GorillaCSRFToken = "_gorilla_csrf" // #nosec G101
 
@@ -72,11 +69,6 @@ func DeleteCookie(w http.ResponseWriter, name string) {
 		Path:   "/",
 	}
 	http.SetCookie(w, &c)
-}
-
-// SessionCookieName returns the session cookie name
-func SessionCookieName(session *Session) string {
-	return fmt.Sprintf("%s_%s", string(session.ApplicationName), UserSessionCookieName)
 }
 
 // WriteMaskedCSRFCookie update the masked_gorilla_csrf cookie value

@@ -42,7 +42,7 @@ func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseR
 	appName, _ := ApplicationName(req.Host, appnames)
 
 	// Set a secure cookie on the request
-	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(string(appName)), UserSessionCookieName)
+	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(string(appName)), "session_token")
 	cookie := http.Cookie{
 		Name:    cookieName,
 		Value:   ss,
