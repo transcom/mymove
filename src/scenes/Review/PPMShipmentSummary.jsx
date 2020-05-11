@@ -99,7 +99,7 @@ export class PPMShipmentSummary extends Component {
 
           <div className="grid-col-6 review-section ppm-review-section">
             <p className="heading">
-              Weight
+              Pre-move Estimated Weight
               <span className="edit-section-link">
                 <Link data-cy="edit-ppm-weight" to={editWeightAddress} className="usa-link">
                   Edit
