@@ -13,17 +13,19 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	serviceparamlookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 type paymentRequestCreator struct {
-	db *pop.Connection
+	db      *pop.Connection
+	planner route.Planner
 }
 
 // NewPaymentRequestCreator returns a new payment request creator
-func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator {
-	return &paymentRequestCreator{db: db}
+func NewPaymentRequestCreator(db *pop.Connection, planner route.Planner) services.PaymentRequestCreator {
+	return &paymentRequestCreator{db: db, planner: planner}
 }
 
 func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, error) {
@@ -120,7 +122,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			}
 
 			// Get values for needed service item params (do lookups)
-			paramLookup := serviceparamlookups.ServiceParamLookupInitialize(paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID)
+			paramLookup := serviceparamlookups.ServiceParamLookupInitialize(tx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID)
 			for _, reServiceParam := range reServiceParams {
 				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key]; !found {
 					// create the missing service item param

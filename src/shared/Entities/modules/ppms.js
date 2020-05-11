@@ -11,6 +11,7 @@ const createPPMLabel = 'office.createPPM';
 const updatePPMLabel = 'office.updatePPM';
 const updatePPMEstimateLabel = 'ppm.updatePPMEstimate';
 const approveReimbursementLabel = 'office.approveReimbursement';
+const getPPMEstimateLabel = 'ppm.showPPMEstimate';
 
 export function approvePPM(personallyProcuredMoveId, personallyProcuredMoveApproveDate, label = approvePpmLabel) {
   const swaggerTag = 'office.approvePPM';
@@ -72,6 +73,30 @@ export function updatePPM(
   );
 }
 
+export function getPpmWeightEstimate(
+  moveDate,
+  originZip,
+  originDutyStationZip,
+  ordersId,
+  weightEstimate,
+  label = getPPMEstimateLabel,
+) {
+  const swaggerTag = 'ppm.showPPMEstimate';
+  const schemaKey = 'ppmEstimateRange';
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    {
+      original_move_date: moveDate,
+      origin_zip: originZip,
+      origin_duty_station_zip: originDutyStationZip,
+      orders_id: ordersId,
+      weight_estimate: weightEstimate,
+    },
+    { label, schemaKey },
+  );
+}
+
 export function updatePPMEstimate(moveId, personallyProcuredMoveId, label = updatePPMEstimateLabel) {
   const swaggerTag = 'ppm.updatePersonallyProcuredMoveEstimate';
   return swaggerRequest(
@@ -103,6 +128,13 @@ export function selectActivePPMForMove(state, moveId) {
   filter(ppms, (ppm) => ppm.moveId === moveId);
   const activePPM = fetchActivePPM(ppms);
   return activePPM || {};
+}
+
+export function selectPPMEstimateRange(state) {
+  if (state.entities.ppmEstimateRanges) {
+    return state.entities.ppmEstimateRanges.undefined;
+  }
+  return {};
 }
 
 export function selectReimbursement(state, reimbursementId) {

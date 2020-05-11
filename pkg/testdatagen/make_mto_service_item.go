@@ -18,7 +18,7 @@ func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOSer
 	}
 	reService := assertions.ReService
 	if isZeroUUID(reService.ID) {
-		reService = MakeReService(db, assertions)
+		reService = FetchOrMakeReService(db, assertions)
 	}
 
 	status := assertions.MTOServiceItem.Status
@@ -41,4 +41,11 @@ func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOSer
 	mustCreate(db, &MTOServiceItem)
 
 	return MTOServiceItem
+}
+
+// MakeMTOServiceItems makes an array of MTOServiceItems
+func MakeMTOServiceItems(db *pop.Connection) models.MTOServiceItems {
+	var serviceItemList models.MTOServiceItems
+	serviceItemList = append(serviceItemList, MakeMTOServiceItem(db, Assertions{}))
+	return serviceItemList
 }

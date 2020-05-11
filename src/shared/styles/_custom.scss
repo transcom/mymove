@@ -77,10 +77,6 @@ table {
     @include u-border('base-lighter');
   }
   td {
-    &:hover,
-    &.hover {
-      background-color: $link-light;
-    }
     &.locked {
       @include u-border-bottom(0);
       background-color: rgba(255, 255, 255, 0);
@@ -144,6 +140,13 @@ table {
       @include u-border-left('error');
     }
   }
+}
+.stackedtable-header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  max-width: 802px;
+  align-items: center;
 }
 .tcontrol--pagination {
   display: flex;
@@ -244,9 +247,6 @@ table {
       @include u-margin-right(1);
       fill: #adadad;
     }
-  }
-  small {
-    @include u-text('gray-30');
   }
   &--hasimg {
     table {

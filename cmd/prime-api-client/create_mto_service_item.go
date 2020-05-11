@@ -150,13 +150,9 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 	}
 	params.SetTimeout(time.Second * 30)
 
-	resp, errCreateMTOServiceItem := primeGateway.MtoServiceItem.CreateMTOServiceItem(&params)
-	if errCreateMTOServiceItem != nil {
-		// If the response cannot be parsed as JSON you may see an error like
-		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
-		// Likely this is because the API doesn't return JSON response for BadRequest OR
-		// The response type is not being set to text
-		logger.Fatal(errCreateMTOServiceItem.Error())
+	resp, err := primeGateway.MtoServiceItem.CreateMTOServiceItem(&params)
+	if err != nil {
+		return handleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()

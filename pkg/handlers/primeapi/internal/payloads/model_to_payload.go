@@ -196,12 +196,14 @@ func MTOAgent(mtoAgent *models.MTOAgent) *primemessages.MTOAgent {
 
 	return &primemessages.MTOAgent{
 		AgentType:     primemessages.MTOAgentType(mtoAgent.MTOAgentType),
-		Email:         mtoAgent.Email,
 		FirstName:     mtoAgent.FirstName,
-		ID:            strfmt.UUID(mtoAgent.ID.String()),
 		LastName:      mtoAgent.LastName,
-		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
 		Phone:         mtoAgent.Phone,
+		Email:         mtoAgent.Email,
+		ID:            strfmt.UUID(mtoAgent.ID.String()),
+		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
+		CreatedAt:     strfmt.Date(mtoAgent.CreatedAt),
+		UpdatedAt:     strfmt.Date(mtoAgent.UpdatedAt),
 	}
 }
 
@@ -385,10 +387,24 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 	return &payload
 }
 
+// ValidationErrorsResponse is a middleware.Responder for a set of validation errors
+type ValidationErrorsResponse struct {
+	Errors map[string][]string `json:"errors,omitempty"`
+}
+
+// NewValidationErrorsResponse returns a new validations errors response
+func NewValidationErrorsResponse(verrs *validate.Errors) *ValidationErrorsResponse {
+	errors := make(map[string][]string)
+	for _, key := range verrs.Keys() {
+		errors[key] = verrs.Get(key)
+	}
+	return &ValidationErrorsResponse{Errors: errors}
+}
+
 // ValidationError describes validation errors from the model or properties
 func ValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
 	return &primemessages.ValidationError{
-		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
+		InvalidFields: NewValidationErrorsResponse(validationErrors).Errors,
 		ClientError:   *ClientError(title, detail, instance),
 	}
 }
