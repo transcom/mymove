@@ -23,8 +23,6 @@ import (
 
 	route "github.com/transcom/mymove/pkg/route"
 
-	scs "github.com/alexedwards/scs/v2"
-
 	sequence "github.com/transcom/mymove/pkg/db/sequence"
 
 	services "github.com/transcom/mymove/pkg/services"
@@ -425,27 +423,6 @@ func (_m *HandlerContext) UseSecureCookie() bool {
 		r0 = rf()
 	} else {
 		r0 = ret.Get(0).(bool)
-	}
-
-	return r0
-}
-
-// SetSessionManagers provides a mock function with given fields: sessionManagers
-func (_m *HandlerContext) SetSessionManagers(sessionManagers [3]*scs.SessionManager) {
-	_m.Called(sessionManagers)
-}
-
-// SessionManager provides a mock function with given fields:
-func (_m *HandlerContext) SessionManager(session *auth.Session) *scs.SessionManager {
-	ret := _m.Called()
-
-	var r0 *scs.SessionManager
-	if rf, ok := ret.Get(0).(func() *scs.SessionManager); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*scs.SessionManager)
-		}
 	}
 
 	return r0

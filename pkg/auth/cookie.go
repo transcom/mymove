@@ -63,10 +63,12 @@ func GetCookie(name string, r *http.Request) (*http.Cookie, error) {
 // DeleteCookie sends a delete request for the named cookie
 func DeleteCookie(w http.ResponseWriter, name string) {
 	c := http.Cookie{
-		Name:   name,
-		Value:  "blank",
-		MaxAge: -1,
-		Path:   "/",
+		Name:     name,
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Expires:  time.Unix(1, 0),
+		MaxAge:   -1,
 	}
 	http.SetCookie(w, &c)
 }
