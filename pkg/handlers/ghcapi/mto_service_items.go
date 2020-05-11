@@ -25,12 +25,14 @@ func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOSer
 	}
 
 	return &ghcmessages.MTOServiceItem{
-		ID:              handlers.FmtUUID(s.ID),
-		MoveTaskOrderID: handlers.FmtUUID(s.MoveTaskOrderID),
-		MtoShipmentID:   handlers.FmtUUIDPtr(s.MTOShipmentID),
-		ReServiceID:     handlers.FmtUUID(s.ReServiceID),
-		ReServiceCode:   handlers.FmtString(string(s.ReService.Code)),
-		ReServiceName:   handlers.FmtStringPtr(&s.ReService.Name),
+		ID:               handlers.FmtUUID(s.ID),
+		MoveTaskOrderID:  handlers.FmtUUID(s.MoveTaskOrderID),
+		MtoShipmentID:    handlers.FmtUUIDPtr(s.MTOShipmentID),
+		ReServiceID:      handlers.FmtUUID(s.ReServiceID),
+		ReServiceCode:    handlers.FmtString(string(s.ReService.Code)),
+		ReServiceName:    handlers.FmtStringPtr(&s.ReService.Name),
+		Reason:           handlers.FmtStringPtr(s.Reason),
+		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
 	}
 }
 
