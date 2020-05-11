@@ -988,25 +988,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	testdatagen.MakeServiceItemParamKey(db, testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			ID:          uuid.FromStringOrNil("9ea783db-ebc8-4a99-93dd-56b507678a07"),
-			Key:         "weight",
-			Description: "actual weight",
-			Type:        models.ServiceItemParamTypeInteger,
-			Origin:      models.ServiceItemParamOriginPrime,
-		},
-	})
-	testdatagen.MakeServiceItemParamKey(db, testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			ID:          uuid.FromStringOrNil("421530ab-9c84-4207-8faf-f39a2f92ddaa"),
-			Key:         "pickup",
-			Description: "requested pickup date",
-			Type:        models.ServiceItemParamTypeDate,
-			Origin:      models.ServiceItemParamOriginPrime,
-		},
-	})
-
 	/* A user with Roles */
 	smRole := roles.Role{}
 	err := db.Where("role_type = $1", roles.RoleTypeCustomer).First(&smRole)
