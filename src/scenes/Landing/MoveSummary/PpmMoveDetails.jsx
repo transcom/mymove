@@ -24,7 +24,7 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimate
   return (
     <div className="titled_block">
       <div className={styles['detail-title']}>Estimated</div>
-      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
+      <div>Weight: {ppm.weight_estimate} lbs</div>
       {ppm.incentive_estimate_min || estimatedIncentiveRange ? (
         isMissingWeightTicketDocuments ? (
           <>
@@ -44,7 +44,7 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimate
 
             <div className={styles['detail-title']}>Submitted</div>
             <div className={styles['payment-details']}>
-              <div>Weight (submitted): {netWeight} lbs</div>
+              <div>Weight: {netWeight} lbs</div>
               <div>Payment request: {actualIncentiveRange}</div>
               <div className={styles.subText}>
                 <em>Actual payment may vary, subject to Finance review.</em>
