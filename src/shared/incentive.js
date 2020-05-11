@@ -18,3 +18,13 @@ export function formatIncentiveRange(ppm, ppmEstimateRange) {
   }
   return incentiveRange;
 }
+
+export function formatActualIncentiveRange(ppmEstimateRange) {
+  // workaround for incentive not yet saved on entities ppm
+  let incentiveRange = '';
+  if (!isEmpty(ppmEstimateRange)) {
+    incentiveRange = formatCentsRange(ppmEstimateRange.range_min, ppmEstimateRange.range_max);
+  }
+
+  return incentiveRange;
+}
