@@ -48,7 +48,7 @@
     "react-numeric-input": "^2.2.3",
     "react-rangeslider": "^2.2.0",
     "react-redux": "^7.2.0",
-    "react-router": "^5.1.2",
+    "react-router": "^5.2.0",
     "react-router-dom": "^5.1.2",
     "react-router-last-location": "^2.0.1",
     "react-router-tabs": "^1.1.1",
