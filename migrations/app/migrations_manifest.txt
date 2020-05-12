@@ -507,3 +507,4 @@
 20200422184129_change_nullability_in_tariff400ng_zip5_rate_areas.up.sql
 20200423174512_add-status-to-service-item.up.sql
 20200505194253_import_rates_may_2020.up.sql
+20200511185126_make_service_item_param_key_unique.up.sql
