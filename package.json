@@ -49,7 +49,7 @@
     "react-rangeslider": "^2.2.0",
     "react-redux": "^7.2.0",
     "react-router": "^5.1.2",
-    "react-router-dom": "^5.1.2",
+    "react-router-dom": "^5.2.0",
     "react-router-last-location": "^2.0.1",
     "react-router-tabs": "^1.1.1",
     "react-scripts": "^3.4.1",
@@ -68,7 +68,7 @@
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.10.2",
     "swagger-ui-dist": "^3.25.2",
-    "uswds": "2.6.0",
+    "uswds": "2.7.0",
     "yup": "^0.28.5"
   },
   "resolutions": {

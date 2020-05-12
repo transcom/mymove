@@ -34,15 +34,15 @@ func payloadForValidationError(title string, detail string, instance uuid.UUID, 
 	}
 }
 
-// PatchMTOShipmentStatusHandlerFunc updates the status of a MTO Shipment
-type PatchMTOShipmentStatusHandlerFunc struct {
+// UpdateMTOShipmentStatusHandlerFunc updates the status of a MTO Shipment
+type UpdateMTOShipmentStatusHandlerFunc struct {
 	handlers.HandlerContext
 	services.Fetcher
 	services.MTOShipmentStatusUpdater
 }
 
 // Handle updates the status of a MTO Shipment
-func (h PatchMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.PatchMTOShipmentStatusParams) middleware.Responder {
+func (h UpdateMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.UpdateMTOShipmentStatusParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
@@ -57,19 +57,19 @@ func (h PatchMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.PatchMTO
 
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewPatchMTOShipmentStatusNotFound().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.InvalidInputError:
 			payload := payloadForValidationError(handlers.ValidationErrMessage, "The input provided did not pass validation.", h.GetTraceID(), e.ValidationErrors)
-			return mtoshipmentops.NewPatchMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
+			return mtoshipmentops.NewUpdateMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
-			return mtoshipmentops.NewPatchMTOShipmentStatusPreconditionFailed().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoshipmentops.NewUpdateMTOShipmentStatusPreconditionFailed().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
 		case mtoshipment.ConflictStatusError:
-			return mtoshipmentops.NewPatchMTOShipmentStatusConflict().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoshipmentops.NewUpdateMTOShipmentStatusConflict().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
-			return mtoshipmentops.NewPatchMTOShipmentStatusInternalServerError()
+			return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError()
 		}
 	}
 
 	payload := payloads.MTOShipment(shipment)
-	return mtoshipmentops.NewPatchMTOShipmentStatusOK().WithPayload(payload)
+	return mtoshipmentops.NewUpdateMTOShipmentStatusOK().WithPayload(payload)
 }

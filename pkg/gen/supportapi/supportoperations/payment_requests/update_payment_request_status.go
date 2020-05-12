@@ -31,7 +31,7 @@ func NewUpdatePaymentRequestStatus(ctx *middleware.Context, handler UpdatePaymen
 
 /*UpdatePaymentRequestStatus swagger:route PATCH /payment-requests/{paymentRequestID}/status paymentRequests updatePaymentRequestStatus
 
-Updates status of a payment request by id
+updatePaymentRequestStatus
 
 Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.
 A status of REVIEWED can optionally have a `rejectionReason`. <br />

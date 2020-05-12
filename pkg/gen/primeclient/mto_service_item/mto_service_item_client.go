@@ -27,7 +27,7 @@ type Client struct {
 }
 
 /*
-CreateMTOServiceItem creates m t o service items that is added to a move task order and m t o shipment
+CreateMTOServiceItem creates m t o service item
 
 Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.
 

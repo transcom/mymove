@@ -72,7 +72,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	mtoID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	eTag := params.IfMatch
-	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
+	logger.Info("primeapi.UpdateMTOPostCounselingInformationHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 
 	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(mtoID, params.Body, eTag)
 	if err != nil {

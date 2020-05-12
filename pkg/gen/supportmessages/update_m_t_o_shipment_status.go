@@ -15,9 +15,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// PatchMTOShipmentStatus patch m t o shipment status
-// swagger:model PatchMTOShipmentStatus
-type PatchMTOShipmentStatus struct {
+// UpdateMTOShipmentStatus update m t o shipment status
+// swagger:model UpdateMTOShipmentStatus
+type UpdateMTOShipmentStatus struct {
 
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -27,8 +27,8 @@ type PatchMTOShipmentStatus struct {
 	Status string `json:"status,omitempty"`
 }
 
-// Validate validates this patch m t o shipment status
-func (m *PatchMTOShipmentStatus) Validate(formats strfmt.Registry) error {
+// Validate validates this update m t o shipment status
+func (m *UpdateMTOShipmentStatus) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateStatus(formats); err != nil {
@@ -41,7 +41,7 @@ func (m *PatchMTOShipmentStatus) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var patchMTOShipmentStatusTypeStatusPropEnum []interface{}
+var updateMTOShipmentStatusTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -49,31 +49,31 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		patchMTOShipmentStatusTypeStatusPropEnum = append(patchMTOShipmentStatusTypeStatusPropEnum, v)
+		updateMTOShipmentStatusTypeStatusPropEnum = append(updateMTOShipmentStatusTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// PatchMTOShipmentStatusStatusREJECTED captures enum value "REJECTED"
-	PatchMTOShipmentStatusStatusREJECTED string = "REJECTED"
+	// UpdateMTOShipmentStatusStatusREJECTED captures enum value "REJECTED"
+	UpdateMTOShipmentStatusStatusREJECTED string = "REJECTED"
 
-	// PatchMTOShipmentStatusStatusAPPROVED captures enum value "APPROVED"
-	PatchMTOShipmentStatusStatusAPPROVED string = "APPROVED"
+	// UpdateMTOShipmentStatusStatusAPPROVED captures enum value "APPROVED"
+	UpdateMTOShipmentStatusStatusAPPROVED string = "APPROVED"
 
-	// PatchMTOShipmentStatusStatusSUBMITTED captures enum value "SUBMITTED"
-	PatchMTOShipmentStatusStatusSUBMITTED string = "SUBMITTED"
+	// UpdateMTOShipmentStatusStatusSUBMITTED captures enum value "SUBMITTED"
+	UpdateMTOShipmentStatusStatusSUBMITTED string = "SUBMITTED"
 )
 
 // prop value enum
-func (m *PatchMTOShipmentStatus) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, patchMTOShipmentStatusTypeStatusPropEnum); err != nil {
+func (m *UpdateMTOShipmentStatus) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, updateMTOShipmentStatusTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *PatchMTOShipmentStatus) validateStatus(formats strfmt.Registry) error {
+func (m *UpdateMTOShipmentStatus) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status) { // not required
 		return nil
@@ -88,7 +88,7 @@ func (m *PatchMTOShipmentStatus) validateStatus(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *PatchMTOShipmentStatus) MarshalBinary() ([]byte, error) {
+func (m *UpdateMTOShipmentStatus) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -96,8 +96,8 @@ func (m *PatchMTOShipmentStatus) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *PatchMTOShipmentStatus) UnmarshalBinary(b []byte) error {
-	var res PatchMTOShipmentStatus
+func (m *UpdateMTOShipmentStatus) UnmarshalBinary(b []byte) error {
+	var res UpdateMTOShipmentStatus
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

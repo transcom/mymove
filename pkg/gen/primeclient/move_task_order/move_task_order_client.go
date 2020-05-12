@@ -27,7 +27,7 @@ type Client struct {
 }
 
 /*
-FetchMTOUpdates gets all move task orders where is available to prime is t r u e
+FetchMTOUpdates fetches m t o updates
 
 Gets all move task orders where `isAvailableToPrime` is TRUE. This prevents viewing any move task orders that have not been made available to the Prime.
 
@@ -64,7 +64,7 @@ func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdate
 }
 
 /*
-GetMoveTaskOrderCustomer gets the customer associated with a move task order ID
+GetMoveTaskOrderCustomer gets move task order customer
 
 Gets the customer associated with a move task order ID.
 */
@@ -100,9 +100,9 @@ func (a *Client) GetMoveTaskOrderCustomer(params *GetMoveTaskOrderCustomerParams
 }
 
 /*
-UpdateMTOPostCounselingInformation updates move task order s post counseling information
+UpdateMTOPostCounselingInformation updates m t o post counseling information
 
-Updates move task order fields ppmType, ppmEstimatedWeight, and pointOfContact.
+Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.
 */
 func (a *Client) UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams) (*UpdateMTOPostCounselingInformationOK, error) {
 	// TODO: Validate the params before sending
