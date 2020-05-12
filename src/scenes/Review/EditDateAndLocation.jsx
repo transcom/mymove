@@ -65,7 +65,7 @@ let EditDateAndLocationForm = (props) => {
               Enter the ZIP for your new home if you know it, or for{' '}
               {currentOrders && currentOrders.new_duty_station.name} if you don't.
             </p>
-            <SwaggerField fieldName="destination_postal_code" swagger={schema} onChange={getSitEstimate} required />
+            <SwaggerField fieldName="destination_postal_code" swagger={schema} required />
             <span className="grey">
               The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
               {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
