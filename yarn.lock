@@ -2452,15 +2452,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
-"@types/node@*", "@types/node@^13.9.1":
+"@types/node@*", "@types/node@>= 8", "@types/node@^13.9.1":
   version "13.9.3"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-13.9.3.tgz#6356df2647de9eac569f9a52eda3480fa9e70b4d"
   integrity sha512-01s+ac4qerwd6RHD+mVbOEsraDHSgUaefQlEdBbUolnQFjKwCr7luvAlEwW1RFojh67u0z4OUTjPn9LEl4zIkA==
-
-"@types/node@>= 8":
-  version "13.9.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.9.2.tgz#ace1880c03594cc3e80206d96847157d8e7fa349"
-  integrity sha512-bnoqK579sAYrQbp73wwglccjJ4sfRdKU7WNEZ5FW4K2U6Kc0/eZ5kvXG0JKsEKFB50zrFmfFt52/cvBbZa7eXg==
 
 "@types/npmlog@^4.1.2":
   version "4.1.2"
@@ -15564,10 +15559,10 @@ use@^3.1.0:
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
 
-uswds@2.6.0, uswds@^2.2.1:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.6.0.tgz#69aa3d80cb81f1ca99ccf59fae6a76b1c5c2ce8a"
-  integrity sha512-5Q8ijTMBJdJSoiU01RTTk/eGVkjeKBsIOTiY1l5xq8M0wURKWeHzfh0a/Lj4vozwbh1h0onrvPJkyaklHKtFOQ==
+uswds@2.7.0, uswds@^2.2.1:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.7.0.tgz#83af2f8d097b1f3d313d8b43f004558d0d40fc18"
+  integrity sha512-1NJJFg5PzPHWt/s7lHGzU1ox4xEA4+Njs/2h2xWHDscA3THvm+vMCvpnrKP1M9yzdXNd3Rb/G5se0w+2n69XkQ==
   dependencies:
     "@types/node" "^13.9.1"
     classlist-polyfill "^1.0.3"
