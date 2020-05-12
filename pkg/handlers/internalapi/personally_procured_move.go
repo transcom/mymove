@@ -420,7 +420,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 	// Update SIT estimate
 	if ppm.HasSit != nil && *ppm.HasSit {
 		cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
-		sitZip3 := rateengine.Zip5ToZip3(*ppm.DestinationPostalCode)
+		sitZip3 := destinationDutyStationZip
 		sitComputation, sitChargeErr := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
 		if sitChargeErr != nil {
 			return sitChargeErr
