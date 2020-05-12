@@ -16,6 +16,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 const (
@@ -393,6 +394,22 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 		if verrs.HasAny() {
 			h.logger.Error("validation errors creating address", zap.Stringer("errors", verrs))
+		}
+
+		role := roles.Role{}
+		h.db.Where("role_type = $1", "ppm_office_users").First(&role)
+
+		usersRole := models.UsersRoles{
+			UserID: user.ID,
+			RoleID: role.ID,
+		}
+
+		verrs, err = h.db.ValidateAndSave(&usersRole)
+		if err != nil {
+			h.logger.Error("could not create user role", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating user role", zap.Stringer("errors", verrs))
 		}
 
 		office := models.TransportationOffice{
