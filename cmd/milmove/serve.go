@@ -619,6 +619,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// called first).
 	site.Use(middleware.Recovery(logger))
 	site.Use(middleware.SecurityHeaders(logger))
+	site.Use(middleware.Trace(logger, &handlerContext)) // injects trace id into the context
+	site.Use(middleware.ContextLogger("milmove_trace_id", logger))
+
 	if maxBodySize := v.GetInt64(cli.MaxBodySizeFlag); maxBodySize > 0 {
 		site.Use(middleware.LimitBodySize(maxBodySize, logger))
 	}
@@ -765,8 +768,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		primeMux.Use(primeDetectionMiddleware)
 		primeMux.Use(clientCertMiddleware)
 		primeMux.Use(authentication.PrimeAuthorizationMiddleware(logger))
-		primeMux.Use(middleware.Trace(logger, &handlerContext)) // injects trace id into the context
-		primeMux.Use(middleware.ContextLogger("milmove_trace_id", logger))
 		primeMux.Use(middleware.NoCache(logger))
 		primeMux.Use(middleware.RequestLogger(logger))
 		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))
@@ -786,8 +787,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		supportMux.Use(supportDetectionMiddleware)
 		supportMux.Use(clientCertMiddleware)
 		supportMux.Use(authentication.PrimeAuthorizationMiddleware(logger))
-		supportMux.Use(middleware.Trace(logger, &handlerContext)) // injects trace id into the context
-		supportMux.Use(middleware.ContextLogger("milmove_trace_id", logger))
 		supportMux.Use(middleware.NoCache(logger))
 		supportMux.Use(middleware.RequestLogger(logger))
 		supportMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.SupportSwaggerFlag)))
@@ -803,8 +802,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Handlers under mutual TLS need to go before this section that sets up middleware that shouldn't be enabled for mutual TLS (such as CSRF)
 	root := goji.NewMux()
-	root.Use(middleware.Trace(logger, &handlerContext))            // injects http request trace id
-	root.Use(middleware.ContextLogger("milmove_trace_id", logger)) // injects http request logger
 	root.Use(sessionCookieMiddleware)
 	root.Use(middleware.RequestLogger(logger))
 
