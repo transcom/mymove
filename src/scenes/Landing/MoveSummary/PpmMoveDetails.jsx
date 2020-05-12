@@ -20,42 +20,45 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimate
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
   const estimatedIncentiveRange = formatIncentiveRange(ppm, estimateRange);
   const actualIncentiveRange = formatActualIncentiveRange(estimateRange);
+  const hasRangeReady = ppm.incentive_estimate_min || estimatedIncentiveRange;
+
+  const incentiveNotReady = () => {
+    return (
+      <>
+        Not ready yet{' '}
+        <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+      </>
+    );
+  };
 
   return (
     <div className="titled_block">
       <div className={styles['detail-title']}>Estimated</div>
       <div>Weight: {ppm.weight_estimate} lbs</div>
-      {ppm.incentive_estimate_min || estimatedIncentiveRange ? (
-        isMissingWeightTicketDocuments ? (
-          <>
-            <div className="missing-label">
-              Unknown
-              <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
-            </div>
-            <div className={styles.subText}>
-              <em>Estimated payment will be given after resolving missing weight tickets.</em>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className={styles['payment-details']}>
-              <div>Payment: {estimatedIncentiveRange}</div>
-            </div>
-
-            <div className={styles['detail-title']}>Submitted</div>
-            <div className={styles['payment-details']}>
-              <div>Weight: {netWeight} lbs</div>
-              <div>Payment request: {actualIncentiveRange}</div>
-              <div className={styles.subText}>
-                <em>Actual payment may vary, subject to Finance review.</em>
-              </div>
-            </div>
-          </>
-        )
+      {hasRangeReady && isMissingWeightTicketDocuments ? (
+        <>
+          <div className="missing-label">
+            Unknown
+            <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+          </div>
+          <div className={styles.subText}>
+            <em>Estimated payment will be given after resolving missing weight tickets.</em>
+          </div>
+        </>
       ) : (
         <>
-          Not ready yet{' '}
-          <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+          <div className={styles['payment-details']}>
+            <div>Payment: {hasRangeReady ? estimatedIncentiveRange : incentiveNotReady()}</div>
+          </div>
+
+          <div className={styles['detail-title']}>Submitted</div>
+          <div className={styles['payment-details']}>
+            <div>Weight: {netWeight} lbs</div>
+            <div>Payment request: {hasRangeReady ? actualIncentiveRange : incentiveNotReady()}</div>
+            <div className={styles.subText}>
+              <em>Actual payment may vary, subject to Finance review.</em>
+            </div>
+          </div>
         </>
       )}
       {ppm.has_sit && <div>{hasSitString}</div>}
