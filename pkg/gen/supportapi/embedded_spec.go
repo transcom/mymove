@@ -48,7 +48,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Creates a move task order",
+        "summary": "createMoveTaskOrder",
         "operationId": "createMoveTaskOrder",
         "parameters": [
           {
@@ -103,7 +103,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets a move task order by ID",
+        "summary": "getMoveTaskOrder",
         "operationId": "getMoveTaskOrder",
         "responses": {
           "200": {
@@ -157,7 +157,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Update the status of a move task order to make it available to prime",
+        "summary": "updateMoveTaskOrderStatus",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -231,8 +231,8 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates a shipment's status",
-        "operationId": "patchMTOShipmentStatus",
+        "summary": "updateMTOShipmentStatus",
+        "operationId": "updateMTOShipmentStatus",
         "parameters": [
           {
             "type": "string",
@@ -246,7 +246,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatus"
+              "$ref": "#/definitions/UpdateMTOShipmentStatus"
             }
           }
         ],
@@ -315,7 +315,7 @@ func init() {
         "tags": [
           "paymentRequests"
         ],
-        "summary": "Updates status of a payment request by id",
+        "summary": "updatePaymentRequestStatus",
         "operationId": "updatePaymentRequestStatus",
         "parameters": [
           {
@@ -393,7 +393,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Update the status of a service item for a move order by ID",
+        "summary": "updateMTOServiceItemStatus",
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
@@ -1237,23 +1237,6 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "PatchMTOShipmentStatus": {
-      "properties": {
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "MTO Shipment not good enough"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "REJECTED",
-            "APPROVED",
-            "SUBMITTED"
-          ]
-        }
-      }
-    },
     "PaymentRequest": {
       "type": "object",
       "properties": {
@@ -1414,6 +1397,23 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "datetime"
+        }
+      }
+    },
+    "UpdateMTOShipmentStatus": {
+      "properties": {
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment not good enough"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "REJECTED",
+            "APPROVED",
+            "SUBMITTED"
+          ]
         }
       }
     },
@@ -1604,7 +1604,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Creates a move task order",
+        "summary": "createMoveTaskOrder",
         "operationId": "createMoveTaskOrder",
         "parameters": [
           {
@@ -1677,7 +1677,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets a move task order by ID",
+        "summary": "getMoveTaskOrder",
         "operationId": "getMoveTaskOrder",
         "responses": {
           "200": {
@@ -1746,7 +1746,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Update the status of a move task order to make it available to prime",
+        "summary": "updateMoveTaskOrderStatus",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -1838,8 +1838,8 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates a shipment's status",
-        "operationId": "patchMTOShipmentStatus",
+        "summary": "updateMTOShipmentStatus",
+        "operationId": "updateMTOShipmentStatus",
         "parameters": [
           {
             "type": "string",
@@ -1853,7 +1853,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatus"
+              "$ref": "#/definitions/UpdateMTOShipmentStatus"
             }
           }
         ],
@@ -1946,7 +1946,7 @@ func init() {
         "tags": [
           "paymentRequests"
         ],
-        "summary": "Updates status of a payment request by id",
+        "summary": "updatePaymentRequestStatus",
         "operationId": "updatePaymentRequestStatus",
         "parameters": [
           {
@@ -2045,7 +2045,7 @@ func init() {
         "tags": [
           "mtoServiceItem"
         ],
-        "summary": "Update the status of a service item for a move order by ID",
+        "summary": "updateMTOServiceItemStatus",
         "operationId": "updateMTOServiceItemStatus",
         "parameters": [
           {
@@ -2913,23 +2913,6 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "PatchMTOShipmentStatus": {
-      "properties": {
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "MTO Shipment not good enough"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "REJECTED",
-            "APPROVED",
-            "SUBMITTED"
-          ]
-        }
-      }
-    },
     "PaymentRequest": {
       "type": "object",
       "properties": {
@@ -3090,6 +3073,23 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "datetime"
+        }
+      }
+    },
+    "UpdateMTOShipmentStatus": {
+      "properties": {
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment not good enough"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "REJECTED",
+            "APPROVED",
+            "SUBMITTED"
+          ]
         }
       }
     },

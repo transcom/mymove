@@ -51,7 +51,7 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
 	}
 
-	supportAPI.MtoShipmentPatchMTOShipmentStatusHandler = PatchMTOShipmentStatusHandlerFunc{
+	supportAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandlerFunc{
 		context,
 		fetch.NewFetcher(queryBuilder),
 		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), queryBuilder,

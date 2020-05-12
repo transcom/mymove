@@ -27,7 +27,7 @@ type Client struct {
 }
 
 /*
-CreateUpload creates a new upload for a payment request
+CreateUpload creates upload
 
 Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
 */

@@ -27,7 +27,7 @@ type Client struct {
 }
 
 /*
-UpdateMTOServiceItemStatus updates the status of a service item for a move order by ID
+UpdateMTOServiceItemStatus updates m t o service item status
 
 Updates the status of a service item for a move order to APPROVED or REJECTED. <br />
 <br />
