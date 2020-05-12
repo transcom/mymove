@@ -19,18 +19,18 @@ import (
 	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
-// NewPatchMTOShipmentStatusParams creates a new PatchMTOShipmentStatusParams object
+// NewUpdateMTOShipmentStatusParams creates a new UpdateMTOShipmentStatusParams object
 // no default values defined in spec.
-func NewPatchMTOShipmentStatusParams() PatchMTOShipmentStatusParams {
+func NewUpdateMTOShipmentStatusParams() UpdateMTOShipmentStatusParams {
 
-	return PatchMTOShipmentStatusParams{}
+	return UpdateMTOShipmentStatusParams{}
 }
 
-// PatchMTOShipmentStatusParams contains all the bound params for the patch m t o shipment status operation
+// UpdateMTOShipmentStatusParams contains all the bound params for the update m t o shipment status operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters patchMTOShipmentStatus
-type PatchMTOShipmentStatusParams struct {
+// swagger:parameters updateMTOShipmentStatus
+type UpdateMTOShipmentStatusParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -45,7 +45,7 @@ type PatchMTOShipmentStatusParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *supportmessages.PatchMTOShipmentStatus
+	Body *supportmessages.UpdateMTOShipmentStatus
 	/*UUID of the shipment being updated.
 	  Required: true
 	  In: path
@@ -56,8 +56,8 @@ type PatchMTOShipmentStatusParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewPatchMTOShipmentStatusParams() beforehand.
-func (o *PatchMTOShipmentStatusParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewUpdateMTOShipmentStatusParams() beforehand.
+func (o *UpdateMTOShipmentStatusParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -68,7 +68,7 @@ func (o *PatchMTOShipmentStatusParams) BindRequest(r *http.Request, route *middl
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body supportmessages.PatchMTOShipmentStatus
+		var body supportmessages.UpdateMTOShipmentStatus
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body"))
@@ -100,7 +100,7 @@ func (o *PatchMTOShipmentStatusParams) BindRequest(r *http.Request, route *middl
 }
 
 // bindIfMatch binds and validates parameter IfMatch from header.
-func (o *PatchMTOShipmentStatusParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateMTOShipmentStatusParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
 		return errors.Required("If-Match", "header")
 	}
@@ -121,7 +121,7 @@ func (o *PatchMTOShipmentStatusParams) bindIfMatch(rawData []string, hasKey bool
 }
 
 // bindMtoShipmentID binds and validates parameter MtoShipmentID from path.
-func (o *PatchMTOShipmentStatusParams) bindMtoShipmentID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UpdateMTOShipmentStatusParams) bindMtoShipmentID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -145,7 +145,7 @@ func (o *PatchMTOShipmentStatusParams) bindMtoShipmentID(rawData []string, hasKe
 }
 
 // validateMtoShipmentID carries on validations for parameter MtoShipmentID
-func (o *PatchMTOShipmentStatusParams) validateMtoShipmentID(formats strfmt.Registry) error {
+func (o *UpdateMTOShipmentStatusParams) validateMtoShipmentID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("mtoShipmentID", "path", "uuid", o.MtoShipmentID.String(), formats); err != nil {
 		return err

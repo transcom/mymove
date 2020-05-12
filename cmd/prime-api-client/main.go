@@ -265,8 +265,8 @@ func main() {
 	initCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
 	root.AddCommand(createPaymentRequestUploadCommand)
 
-	patchMTOShipmentStatusCommand := &cobra.Command{
-		Use:   "support-patch-mto-shipment-status",
+	updateMTOShipmentStatusCommand := &cobra.Command{
+		Use:   "support-update-mto-shipment-status",
 		Short: "Update MTO shipment status for prime",
 		Long: `
   This command allows prime to update the MTO shipment status.
@@ -282,11 +282,11 @@ func main() {
       "body": <MtoShipmentRequestStatus>,
     }
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         patchMTOShipmentStatus,
+		RunE:         updateMTOShipmentStatus,
 		SilenceUsage: true,
 	}
-	initPatchMTOShipmentStatusFlags(patchMTOShipmentStatusCommand.Flags())
-	root.AddCommand(patchMTOShipmentStatusCommand)
+	initUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
+	root.AddCommand(updateMTOShipmentStatusCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",
