@@ -28,7 +28,7 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	locator := params.Locator
 
-	var move models.Move
+	move := &models.Move{}
 	err := h.Fetcher.FetchRecord(move,
 		[]services.QueryFilter{query.NewQueryFilter("locator", "=", locator)})
 
@@ -39,9 +39,10 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 			logger.Error(fmt.Sprintf("No move found with locator %s", locator), zap.Error(err))
 			return moveop.NewGetMoveNotFound()
 		}
+		logger.Error(fmt.Sprintf("Error fetching move with locator: %s", locator), zap.Error(err))
 		return moveop.NewGetMoveInternalServerError()
 	}
 
-	payload := payloads.Move(&move)
+	payload := payloads.Move(move)
 	return moveop.NewGetMoveOK().WithPayload(payload)
 }

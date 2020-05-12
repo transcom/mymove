@@ -2232,7 +2232,7 @@ func init() {
         },
         "locator": {
           "type": "string",
-          "example": "12432"
+          "example": "1K43A"
         },
         "orders_id": {
           "type": "string",
@@ -5163,7 +5163,7 @@ func init() {
         },
         "locator": {
           "type": "string",
-          "example": "12432"
+          "example": "1K43A"
         },
         "orders_id": {
           "type": "string",

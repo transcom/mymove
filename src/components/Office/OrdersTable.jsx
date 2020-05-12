@@ -55,11 +55,11 @@ function OrdersTable({ ordersInfo }) {
           </tr>
           <tr>
             <th scope="row">TAC / MDC</th>
-            <td data-cy="tacMDC">{ordersInfo.tacMDC ? ordersInfo.tacMDC : ''}</td>
+            <td data-cy="tacMDC">{ordersInfo.tacMDC}</td>
           </tr>
           <tr>
             <th scope="row">SAC / SDN</th>
-            <td data-cy="sacSDN">{ordersInfo.sacSDN ? ordersInfo.sacSDN : ''}</td>
+            <td data-cy="sacSDN">{ordersInfo.sacSDN}</td>
           </tr>
         </tbody>
       </table>
