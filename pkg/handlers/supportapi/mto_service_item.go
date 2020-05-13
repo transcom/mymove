@@ -40,14 +40,16 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 		case services.NotFoundError:
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError(handlers.ValidationErrMessage, "The information you provided is invalid", h.GetTraceID(), e.ValidationErrors)
+			payload := payloads.ValidationError("The information you provided is invalid", h.GetTraceID(), e.ValidationErrors)
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
-			return mtoserviceitemops.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoserviceitemops.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(
+				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		case services.ConflictError:
+			title := handlers.ConflictErrMessage
 			payload := &supportmessages.ClientError{
-				Title:    handlers.FmtString("This MTO service item is not in a state for the status to be changed"),
-				Detail:   handlers.FmtString("Make sure the MTO service item's status has not already been changed or it has a rejectionReason if you are trying to reject it"),
+				Title:    &title,
+				Detail:   handlers.FmtString("This MTO service item is not in a state for the status to be changed. Make sure the MTO service item's status has not already been changed or it has a rejectionReason if you are trying to reject it"),
 				Instance: handlers.FmtUUID(h.GetTraceID()),
 			}
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusConflict().WithPayload(payload)

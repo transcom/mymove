@@ -127,20 +127,20 @@ func NewUpdateMTOShipmentStatusBadRequest() *UpdateMTOShipmentStatusBadRequest {
 The parameters were invalid.
 */
 type UpdateMTOShipmentStatusBadRequest struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdateMTOShipmentStatusBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *UpdateMTOShipmentStatusBadRequest) GetPayload() *supportmessages.Error {
+func (o *UpdateMTOShipmentStatusBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentStatusBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -222,20 +222,20 @@ func NewUpdateMTOShipmentStatusNotFound() *UpdateMTOShipmentStatusNotFound {
 The requested resource wasn't found.
 */
 type UpdateMTOShipmentStatusNotFound struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdateMTOShipmentStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusNotFound  %+v", 404, o.Payload)
 }
 
-func (o *UpdateMTOShipmentStatusNotFound) GetPayload() *supportmessages.Error {
+func (o *UpdateMTOShipmentStatusNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentStatusNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -286,20 +286,20 @@ func NewUpdateMTOShipmentStatusPreconditionFailed() *UpdateMTOShipmentStatusPrec
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
 type UpdateMTOShipmentStatusPreconditionFailed struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdateMTOShipmentStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}/status][%d] updateMTOShipmentStatusPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdateMTOShipmentStatusPreconditionFailed) GetPayload() *supportmessages.Error {
+func (o *UpdateMTOShipmentStatusPreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentStatusPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

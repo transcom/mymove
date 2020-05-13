@@ -69,7 +69,7 @@ type UpdateMTOServiceItemStatusBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOServiceItemStatusBadRequest creates UpdateMTOServiceItemStatusBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdateMTOServiceItemStatusBadRequest() *UpdateMTOServiceItemStatusBadReq
 }
 
 // WithPayload adds the payload to the update m t o service item status bad request response
-func (o *UpdateMTOServiceItemStatusBadRequest) WithPayload(payload *supportmessages.Error) *UpdateMTOServiceItemStatusBadRequest {
+func (o *UpdateMTOServiceItemStatusBadRequest) WithPayload(payload *supportmessages.ClientError) *UpdateMTOServiceItemStatusBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o service item status bad request response
-func (o *UpdateMTOServiceItemStatusBadRequest) SetPayload(payload *supportmessages.Error) {
+func (o *UpdateMTOServiceItemStatusBadRequest) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -197,7 +197,7 @@ type UpdateMTOServiceItemStatusNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOServiceItemStatusNotFound creates UpdateMTOServiceItemStatusNotFound with default headers values
@@ -207,13 +207,13 @@ func NewUpdateMTOServiceItemStatusNotFound() *UpdateMTOServiceItemStatusNotFound
 }
 
 // WithPayload adds the payload to the update m t o service item status not found response
-func (o *UpdateMTOServiceItemStatusNotFound) WithPayload(payload *supportmessages.Error) *UpdateMTOServiceItemStatusNotFound {
+func (o *UpdateMTOServiceItemStatusNotFound) WithPayload(payload *supportmessages.ClientError) *UpdateMTOServiceItemStatusNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o service item status not found response
-func (o *UpdateMTOServiceItemStatusNotFound) SetPayload(payload *supportmessages.Error) {
+func (o *UpdateMTOServiceItemStatusNotFound) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -283,7 +283,7 @@ type UpdateMTOServiceItemStatusPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOServiceItemStatusPreconditionFailed creates UpdateMTOServiceItemStatusPreconditionFailed with default headers values
@@ -293,13 +293,13 @@ func NewUpdateMTOServiceItemStatusPreconditionFailed() *UpdateMTOServiceItemStat
 }
 
 // WithPayload adds the payload to the update m t o service item status precondition failed response
-func (o *UpdateMTOServiceItemStatusPreconditionFailed) WithPayload(payload *supportmessages.Error) *UpdateMTOServiceItemStatusPreconditionFailed {
+func (o *UpdateMTOServiceItemStatusPreconditionFailed) WithPayload(payload *supportmessages.ClientError) *UpdateMTOServiceItemStatusPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o service item status precondition failed response
-func (o *UpdateMTOServiceItemStatusPreconditionFailed) SetPayload(payload *supportmessages.Error) {
+func (o *UpdateMTOServiceItemStatusPreconditionFailed) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 

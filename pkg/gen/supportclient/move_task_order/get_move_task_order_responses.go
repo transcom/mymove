@@ -109,20 +109,20 @@ func NewGetMoveTaskOrderBadRequest() *GetMoveTaskOrderBadRequest {
 The parameters were invalid.
 */
 type GetMoveTaskOrderBadRequest struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *GetMoveTaskOrderBadRequest) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *GetMoveTaskOrderBadRequest) GetPayload() *supportmessages.Error {
+func (o *GetMoveTaskOrderBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -204,20 +204,20 @@ func NewGetMoveTaskOrderNotFound() *GetMoveTaskOrderNotFound {
 The requested resource wasn't found.
 */
 type GetMoveTaskOrderNotFound struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *GetMoveTaskOrderNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderNotFound  %+v", 404, o.Payload)
 }
 
-func (o *GetMoveTaskOrderNotFound) GetPayload() *supportmessages.Error {
+func (o *GetMoveTaskOrderNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
