@@ -32,4 +32,6 @@ RUN apk update && apk add ca-certificates --no-cache
 
 WORKDIR /
 
+USER nobody
+
 ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]

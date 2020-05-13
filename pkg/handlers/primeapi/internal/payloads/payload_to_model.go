@@ -95,9 +95,15 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload
 		MoveTaskOrderID:     uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:        models.MTOShipmentType(mtoShipment.ShipmentType),
 		RequestedPickupDate: &requestedPickupDate,
-		PickupAddress:       AddressModel(mtoShipment.PickupAddress),
-		DestinationAddress:  AddressModel(mtoShipment.DestinationAddress),
 		CustomerRemarks:     mtoShipment.CustomerRemarks,
+	}
+
+	if mtoShipment.PickupAddress != nil {
+		model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
+	}
+
+	if mtoShipment.DestinationAddress != nil {
+		model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
 	}
 
 	if mtoShipment.Agents != nil {

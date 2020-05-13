@@ -31,7 +31,7 @@ func NewCreateMoveTaskOrder(ctx *middleware.Context, handler CreateMoveTaskOrder
 
 /*CreateMoveTaskOrder swagger:route POST /move-task-orders moveTaskOrder createMoveTaskOrder
 
-Creates a move task order
+createMoveTaskOrder
 
 Creates an instance of moveTaskOrder.
 Current this will also create a number of nested objects but not all.

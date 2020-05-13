@@ -23,8 +23,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API for move.mil",
-    "title": "move.mil API",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the details and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
+    "title": "Milmove Prime API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -45,7 +45,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE",
+        "summary": "fetchMTOUpdates",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
@@ -87,23 +87,120 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}/customer": {
-      "get": {
-        "description": "Gets the customer associated with a move task order ID.",
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments": {
+      "post": {
+        "description": "Creates an instance of mtoShipment Required fields include * Shipment Type * Customer requested pick-up date * Pick-up Address * Delivery Address * Releasing / Receiving agents Optional fields include * Customer Remarks * Releasing / Receiving agents * An array of optional accessorial service item codes",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder"
+          "mtoShipment"
         ],
-        "summary": "Gets the customer associated with a move task order ID",
-        "operationId": "getMoveTaskOrderCustomer",
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "description": "This is an MTOShipment.",
+              "$ref": "#/definitions/CreateShipmentPayload"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved customer associated with move task order.",
+            "description": "created instance of a mto shipment",
             "schema": {
-              "$ref": "#/definitions/Customer"
+              "$ref": "#/definitions/MTOShipment"
             }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
+      "post": {
+        "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "createMTOServiceItem",
+        "operationId": "createMTOServiceItem",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of Move Task Order to use.",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of MTO Shipment to use.",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created an MTO service item.",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
             "description": "The request was unauthorized.",
@@ -127,20 +224,11 @@ func init() {
             "$ref": "#/responses/ServerError"
           }
         }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move order to use.",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
+      }
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "Updates move task order fields ppmType, ppmEstimatedWeight, and pointOfContact.",
+        "description": "Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.",
         "consumes": [
           "application/json"
         ],
@@ -150,7 +238,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates move task order's post counseling information",
+        "summary": "updateMTOPostCounselingInformation",
         "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
@@ -234,109 +322,6 @@ func init() {
         }
       ]
     },
-    "/mto-service-items": {
-      "post": {
-        "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment. Must include UUIDs for the MTO and MTO Shipment connected to this service item.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Creates MTO service items that is added to a Move Task Order and MTO Shipment",
-        "operationId": "createMTOServiceItem",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully created an MTO service item.",
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
-    "/mto-shipments": {
-      "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Creates MTO shipment",
-        "operationId": "createMTOShipment",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateShipmentPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully created a MTO shipment.",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
     "/mto-shipments/{mtoShipmentID}": {
       "put": {
         "description": "Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:\n\n* ` + "`" + `scheduledPickupDate` + "`" + `\n* ` + "`" + `actualPickupDate` + "`" + `\n* ` + "`" + `firstAvailableDeliveryDate` + "`" + `\n* ` + "`" + `destinationAddress` + "`" + `\n* ` + "`" + `pickupAddress` + "`" + `\n* ` + "`" + `secondaryDeliveryAddress` + "`" + `\n* ` + "`" + `secondaryPickupAddress` + "`" + `\n* ` + "`" + `primeEstimatedWeight` + "`" + `\n* ` + "`" + `primeActualWeight` + "`" + `\n* ` + "`" + `shipmentType` + "`" + `\n* ` + "`" + `agents` + "`" + ` - all subfields except ` + "`" + `mtoShipmentID` + "`" + `, ` + "`" + `createdAt` + "`" + `, ` + "`" + `updatedAt` + "`" + `. You cannot add new agents to a shipment.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
@@ -349,7 +334,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates MTO shipment",
+        "summary": "updateMTOShipment",
         "operationId": "updateMTOShipment",
         "parameters": [
           {
@@ -425,7 +410,7 @@ func init() {
         "tags": [
           "paymentRequests"
         ],
-        "summary": "Creates a payment request",
+        "summary": "createPaymentRequest",
         "operationId": "createPaymentRequest",
         "parameters": [
           {
@@ -488,7 +473,7 @@ func init() {
         "tags": [
           "uploads"
         ],
-        "summary": "Create a new upload for a payment request",
+        "summary": "createUpload",
         "operationId": "createUpload",
         "parameters": [
           {
@@ -754,9 +739,6 @@ func init() {
     },
     "CreateShipmentPayload": {
       "type": "object",
-      "required": [
-        "moveTaskOrderID"
-      ],
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -768,11 +750,6 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
           "type": "array",
@@ -1818,8 +1795,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API for move.mil",
-    "title": "move.mil API",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the details and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
+    "title": "Milmove Prime API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -1840,7 +1817,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE",
+        "summary": "fetchMTOUpdates",
         "operationId": "fetchMTOUpdates",
         "parameters": [
           {
@@ -1897,22 +1874,131 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}/customer": {
-      "get": {
-        "description": "Gets the customer associated with a move task order ID.",
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments": {
+      "post": {
+        "description": "Creates an instance of mtoShipment Required fields include * Shipment Type * Customer requested pick-up date * Pick-up Address * Delivery Address * Releasing / Receiving agents Optional fields include * Customer Remarks * Releasing / Receiving agents * An array of optional accessorial service item codes",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder"
+          "mtoShipment"
         ],
-        "summary": "Gets the customer associated with a move task order ID",
-        "operationId": "getMoveTaskOrderCustomer",
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "description": "This is an MTOShipment.",
+              "$ref": "#/definitions/CreateShipmentPayload"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved customer associated with move task order.",
+            "description": "created instance of a mto shipment",
             "schema": {
-              "$ref": "#/definitions/Customer"
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "description": "The request payload is invalid.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "schema": {
+              "description": "A server error occurred.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
+      "post": {
+        "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "createMTOServiceItem",
+        "operationId": "createMTOServiceItem",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of Move Task Order to use.",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of MTO Shipment to use.",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created an MTO service item.",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
@@ -1952,20 +2038,11 @@ func init() {
             }
           }
         }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move order to use.",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
+      }
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "Updates move task order fields ppmType, ppmEstimatedWeight, and pointOfContact.",
+        "description": "Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.",
         "consumes": [
           "application/json"
         ],
@@ -1975,7 +2052,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Updates move task order's post counseling information",
+        "summary": "updateMTOPostCounselingInformation",
         "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
@@ -2077,139 +2154,6 @@ func init() {
         }
       ]
     },
-    "/mto-service-items": {
-      "post": {
-        "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment. Must include UUIDs for the MTO and MTO Shipment connected to this service item.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Creates MTO service items that is added to a Move Task Order and MTO Shipment",
-        "operationId": "createMTOServiceItem",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully created an MTO service item.",
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/mto-shipments": {
-      "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Creates MTO shipment",
-        "operationId": "createMTOShipment",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateShipmentPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully created a MTO shipment.",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/mto-shipments/{mtoShipmentID}": {
       "put": {
         "description": "Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:\n\n* ` + "`" + `scheduledPickupDate` + "`" + `\n* ` + "`" + `actualPickupDate` + "`" + `\n* ` + "`" + `firstAvailableDeliveryDate` + "`" + `\n* ` + "`" + `destinationAddress` + "`" + `\n* ` + "`" + `pickupAddress` + "`" + `\n* ` + "`" + `secondaryDeliveryAddress` + "`" + `\n* ` + "`" + `secondaryPickupAddress` + "`" + `\n* ` + "`" + `primeEstimatedWeight` + "`" + `\n* ` + "`" + `primeActualWeight` + "`" + `\n* ` + "`" + `shipmentType` + "`" + `\n* ` + "`" + `agents` + "`" + ` - all subfields except ` + "`" + `mtoShipmentID` + "`" + `, ` + "`" + `createdAt` + "`" + `, ` + "`" + `updatedAt` + "`" + `. You cannot add new agents to a shipment.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
@@ -2222,7 +2166,7 @@ func init() {
         "tags": [
           "mtoShipment"
         ],
-        "summary": "Updates MTO shipment",
+        "summary": "updateMTOShipment",
         "operationId": "updateMTOShipment",
         "parameters": [
           {
@@ -2319,7 +2263,7 @@ func init() {
         "tags": [
           "paymentRequests"
         ],
-        "summary": "Creates a payment request",
+        "summary": "createPaymentRequest",
         "operationId": "createPaymentRequest",
         "parameters": [
           {
@@ -2394,7 +2338,7 @@ func init() {
         "tags": [
           "uploads"
         ],
-        "summary": "Create a new upload for a payment request",
+        "summary": "createUpload",
         "operationId": "createUpload",
         "parameters": [
           {
@@ -2675,9 +2619,6 @@ func init() {
     },
     "CreateShipmentPayload": {
       "type": "object",
-      "required": [
-        "moveTaskOrderID"
-      ],
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -2689,11 +2630,6 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
           "type": "array",

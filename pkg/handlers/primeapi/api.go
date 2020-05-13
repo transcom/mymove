@@ -46,7 +46,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{
 		context,
-		paymentrequest.NewPaymentRequestCreator(context.DB()),
+		paymentrequest.NewPaymentRequestCreator(context.DB(), context.Planner()),
 	}
 
 	primeAPI.UploadsCreateUploadHandler = CreateUploadHandler{
