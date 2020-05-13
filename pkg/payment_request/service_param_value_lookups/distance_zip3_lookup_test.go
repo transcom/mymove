@@ -2,8 +2,9 @@ package serviceparamvaluelookups
 
 import (
 	"errors"
-	"strconv"
 	"testing"
+
+	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/gofrs/uuid"
 
@@ -33,8 +34,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		},
 	})
 
-	//mtoServiceItem.MTOShipment = mtoShipment
-
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
@@ -44,11 +43,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 
 	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
 
-	suite.T().Run("golden path", func(t *testing.T) {
+	// Zip3TransitDistance is unimplemented, this test should be changed/removed when functionality is added
+	suite.T().Run("Attempts to calculate zip3 distance", func(t *testing.T) {
 		distanceStr, err := paramLookup.ServiceParamValue(key)
-		suite.FatalNoError(err)
-		expected := strconv.Itoa(defaultDistance)
-		suite.Equal(expected, distanceStr)
+		suite.Error(err)
+		suite.IsType(route.NewUnsupportedPostalCodeError(distanceStr), errors.Unwrap(err))
+		suite.Equal("", distanceStr)
 	})
 
 	suite.T().Run("nil MTOShipmentID", func(t *testing.T) {
