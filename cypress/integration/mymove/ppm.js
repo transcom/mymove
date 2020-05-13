@@ -202,7 +202,7 @@ function SMCompletesMove() {
     cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
   });
 
-  cy.contains('Incentive (est.): Not ready yet');
+  cy.contains('Payment: Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
   cy.get('[data-cy="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',

@@ -47,7 +47,7 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimate
         </>
       ) : (
         <>
-          <div className={styles['payment-details']}>
+          <div>
             <div>Payment: {hasRangeReady ? estimatedIncentiveRange : incentiveNotReady()}</div>
           </div>
           {ppm.status === 'PAYMENT_REQUESTED' && (
@@ -64,8 +64,8 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimate
           </div>
         </>
       )}
-      {ppm.has_sit && <div>{hasSitString}</div>}
-      {ppm.has_requested_advance && <div>{advanceString}</div>}
+      {ppm.has_sit && <div className={styles['payment-details']}>{hasSitString}</div>}
+      {ppm.has_requested_advance && <div className={styles['payment-details']}>{advanceString}</div>}
     </div>
   );
 };
