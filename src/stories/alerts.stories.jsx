@@ -42,4 +42,9 @@ storiesOf('Components|Alerts', module)
         This is a succinct, helpful info message.
       </Alert>
     </div>
+  ))
+  .add('system error', () => (
+    <div>
+      <Alert className="usa-alert usa-alert--system-error">This is a succinct, helpful error message.</Alert>
+    </div>
   ));
