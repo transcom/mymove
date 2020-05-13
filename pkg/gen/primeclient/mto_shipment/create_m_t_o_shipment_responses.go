@@ -100,24 +100,26 @@ func NewCreateMTOShipmentBadRequest() *CreateMTOShipmentBadRequest {
 
 /*CreateMTOShipmentBadRequest handles this case with default header values.
 
-invalid request
+The request payload is invalid.
 */
 type CreateMTOShipmentBadRequest struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *CreateMTOShipmentBadRequest) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments][%d] createMTOShipmentBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *CreateMTOShipmentBadRequest) GetPayload() interface{} {
+func (o *CreateMTOShipmentBadRequest) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *CreateMTOShipmentBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -131,24 +133,26 @@ func NewCreateMTOShipmentNotFound() *CreateMTOShipmentNotFound {
 
 /*CreateMTOShipmentNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type CreateMTOShipmentNotFound struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *CreateMTOShipmentNotFound) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments][%d] createMTOShipmentNotFound  %+v", 404, o.Payload)
 }
 
-func (o *CreateMTOShipmentNotFound) GetPayload() interface{} {
+func (o *CreateMTOShipmentNotFound) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *CreateMTOShipmentNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -162,28 +166,16 @@ func NewCreateMTOShipmentUnprocessableEntity() *CreateMTOShipmentUnprocessableEn
 
 /*CreateMTOShipmentUnprocessableEntity handles this case with default header values.
 
-The request payload is invalid
+CreateMTOShipmentUnprocessableEntity create m t o shipment unprocessable entity
 */
 type CreateMTOShipmentUnprocessableEntity struct {
-	Payload *primemessages.ValidationError
 }
 
 func (o *CreateMTOShipmentUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments][%d] createMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
-}
-
-func (o *CreateMTOShipmentUnprocessableEntity) GetPayload() *primemessages.ValidationError {
-	return o.Payload
+	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments][%d] createMTOShipmentUnprocessableEntity ", 422)
 }
 
 func (o *CreateMTOShipmentUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(primemessages.ValidationError)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
 
 	return nil
 }
@@ -195,24 +187,26 @@ func NewCreateMTOShipmentInternalServerError() *CreateMTOShipmentInternalServerE
 
 /*CreateMTOShipmentInternalServerError handles this case with default header values.
 
-internal server error
+A server error occurred.
 */
 type CreateMTOShipmentInternalServerError struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *CreateMTOShipmentInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments][%d] createMTOShipmentInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *CreateMTOShipmentInternalServerError) GetPayload() interface{} {
+func (o *CreateMTOShipmentInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *CreateMTOShipmentInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

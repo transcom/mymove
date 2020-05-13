@@ -106,24 +106,26 @@ func NewGetMoveTaskOrderCustomerUnauthorized() *GetMoveTaskOrderCustomerUnauthor
 
 /*GetMoveTaskOrderCustomerUnauthorized handles this case with default header values.
 
-The request was unauthorized.
+The request was denied.
 */
 type GetMoveTaskOrderCustomerUnauthorized struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *GetMoveTaskOrderCustomerUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/customer][%d] getMoveTaskOrderCustomerUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *GetMoveTaskOrderCustomerUnauthorized) GetPayload() interface{} {
+func (o *GetMoveTaskOrderCustomerUnauthorized) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderCustomerUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -137,24 +139,26 @@ func NewGetMoveTaskOrderCustomerForbidden() *GetMoveTaskOrderCustomerForbidden {
 
 /*GetMoveTaskOrderCustomerForbidden handles this case with default header values.
 
-The client doesn't have permissions to perform the request.
+The request was denied.
 */
 type GetMoveTaskOrderCustomerForbidden struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *GetMoveTaskOrderCustomerForbidden) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/customer][%d] getMoveTaskOrderCustomerForbidden  %+v", 403, o.Payload)
 }
 
-func (o *GetMoveTaskOrderCustomerForbidden) GetPayload() interface{} {
+func (o *GetMoveTaskOrderCustomerForbidden) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderCustomerForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

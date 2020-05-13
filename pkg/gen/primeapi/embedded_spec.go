@@ -67,16 +67,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -106,16 +100,10 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -177,28 +165,16 @@ func init() {
             }
           },
           "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "422": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/definitions/ValidationError"
           },
           "500": {
-            "description": "internal server error",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -254,16 +230,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -338,16 +308,10 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -423,16 +387,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -486,16 +444,10 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "description": "The requested resource wasn't found.",
@@ -553,16 +505,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -1893,21 +1839,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -1944,21 +1884,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -2030,36 +1964,22 @@ func init() {
             }
           },
           "400": {
-            "description": "invalid request",
+            "description": "The request payload is invalid.",
             "schema": {
-              "description": "The request payload is invalid.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
-              "description": "The requested resource wasn't found.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
-          "422": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
+          "422": {},
           "500": {
-            "description": "internal server error",
+            "description": "A server error occurred.",
             "schema": {
-              "description": "A server error occurred.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -2119,21 +2039,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -2218,21 +2132,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -2324,21 +2232,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -2405,21 +2307,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -2487,21 +2383,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {

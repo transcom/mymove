@@ -41,13 +41,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '500':
@@ -104,13 +100,9 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '412':
@@ -141,13 +133,9 @@ paths:
           schema:
             $ref: '#/definitions/Customer'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '422':
@@ -207,13 +195,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '412':
@@ -261,21 +245,13 @@ paths:
           schema:
             $ref: '#/definitions/MTOShipment'
         '400':
-          description: invalid request
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '422':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/definitions/ValidationError'
         '500':
-          description: internal server error
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items':
     post:
       summary: createMTOServiceItem
@@ -315,13 +291,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '422':
@@ -358,13 +330,9 @@ paths:
           schema:
             $ref: '#/definitions/ClientError'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found.
           schema:
@@ -403,13 +371,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '500':
