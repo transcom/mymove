@@ -87,57 +87,6 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}/customer": {
-      "get": {
-        "description": "Gets the customer associated with a move task order ID.",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "getMoveTaskOrderCustomer",
-        "operationId": "getMoveTaskOrderCustomer",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved customer associated with move task order.",
-            "schema": {
-              "$ref": "#/definitions/Customer"
-            }
-          },
-          "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move order to use.",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments": {
       "post": {
         "description": "Creates an instance of mtoShipment Required fields include * Shipment Type * Customer requested pick-up date * Pick-up Address * Delivery Address * Releasing / Receiving agents Optional fields include * Customer Remarks * Releasing / Receiving agents * An array of optional accessorial service item codes",
@@ -1924,72 +1873,6 @@ func init() {
           }
         }
       }
-    },
-    "/move-task-orders/{moveTaskOrderID}/customer": {
-      "get": {
-        "description": "Gets the customer associated with a move task order ID.",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "getMoveTaskOrderCustomer",
-        "operationId": "getMoveTaskOrderCustomer",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved customer associated with move task order.",
-            "schema": {
-              "$ref": "#/definitions/Customer"
-            }
-          },
-          "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move order to use.",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments": {
       "post": {
