@@ -2,9 +2,8 @@ package serviceparamvaluelookups
 
 import (
 	"errors"
+	"strconv"
 	"testing"
-
-	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/gofrs/uuid"
 
@@ -18,12 +17,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
-			PostalCode: "154",
+			PostalCode: "984",
 		},
 	})
 	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
-			PostalCode: "159",
+			PostalCode: "112",
 		},
 	})
 
@@ -43,12 +42,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 
 	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
 
-	// Zip3TransitDistance is unimplemented, this test should be changed/removed when functionality is added
-	suite.T().Run("Attempts to calculate zip3 distance", func(t *testing.T) {
+	suite.T().Run("Calculate zip3 distance", func(t *testing.T) {
 		distanceStr, err := paramLookup.ServiceParamValue(key)
-		suite.Error(err)
-		suite.IsType(route.NewUnsupportedPostalCodeError(distanceStr), errors.Unwrap(err))
-		suite.Equal("", distanceStr)
+		suite.FatalNoError(err)
+		expected := strconv.Itoa(defaultDistance)
+		suite.Equal(expected, distanceStr)
 	})
 
 	suite.T().Run("nil MTOShipmentID", func(t *testing.T) {
