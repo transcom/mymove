@@ -18,7 +18,9 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
+	"github.com/alexedwards/scs/redisstore"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -526,7 +528,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	useSecureCookie := !isDevOrTest
-	sessionManagers := auth.SetupSessionManagers(v, redisPool, useSecureCookie)
+	redisEnabled := v.GetBool(cli.RedisEnabledFlag)
+	sessionStore := redisstore.New(redisPool)
+	idleTimeout := v.GetDuration(cli.SessionIdleTimeoutInMinutesFlag) * time.Minute
+	lifetime := v.GetDuration(cli.SessionLifetimeInHoursFlag) * time.Hour
+	sessionManagers := auth.SetupSessionManagers(redisEnabled, sessionStore, useSecureCookie, idleTimeout, lifetime)
 	milSession := sessionManagers[0]
 	adminSession := sessionManagers[1]
 	officeSession := sessionManagers[2]
@@ -690,7 +696,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 				logger.Error("Failed database health check", zap.Error(dbErr))
 			}
 			data["database"] = dbErr == nil
-			redisEnabled := v.GetBool(cli.RedisEnabledFlag)
 			if redisEnabled {
 				data = redisHealthCheck(redisPool, logger, data)
 			}
