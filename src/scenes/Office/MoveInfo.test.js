@@ -87,14 +87,34 @@ describe('ShipmentInfo tests', () => {
 describe('Test PPM tab icon', () => {
   let wrapper;
   const minProps = {
+    loadBackupContacts: false,
+    loadOrders: false,
+    loadMoveIsSuccess: true,
+    loadServiceMember: '123',
+    ordersId: '123',
+    match: match,
+    serviceMemberId: '123',
     ppm: { status: '' },
     ppmAdvance: { status: '' },
+    store: {},
+
+    loadDependenciesHasError: loadDependenciesHasError,
+    loadDependenciesHasSuccess: loadDependenciesHasSuccess,
+    location: location,
+    // match:{match},
+    loadMoveDependencies: dummyFunc,
   };
   describe('Showing PPM status APPROVED and PPM Advance status APPROVED', () => {
-    it('Should show red clock icon', () => {
+    it('Should how red clock icon', () => {
       // move pending
-      wrapper = shallow(<MoveInfo {...minProps} ppm={{ status: 'APPROVED' }} ppmAdvance={{ status: 'APPROVED' }} />);
-      wrapper.debug();
+      // wrapper = shallow(<MoveInfo {...minProps} ppm={{ status: 'APPROVED' }} ppmAdvance={{ status: 'APPROVED' }} />);
+      // wrapper = mount(<MoveInfo {...minProps} ppm={{ status: 'APPROVED' }} ppmAdvance={{ status: 'APPROVED' }} />);
+      wrapper = mount(
+        <Provider store={store}>
+          <MoveInfo {...minProps} ppm={{ status: 'APPROVED' }} ppmAdvance={{ status: 'APPROVED' }} />
+        </Provider>,
+      );
+      console.log(wrapper.debug());
       expect(wrapper.find({ 'data-cy': 'ppmTabStatus' }).prop('src')).toEqual('faClock');
     });
   });
