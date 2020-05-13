@@ -64,7 +64,7 @@ func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdate
 }
 
 /*
-UpdateMTOPostCounselingInformation updates move task order s post counseling information
+UpdateMTOPostCounselingInformation updates m t o post counseling information
 
 Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.
 */
