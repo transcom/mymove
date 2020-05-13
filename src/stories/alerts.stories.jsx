@@ -45,6 +45,12 @@ storiesOf('Components|Alerts', module)
   ))
   .add('system error', () => (
     <div>
-      <Alert className="usa-alert usa-alert--system-error">This is a succinct, helpful error message.</Alert>
+      <Alert className="usa-alert usa-alert--system-error">
+        This is a succinct, helpful error message. Also inlcuded is an example of some
+        <a>link text</a>
+        .
+        <br />
+        This is a second line to test the line height.
+      </Alert>
     </div>
   ));
