@@ -176,4 +176,5 @@
 }
 .usa-alert--system-error {
   @include u-bg('warning');
+  @include u-border(0);
 }
