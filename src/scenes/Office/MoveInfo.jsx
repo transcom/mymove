@@ -180,14 +180,14 @@ class MoveInfo extends Component {
       if (this.props.ppmAdvance.status === 'APPROVED' || !this.props.ppmAdvance.status) {
         return (
           <span className="status">
-            <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+            <FontAwesomeIcon className="icon approval-waiting" icon={faClock} data-cy="ppmTabStatus" />
             Move pending
           </span>
         );
       } else {
         return (
           <span className="status">
-            <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+            <FontAwesomeIcon className="icon approval-waiting" icon={faClock} data-cy="ppmTabStatus" />
             Payment requested
           </span>
         );
@@ -195,14 +195,14 @@ class MoveInfo extends Component {
     } else if (ppmCompleted) {
       return (
         <span className="status">
-          <FontAwesomeIcon className="icon approval-completed" icon={faCheck} />
+          <FontAwesomeIcon className="icon approval-completed" icon={faCheck} data-cy="ppmTabStatus" />
           Completed
         </span>
       );
     } else {
       return (
         <span className="status">
-          <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+          <FontAwesomeIcon className="icon approval-waiting" icon={faClock} data-cy="ppmTabStatus" />
           In review
         </span>
       );

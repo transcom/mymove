@@ -6,6 +6,7 @@ import { HashRouter as Router } from 'react-router-dom';
 import MoveInfo from './MoveInfo';
 import store from 'shared/store';
 import { mount } from 'enzyme/build';
+import { shallow } from 'enzyme';
 import { ReferrerQueueLink } from './MoveInfo';
 
 const dummyFunc = () => {};
@@ -83,18 +84,30 @@ describe('ShipmentInfo tests', () => {
 // PAYMENT_REQUESTED // In review
 // COMPLETED
 // CANCELED
-describe('Shows correct status and icon on tab heading', () => {
-  // let wrapper;
-  it('Should show red clock icon and `Move Pending` when PPM status is SUBMITTED', () => {
-    // SUBMITTED
+describe('Test PPM tab icon', () => {
+  let wrapper;
+  const minProps = {
+    ppm: { status: '' },
+    ppmAdvance: { status: '' },
+  };
+  describe('Showing PPM status APPROVED and PPM Advance status APPROVED', () => {
+    it('Should show red clock icon', () => {
+      // move pending
+      wrapper = shallow(<MoveInfo {...minProps} ppm={{ status: 'APPROVED' }} ppmAdvance={{ status: 'APPROVED' }} />);
+      wrapper.debug();
+      expect(wrapper.find({ 'data-cy': 'ppmTabStatus' }).prop('src')).toEqual('faClock');
+    });
   });
-  it('Should show red clock icon and `Move pending` when PPM status is APPROVED', () => {
-    // APPROVED
-  });
-  it('Should show red clock icon and `Payment requested` when PPM status is PAYMENT_REQUESTED', () => {
-    // PAYMENT_REQUESTED
-  });
-  it('Should show green check icon and `Completed` when PPM status is COMPLETED', () => {
-    // COMPLETED
-  });
+  // it('Should show red clock icon and `????` when PPM status is APPROVED', () => {
+  //   // APPROVED
+  // });
+  // it('Should show red clock icon and `Payment requested` when PPM status is PAYMENT_REQUESTED', () => {
+  //   // PAYMENT_REQUESTED
+  // });
+  // it('Should show green check icon and `Completed` when PPM status is COMPLETED', () => {
+  //   // COMPLETED
+  // });
 });
+
+// describe Test PPM tab status
+// ... and `Move Pending`
