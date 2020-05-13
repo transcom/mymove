@@ -148,11 +148,16 @@ func (o *CreateMTOShipmentNotFound) WriteResponse(rw http.ResponseWriter, produc
 // CreateMTOShipmentUnprocessableEntityCode is the HTTP code returned for type CreateMTOShipmentUnprocessableEntity
 const CreateMTOShipmentUnprocessableEntityCode int = 422
 
-/*CreateMTOShipmentUnprocessableEntity create m t o shipment unprocessable entity
+/*CreateMTOShipmentUnprocessableEntity The request payload is invalid
 
 swagger:response createMTOShipmentUnprocessableEntity
 */
 type CreateMTOShipmentUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ValidationError `json:"body,omitempty"`
 }
 
 // NewCreateMTOShipmentUnprocessableEntity creates CreateMTOShipmentUnprocessableEntity with default headers values
@@ -161,12 +166,27 @@ func NewCreateMTOShipmentUnprocessableEntity() *CreateMTOShipmentUnprocessableEn
 	return &CreateMTOShipmentUnprocessableEntity{}
 }
 
+// WithPayload adds the payload to the create m t o shipment unprocessable entity response
+func (o *CreateMTOShipmentUnprocessableEntity) WithPayload(payload *primemessages.ValidationError) *CreateMTOShipmentUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create m t o shipment unprocessable entity response
+func (o *CreateMTOShipmentUnprocessableEntity) SetPayload(payload *primemessages.ValidationError) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *CreateMTOShipmentUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // CreateMTOShipmentInternalServerErrorCode is the HTTP code returned for type CreateMTOShipmentInternalServerError

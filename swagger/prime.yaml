@@ -249,7 +249,9 @@ paths:
         '404':
           $ref: '#/responses/NotFound'
         '422':
-          $ref: '#/definitions/ValidationError'
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items':

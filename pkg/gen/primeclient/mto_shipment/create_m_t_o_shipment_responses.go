@@ -166,16 +166,28 @@ func NewCreateMTOShipmentUnprocessableEntity() *CreateMTOShipmentUnprocessableEn
 
 /*CreateMTOShipmentUnprocessableEntity handles this case with default header values.
 
-CreateMTOShipmentUnprocessableEntity create m t o shipment unprocessable entity
+The request payload is invalid
 */
 type CreateMTOShipmentUnprocessableEntity struct {
+	Payload *primemessages.ValidationError
 }
 
 func (o *CreateMTOShipmentUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments][%d] createMTOShipmentUnprocessableEntity ", 422)
+	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments][%d] createMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
+}
+
+func (o *CreateMTOShipmentUnprocessableEntity) GetPayload() *primemessages.ValidationError {
+	return o.Payload
 }
 
 func (o *CreateMTOShipmentUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ValidationError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }

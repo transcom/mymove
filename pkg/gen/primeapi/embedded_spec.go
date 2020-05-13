@@ -171,7 +171,10 @@ func init() {
             "$ref": "#/responses/NotFound"
           },
           "422": {
-            "$ref": "#/definitions/ValidationError"
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -1975,7 +1978,12 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
-          "422": {},
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred.",
             "schema": {
