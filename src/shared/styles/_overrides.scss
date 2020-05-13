@@ -137,7 +137,7 @@
     background-color: #a8f2ff;
   }
   &--teal {
-        background-color: $accent-teal;
+    background-color: $accent-teal;
     @include u-text('white');
   }
   &--alert {
@@ -173,4 +173,7 @@
 
 .usa-alert__heading {
   @include u-text('bold');
+}
+.usa-alert--system-error {
+  @include u-bg('warning');
 }
