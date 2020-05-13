@@ -1,6 +1,8 @@
 package paymentrequest
 
 import (
+	"fmt"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -18,7 +20,7 @@ func (p *RequestPaymentHelper) ValidServiceParamList(mtoServiceItem models.MTOSe
 		}
 		if found == false {
 			hasError = true
-			errorString = errorString + " Param Key <" + serviceParam.ServiceItemParamKey.Key + ">"
+			errorString = fmt.Sprintf("%s Param Key <%s>", errorString, serviceParam.ServiceItemParamKey.Key)
 		}
 	}
 
