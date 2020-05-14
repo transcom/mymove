@@ -26,30 +26,32 @@ class MoveDetails extends Component {
     // eslint-disable-next-line react/prop-types
     const { orders } = this.props;
     return (
-      <div className="maxw-desktop-lg" data-cy="too-move-details">
+      <div className="grid-container-desktop-lg" data-cy="too-move-details">
         <h1>Move details</h1>
-        <OrdersTable
-          ordersInfo={{
-            // eslint-disable-next-line react/prop-types
-            newDutyStation: get(orders.new_duty_station, 'name'),
-            // eslint-disable-next-line react/prop-types
-            issuedDate: orders.issue_date,
-            // eslint-disable-next-line react/prop-types
-            reportByDate: orders.report_by_date,
-            // eslint-disable-next-line react/prop-types
-            departmentIndicator: orders.department_indicator,
-            // eslint-disable-next-line react/prop-types
-            ordersNumber: orders.orders_number,
-            // eslint-disable-next-line react/prop-types
-            ordersType: orders.orders_type,
-            // eslint-disable-next-line react/prop-types
-            ordersTypeDetail: orders.orders_type_detail,
-            // eslint-disable-next-line react/prop-types
-            tacMDC: orders.tac,
-            // eslint-disable-next-line react/prop-types
-            sacSDN: orders.sacSDN,
-          }}
-        />
+        <div className="container">
+          <OrdersTable
+            ordersInfo={{
+              // eslint-disable-next-line react/prop-types
+              newDutyStation: get(orders.new_duty_station, 'name'),
+              // eslint-disable-next-line react/prop-types
+              issuedDate: orders.issue_date,
+              // eslint-disable-next-line react/prop-types
+              reportByDate: orders.report_by_date,
+              // eslint-disable-next-line react/prop-types
+              departmentIndicator: orders.department_indicator,
+              // eslint-disable-next-line react/prop-types
+              ordersNumber: orders.orders_number,
+              // eslint-disable-next-line react/prop-types
+              ordersType: orders.orders_type,
+              // eslint-disable-next-line react/prop-types
+              ordersTypeDetail: orders.orders_type_detail,
+              // eslint-disable-next-line react/prop-types
+              tacMDC: orders.tac,
+              // eslint-disable-next-line react/prop-types
+              sacSDN: orders.sacSDN,
+            }}
+          />
+        </div>
       </div>
     );
   }

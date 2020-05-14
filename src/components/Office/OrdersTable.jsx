@@ -22,7 +22,7 @@ function OrdersTable({ ordersInfo }) {
         </colgroup>
         <tbody>
           <tr>
-            <th scope="row">Current Duty Station</th>
+            <th scope="row">Current duty Station</th>
             <td data-cy="currentDutyStation">{ordersInfo.currentDutyStation}</td>
           </tr>
           <tr>
@@ -30,7 +30,7 @@ function OrdersTable({ ordersInfo }) {
             <td data-cy="newDutyStation">{ordersInfo.newDutyStation}</td>
           </tr>
           <tr>
-            <th scope="row">Date issuedc</th>
+            <th scope="row">Date issued</th>
             <td data-cy="issuedDate">{ordersInfo.issuedDate}</td>
           </tr>
           <tr>
