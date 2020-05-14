@@ -60,7 +60,7 @@ func (o *UpdateMoveTaskOrderStatusOK) WriteResponse(rw http.ResponseWriter, prod
 // UpdateMoveTaskOrderStatusBadRequestCode is the HTTP code returned for type UpdateMoveTaskOrderStatusBadRequest
 const UpdateMoveTaskOrderStatusBadRequestCode int = 400
 
-/*UpdateMoveTaskOrderStatusBadRequest The parameters were invalid.
+/*UpdateMoveTaskOrderStatusBadRequest The request payload is invalid.
 
 swagger:response updateMoveTaskOrderStatusBadRequest
 */

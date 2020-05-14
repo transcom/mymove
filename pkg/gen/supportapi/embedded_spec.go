@@ -1534,13 +1534,13 @@ func init() {
   },
   "responses": {
     "Conflict": {
-      "description": "Conflict error.",
+      "description": "There was a conflict with the request.",
       "schema": {
         "$ref": "#/definitions/ClientError"
       }
     },
     "InvalidRequest": {
-      "description": "The parameters were invalid.",
+      "description": "The request payload is invalid.",
       "schema": {
         "$ref": "#/definitions/ClientError"
       }
@@ -1628,7 +1628,7 @@ func init() {
             }
           },
           "400": {
-            "description": "The parameters were invalid.",
+            "description": "The request payload is invalid.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -1691,7 +1691,7 @@ func init() {
             }
           },
           "400": {
-            "description": "The parameters were invalid.",
+            "description": "The request payload is invalid.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -1777,7 +1777,7 @@ func init() {
             }
           },
           "400": {
-            "description": "The parameters were invalid.",
+            "description": "The request payload is invalid.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -1869,7 +1869,7 @@ func init() {
             }
           },
           "400": {
-            "description": "The parameters were invalid.",
+            "description": "The request payload is invalid.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -1901,7 +1901,7 @@ func init() {
           "409": {
             "description": "Conflict error due to trying to change the status of shipment that is not currently \"SUBMITTED\".",
             "schema": {
-              "description": "Conflict error.",
+              "description": "There was a conflict with the request.",
               "schema": {
                 "$ref": "#/definitions/ClientError"
               }
@@ -1977,7 +1977,7 @@ func init() {
             }
           },
           "400": {
-            "description": "The parameters were invalid.",
+            "description": "The request payload is invalid.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -2076,7 +2076,7 @@ func init() {
             }
           },
           "400": {
-            "description": "The parameters were invalid.",
+            "description": "The request payload is invalid.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -2108,7 +2108,7 @@ func init() {
           "409": {
             "description": "Conflict error due to trying to change the status of service item that is not currently \"SUBMITTED\".",
             "schema": {
-              "description": "Conflict error.",
+              "description": "There was a conflict with the request.",
               "schema": {
                 "$ref": "#/definitions/ClientError"
               }
@@ -3214,13 +3214,13 @@ func init() {
   },
   "responses": {
     "Conflict": {
-      "description": "Conflict error.",
+      "description": "There was a conflict with the request.",
       "schema": {
         "$ref": "#/definitions/ClientError"
       }
     },
     "InvalidRequest": {
-      "description": "The parameters were invalid.",
+      "description": "The request payload is invalid.",
       "schema": {
         "$ref": "#/definitions/ClientError"
       }

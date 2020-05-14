@@ -124,7 +124,7 @@ func NewUpdateMTOShipmentStatusBadRequest() *UpdateMTOShipmentStatusBadRequest {
 
 /*UpdateMTOShipmentStatusBadRequest handles this case with default header values.
 
-The parameters were invalid.
+The request payload is invalid.
 */
 type UpdateMTOShipmentStatusBadRequest struct {
 	Payload *supportmessages.ClientError

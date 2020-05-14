@@ -1187,7 +1187,7 @@ definitions:
     type: object
 responses:
   InvalidRequest:
-    description: The parameters were invalid.
+    description: The request payload is invalid.
     schema:
       $ref: '#/definitions/ClientError'
   NotFound:
@@ -1211,6 +1211,6 @@ responses:
     schema:
       $ref: '#/definitions/ClientError'
   Conflict:
-    description: Conflict error.
+    description: There was a conflict with the request.
     schema:
       $ref: '#/definitions/ClientError'

@@ -60,7 +60,7 @@ func (o *CreateMoveTaskOrderCreated) WriteResponse(rw http.ResponseWriter, produ
 // CreateMoveTaskOrderBadRequestCode is the HTTP code returned for type CreateMoveTaskOrderBadRequest
 const CreateMoveTaskOrderBadRequestCode int = 400
 
-/*CreateMoveTaskOrderBadRequest The parameters were invalid.
+/*CreateMoveTaskOrderBadRequest The request payload is invalid.
 
 swagger:response createMoveTaskOrderBadRequest
 */

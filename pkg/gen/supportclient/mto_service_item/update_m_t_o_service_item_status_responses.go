@@ -124,7 +124,7 @@ func NewUpdateMTOServiceItemStatusBadRequest() *UpdateMTOServiceItemStatusBadReq
 
 /*UpdateMTOServiceItemStatusBadRequest handles this case with default header values.
 
-The parameters were invalid.
+The request payload is invalid.
 */
 type UpdateMTOServiceItemStatusBadRequest struct {
 	Payload *supportmessages.ClientError

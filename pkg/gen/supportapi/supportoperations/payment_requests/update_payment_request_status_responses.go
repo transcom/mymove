@@ -60,7 +60,7 @@ func (o *UpdatePaymentRequestStatusOK) WriteResponse(rw http.ResponseWriter, pro
 // UpdatePaymentRequestStatusBadRequestCode is the HTTP code returned for type UpdatePaymentRequestStatusBadRequest
 const UpdatePaymentRequestStatusBadRequestCode int = 400
 
-/*UpdatePaymentRequestStatusBadRequest The parameters were invalid.
+/*UpdatePaymentRequestStatusBadRequest The request payload is invalid.
 
 swagger:response updatePaymentRequestStatusBadRequest
 */

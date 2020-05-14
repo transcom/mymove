@@ -60,7 +60,7 @@ func (o *UpdateMTOServiceItemStatusOK) WriteResponse(rw http.ResponseWriter, pro
 // UpdateMTOServiceItemStatusBadRequestCode is the HTTP code returned for type UpdateMTOServiceItemStatusBadRequest
 const UpdateMTOServiceItemStatusBadRequestCode int = 400
 
-/*UpdateMTOServiceItemStatusBadRequest The parameters were invalid.
+/*UpdateMTOServiceItemStatusBadRequest The request payload is invalid.
 
 swagger:response updateMTOServiceItemStatusBadRequest
 */

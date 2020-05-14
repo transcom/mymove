@@ -112,7 +112,7 @@ func NewUpdateMoveTaskOrderStatusBadRequest() *UpdateMoveTaskOrderStatusBadReque
 
 /*UpdateMoveTaskOrderStatusBadRequest handles this case with default header values.
 
-The parameters were invalid.
+The request payload is invalid.
 */
 type UpdateMoveTaskOrderStatusBadRequest struct {
 	Payload *supportmessages.ClientError
