@@ -27,7 +27,7 @@ type Client struct {
 }
 
 /*
-CreatePaymentRequest creates a payment request
+CreatePaymentRequest creates payment request
 
 Creates a new instance of a paymentRequest.
 A newly created payment request is assigned the status `PENDING`.

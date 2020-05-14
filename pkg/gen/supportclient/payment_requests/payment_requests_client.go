@@ -27,7 +27,7 @@ type Client struct {
 }
 
 /*
-UpdatePaymentRequestStatus updates status of a payment request by id
+UpdatePaymentRequestStatus updates payment request status
 
 Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.
 A status of REVIEWED can optionally have a `rejectionReason`. <br />
