@@ -99,10 +99,9 @@ func main() {
 	This command creates a MTO shipment.
 	It requires the caller to pass in a file using the --filename arg.
 	The file should contain a body defining the MTOShipment object.
-	Endpoint path: move-task-orders/{moveTaskOrderID}/mto-shipments
+	Endpoint path: /mto-shipments
 	The file should contain json as follows:
 		{
-			"moveTaskOrderID": <uuid string>
 			"body": <MTOShipment>,
 		}
 	Please see API documentation for full details on the endpoint definition.`,
@@ -155,7 +154,6 @@ func main() {
   Endpoint path: /mto-service-items
   The file should contain json as follows:
   	{
-  	"ifMatch": <eTag>,
   	"body": <MTOServiceItem>
   	}
   Please see API documentation for full details on the endpoint definition.`,
