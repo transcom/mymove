@@ -30,8 +30,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder,
 		PaymentRequest: models.PaymentRequest{
-			ID:            paymentRequestID,
-			MoveTaskOrder: moveTaskOrder,
+			ID: paymentRequestID,
 		},
 	})
 

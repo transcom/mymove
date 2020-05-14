@@ -28,10 +28,10 @@ const (
 	ServiceItemParamNameDistanceZip3 ServiceItemParamName = "DistanceZip3"
 	// ServiceItemParamNameDistanceZip5 is the param key name DistanceZip5
 	ServiceItemParamNameDistanceZip5 ServiceItemParamName = "DistanceZip5"
-	// ServiceItemParamNameDistanceZip5SITOrigin is the param key name DistanceZip5SITOrigin
-	ServiceItemParamNameDistanceZip5SITOrigin ServiceItemParamName = "DistanceZip5SITOrigin"
 	// ServiceItemParamNameDistanceZip5SITDest is the param key name DistanceZip5SITDest
 	ServiceItemParamNameDistanceZip5SITDest ServiceItemParamName = "DistanceZip5SITDest"
+	// ServiceItemParamNameDistanceZip5SITOrigin is the param key name DistanceZip5SITOrigin
+	ServiceItemParamNameDistanceZip5SITOrigin ServiceItemParamName = "DistanceZip5SITOrigin"
 	// ServiceItemParamNameEIAFuelPrice is the param key name EIAFuelPrice
 	ServiceItemParamNameEIAFuelPrice ServiceItemParamName = "EIAFuelPrice"
 	// ServiceItemParamNameMarketDest is the param key name MarketDest
