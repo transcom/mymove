@@ -67,14 +67,14 @@ func NewCreateMTOShipmentOK() *CreateMTOShipmentOK {
 
 /*CreateMTOShipmentOK handles this case with default header values.
 
-created instance of a mto shipment
+Successfully created a MTO shipment.
 */
 type CreateMTOShipmentOK struct {
 	Payload *primemessages.MTOShipment
 }
 
 func (o *CreateMTOShipmentOK) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments][%d] createMTOShipmentOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentOK  %+v", 200, o.Payload)
 }
 
 func (o *CreateMTOShipmentOK) GetPayload() *primemessages.MTOShipment {
@@ -107,7 +107,7 @@ type CreateMTOShipmentBadRequest struct {
 }
 
 func (o *CreateMTOShipmentBadRequest) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments][%d] createMTOShipmentBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *CreateMTOShipmentBadRequest) GetPayload() *primemessages.Error {
@@ -140,7 +140,7 @@ type CreateMTOShipmentNotFound struct {
 }
 
 func (o *CreateMTOShipmentNotFound) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments][%d] createMTOShipmentNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentNotFound  %+v", 404, o.Payload)
 }
 
 func (o *CreateMTOShipmentNotFound) GetPayload() *primemessages.Error {
@@ -166,14 +166,14 @@ func NewCreateMTOShipmentUnprocessableEntity() *CreateMTOShipmentUnprocessableEn
 
 /*CreateMTOShipmentUnprocessableEntity handles this case with default header values.
 
-The request payload is invalid
+The payload was unprocessable.
 */
 type CreateMTOShipmentUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
 }
 
 func (o *CreateMTOShipmentUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments][%d] createMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
+	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
 }
 
 func (o *CreateMTOShipmentUnprocessableEntity) GetPayload() *primemessages.ValidationError {
@@ -206,7 +206,7 @@ type CreateMTOShipmentInternalServerError struct {
 }
 
 func (o *CreateMTOShipmentInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments][%d] createMTOShipmentInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *CreateMTOShipmentInternalServerError) GetPayload() *primemessages.Error {

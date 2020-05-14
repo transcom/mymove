@@ -29,7 +29,19 @@ type Client struct {
 /*
 CreateMTOShipment creates m t o shipment
 
-Creates an instance of mtoShipment Required fields include * Shipment Type * Customer requested pick-up date * Pick-up Address * Delivery Address * Releasing / Receiving agents Optional fields include * Customer Remarks * Releasing / Receiving agents * An array of optional accessorial service item codes
+Creates a MTO shipment for the specified Move Task Order.
+Required fields include:
+* Shipment Type
+* Customer requested pick-up date
+* Pick-up Address
+* Delivery Address
+* Releasing / Receiving agents
+
+Optional fields include:
+* Customer Remarks
+* Releasing / Receiving agents
+* An array of optional accessorial service item codes
+
 */
 func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOShipmentOK, error) {
 	// TODO: Validate the params before sending
@@ -40,7 +52,7 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOS
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "createMTOShipment",
 		Method:             "POST",
-		PathPattern:        "/move-task-orders/{moveTaskOrderID}/mto-shipments",
+		PathPattern:        "/mto-shipments",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},

@@ -65,16 +65,6 @@ type CreateMTOServiceItemParams struct {
 
 	/*Body*/
 	Body primemessages.MTOServiceItem
-	/*MoveTaskOrderID
-	  UUID of Move Task Order to use.
-
-	*/
-	MoveTaskOrderID strfmt.UUID
-	/*MtoShipmentID
-	  UUID of MTO Shipment to use.
-
-	*/
-	MtoShipmentID strfmt.UUID
 
 	timeout    time.Duration
 	Context    context.Context
@@ -125,28 +115,6 @@ func (o *CreateMTOServiceItemParams) SetBody(body primemessages.MTOServiceItem) 
 	o.Body = body
 }
 
-// WithMoveTaskOrderID adds the moveTaskOrderID to the create m t o service item params
-func (o *CreateMTOServiceItemParams) WithMoveTaskOrderID(moveTaskOrderID strfmt.UUID) *CreateMTOServiceItemParams {
-	o.SetMoveTaskOrderID(moveTaskOrderID)
-	return o
-}
-
-// SetMoveTaskOrderID adds the moveTaskOrderId to the create m t o service item params
-func (o *CreateMTOServiceItemParams) SetMoveTaskOrderID(moveTaskOrderID strfmt.UUID) {
-	o.MoveTaskOrderID = moveTaskOrderID
-}
-
-// WithMtoShipmentID adds the mtoShipmentID to the create m t o service item params
-func (o *CreateMTOServiceItemParams) WithMtoShipmentID(mtoShipmentID strfmt.UUID) *CreateMTOServiceItemParams {
-	o.SetMtoShipmentID(mtoShipmentID)
-	return o
-}
-
-// SetMtoShipmentID adds the mtoShipmentId to the create m t o service item params
-func (o *CreateMTOServiceItemParams) SetMtoShipmentID(mtoShipmentID strfmt.UUID) {
-	o.MtoShipmentID = mtoShipmentID
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *CreateMTOServiceItemParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -156,16 +124,6 @@ func (o *CreateMTOServiceItemParams) WriteToRequest(r runtime.ClientRequest, reg
 	var res []error
 
 	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
-	}
-
-	// path param moveTaskOrderID
-	if err := r.SetPathParam("moveTaskOrderID", o.MoveTaskOrderID.String()); err != nil {
-		return err
-	}
-
-	// path param mtoShipmentID
-	if err := r.SetPathParam("mtoShipmentID", o.MtoShipmentID.String()); err != nil {
 		return err
 	}
 

@@ -16,7 +16,7 @@ import (
 // CreateMTOShipmentOKCode is the HTTP code returned for type CreateMTOShipmentOK
 const CreateMTOShipmentOKCode int = 200
 
-/*CreateMTOShipmentOK created instance of a mto shipment
+/*CreateMTOShipmentOK Successfully created a MTO shipment.
 
 swagger:response createMTOShipmentOK
 */
@@ -148,7 +148,7 @@ func (o *CreateMTOShipmentNotFound) WriteResponse(rw http.ResponseWriter, produc
 // CreateMTOShipmentUnprocessableEntityCode is the HTTP code returned for type CreateMTOShipmentUnprocessableEntity
 const CreateMTOShipmentUnprocessableEntityCode int = 422
 
-/*CreateMTOShipmentUnprocessableEntity The request payload is invalid
+/*CreateMTOShipmentUnprocessableEntity The payload was unprocessable.
 
 swagger:response createMTOShipmentUnprocessableEntity
 */
