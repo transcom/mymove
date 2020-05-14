@@ -73,11 +73,11 @@ var zip3ToLatLongMap = map[string]LatLong{
 	"032":{42.9848, -71.4447}, // Manchester, NH
 	"033":{43.2305, -71.5595}, // Concord, NH
 	"034":{42.9848, -71.4447}, // Manchester, NH
-	// Manual fix for zip3 <035> with city WHITE RIV JCT and state VT
+	TODO Manual fix for zip3 <035> with city WHITE RIV JCT and state VT
 	"035":{43.6496, -72.3239}, // White River Junction, VT
-	// Manual fix for zip3 <036> with city WHITE RIV JCT and state VT
+	TODO Manual fix for zip3 <036> with city WHITE RIV JCT and state VT
 	"036":{43.6496, -72.3239}, // White River Junction, VT
-	// Manual fix for zip3 <037> with city WHITE RIV JCT and state VT
+	TODO Manual fix for zip3 <037> with city WHITE RIV JCT and state VT
 	"037":{43.6496, -72.3239}, // White River Junction, VT
 	"038":{43.0580, -70.7826}, // Portsmouth, NH
 	"039":{43.0580, -70.7826}, // Portsmouth, NH
@@ -91,20 +91,20 @@ var zip3ToLatLongMap = map[string]LatLong{
 	"047":{44.8322, -68.7906}, // Bangor, ME
 	"048":{43.6773, -70.2715}, // Portland, ME
 	"049":{44.8322, -68.7906}, // Bangor, ME
-	// Manual fix for zip3 <050> with city WHITE RIV JCT and state VT
+	TODO Manual fix for zip3 <050> with city WHITE RIV JCT and state VT
 	"050":{43.6496, -72.3239}, // White River Junction, VT
-	// Manual fix for zip3 <051> with city WHITE RIV JCT and state VT
+	TODO Manual fix for zip3 <051> with city WHITE RIV JCT and state VT
 	"051":{43.6496, -72.3239}, // White River Junction, VT
-	// Manual fix for zip3 <052> with city WHITE RIV JCT and state VT
+	TODO Manual fix for zip3 <052> with city WHITE RIV JCT and state VT
 	"052":{43.6496, -72.3239}, // White River Junction, VT
-	// Manual fix for zip3 <053> with city WHITE RIV JCT and state VT
+	TODO Manual fix for zip3 <053> with city WHITE RIV JCT and state VT
 	"053":{43.6496, -72.3239}, // White River Junction, VT
 	"054":{44.4877, -73.2314}, // Burlington, VT
 	// Manual fix for zip <055> with city MIDDLESEX-ESX and state MA
 	"055":{42.6583, -71.1368}, // Andover, MA
 	// END OF OPTIONS TO PICK
 	"056":{44.4877, -73.2314}, // Burlington, VT
-	// Manual fix for zip3 <057> with city WHITE RIV JCT and state VT
+	TODO Manual fix for zip3 <057> with city WHITE RIV JCT and state VT
 	"057":{43.6496, -72.3239}, // White River Junction, VT
 	// Manual fix for zip3  <058> with city WHITE RIV JCT and state VT
 	"058":{44.4193, -72.0151}, // Saint Johnsbury, VT
