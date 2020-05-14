@@ -160,7 +160,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	if fieldErrs != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(fieldErrs))
 
-		errPayload := payloads.ValidationError(handlers.ValidationErrMessage, "Fields that cannot be updated found in input",
+		errPayload := payloads.ValidationError("Fields that cannot be updated found in input",
 			h.GetTraceID(), fieldErrs)
 
 		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
@@ -175,7 +175,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		case services.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.InvalidInputError:
-			payload := payloads.ValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
+			payload := payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors)
 			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})

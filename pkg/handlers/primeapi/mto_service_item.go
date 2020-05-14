@@ -45,7 +45,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 		logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(verrs))
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-			"modelType() not allowed", detailErr, h.GetTraceID(), verrs))
+			detailErr, h.GetTraceID(), verrs))
 	}
 
 	params.Body.SetMoveTaskOrderID(params.MoveTaskOrderID)
@@ -54,13 +54,13 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	mtoServiceItem, verrs := payloads.MTOServiceItemModel(params.Body)
 	if verrs != nil && verrs.HasAny() {
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-			"Model validation error", verrs.Error(), h.GetTraceID(), verrs))
+			verrs.Error(), h.GetTraceID(), verrs))
 	}
 
 	mtoServiceItem, verrs, err := h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
 	if verrs != nil && verrs.HasAny() {
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-			"Model validation error", verrs.Error(), h.GetTraceID(), verrs))
+			verrs.Error(), h.GetTraceID(), verrs))
 	}
 
 	if err != nil {
