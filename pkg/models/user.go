@@ -18,13 +18,16 @@ import (
 
 // User is an entity with a registered uuid and email at login.gov
 type User struct {
-	ID            uuid.UUID   `json:"id" db:"id"`
-	CreatedAt     time.Time   `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time   `json:"updated_at" db:"updated_at"`
-	LoginGovUUID  uuid.UUID   `json:"login_gov_uuid" db:"login_gov_uuid"`
-	LoginGovEmail string      `json:"login_gov_email" db:"login_gov_email"`
-	Active        bool        `json:"active" db:"active"`
-	Roles         roles.Roles `many_to_many:"users_roles"`
+	ID                     uuid.UUID   `json:"id" db:"id"`
+	CreatedAt              time.Time   `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time   `json:"updated_at" db:"updated_at"`
+	LoginGovUUID           uuid.UUID   `json:"login_gov_uuid" db:"login_gov_uuid"`
+	LoginGovEmail          string      `json:"login_gov_email" db:"login_gov_email"`
+	Active                 bool        `json:"active" db:"active"`
+	Roles                  roles.Roles `many_to_many:"users_roles"`
+	CurrentAdminSessionID  string      `json:"current_admin_session_id" db:"current_admin_session_id"`
+	CurrentOfficeSessionID string      `json:"current_office_session_id" db:"current_office_session_id"`
+	CurrentMilSessionID    string      `json:"current_mil_session_id" db:"current_mil_session_id"`
 }
 
 // Users is not required by pop and may be deleted
@@ -64,9 +67,10 @@ func GetUser(db *pop.Connection, userID uuid.UUID) (*User, error) {
 // GetUserFromEmail loads the associated User from the DB using the user email
 func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
 	users := []User{}
-	err := db.Where("login_gov_email = $1", email).All(&users)
+	downcasedEmail := strings.ToLower(email)
+	err := db.Where("login_gov_email = $1", downcasedEmail).All(&users)
 	if len(users) == 0 {
-		return nil, errors.Wrapf(err, "Unable to find user by email %s", email)
+		return nil, errors.Wrapf(err, "Unable to find user by email %s", downcasedEmail)
 	}
 	return &users[0], err
 }

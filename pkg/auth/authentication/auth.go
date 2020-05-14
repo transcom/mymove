@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -62,7 +63,7 @@ func RoleAuthLogin(logger Logger) func(next http.Handler) http.Handler {
 			// We must have a logged in session and a user
 
 			if session == nil || session.UserID == uuid.Nil {
-				logger.Error("unauthorized access, no session token or user id")
+				logger.Info("unauthorized access, no session token or user id")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
@@ -90,10 +91,10 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 
 			session := auth.SessionFromRequestContext(r)
-			// We must have a logged in session and a user
 
+			// We must have a logged in session and a user
 			if session == nil || session.UserID == uuid.Nil {
-				logger.Error("unauthorized access, no session token or user id")
+				logger.Info("unauthorized access, no session token or user id")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
@@ -114,6 +115,131 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 		}
 		return http.HandlerFunc(mw)
 	}
+}
+
+func updateUserCurrentSessionID(session *auth.Session, sessionID string, db *pop.Connection, logger Logger) error {
+	userID := session.UserID
+
+	user, err := models.GetUser(db, userID)
+	if err != nil {
+		logger.Error("Fetching user", zap.String("user_id", userID.String()), zap.Error(err))
+	}
+
+	if session.IsAdminUser() {
+		user.CurrentAdminSessionID = sessionID
+	} else if session.IsOfficeUser() {
+		user.CurrentOfficeSessionID = sessionID
+	} else if session.IsServiceMember() {
+		user.CurrentMilSessionID = sessionID
+	}
+
+	err = db.Save(user)
+	if err != nil {
+		logger.Error("Updating user's current_x_session_id", zap.String("email", session.Email), zap.Error(err))
+		return err
+	}
+
+	return err
+}
+
+func resetUserCurrentSessionID(session *auth.Session, db *pop.Connection, logger Logger) error {
+	userID := session.UserID
+	user, err := models.GetUser(db, userID)
+	if err != nil {
+		logger.Error("Fetching user", zap.String("user_id", userID.String()), zap.Error(err))
+	}
+
+	if session.IsAdminUser() {
+		user.CurrentAdminSessionID = ""
+	} else if session.IsOfficeUser() {
+		user.CurrentOfficeSessionID = ""
+	} else if session.IsServiceMember() {
+		user.CurrentMilSessionID = ""
+	}
+	err = db.Save(user)
+	if err != nil {
+		logger.Error("Updating user's current_x_session_id", zap.String("email", session.Email), zap.Error(err))
+		return err
+	}
+
+	return err
+}
+
+func currentUser(session *auth.Session, db *pop.Connection) (*models.User, error) {
+	userID := session.UserID
+	user, err := models.GetUser(db, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func currentSessionID(session *auth.Session, user *models.User) string {
+	if session.IsAdminUser() {
+		return user.CurrentAdminSessionID
+	} else if session.IsOfficeUser() {
+		return user.CurrentOfficeSessionID
+	} else if session.IsServiceMember() {
+		return user.CurrentMilSessionID
+	}
+
+	return ""
+}
+
+func authenticateUser(ctx context.Context, sessionManager *scs.SessionManager, session *auth.Session, logger Logger, db *pop.Connection) error {
+	// The session token must be renewed during sign in to prevent
+	// session fixation attacks
+	err := sessionManager.RenewToken(ctx)
+	if err != nil {
+		logger.Error("Error renewing session token", zap.Error(err))
+		return err
+	}
+	sessionID, _, err := sessionManager.Commit(ctx)
+	if err != nil {
+		logger.Error("Failed to write new user session to store", zap.Error(err))
+		return err
+	}
+	sessionManager.Put(ctx, "session", session)
+
+	user, err := currentUser(session, db)
+	if err != nil {
+		logger.Error("Fetching user", zap.String("user_id", session.UserID.String()), zap.Error(err))
+		return err
+	}
+	// Check to see if sessionID is set on the user, presently
+	existingSessionID := currentSessionID(session, user)
+	if existingSessionID != "" {
+
+		// Lookup the old session that wasn't logged out
+		_, exists, err := sessionManager.Store.Find(existingSessionID)
+		if err != nil {
+			logger.Error("Error loading previous session", zap.Error(err))
+			return err
+		}
+
+		if !exists {
+			logger.Info("Session expired")
+		} else {
+			logger.Info("Concurrent session detected. Will delete previous session.")
+
+			// We need to delete the concurrent session.
+			err := sessionManager.Store.Delete(existingSessionID)
+			if err != nil {
+				logger.Error("Error deleting previous session", zap.Error(err))
+				return err
+			}
+		}
+	}
+
+	updateErr := updateUserCurrentSessionID(session, sessionID, db, logger)
+	if updateErr != nil {
+		logger.Error("Updating user's current session ID", zap.Error(updateErr))
+		return updateErr
+	}
+	logger.Info("Logged in", zap.Any("session", session))
+
+	return nil
 }
 
 // APIContext is the api context interface
@@ -277,12 +403,14 @@ func NewAuthContext(logger Logger, loginGovProvider LoginGovProvider, callbackPr
 // LogoutHandler handles logging the user out of login.gov
 type LogoutHandler struct {
 	Context
+	db *pop.Connection
 }
 
 // NewLogoutHandler creates a new LogoutHandler
-func NewLogoutHandler(ac Context) LogoutHandler {
+func NewLogoutHandler(ac Context, db *pop.Connection) LogoutHandler {
 	logoutHandler := LogoutHandler{
 		Context: ac,
+		db:      db,
 	}
 	return logoutHandler
 }
@@ -302,9 +430,13 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			} else {
 				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
 			}
+			err := resetUserCurrentSessionID(session, h.db, h.logger)
+			if err != nil {
+				h.logger.Error("failed to reset user's current_x_session_id")
+			}
 			h.sessionManager(session).Destroy(r.Context())
 			auth.DeleteCSRFCookies(w)
-
+			h.logger.Info("user logged out")
 			fmt.Fprint(w, logoutURL)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
@@ -528,14 +660,14 @@ var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, sess
 			return
 		}
 	}
-	err = h.sessionManager(session).RenewToken(r.Context())
-	if err != nil {
-		h.logger.Error("Error renewing session token", zap.Error(err))
+
+	sessionManager := h.sessionManager(session)
+	authErr := authenticateUser(r.Context(), sessionManager, session, h.logger, h.db)
+	if authErr != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	h.sessionManager(session).Put(r.Context(), "session", session)
-	h.logger.Info("logged in", zap.Any("session", session))
+
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 	return
 }
@@ -649,15 +781,12 @@ var authorizeKnownUserNew = func(userIdentity *models.UserIdentity, h CallbackHa
 	session.LastName = userIdentity.LastName()
 	session.Middle = userIdentity.Middle()
 
-	error := h.sessionManager(session).RenewToken(r.Context())
-	if error != nil {
-		h.logger.Error("Error renewing session token", zap.Error(error))
+	sessionManager := h.sessionManager(session)
+	authError := authenticateUser(r.Context(), sessionManager, session, h.logger, h.db)
+	if authError != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	h.sessionManager(session).Put(r.Context(), "session", session)
-
-	h.logger.Info("logged in", zap.Any("session", session))
 
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
@@ -676,7 +805,6 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 		session.Roles = append(session.Roles, role)
 	}
 	session.UserID = userIdentity.ID
-
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
@@ -764,17 +892,12 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 	session.LastName = userIdentity.LastName()
 	session.Middle = userIdentity.Middle()
 
-	// The session token must be renewed during sign in to prevent
-	// session fixation attacks
-	err := h.sessionManager(session).RenewToken(r.Context())
-	if err != nil {
-		h.logger.Error("Error renewing session token", zap.Error(err))
+	sessionManager := h.sessionManager(session)
+	authError := authenticateUser(r.Context(), sessionManager, session, h.logger, h.db)
+	if authError != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	h.sessionManager(session).Put(r.Context(), "session", session)
-
-	h.logger.Info("logged in", zap.Any("session", session))
 
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
@@ -844,15 +967,12 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 		return
 	}
 
-	err = h.sessionManager(session).RenewToken(r.Context())
-	if err != nil {
-		h.logger.Error("Error renewing session token", zap.Error(err))
+	sessionManager := h.sessionManager(session)
+	authError := authenticateUser(r.Context(), sessionManager, session, h.logger, h.db)
+	if authError != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	h.sessionManager(session).Put(r.Context(), "session", session)
-
-	h.logger.Info("logged in", zap.Any("session", session))
 
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 }
