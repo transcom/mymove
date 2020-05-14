@@ -59,9 +59,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderFetchMTOUpdatesHandler: move_task_order.FetchMTOUpdatesHandlerFunc(func(params move_task_order.FetchMTOUpdatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderFetchMTOUpdates has not yet been implemented")
 		}),
-		MoveTaskOrderGetMoveTaskOrderCustomerHandler: move_task_order.GetMoveTaskOrderCustomerHandlerFunc(func(params move_task_order.GetMoveTaskOrderCustomerParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrderCustomer has not yet been implemented")
-		}),
 		MoveTaskOrderUpdateMTOPostCounselingInformationHandler: move_task_order.UpdateMTOPostCounselingInformationHandlerFunc(func(params move_task_order.UpdateMTOPostCounselingInformationParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMTOPostCounselingInformation has not yet been implemented")
 		}),
@@ -114,8 +111,6 @@ type MymoveAPI struct {
 	UploadsCreateUploadHandler uploads.CreateUploadHandler
 	// MoveTaskOrderFetchMTOUpdatesHandler sets the operation handler for the fetch m t o updates operation
 	MoveTaskOrderFetchMTOUpdatesHandler move_task_order.FetchMTOUpdatesHandler
-	// MoveTaskOrderGetMoveTaskOrderCustomerHandler sets the operation handler for the get move task order customer operation
-	MoveTaskOrderGetMoveTaskOrderCustomerHandler move_task_order.GetMoveTaskOrderCustomerHandler
 	// MoveTaskOrderUpdateMTOPostCounselingInformationHandler sets the operation handler for the update m t o post counseling information operation
 	MoveTaskOrderUpdateMTOPostCounselingInformationHandler move_task_order.UpdateMTOPostCounselingInformationHandler
 	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
@@ -205,10 +200,6 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveTaskOrderFetchMTOUpdatesHandler == nil {
 		unregistered = append(unregistered, "move_task_order.FetchMTOUpdatesHandler")
-	}
-
-	if o.MoveTaskOrderGetMoveTaskOrderCustomerHandler == nil {
-		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderCustomerHandler")
 	}
 
 	if o.MoveTaskOrderUpdateMTOPostCounselingInformationHandler == nil {
@@ -323,12 +314,12 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items"] = mto_service_item.NewCreateMTOServiceItem(o.context, o.MtoServiceItemCreateMTOServiceItemHandler)
+	o.handlers["POST"]["/mto-service-items"] = mto_service_item.NewCreateMTOServiceItem(o.context, o.MtoServiceItemCreateMTOServiceItemHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/move-task-orders/{moveTaskOrderID}/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
+	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -344,11 +335,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders"] = move_task_order.NewFetchMTOUpdates(o.context, o.MoveTaskOrderFetchMTOUpdatesHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/customer"] = move_task_order.NewGetMoveTaskOrderCustomer(o.context, o.MoveTaskOrderGetMoveTaskOrderCustomerHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

@@ -29,7 +29,7 @@ type Client struct {
 /*
 CreateMTOServiceItem creates m t o service item
 
-Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.
+Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment. Must include UUIDs for the MTO and MTO Shipment connected to this service item.
 
 */
 func (a *Client) CreateMTOServiceItem(params *CreateMTOServiceItemParams) (*CreateMTOServiceItemOK, error) {
@@ -41,7 +41,7 @@ func (a *Client) CreateMTOServiceItem(params *CreateMTOServiceItemParams) (*Crea
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "createMTOServiceItem",
 		Method:             "POST",
-		PathPattern:        "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items",
+		PathPattern:        "/mto-service-items",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},

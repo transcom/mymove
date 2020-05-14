@@ -16,7 +16,7 @@ import (
 // CreateMTOShipmentOKCode is the HTTP code returned for type CreateMTOShipmentOK
 const CreateMTOShipmentOKCode int = 200
 
-/*CreateMTOShipmentOK created instance of a mto shipment
+/*CreateMTOShipmentOK Successfully created a MTO shipment.
 
 swagger:response createMTOShipmentOK
 */
@@ -60,7 +60,7 @@ func (o *CreateMTOShipmentOK) WriteResponse(rw http.ResponseWriter, producer run
 // CreateMTOShipmentBadRequestCode is the HTTP code returned for type CreateMTOShipmentBadRequest
 const CreateMTOShipmentBadRequestCode int = 400
 
-/*CreateMTOShipmentBadRequest invalid request
+/*CreateMTOShipmentBadRequest The request payload is invalid.
 
 swagger:response createMTOShipmentBadRequest
 */
@@ -69,7 +69,7 @@ type CreateMTOShipmentBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewCreateMTOShipmentBadRequest creates CreateMTOShipmentBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewCreateMTOShipmentBadRequest() *CreateMTOShipmentBadRequest {
 }
 
 // WithPayload adds the payload to the create m t o shipment bad request response
-func (o *CreateMTOShipmentBadRequest) WithPayload(payload interface{}) *CreateMTOShipmentBadRequest {
+func (o *CreateMTOShipmentBadRequest) WithPayload(payload *primemessages.Error) *CreateMTOShipmentBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o shipment bad request response
-func (o *CreateMTOShipmentBadRequest) SetPayload(payload interface{}) {
+func (o *CreateMTOShipmentBadRequest) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,16 +93,18 @@ func (o *CreateMTOShipmentBadRequest) SetPayload(payload interface{}) {
 func (o *CreateMTOShipmentBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // CreateMTOShipmentNotFoundCode is the HTTP code returned for type CreateMTOShipmentNotFound
 const CreateMTOShipmentNotFoundCode int = 404
 
-/*CreateMTOShipmentNotFound The requested resource wasn't found
+/*CreateMTOShipmentNotFound The requested resource wasn't found.
 
 swagger:response createMTOShipmentNotFound
 */
@@ -111,7 +113,7 @@ type CreateMTOShipmentNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewCreateMTOShipmentNotFound creates CreateMTOShipmentNotFound with default headers values
@@ -121,13 +123,13 @@ func NewCreateMTOShipmentNotFound() *CreateMTOShipmentNotFound {
 }
 
 // WithPayload adds the payload to the create m t o shipment not found response
-func (o *CreateMTOShipmentNotFound) WithPayload(payload interface{}) *CreateMTOShipmentNotFound {
+func (o *CreateMTOShipmentNotFound) WithPayload(payload *primemessages.Error) *CreateMTOShipmentNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o shipment not found response
-func (o *CreateMTOShipmentNotFound) SetPayload(payload interface{}) {
+func (o *CreateMTOShipmentNotFound) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,16 +137,18 @@ func (o *CreateMTOShipmentNotFound) SetPayload(payload interface{}) {
 func (o *CreateMTOShipmentNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // CreateMTOShipmentUnprocessableEntityCode is the HTTP code returned for type CreateMTOShipmentUnprocessableEntity
 const CreateMTOShipmentUnprocessableEntityCode int = 422
 
-/*CreateMTOShipmentUnprocessableEntity The request payload is invalid
+/*CreateMTOShipmentUnprocessableEntity The payload was unprocessable.
 
 swagger:response createMTOShipmentUnprocessableEntity
 */
@@ -188,7 +192,7 @@ func (o *CreateMTOShipmentUnprocessableEntity) WriteResponse(rw http.ResponseWri
 // CreateMTOShipmentInternalServerErrorCode is the HTTP code returned for type CreateMTOShipmentInternalServerError
 const CreateMTOShipmentInternalServerErrorCode int = 500
 
-/*CreateMTOShipmentInternalServerError internal server error
+/*CreateMTOShipmentInternalServerError A server error occurred.
 
 swagger:response createMTOShipmentInternalServerError
 */
@@ -197,7 +201,7 @@ type CreateMTOShipmentInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewCreateMTOShipmentInternalServerError creates CreateMTOShipmentInternalServerError with default headers values
@@ -207,13 +211,13 @@ func NewCreateMTOShipmentInternalServerError() *CreateMTOShipmentInternalServerE
 }
 
 // WithPayload adds the payload to the create m t o shipment internal server error response
-func (o *CreateMTOShipmentInternalServerError) WithPayload(payload interface{}) *CreateMTOShipmentInternalServerError {
+func (o *CreateMTOShipmentInternalServerError) WithPayload(payload *primemessages.Error) *CreateMTOShipmentInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o shipment internal server error response
-func (o *CreateMTOShipmentInternalServerError) SetPayload(payload interface{}) {
+func (o *CreateMTOShipmentInternalServerError) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -221,8 +225,10 @@ func (o *CreateMTOShipmentInternalServerError) SetPayload(payload interface{}) {
 func (o *CreateMTOShipmentInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

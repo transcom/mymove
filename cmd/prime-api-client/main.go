@@ -152,11 +152,9 @@ func main() {
   It requires the caller to pass in a file using the --filename arg.
   The file should contain path parameters and headers and a body for the payload.
 
-  Endpoint path: /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items
+  Endpoint path: /mto-service-items
   The file should contain json as follows:
   	{
-  	"moveTaskOrderID": <uuid string>,
-  	"mtoShipmentID": <uuid string>,
   	"ifMatch": <eTag>,
   	"body": <MTOServiceItem>
   	}

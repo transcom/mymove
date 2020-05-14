@@ -86,7 +86,7 @@ type CreateMTOServiceItemOK struct {
 }
 
 func (o *CreateMTOServiceItemOK) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemOK  %+v", 200, o.Payload)
 }
 
 func (o *CreateMTOServiceItemOK) GetPayload() primemessages.MTOServiceItem {
@@ -119,7 +119,7 @@ type CreateMTOServiceItemBadRequest struct {
 }
 
 func (o *CreateMTOServiceItemBadRequest) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *CreateMTOServiceItemBadRequest) GetPayload() *primemessages.ClientError {
@@ -152,7 +152,7 @@ type CreateMTOServiceItemUnauthorized struct {
 }
 
 func (o *CreateMTOServiceItemUnauthorized) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemUnauthorized  %+v", 401, o.Payload)
 }
 
 func (o *CreateMTOServiceItemUnauthorized) GetPayload() interface{} {
@@ -183,7 +183,7 @@ type CreateMTOServiceItemForbidden struct {
 }
 
 func (o *CreateMTOServiceItemForbidden) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemForbidden  %+v", 403, o.Payload)
 }
 
 func (o *CreateMTOServiceItemForbidden) GetPayload() interface{} {
@@ -214,7 +214,7 @@ type CreateMTOServiceItemNotFound struct {
 }
 
 func (o *CreateMTOServiceItemNotFound) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemNotFound  %+v", 404, o.Payload)
 }
 
 func (o *CreateMTOServiceItemNotFound) GetPayload() *primemessages.ClientError {
@@ -247,7 +247,7 @@ type CreateMTOServiceItemUnprocessableEntity struct {
 }
 
 func (o *CreateMTOServiceItemUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemUnprocessableEntity  %+v", 422, o.Payload)
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemUnprocessableEntity  %+v", 422, o.Payload)
 }
 
 func (o *CreateMTOServiceItemUnprocessableEntity) GetPayload() *primemessages.ValidationError {
@@ -280,7 +280,7 @@ type CreateMTOServiceItemInternalServerError struct {
 }
 
 func (o *CreateMTOServiceItemInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items][%d] createMTOServiceItemInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *CreateMTOServiceItemInternalServerError) GetPayload() *primemessages.Error {
