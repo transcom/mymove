@@ -2,6 +2,7 @@ package serviceparamvaluelookups
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/gofrs/uuid"
 
@@ -50,10 +51,15 @@ func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (stri
 	actualWeight := mtoServiceItem.MTOShipment.PrimeActualWeight
 	if actualWeight == nil {
 		// TODO: Do we need a different error -- is this a "normal" scenario?
-		return "", fmt.Errorf("could not find estimated weight for MTOShipmentID [%s]", mtoShipmentID)
+		return "", fmt.Errorf("could not find actual weight for MTOShipmentID [%s]", mtoShipmentID)
 	}
 
-	value = fmt.Sprintf("%d", int(*actualWeight))
+	estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
+	if float64(*actualWeight) > estimatedWeightCap {
+		value = fmt.Sprintf("%d", int(estimatedWeightCap))
+	} else {
+		value = fmt.Sprintf("%d", int(*actualWeight))
+	}
 
 	return value, nil
 }
