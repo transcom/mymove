@@ -22,7 +22,10 @@ describe('Weight', () => {
       pickup_postal_code: '00000',
     },
     orders: { id: 1 },
-    getPpmWeightEstimate: jest.fn(),
+    getPpmWeightEstimate: () =>
+      new Promise((approve, reject) => {
+        approve({});
+      }),
     match: { params: { moveId: 'some id' } },
     loadPPMs: jest.fn(),
   };
@@ -178,7 +181,10 @@ describe('Weight', () => {
     const iconAndTextProps = {
       currentPPM: {},
       orders: { id: 1 },
-      getPpmWeightEstimate: jest.fn(),
+      getPpmWeightEstimate: () =>
+        new Promise((approve, reject) => {
+          reject({});
+        }),
     };
     it('Should not show an estimate error', () => {
       wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} />);
@@ -206,7 +212,8 @@ describe('Weight', () => {
       });
     });
     it('Should show estimate not retrieved error', () => {
-      wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} hasEstimateError={true} />);
+      wrapper = shallow(<PpmWeight {...minProps} {...iconAndTextProps} />);
+      wrapper.setState({ hasEstimateError: true });
       expect(wrapper.find('.error-message').exists()).toBe(true);
       expect(wrapper.find('Alert').dive().text()).toMatch(
         /There was an issue retrieving an estimate for your incentive./,

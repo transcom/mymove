@@ -2,11 +2,15 @@ swagger: '2.0'
 info:
   contact:
     email: dp3@truss.works
-  description: The Prime API for move.mil
+  description: |
+    The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the details and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.
+
+    All endpoints are located at `primelocal/prime/v1/`.
+
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
-  title: move.mil API
+  title: Milmove Prime API
   version: 0.0.1
 basePath: /prime/v1
 schemes:
@@ -14,7 +18,7 @@ schemes:
 paths:
   /move-task-orders:
     get:
-      summary: Gets all move task orders where `isAvailableToPrime` is TRUE
+      summary: fetchMTOUpdates
       description: >
         Gets all move task orders where `isAvailableToPrime` is TRUE.
         This prevents viewing any move task orders that have not been made available to the Prime.
@@ -56,8 +60,8 @@ paths:
         required: true
         type: string
     patch:
-      summary: Updates move task order's post counseling information
-      description: Updates move task order fields ppmType, ppmEstimatedWeight, and pointOfContact.
+      summary: updateMTOPostCounselingInformation
+      description: Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.
       operationId: updateMTOPostCounselingInformation
       consumes:
         - application/json
@@ -115,45 +119,66 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/customer':
-    parameters:
-      - description: ID of move order to use.
-        in: path
-        name: moveTaskOrderID
-        required: true
-        type: string
-    get:
-      summary: Gets the customer associated with a move task order ID
-      description: Gets the customer associated with a move task order ID.
-      operationId: getMoveTaskOrderCustomer
-      tags:
-        - moveTaskOrder
+  '/mto-shipments':
+    post:
+      summary: createMTOShipment
+      description: |
+        Creates a MTO shipment for the specified Move Task Order.
+        Required fields include:
+        * Shipment Type
+        * Customer requested pick-up date
+        * Pick-up Address
+        * Delivery Address
+        * Releasing / Receiving agents
+
+        Optional fields include:
+        * Customer Remarks
+        * Releasing / Receiving agents
+        * An array of optional accessorial service item codes
+      consumes:
+        - application/json
       produces:
         - application/json
-      parameters: []
+      operationId: createMTOShipment
+      tags:
+        - mtoShipment
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateShipmentPayload'
       responses:
         '200':
-          description: Successfully retrieved customer associated with move task order.
+          description: Successfully created a MTO shipment.
           schema:
-            $ref: '#/definitions/Customer'
-        '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
         '404':
           $ref: '#/responses/NotFound'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}':
+  '/mto-shipments/{mtoShipmentID}':
     put:
-      summary: Updates MTO shipment
-      description: Updates MTO shipment.
+      summary: updateMTOShipment
+      description: |
+        Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
+
+        * `scheduledPickupDate`
+        * `actualPickupDate`
+        * `firstAvailableDeliveryDate`
+        * `destinationAddress`
+        * `pickupAddress`
+        * `secondaryDeliveryAddress`
+        * `secondaryPickupAddress`
+        * `primeEstimatedWeight`
+        * `primeActualWeight`
+        * `shipmentType`
+        * `agents` - all subfields except `mtoShipmentID`, `createdAt`, `updatedAt`. You cannot add new agents to a shipment.
+
+        Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
       operationId: updateMTOShipment
       tags:
         - mtoShipment
@@ -163,17 +188,11 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-          description: UUID of the move task order being used.
-        - in: path
           name: mtoShipmentID
+          description: UUID of the shipment being updated.
           required: true
           format: uuid
           type: string
-          description: UUID of the move task order shipment being updated.
         - in: body
           name: body
           required: true
@@ -188,7 +207,7 @@ paths:
             the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
       responses:
         '200':
-          description: Successfully updated MTO shipment.
+          description: Successfully updated the MTO shipment.
           schema:
             $ref: '#/definitions/MTOShipment'
         '400':
@@ -205,68 +224,17 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments':
+  '/mto-service-items':
     post:
-      summary: Creates an mto shipment
-      description:
-        Creates an instance of mtoShipment
-        Required fields include
-        * Shipment Type
-        * Customer requested pick-up date
-        * Pick-up Address
-        * Delivery Address
-        * Releasing / Receiving agents
-        Optional fields include
-        * Customer Remarks
-        * Releasing / Receiving agents
-        * An array of optional accessorial service item codes
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      operationId: createMTOShipment
-      tags:
-        - mtoShipment
-      parameters:
-        - in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-        - in: body
-          name: body
-          schema:
-            description: This is an MTOShipment.
-            $ref: '#/definitions/CreateShipmentPayload'
-      responses:
-        '200':
-          description: created instance of a mto shipment
-          schema:
-            $ref: '#/definitions/MTOShipment'
-        '400':
-          description: invalid request
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '422':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: internal server error
-          schema:
-            $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items':
-    post:
-      summary: Creates MTO service items that is added to a Move Task Order and MTO Shipment
+      summary: createMTOServiceItem
       description: >
         Creates a new instance of mtoServiceItem, which come from the list of services that can be provided.
         Upon creation these items are associated with a Move Task Order and an MTO Shipment.
+        Must include UUIDs for the MTO and MTO Shipment connected to this service item.
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
@@ -275,18 +243,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-          description: UUID of Move Task Order to use.
-        - in: path
-          name: mtoShipmentID
-          required: true
-          format: uuid
-          type: string
-          description: UUID of MTO Shipment to use.
         - in: body
           name: body
           schema:
@@ -315,7 +271,7 @@ paths:
           $ref: '#/responses/ServerError'
   /payment-requests:
     post:
-      summary: Creates a payment request
+      summary: createPaymentRequest
       description: |
         Creates a new instance of a paymentRequest.
         A newly created payment request is assigned the status `PENDING`.
@@ -360,7 +316,7 @@ paths:
           $ref: '#/responses/ServerError'
   /payment-requests/{paymentRequestID}/uploads:
     post:
-      summary: Create a new upload for a payment request
+      summary: createUpload
       description: Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
       operationId: createUpload
       tags:
@@ -588,6 +544,10 @@ definitions:
   CreateShipmentPayload:
     type: object
     properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       requestedPickupDate:
@@ -610,6 +570,8 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MTOServiceItem'
+    required:
+      - moveTaskOrderID
   Customer:
     type: object
     properties:
@@ -791,7 +753,7 @@ definitions:
       mtoServiceItems:
         type: array
         items:
-          $ref: "#/definitions/MTOServiceItem"
+          $ref: '#/definitions/MTOServiceItem'
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
       ppmType:
@@ -822,12 +784,15 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       createdAt:
         format: date
         type: string
+        readOnly: true
       updatedAt:
         format: date
         type: string
+        readOnly: true
       firstName:
         type: string
         x-nullable: true
@@ -853,25 +818,32 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       createdAt:
         format: datetime
         type: string
+        readOnly: true
       updatedAt:
         format: datetime
         type: string
+        readOnly: true
       approvedDate:
+        description: date when the shipment was given the status "APPROVED"
         format: date
         type: string
+        readOnly: true
       scheduledPickupDate:
         format: date
         type: string
       requestedPickupDate:
         format: date
         type: string
+        readOnly: true
       firstAvailableDeliveryDate:
         format: date
         type: string
@@ -884,16 +856,19 @@ definitions:
       primeEstimatedWeightRecordedDate:
         format: date
         type: string
+        readOnly: true
       actualPickupDate:
         format: date
         type: string
       requiredDeliveryDate:
         format: date
         type: string
+        readOnly: true
       agents:
         $ref: '#/definitions/MTOAgents'
       customerRemarks:
         type: string
+        readOnly: true
         example: handle with care
         x-nullable: true
       shipmentType:
@@ -908,12 +883,19 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+        readOnly: true
       status:
         type: string
+        readOnly: true
         enum:
           - APPROVED
           - SUBMITTED
           - REJECTED
+      rejectionReason:
+        type: string
+        readOnly: true
+        example: MTO Shipment not good enough
+        x-nullable: true
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update.
@@ -925,7 +907,7 @@ definitions:
     type: string
     title: Shipment Type
     example: HHG
-    enum: &MTOSHIPMENTTYPE
+    enum:
       - HHG
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
@@ -994,7 +976,7 @@ definitions:
     type: string
     title: MTO Agent Type
     example: RELEASING_AGENT
-    enum: &MTOAGENTTYPE
+    enum:
       - RELEASING_AGENT
       - RECEIVING_AGENT
   MTOServiceItem:
@@ -1300,7 +1282,10 @@ definitions:
       invalidFields:
         type: object
         additionalProperties:
-          type: string
+          description: List of errors for the field
+          type: array
+          items:
+            type: string
     required:
       - invalidFields
 responses:

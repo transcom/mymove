@@ -1,5 +1,5 @@
-import { get, every, isNumber } from 'lodash';
-import { GetPpm, GetPpmWeightEstimate, GetPpmSitEstimate, RequestPayment } from './api.js';
+import { get, every, isNumber, isEmpty } from 'lodash';
+import { GetPpm, GetPpmSitEstimate, RequestPayment } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive, fetchActivePPM } from 'shared/utils';
@@ -7,23 +7,10 @@ import { formatCents } from 'shared/formatters';
 import { change } from 'redux-form';
 
 // Types
-export const SET_PENDING_PPM_WEIGHT = 'SET_PENDING_PPM_WEIGHT';
 const CLEAR_SIT_ESTIMATE = 'CLEAR_SIT_ESTIMATE';
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
 export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
-export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_PPM_ESTIMATE');
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_SIT_ESTIMATE');
-
-// Action creation
-export function getPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate) {
-  const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
-  return function (dispatch, getState) {
-    dispatch(action.start());
-    return GetPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate)
-      .then((item) => dispatch(action.success(item)))
-      .catch((error) => dispatch(action.error(error)));
-  };
-}
 
 export function getPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightEstimate) {
   const action = ReduxHelpers.generateAsyncActions('GET_SIT_ESTIMATE');
@@ -106,11 +93,10 @@ export function getPPM(state) {
   const moveId = move.id;
   const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find((ppm) => ppm.move_id === moveId);
   const tempPPM = state.ppm.currentPpm;
-
   // temp fix while redux refactor is in progress when statuses aren't updated on ppms from both places
   const ppmStates = ['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'CANCELED'];
 
-  if (ppmFromEntities && tempPPM) {
+  if (!isEmpty(ppmFromEntities) && !isEmpty(tempPPM)) {
     const entitiesPPMStatus = ppmFromEntities.status;
     const tempPPMStatus = tempPPM.status;
     const indexOfEntitiesPPMStatus = ppmStates.indexOf(entitiesPPMStatus);
@@ -165,10 +151,6 @@ export function ppmReducer(state = initialState, action) {
         hasLoadSuccess: true,
         hasLoadError: false,
       });
-    case SET_PENDING_PPM_WEIGHT:
-      return Object.assign({}, state, {
-        pendingPpmWeight: action.payload,
-      });
     case CREATE_OR_UPDATE_PPM.start:
       return Object.assign({}, state, {
         hasSubmitSuccess: false,
@@ -215,30 +197,6 @@ export function ppmReducer(state = initialState, action) {
         hasLoadSuccess: false,
         hasLoadError: true,
         error: action.error,
-      });
-    case GET_PPM_ESTIMATE.start:
-      return Object.assign({}, state, {
-        hasEstimateSuccess: false,
-        hasEstimateInProgress: true,
-      });
-    case GET_PPM_ESTIMATE.success:
-      return Object.assign({}, state, {
-        incentive_estimate_min: action.payload.range_min,
-        incentive_estimate_max: action.payload.range_max,
-        hasEstimateSuccess: true,
-        hasEstimateError: false,
-        hasEstimateInProgress: false,
-        rateEngineError: null,
-      });
-    case GET_PPM_ESTIMATE.failure:
-      return Object.assign({}, state, {
-        incentive_estimate_min: null,
-        incentive_estimate_max: null,
-        hasEstimateSuccess: false,
-        hasEstimateError: true,
-        hasEstimateInProgress: false,
-        rateEngineError: action.error,
-        error: null,
       });
     case GET_SIT_ESTIMATE.start:
       return Object.assign({}, state, {

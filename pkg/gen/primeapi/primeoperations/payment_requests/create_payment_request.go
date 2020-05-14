@@ -31,7 +31,7 @@ func NewCreatePaymentRequest(ctx *middleware.Context, handler CreatePaymentReque
 
 /*CreatePaymentRequest swagger:route POST /payment-requests paymentRequests createPaymentRequest
 
-Creates a payment request
+createPaymentRequest
 
 Creates a new instance of a paymentRequest.
 A newly created payment request is assigned the status `PENDING`.

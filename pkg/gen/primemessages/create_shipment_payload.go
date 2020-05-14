@@ -32,6 +32,11 @@ type CreateShipmentPayload struct {
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+	// move task order ID
+	// Required: true
+	// Format: uuid
+	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
+
 	mtoServiceItemsField []MTOServiceItem
 
 	// pickup address
@@ -66,6 +71,8 @@ func (m *CreateShipmentPayload) UnmarshalJSON(raw []byte) error {
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 		DestinationAddress *Address `json:"destinationAddress,omitempty"`
+
+		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
 
@@ -105,6 +112,9 @@ func (m *CreateShipmentPayload) UnmarshalJSON(raw []byte) error {
 	// destinationAddress
 	result.DestinationAddress = data.DestinationAddress
 
+	// moveTaskOrderID
+	result.MoveTaskOrderID = data.MoveTaskOrderID
+
 	// mtoServiceItems
 	result.mtoServiceItemsField = propMtoServiceItems
 
@@ -136,6 +146,8 @@ func (m CreateShipmentPayload) MarshalJSON() ([]byte, error) {
 
 		DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
+
 		PickupAddress *Address `json:"pickupAddress,omitempty"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
@@ -150,6 +162,8 @@ func (m CreateShipmentPayload) MarshalJSON() ([]byte, error) {
 		CustomerRemarks: m.CustomerRemarks,
 
 		DestinationAddress: m.DestinationAddress,
+
+		MoveTaskOrderID: m.MoveTaskOrderID,
 
 		PickupAddress: m.PickupAddress,
 
@@ -186,6 +200,10 @@ func (m *CreateShipmentPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMoveTaskOrderID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -240,6 +258,19 @@ func (m *CreateShipmentPayload) validateDestinationAddress(formats strfmt.Regist
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *CreateShipmentPayload) validateMoveTaskOrderID(formats strfmt.Registry) error {
+
+	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

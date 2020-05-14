@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/pkg/errors"
@@ -35,10 +37,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
-	params := mtoshipmentops.PatchMTOShipmentStatusParams{
+	params := mtoshipmentops.UpdateMTOShipmentStatusParams{
 		HTTPRequest:   req,
 		MtoShipmentID: *handlers.FmtUUID(mtoShipment.ID),
-		Body:          &supportmessages.PatchMTOShipmentStatus{Status: "APPROVED"},
+		Body:          &supportmessages.UpdateMTOShipmentStatus{Status: "APPROVED"},
 		IfMatch:       eTag,
 	}
 
@@ -47,7 +49,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	fetcher := fetch.NewFetcher(queryBuilder)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
 	updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, route.NewTestingPlanner(500))
-	handler := PatchMTOShipmentStatusHandlerFunc{
+	handler := UpdateMTOShipmentStatusHandlerFunc{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		fetcher,
 		updater,
@@ -56,7 +58,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	suite.T().Run("Patch failure - 500", func(t *testing.T) {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
-		mockHandler := PatchMTOShipmentStatusHandlerFunc{
+		mockHandler := UpdateMTOShipmentStatusHandlerFunc{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockFetcher,
 			&mockUpdater,
@@ -72,62 +74,62 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		).Return(nil, internalServerErr)
 
 		response := mockHandler.Handle(params)
-		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusInternalServerError{}, response)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusInternalServerError{}, response)
 	})
 
 	suite.T().Run("Patch failure - 404", func(t *testing.T) {
-		notFoundParams := mtoshipmentops.PatchMTOShipmentStatusParams{
+		notFoundParams := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   params.HTTPRequest,
-			MtoShipmentID: strfmt.UUID("00000000-0000-0000-0000-000000000000"),
+			MtoShipmentID: strfmt.UUID(uuid.Nil.String()),
 			Body:          params.Body,
 			IfMatch:       params.IfMatch,
 		}
 		response := handler.Handle(notFoundParams)
-		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusNotFound{}, response)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusNotFound{}, response)
 	})
 
 	suite.T().Run("Patch failure - 412", func(t *testing.T) {
-		preconditionParams := mtoshipmentops.PatchMTOShipmentStatusParams{
+		preconditionParams := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   params.HTTPRequest,
 			MtoShipmentID: params.MtoShipmentID,
 			Body:          params.Body,
 			IfMatch:       "eTag",
 		}
 		response := handler.Handle(preconditionParams)
-		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusPreconditionFailed{}, response)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusPreconditionFailed{}, response)
 	})
 
 	suite.T().Run("Patch failure - 422", func(t *testing.T) {
-		invalidInputParams := mtoshipmentops.PatchMTOShipmentStatusParams{
+		invalidInputParams := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   params.HTTPRequest,
 			MtoShipmentID: params.MtoShipmentID,
-			Body:          &supportmessages.PatchMTOShipmentStatus{Status: "X"},
+			Body:          &supportmessages.UpdateMTOShipmentStatus{Status: "X"},
 			IfMatch:       params.IfMatch,
 		}
 		response := handler.Handle(invalidInputParams)
-		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusUnprocessableEntity{}, response)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusUnprocessableEntity{}, response)
 	})
 
 	// Second to last because many of the above tests fail because of a conflict error with APPROVED/REJECTED shipments
 	// first:
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
 		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusOK{}, response)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusOK{}, response)
 
-		okResponse := response.(*mtoshipmentops.PatchMTOShipmentStatusOK)
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusOK)
 		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
 		suite.NotNil(okResponse.Payload.ETag)
 	})
 
 	// Last because the shipment has to be either APPROVED or REJECTED before triggering this conflict:
 	suite.T().Run("Patch failure - 409", func(t *testing.T) {
-		conflictParams := mtoshipmentops.PatchMTOShipmentStatusParams{
+		conflictParams := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   params.HTTPRequest,
 			MtoShipmentID: params.MtoShipmentID,
-			Body:          &supportmessages.PatchMTOShipmentStatus{Status: "SUBMITTED"},
+			Body:          &supportmessages.UpdateMTOShipmentStatus{Status: "SUBMITTED"},
 			IfMatch:       params.IfMatch,
 		}
 		response := handler.Handle(conflictParams)
-		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusConflict{}, response)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusConflict{}, response)
 	})
 }

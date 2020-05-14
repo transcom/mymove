@@ -174,6 +174,10 @@ export class OfficeWrapper extends Component {
                 )}
                 <Suspense fallback={<LoadingPlaceholder />}>
                   <Switch>
+                    {too && <PrivateRoute path="/too/customer-moves" exact component={TOO} />}
+                    {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOMoveTaskOrder} />}
+                    {too && <PrivateRoute path="/moves/:moveId" exact component={MoveDetails} />}
+                    {/*TODO: remove CustomerDetails route when ready*/}
                     {too && (
                       <PrivateRoute
                         path="/moves/queue"
