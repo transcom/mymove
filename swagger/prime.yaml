@@ -119,6 +119,47 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/mto-shipments':
+    post:
+      summary: createMTOShipment
+      description: |
+        Creates a MTO shipment for the specified Move Task Order.
+        Required fields include:
+        * Shipment Type
+        * Customer requested pick-up date
+        * Pick-up Address
+        * Delivery Address
+        * Releasing / Receiving agents
+
+        Optional fields include:
+        * Customer Remarks
+        * Releasing / Receiving agents
+        * An array of optional accessorial service item codes
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: createMTOShipment
+      tags:
+        - mtoShipment
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateShipmentPayload'
+      responses:
+        '200':
+          description: Successfully created a MTO shipment.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}':
     put:
       summary: updateMTOShipment
@@ -187,66 +228,13 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments':
-    post:
-      summary: createMTOShipment
-      description:
-        Creates an instance of mtoShipment
-        Required fields include
-        * Shipment Type
-        * Customer requested pick-up date
-        * Pick-up Address
-        * Delivery Address
-        * Releasing / Receiving agents
-        Optional fields include
-        * Customer Remarks
-        * Releasing / Receiving agents
-        * An array of optional accessorial service item codes
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      operationId: createMTOShipment
-      tags:
-        - mtoShipment
-      parameters:
-        - in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-        - in: body
-          name: body
-          schema:
-            description: This is an MTOShipment.
-            $ref: '#/definitions/CreateShipmentPayload'
-      responses:
-        '200':
-          description: created instance of a mto shipment
-          schema:
-            $ref: '#/definitions/MTOShipment'
-        '400':
-          description: invalid request
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '422':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: internal server error
-          schema:
-            $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items':
+  '/mto-service-items':
     post:
       summary: createMTOServiceItem
       description: >
         Creates a new instance of mtoServiceItem, which come from the list of services that can be provided.
         Upon creation these items are associated with a Move Task Order and an MTO Shipment.
+        Must include UUIDs for the MTO and MTO Shipment connected to this service item.
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
@@ -255,18 +243,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-          description: UUID of Move Task Order to use.
-        - in: path
-          name: mtoShipmentID
-          required: true
-          format: uuid
-          type: string
-          description: UUID of MTO Shipment to use.
         - in: body
           name: body
           schema:
@@ -568,6 +544,10 @@ definitions:
   CreateShipmentPayload:
     type: object
     properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       requestedPickupDate:
@@ -590,6 +570,8 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MTOServiceItem'
+    required:
+      - moveTaskOrderID
   Customer:
     type: object
     properties:

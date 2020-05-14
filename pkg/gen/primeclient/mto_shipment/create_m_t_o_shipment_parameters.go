@@ -65,8 +65,6 @@ type CreateMTOShipmentParams struct {
 
 	/*Body*/
 	Body *primemessages.CreateShipmentPayload
-	/*MoveTaskOrderID*/
-	MoveTaskOrderID strfmt.UUID
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,17 +115,6 @@ func (o *CreateMTOShipmentParams) SetBody(body *primemessages.CreateShipmentPayl
 	o.Body = body
 }
 
-// WithMoveTaskOrderID adds the moveTaskOrderID to the create m t o shipment params
-func (o *CreateMTOShipmentParams) WithMoveTaskOrderID(moveTaskOrderID strfmt.UUID) *CreateMTOShipmentParams {
-	o.SetMoveTaskOrderID(moveTaskOrderID)
-	return o
-}
-
-// SetMoveTaskOrderID adds the moveTaskOrderId to the create m t o shipment params
-func (o *CreateMTOShipmentParams) SetMoveTaskOrderID(moveTaskOrderID strfmt.UUID) {
-	o.MoveTaskOrderID = moveTaskOrderID
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *CreateMTOShipmentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -140,11 +127,6 @@ func (o *CreateMTOShipmentParams) WriteToRequest(r runtime.ClientRequest, reg st
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err
 		}
-	}
-
-	// path param moveTaskOrderID
-	if err := r.SetPathParam("moveTaskOrderID", o.MoveTaskOrderID.String()); err != nil {
-		return err
 	}
 
 	if len(res) > 0 {
