@@ -27,7 +27,7 @@ type Client struct {
 }
 
 /*
-CreateMoveTaskOrder creates a move task order
+CreateMoveTaskOrder creates move task order
 
 Creates an instance of moveTaskOrder.
 Current this will also create a number of nested objects but not all.
@@ -75,7 +75,7 @@ func (a *Client) CreateMoveTaskOrder(params *CreateMoveTaskOrderParams) (*Create
 }
 
 /*
-GetMoveTaskOrder gets a move task order by ID
+GetMoveTaskOrder gets move task order
 
 Gets an individual move task order by ID. <br />
 <br />
@@ -114,7 +114,7 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 }
 
 /*
-UpdateMoveTaskOrderStatus updates the status of a move task order to make it available to prime
+UpdateMoveTaskOrderStatus updates move task order status
 
 Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. <br />
 <br />

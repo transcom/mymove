@@ -2,11 +2,15 @@ swagger: '2.0'
 info:
   contact:
     email: dp3@truss.works
-  description: The Prime API for move.mil
+  description: |
+    The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the details and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.
+
+    All endpoints are located at `primelocal/prime/v1/`.
+
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
-  title: move.mil API
+  title: Milmove Prime API
   version: 0.0.1
 basePath: /prime/v1
 schemes:
@@ -14,7 +18,7 @@ schemes:
 paths:
   /move-task-orders:
     get:
-      summary: Gets all move task orders where `isAvailableToPrime` is TRUE
+      summary: fetchMTOUpdates
       description: >
         Gets all move task orders where `isAvailableToPrime` is TRUE.
         This prevents viewing any move task orders that have not been made available to the Prime.
@@ -56,8 +60,8 @@ paths:
         required: true
         type: string
     patch:
-      summary: Updates move task order's post counseling information
-      description: Updates move task order fields ppmType, ppmEstimatedWeight, and pointOfContact.
+      summary: updateMTOPostCounselingInformation
+      description: Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.
       operationId: updateMTOPostCounselingInformation
       consumes:
         - application/json
@@ -115,44 +119,9 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/customer':
-    parameters:
-      - description: ID of move order to use.
-        in: path
-        name: moveTaskOrderID
-        required: true
-        type: string
-    get:
-      summary: Gets the customer associated with a move task order ID
-      description: Gets the customer associated with a move task order ID.
-      operationId: getMoveTaskOrderCustomer
-      tags:
-        - moveTaskOrder
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: Successfully retrieved customer associated with move task order.
-          schema:
-            $ref: '#/definitions/Customer'
-        '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}':
     put:
-      summary: Updates MTO shipment
+      summary: updateMTOShipment
       description: |
         Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
 
@@ -220,7 +189,7 @@ paths:
           $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/mto-shipments':
     post:
-      summary: Creates an mto shipment
+      summary: createMTOShipment
       description:
         Creates an instance of mtoShipment
         Required fields include
@@ -274,7 +243,7 @@ paths:
             $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items':
     post:
-      summary: Creates MTO service items that is added to a Move Task Order and MTO Shipment
+      summary: createMTOServiceItem
       description: >
         Creates a new instance of mtoServiceItem, which come from the list of services that can be provided.
         Upon creation these items are associated with a Move Task Order and an MTO Shipment.
@@ -326,7 +295,7 @@ paths:
           $ref: '#/responses/ServerError'
   /payment-requests:
     post:
-      summary: Creates a payment request
+      summary: createPaymentRequest
       description: |
         Creates a new instance of a paymentRequest.
         A newly created payment request is assigned the status `PENDING`.
@@ -371,7 +340,7 @@ paths:
           $ref: '#/responses/ServerError'
   /payment-requests/{paymentRequestID}/uploads:
     post:
-      summary: Create a new upload for a payment request
+      summary: createUpload
       description: Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
       operationId: createUpload
       tags:
@@ -802,7 +771,7 @@ definitions:
       mtoServiceItems:
         type: array
         items:
-          $ref: "#/definitions/MTOServiceItem"
+          $ref: '#/definitions/MTOServiceItem'
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
       ppmType:

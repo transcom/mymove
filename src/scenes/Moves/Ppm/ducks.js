@@ -6,7 +6,6 @@ import { fetchActive, fetchActivePPM } from 'shared/utils';
 import { change } from 'redux-form';
 
 // Types
-export const SET_PENDING_PPM_WEIGHT = 'SET_PENDING_PPM_WEIGHT';
 const CLEAR_SIT_ESTIMATE = 'CLEAR_SIT_ESTIMATE';
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
 export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
@@ -136,10 +135,6 @@ export function ppmReducer(state = initialState, action) {
         sitReimbursement: get(activePpm, 'estimated_storage_reimbursement', null),
         hasLoadSuccess: true,
         hasLoadError: false,
-      });
-    case SET_PENDING_PPM_WEIGHT:
-      return Object.assign({}, state, {
-        pendingPpmWeight: action.payload,
       });
     case CREATE_OR_UPDATE_PPM.start:
       return Object.assign({}, state, {

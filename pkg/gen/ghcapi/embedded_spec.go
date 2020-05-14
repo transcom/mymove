@@ -1961,7 +1961,9 @@ func init() {
         "reServiceID",
         "reServiceCode",
         "reServiceName",
-        "mtoShipmentID"
+        "mtoShipmentID",
+        "reason",
+        "pickupPostalCode"
       ],
       "properties": {
         "approvedAt": {
@@ -2006,6 +2008,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupPostalCode": {
+          "type": "string"
+        },
         "quantity": {
           "type": "integer"
         },
@@ -2021,6 +2026,9 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
+          "type": "string"
+        },
+        "reason": {
           "type": "string"
         },
         "rejectedAt": {
@@ -4791,7 +4799,9 @@ func init() {
         "reServiceID",
         "reServiceCode",
         "reServiceName",
-        "mtoShipmentID"
+        "mtoShipmentID",
+        "reason",
+        "pickupPostalCode"
       ],
       "properties": {
         "approvedAt": {
@@ -4836,6 +4846,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupPostalCode": {
+          "type": "string"
+        },
         "quantity": {
           "type": "integer"
         },
@@ -4851,6 +4864,9 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
+          "type": "string"
+        },
+        "reason": {
           "type": "string"
         },
         "rejectedAt": {
