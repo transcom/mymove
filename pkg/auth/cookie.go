@@ -66,10 +66,12 @@ func GetCookie(name string, r *http.Request) (*http.Cookie, error) {
 // DeleteCookie sends a delete request for the named cookie
 func DeleteCookie(w http.ResponseWriter, name string) {
 	c := http.Cookie{
-		Name:   name,
-		Value:  "blank",
-		MaxAge: -1,
-		Path:   "/",
+		Name:     name,
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Expires:  time.Unix(1, 0),
+		MaxAge:   -1,
 	}
 	http.SetCookie(w, &c)
 }
@@ -133,8 +135,20 @@ func ApplicationName(hostname string, appnames ApplicationServername) (Applicati
 		}, fmt.Sprintf("%s is invalid", hostname))
 }
 
+func sessionManager(session Session, sessionManagers [3]*scs.SessionManager) *scs.SessionManager {
+	if session.IsMilApp() {
+		return sessionManagers[0]
+	} else if session.IsAdminApp() {
+		return sessionManagers[1]
+	} else if session.IsOfficeApp() {
+		return sessionManagers[2]
+	}
+
+	return nil
+}
+
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(serverLogger Logger, appnames ApplicationServername, sessionManager *scs.SessionManager) func(next http.Handler) http.Handler {
+func SessionCookieMiddleware(serverLogger Logger, appnames ApplicationServername, sessionManagers [3]*scs.SessionManager) func(next http.Handler) http.Handler {
 	serverLogger.Info("Creating session",
 		zap.String("milServername", appnames.MilServername),
 		zap.String("officeServername", appnames.OfficeServername),
@@ -163,17 +177,18 @@ func SessionCookieMiddleware(serverLogger Logger, appnames ApplicationServername
 				return
 			}
 
+			// Set more information on the session
+			session.ApplicationName = appName
+			session.Hostname = strings.ToLower(hostname)
+
+			sessionManager := sessionManager(session, sessionManagers)
+
 			existingSession := sessionManager.Get(r.Context(), "session")
 			if existingSession != nil {
 				session = existingSession.(Session)
 			}
 
-			// Set more information on the session
-			session.ApplicationName = appName
-			session.Hostname = strings.ToLower(hostname)
-
 			// And update the cookie. May get over-ridden later
-			sessionManager.Cookie.Name = SessionCookieName(&session)
 			sessionManager.Put(r.Context(), "session", session)
 
 			// And put the session info into the request context

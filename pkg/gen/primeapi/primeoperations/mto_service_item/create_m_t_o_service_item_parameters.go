@@ -38,12 +38,12 @@ type CreateMTOServiceItemParams struct {
 	  In: body
 	*/
 	Body primemessages.MTOServiceItem
-	/*
+	/*UUID of Move Task Order to use.
 	  Required: true
 	  In: path
 	*/
 	MoveTaskOrderID strfmt.UUID
-	/*
+	/*UUID of MTO Shipment to use.
 	  Required: true
 	  In: path
 	*/

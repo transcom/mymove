@@ -153,6 +153,7 @@ These scripts are primarily used for working with the database
 | `psql-schema` | Convenience script to dump the schema from the postgres DB |
 | `psql-test` | Convenience script to drop into testing postgres DB |
 | `psql-wrapper` | A wrapper around `psql` that sets correct values |
+| `redis-dev` | Convenience script to drop into redis-cli |
 | `update-migrations-manifest` | Update manifest for migrations |
 | `wait-for-db` |  waits for an available database connection, or until a timeout is reached |
 | `wait-for-db-docker` |  waits for an available database connection, or until a timeout is reached using docker |

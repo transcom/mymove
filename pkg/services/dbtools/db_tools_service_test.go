@@ -18,7 +18,7 @@ func (suite *DBToolsServiceSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestDBToolsServiceSuiteServiceSuite(t *testing.T) {
+func TestDBToolsServiceSuite(t *testing.T) {
 	ts := &DBToolsServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing

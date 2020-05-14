@@ -7,6 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gobuffalo/validate"
+
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -55,7 +59,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(serviceItemID1),
@@ -96,6 +100,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	})
 
 	suite.T().Run("failed create payment request -- nil body", func(t *testing.T) {
+
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
@@ -117,6 +122,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	})
 
 	suite.T().Run("failed create payment request -- creator failed with error", func(t *testing.T) {
+
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, errors.New("creator failed")).Once()
@@ -133,7 +139,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
 			},
 		}
@@ -143,6 +149,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	})
 
 	suite.T().Run("failed create payment request -- invalid MTO ID format", func(t *testing.T) {
+
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
@@ -160,15 +167,16 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: badFormatID,
+				MoveTaskOrderID: &badFormatID,
 			},
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
 	})
 
 	suite.T().Run("failed create payment request -- invalid service item ID format", func(t *testing.T) {
+
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
@@ -186,7 +194,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
 				ServiceItems: []*primemessages.ServiceItem{
 					{
@@ -203,9 +211,121 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
 	})
 
+	suite.T().Run("failed create payment request - validation errors", func(t *testing.T) {
+		verrs := &validate.Errors{
+			Errors: map[string][]string{
+				"violation": {"invalid value"},
+			},
+		}
+		err := services.NewInvalidCreateInputError(verrs, "can't create payment request for MTO ID 1234")
+		paymentRequestCreator := &mocks.PaymentRequestCreator{}
+
+		paymentRequestCreator.On("CreatePaymentRequest",
+			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestCreator,
+		}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		serviceItemID1, _ := uuid.FromString("1b7b134a-7c44-45f2-9114-bb0831cc5db3")
+		serviceItemID2, _ := uuid.FromString("119f0a05-34d7-4d86-9745-009c0707b4c2")
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequestPayload{
+				IsFinal:         swag.Bool(false),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+				ServiceItems: []*primemessages.ServiceItem{
+					{
+						ID: *handlers.FmtUUID(serviceItemID1),
+						Params: []*primemessages.ServiceItemParamsItems0{
+							{
+								Key:   "weight",
+								Value: "1234",
+							},
+							{
+								Key:   "pickup",
+								Value: "2019-12-16",
+							},
+						},
+					},
+					{
+						ID: *handlers.FmtUUID(serviceItemID2),
+						Params: []*primemessages.ServiceItemParamsItems0{
+							{
+								Key:   "weight",
+								Value: "5678",
+							},
+						},
+					},
+				},
+				PointOfContact: "user@prime.com",
+			},
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("failed create payment request due to bad data", func(t *testing.T) {
+
+		err := services.NewBadDataError("sent some bad data, foo!")
+		paymentRequestCreator := &mocks.PaymentRequestCreator{}
+		paymentRequestCreator.On("CreatePaymentRequest",
+			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestCreator,
+		}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		serviceItemID1, _ := uuid.FromString("1b7b134a-7c44-45f2-9114-bb0831cc5db3")
+		serviceItemID2, _ := uuid.FromString("119f0a05-34d7-4d86-9745-009c0707b4c2")
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequestPayload{
+				IsFinal:         swag.Bool(false),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+				ServiceItems: []*primemessages.ServiceItem{
+					{
+						ID: *handlers.FmtUUID(serviceItemID1),
+						Params: []*primemessages.ServiceItemParamsItems0{
+							{
+								Key:   "weight",
+								Value: "1234",
+							},
+							{
+								Key:   "pickup",
+								Value: "2019-12-16",
+							},
+						},
+					},
+					{
+						ID: *handlers.FmtUUID(serviceItemID2),
+						Params: []*primemessages.ServiceItemParamsItems0{
+							{
+								Key:   "weight",
+								Value: "5678",
+							},
+						},
+					},
+				},
+				PointOfContact: "user@prime.com",
+			},
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
+	})
 	suite.T().Run("successful create payment request payload audit", func(t *testing.T) {
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
@@ -217,7 +337,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
 				ServiceItems: []*primemessages.ServiceItem{
 					{

@@ -96,7 +96,6 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
-	reportByDate := strfmt.Date(*moveOrder.ReportByDate)
 	entitlements := Entitlement(moveOrder.Entitlement)
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
@@ -109,8 +108,10 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 		LinesOfAccounting:      moveOrder.LinesOfAccounting,
 		Rank:                   moveOrder.Grade,
 		ConfirmationNumber:     moveOrder.ConfirmationNumber,
-		ReportByDate:           reportByDate,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
+	}
+	if moveOrder.ReportByDate != nil {
+		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
 	}
 	return &payload
 }
@@ -195,12 +196,14 @@ func MTOAgent(mtoAgent *models.MTOAgent) *primemessages.MTOAgent {
 
 	return &primemessages.MTOAgent{
 		AgentType:     primemessages.MTOAgentType(mtoAgent.MTOAgentType),
-		Email:         mtoAgent.Email,
 		FirstName:     mtoAgent.FirstName,
-		ID:            strfmt.UUID(mtoAgent.ID.String()),
 		LastName:      mtoAgent.LastName,
-		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
 		Phone:         mtoAgent.Phone,
+		Email:         mtoAgent.Email,
+		ID:            strfmt.UUID(mtoAgent.ID.String()),
+		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
+		CreatedAt:     strfmt.Date(mtoAgent.CreatedAt),
+		UpdatedAt:     strfmt.Date(mtoAgent.UpdatedAt),
 	}
 }
 
@@ -280,6 +283,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.FirstAvailableDeliveryDate = strfmt.Date(*mtoShipment.FirstAvailableDeliveryDate)
 	}
 
+	if mtoShipment.RequiredDeliveryDate != nil && !mtoShipment.RequiredDeliveryDate.IsZero() {
+		payload.RequiredDeliveryDate = strfmt.Date(*mtoShipment.RequiredDeliveryDate)
+	}
+
 	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.PrimeEstimatedWeightRecordedDate != nil {
 		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
 		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
@@ -319,7 +326,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
 		}
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
 		item := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		payload = &primemessages.MTOServiceItemDomesticCrating{
@@ -364,8 +371,9 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
 	payload.SetReServiceID(strfmt.UUID(mtoServiceItem.ReServiceID.String()))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)
+	payload.SetStatus(primemessages.MTOServiceItemStatus(mtoServiceItem.Status))
+	payload.SetRejectionReason(mtoServiceItem.Reason)
 	payload.SetETag(etag.GenerateEtag(mtoServiceItem.UpdatedAt))
-
 	return payload
 }
 
@@ -379,15 +387,30 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 	return &payload
 }
 
+// ValidationErrorsResponse is a middleware.Responder for a set of validation errors
+type ValidationErrorsResponse struct {
+	Errors map[string][]string `json:"errors,omitempty"`
+}
+
+// NewValidationErrorsResponse returns a new validations errors response
+func NewValidationErrorsResponse(verrs *validate.Errors) *ValidationErrorsResponse {
+	errors := make(map[string][]string)
+	for _, key := range verrs.Keys() {
+		errors[key] = verrs.Get(key)
+	}
+	return &ValidationErrorsResponse{Errors: errors}
+}
+
 // ValidationError describes validation errors from the model or properties
 func ValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
 	return &primemessages.ValidationError{
-		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
-		ClientError:   *clientError(title, detail, instance),
+		InvalidFields: NewValidationErrorsResponse(validationErrors).Errors,
+		ClientError:   *ClientError(title, detail, instance),
 	}
 }
 
-func clientError(title string, detail string, instance uuid.UUID) *primemessages.ClientError {
+// ClientError describes errors in a standard structure to be returned in the payload
+func ClientError(title string, detail string, instance uuid.UUID) *primemessages.ClientError {
 	return &primemessages.ClientError{
 		Title:    handlers.FmtString(title),
 		Detail:   handlers.FmtString(detail),

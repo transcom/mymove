@@ -47,6 +47,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoServiceItemCreateMTOServiceItemHandler: mto_service_item.CreateMTOServiceItemHandlerFunc(func(params mto_service_item.CreateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoServiceItemCreateMTOServiceItem has not yet been implemented")
 		}),
+		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentCreateMTOShipment has not yet been implemented")
+		}),
 		PaymentRequestsCreatePaymentRequestHandler: payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsCreatePaymentRequest has not yet been implemented")
 		}),
@@ -68,7 +71,10 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	}
 }
 
-/*MymoveAPI The Prime API for move.mil */
+/*MymoveAPI The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the details and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.
+
+All endpoints are located at `primelocal/prime/v1/`.
+*/
 type MymoveAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context
@@ -100,6 +106,8 @@ type MymoveAPI struct {
 
 	// MtoServiceItemCreateMTOServiceItemHandler sets the operation handler for the create m t o service item operation
 	MtoServiceItemCreateMTOServiceItemHandler mto_service_item.CreateMTOServiceItemHandler
+	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
+	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// PaymentRequestsCreatePaymentRequestHandler sets the operation handler for the create payment request operation
 	PaymentRequestsCreatePaymentRequestHandler payment_requests.CreatePaymentRequestHandler
 	// UploadsCreateUploadHandler sets the operation handler for the create upload operation
@@ -181,6 +189,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MtoServiceItemCreateMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.CreateMTOServiceItemHandler")
+	}
+
+	if o.MtoShipmentCreateMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
 	}
 
 	if o.PaymentRequestsCreatePaymentRequestHandler == nil {
@@ -316,6 +328,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/move-task-orders/{moveTaskOrderID}/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/payment-requests"] = payment_requests.NewCreatePaymentRequest(o.context, o.PaymentRequestsCreatePaymentRequestHandler)
 
 	if o.handlers["POST"] == nil {
@@ -341,7 +358,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
-	o.handlers["PUT"]["/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
+	o.handlers["PUT"]["/mto-shipments/{mtoShipmentID}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
 
 }
 

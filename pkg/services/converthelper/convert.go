@@ -82,11 +82,18 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 		return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)
 	}
 
+	var contractor models.Contractor
+
+	err := db.Where("contract_number = ?", "HTC111-11-1-1111").First(&contractor)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("Could not find contractor, %w", err)
+	}
 	// create mto -> move task order
-	var mto models.MoveTaskOrder = models.MoveTaskOrder{
-		MoveOrderID: mo.ID,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+	var mto = models.MoveTaskOrder{
+		MoveOrderID:  mo.ID,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+		ContractorID: contractor.ID,
 	}
 
 	builder := query.NewQueryBuilder(db)

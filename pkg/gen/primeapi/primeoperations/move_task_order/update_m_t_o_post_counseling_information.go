@@ -36,9 +36,9 @@ func NewUpdateMTOPostCounselingInformation(ctx *middleware.Context, handler Upda
 
 /*UpdateMTOPostCounselingInformation swagger:route PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info moveTaskOrder updateMTOPostCounselingInformation
 
-Updates move task order's post counseling information
+updateMTOPostCounselingInformation
 
-Updates move task order's post counseling information
+Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.
 
 */
 type UpdateMTOPostCounselingInformation struct {
@@ -68,13 +68,16 @@ func (o *UpdateMTOPostCounselingInformation) ServeHTTP(rw http.ResponseWriter, r
 // swagger:model UpdateMTOPostCounselingInformationBody
 type UpdateMTOPostCounselingInformationBody struct {
 
-	// Email or id of a contact person for this update
+	// UUID for the move task order to use.
+	MoveTaskOrderID string `json:"moveTaskOrderID,omitempty"`
+
+	// Email or id of a contact person for this update.
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
-	// ppm estimated weight
+	// The estimated weight determined post counseling.
 	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
-	// ppm type
+	// Sets a ppmType to an allowed value.
 	// Enum: [FULL PARTIAL]
 	PpmType string `json:"ppmType,omitempty"`
 }

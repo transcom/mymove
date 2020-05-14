@@ -6,6 +6,10 @@
 
 set -eu -o pipefail
 
+RED=$'\e[1;31m'
+GREEN=$'\e[1;32m'
+NOCOLOR=$'\e[1;0m'
+
 function run_tests() {
   container=$(docker-compose -f docker-compose.storybook.yml ps --filter=name=storybook_tests | awk 'END{print $1}')
   return_code=$(docker-compose -f docker-compose.storybook.yml ps --filter=name=storybook_tests | awk 'END{print $6}')
@@ -20,6 +24,11 @@ function run_tests() {
   echo "Shutdown containers"
   docker-compose -f docker-compose.storybook.yml down
 
+  if [ "$return_code" -ne "0" ]; then
+    printf "%sLoki Tests FAILED!%s\n" "${RED}" "${NOCOLOR}";
+  else
+    printf "%sLoki Tests Passed!%s\n" "${GREEN}" "${NOCOLOR}";
+  fi
   exit "$return_code"
 }
 

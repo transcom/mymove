@@ -42,15 +42,15 @@ type FetchAccessCodeHandler struct {
 
 // Handle fetches the access code for a service member
 func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams) middleware.Responder {
+	accessCodeRequired := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
+	if accessCodeRequired == false {
+		return nil
+	}
+
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if session == nil {
 		return accesscodeop.NewFetchAccessCodeUnauthorized()
-	}
-
-	accessCodeRequired := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
-	if accessCodeRequired == false {
-		return nil
 	}
 
 	// Fetch access code

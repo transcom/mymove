@@ -3,7 +3,6 @@ package internalapi
 import (
 	"context"
 
-	"github.com/alexedwards/scs/v2"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -70,7 +69,6 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 // CreateServiceMemberHandler creates a new service member via POST /serviceMember
 type CreateServiceMemberHandler struct {
 	handlers.HandlerContext
-	sessionManager *scs.SessionManager
 }
 
 // Handle ... creates a new ServiceMember from a request payload
@@ -150,12 +148,11 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	if newServiceMember.LastName != nil {
 		session.LastName = *(newServiceMember.LastName)
 	}
-	// Update session cookie here instead of in responders?
-	// h.sessionManager.Put(ctx, "session", session)
 	// And return
 	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
-	return handlers.NewCookieUpdateResponder(params.HTTPRequest, logger, responder, h.sessionManager, session)
+	sessionManager := h.SessionManager(session)
+	return handlers.NewCookieUpdateResponder(params.HTTPRequest, logger, responder, sessionManager, session)
 }
 
 // ShowServiceMemberHandler returns a serviceMember for a user and service member ID

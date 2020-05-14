@@ -1,12 +1,103 @@
+# Connected to https://login.gov: Key must be PEM encoded PKCS1 https://tools.ietf.org/html/rfc7468#section-2
 export LOGIN_GOV_SECRET_KEY=replace
-export MOVE_MIL_DOD_TLS_CERT=replace
-export MOVE_MIL_DOD_TLS_KEY=replace
-export HERE_MAPS_APP_ID=replace
-export HERE_MAPS_APP_CODE=replace
-export GEX_BASIC_AUTH_PASSWORD=replace
-export DPS_AUTH_SECRET_KEY=replace
-export DPS_AUTH_COOKIE_SECRET_KEY=replace
-export CSRF_AUTH_KEY=replace
-export EIA_KEY=replace
-export CLOUD_FRONT_PRIVATE_KEY=replace
-export CLOUD_FRONT_KEY_ID=replace
+# certificate PEM block https://tools.ietf.org/html/rfc7468#section-2
+MOVE_MIL_DOD_CA_CERT=$(cat <<EOM
+-----BEGIN CERTIFICATE-----
+MIIDhDCCAmwCCQD28qRwJX5G1jANBgkqhkiG9w0BAQsFADCBgzELMAkGA1UEBhMC
+VVMxCzAJBgNVBAgMAkRDMRMwEQYDVQQHDApXYXNoaW5ndG9uMQ4wDAYDVQQKDAVU
+cnVzczEOMAwGA1UECwwFVHJ1c3MxEjAQBgNVBAMMCWxvY2FsaG9zdDEeMBwGCSqG
+SIb3DQEJARYPcm9uQHRydXNzLndvcmtzMB4XDTIwMDQyNDE5NDU1MVoXDTI1MDQy
+MzE5NDU1MVowgYMxCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJEQzETMBEGA1UEBwwK
+V2FzaGluZ3RvbjEOMAwGA1UECgwFVHJ1c3MxDjAMBgNVBAsMBVRydXNzMRIwEAYD
+VQQDDAlsb2NhbGhvc3QxHjAcBgkqhkiG9w0BCQEWD3JvbkB0cnVzcy53b3JrczCC
+ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANbP6oLUMCaI6Q4ZB9lARg5B
+SlaeXRz5hHvnZbGHGXecaYk02+Yfs5NWULBQbtBbiZiSV3cRsgwguTGplqoH+kPi
+Cbcymwzbd1gHqw/JjP9axyB+1YG52tY0F+LDGN2bIFfUCixRM1NeWpqScJxoSfMn
+mrnqvGZvZEojj089hVopGu5tj/m1B7Vg+DkhdhQVy8t7pMVHj0FlLk17Kxrv0IGM
+QwW+zzx29Gtipfbx6lm05fMgUg6rN8L4RAs+8UB63srQo3KXWHMeQBvtBzw+Mmw0
+i+UlujnnZPIC3reNKeODyVPmz2Io1CvvEFj0nba3vsJMjw+ZnqnZDtvHoSTM16EC
+AwEAATANBgkqhkiG9w0BAQsFAAOCAQEAw0wRZ/aJpSJ1W/6PglMB2vbGZL8Fn2iT
+uIp74JNymxPAZcPzdzhDi+R9qPgOa76X7kFB+eD3EX1NhN/6Zja4VpFJ4+CBE72I
+UTK2gnYFWGW94oY7jLl3iW95F2GOd2udWWwvsqXM8kRg9KfTffOl+Hqqe3qR1eBt
+HGi7g1G2pjwUfM1SRgd9rDtHHv1YY7rD2PWQoIDbkC6b7VLDIBbBFa1KLEerxYfx
+MEqqArB7sXV6/2c63Z6GtXb7fSvJSeWiQjhFrticP/DYl0hTERzPmdXPoFLLGh/+
+ik3EqYM6juiPByMNdy+lOH+ba9Atjt0WRB+2pTPPEdq/3PIHMIIAjQ==
+-----END CERTIFICATE-----
+
+EOM
+)
+# certificate PEM block https://tools.ietf.org/html/rfc7468#section-2
+export MOVE_MIL_DOD_TLS_KEY=$(cat <<EOM
+-----BEGIN PRIVATE KEY-----
+MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDbbQ2a4sYNvjg3
+lbNp39uUWf6sXAl6zHby+kiCeDTw69B7ap4CvgQgoywxsibNk/gCYLc4ZLzUZD+8
+mEgpAyrEMWZF2KrqeMiZ2qdH/T041/nGmYzMNd2cTIjOMOXMgGqi0pi6Wyhx1jYC
+B/vqwNaka1NVkyk1bQod97LUDQkr8RIs/ubNxTlKyEG7yfndo7XAy9qakRJh4Ckn
+407mKWi+fpituPcJALWLQQinvi3spj6mdUFJzCab0R1Pd42LkU+Dp+muOytqUtRA
+E7/rWu9g5Br2KdvgteUmG2LIXFxwWkdRlWOAGpbqJP4DkqRaeBPPJ0+Svr0bbj8O
+ZyNjrYNBAgMBAAECggEAFmOPMtGWwco59Dn7H39u6Tkxiiat9PCt5mbxRRa82CRH
+loAvdTosM6RSmxOBcBJ8CMoTh9aHiehctIKZQk4HbBNaSyAreFcwqLotvWOyfn1T
+CBeczS1l2k/Y2akVmYM03j48xS8N9meUBSsJYk+g1w/4Zc/pMYFZuesPPSHDYM88
+zJZjctoc2XhShg+YeF9gSJpJ4iSdLP0xwytm55UuUXQL1AXnEK5XC2ZNQPJI09X9
+lVia+S5jsJgQA1hxOr2FavT5bGQc0R0JnfNYcaKiPi0Qgk80AAqlVih4wVSxF8+p
+lNbS98mwbVJyzopwz+nelOygD2eVcB3ABhjZhfjF/QKBgQD5aEyR+P7tW5NNUIOX
+LT7V2TeSx03bYYTRRcdcM6UhCoD1GjIwRS21TpWG4xbRy7hb3cnyjn/75j4GoOXn
+eDNsADmhJZQXM+pNASvJiMz8JjW3MYp4jmmcczsn82o0dtmsoS7OINDVl/kU2ViQ
+AIV/+1NZeydpxNGRYJx6pA+GHwKBgQDhOd/ZSC1UBzQweIQxTgzf58l5xLIlwDfd
+P4OT8mh9gUox1Yl9vIju8WRQOF0Fwc1n1+/cT6th1ngm+ZYus5d17bCm41M7D7Wk
+HJsTGR/QXEg5TDHPO4hzZF1EJGehlMndA8Qd57RT1Jt2lWkT6queoZeqcX5owAlv
+jRB2y7QKnwKBgQC5p/M/wjt6Uu3e4q1iDtM0eyLMR0JkqT4mTiwuLV+hreD7E0oC
+9qwkx9+07jyhZWXSNNJMldkdmXHYm1MosCiPH8fGdmO7tfCW6+U9e3Ejzgm0WdN7
+FH/3byu8/Iy1izdUMxPVa0YpiZxn8bbkUw8Niverp2paaKGb92/kN1Y6/wKBgQCY
+GgCdeYv7Gl5ZeZo0vfQd5if/TyHMMtLHXRRb/rIoR/82RnJy8rc7PtQzBM11jNtO
+DNuU2kzwZul/0MBmy6w23Q2WtyDHWyWdLiBgNnBww1GXOGjO/fJ5k0cVNMyzp4rn
+8pooZAk5L/TJkb+DztCV8aU+WyU2UrJMnmSHBaySGwKBgQDBfT6U3kbd92ptJGAI
+KByuCr3KbAa8QbCSi+n/dxdjSBD0DthCqwCRNzz0TC4CZ60BJQxTt0Q2gXEB0i5Q
+PjvyyoYH5HMCOYl/9lf6QcklJ9rzd4Ja/dBHnXYhiBWYt3hfrxHuBzKqQuUYGX4d
+Wd3phATi6MNKNdDg63GFb/G6TA==
+-----END PRIVATE KEY-----
+
+EOM
+)
+export MOVE_MIL_DOD_TLS_CERT=$(cat <<EOM
+-----BEGIN CERTIFICATE-----
+MIIEBTCCAe0CCQDo3DdPN3Y2hDANBgkqhkiG9w0BAQsFADAoMRIwEAYDVQQKDAlT
+bmFrZSBPaWwxEjAQBgNVBAMMCWxvY2FsaG9zdDAeFw0yMDA0MjQxOTUxMzlaFw0z
+MDA0MjQxOTUxMzlaMGExCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJEQzETMBEGA1UE
+BwwKV2FzaGluZ3RvbjEOMAwGA1UECgwFUHJpbWUxEDAOBgNVBAsMB21pbG1vdmUx
+DjAMBgNVBAMMBXByaW1lMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+220NmuLGDb44N5Wzad/blFn+rFwJesx28vpIgng08OvQe2qeAr4EIKMsMbImzZP4
+AmC3OGS81GQ/vJhIKQMqxDFmRdiq6njImdqnR/09ONf5xpmMzDXdnEyIzjDlzIBq
+otKYulsocdY2Agf76sDWpGtTVZMpNW0KHfey1A0JK/ESLP7mzcU5SshBu8n53aO1
+wMvampESYeApJ+NO5ilovn6Yrbj3CQC1i0EIp74t7KY+pnVBScwmm9EdT3eNi5FP
+g6fprjsralLUQBO/61rvYOQa9inb4LXlJhtiyFxccFpHUZVjgBqW6iT+A5KkWngT
+zydPkr69G24/DmcjY62DQQIDAQABMA0GCSqGSIb3DQEBCwUAA4ICAQAXvIqO/nQd
+Szy+jhVaxnjAOWMAFXQoS6h/of9Catj/KEkr3a/69xIefXXqoIYDYeK2Pp9Q4LOq
+aSBHlQFbKnfcCGb0JPR4JEU5J9UNKWCsPxSgPgLk9BGxN3gSDGYF320BINI59pkP
+DGV7yUtDe5cIopTGTGOFqv4UuFNfGMrDga5ZHK8i+C+BjlitgyHZoaBALlv9l5IH
+HNpLDcjCxOqXyahCr3BqNd5yhaZJtl3QLEoiZOT16M7AdAVUf8y9MBVcTxfIfCdA
+OajsdEItyUcLbGhkwiyHVyWXdf7Us7EsG+y0i7hzfdQuziz7y9sEMQUu6Q2uNO/5
+tnxoRf2YQvMMgX1V6Fii9VtLFRo3WE67CXptYEuKzWVMKCjdxxSQ1QlWXhRxcroG
+N498cNw5CaIVItZwOXLigOtFUsxE3ZTrBpj+mjnWdo+Slizz7dGgM6k5aZFQBFr9
+ZlxtoHpIkD675v3CqyPpMKQaPmm7RhviuH31gNx4SsolQWc1UyfLzjz915u1+FK+
+mEbbJEUCTIU5wEvrV7eQq8HHjcO4nk5uIE9bSIQq5dzgXs01VlJBYXwAvVCGZIm+
+MSOUJoEAtqKaVuvM9Egc+pUxGsum/xeLz5IR02E4IQ8F9+Estay/qcZhoCJSsgdX
+MVkY/GZe+0EKth/aq0O2IyZ0VwAeKPmpTA==
+-----END CERTIFICATE-----
+
+EOM
+)
+# any string of length 32
+export DPS_AUTH_COOKIE_SECRET_KEY=thisisakeywithalengthof32charsss
+# any string of any length
+export DPS_AUTH_SECRET_KEY=placeholder
+# any string of length 64
+export CSRF_AUTH_KEY=thisisakeywithalengthof64charsssthisisakeywithalengthof64charsss
+# any string of any length: More information can be found at https://www.here.com/
+export HERE_MAPS_APP_ID=placeholder
+# any string of any length: More information can be found at https://www.here.com/
+export HERE_MAPS_APP_CODE=placeholder
+# any string of any length
+export GEX_BASIC_AUTH_PASSWORD=placeholder
+# any string of any length
+export EIA_KEY=placeholder

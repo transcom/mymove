@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
-	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -22,13 +21,13 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/redisstore"
-	"github.com/alexedwards/scs/v2"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
+
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
@@ -320,13 +319,13 @@ func redisHealthCheck(pool *redis.Pool, logger *zap.Logger, data map[string]inte
 	conn := pool.Get()
 	defer conn.Close()
 
-	_, redisErr := redis.Bytes(conn.Do("GET", "scs:session:foo"))
-	if redisErr == redis.ErrNil {
-		redisErr = nil
-	} else if redisErr != nil {
-		logger.Error("Failed Redis health check", zap.Error(redisErr))
+	pong, err := redis.String(conn.Do("PING"))
+	if err != nil {
+		logger.Error("Failed to ping Redis during health check", zap.Error(err))
 	}
-	data["redis"] = redisErr == nil
+	logger.Info("Health check Redis ping", zap.String("ping_response", pong))
+
+	data["redis"] = err == nil
 
 	return data
 }
@@ -336,6 +335,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	var logger *zap.Logger
 	var dbConnection *pop.Connection
 	dbClose := &sync.Once{}
+	var redisPool *redis.Pool
+	redisClose := &sync.Once{}
 
 	defer func() {
 		if logger != nil {
@@ -347,6 +348,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 					logger.Info("closing database connections")
 					if err := dbConnection.Close(); err != nil {
 						logger.Error("error closing database connections", zap.Error(err))
+					}
+				})
+			}
+			if redisPool != nil {
+				redisClose.Do(func() {
+					logger.Info("closing redis connections")
+					if err := redisPool.Close(); err != nil {
+						logger.Error("error closing redis connections", zap.Error(err))
 					}
 				})
 			}
@@ -495,6 +504,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// Create a connection to Redis
+	redisPool, errRedisConnection := cli.InitRedis(v, logger)
+	if errRedisConnection != nil {
+		logger.Fatal("Invalid Redis Configuration", zap.Error(errRedisConnection))
+	}
+
 	// Collect the servernames into a handy struct
 	appnames := auth.ApplicationServername{
 		MilServername:    v.GetString(cli.HTTPMyServerNameFlag),
@@ -512,42 +527,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Registering login provider", zap.Error(err))
 	}
 
-	gob.Register(auth.Session{})
-	var sessionManager *scs.SessionManager
-	sessionManager = scs.New()
-	redisPool, err := cli.InitRedis(v, logger)
-	if err != nil {
-		logger.Fatal("Invalid Redis Configuration", zap.Error(err))
-	}
-	sessionManager.Store = redisstore.New(redisPool)
-
-	// IdleTimeout controls the maximum length of time a session can be inactive
-	// before it expires. The default is 15 minutes. To disable idle timeout in
-	// a non-production environment, set SESSION_IDLE_TIMEOUT_IN_MINUTES to 0.
-	idleTimeout := v.GetDuration(cli.SessionIdleTimeoutInMinutesFlag) * time.Minute
-	sessionManager.IdleTimeout = idleTimeout
-
-	// Lifetime controls the maximum length of time that a session is valid for
-	// before it expires. The lifetime is an 'absolute expiry' which is set when
-	// the session is first created or renewed (such as when a user signs in)
-	// and does not change. The default value is 24 hours.
-	lifetime := v.GetDuration(cli.SessionLifetimeInHoursFlag) * time.Hour
-	sessionManager.Lifetime = lifetime
-
-	sessionManager.Cookie.Path = "/"
-
-	// A value of false means the session cookie will be deleted when the
-	// browser is closed.
-	sessionManager.Cookie.Persist = false
-
 	useSecureCookie := !isDevOrTest
-	if useSecureCookie {
-		sessionManager.Cookie.Secure = true
-	}
+	redisEnabled := v.GetBool(cli.RedisEnabledFlag)
+	sessionStore := redisstore.New(redisPool)
+	idleTimeout := v.GetDuration(cli.SessionIdleTimeoutInMinutesFlag) * time.Minute
+	lifetime := v.GetDuration(cli.SessionLifetimeInHoursFlag) * time.Hour
+	sessionManagers := auth.SetupSessionManagers(redisEnabled, sessionStore, useSecureCookie, idleTimeout, lifetime)
+	milSession := sessionManagers[0]
+	adminSession := sessionManagers[1]
+	officeSession := sessionManagers[2]
+
 	// Session management and authentication middleware
-	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, appnames, sessionManager)
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, appnames, sessionManagers)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
-	concurrentSessionMiddleware := authentication.ConcurrentSessionMiddleware(sessionManager, logger, dbConnection)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger, dbConnection)
 	if v.GetBool(cli.FeatureFlagRoleBasedAuth) {
 		userAuthMiddleware = authentication.RoleAuthLogin(logger)
@@ -557,6 +549,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	roleAuthMiddleware := authentication.RoleAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+	handlerContext.SetSessionManagers(sessionManagers)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
 	handlerContext.SetUseSecureCookie(useSecureCookie)
 	handlerContext.SetAppNames(appnames)
@@ -689,7 +682,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			"gitBranch": gitBranch,
 			"gitCommit": gitCommit,
 		}
-
 		// Check and see if we should disable DB query with '?database=false'
 		// Disabling the DB is useful for Route53 health checks which require the TLS
 		// handshake be less than 4 seconds and the status code return in less than
@@ -698,15 +690,16 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 		// Always show DB unless key set to "false"
 		if !ok || (ok && showDB[0] != "false") {
+			logger.Info("connecting to the DB for health check")
 			dbErr := dbConnection.RawQuery("SELECT 1;").Exec()
 			if dbErr != nil {
 				logger.Error("Failed database health check", zap.Error(dbErr))
 			}
 			data["database"] = dbErr == nil
-
-			data = redisHealthCheck(redisPool, logger, data)
+			if redisEnabled {
+				data = redisHealthCheck(redisPool, logger, data)
+			}
 		}
-
 		newEncoderErr := json.NewEncoder(w).Encode(data)
 		if newEncoderErr != nil {
 			logger.Error("Failed encoding health check response", zap.Error(newEncoderErr))
@@ -894,7 +887,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/"), csrf.CookieName(auth.GorillaCSRFToken)))
 	root.Use(maskedCSRFMiddleware)
 
-	site.Handle(pat.New("/*"), sessionManager.LoadAndSave(root))
+	site.Handle(
+		pat.New("/*"),
+		milSession.LoadAndSave(adminSession.LoadAndSave(officeSession.LoadAndSave(root))))
 
 	if v.GetBool(cli.ServeAPIInternalFlag) {
 		internalMux := goji.SubMux()
@@ -910,10 +905,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalAPIMux := goji.SubMux()
 		internalMux.HandleFunc(pat.Get("/users/is_logged_in"), isLoggedInMiddleware)
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
-		internalAPIMux.Use(concurrentSessionMiddleware)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
-		api := internalapi.NewInternalAPI(handlerContext, sessionManager)
+		api := internalapi.NewInternalAPI(handlerContext)
 		internalAPIMux.Handle(pat.New("/*"), api.Serve(nil))
 		if handlerContext.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
 			internalAPIMux.Use(roleAuthMiddleware(api.Context()))
@@ -934,7 +928,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		// Mux for admin API that enforces auth
 		adminAPIMux := goji.SubMux()
 		adminMux.Handle(pat.New("/*"), adminAPIMux)
-		adminAPIMux.Use(concurrentSessionMiddleware)
 		adminAPIMux.Use(userAuthMiddleware)
 		adminAPIMux.Use(authentication.AdminAuthMiddleware(logger))
 		adminAPIMux.Use(middleware.NoCache(logger))
@@ -955,7 +948,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		// Mux for GHC API that enforces auth
 		ghcAPIMux := goji.SubMux()
 		ghcMux.Handle(pat.New("/*"), ghcAPIMux)
-		ghcAPIMux.Use(concurrentSessionMiddleware)
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
 		api := ghcapi.NewGhcAPIHandler(handlerContext)
@@ -965,7 +957,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
+	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
 	authContext.SetFeatureFlag(
 		authentication.FeatureFlag{
 			Name:   cli.FeatureFlagRoleBasedAuth,
@@ -974,18 +966,18 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), authentication.NewRedirectHandler(authContext, sessionManager))
-	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, sessionManager))
-	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, dbConnection, sessionManager))
+	authMux.Handle(pat.Get("/login-gov"), authentication.NewRedirectHandler(authContext))
+	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection))
+	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, dbConnection))
 
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
-		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection, sessionManager))
-		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, appnames, sessionManager))
-		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames, sessionManager))
-		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, sessionManager))
+		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
+		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, appnames))
+		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames))
+		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames))
 
 		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")
@@ -1121,6 +1113,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		dbCloseErr = dbConnection.Close()
 	})
 
+	var redisCloseErr error
+	redisClose.Do(func() {
+		logger.Info("closing redis connections")
+		redisCloseErr = redisPool.Close()
+	})
+
 	shutdownError := false
 	shutdownErrors.Range(func(key, value interface{}) bool {
 		if srv, ok := key.(*server.NamedServer); ok {
@@ -1136,6 +1134,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	if dbCloseErr != nil {
 		logger.Error("error closing database connections", zap.Error(dbCloseErr))
+	}
+
+	if redisCloseErr != nil {
+		logger.Error("error closing redis connections", zap.Error(redisCloseErr))
 	}
 
 	logger.Sync()

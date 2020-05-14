@@ -1961,7 +1961,9 @@ func init() {
         "reServiceID",
         "reServiceCode",
         "reServiceName",
-        "mtoShipmentID"
+        "mtoShipmentID",
+        "reason",
+        "pickupPostalCode"
       ],
       "properties": {
         "approvedAt": {
@@ -2006,6 +2008,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupPostalCode": {
+          "type": "string"
+        },
         "quantity": {
           "type": "integer"
         },
@@ -2023,17 +2028,15 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
+        "reason": {
+          "type": "string"
+        },
         "rejectedAt": {
           "type": "string",
           "format": "date"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -2048,6 +2051,15 @@ func init() {
           "format": "datetime"
         }
       }
+    },
+    "MTOServiceItemStatus": {
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOServiceItems": {
       "type": "array",
@@ -4787,7 +4799,9 @@ func init() {
         "reServiceID",
         "reServiceCode",
         "reServiceName",
-        "mtoShipmentID"
+        "mtoShipmentID",
+        "reason",
+        "pickupPostalCode"
       ],
       "properties": {
         "approvedAt": {
@@ -4832,6 +4846,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupPostalCode": {
+          "type": "string"
+        },
         "quantity": {
           "type": "integer"
         },
@@ -4849,17 +4866,15 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
+        "reason": {
+          "type": "string"
+        },
         "rejectedAt": {
           "type": "string",
           "format": "date"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -4874,6 +4889,15 @@ func init() {
           "format": "datetime"
         }
       }
+    },
+    "MTOServiceItemStatus": {
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOServiceItems": {
       "type": "array",

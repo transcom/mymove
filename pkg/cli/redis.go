@@ -1,11 +1,9 @@
 package cli
 
 import (
+	"crypto/tls"
 	"fmt"
-	"net/url"
-	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gomodule/redigo/redis"
@@ -16,8 +14,6 @@ import (
 )
 
 const (
-	// RedisUserFlag is the ENV var for the Redis username
-	RedisUserFlag string = "redis-user"
 	// RedisPasswordFlag is the ENV var for the Redis password
 	RedisPasswordFlag string = "redis-password"
 	// RedisHostFlag is the ENV var for the Redis hostname
@@ -31,35 +27,58 @@ const (
 	// RedisConnectTimeoutFlag specifies how long to wait to establish a
 	// connection to the Redis instance
 	RedisConnectTimeoutFlag string = "redis-connect-timeout-in-seconds"
+	// RedisEnabledFlag specifies whether or not we attempt to connect
+	// to Redis. For example, apps that use mTLS don't need Redis.
+	RedisEnabledFlag string = "redis-enabled"
+	// RedisSSLEnabledFlag specifies if SSL mode is enabled for connections
+	RedisSSLEnabledFlag string = "redis-ssl-enabled"
+	// RedisMaxIdleFlag specifies the maximum number of idle connections in the pool
+	RedisMaxIdleFlag string = "redis-max-idle"
+	// RedisIdleTimeoutFlag Closes connections after this duration
+	RedisIdleTimeoutFlag string = "redis-idle-timeout"
 )
 
 // InitRedisFlags initializes RedisFlags command line flags
 func InitRedisFlags(flag *pflag.FlagSet) {
-	flag.String(RedisUserFlag, "", "Redis username")
 	flag.String(RedisPasswordFlag, "", "Redis password")
 	flag.String(RedisHostFlag, "localhost", "Redis hostname")
 	flag.Int(RedisPortFlag, 6379, "Redis port")
 	flag.Int(RedisDBNameFlag, 0, "Redis database")
-	flag.Int(RedisConnectTimeoutFlag, 2, "Redis connect timeout in seconds")
+	flag.Duration(RedisConnectTimeoutFlag, 2*time.Second, "Redis connect timeout in seconds")
+	flag.Int(RedisMaxIdleFlag, 10, "Redis maximum number of idle connections in the pool")
+	flag.Duration(RedisIdleTimeoutFlag, 240*time.Second, "Redis idle timeout in seconds")
+	flag.Bool(RedisEnabledFlag, true, "Whether or not Redis is enabled")
+	flag.Bool(RedisSSLEnabledFlag, false, "Whether or not Redis SSL is enabled")
 }
 
 // CheckRedis validates Redis command line flags
 func CheckRedis(v *viper.Viper) error {
-	host := v.GetString(RedisHostFlag)
-	fmt.Println("Redis host is:", host)
+	enabled := v.GetBool(RedisEnabledFlag)
+	if !enabled {
+		return nil
+	}
+
 	if err := ValidatePort(v, RedisPortFlag); err != nil {
 		return err
 	}
 
-	environment := v.GetString(EnvironmentFlag)
-	if environment == EnvironmentProd {
-		if err := ValidateRedisHost(v, RedisHostFlag); err != nil {
-			return err
-		}
+	if err := ValidateHost(v, RedisHostFlag); err != nil {
+		return err
 	}
 
-	if err := ValidateRedisConnectTimeout(v, RedisConnectTimeoutFlag); err != nil {
-		return err
+	connectTimeout := v.GetDuration(RedisConnectTimeoutFlag)
+	if connectTimeout < 1*time.Second || connectTimeout > 5*time.Second {
+		return errors.Errorf("%s should be between 1 and 5 seconds", RedisConnectTimeoutFlag)
+	}
+
+	maxIdle := v.GetInt(RedisMaxIdleFlag)
+	if maxIdle < 1 || maxIdle > 20 {
+		return errors.Errorf("%s should be between 1 and 20", RedisMaxIdleFlag)
+	}
+
+	idleTimeout := v.GetDuration(RedisIdleTimeoutFlag)
+	if idleTimeout < 30*time.Second || idleTimeout > 300*time.Second {
+		return errors.Errorf("%s should be between 30 and 300 seconds", RedisIdleTimeoutFlag)
 	}
 
 	return nil
@@ -69,30 +88,57 @@ func CheckRedis(v *viper.Viper) error {
 // v is the viper Configuration.
 // logger is the application logger.
 func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
-	redisUser := v.GetString(RedisUserFlag)
-	redisPassword := v.GetString(RedisPasswordFlag)
-	redisHost := v.GetString(RedisHostFlag)
-	redisPort := strconv.Itoa(v.GetInt(RedisPortFlag))
-	redisDBName := v.GetString(RedisDBNameFlag)
-	redisConnectTimeout := v.GetInt(RedisConnectTimeoutFlag)
-	timeoutDuration := time.Duration(redisConnectTimeout) * time.Second
-
-	s := "redis://%s:%s@%s:%s/%s"
-	redisURL := fmt.Sprintf(s, redisUser, redisPassword, redisHost, redisPort, redisDBName)
-
-	if err := testRedisConnection(redisURL, logger, timeoutDuration); err != nil {
-		return nil, err
+	enabled := v.GetBool(RedisEnabledFlag)
+	if !enabled {
+		return nil, nil
 	}
 
-	if err := logRedisConnection(redisURL, logger); err != nil {
-		return nil, err
+	redisPassword := v.GetString(RedisPasswordFlag)
+	redisHost := v.GetString(RedisHostFlag)
+	redisPort := v.GetInt(RedisPortFlag)
+	redisDBName := v.GetInt(RedisDBNameFlag)
+	redisConnectTimeout := v.GetDuration(RedisConnectTimeoutFlag)
+	redisSSLEnabled := v.GetBool(RedisSSLEnabledFlag)
+	redisMaxIdle := v.GetInt(RedisMaxIdleFlag)
+	redisIdleTimeout := v.GetDuration(RedisIdleTimeoutFlag)
+
+	// Log the redis URI
+	s := "redis://:%s@%s:%d?db=%d"
+	redisURI := fmt.Sprintf(s, "*****", redisHost, redisPort, redisDBName)
+	if redisPassword == "" {
+		s = "redis://%s:%d?db=%d"
+		redisURI = fmt.Sprintf(s, redisHost, redisPort, redisDBName)
+	}
+	logger.Info("Connecting to Redis", zap.String("url", redisURI))
+
+	// Configure Redis TLS Config
+	redisTLSConfig := tls.Config{
+		MinVersion: tls.VersionTLS12,
+	}
+
+	// Redis Dial requires a minimal URI containing just the host and port
+	redisURLTemplate := "%s:%s"
+	redisURL := fmt.Sprintf(redisURLTemplate, redisHost, strconv.Itoa(redisPort))
+
+	if testRedisErr := testRedisConnection(redisURL, redisPassword, redisDBName, redisConnectTimeout, redisSSLEnabled, &redisTLSConfig, logger); testRedisErr != nil {
+		return nil, testRedisErr
 	}
 
 	pool := &redis.Pool{
+		MaxIdle:     redisMaxIdle,
+		IdleTimeout: redisIdleTimeout,
 		Dial: func() (redis.Conn, error) {
-			connection, err := redis.DialURL(redisURL, redis.DialConnectTimeout(timeoutDuration))
-			if err != nil {
-				return nil, err
+			connection, connectionErr := redis.Dial(
+				"tcp",
+				redisURL,
+				redis.DialDatabase(redisDBName),
+				redis.DialPassword(redisPassword),
+				redis.DialConnectTimeout(redisConnectTimeout),
+				redis.DialUseTLS(redisSSLEnabled),
+				redis.DialTLSConfig(&redisTLSConfig),
+			)
+			if connectionErr != nil {
+				return nil, connectionErr
 			}
 			return connection, nil
 		},
@@ -101,53 +147,41 @@ func InitRedis(v *viper.Viper, logger Logger) (*redis.Pool, error) {
 	return pool, nil
 }
 
-// ValidateRedisHost validates the REDIS_HOST environment variable in prd
-func ValidateRedisHost(v *viper.Viper, flagname string) error {
-	r := regexp.MustCompile(`([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}`)
+func testRedisConnection(redisURL, redisPassword string, redisDBName int, redisConnectTimeout time.Duration, redisSSLEnabled bool, redisTLSConfig *tls.Config, logger Logger) error {
+	// Confirm the connection works
+	logger.Info("Testing Redis connection...")
 
-	if host := v.GetString(flagname); r.MatchString(host) == false {
-		return errors.Errorf("%s can only contain letters, numbers, periods, and dashes", flagname)
+	redisConnection, redisConnectionErr := redis.Dial(
+		"tcp",
+		redisURL,
+		redis.DialDatabase(redisDBName),
+		redis.DialPassword(redisPassword),
+		redis.DialConnectTimeout(redisConnectTimeout),
+		redis.DialUseTLS(redisSSLEnabled),
+		redis.DialTLSConfig(redisTLSConfig),
+	)
+	defer redisConnection.Close()
+
+	errorString := fmt.Sprintf("Failed to connect to Redis after %s", redisConnectTimeout)
+	var finalErrorString string
+	if redisPassword == "" {
+		finalErrorString = errorString + ". No password provided."
 	}
 
-	return nil
-}
+	if redisConnectionErr != nil {
+		logger.Error(finalErrorString, zap.Error(redisConnectionErr))
+		return redisConnectionErr
+	}
+	logger.Info("...Redis connection successful!")
 
-// ValidateRedisConnectTimeout validates a Redis connect timeout passed in from
-// the command line
-func ValidateRedisConnectTimeout(v *viper.Viper, flagname string) error {
-	timeout := v.GetInt(flagname)
-
-	if timeout < 1 || timeout > 5 {
-		return errors.Errorf("%s should be between 1 and 5 seconds", flagname)
+	logger.Info("Starting Redis ping...")
+	_, pingErr := redis.String(redisConnection.Do("PING"))
+	if pingErr != nil {
+		logger.Error("failed to ping Redis", zap.Error(pingErr))
+		return pingErr
 	}
 
-	return nil
-}
-
-func testRedisConnection(redisURL string, logger Logger, timeout time.Duration) error {
-	_, err := redis.DialURL(redisURL, redis.DialConnectTimeout(timeout))
-	if err != nil {
-		errorString := fmt.Sprintf("Failed to connect to Redis after %s", timeout)
-		logger.Error(errorString, zap.Error(err))
-		return err
-	}
-
-	return nil
-}
-
-func logRedisConnection(redisURL string, logger Logger) error {
-	parsedURL, err := url.Parse(redisURL)
-	if err != nil {
-		return errors.Errorf("%s is an invalid redis URL", redisURL)
-	}
-	password, _ := parsedURL.User.Password()
-	var maskedURL string
-	if password != "" {
-		maskedURL = strings.Replace(redisURL, password, "*****", 1)
-	} else {
-		maskedURL = redisURL
-	}
-	logger.Info("Connecting to Redis", zap.String("url", maskedURL))
+	logger.Info("...Redis ping successful!")
 
 	return nil
 }

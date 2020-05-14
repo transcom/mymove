@@ -35,7 +35,8 @@ type UpdateMTOShipmentParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*
+	/*Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+
 	  Required: true
 	  In: header
 	*/
@@ -45,12 +46,7 @@ type UpdateMTOShipmentParams struct {
 	  In: body
 	*/
 	Body *primemessages.MTOShipment
-	/*
-	  Required: true
-	  In: path
-	*/
-	MoveTaskOrderID strfmt.UUID
-	/*
+	/*UUID of the shipment being updated.
 	  Required: true
 	  In: path
 	*/
@@ -92,11 +88,6 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 	} else {
 		res = append(res, errors.Required("body", "body"))
 	}
-	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
-	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
 	rMtoShipmentID, rhkMtoShipmentID, _ := route.Params.GetOK("mtoShipmentID")
 	if err := o.bindMtoShipmentID(rMtoShipmentID, rhkMtoShipmentID, route.Formats); err != nil {
 		res = append(res, err)
@@ -126,39 +117,6 @@ func (o *UpdateMTOShipmentParams) bindIfMatch(rawData []string, hasKey bool, for
 
 	o.IfMatch = raw
 
-	return nil
-}
-
-// bindMoveTaskOrderID binds and validates parameter MoveTaskOrderID from path.
-func (o *UpdateMTOShipmentParams) bindMoveTaskOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: true
-	// Parameter is provided by construction from the route
-
-	// Format: uuid
-	value, err := formats.Parse("uuid", raw)
-	if err != nil {
-		return errors.InvalidType("moveTaskOrderID", "path", "strfmt.UUID", raw)
-	}
-	o.MoveTaskOrderID = *(value.(*strfmt.UUID))
-
-	if err := o.validateMoveTaskOrderID(formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// validateMoveTaskOrderID carries on validations for parameter MoveTaskOrderID
-func (o *UpdateMTOShipmentParams) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
-	if err := validate.FormatOf("moveTaskOrderID", "path", "uuid", o.MoveTaskOrderID.String(), formats); err != nil {
-		return err
-	}
 	return nil
 }
 

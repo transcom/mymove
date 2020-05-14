@@ -231,7 +231,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID, 
 		query = query.Where("deleted_at is null")
 	}
 
-	err := query.Eager("Document.Uploads", "Move", "PersonallyProcuredMove").Find(&moveDoc, id)
+	err := query.Eager("Document.UserUploads.Upload", "Move", "PersonallyProcuredMove").Find(&moveDoc, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound

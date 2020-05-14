@@ -6,13 +6,17 @@ package move_task_order
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // NewUpdateMoveTaskOrderStatusParams creates a new UpdateMoveTaskOrderStatusParams object
@@ -31,12 +35,18 @@ type UpdateMoveTaskOrderStatusParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*
+	/*Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+
 	  Required: true
 	  In: header
 	*/
 	IfMatch string
-	/*ID of move order to use
+	/*
+	  Required: true
+	  In: body
+	*/
+	Body *supportmessages.UpdateMoveTaskOrderStatus
+	/*UUID of move task order.
 	  Required: true
 	  In: path
 	*/
@@ -56,6 +66,28 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 		res = append(res, err)
 	}
 
+	if runtime.HasBody(r) {
+		defer r.Body.Close()
+		var body supportmessages.UpdateMoveTaskOrderStatus
+		if err := route.Consumer.Consume(r.Body, &body); err != nil {
+			if err == io.EOF {
+				res = append(res, errors.Required("body", "body"))
+			} else {
+				res = append(res, errors.NewParseError("body", "body", "", err))
+			}
+		} else {
+			// validate body object
+			if err := body.Validate(route.Formats); err != nil {
+				res = append(res, err)
+			}
+
+			if len(res) == 0 {
+				o.Body = &body
+			}
+		}
+	} else {
+		res = append(res, errors.Required("body", "body"))
+	}
 	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)

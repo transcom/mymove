@@ -23,6 +23,7 @@ repos:
             pkg/server/testdata/officelocal.key$|
             pkg/auth/authentication/auth_test.go$|
             pkg/cli/auth.go$|
+            .envrc.local.template|
           )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
@@ -92,15 +93,6 @@ repos:
             vendor/|
             docs/adr/index.md
           )$
-
-  - repo: local
-    hooks:
-      - id: gen-docs-index
-        name: regenerate docs index
-        entry: scripts/gen-docs-index
-        language: script
-        files: \.md$
-        pass_filenames: false
 
   - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
     rev: v0.1.0

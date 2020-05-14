@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemDDFSIT Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem
+// MTOServiceItemDDFSIT Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.
 // swagger:model MTOServiceItemDDFSIT
 type MTOServiceItemDDFSIT struct {
 	eTagField string
@@ -30,6 +30,10 @@ type MTOServiceItemDDFSIT struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
+
+	rejectionReasonField *string
+
+	statusField MTOServiceItemStatus
 
 	// first available delivery date1
 	// Required: true
@@ -126,6 +130,26 @@ func (m *MTOServiceItemDDFSIT) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// RejectionReason gets the rejection reason of this subtype
+func (m *MTOServiceItemDDFSIT) RejectionReason() *string {
+	return m.rejectionReasonField
+}
+
+// SetRejectionReason sets the rejection reason of this subtype
+func (m *MTOServiceItemDDFSIT) SetRejectionReason(val *string) {
+	m.rejectionReasonField = val
+}
+
+// Status gets the status of this subtype
+func (m *MTOServiceItemDDFSIT) Status() MTOServiceItemStatus {
+	return m.statusField
+}
+
+// SetStatus sets the status of this subtype
+func (m *MTOServiceItemDDFSIT) SetStatus(val MTOServiceItemStatus) {
+	m.statusField = val
+}
+
 // FirstAvailableDeliveryDate1 gets the first available delivery date1 of this subtype
 
 // FirstAvailableDeliveryDate2 gets the first available delivery date2 of this subtype
@@ -190,6 +214,10 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
 	dec = json.NewDecoder(buf)
@@ -217,6 +245,10 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
+
+	result.rejectionReasonField = base.RejectionReason
+
+	result.statusField = base.Status
 
 	result.FirstAvailableDeliveryDate1 = data.FirstAvailableDeliveryDate1
 
@@ -296,6 +328,10 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
 		ETag: m.ETag(),
@@ -311,6 +347,10 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		RejectionReason: m.RejectionReason(),
+
+		Status: m.Status(),
 	},
 	)
 	if err != nil {
@@ -337,6 +377,10 @@ func (m *MTOServiceItemDDFSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -416,6 +460,22 @@ func (m *MTOServiceItemDDFSIT) validateReServiceID(formats strfmt.Registry) erro
 	}
 
 	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDDFSIT) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
+	if err := m.Status().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

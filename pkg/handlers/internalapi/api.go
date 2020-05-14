@@ -8,7 +8,6 @@ import (
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 
-	"github.com/alexedwards/scs/v2"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
 	"github.com/pkg/errors"
@@ -19,7 +18,7 @@ import (
 )
 
 // NewInternalAPI returns the internal API
-func NewInternalAPI(context handlers.HandlerContext, sessionManager *scs.SessionManager) *internalops.MymoveAPI {
+func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
@@ -70,7 +69,7 @@ func NewInternalAPI(context handlers.HandlerContext, sessionManager *scs.Session
 
 	internalAPI.MoveDocsCreateWeightTicketDocumentHandler = CreateWeightTicketSetDocumentHandler{context}
 
-	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{context, sessionManager}
+	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{context}
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{context}
 	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler{context}
 	internalAPI.ServiceMembersShowServiceMemberOrdersHandler = ShowServiceMemberOrdersHandler{context}

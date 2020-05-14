@@ -23,6 +23,8 @@ import (
 
 	route "github.com/transcom/mymove/pkg/route"
 
+	scs "github.com/alexedwards/scs/v2"
+
 	sequence "github.com/transcom/mymove/pkg/db/sequence"
 
 	services "github.com/transcom/mymove/pkg/services"
@@ -349,6 +351,22 @@ func (_m *HandlerContext) SessionFromRequest(r *http.Request) *auth.Session {
 	return r0
 }
 
+// SessionManager provides a mock function with given fields: session
+func (_m *HandlerContext) SessionManager(session *auth.Session) *scs.SessionManager {
+	ret := _m.Called(session)
+
+	var r0 *scs.SessionManager
+	if rf, ok := ret.Get(0).(func(*auth.Session) *scs.SessionManager); ok {
+		r0 = rf(session)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*scs.SessionManager)
+		}
+	}
+
+	return r0
+}
+
 // SetAppNames provides a mock function with given fields: appNames
 func (_m *HandlerContext) SetAppNames(appNames auth.ApplicationServername) {
 	_m.Called(appNames)
@@ -402,6 +420,11 @@ func (_m *HandlerContext) SetPlanner(planner route.Planner) {
 // SetSendProductionInvoice provides a mock function with given fields: sendProductionInvoice
 func (_m *HandlerContext) SetSendProductionInvoice(sendProductionInvoice bool) {
 	_m.Called(sendProductionInvoice)
+}
+
+// SetSessionManagers provides a mock function with given fields: sessionManagers
+func (_m *HandlerContext) SetSessionManagers(sessionManagers [3]*scs.SessionManager) {
+	_m.Called(sessionManagers)
 }
 
 // SetTraceID provides a mock function with given fields: traceID

@@ -1650,6 +1650,13 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+  MTOServiceItemStatus:
+    description: Describes all statuses for a MTOServiceItem
+    type: string
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
   MTOServiceItem:
     properties:
       moveTaskOrderID:
@@ -1679,6 +1686,10 @@ definitions:
         type: string
       description:
         type: string
+      reason:
+        type: string
+      pickupPostalCode:
+        type: string
       feeType:
         enum:
           - COUNSELING
@@ -1698,11 +1709,7 @@ definitions:
         format: date
         type: string
       status:
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
-        type: string
+        $ref: '#/definitions/MTOServiceItemStatus'
       submittedAt:
         format: date
         type: string
@@ -1721,6 +1728,8 @@ definitions:
       - reServiceCode
       - reServiceName
       - mtoShipmentID
+      - reason
+      - pickupPostalCode
     type: object
   MTOServiceItems:
     type: array
