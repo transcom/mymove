@@ -116,7 +116,7 @@ type FetchMTOUpdatesUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewFetchMTOUpdatesUnauthorized creates FetchMTOUpdatesUnauthorized with default headers values
@@ -126,13 +126,13 @@ func NewFetchMTOUpdatesUnauthorized() *FetchMTOUpdatesUnauthorized {
 }
 
 // WithPayload adds the payload to the fetch m t o updates unauthorized response
-func (o *FetchMTOUpdatesUnauthorized) WithPayload(payload *primemessages.Error) *FetchMTOUpdatesUnauthorized {
+func (o *FetchMTOUpdatesUnauthorized) WithPayload(payload *primemessages.ClientError) *FetchMTOUpdatesUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fetch m t o updates unauthorized response
-func (o *FetchMTOUpdatesUnauthorized) SetPayload(payload *primemessages.Error) {
+func (o *FetchMTOUpdatesUnauthorized) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -160,7 +160,7 @@ type FetchMTOUpdatesForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewFetchMTOUpdatesForbidden creates FetchMTOUpdatesForbidden with default headers values
@@ -170,13 +170,13 @@ func NewFetchMTOUpdatesForbidden() *FetchMTOUpdatesForbidden {
 }
 
 // WithPayload adds the payload to the fetch m t o updates forbidden response
-func (o *FetchMTOUpdatesForbidden) WithPayload(payload *primemessages.Error) *FetchMTOUpdatesForbidden {
+func (o *FetchMTOUpdatesForbidden) WithPayload(payload *primemessages.ClientError) *FetchMTOUpdatesForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fetch m t o updates forbidden response
-func (o *FetchMTOUpdatesForbidden) SetPayload(payload *primemessages.Error) {
+func (o *FetchMTOUpdatesForbidden) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 

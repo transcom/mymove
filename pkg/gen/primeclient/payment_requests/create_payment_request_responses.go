@@ -148,20 +148,20 @@ func NewCreatePaymentRequestUnauthorized() *CreatePaymentRequestUnauthorized {
 The request was denied.
 */
 type CreatePaymentRequestUnauthorized struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *CreatePaymentRequestUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *CreatePaymentRequestUnauthorized) GetPayload() *primemessages.Error {
+func (o *CreatePaymentRequestUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreatePaymentRequestUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -181,20 +181,20 @@ func NewCreatePaymentRequestForbidden() *CreatePaymentRequestForbidden {
 The request was denied.
 */
 type CreatePaymentRequestForbidden struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *CreatePaymentRequestForbidden) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestForbidden  %+v", 403, o.Payload)
 }
 
-func (o *CreatePaymentRequestForbidden) GetPayload() *primemessages.Error {
+func (o *CreatePaymentRequestForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreatePaymentRequestForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

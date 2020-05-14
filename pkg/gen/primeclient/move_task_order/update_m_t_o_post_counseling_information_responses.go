@@ -119,20 +119,20 @@ func NewUpdateMTOPostCounselingInformationUnauthorized() *UpdateMTOPostCounselin
 The request was denied.
 */
 type UpdateMTOPostCounselingInformationUnauthorized struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *UpdateMTOPostCounselingInformationUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationUnauthorized) GetPayload() *primemessages.Error {
+func (o *UpdateMTOPostCounselingInformationUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -152,20 +152,20 @@ func NewUpdateMTOPostCounselingInformationForbidden() *UpdateMTOPostCounselingIn
 The request was denied.
 */
 type UpdateMTOPostCounselingInformationForbidden struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *UpdateMTOPostCounselingInformationForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationForbidden  %+v", 403, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationForbidden) GetPayload() *primemessages.Error {
+func (o *UpdateMTOPostCounselingInformationForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

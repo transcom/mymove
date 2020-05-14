@@ -154,20 +154,20 @@ func NewUpdateMTOShipmentUnauthorized() *UpdateMTOShipmentUnauthorized {
 The request was denied.
 */
 type UpdateMTOShipmentUnauthorized struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *UpdateMTOShipmentUnauthorized) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *UpdateMTOShipmentUnauthorized) GetPayload() *primemessages.Error {
+func (o *UpdateMTOShipmentUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -187,20 +187,20 @@ func NewUpdateMTOShipmentForbidden() *UpdateMTOShipmentForbidden {
 The request was denied.
 */
 type UpdateMTOShipmentForbidden struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *UpdateMTOShipmentForbidden) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentForbidden  %+v", 403, o.Payload)
 }
 
-func (o *UpdateMTOShipmentForbidden) GetPayload() *primemessages.Error {
+func (o *UpdateMTOShipmentForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

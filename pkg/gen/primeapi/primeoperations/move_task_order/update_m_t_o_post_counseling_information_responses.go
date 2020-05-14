@@ -69,7 +69,7 @@ type UpdateMTOPostCounselingInformationUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOPostCounselingInformationUnauthorized creates UpdateMTOPostCounselingInformationUnauthorized with default headers values
@@ -79,13 +79,13 @@ func NewUpdateMTOPostCounselingInformationUnauthorized() *UpdateMTOPostCounselin
 }
 
 // WithPayload adds the payload to the update m t o post counseling information unauthorized response
-func (o *UpdateMTOPostCounselingInformationUnauthorized) WithPayload(payload *primemessages.Error) *UpdateMTOPostCounselingInformationUnauthorized {
+func (o *UpdateMTOPostCounselingInformationUnauthorized) WithPayload(payload *primemessages.ClientError) *UpdateMTOPostCounselingInformationUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o post counseling information unauthorized response
-func (o *UpdateMTOPostCounselingInformationUnauthorized) SetPayload(payload *primemessages.Error) {
+func (o *UpdateMTOPostCounselingInformationUnauthorized) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -113,7 +113,7 @@ type UpdateMTOPostCounselingInformationForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOPostCounselingInformationForbidden creates UpdateMTOPostCounselingInformationForbidden with default headers values
@@ -123,13 +123,13 @@ func NewUpdateMTOPostCounselingInformationForbidden() *UpdateMTOPostCounselingIn
 }
 
 // WithPayload adds the payload to the update m t o post counseling information forbidden response
-func (o *UpdateMTOPostCounselingInformationForbidden) WithPayload(payload *primemessages.Error) *UpdateMTOPostCounselingInformationForbidden {
+func (o *UpdateMTOPostCounselingInformationForbidden) WithPayload(payload *primemessages.ClientError) *UpdateMTOPostCounselingInformationForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o post counseling information forbidden response
-func (o *UpdateMTOPostCounselingInformationForbidden) SetPayload(payload *primemessages.Error) {
+func (o *UpdateMTOPostCounselingInformationForbidden) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 

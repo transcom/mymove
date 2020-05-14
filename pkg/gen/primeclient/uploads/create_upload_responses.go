@@ -142,20 +142,20 @@ func NewCreateUploadUnauthorized() *CreateUploadUnauthorized {
 The request was denied.
 */
 type CreateUploadUnauthorized struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *CreateUploadUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *CreateUploadUnauthorized) GetPayload() *primemessages.Error {
+func (o *CreateUploadUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateUploadUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -175,20 +175,20 @@ func NewCreateUploadForbidden() *CreateUploadForbidden {
 The request was denied.
 */
 type CreateUploadForbidden struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *CreateUploadForbidden) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadForbidden  %+v", 403, o.Payload)
 }
 
-func (o *CreateUploadForbidden) GetPayload() *primemessages.Error {
+func (o *CreateUploadForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateUploadForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

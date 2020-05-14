@@ -148,20 +148,20 @@ func NewCreateMTOServiceItemUnauthorized() *CreateMTOServiceItemUnauthorized {
 The request was denied.
 */
 type CreateMTOServiceItemUnauthorized struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *CreateMTOServiceItemUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *CreateMTOServiceItemUnauthorized) GetPayload() *primemessages.Error {
+func (o *CreateMTOServiceItemUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateMTOServiceItemUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -181,20 +181,20 @@ func NewCreateMTOServiceItemForbidden() *CreateMTOServiceItemForbidden {
 The request was denied.
 */
 type CreateMTOServiceItemForbidden struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *CreateMTOServiceItemForbidden) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemForbidden  %+v", 403, o.Payload)
 }
 
-func (o *CreateMTOServiceItemForbidden) GetPayload() *primemessages.Error {
+func (o *CreateMTOServiceItemForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateMTOServiceItemForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

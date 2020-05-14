@@ -113,7 +113,7 @@ type CreateMTOServiceItemUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMTOServiceItemUnauthorized creates CreateMTOServiceItemUnauthorized with default headers values
@@ -123,13 +123,13 @@ func NewCreateMTOServiceItemUnauthorized() *CreateMTOServiceItemUnauthorized {
 }
 
 // WithPayload adds the payload to the create m t o service item unauthorized response
-func (o *CreateMTOServiceItemUnauthorized) WithPayload(payload *primemessages.Error) *CreateMTOServiceItemUnauthorized {
+func (o *CreateMTOServiceItemUnauthorized) WithPayload(payload *primemessages.ClientError) *CreateMTOServiceItemUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o service item unauthorized response
-func (o *CreateMTOServiceItemUnauthorized) SetPayload(payload *primemessages.Error) {
+func (o *CreateMTOServiceItemUnauthorized) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -157,7 +157,7 @@ type CreateMTOServiceItemForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMTOServiceItemForbidden creates CreateMTOServiceItemForbidden with default headers values
@@ -167,13 +167,13 @@ func NewCreateMTOServiceItemForbidden() *CreateMTOServiceItemForbidden {
 }
 
 // WithPayload adds the payload to the create m t o service item forbidden response
-func (o *CreateMTOServiceItemForbidden) WithPayload(payload *primemessages.Error) *CreateMTOServiceItemForbidden {
+func (o *CreateMTOServiceItemForbidden) WithPayload(payload *primemessages.ClientError) *CreateMTOServiceItemForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o service item forbidden response
-func (o *CreateMTOServiceItemForbidden) SetPayload(payload *primemessages.Error) {
+func (o *CreateMTOServiceItemForbidden) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 

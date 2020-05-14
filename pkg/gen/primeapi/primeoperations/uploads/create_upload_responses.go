@@ -113,7 +113,7 @@ type CreateUploadUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateUploadUnauthorized creates CreateUploadUnauthorized with default headers values
@@ -123,13 +123,13 @@ func NewCreateUploadUnauthorized() *CreateUploadUnauthorized {
 }
 
 // WithPayload adds the payload to the create upload unauthorized response
-func (o *CreateUploadUnauthorized) WithPayload(payload *primemessages.Error) *CreateUploadUnauthorized {
+func (o *CreateUploadUnauthorized) WithPayload(payload *primemessages.ClientError) *CreateUploadUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create upload unauthorized response
-func (o *CreateUploadUnauthorized) SetPayload(payload *primemessages.Error) {
+func (o *CreateUploadUnauthorized) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -157,7 +157,7 @@ type CreateUploadForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateUploadForbidden creates CreateUploadForbidden with default headers values
@@ -167,13 +167,13 @@ func NewCreateUploadForbidden() *CreateUploadForbidden {
 }
 
 // WithPayload adds the payload to the create upload forbidden response
-func (o *CreateUploadForbidden) WithPayload(payload *primemessages.Error) *CreateUploadForbidden {
+func (o *CreateUploadForbidden) WithPayload(payload *primemessages.ClientError) *CreateUploadForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create upload forbidden response
-func (o *CreateUploadForbidden) SetPayload(payload *primemessages.Error) {
+func (o *CreateUploadForbidden) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
