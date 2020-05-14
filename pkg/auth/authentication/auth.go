@@ -1,9 +1,7 @@
 package authentication
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -86,46 +84,6 @@ func RoleAuthLogin(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
-// ConcurrentSessionMiddleware enforces one active session per user
-func ConcurrentSessionMiddleware(sessionManager *scs.SessionManager, logger Logger, db *pop.Connection) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		mw := func(w http.ResponseWriter, r *http.Request) {
-			fmt.Println("ConcurrentSessionMiddleware called")
-			session := auth.SessionFromRequestContext(r)
-
-			// We must have a logged in session and a user
-			if session == nil || session.UserID == uuid.Nil {
-				logger.Info("unauthorized access, no session token or user id")
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-				return
-			}
-
-			userID := session.UserID
-			fmt.Println("fetching user with id:", userID)
-			fmt.Println("session has admin user id:", session.AdminUserID)
-			user, err := models.GetUser(db, userID)
-			if err != nil {
-				logger.Error("error fetching user from DB")
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-			fmt.Println("user has unique session id:", user.UniqueSessionID)
-
-			uniqueSessionID := session.UniqueSessionID
-			fmt.Println("unique session id in session:", uniqueSessionID)
-			if user.UniqueSessionID != uniqueSessionID {
-				fmt.Println("user has another active session")
-				sessionManager.Destroy(r.Context())
-				auth.DeleteCSRFCookies(w)
-				logger.Info("user logged out due to concurrent session")
-				return
-			}
-			next.ServeHTTP(w, r)
-		}
-		return http.HandlerFunc(mw)
-	}
-}
-
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
 func UserAuthMiddleware(logger Logger, db *pop.Connection) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -137,12 +95,6 @@ func UserAuthMiddleware(logger Logger, db *pop.Connection) func(next http.Handle
 			if session == nil || session.UserID == uuid.Nil {
 				logger.Info("unauthorized access, no session token or user id")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-				return
-			}
-
-			err := updateUserCurrentSessionID(session, r, db, logger)
-			if err != nil {
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
 
@@ -164,47 +116,23 @@ func UserAuthMiddleware(logger Logger, db *pop.Connection) func(next http.Handle
 	}
 }
 
-func updateUserCurrentSessionID(session *auth.Session, r *http.Request, db *pop.Connection, logger Logger) error {
+func updateUserUniqueSessionID(session *auth.Session, sessionID string, r *http.Request, db *pop.Connection, logger Logger) error {
 	userID := session.UserID
+
 	fmt.Println("fetching user with id:", userID)
 	user, err := models.GetUser(db, userID)
 	if err != nil {
 		fmt.Println("error fetching user", err)
 	}
-	fmt.Println("user has current session id:", user.CurrentSessionID)
-	var sessionID string
-	cookie, err := r.Cookie(auth.SessionCookieName(session))
-	if err == nil {
-		sessionID = cookie.Value
-	}
-	fmt.Println("cookie session id:", sessionID)
-	if user.CurrentSessionID != sessionID {
-		fmt.Println("user's session id is different from cookie ID")
 
-		user.CurrentSessionID = sessionID
-		err = db.Save(user)
-		if err != nil {
-			logger.Error("Updating user's session_id", zap.String("email", session.Email), zap.Error(err))
-			return err
-		}
-		fmt.Println("updating user with current_session_id:", sessionID)
+	if session.IsAdminUser() {
+		user.CurrentAdminSessionID = sessionID
+	} else if session.IsOfficeUser() {
+		user.CurrentOfficeSessionID = sessionID
+	} else if session.IsServiceMember() {
+		user.CurrentMilSessionID = sessionID
 	}
 
-	return err
-}
-
-func updateUserUniqueSessionID(session *auth.Session, sessionManager *scs.SessionManager, r *http.Request, db *pop.Connection, logger Logger) error {
-	userID := session.UserID
-	fmt.Println("fetching user with id:", userID)
-	user, err := models.GetUser(db, userID)
-	if err != nil {
-		fmt.Println("error fetching user", err)
-	}
-	uniqueID, _ := generateToken()
-	fmt.Println("updating user and session with unique session id:", uniqueID)
-	session.UniqueSessionID = uniqueID
-	user.UniqueSessionID = uniqueID
-	sessionManager.Put(r.Context(), "session", session)
 	err = db.Save(user)
 	if err != nil {
 		logger.Error("Updating user's unique_session_id", zap.String("email", session.Email), zap.Error(err))
@@ -212,15 +140,6 @@ func updateUserUniqueSessionID(session *auth.Session, sessionManager *scs.Sessio
 	}
 
 	return err
-}
-
-func generateToken() (string, error) {
-	b := make([]byte, 32)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
 func resetUserCurrentSessionID(session *auth.Session, db *pop.Connection, logger Logger) error {
@@ -231,7 +150,13 @@ func resetUserCurrentSessionID(session *auth.Session, db *pop.Connection, logger
 	}
 
 	fmt.Println("resetting user's current session id to empty string:")
-	user.CurrentSessionID = ""
+	if session.IsAdminUser() {
+		user.CurrentAdminSessionID = ""
+	} else if session.IsOfficeUser() {
+		user.CurrentOfficeSessionID = ""
+	} else if session.IsServiceMember() {
+		user.CurrentMilSessionID = ""
+	}
 	err = db.Save(user)
 	if err != nil {
 		logger.Error("Updating user's current_session_id", zap.String("email", session.Email), zap.Error(err))
@@ -239,6 +164,28 @@ func resetUserCurrentSessionID(session *auth.Session, db *pop.Connection, logger
 	}
 
 	return err
+}
+
+func currentUser(session *auth.Session, db *pop.Connection) *models.User {
+	userID := session.UserID
+	user, err := models.GetUser(db, userID)
+	if err != nil {
+		fmt.Println("error fetching user in currentUser", err)
+	}
+
+	return user
+}
+
+func currentSessionID(session *auth.Session, user *models.User) string {
+	if session.IsAdminUser() {
+		return user.CurrentAdminSessionID
+	} else if session.IsOfficeUser() {
+		return user.CurrentOfficeSessionID
+	} else if session.IsServiceMember() {
+		return user.CurrentMilSessionID
+	}
+
+	return ""
 }
 
 // APIContext is the api context interface
@@ -907,14 +854,49 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 
 	// The session token must be renewed during sign in to prevent
 	// session fixation attacks
-	err := h.sessionManager(session).RenewToken(r.Context())
+	sessionManager := h.sessionManager(session)
+	err := sessionManager.RenewToken(r.Context())
 	if err != nil {
 		h.logger.Error("Error renewing session token", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	h.sessionManager(session).Put(r.Context(), "session", session)
-	updateUserUniqueSessionID(session, h.sessionManager(session), r, h.db, h.logger)
+	sessionID, _, err := sessionManager.Commit(r.Context())
+	if err != nil {
+		h.logger.Error("Failed to write new user session to store", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	session.CurrentSessionID = sessionID
+	fmt.Println("updating user and session with current session id:", sessionID)
+	sessionManager.Put(r.Context(), "session", session)
+	user := currentUser(session, h.db)
+	// Check to see if sessionID is set on the user, presently
+	existingSessionID := currentSessionID(session, user)
+	if existingSessionID != "" {
+
+		// Lookup the old session that wasn't logged out
+		_, exists, err := sessionManager.Store.Find(existingSessionID)
+		if err != nil {
+			h.logger.Error("Error loading previous session:", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		}
+
+		if !exists {
+			h.logger.Info("session expired")
+		} else {
+			h.logger.Info("concurrent session detected. Will delete previous session.")
+
+			// We need to delete the concurrent session.
+			err := sessionManager.Store.Delete(existingSessionID)
+			if err != nil {
+				h.logger.Error("Error deleting previous session:", zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			}
+		}
+	}
+
+	updateUserUniqueSessionID(session, sessionID, r, h.db, h.logger)
 
 	h.logger.Info("logged in", zap.Any("session", session))
 

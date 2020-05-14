@@ -101,21 +101,21 @@ func (s *Session) IsAdminApp() bool {
 
 // Session stores information about the currently logged in session
 type Session struct {
-	ApplicationName Application
-	Hostname        string
-	IDToken         string
-	UserID          uuid.UUID
-	Email           string
-	FirstName       string
-	Middle          string
-	LastName        string
-	ServiceMemberID uuid.UUID
-	OfficeUserID    uuid.UUID
-	AdminUserID     uuid.UUID
-	AdminUserRole   string
-	DpsUserID       uuid.UUID
-	Roles           roles.Roles
-	UniqueSessionID string
+	ApplicationName  Application
+	Hostname         string
+	IDToken          string
+	UserID           uuid.UUID
+	Email            string
+	FirstName        string
+	Middle           string
+	LastName         string
+	ServiceMemberID  uuid.UUID
+	OfficeUserID     uuid.UUID
+	AdminUserID      uuid.UUID
+	AdminUserRole    string
+	DpsUserID        uuid.UUID
+	Roles            roles.Roles
+	CurrentSessionID string
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data
