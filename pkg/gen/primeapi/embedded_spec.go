@@ -1726,25 +1726,25 @@ func init() {
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "NotFound": {
       "description": "The requested resource wasn't found.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "PreconditionFailed": {
       "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "ServerError": {
@@ -1810,7 +1810,7 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
@@ -1818,7 +1818,7 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
@@ -1827,14 +1827,14 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "500": {
@@ -1911,7 +1911,7 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
@@ -1920,20 +1920,20 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
@@ -1994,7 +1994,7 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
@@ -2002,7 +2002,7 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
@@ -2011,14 +2011,14 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
@@ -2069,13 +2069,13 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
@@ -2142,7 +2142,7 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
@@ -2150,7 +2150,7 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
@@ -2159,20 +2159,20 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
@@ -2231,7 +2231,7 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
@@ -2240,7 +2240,7 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
@@ -2305,7 +2305,7 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
@@ -2313,7 +2313,7 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
@@ -2322,14 +2322,14 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "500": {
@@ -3581,25 +3581,25 @@ func init() {
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "NotFound": {
       "description": "The requested resource wasn't found.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "PreconditionFailed": {
       "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "ServerError": {
