@@ -1,13 +1,19 @@
 package route
 
+import (
+	"fmt"
+)
+
 // Zip5ToZip3LatLong looks up a zip code and returns the Lat Long from the census data
 func Zip5ToZip3LatLong(zip5 string) (LatLong, error) {
 	var ll LatLong
 	zip5only := formatZip5(zip5)
-	if len(zip5only) != 5 {
+	if len(zip5only) > 5 {
 		return ll, NewUnsupportedPostalCodeError(zip5only)
+	} else if len(zip5only) < 5 {
+		zip5only = fmt.Sprintf("%05s", zip5only)
 	}
-	zip3 := zip5[0:2]
+	zip3 := zip5only[0:3]
 	if len(zip3) != 3 {
 		return ll, NewUnsupportedPostalCodeError(zip3)
 	}
