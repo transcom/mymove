@@ -109,20 +109,20 @@ func NewCreateUploadBadRequest() *CreateUploadBadRequest {
 The request payload is invalid.
 */
 type CreateUploadBadRequest struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *CreateUploadBadRequest) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *CreateUploadBadRequest) GetPayload() *primemessages.Error {
+func (o *CreateUploadBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateUploadBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -204,20 +204,20 @@ func NewCreateUploadNotFound() *CreateUploadNotFound {
 The requested resource wasn't found.
 */
 type CreateUploadNotFound struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *CreateUploadNotFound) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadNotFound  %+v", 404, o.Payload)
 }
 
-func (o *CreateUploadNotFound) GetPayload() *primemessages.Error {
+func (o *CreateUploadNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateUploadNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

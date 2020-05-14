@@ -69,7 +69,7 @@ type CreateMTOServiceItemBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMTOServiceItemBadRequest creates CreateMTOServiceItemBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewCreateMTOServiceItemBadRequest() *CreateMTOServiceItemBadRequest {
 }
 
 // WithPayload adds the payload to the create m t o service item bad request response
-func (o *CreateMTOServiceItemBadRequest) WithPayload(payload *primemessages.Error) *CreateMTOServiceItemBadRequest {
+func (o *CreateMTOServiceItemBadRequest) WithPayload(payload *primemessages.ClientError) *CreateMTOServiceItemBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o service item bad request response
-func (o *CreateMTOServiceItemBadRequest) SetPayload(payload *primemessages.Error) {
+func (o *CreateMTOServiceItemBadRequest) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -197,7 +197,7 @@ type CreateMTOServiceItemNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMTOServiceItemNotFound creates CreateMTOServiceItemNotFound with default headers values
@@ -207,13 +207,13 @@ func NewCreateMTOServiceItemNotFound() *CreateMTOServiceItemNotFound {
 }
 
 // WithPayload adds the payload to the create m t o service item not found response
-func (o *CreateMTOServiceItemNotFound) WithPayload(payload *primemessages.Error) *CreateMTOServiceItemNotFound {
+func (o *CreateMTOServiceItemNotFound) WithPayload(payload *primemessages.ClientError) *CreateMTOServiceItemNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o service item not found response
-func (o *CreateMTOServiceItemNotFound) SetPayload(payload *primemessages.Error) {
+func (o *CreateMTOServiceItemNotFound) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 

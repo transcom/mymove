@@ -32,7 +32,10 @@ const NilErrMessage string = "Nil error passed"
 const ConflictErrMessage string = "Conflict Error"
 
 // PreconditionErrMessage indicates that the IfMatch header (eTag) was stale
-const PreconditionErrMessage string = "Precondition Failed Error"
+const PreconditionErrMessage string = "Precondition Failed"
+
+// BadRequestErrMessage indicates that the request was malformed
+const BadRequestErrMessage string = "Bad Request"
 
 // ValidationErrMessage indicates that some fields were invalid
 const ValidationErrMessage string = "Validation Error"

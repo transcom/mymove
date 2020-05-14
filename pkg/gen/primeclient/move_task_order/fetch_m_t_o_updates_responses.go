@@ -107,20 +107,20 @@ func NewFetchMTOUpdatesBadRequest() *FetchMTOUpdatesBadRequest {
 The request payload is invalid.
 */
 type FetchMTOUpdatesBadRequest struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *FetchMTOUpdatesBadRequest) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *FetchMTOUpdatesBadRequest) GetPayload() *primemessages.Error {
+func (o *FetchMTOUpdatesBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *FetchMTOUpdatesBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -202,20 +202,20 @@ func NewFetchMTOUpdatesNotFound() *FetchMTOUpdatesNotFound {
 The requested resource wasn't found.
 */
 type FetchMTOUpdatesNotFound struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *FetchMTOUpdatesNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesNotFound  %+v", 404, o.Payload)
 }
 
-func (o *FetchMTOUpdatesNotFound) GetPayload() *primemessages.Error {
+func (o *FetchMTOUpdatesNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *FetchMTOUpdatesNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

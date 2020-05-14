@@ -153,7 +153,7 @@ type UpdateMTOPostCounselingInformationNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOPostCounselingInformationNotFound creates UpdateMTOPostCounselingInformationNotFound with default headers values
@@ -163,13 +163,13 @@ func NewUpdateMTOPostCounselingInformationNotFound() *UpdateMTOPostCounselingInf
 }
 
 // WithPayload adds the payload to the update m t o post counseling information not found response
-func (o *UpdateMTOPostCounselingInformationNotFound) WithPayload(payload *primemessages.Error) *UpdateMTOPostCounselingInformationNotFound {
+func (o *UpdateMTOPostCounselingInformationNotFound) WithPayload(payload *primemessages.ClientError) *UpdateMTOPostCounselingInformationNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o post counseling information not found response
-func (o *UpdateMTOPostCounselingInformationNotFound) SetPayload(payload *primemessages.Error) {
+func (o *UpdateMTOPostCounselingInformationNotFound) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -197,7 +197,7 @@ type UpdateMTOPostCounselingInformationPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOPostCounselingInformationPreconditionFailed creates UpdateMTOPostCounselingInformationPreconditionFailed with default headers values
@@ -207,13 +207,13 @@ func NewUpdateMTOPostCounselingInformationPreconditionFailed() *UpdateMTOPostCou
 }
 
 // WithPayload adds the payload to the update m t o post counseling information precondition failed response
-func (o *UpdateMTOPostCounselingInformationPreconditionFailed) WithPayload(payload *primemessages.Error) *UpdateMTOPostCounselingInformationPreconditionFailed {
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) WithPayload(payload *primemessages.ClientError) *UpdateMTOPostCounselingInformationPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o post counseling information precondition failed response
-func (o *UpdateMTOPostCounselingInformationPreconditionFailed) SetPayload(payload *primemessages.Error) {
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 

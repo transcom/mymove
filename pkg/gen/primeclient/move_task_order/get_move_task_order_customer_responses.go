@@ -171,20 +171,20 @@ func NewGetMoveTaskOrderCustomerNotFound() *GetMoveTaskOrderCustomerNotFound {
 The requested resource wasn't found.
 */
 type GetMoveTaskOrderCustomerNotFound struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *GetMoveTaskOrderCustomerNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/customer][%d] getMoveTaskOrderCustomerNotFound  %+v", 404, o.Payload)
 }
 
-func (o *GetMoveTaskOrderCustomerNotFound) GetPayload() *primemessages.Error {
+func (o *GetMoveTaskOrderCustomerNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderCustomerNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

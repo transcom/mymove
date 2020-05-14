@@ -69,7 +69,7 @@ type UpdateMTOShipmentBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentBadRequest creates UpdateMTOShipmentBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdateMTOShipmentBadRequest() *UpdateMTOShipmentBadRequest {
 }
 
 // WithPayload adds the payload to the update m t o shipment bad request response
-func (o *UpdateMTOShipmentBadRequest) WithPayload(payload *primemessages.Error) *UpdateMTOShipmentBadRequest {
+func (o *UpdateMTOShipmentBadRequest) WithPayload(payload *primemessages.ClientError) *UpdateMTOShipmentBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o shipment bad request response
-func (o *UpdateMTOShipmentBadRequest) SetPayload(payload *primemessages.Error) {
+func (o *UpdateMTOShipmentBadRequest) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -197,7 +197,7 @@ type UpdateMTOShipmentNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentNotFound creates UpdateMTOShipmentNotFound with default headers values
@@ -207,13 +207,13 @@ func NewUpdateMTOShipmentNotFound() *UpdateMTOShipmentNotFound {
 }
 
 // WithPayload adds the payload to the update m t o shipment not found response
-func (o *UpdateMTOShipmentNotFound) WithPayload(payload *primemessages.Error) *UpdateMTOShipmentNotFound {
+func (o *UpdateMTOShipmentNotFound) WithPayload(payload *primemessages.ClientError) *UpdateMTOShipmentNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o shipment not found response
-func (o *UpdateMTOShipmentNotFound) SetPayload(payload *primemessages.Error) {
+func (o *UpdateMTOShipmentNotFound) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -241,7 +241,7 @@ type UpdateMTOShipmentPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentPreconditionFailed creates UpdateMTOShipmentPreconditionFailed with default headers values
@@ -251,13 +251,13 @@ func NewUpdateMTOShipmentPreconditionFailed() *UpdateMTOShipmentPreconditionFail
 }
 
 // WithPayload adds the payload to the update m t o shipment precondition failed response
-func (o *UpdateMTOShipmentPreconditionFailed) WithPayload(payload *primemessages.Error) *UpdateMTOShipmentPreconditionFailed {
+func (o *UpdateMTOShipmentPreconditionFailed) WithPayload(payload *primemessages.ClientError) *UpdateMTOShipmentPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o shipment precondition failed response
-func (o *UpdateMTOShipmentPreconditionFailed) SetPayload(payload *primemessages.Error) {
+func (o *UpdateMTOShipmentPreconditionFailed) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 

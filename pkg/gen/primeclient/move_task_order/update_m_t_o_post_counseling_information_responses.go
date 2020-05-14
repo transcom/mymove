@@ -181,20 +181,20 @@ func NewUpdateMTOPostCounselingInformationNotFound() *UpdateMTOPostCounselingInf
 The requested resource wasn't found.
 */
 type UpdateMTOPostCounselingInformationNotFound struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *UpdateMTOPostCounselingInformationNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationNotFound  %+v", 404, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationNotFound) GetPayload() *primemessages.Error {
+func (o *UpdateMTOPostCounselingInformationNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -214,20 +214,20 @@ func NewUpdateMTOPostCounselingInformationPreconditionFailed() *UpdateMTOPostCou
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
 type UpdateMTOPostCounselingInformationPreconditionFailed struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationPreconditionFailed) GetPayload() *primemessages.Error {
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

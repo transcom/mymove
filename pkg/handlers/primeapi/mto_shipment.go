@@ -173,12 +173,12 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		case services.InvalidInputError:
 			payload := payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors)
 			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
-			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		default:
 			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError()
 		}

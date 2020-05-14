@@ -153,7 +153,7 @@ type GetMoveTaskOrderCustomerNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewGetMoveTaskOrderCustomerNotFound creates GetMoveTaskOrderCustomerNotFound with default headers values
@@ -163,13 +163,13 @@ func NewGetMoveTaskOrderCustomerNotFound() *GetMoveTaskOrderCustomerNotFound {
 }
 
 // WithPayload adds the payload to the get move task order customer not found response
-func (o *GetMoveTaskOrderCustomerNotFound) WithPayload(payload *primemessages.Error) *GetMoveTaskOrderCustomerNotFound {
+func (o *GetMoveTaskOrderCustomerNotFound) WithPayload(payload *primemessages.ClientError) *GetMoveTaskOrderCustomerNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move task order customer not found response
-func (o *GetMoveTaskOrderCustomerNotFound) SetPayload(payload *primemessages.Error) {
+func (o *GetMoveTaskOrderCustomerNotFound) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 

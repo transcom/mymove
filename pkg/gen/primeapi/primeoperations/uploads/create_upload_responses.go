@@ -69,7 +69,7 @@ type CreateUploadBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateUploadBadRequest creates CreateUploadBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewCreateUploadBadRequest() *CreateUploadBadRequest {
 }
 
 // WithPayload adds the payload to the create upload bad request response
-func (o *CreateUploadBadRequest) WithPayload(payload *primemessages.Error) *CreateUploadBadRequest {
+func (o *CreateUploadBadRequest) WithPayload(payload *primemessages.ClientError) *CreateUploadBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create upload bad request response
-func (o *CreateUploadBadRequest) SetPayload(payload *primemessages.Error) {
+func (o *CreateUploadBadRequest) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -197,7 +197,7 @@ type CreateUploadNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateUploadNotFound creates CreateUploadNotFound with default headers values
@@ -207,13 +207,13 @@ func NewCreateUploadNotFound() *CreateUploadNotFound {
 }
 
 // WithPayload adds the payload to the create upload not found response
-func (o *CreateUploadNotFound) WithPayload(payload *primemessages.Error) *CreateUploadNotFound {
+func (o *CreateUploadNotFound) WithPayload(payload *primemessages.ClientError) *CreateUploadNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create upload not found response
-func (o *CreateUploadNotFound) SetPayload(payload *primemessages.Error) {
+func (o *CreateUploadNotFound) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 

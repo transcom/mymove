@@ -67,9 +67,9 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 		logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(err))
 		switch err.(type) {
 		case services.NotFoundError:
-			return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		case services.InvalidInputError:
-			return mtoserviceitemops.NewCreateMTOServiceItemBadRequest().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoserviceitemops.NewCreateMTOServiceItemBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
 		default:
 			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
 		}

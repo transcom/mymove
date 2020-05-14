@@ -72,7 +72,7 @@ type FetchMTOUpdatesBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewFetchMTOUpdatesBadRequest creates FetchMTOUpdatesBadRequest with default headers values
@@ -82,13 +82,13 @@ func NewFetchMTOUpdatesBadRequest() *FetchMTOUpdatesBadRequest {
 }
 
 // WithPayload adds the payload to the fetch m t o updates bad request response
-func (o *FetchMTOUpdatesBadRequest) WithPayload(payload *primemessages.Error) *FetchMTOUpdatesBadRequest {
+func (o *FetchMTOUpdatesBadRequest) WithPayload(payload *primemessages.ClientError) *FetchMTOUpdatesBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fetch m t o updates bad request response
-func (o *FetchMTOUpdatesBadRequest) SetPayload(payload *primemessages.Error) {
+func (o *FetchMTOUpdatesBadRequest) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -200,7 +200,7 @@ type FetchMTOUpdatesNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewFetchMTOUpdatesNotFound creates FetchMTOUpdatesNotFound with default headers values
@@ -210,13 +210,13 @@ func NewFetchMTOUpdatesNotFound() *FetchMTOUpdatesNotFound {
 }
 
 // WithPayload adds the payload to the fetch m t o updates not found response
-func (o *FetchMTOUpdatesNotFound) WithPayload(payload *primemessages.Error) *FetchMTOUpdatesNotFound {
+func (o *FetchMTOUpdatesNotFound) WithPayload(payload *primemessages.ClientError) *FetchMTOUpdatesNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fetch m t o updates not found response
-func (o *FetchMTOUpdatesNotFound) SetPayload(payload *primemessages.Error) {
+func (o *FetchMTOUpdatesNotFound) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
