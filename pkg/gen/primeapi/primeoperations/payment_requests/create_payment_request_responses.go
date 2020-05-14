@@ -104,7 +104,7 @@ func (o *CreatePaymentRequestBadRequest) WriteResponse(rw http.ResponseWriter, p
 // CreatePaymentRequestUnauthorizedCode is the HTTP code returned for type CreatePaymentRequestUnauthorized
 const CreatePaymentRequestUnauthorizedCode int = 401
 
-/*CreatePaymentRequestUnauthorized The request was unauthorized.
+/*CreatePaymentRequestUnauthorized The request was denied.
 
 swagger:response createPaymentRequestUnauthorized
 */
@@ -113,7 +113,7 @@ type CreatePaymentRequestUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewCreatePaymentRequestUnauthorized creates CreatePaymentRequestUnauthorized with default headers values
@@ -123,13 +123,13 @@ func NewCreatePaymentRequestUnauthorized() *CreatePaymentRequestUnauthorized {
 }
 
 // WithPayload adds the payload to the create payment request unauthorized response
-func (o *CreatePaymentRequestUnauthorized) WithPayload(payload interface{}) *CreatePaymentRequestUnauthorized {
+func (o *CreatePaymentRequestUnauthorized) WithPayload(payload *primemessages.Error) *CreatePaymentRequestUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create payment request unauthorized response
-func (o *CreatePaymentRequestUnauthorized) SetPayload(payload interface{}) {
+func (o *CreatePaymentRequestUnauthorized) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -137,16 +137,18 @@ func (o *CreatePaymentRequestUnauthorized) SetPayload(payload interface{}) {
 func (o *CreatePaymentRequestUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // CreatePaymentRequestForbiddenCode is the HTTP code returned for type CreatePaymentRequestForbidden
 const CreatePaymentRequestForbiddenCode int = 403
 
-/*CreatePaymentRequestForbidden The client doesn't have permissions to perform the request.
+/*CreatePaymentRequestForbidden The request was denied.
 
 swagger:response createPaymentRequestForbidden
 */
@@ -155,7 +157,7 @@ type CreatePaymentRequestForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewCreatePaymentRequestForbidden creates CreatePaymentRequestForbidden with default headers values
@@ -165,13 +167,13 @@ func NewCreatePaymentRequestForbidden() *CreatePaymentRequestForbidden {
 }
 
 // WithPayload adds the payload to the create payment request forbidden response
-func (o *CreatePaymentRequestForbidden) WithPayload(payload interface{}) *CreatePaymentRequestForbidden {
+func (o *CreatePaymentRequestForbidden) WithPayload(payload *primemessages.Error) *CreatePaymentRequestForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create payment request forbidden response
-func (o *CreatePaymentRequestForbidden) SetPayload(payload interface{}) {
+func (o *CreatePaymentRequestForbidden) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -179,9 +181,11 @@ func (o *CreatePaymentRequestForbidden) SetPayload(payload interface{}) {
 func (o *CreatePaymentRequestForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 

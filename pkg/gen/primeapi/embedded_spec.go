@@ -67,16 +67,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -148,16 +142,10 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -218,16 +206,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -336,16 +318,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -399,16 +375,10 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "description": "The requested resource wasn't found.",
@@ -466,16 +436,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -1726,25 +1690,25 @@ func init() {
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {
-        "$ref": "#/definitions/ClientError"
+        "$ref": "#/definitions/Error"
       }
     },
     "NotFound": {
       "description": "The requested resource wasn't found.",
       "schema": {
-        "$ref": "#/definitions/ClientError"
+        "$ref": "#/definitions/Error"
       }
     },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
-        "$ref": "#/definitions/ClientError"
+        "$ref": "#/definitions/Error"
       }
     },
     "PreconditionFailed": {
       "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
-        "$ref": "#/definitions/ClientError"
+        "$ref": "#/definitions/Error"
       }
     },
     "ServerError": {
@@ -1810,31 +1774,25 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
@@ -1907,33 +1865,27 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
@@ -1994,31 +1946,25 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
@@ -2069,13 +2015,13 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
@@ -2142,37 +2088,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
@@ -2227,21 +2167,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -2305,31 +2239,25 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/ClientError"
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
@@ -3581,25 +3509,25 @@ func init() {
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {
-        "$ref": "#/definitions/ClientError"
+        "$ref": "#/definitions/Error"
       }
     },
     "NotFound": {
       "description": "The requested resource wasn't found.",
       "schema": {
-        "$ref": "#/definitions/ClientError"
+        "$ref": "#/definitions/Error"
       }
     },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
-        "$ref": "#/definitions/ClientError"
+        "$ref": "#/definitions/Error"
       }
     },
     "PreconditionFailed": {
       "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
-        "$ref": "#/definitions/ClientError"
+        "$ref": "#/definitions/Error"
       }
     },
     "ServerError": {

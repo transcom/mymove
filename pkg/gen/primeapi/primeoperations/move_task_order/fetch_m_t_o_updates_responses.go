@@ -107,7 +107,7 @@ func (o *FetchMTOUpdatesBadRequest) WriteResponse(rw http.ResponseWriter, produc
 // FetchMTOUpdatesUnauthorizedCode is the HTTP code returned for type FetchMTOUpdatesUnauthorized
 const FetchMTOUpdatesUnauthorizedCode int = 401
 
-/*FetchMTOUpdatesUnauthorized The request was unauthorized.
+/*FetchMTOUpdatesUnauthorized The request was denied.
 
 swagger:response fetchMTOUpdatesUnauthorized
 */
@@ -116,7 +116,7 @@ type FetchMTOUpdatesUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewFetchMTOUpdatesUnauthorized creates FetchMTOUpdatesUnauthorized with default headers values
@@ -126,13 +126,13 @@ func NewFetchMTOUpdatesUnauthorized() *FetchMTOUpdatesUnauthorized {
 }
 
 // WithPayload adds the payload to the fetch m t o updates unauthorized response
-func (o *FetchMTOUpdatesUnauthorized) WithPayload(payload interface{}) *FetchMTOUpdatesUnauthorized {
+func (o *FetchMTOUpdatesUnauthorized) WithPayload(payload *primemessages.Error) *FetchMTOUpdatesUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fetch m t o updates unauthorized response
-func (o *FetchMTOUpdatesUnauthorized) SetPayload(payload interface{}) {
+func (o *FetchMTOUpdatesUnauthorized) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -140,16 +140,18 @@ func (o *FetchMTOUpdatesUnauthorized) SetPayload(payload interface{}) {
 func (o *FetchMTOUpdatesUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // FetchMTOUpdatesForbiddenCode is the HTTP code returned for type FetchMTOUpdatesForbidden
 const FetchMTOUpdatesForbiddenCode int = 403
 
-/*FetchMTOUpdatesForbidden The client doesn't have permissions to perform the request.
+/*FetchMTOUpdatesForbidden The request was denied.
 
 swagger:response fetchMTOUpdatesForbidden
 */
@@ -158,7 +160,7 @@ type FetchMTOUpdatesForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewFetchMTOUpdatesForbidden creates FetchMTOUpdatesForbidden with default headers values
@@ -168,13 +170,13 @@ func NewFetchMTOUpdatesForbidden() *FetchMTOUpdatesForbidden {
 }
 
 // WithPayload adds the payload to the fetch m t o updates forbidden response
-func (o *FetchMTOUpdatesForbidden) WithPayload(payload interface{}) *FetchMTOUpdatesForbidden {
+func (o *FetchMTOUpdatesForbidden) WithPayload(payload *primemessages.Error) *FetchMTOUpdatesForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fetch m t o updates forbidden response
-func (o *FetchMTOUpdatesForbidden) SetPayload(payload interface{}) {
+func (o *FetchMTOUpdatesForbidden) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -182,9 +184,11 @@ func (o *FetchMTOUpdatesForbidden) SetPayload(payload interface{}) {
 func (o *FetchMTOUpdatesForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 

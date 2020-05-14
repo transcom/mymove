@@ -151,24 +151,26 @@ func NewUpdateMTOShipmentUnauthorized() *UpdateMTOShipmentUnauthorized {
 
 /*UpdateMTOShipmentUnauthorized handles this case with default header values.
 
-The request was unauthorized.
+The request was denied.
 */
 type UpdateMTOShipmentUnauthorized struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOShipmentUnauthorized) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *UpdateMTOShipmentUnauthorized) GetPayload() interface{} {
+func (o *UpdateMTOShipmentUnauthorized) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -182,24 +184,26 @@ func NewUpdateMTOShipmentForbidden() *UpdateMTOShipmentForbidden {
 
 /*UpdateMTOShipmentForbidden handles this case with default header values.
 
-The client doesn't have permissions to perform the request.
+The request was denied.
 */
 type UpdateMTOShipmentForbidden struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOShipmentForbidden) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentForbidden  %+v", 403, o.Payload)
 }
 
-func (o *UpdateMTOShipmentForbidden) GetPayload() interface{} {
+func (o *UpdateMTOShipmentForbidden) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
