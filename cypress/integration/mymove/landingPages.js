@@ -63,7 +63,8 @@ function ppmPaymentRequested(userId) {
   cy.setFeatureFlag('ppmPaymentRequest=false', '/');
   cy.contains('Handle your own move (PPM)');
   cy.contains('Edit Payment Request');
-  cy.contains('Estimated payment');
+  cy.contains('Estimated');
+  cy.contains('Submitted');
   cy.logout();
 }
 
