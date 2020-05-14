@@ -15,7 +15,7 @@
     "eslint-plugin-security": "^1.4.0",
     "filepond-plugin-file-validate-size": "^2.2.1",
     "filepond-plugin-file-validate-type": "^1.2.5",
-    "filepond-plugin-image-exif-orientation": "^1.0.8",
+    "filepond-plugin-image-exif-orientation": "^1.0.9",
     "filepond-plugin-image-preview": "https://github.com/transcom/filepond-plugin-image-preview",
     "filepond-polyfill": "^1.0.2",
     "formik": "^2.1.4",
