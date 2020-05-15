@@ -12,13 +12,17 @@ export const officeAppName = 'office';
 
 // User Types
 export const milmoveUserType = 'milmove';
-export const officeUserType = 'office';
+export const PPMOfficeUserType = 'PPM office';
+export const TOOOfficeUserType = 'TOO office';
+export const TIOOfficeUserType = 'TIO office';
 export const dpsUserType = 'dps';
 
 // User Types to Base URLs
 /* eslint-disable security/detect-object-injection */
 export const userTypeToBaseURL = {};
 userTypeToBaseURL[milmoveUserType] = milmoveBaseURL;
-userTypeToBaseURL[officeUserType] = officeBaseURL;
+userTypeToBaseURL[PPMOfficeUserType] = officeBaseURL;
+userTypeToBaseURL[TOOOfficeUserType] = officeBaseURL;
+userTypeToBaseURL[TIOOfficeUserType] = officeBaseURL;
 userTypeToBaseURL[dpsUserType] = milmoveBaseURL;
 /* eslint-enable security/detect-object-injection */

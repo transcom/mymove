@@ -5,7 +5,9 @@ import {
   milmoveAppName,
   officeAppName,
   milmoveUserType,
-  officeUserType,
+  PPMOfficeUserType,
+  TOOOfficeUserType,
+  TIOOfficeUserType,
   dpsUserType,
   userTypeToBaseURL,
   longPageLoadTimeout,
@@ -59,8 +61,18 @@ Cypress.Commands.add('signInAsNewMilMoveUser', () => {
 });
 
 Cypress.Commands.add('signInAsNewOfficeUser', () => {
-  cy.signInAsNewUser(officeUserType);
+  cy.signInAsNewUser(PPMOfficeUserType);
   cy.url().should('eq', officeBaseURL + '/queues/new');
+});
+
+Cypress.Commands.add('signInAsNewTOOUser', () => {
+  cy.signInAsNewUser(TOOOfficeUserType);
+  cy.url().should('eq', officeBaseURL + '/moves/queue');
+});
+
+Cypress.Commands.add('signInAsNewTIOUser', () => {
+  cy.signInAsNewUser(TIOOfficeUserType);
+  cy.url().should('eq', officeBaseURL + '/invoicing/queue');
 });
 
 Cypress.Commands.add('signInAsNewDPSUser', () => {

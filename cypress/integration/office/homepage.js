@@ -5,15 +5,12 @@ describe('Office Home Page', function () {
   beforeEach(() => {
     cy.setupBaseUrl(officeAppName);
   });
-  it('creates new devlocal user', function () {
-    cy.signInAsNewOfficeUser();
-  });
   it('successfully loads when not logged in', function () {
     cy.logout();
     officeUserIsOnSignInPage();
   });
   it('open accepted shipments queue and see moves', function () {
-    cy.signIntoOffice();
+    cy.signInAsNewOfficeUser();
     officeAllMoves();
   });
   it('office user can use a single click to view move info', function () {
@@ -25,14 +22,24 @@ describe('Office Home Page', function () {
 });
 
 describe('Office authorization', () => {
-  it('redirects TOO to TOO queue', () => {});
+  it('redirects TOO to TOO homepage', () => {
+    cy.signInAsNewTOOUser();
+  });
+
+  it('redirects TIO to TIO homepage', () => {
+    cy.signInAsNewTIOUser();
+  });
+
+  it('redirects PPM office user to old office queue', () => {
+    cy.signInAsNewOfficeUser();
+  });
 });
 
 describe('Queue staleness indicator', () => {
   it('displays the correct time ago text', () => {
     cy.clock();
     cy.setupBaseUrl(officeAppName);
-    cy.signIntoOffice();
+    cy.signInAsNewOfficeUser();
     cy.patientVisit('/queues/all');
 
     cy.get('[data-cy=staleness-indicator]').should('have.text', 'Last updated a few seconds ago');
