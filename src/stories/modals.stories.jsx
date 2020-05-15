@@ -3,6 +3,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 
 import { storiesOf } from '@storybook/react';
+import { action } from '@storybook/addon-actions';
 
 import { Modal, Button } from '@trussworks/react-uswds';
 import { Form } from '../components/form';
@@ -24,14 +25,16 @@ storiesOf('Components|Modals', module)
           validationSchema={Yup.object({
             rejectionReason: Yup.string().min(15, 'Must be 15 characters or more').required('Required'),
           })}
+          onSubmit={action('Form Submit')}
+          onReset={action('Form Canceled')}
         >
           <Form>
             <TextInput name="rejectionReason" label="Reason for rejection" type="text" />
           </Form>
         </Formik>
         <div className="display-flex">
-          <Button type="button">Confirm</Button>
-          <Button secondary type="button">
+          <Button type="submit">Confirm</Button>
+          <Button secondary type="reset">
             Cancel
           </Button>
         </div>
