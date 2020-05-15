@@ -218,37 +218,11 @@ storiesOf('Components|Tables', module)
       <div className="sb-section-wrapper">
         <div className="sb-table-wrapper">
           <code>data-point</code>
-          <table className="table--data-point">
-            <thead className="table--small">
-              <tr>
-                <th>Label</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Table Cell Content</td>
-              </tr>
-            </tbody>
-          </table>
+          <DataPoint header="Receiving agent" body={dataPointBody} />
         </div>
         <div className="sb-table-wrapper">
           <code>data-pair</code>
-          <div className="table--data-pair">
-            <table className="table--data-point">
-              <thead className="table--small">
-                <tr>
-                  <th>Label</th>
-                  <th>Label</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Table Cell Content</td>
-                  <td>Table Cell Content</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <DataPair />
         </div>
       </div>
     </div>
