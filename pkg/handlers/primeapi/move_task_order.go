@@ -76,7 +76,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(mtoID, params.Body, eTag)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
-		switch err.(type) {
+		switch e := err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound().WithPayload(
 				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
@@ -85,7 +85,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		case services.InvalidInputError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
-				payloads.ValidationError(err.Error(), h.GetTraceID(), nil))
+				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
 		default:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError()
 		}
