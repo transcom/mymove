@@ -7,12 +7,15 @@ import { getClient } from 'shared/Swagger/api';
 import { selectEntitlements } from 'shared/entitlements.js';
 import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
+import { getGHCClient } from 'shared/Swagger/api';
+import { filter } from 'lodash';
 
 export const STATE_KEY = 'moves';
 const approveBasicsLabel = 'Moves.ApproveBasics';
 const cancelMoveLabel = 'Moves.CancelMove';
 export const loadMoveLabel = 'Moves.loadMove';
 export const getMoveDatesSummaryLabel = 'Moves.getMoveDatesSummary';
+export const getMoveByLocatorOperation = 'move.getMove';
 
 export default function reducer(state = {}, action) {
   switch (action.type) {
@@ -25,6 +28,15 @@ export default function reducer(state = {}, action) {
     default:
       return state;
   }
+}
+
+export function getMoveByLocator(locator, label = getMoveByLocatorOperation) {
+  return swaggerRequest(getGHCClient, getMoveByLocatorOperation, { locator }, { label });
+}
+
+export function selectMoveByLocator(state, locator) {
+  const moves = filter(state.entities.moves, (move) => move.locator === locator);
+  return moves[0];
 }
 
 export function loadMove(moveId, label = loadMoveLabel) {
