@@ -26,7 +26,6 @@ func MakePaymentServiceItem(db *pop.Connection, assertions Assertions) models.Pa
 		MTOServiceItem:   mtoServiceItem,
 		MTOServiceItemID: mtoServiceItem.ID,
 		Status:           models.PaymentServiceItemStatusRequested,
-		PriceCents:       0,
 		RequestedAt:      time.Now(),
 	}
 

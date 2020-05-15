@@ -37,7 +37,7 @@ type PaymentServiceItem struct {
 	PaymentServiceItemParams PaymentServiceItemParams `json:"paymentServiceItemParams,omitempty"`
 
 	// Price of the service item in cents
-	PriceCents int64 `json:"priceCents,omitempty"`
+	PriceCents *int64 `json:"priceCents,omitempty"`
 
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`

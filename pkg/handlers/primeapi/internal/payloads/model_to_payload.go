@@ -263,16 +263,21 @@ func PaymentServiceItem(paymentServiceItem *models.PaymentServiceItem) *primemes
 
 	paymentServiceItemParams := PaymentServiceItemParams(&paymentServiceItem.PaymentServiceItemParams)
 
-	return &primemessages.PaymentServiceItem{
+	payload := &primemessages.PaymentServiceItem{
 		ID:                       strfmt.UUID(paymentServiceItem.ID.String()),
 		PaymentRequestID:         strfmt.UUID(paymentServiceItem.PaymentRequestID.String()),
 		MtoServiceItemID:         strfmt.UUID(paymentServiceItem.MTOServiceItemID.String()),
 		Status:                   primemessages.PaymentServiceItemStatus(paymentServiceItem.Status),
-		PriceCents:               int64(paymentServiceItem.PriceCents),
 		RejectionReason:          paymentServiceItem.RejectionReason,
 		PaymentServiceItemParams: *paymentServiceItemParams,
 		ETag:                     etag.GenerateEtag(paymentServiceItem.UpdatedAt),
 	}
+
+	if paymentServiceItem.PriceCents != nil {
+		payload.PriceCents = swag.Int64(int64(*paymentServiceItem.PriceCents))
+	}
+
+	return payload
 }
 
 // PaymentServiceItems payload

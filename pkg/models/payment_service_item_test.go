@@ -12,13 +12,15 @@ import (
 )
 
 func (suite *ModelSuite) TestPaymentServiceItemValidation() {
+	cents := unit.Cents(1000)
+
 	suite.T().Run("test valid PaymentServiceItem", func(t *testing.T) {
 		validPaymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: uuid.Must(uuid.NewV4()),
 			MTOServiceItemID: uuid.Must(uuid.NewV4()), //MTO Service Item
 			Status:           "REQUESTED",
 			RequestedAt:      time.Now(),
-			PriceCents:       unit.Cents(1000),
+			PriceCents:       &cents,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validPaymentServiceItem, expErrors)
@@ -32,8 +34,6 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 			"m_t_os_ervice_item_id": {"MTOServiceItemID can not be blank."},
 			"status":                {"Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID]."},
 			"requested_at":          {"RequestedAt can not be blank."},
-			// TODO: Removing this until we have pricing to populate
-			// "price_cents":        {"PriceCents can not be blank.", "0 is not greater than 0."},
 		}
 
 		suite.verifyValidationErrors(&invalidPaymentServiceItem, expErrors)
@@ -45,7 +45,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 			MTOServiceItemID: uuid.Must(uuid.NewV4()), //MTO Service Item
 			Status:           "Sleeping",
 			RequestedAt:      time.Now(),
-			PriceCents:       unit.Cents(1000),
+			PriceCents:       &cents,
 		}
 		expErrors := map[string][]string{
 			"status": {"Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID]."},

@@ -46,7 +46,7 @@ type PaymentServiceItem struct {
 	PaymentRequestID uuid.UUID                `json:"payment_request_id" db:"payment_request_id"`
 	MTOServiceItemID uuid.UUID                `json:"mto_service_item_id" db:"mto_service_item_id"`
 	Status           PaymentServiceItemStatus `json:"status" db:"status"`
-	PriceCents       unit.Cents               `json:"price_cents" db:"price_cents"`
+	PriceCents       *unit.Cents              `json:"price_cents" db:"price_cents"`
 	RejectionReason  *string                  `json:"rejection_reason" db:"rejection_reason"`
 	RequestedAt      time.Time                `json:"requested_at" db:"requested_at"`
 	ApprovedAt       *time.Time               `json:"approved_at" db:"approved_at"`
@@ -72,8 +72,5 @@ func (p *PaymentServiceItem) Validate(tx *pop.Connection) (*validate.Errors, err
 		&validators.UUIDIsPresent{Field: p.MTOServiceItemID, Name: "MTOServiceItemID"},
 		&validators.StringInclusion{Field: p.Status.String(), Name: "Status", List: validPaymentServiceItemStatus},
 		&validators.TimeIsPresent{Field: p.RequestedAt, Name: "RequestedAt"},
-		// TODO: Removing this until we have pricing to populate
-		// &validators.IntIsPresent{Field: p.PriceCents.Int(), Name: "PriceCents"},
-		// &validators.IntIsGreaterThan{Field: p.PriceCents.Int(), Name: "PriceCents", Compared: 0},
 	), nil
 }
