@@ -7,7 +7,6 @@ import { formatCents } from 'shared/formatters';
 import { change } from 'redux-form';
 
 // Types
-const CLEAR_SIT_ESTIMATE = 'CLEAR_SIT_ESTIMATE';
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
 export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_SIT_ESTIMATE');
@@ -24,10 +23,6 @@ export function getPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightE
       .then((item) => dispatch(action.success(item)))
       .catch((error) => dispatch(action.error(error)));
   };
-}
-
-export function clearPpmSitEstimate() {
-  return { type: CLEAR_SIT_ESTIMATE };
 }
 
 export function setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode) {
@@ -223,14 +218,6 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateError: true,
         hasEstimateInProgress: false,
         rateEngineError: action.error,
-      });
-    case CLEAR_SIT_ESTIMATE:
-      return Object.assign({}, state, {
-        sitReimbursement: null,
-        hasEstimateSuccess: true,
-        hasEstimateError: false,
-        hasEstimateInProgress: false,
-        rateEngineError: null,
       });
     default:
       return state;
