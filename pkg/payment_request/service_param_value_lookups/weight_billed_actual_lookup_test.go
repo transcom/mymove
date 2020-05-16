@@ -83,6 +83,38 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		suite.Equal("1359", valueStr)
 	})
 
+	// Setup data for testing all minimums
+	serviceCodesWithMinimum := []struct {
+		code            models.ReServiceCode
+		actualWeight    unit.Pound
+		expectedMinimum string
+	}{
+		{models.ReServiceCodeDLH, unit.Pound(450), "500"},
+		{models.ReServiceCodeDSH, unit.Pound(450), "500"},
+		{models.ReServiceCodeDOP, unit.Pound(450), "500"},
+		{models.ReServiceCodeDDP, unit.Pound(450), "500"},
+		{models.ReServiceCodeDOFSIT, unit.Pound(450), "500"},
+		{models.ReServiceCodeDDFSIT, unit.Pound(450), "500"},
+		{models.ReServiceCodeDOASIT, unit.Pound(450), "500"},
+		{models.ReServiceCodeDDASIT, unit.Pound(450), "500"},
+		{models.ReServiceCodeDOPSIT, unit.Pound(450), "500"},
+		{models.ReServiceCodeDDDSIT, unit.Pound(450), "500"},
+		{models.ReServiceCodeDPK, unit.Pound(450), "500"},
+		{models.ReServiceCodeDUPK, unit.Pound(450), "500"},
+	}
+
+	// test minimums are correct
+	for _, data := range serviceCodesWithMinimum {
+		suite.T().Run(fmt.Sprintf("actual below minimum service code %s", data.code), func(t *testing.T) {
+			// Set the actual weight to below minimum
+			_, _, paramLookup := suite.setupTest(unit.Pound(1234), data.actualWeight, data.code)
+
+			valueStr, err := paramLookup.ServiceParamValue(key)
+			suite.FatalNoError(err)
+			suite.Equal(data.expectedMinimum, valueStr)
+		})
+	}
+
 	suite.T().Run("nil_PrimeActualWeight", func(t *testing.T) {
 		// Set the actual weight to nil
 		mtoServiceItem, _, paramLookup := suite.setupTest(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH)

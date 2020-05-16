@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // WeightBilledActualLookup does lookup on actual weight billed
@@ -24,7 +25,7 @@ func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (stri
 	// Get the MTOServiceItem and associated MTOShipment
 	mtoServiceItemID := keyData.MTOServiceItemID
 	var mtoServiceItem models.MTOServiceItem
-	err := db.Eager("MTOShipment").Find(&mtoServiceItem, mtoServiceItemID)
+	err := db.Eager("ReService", "MTOShipment").Find(&mtoServiceItem, mtoServiceItemID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -57,9 +58,42 @@ func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (stri
 	estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
 	if float64(*actualWeight) > estimatedWeightCap {
 		value = fmt.Sprintf("%d", int(estimatedWeightCap))
+	} else if fiveHundredMinimumApplies(mtoServiceItem.ReService.Code, *actualWeight) {
+		value = "500"
 	} else {
 		value = fmt.Sprintf("%d", int(*actualWeight))
 	}
 
 	return value, nil
+}
+
+func fiveHundredMinimumApplies(code models.ReServiceCode, actual unit.Pound) bool {
+	switch code {
+	case models.ReServiceCodeDLH:
+		return int(actual) < 500
+	case models.ReServiceCodeDSH:
+		return int(actual) < 500
+	case models.ReServiceCodeDOP:
+		return int(actual) < 500
+	case models.ReServiceCodeDDP:
+		return int(actual) < 500
+	case models.ReServiceCodeDOFSIT:
+		return int(actual) < 500
+	case models.ReServiceCodeDDFSIT:
+		return int(actual) < 500
+	case models.ReServiceCodeDOASIT:
+		return int(actual) < 500
+	case models.ReServiceCodeDDASIT:
+		return int(actual) < 500
+	case models.ReServiceCodeDOPSIT:
+		return int(actual) < 500
+	case models.ReServiceCodeDDDSIT:
+		return int(actual) < 500
+	case models.ReServiceCodeDPK:
+		return int(actual) < 500
+	case models.ReServiceCodeDUPK:
+		return int(actual) < 500
+	default:
+		return false
+	}
 }
