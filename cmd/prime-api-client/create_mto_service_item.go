@@ -18,8 +18,24 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-type getType struct {
+type getTypeBody struct {
 	ModelType primemessages.MTOServiceItemModelType `json:"modelType"`
+}
+type getType struct {
+	Body getTypeBody `json:"body"`
+}
+
+type dOFSITParams struct {
+	Body primemessages.MTOServiceItemDOFSIT `json:"body"`
+}
+type dDFSITParams struct {
+	Body primemessages.MTOServiceItemDDFSIT `json:"body"`
+}
+type domesticCratingParams struct {
+	Body primemessages.MTOServiceItemDomesticCrating `json:"body"`
+}
+type shuttleParams struct {
+	Body primemessages.MTOServiceItemShuttle `json:"body"`
 }
 
 // initCreateMTOServiceItemFlags initializes flags.
@@ -65,15 +81,6 @@ func getJSONDecoder(reader *bufio.Reader) *json.Decoder {
 	return json.NewDecoder(reader)
 }
 
-// decodeServiceItem will decode the json into a mto service item type.
-func decodeServiceItem(subType primemessages.MTOServiceItem, jsonDecoder *json.Decoder) (primemessages.MTOServiceItem, error) {
-	err := jsonDecoder.Decode(&subType)
-	if err != nil {
-		return nil, fmt.Errorf("second decoding data failed: %w", err)
-	}
-	return subType, nil
-}
-
 // CreateMTOServiceItem creates the mto service item for a MTO and/or MTOShipment
 func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 	v := viper.New()
@@ -114,21 +121,26 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("first decoding data failed: %w", err)
 	}
 
-	// reset decoder to read from beginning
-	jsonDecoder = getJSONDecoder(getFileReader(filename, args, logger))
-
 	// once decoded, we can type cast into a more specific model type
 	// then decode a second time into subtype
-	var serviceItem primemessages.MTOServiceItem
-	switch gt.ModelType {
+	var serviceItemParams mtoServiceItem.CreateMTOServiceItemParams
+	switch gt.Body.ModelType {
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:
-		serviceItem, err = decodeServiceItem(&primemessages.MTOServiceItemDOFSIT{}, jsonDecoder)
+		var params dOFSITParams
+		err = decodeJSONFileToPayload(filename, containsDash(args), &params)
+		serviceItemParams.SetBody(&params.Body)
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:
-		serviceItem, err = decodeServiceItem(&primemessages.MTOServiceItemDDFSIT{}, jsonDecoder)
+		var params dDFSITParams
+		err = decodeJSONFileToPayload(filename, containsDash(args), &params)
+		serviceItemParams.SetBody(&params.Body)
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
-		serviceItem, err = decodeServiceItem(&primemessages.MTOServiceItemDomesticCrating{}, jsonDecoder)
+		var params domesticCratingParams
+		err = decodeJSONFileToPayload(filename, containsDash(args), &params)
+		serviceItemParams.SetBody(&params.Body)
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
-		serviceItem, err = decodeServiceItem(&primemessages.MTOServiceItemShuttle{}, jsonDecoder)
+		var params shuttleParams
+		err = decodeJSONFileToPayload(filename, containsDash(args), &params)
+		serviceItemParams.SetBody(&params.Body)
 	default:
 		err = fmt.Errorf("allowed modelType(): %v", []primemessages.MTOServiceItemModelType{
 			primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT,
@@ -143,14 +155,8 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 	}
 
 	// Let's make a request!
-	params := mtoServiceItem.CreateMTOServiceItemParams{
-		MoveTaskOrderID: serviceItem.MoveTaskOrderID(),
-		MtoShipmentID:   serviceItem.MtoShipmentID(),
-		Body:            serviceItem,
-	}
-	params.SetTimeout(time.Second * 30)
-
-	resp, err := primeGateway.MtoServiceItem.CreateMTOServiceItem(&params)
+	serviceItemParams.SetTimeout(time.Second * 30)
+	resp, err := primeGateway.MtoServiceItem.CreateMTOServiceItem(&serviceItemParams)
 	if err != nil {
 		return handleGatewayError(err, logger)
 	}

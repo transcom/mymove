@@ -22,7 +22,7 @@ function OrdersTable({ ordersInfo }) {
         </colgroup>
         <tbody>
           <tr>
-            <th scope="row">Current Duty Station</th>
+            <th scope="row">Current duty Station</th>
             <td data-cy="currentDutyStation">{ordersInfo.currentDutyStation}</td>
           </tr>
           <tr>
@@ -30,7 +30,7 @@ function OrdersTable({ ordersInfo }) {
             <td data-cy="newDutyStation">{ordersInfo.newDutyStation}</td>
           </tr>
           <tr>
-            <th scope="row">Date issuedc</th>
+            <th scope="row">Date issued</th>
             <td data-cy="issuedDate">{ordersInfo.issuedDate}</td>
           </tr>
           <tr>
@@ -55,11 +55,11 @@ function OrdersTable({ ordersInfo }) {
           </tr>
           <tr>
             <th scope="row">TAC / MDC</th>
-            <td data-cy="tacMDC">{ordersInfo.tacMDC ? ordersInfo.tacMDC : ''}</td>
+            <td data-cy="tacMDC">{ordersInfo.tacMDC}</td>
           </tr>
           <tr>
             <th scope="row">SAC / SDN</th>
-            <td data-cy="sacSDN">{ordersInfo.sacSDN ? ordersInfo.sacSDN : ''}</td>
+            <td data-cy="sacSDN">{ordersInfo.sacSDN}</td>
           </tr>
         </tbody>
       </table>
