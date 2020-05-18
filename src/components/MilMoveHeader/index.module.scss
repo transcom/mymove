@@ -17,6 +17,7 @@
     display: inline-block;
     color: $base-lightest;
     @include u-font-size('body', 'xs');
+    position: relative;
   }
   span {
     @include u-padding-x(3);
@@ -30,7 +31,8 @@
   a {
     @include u-text('bold');
     color: $link-light;
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       color: #b7caf0;
       @include u-text('no-underline');
     }
@@ -42,6 +44,6 @@
     height: 50px;
     display: inline-block;
     position: absolute;
-    top: 0;
+    top: -13px;
   }
 }
