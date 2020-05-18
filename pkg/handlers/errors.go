@@ -58,6 +58,9 @@ func NewValidationErrorListResponse(verrs *validate.Errors) *ValidationErrorList
 	return &ValidationErrorListResponse{Errors: errorList}
 }
 
+// MethodNotAllowedMessage indicates the HTTP method was not supported
+const MethodNotAllowedMessage string = "Method Not Allowed Error"
+
 // ValidationErrorsResponse is a middleware.Responder for a set of validation errors
 type ValidationErrorsResponse struct {
 	Errors map[string]string `json:"errors,omitempty"`
@@ -201,6 +204,8 @@ func ResponseForConflictErrors(logger Logger, err error) middleware.Responder {
 	return newErrResponse(http.StatusConflict, err)
 }
 
+// The  below is to override errors from swagger
+
 // DefaultHTTPCode is used when the error Code cannot be used as an HTTP code.
 var DefaultHTTPCode = http.StatusUnprocessableEntity
 
@@ -210,61 +215,21 @@ type Error interface {
 	Code() int32
 }
 
-type apiError struct {
-	code    int32
-	message string
-}
-
-func (a *apiError) Error() string {
-	return a.message
-}
-
-func (a *apiError) Code() int32 {
-	return a.code
-}
-
-// New creates a new API error with a code and a message
-func New(code int32, message string, args ...interface{}) Error {
-	if len(args) > 0 {
-		return &apiError{code, fmt.Sprintf(message, args...)}
-	}
-	return &apiError{code, message}
-}
-
-// NotFound creates a new not found error
-func NotFound(message string, args ...interface{}) Error {
-	if message == "" {
-		message = "Not found"
-	}
-	return New(http.StatusNotFound, fmt.Sprintf(message, args...))
-}
-
-// NotImplemented creates a new not implemented error
-func NotImplemented(message string) Error {
-	return New(http.StatusNotImplemented, message)
-}
-
-// MethodNotAllowedError represents an error for when the path matches but the method doesn't
-type MethodNotAllowedError struct {
-	code    int32
-	Allowed []string
-	message string
-}
-
-func (m *MethodNotAllowedError) Error() string {
-	return m.message
-}
-
-// Code the error code
-func (m *MethodNotAllowedError) Code() int32 {
-	return m.code
-}
-
 func errorAsJSON(err Error) []byte {
+
+	// Turn Error Code into Error Message
+	var title string
+	switch err.Code() {
+	case http.StatusMethodNotAllowed:
+		title = "Method Not Allowed Error"
+	default:
+		title = "Validation Error"
+	}
+
 	b, _ := json.Marshal(struct {
-		Code    int32  `json:"code"`
-		Message string `json:"message"`
-	}{err.Code(), err.Error()})
+		Title   string `json:"title"`
+		Message string `json:"detail"`
+	}{title, err.Error()})
 	return b
 }
 
@@ -288,27 +253,22 @@ func flattenComposite(errs *openapierrors.CompositeError) *openapierrors.Composi
 	return openapierrors.CompositeValidationError(res...)
 }
 
-// MethodNotAllowed creates a new method not allowed error
-func MethodNotAllowed(requested string, allow []string) Error {
-	msg := fmt.Sprintf("method %s is not allowed, but [%s] are", requested, strings.Join(allow, ","))
-	return &MethodNotAllowedError{code: http.StatusMethodNotAllowed, Allowed: allow, message: msg}
-}
-
-// ServeError the error handler interface implementation
-func ServeError(rw http.ResponseWriter, r *http.Request, err error) {
+// ServeCustomError the error handler interface implementation
+func ServeCustomError(rw http.ResponseWriter, r *http.Request, err error) {
+	fmt.Println("\n\nserving the error from here")
 	rw.Header().Set("Content-Type", "application/json")
 	switch e := err.(type) {
 	case *openapierrors.CompositeError:
 		er := flattenComposite(e)
 		// strips composite errors to first element only
 		if len(er.Errors) > 0 {
-			ServeError(rw, r, er.Errors[0])
+			ServeCustomError(rw, r, er.Errors[0])
 		} else {
 			// guard against empty CompositeError (invalid construct)
-			ServeError(rw, r, nil)
+			ServeCustomError(rw, r, nil)
 		}
-	case *MethodNotAllowedError:
-		rw.Header().Add("Allow", strings.Join(err.(*MethodNotAllowedError).Allowed, ","))
+	case *(openapierrors.MethodNotAllowedError):
+		rw.Header().Add("Allow", strings.Join(err.(*openapierrors.MethodNotAllowedError).Allowed, ","))
 		rw.WriteHeader(asHTTPCode(int(e.Code())))
 		if r == nil || r.Method != http.MethodHead {
 			_, _ = rw.Write(errorAsJSON(e))
@@ -317,7 +277,7 @@ func ServeError(rw http.ResponseWriter, r *http.Request, err error) {
 		value := reflect.ValueOf(e)
 		if value.Kind() == reflect.Ptr && value.IsNil() {
 			rw.WriteHeader(http.StatusInternalServerError)
-			_, _ = rw.Write(errorAsJSON(New(http.StatusInternalServerError, "Unknown error")))
+			_, _ = rw.Write(errorAsJSON(openapierrors.New(http.StatusInternalServerError, "Unknown error")))
 			return
 		}
 		rw.WriteHeader(asHTTPCode(int(e.Code())))
@@ -326,11 +286,11 @@ func ServeError(rw http.ResponseWriter, r *http.Request, err error) {
 		}
 	case nil:
 		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(errorAsJSON(New(http.StatusInternalServerError, "Unknown error")))
+		_, _ = rw.Write(errorAsJSON(openapierrors.New(http.StatusInternalServerError, "Unknown error")))
 	default:
 		rw.WriteHeader(http.StatusInternalServerError)
 		if r == nil || r.Method != http.MethodHead {
-			_, _ = rw.Write(errorAsJSON(New(http.StatusInternalServerError, err.Error())))
+			_, _ = rw.Write(errorAsJSON(openapierrors.New(http.StatusInternalServerError, err.Error())))
 		}
 	}
 }

@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"strings"
 
-	errors "github.com/go-openapi/errors"
 	loads "github.com/go-openapi/loads"
 	runtime "github.com/go-openapi/runtime"
 	middleware "github.com/go-openapi/runtime/middleware"
@@ -18,6 +17,8 @@ import (
 	spec "github.com/go-openapi/spec"
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+
+	errors "github.com/transcom/mymove/pkg/handlers"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
@@ -37,7 +38,7 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		customProducers:       make(map[string]runtime.Producer),
 		ServerShutdown:        func() {},
 		spec:                  spec,
-		ServeError:            errors.ServeError,
+		ServeError:            errors.ServeCustomError,
 		BasicAuthenticator:    security.BasicAuth,
 		APIKeyAuthenticator:   security.APIKeyAuth,
 		BearerAuthenticator:   security.BearerAuth,

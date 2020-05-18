@@ -6,7 +6,7 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/go-openapi/errors"
+	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
 	middleware "github.com/go-openapi/runtime/middleware"
 
@@ -26,7 +26,6 @@ func configureFlags(api *primeoperations.MymoveAPI) {
 
 func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	// configure the api here
-	//api.ServeError = errors.ServeError
 	api.ServeError = errors.ServeError
 
 	// Set your custom logger if needed. Default one is log.Printf
