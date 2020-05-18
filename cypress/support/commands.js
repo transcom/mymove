@@ -85,7 +85,7 @@ Cypress.Commands.add('signIntoMyMoveAsUser', (userId) => {
 });
 
 Cypress.Commands.add('signIntoOfficeAsUser', (userId) => {
-  cy.signInAsUserPostRequest(officeAppName, userId);
+  cy.signInAsUserPostRequest(PPMOfficeUserType, userId);
   cy.waitForReactTableLoad();
 });
 Cypress.Commands.add('signIntoOffice', () => {

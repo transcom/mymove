@@ -1,4 +1,4 @@
-import { officeAppName } from '../../support/constants';
+import { PPMOfficeUserType } from '../../support/constants';
 
 /* global cy */
 
@@ -10,20 +10,20 @@ describe('testing CSRF protection', function () {
   const userId = '9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b';
 
   it('tests dev login with both unmasked and masked token', function () {
-    cy.signInAsUserPostRequest(officeAppName, userId);
+    cy.signInAsUserPostRequest(PPMOfficeUserType, userId);
     cy.contains('New moves');
   });
 
   it('tests dev login with masked token only', function () {
-    cy.signInAsUserPostRequest(officeAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, true, false);
+    cy.signInAsUserPostRequest(PPMOfficeUserType, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, true, false);
   });
 
   it('tests dev login with unmasked token only', function () {
-    cy.signInAsUserPostRequest(officeAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, true, false, false);
+    cy.signInAsUserPostRequest(PPMOfficeUserType, userId, csrfForbiddenRespCode, csrfForbiddenMsg, true, false, false);
   });
 
   it('tests dev login without unmasked and masked token', function () {
-    cy.signInAsUserPostRequest(officeAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, false, false);
+    cy.signInAsUserPostRequest(PPMOfficeUserType, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, false, false);
   });
 });
 
