@@ -259,15 +259,15 @@ def fetch_prs_merged_since_last_deploy
   MyMovePRs.new(since_commit: commit_hash_of_last_deployed_pr).merged_since_last_deploy
 end
 
-def approve_most_recent_on_hold_workflow
-  most_recent_on_hold_workflow = CircleCi.new.most_recent_on_hold_workflow
-  most_recent_on_hold_pipeline_number = most_recent_on_hold_workflow.pipeline_number
-  puts "Most recent on hold Circle CI pipeline: ##{most_recent_on_hold_pipeline_number}\n\n"
-  workflow_id = most_recent_on_hold_workflow.id
-
-  puts "Getting ready to approve the 'approve_prod_deploy' job for pipeline ##{most_recent_on_hold_pipeline_number}"
-  WorkflowJobs.new(workflow_id: workflow_id).approve_prod_deploy_job
-end
+# def approve_most_recent_on_hold_workflow
+#   most_recent_on_hold_workflow = CircleCi.new.most_recent_on_hold_workflow
+#   most_recent_on_hold_pipeline_number = most_recent_on_hold_workflow.pipeline_number
+#   puts "Most recent on hold Circle CI pipeline: ##{most_recent_on_hold_pipeline_number}\n\n"
+#   workflow_id = most_recent_on_hold_workflow.id
+#
+#   puts "Getting ready to approve the 'approve_prod_deploy' job for pipeline ##{most_recent_on_hold_pipeline_number}"
+#   WorkflowJobs.new(workflow_id: workflow_id).approve_prod_deploy_job
+# end
 
 def run_script
   status = verify_presence_of_tokens
@@ -278,7 +278,7 @@ def run_script
 
   return if prs.empty?
 
-  approve_most_recent_on_hold_workflow
+  # approve_most_recent_on_hold_workflow
 end
 
 run_script
