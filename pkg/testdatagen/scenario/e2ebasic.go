@@ -45,7 +45,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	}
 
 	email := "officeuser1@example.com"
-	userID := uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858c"))
+	userID := uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b"))
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            userID,

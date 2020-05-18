@@ -305,11 +305,12 @@ class MoveInfo extends Component {
                       to={{ pathname: `${this.props.match.url}/basics`, state: this.props.history.location.state }}
                     />
                   )}
+                  requiredRoles={['ppm_office_users']}
                 />
-                <PrivateRoute path={`${this.props.match.path}/basics`}>
+                <PrivateRoute path={`${this.props.match.path}/basics`} requiredRoles={['ppm_office_users']}>
                   <BasicsTabContent moveId={moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
-                <PrivateRoute path={`${this.props.match.path}/ppm`}>
+                <PrivateRoute path={`${this.props.match.path}/ppm`} requiredRoles={['ppm_office_users']}>
                   <PPMTabContent
                     ppmPaymentRequestedFlag={this.props.context.flags.ppmPaymentRequest}
                     moveId={moveId}

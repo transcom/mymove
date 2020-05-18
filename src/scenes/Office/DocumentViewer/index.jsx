@@ -138,16 +138,30 @@ class DocumentViewer extends Component {
           <div className="grid-col-8">
             <div className="tab-content">
               <Switch>
-                <PrivateRoute exact path={defaultPath} render={() => <Redirect replace to={newUrl} />} />
+                <PrivateRoute
+                  exact
+                  path={defaultPath}
+                  render={() => <Redirect replace to={newUrl} />}
+                  requiredRoles={['ppm_office_users']}
+                />
                 <PrivateRoute
                   path={newPath}
                   moveId={moveId}
                   render={() => {
                     return <DocumentUploader {...this.getDocumentUploaderProps} />;
                   }}
+                  requiredRoles={['ppm_office_users']}
                 />
-                <PrivateRoute path={documentPath} component={DocumentUploadViewer} />
-                <PrivateRoute path={defaultUrl} render={() => <div> document viewer coming soon</div>} />
+                <PrivateRoute
+                  path={documentPath}
+                  component={DocumentUploadViewer}
+                  requiredRoles={['ppm_office_users']}
+                />
+                <PrivateRoute
+                  path={defaultUrl}
+                  render={() => <div> document viewer coming soon</div>}
+                  requiredRoles={['ppm_office_users']}
+                />
               </Switch>
             </div>
           </div>

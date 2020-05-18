@@ -119,6 +119,7 @@ export class OfficeWrapper extends Component {
                       <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
                   )}
+                  requiredRoles={['ppm_office_users']}
                 />
                 <PrivateRoute
                   path="/queues/:queueType"
