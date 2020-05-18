@@ -104,5 +104,8 @@ const DefaultContractType = "Prime"
 // DefaultServiceCode is the default service code for testing
 const DefaultServiceCode = "STEST"
 
+// DefaultServiceItemParamKeyName is the default service code for testing
+const DefaultServiceItemParamKeyName = "testkey"
+
 // DefaultContractNumber is the default contract number for  testing
 const DefaultContractNumber = "HTC111-11-1-1111"

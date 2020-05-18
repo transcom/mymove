@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
@@ -65,6 +66,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MtoServiceItemGetMTOServiceItemHandler: mto_service_item.GetMTOServiceItemHandlerFunc(func(params mto_service_item.GetMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoServiceItemGetMTOServiceItem has not yet been implemented")
+		}),
+		MoveGetMoveHandler: move.GetMoveHandlerFunc(func(params move.GetMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveGetMove has not yet been implemented")
 		}),
 		MoveOrderGetMoveOrderHandler: move_order.GetMoveOrderHandlerFunc(func(params move_order.GetMoveOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveOrderGetMoveOrder has not yet been implemented")
@@ -156,6 +160,8 @@ type MymoveAPI struct {
 	MoveTaskOrderGetEntitlementsHandler move_task_order.GetEntitlementsHandler
 	// MtoServiceItemGetMTOServiceItemHandler sets the operation handler for the get m t o service item operation
 	MtoServiceItemGetMTOServiceItemHandler mto_service_item.GetMTOServiceItemHandler
+	// MoveGetMoveHandler sets the operation handler for the get move operation
+	MoveGetMoveHandler move.GetMoveHandler
 	// MoveOrderGetMoveOrderHandler sets the operation handler for the get move order operation
 	MoveOrderGetMoveOrderHandler move_order.GetMoveOrderHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
@@ -275,6 +281,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MtoServiceItemGetMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.GetMTOServiceItemHandler")
+	}
+
+	if o.MoveGetMoveHandler == nil {
+		unregistered = append(unregistered, "move.GetMoveHandler")
 	}
 
 	if o.MoveOrderGetMoveOrderHandler == nil {
@@ -469,6 +479,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}"] = mto_service_item.NewGetMTOServiceItem(o.context, o.MtoServiceItemGetMTOServiceItemHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move/{locator}"] = move.NewGetMove(o.context, o.MoveGetMoveHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

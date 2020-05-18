@@ -14,7 +14,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
-	key := "RequestedPickupDate"
+	key := models.ServiceItemParamNameRequestedPickupDate.String()
 
 	requestedPickupDate := time.Date(testdatagen.TestYear, time.May, 18, 0, 0, 0, 0, time.UTC)
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
@@ -26,9 +26,7 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-			},
+			MoveTaskOrder: mtoServiceItem.MoveTaskOrder,
 		})
 
 	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)

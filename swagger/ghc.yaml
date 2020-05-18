@@ -59,6 +59,50 @@ paths:
         - contracting_officer
         - ppm_office_users
       summary: Returns a given customer
+  '/move/{locator}':
+    parameters:
+      - description: Code used to identify a move in the system
+        in: path
+        name: locator
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved the individual move
+          schema:
+            $ref: '#/definitions/Move'
+        '400':
+          description: The locator provided is invalid
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: Returns a given move
+      summary: Returns a given move
+      operationId: getMove
+      x-swagger-roles:
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
   /move-orders:
     get:
       produces:
@@ -1353,6 +1397,25 @@ definitions:
     required:
       - message
     type: object
+  Move:
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      orders_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      locator:
+        type: string
+        example: '1K43A'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
   MoveOrder:
     properties:
       id:

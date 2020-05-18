@@ -13,15 +13,13 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
-	key := "DistanceZip5"
+	key := models.ServiceItemParamNameDistanceZip5.String()
 
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-			},
+			MoveTaskOrder: mtoServiceItem.MoveTaskOrder,
 		})
 
 	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)

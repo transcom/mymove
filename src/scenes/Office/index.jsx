@@ -193,7 +193,7 @@ export class OfficeWrapper extends Component {
                     )}
                     {too && (
                       <PrivateRoute
-                        path="/moves/:moveId"
+                        path="/moves/:locator"
                         exact
                         component={MoveDetails}
                         requiredRoles={['transportation_ordering_officer']}

@@ -67,16 +67,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -148,16 +142,10 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -218,16 +206,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -336,16 +318,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -399,16 +375,10 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "description": "The requested resource wasn't found.",
@@ -466,16 +436,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -1523,6 +1487,9 @@ func init() {
           "readOnly": true,
           "example": "1234-5678-1"
         },
+        "paymentServiceItems": {
+          "$ref": "#/definitions/PaymentServiceItems"
+        },
         "proofOfServiceDocs": {
           "$ref": "#/definitions/ProofOfServiceDocs"
         },
@@ -1551,6 +1518,101 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentRequest"
+      }
+    },
+    "PaymentServiceItem": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentServiceItemParams": {
+          "$ref": "#/definitions/PaymentServiceItemParams"
+        },
+        "priceCents": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the service item in cents"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentServiceItemStatus"
+        }
+      }
+    },
+    "PaymentServiceItemParam": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "key": {
+          "$ref": "#/definitions/ServiceItemParamName"
+        },
+        "origin": {
+          "$ref": "#/definitions/ServiceItemParamOrigin"
+        },
+        "paymentServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "type": {
+          "$ref": "#/definitions/ServiceItemParamType"
+        },
+        "value": {
+          "type": "string",
+          "example": 3025
+        }
+      }
+    },
+    "PaymentServiceItemParams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItemParam"
+      }
+    },
+    "PaymentServiceItemStatus": {
+      "type": "string",
+      "title": "Payment Service Item Status",
+      "enum": [
+        "REQUESTED",
+        "APPROVED",
+        "DENIED",
+        "SENT_TO_GEX",
+        "PAID"
+      ]
+    },
+    "PaymentServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItem"
       }
     },
     "ProofOfServiceDocs": {
@@ -1647,6 +1709,75 @@ func init() {
           }
         }
       }
+    },
+    "ServiceItemParamName": {
+      "type": "string",
+      "enum": [
+        "CanStandAlone",
+        "CubicFeetBilled",
+        "CubicFeetCrating",
+        "DistanceZip3",
+        "DistanceZip5",
+        "DistanceZip5SITDest",
+        "DistanceZip5SITOrigin",
+        "EIAFuelPrice",
+        "MarketDest",
+        "MarketOrigin",
+        "NumberDaysSIT",
+        "PriceAreaDest",
+        "PriceAreaIntlDest",
+        "PriceAreaIntlOrigin",
+        "PriceAreaOrigin",
+        "PSI_LinehaulDom",
+        "PSI_LinehaulDomPrice",
+        "PSI_LinehaulShort",
+        "PSI_LinehaulShortPrice",
+        "PSI_PackingDom",
+        "PSI_PackingDomPrice",
+        "PSI_PackingHHGIntl",
+        "PSI_PackingHHGIntlPrice",
+        "PSI_PriceDomDest",
+        "PSI_PriceDomDestPrice",
+        "PSI_PriceDomOrigin",
+        "PSI_PriceDomOriginPrice",
+        "PSI_ShippingLinehaulIntlCO",
+        "PSI_ShippingLinehaulIntlCOPrice",
+        "PSI_ShippingLinehaulIntlOC",
+        "PSI_ShippingLinehaulIntlOCPrice",
+        "PSI_ShippingLinehaulIntlOO",
+        "PSI_ShippingLinehaulIntlOOPrice",
+        "RateAreaNonStdDest",
+        "RateAreaNonStdOrigin",
+        "RequestedPickupDate",
+        "ServiceAreaDest",
+        "ServiceAreaOrigin",
+        "ServicesScheduleDest",
+        "ServicesScheduleOrigin",
+        "SITScheduleDest",
+        "SITScheduleOrigin",
+        "WeightActual",
+        "WeightBilledActual",
+        "WeightEstimated",
+        "ZipDestAddress",
+        "ZipPickupAddress",
+        "ZipSITAddress"
+      ]
+    },
+    "ServiceItemParamOrigin": {
+      "type": "string",
+      "enum": [
+        "PRIME",
+        "SYSTEM"
+      ]
+    },
+    "ServiceItemParamType": {
+      "type": "string",
+      "enum": [
+        "STRING",
+        "DATE",
+        "INTEGER",
+        "DECIMAL"
+      ]
     },
     "UpdatePaymentRequestStatus": {
       "type": "object",
@@ -1814,21 +1945,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -1907,21 +2032,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -1998,21 +2117,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -2146,21 +2259,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -2227,21 +2334,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -2309,21 +2410,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -3378,6 +3473,9 @@ func init() {
           "readOnly": true,
           "example": "1234-5678-1"
         },
+        "paymentServiceItems": {
+          "$ref": "#/definitions/PaymentServiceItems"
+        },
         "proofOfServiceDocs": {
           "$ref": "#/definitions/ProofOfServiceDocs"
         },
@@ -3406,6 +3504,101 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentRequest"
+      }
+    },
+    "PaymentServiceItem": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentServiceItemParams": {
+          "$ref": "#/definitions/PaymentServiceItemParams"
+        },
+        "priceCents": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the service item in cents"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentServiceItemStatus"
+        }
+      }
+    },
+    "PaymentServiceItemParam": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "key": {
+          "$ref": "#/definitions/ServiceItemParamName"
+        },
+        "origin": {
+          "$ref": "#/definitions/ServiceItemParamOrigin"
+        },
+        "paymentServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "type": {
+          "$ref": "#/definitions/ServiceItemParamType"
+        },
+        "value": {
+          "type": "string",
+          "example": 3025
+        }
+      }
+    },
+    "PaymentServiceItemParams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItemParam"
+      }
+    },
+    "PaymentServiceItemStatus": {
+      "type": "string",
+      "title": "Payment Service Item Status",
+      "enum": [
+        "REQUESTED",
+        "APPROVED",
+        "DENIED",
+        "SENT_TO_GEX",
+        "PAID"
+      ]
+    },
+    "PaymentServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItem"
       }
     },
     "ProofOfServiceDocs": {
@@ -3502,6 +3695,75 @@ func init() {
           }
         }
       }
+    },
+    "ServiceItemParamName": {
+      "type": "string",
+      "enum": [
+        "CanStandAlone",
+        "CubicFeetBilled",
+        "CubicFeetCrating",
+        "DistanceZip3",
+        "DistanceZip5",
+        "DistanceZip5SITDest",
+        "DistanceZip5SITOrigin",
+        "EIAFuelPrice",
+        "MarketDest",
+        "MarketOrigin",
+        "NumberDaysSIT",
+        "PriceAreaDest",
+        "PriceAreaIntlDest",
+        "PriceAreaIntlOrigin",
+        "PriceAreaOrigin",
+        "PSI_LinehaulDom",
+        "PSI_LinehaulDomPrice",
+        "PSI_LinehaulShort",
+        "PSI_LinehaulShortPrice",
+        "PSI_PackingDom",
+        "PSI_PackingDomPrice",
+        "PSI_PackingHHGIntl",
+        "PSI_PackingHHGIntlPrice",
+        "PSI_PriceDomDest",
+        "PSI_PriceDomDestPrice",
+        "PSI_PriceDomOrigin",
+        "PSI_PriceDomOriginPrice",
+        "PSI_ShippingLinehaulIntlCO",
+        "PSI_ShippingLinehaulIntlCOPrice",
+        "PSI_ShippingLinehaulIntlOC",
+        "PSI_ShippingLinehaulIntlOCPrice",
+        "PSI_ShippingLinehaulIntlOO",
+        "PSI_ShippingLinehaulIntlOOPrice",
+        "RateAreaNonStdDest",
+        "RateAreaNonStdOrigin",
+        "RequestedPickupDate",
+        "ServiceAreaDest",
+        "ServiceAreaOrigin",
+        "ServicesScheduleDest",
+        "ServicesScheduleOrigin",
+        "SITScheduleDest",
+        "SITScheduleOrigin",
+        "WeightActual",
+        "WeightBilledActual",
+        "WeightEstimated",
+        "ZipDestAddress",
+        "ZipPickupAddress",
+        "ZipSITAddress"
+      ]
+    },
+    "ServiceItemParamOrigin": {
+      "type": "string",
+      "enum": [
+        "PRIME",
+        "SYSTEM"
+      ]
+    },
+    "ServiceItemParamType": {
+      "type": "string",
+      "enum": [
+        "STRING",
+        "DATE",
+        "INTEGER",
+        "DECIMAL"
+      ]
     },
     "UpdatePaymentRequestStatus": {
       "type": "object",

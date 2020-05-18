@@ -13,7 +13,7 @@ import (
 func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.PaymentRequest {
 	// Create new PaymentRequest if not provided
 	// ID is required because it must be populated for Eager saving to work.
-	moveTaskOrder := assertions.PaymentRequest.MoveTaskOrder
+	moveTaskOrder := assertions.MoveTaskOrder
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}
