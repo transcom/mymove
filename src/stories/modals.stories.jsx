@@ -30,14 +30,14 @@ storiesOf('Components|Modals', module)
         >
           <Form>
             <TextInput name="rejectionReason" label="Reason for rejection" type="text" />
+            <div className="display-flex">
+              <Button type="submit">Confirm</Button>
+              <Button secondary type="reset">
+                Cancel
+              </Button>
+            </div>
           </Form>
         </Formik>
-        <div className="display-flex">
-          <Button type="submit">Confirm</Button>
-          <Button secondary type="reset">
-            Cancel
-          </Button>
-        </div>
       </Modal>
     </div>
   ))
