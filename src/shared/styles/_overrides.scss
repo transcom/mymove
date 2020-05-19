@@ -180,6 +180,7 @@
   @include u-padding-x(3);
   a {
     @include u-text('base-darkest');
+    @include u-text('bold');
   }
   .usa-alert__text {
     @include u-padding(0);

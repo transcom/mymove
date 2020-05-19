@@ -45,7 +45,7 @@ storiesOf('Components|Alerts', module)
   ))
   .add('system error', () => (
     <div>
-      <Alert className="usa-alert usa-alert--system-error">
+      <Alert className="usa-alert--system-error">
         This is a succinct, helpful error message. Also inlcuded is an example of some&nbsp;
         <a>link text</a>
         .
