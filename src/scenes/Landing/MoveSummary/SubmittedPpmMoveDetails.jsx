@@ -20,8 +20,6 @@ const SubmittedPpmMoveDetails = (props) => {
   const incentiveRange = formatIncentiveRange(currentPPMToUse, estimateRange);
 
   const weightEstimate = currentPPMToUse.weight_estimate;
-  console.log('current', currentPPM);
-  console.log('temp', tempCurrentPPM);
   return (
     <div className="titled_block">
       <div className={styles['detail-title']}>Estimated</div>
