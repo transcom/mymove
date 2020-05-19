@@ -31,7 +31,7 @@ func NewFetchMTOUpdates(ctx *middleware.Context, handler FetchMTOUpdatesHandler)
 
 /*FetchMTOUpdates swagger:route GET /move-task-orders moveTaskOrder fetchMTOUpdates
 
-Gets all move task orders where `isAvailableToPrime` is TRUE
+fetchMTOUpdates
 
 Gets all move task orders where `isAvailableToPrime` is TRUE. This prevents viewing any move task orders that have not been made available to the Prime.
 

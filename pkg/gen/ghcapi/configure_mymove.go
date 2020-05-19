@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
@@ -73,6 +74,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MtoServiceItemGetMTOServiceItemHandler == nil {
 		api.MtoServiceItemGetMTOServiceItemHandler = mto_service_item.GetMTOServiceItemHandlerFunc(func(params mto_service_item.GetMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.GetMTOServiceItem has not yet been implemented")
+		})
+	}
+	if api.MoveGetMoveHandler == nil {
+		api.MoveGetMoveHandler = move.GetMoveHandlerFunc(func(params move.GetMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.GetMove has not yet been implemented")
 		})
 	}
 	if api.MoveOrderGetMoveOrderHandler == nil {

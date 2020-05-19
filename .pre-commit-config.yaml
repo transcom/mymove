@@ -94,15 +94,6 @@ repos:
             docs/adr/index.md
           )$
 
-  - repo: local
-    hooks:
-      - id: gen-docs-index
-        name: regenerate docs index
-        entry: scripts/gen-docs-index
-        language: script
-        files: \.md$
-        pass_filenames: false
-
   - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
     rev: v0.1.0
     hooks:

@@ -8,6 +8,7 @@ import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 
 import colors from '../shared/styles/colors.scss';
 
+import FOUOHeader from '../components/FOUOHeader';
 import MilMoveHeader from '../components/MilMoveHeader';
 import CustomerHeader from '../components/CustomerHeader';
 
@@ -182,6 +183,7 @@ storiesOf('Global|Typography', module)
 
 storiesOf('Components|Headers', module).add('all', () => (
   <div>
+    <FOUOHeader />
     <MilMoveHeader />
     <CustomerHeader />
   </div>

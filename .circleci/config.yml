@@ -557,7 +557,7 @@ jobs:
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
-    parallelism: 6
+    parallelism: 3
     executor: mymove_medium_plus
     steps:
       - checkout

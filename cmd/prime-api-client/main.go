@@ -64,8 +64,8 @@ func main() {
 	initRootFlags(root.PersistentFlags())
 
 	fetchMTOsCommand := &cobra.Command{
-		Use:          "fetch-mtos",
-		Short:        "fetch mtos",
+		Use:          "fetch-mto-updates",
+		Short:        "Fetch all MTOs available to prime",
 		Long:         "fetch move task orders",
 		RunE:         fetchMTOs,
 		SilenceUsage: true,
@@ -74,7 +74,7 @@ func main() {
 	root.AddCommand(fetchMTOsCommand)
 
 	createMTOCommand := &cobra.Command{
-		Use:   "support-create-mto",
+		Use:   "support-create-move-task-order",
 		Short: "Create a MoveTaskOrder",
 		Long: `
   This command creates a MoveTaskOrder object.
@@ -91,6 +91,25 @@ func main() {
 	}
 	initCreateMTOFlags(createMTOCommand.Flags())
 	root.AddCommand(createMTOCommand)
+
+	createMTOShipmentCommand := &cobra.Command{
+		Use:   "create-mto-shipment",
+		Short: "Create MTO shipment",
+		Long: `
+	This command creates a MTO shipment.
+	It requires the caller to pass in a file using the --filename arg.
+	The file should contain a body defining the MTOShipment object.
+	Endpoint path: /mto-shipments
+	The file should contain json as follows:
+		{
+			"body": <MTOShipment>,
+		}
+	Please see API documentation for full details on the endpoint definition.`,
+		RunE:         createMTOShipment,
+		SilenceUsage: true,
+	}
+	initCreateMTOShipmentFlags(createMTOShipmentCommand.Flags())
+	root.AddCommand(createMTOShipmentCommand)
 
 	updateMTOShipmentCommand := &cobra.Command{
 		Use:   "update-mto-shipment",
@@ -115,9 +134,9 @@ func main() {
 	root.AddCommand(updateMTOShipmentCommand)
 
 	updatePostCounselingInfo := &cobra.Command{
-		Use:          "update-post-counseling-info",
+		Use:          "update-mto-post-counseling-information",
 		Short:        "update post counseling info",
-		Long:         "update post counseling info such as discovering that customer has a PPM",
+		Long:         "Update post counseling info such as discovering that customer has a PPM",
 		RunE:         updatePostCounselingInfo,
 		SilenceUsage: true,
 	}
@@ -132,12 +151,9 @@ func main() {
   It requires the caller to pass in a file using the --filename arg.
   The file should contain path parameters and headers and a body for the payload.
 
-  Endpoint path: /move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items
+  Endpoint path: /mto-service-items
   The file should contain json as follows:
   	{
-  	"moveTaskOrderID": <uuid string>,
-  	"mtoShipmentID": <uuid string>,
-  	"ifMatch": <eTag>,
   	"body": <MTOServiceItem>
   	}
   Please see API documentation for full details on the endpoint definition.`,
@@ -148,7 +164,7 @@ func main() {
 	root.AddCommand(createMTOServiceItemCommand)
 
 	makeAvailableToPrimeCommand := &cobra.Command{
-		Use:   "support-make-mto-available-to-prime",
+		Use:   "support-update-move-task-order-status",
 		Short: "Make mto available to prime",
 		Long: `
   This command makes an MTO available for prime consumption.
@@ -193,7 +209,7 @@ func main() {
 	root.AddCommand(updatePaymentRequestStatusCommand)
 
 	getMoveTaskOrder := &cobra.Command{
-		Use:   "support-get-mto",
+		Use:   "support-get-move-task-order",
 		Short: "Get an individual mto",
 		Long: `
   This command gets a single move task order by ID
@@ -256,7 +272,7 @@ func main() {
 	root.AddCommand(createPaymentRequestCommand)
 
 	createPaymentRequestUploadCommand := &cobra.Command{
-		Use:          "create-payment-request-upload",
+		Use:          "create-upload",
 		Short:        "Create payment request upload",
 		Long:         "Create payment request upload for a payment request",
 		RunE:         createPaymentRequestUpload,
@@ -265,8 +281,8 @@ func main() {
 	initCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
 	root.AddCommand(createPaymentRequestUploadCommand)
 
-	patchMTOShipmentStatusCommand := &cobra.Command{
-		Use:   "support-patch-mto-shipment-status",
+	updateMTOShipmentStatusCommand := &cobra.Command{
+		Use:   "support-update-mto-shipment-status",
 		Short: "Update MTO shipment status for prime",
 		Long: `
   This command allows prime to update the MTO shipment status.
@@ -282,11 +298,11 @@ func main() {
       "body": <MtoShipmentRequestStatus>,
     }
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         patchMTOShipmentStatus,
+		RunE:         updateMTOShipmentStatus,
 		SilenceUsage: true,
 	}
-	initPatchMTOShipmentStatusFlags(patchMTOShipmentStatusCommand.Flags())
-	root.AddCommand(patchMTOShipmentStatusCommand)
+	initUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
+	root.AddCommand(updateMTOShipmentStatusCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",

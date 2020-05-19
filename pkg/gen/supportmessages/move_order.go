@@ -6,8 +6,6 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -61,13 +59,6 @@ type MoveOrder struct {
 	// ID of the military orders associated with this move.
 	OrderNumber *string `json:"orderNumber,omitempty"`
 
-	// order type
-	// Enum: [GHC NTS]
-	OrderType *string `json:"orderType,omitempty"`
-
-	// order type detail
-	OrderTypeDetail *string `json:"orderTypeDetail,omitempty"`
-
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
 
@@ -115,10 +106,6 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateOrderType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -240,49 +227,6 @@ func (m *MoveOrder) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var moveOrderTypeOrderTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["GHC","NTS"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		moveOrderTypeOrderTypePropEnum = append(moveOrderTypeOrderTypePropEnum, v)
-	}
-}
-
-const (
-
-	// MoveOrderOrderTypeGHC captures enum value "GHC"
-	MoveOrderOrderTypeGHC string = "GHC"
-
-	// MoveOrderOrderTypeNTS captures enum value "NTS"
-	MoveOrderOrderTypeNTS string = "NTS"
-)
-
-// prop value enum
-func (m *MoveOrder) validateOrderTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, moveOrderTypeOrderTypePropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *MoveOrder) validateOrderType(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.OrderType) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateOrderTypeEnum("orderType", "body", *m.OrderType); err != nil {
 		return err
 	}
 
