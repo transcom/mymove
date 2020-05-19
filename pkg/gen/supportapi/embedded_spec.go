@@ -1103,19 +1103,6 @@ func init() {
           "x-nullable": true,
           "example": "030-00362"
         },
-        "orderType": {
-          "type": "string",
-          "enum": [
-            "GHC",
-            "NTS"
-          ],
-          "x-nullable": true,
-          "example": "GHC"
-        },
-        "orderTypeDetail": {
-          "type": "string",
-          "x-nullable": true
-        },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -2778,19 +2765,6 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
-        },
-        "orderType": {
-          "type": "string",
-          "enum": [
-            "GHC",
-            "NTS"
-          ],
-          "x-nullable": true,
-          "example": "GHC"
-        },
-        "orderTypeDetail": {
-          "type": "string",
-          "x-nullable": true
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"

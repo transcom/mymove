@@ -79,11 +79,9 @@ func MoveOrder(moveOrder *models.MoveOrder) *supportmessages.MoveOrder {
 		Entitlement:            Entitlement(moveOrder.Entitlement),
 		Customer:               Customer(moveOrder.Customer),
 		OrderNumber:            moveOrder.OrderNumber,
-		OrderTypeDetail:        moveOrder.OrderTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
-		OrderType:              moveOrder.OrderType,
 	}
 
 	if moveOrder.ReportByDate != nil {

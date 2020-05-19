@@ -134,7 +134,7 @@ function prime_api_client () {
 
 #Integration test for Prime API
 #Return mtos from the fetch-mto endpoint where is_available_for_prime is true
-mtos=$(prime_api_client fetch-mtos)
+mtos=$(prime_api_client fetch-mto-updates)
 #Returns mtoShipments from the fetch-mto response, needed to return etag below
 mtoShipments=$(echo "$mtos" | jq '.[0] | .mtoShipments')
 echo "$mtoShipments"

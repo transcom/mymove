@@ -48,8 +48,6 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 			"modelType() not allowed", detailErr, h.GetTraceID(), verrs))
 	}
 
-	params.Body.SetMoveTaskOrderID(params.MoveTaskOrderID)
-	params.Body.SetMtoShipmentID(params.MtoShipmentID)
 	// validation errors passed back if any
 	mtoServiceItem, verrs := payloads.MTOServiceItemModel(params.Body)
 	if verrs != nil && verrs.HasAny() {
