@@ -16,7 +16,7 @@ import (
 // UpdateMTOPostCounselingInformationOKCode is the HTTP code returned for type UpdateMTOPostCounselingInformationOK
 const UpdateMTOPostCounselingInformationOKCode int = 200
 
-/*UpdateMTOPostCounselingInformationOK Successfully updated move task order post counseling information
+/*UpdateMTOPostCounselingInformationOK Successfully updated move task order with post counseling information.
 
 swagger:response updateMTOPostCounselingInformationOK
 */
@@ -60,7 +60,7 @@ func (o *UpdateMTOPostCounselingInformationOK) WriteResponse(rw http.ResponseWri
 // UpdateMTOPostCounselingInformationUnauthorizedCode is the HTTP code returned for type UpdateMTOPostCounselingInformationUnauthorized
 const UpdateMTOPostCounselingInformationUnauthorizedCode int = 401
 
-/*UpdateMTOPostCounselingInformationUnauthorized The request was denied
+/*UpdateMTOPostCounselingInformationUnauthorized The request was denied.
 
 swagger:response updateMTOPostCounselingInformationUnauthorized
 */
@@ -69,7 +69,7 @@ type UpdateMTOPostCounselingInformationUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOPostCounselingInformationUnauthorized creates UpdateMTOPostCounselingInformationUnauthorized with default headers values
@@ -79,13 +79,13 @@ func NewUpdateMTOPostCounselingInformationUnauthorized() *UpdateMTOPostCounselin
 }
 
 // WithPayload adds the payload to the update m t o post counseling information unauthorized response
-func (o *UpdateMTOPostCounselingInformationUnauthorized) WithPayload(payload interface{}) *UpdateMTOPostCounselingInformationUnauthorized {
+func (o *UpdateMTOPostCounselingInformationUnauthorized) WithPayload(payload *primemessages.Error) *UpdateMTOPostCounselingInformationUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o post counseling information unauthorized response
-func (o *UpdateMTOPostCounselingInformationUnauthorized) SetPayload(payload interface{}) {
+func (o *UpdateMTOPostCounselingInformationUnauthorized) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,16 +93,18 @@ func (o *UpdateMTOPostCounselingInformationUnauthorized) SetPayload(payload inte
 func (o *UpdateMTOPostCounselingInformationUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMTOPostCounselingInformationForbiddenCode is the HTTP code returned for type UpdateMTOPostCounselingInformationForbidden
 const UpdateMTOPostCounselingInformationForbiddenCode int = 403
 
-/*UpdateMTOPostCounselingInformationForbidden The request was denied
+/*UpdateMTOPostCounselingInformationForbidden The request was denied.
 
 swagger:response updateMTOPostCounselingInformationForbidden
 */
@@ -111,7 +113,7 @@ type UpdateMTOPostCounselingInformationForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOPostCounselingInformationForbidden creates UpdateMTOPostCounselingInformationForbidden with default headers values
@@ -121,13 +123,13 @@ func NewUpdateMTOPostCounselingInformationForbidden() *UpdateMTOPostCounselingIn
 }
 
 // WithPayload adds the payload to the update m t o post counseling information forbidden response
-func (o *UpdateMTOPostCounselingInformationForbidden) WithPayload(payload interface{}) *UpdateMTOPostCounselingInformationForbidden {
+func (o *UpdateMTOPostCounselingInformationForbidden) WithPayload(payload *primemessages.Error) *UpdateMTOPostCounselingInformationForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o post counseling information forbidden response
-func (o *UpdateMTOPostCounselingInformationForbidden) SetPayload(payload interface{}) {
+func (o *UpdateMTOPostCounselingInformationForbidden) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,16 +137,18 @@ func (o *UpdateMTOPostCounselingInformationForbidden) SetPayload(payload interfa
 func (o *UpdateMTOPostCounselingInformationForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMTOPostCounselingInformationNotFoundCode is the HTTP code returned for type UpdateMTOPostCounselingInformationNotFound
 const UpdateMTOPostCounselingInformationNotFoundCode int = 404
 
-/*UpdateMTOPostCounselingInformationNotFound The requested resource wasn't found
+/*UpdateMTOPostCounselingInformationNotFound The requested resource wasn't found.
 
 swagger:response updateMTOPostCounselingInformationNotFound
 */
@@ -153,7 +157,7 @@ type UpdateMTOPostCounselingInformationNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOPostCounselingInformationNotFound creates UpdateMTOPostCounselingInformationNotFound with default headers values
@@ -163,13 +167,13 @@ func NewUpdateMTOPostCounselingInformationNotFound() *UpdateMTOPostCounselingInf
 }
 
 // WithPayload adds the payload to the update m t o post counseling information not found response
-func (o *UpdateMTOPostCounselingInformationNotFound) WithPayload(payload interface{}) *UpdateMTOPostCounselingInformationNotFound {
+func (o *UpdateMTOPostCounselingInformationNotFound) WithPayload(payload *primemessages.Error) *UpdateMTOPostCounselingInformationNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o post counseling information not found response
-func (o *UpdateMTOPostCounselingInformationNotFound) SetPayload(payload interface{}) {
+func (o *UpdateMTOPostCounselingInformationNotFound) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,16 +181,18 @@ func (o *UpdateMTOPostCounselingInformationNotFound) SetPayload(payload interfac
 func (o *UpdateMTOPostCounselingInformationNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMTOPostCounselingInformationPreconditionFailedCode is the HTTP code returned for type UpdateMTOPostCounselingInformationPreconditionFailed
 const UpdateMTOPostCounselingInformationPreconditionFailedCode int = 412
 
-/*UpdateMTOPostCounselingInformationPreconditionFailed precondition failed
+/*UpdateMTOPostCounselingInformationPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updateMTOPostCounselingInformationPreconditionFailed
 */
@@ -195,7 +201,7 @@ type UpdateMTOPostCounselingInformationPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOPostCounselingInformationPreconditionFailed creates UpdateMTOPostCounselingInformationPreconditionFailed with default headers values
@@ -205,13 +211,13 @@ func NewUpdateMTOPostCounselingInformationPreconditionFailed() *UpdateMTOPostCou
 }
 
 // WithPayload adds the payload to the update m t o post counseling information precondition failed response
-func (o *UpdateMTOPostCounselingInformationPreconditionFailed) WithPayload(payload interface{}) *UpdateMTOPostCounselingInformationPreconditionFailed {
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) WithPayload(payload *primemessages.Error) *UpdateMTOPostCounselingInformationPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o post counseling information precondition failed response
-func (o *UpdateMTOPostCounselingInformationPreconditionFailed) SetPayload(payload interface{}) {
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,16 +225,18 @@ func (o *UpdateMTOPostCounselingInformationPreconditionFailed) SetPayload(payloa
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(412)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMTOPostCounselingInformationUnprocessableEntityCode is the HTTP code returned for type UpdateMTOPostCounselingInformationUnprocessableEntity
 const UpdateMTOPostCounselingInformationUnprocessableEntityCode int = 422
 
-/*UpdateMTOPostCounselingInformationUnprocessableEntity The request payload is invalid
+/*UpdateMTOPostCounselingInformationUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateMTOPostCounselingInformationUnprocessableEntity
 */
@@ -272,7 +280,7 @@ func (o *UpdateMTOPostCounselingInformationUnprocessableEntity) WriteResponse(rw
 // UpdateMTOPostCounselingInformationInternalServerErrorCode is the HTTP code returned for type UpdateMTOPostCounselingInformationInternalServerError
 const UpdateMTOPostCounselingInformationInternalServerErrorCode int = 500
 
-/*UpdateMTOPostCounselingInformationInternalServerError A server error occurred
+/*UpdateMTOPostCounselingInformationInternalServerError A server error occurred.
 
 swagger:response updateMTOPostCounselingInformationInternalServerError
 */
@@ -281,7 +289,7 @@ type UpdateMTOPostCounselingInformationInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOPostCounselingInformationInternalServerError creates UpdateMTOPostCounselingInformationInternalServerError with default headers values
@@ -291,13 +299,13 @@ func NewUpdateMTOPostCounselingInformationInternalServerError() *UpdateMTOPostCo
 }
 
 // WithPayload adds the payload to the update m t o post counseling information internal server error response
-func (o *UpdateMTOPostCounselingInformationInternalServerError) WithPayload(payload interface{}) *UpdateMTOPostCounselingInformationInternalServerError {
+func (o *UpdateMTOPostCounselingInformationInternalServerError) WithPayload(payload *primemessages.Error) *UpdateMTOPostCounselingInformationInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o post counseling information internal server error response
-func (o *UpdateMTOPostCounselingInformationInternalServerError) SetPayload(payload interface{}) {
+func (o *UpdateMTOPostCounselingInformationInternalServerError) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -305,8 +313,10 @@ func (o *UpdateMTOPostCounselingInformationInternalServerError) SetPayload(paylo
 func (o *UpdateMTOPostCounselingInformationInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

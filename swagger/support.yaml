@@ -2,117 +2,344 @@ swagger: '2.0'
 info:
   contact:
     email: dp3@truss.works
-  description: The API for move.mil
+  description: |
+    The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.
+
+    This API is not available in production.
+
+    All endpoints are located at `primelocal/support/v1/`.
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
-  title: move.mil API
+  title: Milmove Support API
   version: 0.0.1
 basePath: /support/v1
 schemes:
   - http
 paths:
-  '/move-task-orders/{moveTaskOrderID}/status':
-    patch:
+  '/move-task-orders':
+    post:
+      summary: createMoveTaskOrder
+      description: |
+        Creates an instance of moveTaskOrder.
+        Current this will also create a number of nested objects but not all.
+        It will currently create
+        * MoveTaskOrder
+        * MoveOrder
+        * Customer
+        * User
+        * Entitlement
+
+        It will not create addresses or duty stations. <br />
+        <br />
+        This is a support endpoint and will not be available in production.
+      operationId: createMoveTaskOrder
       consumes:
         - application/json
       produces:
         - application/json
+      tags:
+        - moveTaskOrder
       parameters:
-        - description: ID of move order to use
-          in: path
-          name: moveTaskOrderID
+        - in: body
           required: true
-          type: string
-        - in: header
-          name: If-Match
-          type: string
-          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
       responses:
-        '200':
-          description: Successfully updated move task order status
+        '201':
+          description: Successfully created MoveTaskOrder object.
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
+          description: The request was unauthorized.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
+          description: The client doesn't have permissions to perform the request.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Changes move task order status to make it available to prime
-      operationId: updateMoveTaskOrderStatus
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
-      summary: Change the status of a move task order to make it available to prime
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}':
     parameters:
-      - description: ID of move task order to use
+      - description: UUID of move task order to use.
         in: path
         name: moveTaskOrderID
         required: true
         type: string
     get:
+      summary: getMoveTaskOrder
+      description: |
+        Gets an individual move task order by ID. <br />
+        <br />
+        This is a support endpoint and will not be available in production.
+      operationId: getMoveTaskOrder
+      tags:
+        - moveTaskOrder
       produces:
         - application/json
       parameters: []
       responses:
         '200':
-          description: Successfully retrieve an individual move task order
+          description: Successfully retrieve an individual move task order.
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
+          description: The request was unauthorized.
           schema:
             $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
+          description: The client doesn't have permissions to perform the request.
           schema:
             $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
+  '/move-task-orders/{moveTaskOrderID}/status':
+    parameters:
+      - description: UUID of move task order.
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      summary: updateMoveTaskOrderStatus
+      description: |
+        Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. <br />
+        <br />
+        This is a support endpoint and will not be available in production.
+      operationId: updateMoveTaskOrderStatus
       tags:
         - moveTaskOrder
-      description: Gets an individual move task order
-      operationId: getMoveTaskOrder
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
-      summary: Gets a move task order by ID
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMoveTaskOrderStatus'
+      responses:
+        '200':
+          description: Successfully updated move task order status.
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/payment-requests/{paymentRequestID}/status':
+    parameters:
+      - description: UUID of payment request.
+        format: uuid
+        in: path
+        name: paymentRequestID
+        required: true
+        type: string
+    patch:
+      summary: updatePaymentRequestStatus
+      description: |
+        Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.
+        A status of REVIEWED can optionally have a `rejectionReason`. <br />
+        <br />
+        This is a support endpoint and will not be available in production.
+      operationId: updatePaymentRequestStatus
+      tags:
+        - paymentRequests
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdatePaymentRequestStatus'
+      responses:
+        '200':
+          description: Successfully updated payment request status.
+          schema:
+            $ref: '#/definitions/PaymentRequest'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/service-items/{mtoServiceItemID}/status':
+    parameters:
+      - description: UUID of mto service item to use.
+        in: path
+        name: mtoServiceItemID
+        required: true
+        type: string
+    patch:
+      summary: updateMTOServiceItemStatus
+      description: |
+        Updates the status of a service item for a move order to APPROVED or REJECTED. <br />
+        <br />
+        This is a support endpoint and will not be available in production.
+      operationId: updateMTOServiceItemStatus
+      tags:
+        - mtoServiceItem
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMTOServiceItemStatus'
+      responses:
+        '200':
+          description: Successfully updated service item status for a move task order.
+          schema:
+            $ref: '#/definitions/UpdateMTOServiceItemStatus'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error due to trying to change the status of service item that is not currently "SUBMITTED".
+          schema:
+            $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/mto-shipments/{mtoShipmentID}/status':
+    parameters:
+      - description: UUID of the shipment being updated.
+        in: path
+        name: mtoShipmentID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      summary: updateMTOShipmentStatus
+      description: >
+        Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED,
+        `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in
+        `rejectionReason` is required. <br />
+        <br />
+        This is a support endpoint and will not be available in production.
+      operationId: updateMTOShipmentStatus
+      tags:
+        - mtoShipment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMTOShipmentStatus'
+      responses:
+        '200':
+          description: Successfully updated the shipment's status.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error due to trying to change the status of shipment that is not currently "SUBMITTED".
+          schema:
+            $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
   ClientError:
     type: object
@@ -296,12 +523,12 @@ definitions:
       agency:
         type: string
         title: Agency customer is affilated with
-      first_name:
+      firstName:
         type: string
-        example: John
-      last_name:
+        example: Vanya
+      lastName:
         type: string
-        example: Doe
+        example: Petrovna
       phone:
         type: string
         format: telephone
@@ -312,16 +539,17 @@ definitions:
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
-      current_address:
+      currentAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
-      destination_address:
+      destinationAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       dodID:
         type: string
       userID:
@@ -348,7 +576,7 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
-  Entitlements:
+  Entitlement:
     properties:
       id:
         example: 571008b1-b0de-454d-b843-d71be9f02c04
@@ -375,10 +603,12 @@ definitions:
         example: 2000
         type: integer
         x-formatting: weight
+        readOnly: true
       proGearWeightSpouse:
         example: 500
         type: integer
         x-formatting: weight
+        readOnly: true
       storageInTransit:
         example: 90
         type: integer
@@ -391,6 +621,7 @@ definitions:
         type: integer
       eTag:
         type: string
+        readOnly: true
     type: object
   Error:
     properties:
@@ -402,114 +633,154 @@ definitions:
   MoveOrder:
     properties:
       id:
+        description: ID of the MoveOrder object.
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      customer:
+        $ref: '#/definitions/Customer'
       customerID:
+        description: |
+          ID of the Customer this MoveOrder belongs to.
+
+          If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      confirmation_number:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        type: string
-      first_name:
-        type: string
-        example: John
-        readOnly: true
-      last_name:
-        type: string
-        example: Doe
-        readOnly: true
-      grade:
-        type: string
-        example: E_1
-      agency:
-        type: string
-        example: civilian
       entitlement:
-        $ref: '#/definitions/Entitlements'
+        $ref: '#/definitions/Entitlement'
       destinationDutyStation:
         $ref: '#/definitions/DutyStation'
-      originDutyStation:
-        $ref: '#/definitions/DutyStation'
-      moveTaskOrderID:
+      destinationDutyStationID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      order_number:
+        description: |
+          ID of the destination duty station.
+
+          If creating a MoveTaskOrder, this should match an existing duty station.
+      originDutyStation:
+        $ref: '#/definitions/DutyStation'
+      originDutyStationID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
         type: string
-        x-nullable: true
-        example: '030-00362'
-      order_type:
-        example: GHC
+        description: |
+          ID of the origin duty station.
+
+          If creating a MoveTaskOrder, this should match an existing duty station.
+      rank:
+        description: Rank of the service member, must match specific list of available ranks.
         type: string
-      order_type_detail:
-        type: string
-        enum:
-          - GHC
-          - NTS
-        x-nullable: true
-      date_issued:
+        example: E_1
+      reportByDate:
+        description: Date that the service member must report to the new DutyStation by.
         type: string
         format: date
         example: '2020-01-01'
-      report_by_date:
+      orderNumber:
+        description: ID of the military orders associated with this move.
+        type: string
+        x-nullable: true
+        example: '030-00362'
+      dateIssued:
+        description: The date the orders were issued.
         type: string
         format: date
         example: '2020-01-01'
       eTag:
+        description: |
+          Uniquely identifies the state of the MoveOrder object (but not the nested objects)
+
+          It will change everytime the object is updated. Client should store the value.
+          Updates to this MoveOrder will require that this eTag be passed in with the If-Match header.
         type: string
+        readOnly: true
     type: object
   MoveTaskOrder:
+    type: object
+    required:
+      - moveOrder
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
+        description: ID of the MoveTaskOrder object.
       createdAt:
         format: date
         type: string
+        description: Date the MoveTaskOrder was created on.
       moveOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+        description: ID of the MoveOrder object
+      moveOrder:
+        $ref: '#/definitions/MoveOrder'
+        description: MoveOrder associated with this MoveTaskOrder.
       referenceId:
         example: 1001-3456
         type: string
+        description: |
+          Unique ID associated with this MoveOrder.
+
+          No two MoveTaskOrders may have the same ID.
+          Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
       isAvailableToPrime:
         type: boolean
         x-nullable: true
+        description: |
+          Indicates this MoveTaskOrder is available for Prime API handling.
+
+          In production, only MoveTaskOrders for which this is true will be available to the API.
       isCanceled:
         type: boolean
         x-nullable: true
+        description:
+          Indicated this MoveTaskOrder has been canceled.
+      contractorID:
+        type: string
+        format: uuid
+        description: |
+          ID associated with the contractor, in this case Prime
+        example: 5db13bb4-6d29-4bdb-bc81-262f4513ecf6
       updatedAt:
         format: date
         type: string
-      destinationAddress:
-        $ref: '#/definitions/Address'
-      pickupAddress:
-        $ref: '#/definitions/Address'
-      destinationDutyStation:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
+        description: Date on which this MoveTaskOrder was last updated.
+      paymentRequests:
+        $ref: '#/definitions/PaymentRequests'
+        description: Array of PaymentRequests associated with this MoveTaskOrder.
+      mtoServiceItems:
+        description: Array of MTOServiceItems associated with this MoveTaskOrder.
+        type: array
+        items:
+          $ref: "#/definitions/MTOServiceItem"
+      mtoShipments:
+        description: array of MTOShipments associated with the MoveTaskOrder.
+        $ref: '#/definitions/MTOShipments'
+      ppmType:
+        description: If the move is a PPM, indicates whether it is full or partial.
         type: string
-      originDutyStation:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      entitlements:
-        $ref: '#/definitions/Entitlements'
-      requestedPickupDate:
-        format: date
-        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      ppmEstimatedWeight:
+        description: If the move is a PPM, this is the estimated weight in lbs.
+        type: integer
       eTag:
+        description: |
+          Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)
+
+          It will change everytime the object is updated. Client should store the value.
+          Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
         type: string
-    type: object
-  MoveTaskOrderStatus:
+  UpdateMoveTaskOrderStatus:
     properties:
       is_available_to_prime:
         type: boolean
-    type: object
   MoveOrders:
     items:
       $ref: '#/definitions/MoveOrder'
@@ -583,12 +854,6 @@ definitions:
         example: documentation was incomplete
         type: string
         x-nullable: true
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
       status:
         $ref: '#/definitions/PaymentRequestStatus'
       paymentRequestNumber:
@@ -684,7 +949,7 @@ definitions:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
-  PatchMTOShipmentStatusPayload:
+  UpdateMTOShipmentStatus:
     properties:
       status:
         type: string
@@ -740,15 +1005,15 @@ definitions:
         type: integer
       rate:
         type: integer
+      rejectionReason:
+        example: item was too heavy
+        type: string
+        x-nullable: true
       rejectedAt:
         format: date
         type: string
       status:
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
-        type: string
+        $ref: '#/definitions/MTOServiceItemStatus'
       submittedAt:
         format: date
         type: string
@@ -772,16 +1037,14 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MTOServiceItem'
-  MTOServiceItemstatus:
-    properties:
-      status:
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
-        type: string
-    type: object
-  UpdatePaymentRequestPayload:
+  MTOServiceItemStatus:
+    description: Describes all statuses for a MTOServiceItem
+    type: string
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
+  UpdatePaymentRequest:
     properties:
       proofOfServicePackage:
         $ref: '#/definitions/ProofOfServicePackage'
@@ -794,16 +1057,85 @@ definitions:
       eTag:
         type: string
     type: object
-  UpdatePaymentRequestStatusPayload:
+  UpdateMTOServiceItemStatus:
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceCode:
+        type: string
+      reServiceName:
+        type: string
+      approvedAt:
+        format: date
+        type: string
+      createdAt:
+        format: date
+        type: string
+      deletedAt:
+        format: date
+        type: string
+      description:
+        type: string
+      feeType:
+        enum:
+          - COUNSELING
+          - CRATING
+          - TRUCKING
+          - SHUTTLE
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      quantity:
+        type: integer
+      rate:
+        type: integer
+      rejectionReason:
+        example: item was too heavy
+        type: string
+        x-nullable: true
+      rejectedAt:
+        format: date
+        type: string
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
+      submittedAt:
+        format: date
+        type: string
+      total:
+        format: cents
+        type: integer
+      updatedAt:
+        format: datetime
+        type: string
+      eTag:
+        type: string
+    required:
+      - status
+    type: object
+  UpdatePaymentRequestStatus:
     properties:
       rejectionReason:
         example: documentation was incomplete
         type: string
         x-nullable: true
+        description: A written reason to provide context for the status.
       status:
         $ref: '#/definitions/PaymentRequestStatus'
       eTag:
         type: string
+        description: Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
     type: object
   Upload:
     properties:
@@ -842,26 +1174,30 @@ definitions:
     type: object
 responses:
   InvalidRequest:
-    description: The request payload is invalid
+    description: The parameters were invalid.
     schema:
       $ref: '#/definitions/Error'
   NotFound:
-    description: The requested resource wasn't found
+    description: The requested resource wasn't found.
     schema:
       $ref: '#/definitions/Error'
   PermissionDenied:
-    description: The request was denied
+    description: The request was denied.
     schema:
       $ref: '#/definitions/Error'
   ServerError:
-    description: A server error occurred
+    description: A server error occurred.
     schema:
       $ref: '#/definitions/Error'
+  UnprocessableEntity:
+    description: The payload was unprocessable.
+    schema:
+      $ref: '#/definitions/ValidationError'
   PreconditionFailed:
-    description: Precondition failed
+    description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
     schema:
       $ref: '#/definitions/Error'
   Conflict:
-    description: Conflict error
+    description: Conflict error.
     schema:
       $ref: '#/definitions/Error'

@@ -56,6 +56,10 @@ type MTOServiceItem struct {
 	// Format: uuid
 	MtoShipmentID *strfmt.UUID `json:"mtoShipmentID"`
 
+	// pickup postal code
+	// Required: true
+	PickupPostalCode *string `json:"pickupPostalCode"`
+
 	// quantity
 	Quantity int64 `json:"quantity,omitempty"`
 
@@ -74,6 +78,10 @@ type MTOServiceItem struct {
 	// re service name
 	// Required: true
 	ReServiceName *string `json:"reServiceName"`
+
+	// reason
+	// Required: true
+	Reason *string `json:"reason"`
 
 	// rejected at
 	// Format: date
@@ -126,6 +134,10 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validatePickupPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateReServiceCode(formats); err != nil {
 		res = append(res, err)
 	}
@@ -135,6 +147,10 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceName(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReason(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -287,6 +303,15 @@ func (m *MTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOServiceItem) validatePickupPostalCode(formats strfmt.Registry) error {
+
+	if err := validate.Required("pickupPostalCode", "body", m.PickupPostalCode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItem) validateReServiceCode(formats strfmt.Registry) error {
 
 	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
@@ -312,6 +337,15 @@ func (m *MTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
 func (m *MTOServiceItem) validateReServiceName(formats strfmt.Registry) error {
 
 	if err := validate.Required("reServiceName", "body", m.ReServiceName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateReason(formats strfmt.Registry) error {
+
+	if err := validate.Required("reason", "body", m.Reason); err != nil {
 		return err
 	}
 

@@ -12,6 +12,9 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/supportclient/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/supportclient/mto_service_item"
+	"github.com/transcom/mymove/pkg/gen/supportclient/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/supportclient/payment_requests"
 )
 
 // Default mymove HTTP client.
@@ -59,6 +62,12 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Mymove {
 
 	cli.MoveTaskOrder = move_task_order.New(transport, formats)
 
+	cli.MtoServiceItem = mto_service_item.New(transport, formats)
+
+	cli.MtoShipment = mto_shipment.New(transport, formats)
+
+	cli.PaymentRequests = payment_requests.New(transport, formats)
+
 	return cli
 }
 
@@ -105,6 +114,12 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type Mymove struct {
 	MoveTaskOrder *move_task_order.Client
 
+	MtoServiceItem *mto_service_item.Client
+
+	MtoShipment *mto_shipment.Client
+
+	PaymentRequests *payment_requests.Client
+
 	Transport runtime.ClientTransport
 }
 
@@ -113,5 +128,11 @@ func (c *Mymove) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 
 	c.MoveTaskOrder.SetTransport(transport)
+
+	c.MtoServiceItem.SetTransport(transport)
+
+	c.MtoShipment.SetTransport(transport)
+
+	c.PaymentRequests.SetTransport(transport)
 
 }

@@ -9,19 +9,11 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
-	"strings"
-
-	"github.com/go-openapi/strfmt"
 )
 
 // CreateMTOServiceItemURL generates an URL for the create m t o service item operation
 type CreateMTOServiceItemURL struct {
-	MoveTaskOrderID strfmt.UUID
-	MtoShipmentID   strfmt.UUID
-
 	_basePath string
-	// avoid unkeyed usage
-	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -43,21 +35,7 @@ func (o *CreateMTOServiceItemURL) SetBasePath(bp string) {
 func (o *CreateMTOServiceItemURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items"
-
-	moveTaskOrderID := o.MoveTaskOrderID.String()
-	if moveTaskOrderID != "" {
-		_path = strings.Replace(_path, "{moveTaskOrderID}", moveTaskOrderID, -1)
-	} else {
-		return nil, errors.New("moveTaskOrderId is required on CreateMTOServiceItemURL")
-	}
-
-	mtoShipmentID := o.MtoShipmentID.String()
-	if mtoShipmentID != "" {
-		_path = strings.Replace(_path, "{mtoShipmentID}", mtoShipmentID, -1)
-	} else {
-		return nil, errors.New("mtoShipmentId is required on CreateMTOServiceItemURL")
-	}
+	var _path = "/mto-service-items"
 
 	_basePath := o._basePath
 	if _basePath == "" {

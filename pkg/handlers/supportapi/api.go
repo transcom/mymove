@@ -4,14 +4,19 @@ import (
 	"log"
 	"net/http"
 
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-
 	"github.com/go-openapi/loads"
 
+	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/services/query"
 
-	"github.com/transcom/mymove/pkg/gen/supportapi"
 	supportops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+
+	"github.com/transcom/mymove/pkg/gen/supportapi"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -31,7 +36,28 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
 	}
 
-	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
+	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
 
+	supportAPI.MoveTaskOrderCreateMoveTaskOrderHandler = CreateMoveTaskOrderHandler{
+		context,
+		customer.NewCustomerFetcher(context.DB()),
+	}
+
+	supportAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
+		HandlerContext:              context,
+		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
+	}
+
+	supportAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandlerFunc{
+		context,
+		fetch.NewFetcher(queryBuilder),
+		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), queryBuilder,
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder), context.Planner()),
+	}
+
+	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{context, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)}
 	return supportAPI.Serve(nil)
 }

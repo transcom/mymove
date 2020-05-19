@@ -1,15 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents } from 'shared/formatters';
 import { formatIncentiveRange } from 'shared/incentive';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
-import { selectReimbursement } from 'shared/Entities/modules/ppms';
+import { selectPPMEstimateRange, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 
-const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments }) => {
+const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimateRange }) => {
   const privateStorageString = ppm.estimated_storage_reimbursement
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
@@ -18,17 +17,17 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments }) => {
       ? `Advance Requested: $${formatCents(advance.requested_amount)}`
       : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
-  const incentiveRange = formatIncentiveRange(ppm);
+  const incentiveRange = formatIncentiveRange(ppm, estimateRange);
 
   return (
     <div className="titled_block">
       <div className="title">Details</div>
-      <div>Weight (est.): {ppm.currentPpm.weight_estimate} lbs</div>
+      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
       <div className="title" style={{ paddingTop: '0.5em' }}>
         Payment request
       </div>
       <div>Estimated payment: </div>
-      {ppm.incentive_estimate_min ? (
+      {ppm.incentive_estimate_min || incentiveRange ? (
         isMissingWeightTicketDocuments ? (
           <>
             <div className="missing-label">
@@ -65,7 +64,11 @@ const mapStateToProps = (state, ownProps) => {
   const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.ppm.move_id, [
     'WEIGHT_TICKET_SET',
   ]).some((doc) => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
-  return { ppm: get(state, 'ppm', {}), advance, isMissingWeightTicketDocuments };
+  return {
+    advance,
+    isMissingWeightTicketDocuments,
+    estimateRange: selectPPMEstimateRange(state),
+  };
 };
 
 export default connect(mapStateToProps)(PpmMoveDetails);

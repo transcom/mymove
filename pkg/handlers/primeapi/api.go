@@ -46,7 +46,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{
 		context,
-		paymentrequest.NewPaymentRequestCreator(context.DB()),
+		paymentrequest.NewPaymentRequestCreator(context.DB(), context.Planner()),
 	}
 
 	primeAPI.UploadsCreateUploadHandler = CreateUploadHandler{
@@ -61,6 +61,11 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		fetch.NewFetcher(queryBuilder),
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
+	}
+
+	primeAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
+		context,
+		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher),
 	}
 
 	return primeAPI.Serve(nil)

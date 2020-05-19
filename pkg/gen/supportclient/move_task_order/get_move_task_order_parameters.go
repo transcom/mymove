@@ -62,7 +62,7 @@ for the get move task order operation typically these are written to a http.Requ
 type GetMoveTaskOrderParams struct {
 
 	/*MoveTaskOrderID
-	  ID of move task order to use
+	  UUID of move task order to use.
 
 	*/
 	MoveTaskOrderID string

@@ -1,13 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -15,7 +13,6 @@ import (
 	"github.com/spf13/viper"
 
 	mto "github.com/transcom/mymove/pkg/gen/supportclient/move_task_order"
-	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 func initGetMTOFlags(flag *pflag.FlagSet) {
@@ -55,6 +52,16 @@ func getMTO(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
+	// Decode json from file that was passed in
+	filename := v.GetString(FilenameFlag)
+	var getMTOParams mto.GetMoveTaskOrderParams
+	err = decodeJSONFileToPayload(filename, containsDash(args), &getMTOParams)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	getMTOParams.SetTimeout(time.Second * 30)
+
+	// Create the client and open the cacStore
 	supportGateway, cacStore, errCreateClient := CreateSupportClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
@@ -64,42 +71,11 @@ func getMTO(cmd *cobra.Command, args []string) error {
 	if cacStore != nil {
 		defer cacStore.Close()
 	}
+	getMTOParams.SetTimeout(time.Second * 30)
 
-	// Decode json from file that was passed into MTOShipment
-	filename := v.GetString(FilenameFlag)
-	var reader *bufio.Reader
-	if filename != "" {
-		file, fileErr := os.Open(filepath.Clean(filename))
-		if fileErr != nil {
-			logger.Fatal(fileErr)
-		}
-		reader = bufio.NewReader(file)
-	}
-
-	if len(args) > 0 && containsDash(args) {
-		reader = bufio.NewReader(os.Stdin)
-	}
-
-	jsonDecoder := json.NewDecoder(reader)
-	var moveTaskOrder supportmessages.MoveTaskOrder
-	err = jsonDecoder.Decode(&moveTaskOrder)
+	resp, err := supportGateway.MoveTaskOrder.GetMoveTaskOrder(&getMTOParams)
 	if err != nil {
-		return fmt.Errorf("decoding data failed: %w", err)
-	}
-
-	params := mto.GetMoveTaskOrderParams{
-		MoveTaskOrderID: moveTaskOrder.ID.String(),
-	}
-
-	params.SetTimeout(time.Second * 30)
-
-	resp, errGetMTO := supportGateway.MoveTaskOrder.GetMoveTaskOrder(&params)
-	if errGetMTO != nil {
-		// If the response cannot be parsed as JSON you may see an error like
-		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
-		// Likely this is because the API doesn't return JSON response for BadRequest OR
-		// The response type is not being set to text
-		logger.Fatal(errGetMTO.Error())
+		return handleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()

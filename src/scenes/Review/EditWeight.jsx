@@ -9,8 +9,14 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { loadPPMs, updatePPM, selectActivePPMForMove, updatePPMEstimate } from 'shared/Entities/modules/ppms';
-import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
+import {
+  loadPPMs,
+  updatePPM,
+  selectActivePPMForMove,
+  selectPPMEstimateRange,
+  updatePPMEstimate,
+  getPpmWeightEstimate,
+} from 'shared/Entities/modules/ppms';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
@@ -59,8 +65,8 @@ let EditWeightForm = (props) => {
     valid,
     entitlement,
     dirty,
-    incentive_estimate_min,
-    incentive_estimate_max,
+    incentiveEstimateMin,
+    incentiveEstimateMax,
     onWeightChange,
     initialValues,
   } = props;
@@ -69,11 +75,11 @@ let EditWeightForm = (props) => {
   let fieldClass = dirty ? 'warn' : '';
   let advanceError = false;
   const advanceAmt = get(initialValues, 'advance.requested_amount', 0);
-  if (incentive_estimate_max && advanceAmt && incentive_estimate_max < formatCents(advanceAmt)) {
+  if (incentiveEstimateMax && advanceAmt && incentiveEstimateMax < formatCents(advanceAmt)) {
     advanceError = true;
     incentiveClass = 'error';
     fieldClass = 'error';
-  } else if (get(initialValues, 'incentive_estimate_min') !== incentive_estimate_min) {
+  } else if (get(initialValues, 'incentive_estimate_min') !== incentiveEstimateMin) {
     // Min and max are linked, so we only need to check one
     incentiveClass = 'warn';
   }
@@ -130,12 +136,12 @@ let EditWeightForm = (props) => {
                   <p>Estimated Incentive</p>
                   <p className={incentiveClass}>
                     <strong>
-                      {formatCentsRange(incentive_estimate_min, incentive_estimate_max) || 'Unable to Calculate'}
+                      {formatCentsRange(incentiveEstimateMin, incentiveEstimateMax) || 'Unable to Calculate'}
                     </strong>
                   </p>
                   {initialValues &&
                     initialValues.incentive_estimate_min &&
-                    initialValues.incentive_estimate_min !== incentive_estimate_min && (
+                    initialValues.incentive_estimate_min !== incentiveEstimateMin && (
                       <p className="subtext">
                         Originally{' '}
                         {formatCentsRange(initialValues.incentive_estimate_min, initialValues.incentive_estimate_max)}
@@ -279,11 +285,11 @@ class EditWeight extends Component {
       error,
       schema,
       entitlement,
-      incentive_estimate_min,
-      incentive_estimate_max,
       hasEstimateError,
       rateEngineError,
       currentPPM,
+      incentiveEstimateMin,
+      incentiveEstimateMax,
     } = this.props;
     return (
       <div className="grid-container usa-prose">
@@ -307,8 +313,8 @@ class EditWeight extends Component {
           <div className="grid-col-12">
             <EditWeightForm
               initialValues={currentPPM}
-              incentive_estimate_min={incentive_estimate_min}
-              incentive_estimate_max={incentive_estimate_max}
+              incentiveEstimateMin={incentiveEstimateMin}
+              incentiveEstimateMax={incentiveEstimateMax}
               onSubmit={this.updatePpm}
               onWeightChange={this.onWeightChange}
               entitlement={entitlement}
@@ -325,6 +331,8 @@ function mapStateToProps(state) {
   const moveID = state.moves.currentMove.id;
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
+    incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
+    incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     entitlement: loadEntitlementsFromState(state),

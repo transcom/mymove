@@ -22,11 +22,17 @@ import (
 // SQLErrMessage represents string value to represent generic sql error to avoid leaking implementation details
 const SQLErrMessage string = "Unhandled SQL error encountered"
 
+// NotFoundMessage string value to represent sql not found
+const NotFoundMessage string = "Not found error"
+
 // NilErrMessage indicates an uninstantiated error was passed
 const NilErrMessage string = "Nil error passed"
 
 // ValidationErrMessage indicates that some fields were invalid
 const ValidationErrMessage string = "Validation Error"
+
+// ConflictErrMessage indicates that there was a conflict with input values
+const ConflictErrMessage string = "Conflict Error"
 
 // ValidationErrorsResponse is a middleware.Responder for a set of validation errors
 type ValidationErrorsResponse struct {

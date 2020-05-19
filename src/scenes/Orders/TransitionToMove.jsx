@@ -22,7 +22,7 @@ export class TransitionToMove extends Component {
             <img className="sm margin-top-3 desktop:margin-top-1" src={ordersComplete} alt="profile-check" />
           </div>
           <div className="grid-col-9 desktop:grid-col-10">
-            <h1 className="sm-heading">Great, we're done with your orders.</h1>
+            <h1 className="sm-heading">Thank you for entering info about your orders.</h1>
           </div>
         </div>
         <div className="grid-row grid-gap">
@@ -30,7 +30,7 @@ export class TransitionToMove extends Component {
             <img className="sm margin-top-5 desktop:margin-top-1" src={moveIcon} alt="onto-move-orders" />
           </div>
           <div className="grid-col-9 desktop:grid-col-10">
-            <h1 className="sm-heading">Now, we're ready to schedule your move!</h1>
+            <h1 className="sm-heading">Now let’s schedule your move.</h1>
           </div>
         </div>
       </div>

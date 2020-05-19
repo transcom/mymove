@@ -1,13 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -15,7 +13,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/gen/primeclient/payment_requests"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // initCreatePaymentRequestFlags initializes flags.
@@ -58,6 +55,15 @@ func createPaymentRequest(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
+	// Decode json from file that was passed in
+	filename := v.GetString(FilenameFlag)
+	var paymentRequestParams payment_requests.CreatePaymentRequestParams
+	err = decodeJSONFileToPayload(filename, containsDash(args), &paymentRequestParams)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	paymentRequestParams.SetTimeout(time.Second * 30)
+
 	// cac and api gateway
 	primeGateway, cacStore, errCreateClient := CreatePrimeClient(v)
 	if errCreateClient != nil {
@@ -69,40 +75,9 @@ func createPaymentRequest(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	// Decode json from file that was passed into create-payment-request
-	filename := v.GetString(FilenameFlag)
-	var reader *bufio.Reader
-	if filename != "" {
-		file, fileErr := os.Open(filepath.Clean(filename))
-		if fileErr != nil {
-			logger.Fatal(fileErr)
-		}
-		reader = bufio.NewReader(file)
-	}
-
-	if len(args) > 0 && containsDash(args) {
-		reader = bufio.NewReader(os.Stdin)
-	}
-
-	jsonDecoder := json.NewDecoder(reader)
-	var paymentRequest primemessages.CreatePaymentRequestPayload
-	err = jsonDecoder.Decode(&paymentRequest)
+	resp, err := primeGateway.PaymentRequests.CreatePaymentRequest(&paymentRequestParams)
 	if err != nil {
-		return fmt.Errorf("decoding data failed: %w", err)
-	}
-
-	params := payment_requests.CreatePaymentRequestParams{
-		Body: &paymentRequest,
-	}
-	params.SetTimeout(time.Second * 30)
-
-	resp, errCreatePaymentRequest := primeGateway.PaymentRequests.CreatePaymentRequest(&params)
-	if errCreatePaymentRequest != nil {
-		// If the response cannot be parsed as JSON you may see an error like
-		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
-		// Likely this is because the API doesn't return JSON response for BadRequest OR
-		// The response type is not being set to text
-		logger.Fatal(errCreatePaymentRequest.Error())
+		return handleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()

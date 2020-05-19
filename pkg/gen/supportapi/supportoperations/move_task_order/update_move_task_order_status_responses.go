@@ -16,7 +16,7 @@ import (
 // UpdateMoveTaskOrderStatusOKCode is the HTTP code returned for type UpdateMoveTaskOrderStatusOK
 const UpdateMoveTaskOrderStatusOKCode int = 200
 
-/*UpdateMoveTaskOrderStatusOK Successfully updated move task order status
+/*UpdateMoveTaskOrderStatusOK Successfully updated move task order status.
 
 swagger:response updateMoveTaskOrderStatusOK
 */
@@ -60,7 +60,7 @@ func (o *UpdateMoveTaskOrderStatusOK) WriteResponse(rw http.ResponseWriter, prod
 // UpdateMoveTaskOrderStatusBadRequestCode is the HTTP code returned for type UpdateMoveTaskOrderStatusBadRequest
 const UpdateMoveTaskOrderStatusBadRequestCode int = 400
 
-/*UpdateMoveTaskOrderStatusBadRequest The request payload is invalid
+/*UpdateMoveTaskOrderStatusBadRequest The parameters were invalid.
 
 swagger:response updateMoveTaskOrderStatusBadRequest
 */
@@ -69,7 +69,7 @@ type UpdateMoveTaskOrderStatusBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderStatusBadRequest creates UpdateMoveTaskOrderStatusBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdateMoveTaskOrderStatusBadRequest() *UpdateMoveTaskOrderStatusBadReque
 }
 
 // WithPayload adds the payload to the update move task order status bad request response
-func (o *UpdateMoveTaskOrderStatusBadRequest) WithPayload(payload interface{}) *UpdateMoveTaskOrderStatusBadRequest {
+func (o *UpdateMoveTaskOrderStatusBadRequest) WithPayload(payload *supportmessages.Error) *UpdateMoveTaskOrderStatusBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order status bad request response
-func (o *UpdateMoveTaskOrderStatusBadRequest) SetPayload(payload interface{}) {
+func (o *UpdateMoveTaskOrderStatusBadRequest) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,16 +93,18 @@ func (o *UpdateMoveTaskOrderStatusBadRequest) SetPayload(payload interface{}) {
 func (o *UpdateMoveTaskOrderStatusBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMoveTaskOrderStatusUnauthorizedCode is the HTTP code returned for type UpdateMoveTaskOrderStatusUnauthorized
 const UpdateMoveTaskOrderStatusUnauthorizedCode int = 401
 
-/*UpdateMoveTaskOrderStatusUnauthorized The request was denied
+/*UpdateMoveTaskOrderStatusUnauthorized The request was unauthorized.
 
 swagger:response updateMoveTaskOrderStatusUnauthorized
 */
@@ -144,7 +146,7 @@ func (o *UpdateMoveTaskOrderStatusUnauthorized) WriteResponse(rw http.ResponseWr
 // UpdateMoveTaskOrderStatusForbiddenCode is the HTTP code returned for type UpdateMoveTaskOrderStatusForbidden
 const UpdateMoveTaskOrderStatusForbiddenCode int = 403
 
-/*UpdateMoveTaskOrderStatusForbidden The request was denied
+/*UpdateMoveTaskOrderStatusForbidden The client doesn't have permissions to perform the request.
 
 swagger:response updateMoveTaskOrderStatusForbidden
 */
@@ -186,7 +188,7 @@ func (o *UpdateMoveTaskOrderStatusForbidden) WriteResponse(rw http.ResponseWrite
 // UpdateMoveTaskOrderStatusNotFoundCode is the HTTP code returned for type UpdateMoveTaskOrderStatusNotFound
 const UpdateMoveTaskOrderStatusNotFoundCode int = 404
 
-/*UpdateMoveTaskOrderStatusNotFound The requested resource wasn't found
+/*UpdateMoveTaskOrderStatusNotFound The requested resource wasn't found.
 
 swagger:response updateMoveTaskOrderStatusNotFound
 */
@@ -195,7 +197,7 @@ type UpdateMoveTaskOrderStatusNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderStatusNotFound creates UpdateMoveTaskOrderStatusNotFound with default headers values
@@ -205,13 +207,13 @@ func NewUpdateMoveTaskOrderStatusNotFound() *UpdateMoveTaskOrderStatusNotFound {
 }
 
 // WithPayload adds the payload to the update move task order status not found response
-func (o *UpdateMoveTaskOrderStatusNotFound) WithPayload(payload interface{}) *UpdateMoveTaskOrderStatusNotFound {
+func (o *UpdateMoveTaskOrderStatusNotFound) WithPayload(payload *supportmessages.Error) *UpdateMoveTaskOrderStatusNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order status not found response
-func (o *UpdateMoveTaskOrderStatusNotFound) SetPayload(payload interface{}) {
+func (o *UpdateMoveTaskOrderStatusNotFound) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,16 +221,18 @@ func (o *UpdateMoveTaskOrderStatusNotFound) SetPayload(payload interface{}) {
 func (o *UpdateMoveTaskOrderStatusNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMoveTaskOrderStatusPreconditionFailedCode is the HTTP code returned for type UpdateMoveTaskOrderStatusPreconditionFailed
 const UpdateMoveTaskOrderStatusPreconditionFailedCode int = 412
 
-/*UpdateMoveTaskOrderStatusPreconditionFailed Precondition Failed
+/*UpdateMoveTaskOrderStatusPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 
 swagger:response updateMoveTaskOrderStatusPreconditionFailed
 */
@@ -237,7 +241,7 @@ type UpdateMoveTaskOrderStatusPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderStatusPreconditionFailed creates UpdateMoveTaskOrderStatusPreconditionFailed with default headers values
@@ -247,13 +251,13 @@ func NewUpdateMoveTaskOrderStatusPreconditionFailed() *UpdateMoveTaskOrderStatus
 }
 
 // WithPayload adds the payload to the update move task order status precondition failed response
-func (o *UpdateMoveTaskOrderStatusPreconditionFailed) WithPayload(payload interface{}) *UpdateMoveTaskOrderStatusPreconditionFailed {
+func (o *UpdateMoveTaskOrderStatusPreconditionFailed) WithPayload(payload *supportmessages.Error) *UpdateMoveTaskOrderStatusPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order status precondition failed response
-func (o *UpdateMoveTaskOrderStatusPreconditionFailed) SetPayload(payload interface{}) {
+func (o *UpdateMoveTaskOrderStatusPreconditionFailed) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -261,16 +265,18 @@ func (o *UpdateMoveTaskOrderStatusPreconditionFailed) SetPayload(payload interfa
 func (o *UpdateMoveTaskOrderStatusPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(412)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMoveTaskOrderStatusInternalServerErrorCode is the HTTP code returned for type UpdateMoveTaskOrderStatusInternalServerError
 const UpdateMoveTaskOrderStatusInternalServerErrorCode int = 500
 
-/*UpdateMoveTaskOrderStatusInternalServerError A server error occurred
+/*UpdateMoveTaskOrderStatusInternalServerError A server error occurred.
 
 swagger:response updateMoveTaskOrderStatusInternalServerError
 */
@@ -279,7 +285,7 @@ type UpdateMoveTaskOrderStatusInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderStatusInternalServerError creates UpdateMoveTaskOrderStatusInternalServerError with default headers values
@@ -289,13 +295,13 @@ func NewUpdateMoveTaskOrderStatusInternalServerError() *UpdateMoveTaskOrderStatu
 }
 
 // WithPayload adds the payload to the update move task order status internal server error response
-func (o *UpdateMoveTaskOrderStatusInternalServerError) WithPayload(payload interface{}) *UpdateMoveTaskOrderStatusInternalServerError {
+func (o *UpdateMoveTaskOrderStatusInternalServerError) WithPayload(payload *supportmessages.Error) *UpdateMoveTaskOrderStatusInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order status internal server error response
-func (o *UpdateMoveTaskOrderStatusInternalServerError) SetPayload(payload interface{}) {
+func (o *UpdateMoveTaskOrderStatusInternalServerError) SetPayload(payload *supportmessages.Error) {
 	o.Payload = payload
 }
 
@@ -303,8 +309,10 @@ func (o *UpdateMoveTaskOrderStatusInternalServerError) SetPayload(payload interf
 func (o *UpdateMoveTaskOrderStatusInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

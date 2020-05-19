@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import moment from 'moment';
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
@@ -15,13 +15,19 @@ import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { getPpmWeightEstimate } from '../ducks';
 
 import { submitExpenseDocs } from '../ducks';
 import DocumentsUploaded from './DocumentsUploaded';
 import { calcNetWeight } from '../utility';
 import WizardHeader from '../../WizardHeader';
 import './PaymentReview.css';
+import {
+  selectActivePPMForMove,
+  loadPPMs,
+  selectPPMEstimateRange,
+  getPpmWeightEstimate,
+  updatePPM,
+} from 'shared/Entities/modules/ppms';
 
 const nextBtnLabel = 'Submit Request';
 
@@ -32,38 +38,47 @@ class PaymentReview extends Component {
   };
 
   componentDidMount() {
-    const { originDutyStationZip, currentPpm } = this.props;
-    const { original_move_date, pickup_postal_code } = currentPpm;
-    this.props.getMoveDocumentsForMove(this.props.moveId).then(({ obj: documents }) => {
-      const weightTicketNetWeight = calcNetWeight(documents);
-      const netWeight =
-        weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
-      this.props.getPpmWeightEstimate(
-        original_move_date,
-        pickup_postal_code,
-        originDutyStationZip,
-        this.props.orders.id,
-        netWeight,
-      );
+    const { originDutyStationZip, currentPPM, moveId } = this.props;
+    const { original_move_date, pickup_postal_code } = currentPPM;
+
+    this.props.loadPPMs(moveId).then(() => {
+      if (!isEmpty(currentPPM)) {
+        this.props.getMoveDocumentsForMove(moveId).then(({ obj: documents }) => {
+          const weightTicketNetWeight = calcNetWeight(documents);
+          const netWeight =
+            weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+          // TODO: make not async, make sure this happens
+
+          this.props.getPpmWeightEstimate(
+            original_move_date,
+            pickup_postal_code,
+            originDutyStationZip,
+            this.props.orders.id,
+            netWeight,
+          );
+        });
+      }
     });
   }
 
   componentDidUpdate(prevProps) {
-    const { originDutyStationZip, currentPpm, moveDocuments } = this.props;
-    const { original_move_date, pickup_postal_code } = currentPpm;
+    const { originDutyStationZip, currentPPM, moveDocuments } = this.props;
+    const { original_move_date, pickup_postal_code } = currentPPM;
     if (moveDocuments.weightTickets.length !== prevProps.moveDocuments.weightTickets.length) {
-      this.props.getMoveDocumentsForMove(this.props.moveId).then(({ obj: documents }) => {
-        const weightTicketNetWeight = calcNetWeight(documents);
-        const netWeight =
-          weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
-        this.props.getPpmWeightEstimate(
-          original_move_date,
-          pickup_postal_code,
-          originDutyStationZip,
-          this.props.orders.id,
-          netWeight,
-        );
-      });
+      if (!isEmpty(currentPPM)) {
+        this.props.getMoveDocumentsForMove(this.props.moveId).then(({ obj: documents }) => {
+          const weightTicketNetWeight = calcNetWeight(documents);
+          const netWeight =
+            weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+          this.props.getPpmWeightEstimate(
+            original_move_date,
+            pickup_postal_code,
+            originDutyStationZip,
+            this.props.orders.id,
+            netWeight,
+          );
+        });
+      }
     }
   }
 
@@ -73,31 +88,32 @@ class PaymentReview extends Component {
 
   submitCertificate = () => {
     const signatureTime = moment().format();
-    const { currentPpm, moveId } = this.props;
+    const { currentPPM, moveId } = this.props;
     const certificate = {
       certification_text: ppmPaymentLegal,
       date: signatureTime,
       signature: 'CHECKBOX',
-      personally_procured_move_id: currentPpm.id,
+      personally_procured_move_id: currentPPM.id,
       certification_type: 'PPM_PAYMENT',
     };
     return this.props.createSignedCertification(moveId, certificate);
   };
 
   applyClickHandlers = () => {
-    this.setState({ moveSubmissionError: false });
-    Promise.all([this.submitCertificate(), this.props.submitExpenseDocs()])
-      .then(() => {
-        this.props.history.push('/');
-      })
-      .catch(() => {
-        this.setState({ moveSubmissionError: true });
-        scrollToTop();
-      });
+    this.setState({ moveSubmissionError: false }, () =>
+      Promise.all([this.submitCertificate(), this.props.submitExpenseDocs()])
+        .then(() => {
+          this.props.history.push('/');
+        })
+        .catch(() => {
+          this.setState({ moveSubmissionError: true });
+          scrollToTop();
+        }),
+    );
   };
 
   render() {
-    const { moveId, moveDocuments, submitting, history, ppm } = this.props;
+    const { moveId, moveDocuments, submitting, history, incentiveEstimateMin } = this.props;
     const weightTickets = moveDocuments.weightTickets;
     const missingSomeWeightTicket = weightTickets.some(
       ({ empty_weight_ticket_missing, full_weight_ticket_missing }) =>
@@ -151,7 +167,7 @@ class PaymentReview extends Component {
               </>
             ) : (
               <>
-                <h4>You're requesting a payment of ${formatCents(ppm.incentive_estimate_min)}</h4>
+                <h4>You're requesting a payment of ${formatCents(incentiveEstimateMin)}</h4>
                 <p>
                   Finance will determine your final reimbursement after reviewing the information you’ve submitted. That
                   final total will reflect the weight of your completed move (including any household goods move, if
@@ -190,8 +206,9 @@ const mapStateToProps = (state, props) => {
       weightTickets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
     },
     moveId,
-    currentPpm: get(state, 'ppm.currentPpm', {}),
-    ppm: get(state, 'ppm', {}),
+    currentPPM: selectActivePPMForMove(state, moveId),
+    incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
+    incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
     originDutyStationZip: get(state, 'serviceMember.currentServiceMember.current_station.address.postal_code'),
     entitlement: loadEntitlementsFromState(state),
     orders: get(state, 'orders.currentOrders', {}),
@@ -203,6 +220,8 @@ const mapDispatchToProps = {
   createSignedCertification,
   getMoveDocumentsForMove,
   getPpmWeightEstimate,
+  loadPPMs,
+  updatePPM,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentReview);

@@ -63,7 +63,7 @@ export class UploadOrders extends Component {
         error={error}
       >
         <div>
-          <h1 className="sm-heading">Upload Your Orders</h1>
+          <h1 className="sm-heading">Upload your orders</h1>
           <p>In order to schedule your move, we need to have a complete copy of your orders.</p>
           <p>You can upload a PDF, or you can take a picture of each page and upload the images.</p>
           <p>{documentSizeLimitMsg}</p>
@@ -81,7 +81,7 @@ export class UploadOrders extends Component {
               onChange={this.onChange}
               options={{ labelIdle: uploaderLabelIdle }}
             />
-            <div className="hint">(Each page must be clear and legible)</div>
+            <div className="hint">(Each page must be clear and legible.)</div>
           </div>
         )}
 

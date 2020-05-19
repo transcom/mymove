@@ -24,7 +24,7 @@ type mtoServiceItemCreator struct {
 	createNewBuilder func(db *pop.Connection) createMTOServiceItemQueryBuilder
 }
 
-// CreateMTOServiceItem creates an MTO Service Item
+// CreateMTOServiceItem creates a MTO Service Item
 func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItem, *validate.Errors, error) {
 	var verrs *validate.Errors
 	var err error
@@ -40,7 +40,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return nil, nil, services.NewNotFoundError(moveTaskOrderID, fmt.Sprintf("MoveTaskOrderID: %s", err))
 	}
 
-	// check if shipment exists
+	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
+	// check if shipment exists linked by MoveTaskOrderID
 	var mtoShipment models.MTOShipment
 	var mtoShipmentID uuid.UUID
 	if serviceItem.MTOShipmentID != nil {
@@ -48,10 +49,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	}
 	queryFilters = []services.QueryFilter{
 		query.NewQueryFilter("id", "=", mtoShipmentID),
+		query.NewQueryFilter("move_task_order_id", "=", moveTaskOrderID),
 	}
 	err = o.builder.FetchOne(&mtoShipment, queryFilters)
 	if err != nil {
-		return nil, nil, services.NewNotFoundError(mtoShipmentID, fmt.Sprintf("MTOShipmentID: %s", err))
+		return nil, nil, services.NewNotFoundError(mtoShipmentID,
+			fmt.Sprintf("MTOShipmentID with MoveTaskOrderID (%s): %s", moveTaskOrderID.String(), err))
 	}
 
 	// find the re service code id
@@ -67,7 +70,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 	// set re service for service item
 	serviceItem.ReServiceID = reService.ID
-
+	serviceItem.Status = models.MTOServiceItemStatusSubmitted
 	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
 		if mtoShipment.PrimeEstimatedWeight == nil {
 			return nil, nil, services.NewInvalidInputError(mtoShipmentID, nil, nil,

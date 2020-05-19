@@ -13,6 +13,16 @@ import ServiceItemTableHasImg from '../components/ServiceItemTableHasImg';
 import DataPoint from '../components/DataPoint';
 import DataPair from '../components/DataPair';
 
+const dataPointBody = (
+  <>
+    Dorothy Lagomarsino
+    <br />
+    +1 999-999-9999
+    <br />
+    dorothyl@email.com
+  </>
+);
+
 // Tables
 
 storiesOf('Components|Tables', module)
@@ -253,7 +263,7 @@ storiesOf('Components|Tables', module)
       <div className="display-flex">
         <div>
           <h3>Data point</h3>
-          <DataPoint />
+          <DataPoint header="Receiving agent" body={dataPointBody} />
         </div>
         <div style={{ width: '40px' }} />
         <div>
@@ -271,6 +281,23 @@ storiesOf('Components|Tables', module)
       <br />
       <hr />
       <h3>Service item table with images and buttons</h3>
-      <ServiceItemTableHasImg />
+      <ServiceItemTableHasImg
+        serviceItems={[
+          {
+            id: 'abc12345',
+            dateRequested: '22 Nov 2020',
+            serviceItem: 'Dom. Crating',
+            code: 'DCRT',
+            details: {
+              text: {
+                Description: "Here's the description",
+                'Item dimensions': '84"x26"x42"',
+                'Crate dimensions': '110"x36"x54"',
+              },
+              imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
+            },
+          },
+        ]}
+      />
     </div>
   ));

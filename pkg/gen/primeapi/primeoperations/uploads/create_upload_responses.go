@@ -16,7 +16,7 @@ import (
 // CreateUploadCreatedCode is the HTTP code returned for type CreateUploadCreated
 const CreateUploadCreatedCode int = 201
 
-/*CreateUploadCreated Created upload
+/*CreateUploadCreated Successfully created upload of digital file.
 
 swagger:response createUploadCreated
 */
@@ -60,7 +60,7 @@ func (o *CreateUploadCreated) WriteResponse(rw http.ResponseWriter, producer run
 // CreateUploadBadRequestCode is the HTTP code returned for type CreateUploadBadRequest
 const CreateUploadBadRequestCode int = 400
 
-/*CreateUploadBadRequest Invalid request
+/*CreateUploadBadRequest The request payload is invalid.
 
 swagger:response createUploadBadRequest
 */
@@ -69,7 +69,7 @@ type CreateUploadBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewCreateUploadBadRequest creates CreateUploadBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewCreateUploadBadRequest() *CreateUploadBadRequest {
 }
 
 // WithPayload adds the payload to the create upload bad request response
-func (o *CreateUploadBadRequest) WithPayload(payload interface{}) *CreateUploadBadRequest {
+func (o *CreateUploadBadRequest) WithPayload(payload *primemessages.Error) *CreateUploadBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create upload bad request response
-func (o *CreateUploadBadRequest) SetPayload(payload interface{}) {
+func (o *CreateUploadBadRequest) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,16 +93,18 @@ func (o *CreateUploadBadRequest) SetPayload(payload interface{}) {
 func (o *CreateUploadBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // CreateUploadUnauthorizedCode is the HTTP code returned for type CreateUploadUnauthorized
 const CreateUploadUnauthorizedCode int = 401
 
-/*CreateUploadUnauthorized The request was denied
+/*CreateUploadUnauthorized The request was denied.
 
 swagger:response createUploadUnauthorized
 */
@@ -111,7 +113,7 @@ type CreateUploadUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewCreateUploadUnauthorized creates CreateUploadUnauthorized with default headers values
@@ -121,13 +123,13 @@ func NewCreateUploadUnauthorized() *CreateUploadUnauthorized {
 }
 
 // WithPayload adds the payload to the create upload unauthorized response
-func (o *CreateUploadUnauthorized) WithPayload(payload interface{}) *CreateUploadUnauthorized {
+func (o *CreateUploadUnauthorized) WithPayload(payload *primemessages.Error) *CreateUploadUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create upload unauthorized response
-func (o *CreateUploadUnauthorized) SetPayload(payload interface{}) {
+func (o *CreateUploadUnauthorized) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,16 +137,18 @@ func (o *CreateUploadUnauthorized) SetPayload(payload interface{}) {
 func (o *CreateUploadUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // CreateUploadForbiddenCode is the HTTP code returned for type CreateUploadForbidden
 const CreateUploadForbiddenCode int = 403
 
-/*CreateUploadForbidden The request was denied
+/*CreateUploadForbidden The request was denied.
 
 swagger:response createUploadForbidden
 */
@@ -153,7 +157,7 @@ type CreateUploadForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewCreateUploadForbidden creates CreateUploadForbidden with default headers values
@@ -163,13 +167,13 @@ func NewCreateUploadForbidden() *CreateUploadForbidden {
 }
 
 // WithPayload adds the payload to the create upload forbidden response
-func (o *CreateUploadForbidden) WithPayload(payload interface{}) *CreateUploadForbidden {
+func (o *CreateUploadForbidden) WithPayload(payload *primemessages.Error) *CreateUploadForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create upload forbidden response
-func (o *CreateUploadForbidden) SetPayload(payload interface{}) {
+func (o *CreateUploadForbidden) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,16 +181,18 @@ func (o *CreateUploadForbidden) SetPayload(payload interface{}) {
 func (o *CreateUploadForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // CreateUploadNotFoundCode is the HTTP code returned for type CreateUploadNotFound
 const CreateUploadNotFoundCode int = 404
 
-/*CreateUploadNotFound The requested resource wasn't found
+/*CreateUploadNotFound The requested resource wasn't found.
 
 swagger:response createUploadNotFound
 */
@@ -195,7 +201,7 @@ type CreateUploadNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewCreateUploadNotFound creates CreateUploadNotFound with default headers values
@@ -205,13 +211,13 @@ func NewCreateUploadNotFound() *CreateUploadNotFound {
 }
 
 // WithPayload adds the payload to the create upload not found response
-func (o *CreateUploadNotFound) WithPayload(payload interface{}) *CreateUploadNotFound {
+func (o *CreateUploadNotFound) WithPayload(payload *primemessages.Error) *CreateUploadNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create upload not found response
-func (o *CreateUploadNotFound) SetPayload(payload interface{}) {
+func (o *CreateUploadNotFound) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,16 +225,18 @@ func (o *CreateUploadNotFound) SetPayload(payload interface{}) {
 func (o *CreateUploadNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // CreateUploadInternalServerErrorCode is the HTTP code returned for type CreateUploadInternalServerError
 const CreateUploadInternalServerErrorCode int = 500
 
-/*CreateUploadInternalServerError A server error occurred
+/*CreateUploadInternalServerError A server error occurred.
 
 swagger:response createUploadInternalServerError
 */
@@ -237,7 +245,7 @@ type CreateUploadInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.Error `json:"body,omitempty"`
 }
 
 // NewCreateUploadInternalServerError creates CreateUploadInternalServerError with default headers values
@@ -247,13 +255,13 @@ func NewCreateUploadInternalServerError() *CreateUploadInternalServerError {
 }
 
 // WithPayload adds the payload to the create upload internal server error response
-func (o *CreateUploadInternalServerError) WithPayload(payload interface{}) *CreateUploadInternalServerError {
+func (o *CreateUploadInternalServerError) WithPayload(payload *primemessages.Error) *CreateUploadInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create upload internal server error response
-func (o *CreateUploadInternalServerError) SetPayload(payload interface{}) {
+func (o *CreateUploadInternalServerError) SetPayload(payload *primemessages.Error) {
 	o.Payload = payload
 }
 
@@ -261,8 +269,10 @@ func (o *CreateUploadInternalServerError) SetPayload(payload interface{}) {
 func (o *CreateUploadInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

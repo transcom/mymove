@@ -2,10 +2,11 @@ package primeapi
 
 import (
 	"errors"
-	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
@@ -41,7 +42,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	})
 	builder := query.NewQueryBuilder(suite.DB())
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s/mto_service_items", mto.ID.String(), mtoShipment.ID.String()), nil)
+	req := httptest.NewRequest("POST", "/mto-service-items", nil)
 
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID:  mto.ID,
@@ -53,10 +54,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		UpdatedAt:        time.Now(),
 	}
 	params := mtoserviceitemops.CreateMTOServiceItemParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-		Body:            payloads.MTOServiceItem(&mtoServiceItem),
+		HTTPRequest: req,
+		Body:        payloads.MTOServiceItem(&mtoServiceItem),
 	}
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
@@ -121,6 +120,30 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
 	})
 
+	suite.T().Run("POST failure - 404 - Integration - ShipmentID not linked by MoveTaskOrderID", func(t *testing.T) {
+		mto2 := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+		mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MoveTaskOrder: mto2,
+		})
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		body := payloads.MTOServiceItem(&mtoServiceItem)
+		body.SetMoveTaskOrderID(strfmt.UUID(mtoShipment.MoveTaskOrderID.String()))
+		body.SetMtoShipmentID(strfmt.UUID(mtoShipment2.ID.String()))
+
+		newParams := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        body,
+		}
+
+		response := handler.Handle(newParams)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+	})
+
 	suite.T().Run("POST failure - 422 - Model validation errors", func(t *testing.T) {
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
@@ -160,10 +183,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			UpdatedAt:        time.Now(),
 		}
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
-			HTTPRequest:     req,
-			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-			MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-			Body:            payloads.MTOServiceItem(&mtoServiceItem),
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
@@ -180,14 +201,23 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			Code: "DCRT",
 		},
 	})
+	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: "DUCRT",
+		},
+	})
+	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: "DCRTSA",
+		},
+	})
 	builder := query.NewQueryBuilder(suite.DB())
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s/mto_service_items", mto.ID.String(), mtoShipment.ID.String()), nil)
+	req := httptest.NewRequest("POST", "/mto-service-items", nil)
 
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID: mto.ID,
 		MTOShipmentID:   &mtoShipment.ID,
-		ReService:       models.ReService{Code: models.ReServiceCodeDCRT},
 		Description:     handlers.FmtString("description"),
 		Dimensions: models.MTOServiceItemDimensions{
 			models.MTOServiceItemDimension{
@@ -206,18 +236,58 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	params := mtoserviceitemops.CreateMTOServiceItemParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-		Body:            payloads.MTOServiceItem(&mtoServiceItem),
-	}
 
-	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
+	suite.T().Run("Successful POST - Integration Test - Domestic Crating", func(t *testing.T) {
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
+		}
+
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDCRT
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		suite.NotZero(okResponse.Payload.ID())
+	})
+
+	suite.T().Run("Successful POST - Integration Test - Domestic Uncrating", func(t *testing.T) {
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDUCRT
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		suite.NotZero(okResponse.Payload.ID())
+	})
+
+	suite.T().Run("Successful POST - Integration Test - Domestic Crating Standalone", func(t *testing.T) {
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDCRTSA
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
 		response := handler.Handle(params)
@@ -239,6 +309,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			mock.Anything,
 		).Return(nil, nil, err)
 
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDCRTSA
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
 		var height int32 = 0
 		params.Body.(*primemessages.MTOServiceItemDomesticCrating).Crate.Height = &height
 		response := handler.Handle(params)
@@ -258,7 +334,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 	})
 	builder := query.NewQueryBuilder(suite.DB())
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s/mto_service_items", mto.ID.String(), mtoShipment.ID.String()), nil)
+	req := httptest.NewRequest("POST", "/mto-service-items", nil)
 
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID: mto.ID,
@@ -281,10 +357,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 		UpdatedAt: time.Now(),
 	}
 	params := mtoserviceitemops.CreateMTOServiceItemParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-		Body:            payloads.MTOServiceItem(&mtoServiceItem),
+		HTTPRequest: req,
+		Body:        payloads.MTOServiceItem(&mtoServiceItem),
 	}
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {

@@ -73,7 +73,7 @@ func NewFetchMTOUpdatesOK() *FetchMTOUpdatesOK {
 
 /*FetchMTOUpdatesOK handles this case with default header values.
 
-Successfully retrieved all move task orders
+Successfully retrieved move task orders where `isAvailableToPrime` is TRUE.
 */
 type FetchMTOUpdatesOK struct {
 	Payload primemessages.MoveTaskOrders
@@ -104,24 +104,26 @@ func NewFetchMTOUpdatesBadRequest() *FetchMTOUpdatesBadRequest {
 
 /*FetchMTOUpdatesBadRequest handles this case with default header values.
 
-The request payload is invalid
+The request payload is invalid.
 */
 type FetchMTOUpdatesBadRequest struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *FetchMTOUpdatesBadRequest) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *FetchMTOUpdatesBadRequest) GetPayload() interface{} {
+func (o *FetchMTOUpdatesBadRequest) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *FetchMTOUpdatesBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -135,24 +137,26 @@ func NewFetchMTOUpdatesUnauthorized() *FetchMTOUpdatesUnauthorized {
 
 /*FetchMTOUpdatesUnauthorized handles this case with default header values.
 
-The request was denied
+The request was denied.
 */
 type FetchMTOUpdatesUnauthorized struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *FetchMTOUpdatesUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *FetchMTOUpdatesUnauthorized) GetPayload() interface{} {
+func (o *FetchMTOUpdatesUnauthorized) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *FetchMTOUpdatesUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -166,24 +170,26 @@ func NewFetchMTOUpdatesForbidden() *FetchMTOUpdatesForbidden {
 
 /*FetchMTOUpdatesForbidden handles this case with default header values.
 
-The request was denied
+The request was denied.
 */
 type FetchMTOUpdatesForbidden struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *FetchMTOUpdatesForbidden) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesForbidden  %+v", 403, o.Payload)
 }
 
-func (o *FetchMTOUpdatesForbidden) GetPayload() interface{} {
+func (o *FetchMTOUpdatesForbidden) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *FetchMTOUpdatesForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -197,24 +203,26 @@ func NewFetchMTOUpdatesNotFound() *FetchMTOUpdatesNotFound {
 
 /*FetchMTOUpdatesNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type FetchMTOUpdatesNotFound struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *FetchMTOUpdatesNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesNotFound  %+v", 404, o.Payload)
 }
 
-func (o *FetchMTOUpdatesNotFound) GetPayload() interface{} {
+func (o *FetchMTOUpdatesNotFound) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *FetchMTOUpdatesNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -228,24 +236,26 @@ func NewFetchMTOUpdatesInternalServerError() *FetchMTOUpdatesInternalServerError
 
 /*FetchMTOUpdatesInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type FetchMTOUpdatesInternalServerError struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *FetchMTOUpdatesInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *FetchMTOUpdatesInternalServerError) GetPayload() interface{} {
+func (o *FetchMTOUpdatesInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *FetchMTOUpdatesInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

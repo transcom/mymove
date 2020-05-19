@@ -1,6 +1,9 @@
 package testdatagen
 
 import (
+	"database/sql"
+	"log"
+
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -9,22 +12,26 @@ import (
 // MakeContractor creates a single Contractor.
 func MakeContractor(db *pop.Connection, assertions Assertions) models.Contractor {
 
-	var contractor models.Contractor
-
-	if assertions.Contractor.Name == "" {
-		assertions.Contractor.Name = DefaultContractName
+	contractor := models.Contractor{
+		Name:           DefaultContractName,
+		ContractNumber: DefaultContractNumber,
+		Type:           DefaultContractType,
 	}
 
-	if assertions.Contractor.ContractNumber == "" {
-		assertions.Contractor.ContractNumber = DefaultContractCode
+	if assertions.Contractor.ContractNumber != "" {
+		contractor.ContractNumber = assertions.Contractor.ContractNumber
+	}
+	if assertions.Contractor.Name != "" {
+		contractor.Name = assertions.Contractor.Name
+	}
+	if assertions.Contractor.Type != "" {
+		contractor.Type = assertions.Contractor.Type
 	}
 
-	if assertions.Contractor.Type == "" {
-		assertions.Contractor.Type = DefaultContractType
-	}
-
-	err := db.Q().Where(`contract_number=$1`, assertions.Contractor.ContractNumber).First(&contractor)
-	if err == nil {
+	err := db.Q().Where(`contract_number=$1`, contractor.ContractNumber).First(&contractor)
+	if err != nil && err != sql.ErrNoRows {
+		log.Panic(err)
+	} else if err == nil {
 		return contractor
 	}
 

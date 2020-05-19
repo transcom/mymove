@@ -3,6 +3,8 @@ package payloads
 import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
@@ -15,17 +17,28 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *supportmessages.MoveTas
 	if moveTaskOrder == nil {
 		return nil
 	}
-
+	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
 	payload := &supportmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
 		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
 		IsCanceled:         &moveTaskOrder.IsCanceled,
-		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
+		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
 		ReferenceID:        moveTaskOrder.ReferenceID,
+		ContractorID:       strfmt.UUID(moveTaskOrder.ContractorID.String()),
+		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
+
+	if moveTaskOrder.PPMEstimatedWeight != nil {
+		payload.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
+	}
+
+	if moveTaskOrder.PPMType != nil {
+		payload.PpmType = *moveTaskOrder.PPMType
+	}
+
 	return payload
 }
 
@@ -57,26 +70,20 @@ func MoveOrder(moveOrder *models.MoveOrder) *supportmessages.MoveOrder {
 	}
 	destinationDutyStation := DutyStation(moveOrder.DestinationDutyStation)
 	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
-	if moveOrder.Grade != nil {
+	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
-	entitlements := Entitlement(moveOrder.Entitlement)
+
 	payload := supportmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
-		Entitlement:            entitlements,
+		Entitlement:            Entitlement(moveOrder.Entitlement),
+		Customer:               Customer(moveOrder.Customer),
 		OrderNumber:            moveOrder.OrderNumber,
-		OrderTypeDetail:        moveOrder.OrderTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
 	}
 
-	if moveOrder.Customer != nil {
-		payload.Agency = swag.StringValue(moveOrder.Customer.Agency)
-		payload.CustomerID = strfmt.UUID(moveOrder.CustomerID.String())
-		payload.FirstName = swag.StringValue(moveOrder.Customer.FirstName)
-		payload.LastName = swag.StringValue(moveOrder.Customer.LastName)
-	}
 	if moveOrder.ReportByDate != nil {
 		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
 	}
@@ -84,20 +91,13 @@ func MoveOrder(moveOrder *models.MoveOrder) *supportmessages.MoveOrder {
 		payload.DateIssued = strfmt.Date(*moveOrder.DateIssued)
 	}
 	if moveOrder.Grade != nil {
-		payload.Grade = *moveOrder.Grade
+		payload.Rank = *moveOrder.Grade
 	}
-	if moveOrder.ConfirmationNumber != nil {
-		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
-	}
-	if moveOrder.OrderType != nil {
-		payload.OrderType = *moveOrder.OrderType
-	}
-
 	return &payload
 }
 
 // Entitlement payload
-func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlements {
+func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 	if entitlement == nil {
 		return nil
 	}
@@ -120,7 +120,7 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlements 
 	if entitlement.TotalDependents != nil {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
-	return &supportmessages.Entitlements{
+	return &supportmessages.Entitlement{
 		ID:                    strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:      authorizedWeight,
 		DependentsAuthorized:  entitlement.DependentsAuthorized,
@@ -200,6 +200,21 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 	return payload
 }
 
+// MTOServiceItem payload
+func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.UpdateMTOServiceItemStatus {
+	strfmt.MarshalFormat = strfmt.RFC3339Micro
+	payload := &supportmessages.UpdateMTOServiceItemStatus{
+		ETag:            etag.GenerateEtag(mtoServiceItem.UpdatedAt),
+		ID:              strfmt.UUID(mtoServiceItem.ID.String()),
+		MoveTaskOrderID: strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()),
+		MtoShipmentID:   strfmt.UUID(mtoServiceItem.MTOShipmentID.String()),
+		Status:          supportmessages.MTOServiceItemStatus(mtoServiceItem.Status),
+		RejectionReason: mtoServiceItem.Reason,
+	}
+
+	return payload
+}
+
 // MTOShipments payload
 func MTOShipments(mtoShipments *models.MTOShipments) *supportmessages.MTOShipments {
 	payload := make(supportmessages.MTOShipments, len(*mtoShipments))
@@ -246,5 +261,25 @@ func PaymentRequest(pr *models.PaymentRequest) *supportmessages.PaymentRequest {
 		RejectionReason:      pr.RejectionReason,
 		Status:               supportmessages.PaymentRequestStatus(pr.Status),
 		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
+	}
+}
+
+// ValidationError payload describes validation errors from the model or properties
+func ValidationError(detail string, instance uuid.UUID, validationErrors *validate.Errors) *supportmessages.ValidationError {
+	payload := &supportmessages.ValidationError{
+		ClientError: *clientError(handlers.ValidationErrMessage, detail, instance),
+	}
+	if validationErrors != nil {
+		payload.InvalidFields = handlers.NewValidationErrorsResponse(validationErrors).Errors
+	}
+	return payload
+}
+
+// ClientError payload contains the default information we send to the client on errors
+func clientError(title string, detail string, instance uuid.UUID) *supportmessages.ClientError {
+	return &supportmessages.ClientError{
+		Title:    handlers.FmtString(title),
+		Detail:   handlers.FmtString(detail),
+		Instance: handlers.FmtUUID(instance),
 	}
 }

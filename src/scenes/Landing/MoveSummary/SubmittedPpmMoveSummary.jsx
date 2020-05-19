@@ -6,7 +6,7 @@ import FindWeightScales from 'scenes/Landing/MoveSummary/FindWeightScales';
 import PpmMoveDetails from 'scenes/Landing/MoveSummary/SubmittedPpmMoveDetails';
 
 const SubmittedPpmMoveSummary = (props) => {
-  const { ppm } = props;
+  const { ppm, hasEstimateError } = props;
   return (
     <div className="shipment_box">
       <div className="shipment_type">
@@ -40,7 +40,7 @@ const SubmittedPpmMoveSummary = (props) => {
             </div>
           </div>
           <div className="usa-width-one-third">
-            <PpmMoveDetails ppm={ppm} />
+            <PpmMoveDetails ppm={ppm} hasEstimateError={hasEstimateError} />
             <div className="titled_block">
               <div className="title">Documents</div>
               <div className="details-links">

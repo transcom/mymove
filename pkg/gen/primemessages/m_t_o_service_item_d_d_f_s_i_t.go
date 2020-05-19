@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemDDFSIT Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem
+// MTOServiceItemDDFSIT Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.
 // swagger:model MTOServiceItemDDFSIT
 type MTOServiceItemDDFSIT struct {
 	eTagField string
@@ -30,6 +30,8 @@ type MTOServiceItemDDFSIT struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
+
+	rejectionReasonField *string
 
 	statusField MTOServiceItemStatus
 
@@ -128,6 +130,16 @@ func (m *MTOServiceItemDDFSIT) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// RejectionReason gets the rejection reason of this subtype
+func (m *MTOServiceItemDDFSIT) RejectionReason() *string {
+	return m.rejectionReasonField
+}
+
+// SetRejectionReason sets the rejection reason of this subtype
+func (m *MTOServiceItemDDFSIT) SetRejectionReason(val *string) {
+	m.rejectionReasonField = val
+}
+
 // Status gets the status of this subtype
 func (m *MTOServiceItemDDFSIT) Status() MTOServiceItemStatus {
 	return m.statusField
@@ -203,6 +215,8 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
@@ -231,6 +245,8 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
+
+	result.rejectionReasonField = base.RejectionReason
 
 	result.statusField = base.Status
 
@@ -313,6 +329,8 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
@@ -329,6 +347,8 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		RejectionReason: m.RejectionReason(),
 
 		Status: m.Status(),
 	},

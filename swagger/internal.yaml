@@ -151,35 +151,35 @@ definitions:
       pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Do you have stuff at another pickup location?
+        title: Will you move anything from another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_sit:
         type: boolean
         x-nullable: true
-        title: Are you going to put your stuff in temporary storage before moving into your new home?
+        title: Will you put anything in storage?
       days_in_storage:
         type: integer
-        title: How many days do you plan to put your stuff in storage?
+        title: How many days of storage do you think you'll need?
         minimum: 0
         maximum: 90
         x-nullable: true
@@ -240,35 +240,35 @@ definitions:
       pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Do you have stuff at another pickup location?
+        title: Will you move anything from another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_sit:
         type: boolean
         x-nullable: true
-        title: Are you going to put your stuff in temporary storage before moving into your new home?
+        title: Will you put anything in storage?
       days_in_storage:
         type: integer
-        title: How many days do you plan to put your stuff in storage?
+        title: How many days of storage do you think you'll need?
         minimum: 0
         maximum: 90
         x-nullable: true
@@ -335,35 +335,35 @@ definitions:
       pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Do you have stuff at another pickup location?
+        title: Will you move anything from another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_sit:
         type: boolean
         x-nullable: true
-        title: Are you going to put your stuff in temporary storage before moving into your new home?
+        title: Will you put anything in storage?
       days_in_storage:
         type: integer
-        title: How many days do you plan to put your stuff in storage?
+        title: How many days of storage do you think you'll need?
         minimum: 0
         maximum: 90
         x-nullable: true
@@ -381,6 +381,16 @@ definitions:
         type: integer
         minimum: 1
         title: Net Weight
+        x-nullable: true
+      incentive_estimate_max:
+        type: integer
+        minimum: 1
+        title: Incentive Estimate Max
+        x-nullable: true
+      incentive_estimate_min:
+        type: integer
+        minimum: 1
+        title: Incentive Estimate Min
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -446,35 +456,35 @@ definitions:
       pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_additional_postal_code:
         type: boolean
         x-nullable: true
-        title: Do you have stuff at another pickup location?
+        title: Will you move anything from another pickup location?
       additional_pickup_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       destination_postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
       has_sit:
         type: boolean
         x-nullable: true
-        title: Are you going to put your stuff in temporary storage before moving into your new home?
+        title: Will you put anything in storage?
       days_in_storage:
         type: integer
-        title: How many days do you plan to put your stuff in storage?
+        title: How many days of storage do you think you'll need?
         minimum: 0
         maximum: 90
         x-nullable: true

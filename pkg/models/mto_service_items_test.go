@@ -18,6 +18,7 @@ func (suite *ModelSuite) TestMTOServiceItemValidation() {
 			MoveTaskOrderID: moveTaskOrderID,
 			MTOShipmentID:   &mtoShipmentID,
 			ReServiceID:     reServiceID,
+			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMTOServiceItem, expErrors)

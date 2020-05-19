@@ -23,7 +23,7 @@ type PatchPersonallyProcuredMovePayload struct {
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actual_move_date,omitempty"`
 
-	// ZIP/Postal Code
+	// ZIP code
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	AdditionalPickupPostalCode *string `json:"additional_pickup_postal_code,omitempty"`
 
@@ -33,16 +33,16 @@ type PatchPersonallyProcuredMovePayload struct {
 	// advance worksheet
 	AdvanceWorksheet *DocumentPayload `json:"advance_worksheet,omitempty"`
 
-	// How many days do you plan to put your stuff in storage?
+	// How many days of storage do you think you'll need?
 	// Maximum: 90
 	// Minimum: 0
 	DaysInStorage *int64 `json:"days_in_storage,omitempty"`
 
-	// ZIP/Postal Code
+	// ZIP code
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	DestinationPostalCode *string `json:"destination_postal_code,omitempty"`
 
-	// Do you have stuff at another pickup location?
+	// Will you move anything from another pickup location?
 	HasAdditionalPostalCode *bool `json:"has_additional_postal_code,omitempty"`
 
 	// Has Pro-Gear
@@ -56,8 +56,16 @@ type PatchPersonallyProcuredMovePayload struct {
 	// Would you like an advance of up to 60% of your PPM incentive?
 	HasRequestedAdvance *bool `json:"has_requested_advance,omitempty"`
 
-	// Are you going to put your stuff in temporary storage before moving into your new home?
+	// Will you put anything in storage?
 	HasSit *bool `json:"has_sit,omitempty"`
+
+	// Incentive Estimate Max
+	// Minimum: 1
+	IncentiveEstimateMax *int64 `json:"incentive_estimate_max,omitempty"`
+
+	// Incentive Estimate Min
+	// Minimum: 1
+	IncentiveEstimateMin *int64 `json:"incentive_estimate_min,omitempty"`
 
 	// Net Weight
 	// Minimum: 1
@@ -67,7 +75,7 @@ type PatchPersonallyProcuredMovePayload struct {
 	// Format: date
 	OriginalMoveDate *strfmt.Date `json:"original_move_date,omitempty"`
 
-	// ZIP/Postal Code
+	// ZIP code
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	PickupPostalCode *string `json:"pickup_postal_code,omitempty"`
 
@@ -116,6 +124,14 @@ func (m *PatchPersonallyProcuredMovePayload) Validate(formats strfmt.Registry) e
 	}
 
 	if err := m.validateHasProGearOverThousand(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateIncentiveEstimateMax(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateIncentiveEstimateMin(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -327,6 +343,32 @@ func (m *PatchPersonallyProcuredMovePayload) validateHasProGearOverThousand(form
 
 	// value enum
 	if err := m.validateHasProGearOverThousandEnum("has_pro_gear_over_thousand", "body", *m.HasProGearOverThousand); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PatchPersonallyProcuredMovePayload) validateIncentiveEstimateMax(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.IncentiveEstimateMax) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("incentive_estimate_max", "body", int64(*m.IncentiveEstimateMax), 1, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PatchPersonallyProcuredMovePayload) validateIncentiveEstimateMin(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.IncentiveEstimateMin) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("incentive_estimate_min", "body", int64(*m.IncentiveEstimateMin), 1, false); err != nil {
 		return err
 	}
 

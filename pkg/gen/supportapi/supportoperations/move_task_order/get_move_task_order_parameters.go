@@ -30,7 +30,7 @@ type GetMoveTaskOrderParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*ID of move task order to use
+	/*UUID of move task order to use.
 	  Required: true
 	  In: path
 	*/

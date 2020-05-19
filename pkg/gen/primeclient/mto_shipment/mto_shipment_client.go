@@ -27,7 +27,72 @@ type Client struct {
 }
 
 /*
-UpdateMTOShipment updates mto shipment
+CreateMTOShipment creates m t o shipment
+
+Creates a MTO shipment for the specified Move Task Order.
+Required fields include:
+* Shipment Type
+* Customer requested pick-up date
+* Pick-up Address
+* Delivery Address
+* Releasing / Receiving agents
+
+Optional fields include:
+* Customer Remarks
+* Releasing / Receiving agents
+* An array of optional accessorial service item codes
+
+*/
+func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOShipmentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCreateMTOShipmentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "createMTOShipment",
+		Method:             "POST",
+		PathPattern:        "/mto-shipments",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &CreateMTOShipmentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*CreateMTOShipmentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for createMTOShipment: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+UpdateMTOShipment updates m t o shipment
+
+Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
+
+* `scheduledPickupDate`
+* `actualPickupDate`
+* `firstAvailableDeliveryDate`
+* `destinationAddress`
+* `pickupAddress`
+* `secondaryDeliveryAddress`
+* `secondaryPickupAddress`
+* `primeEstimatedWeight`
+* `primeActualWeight`
+* `shipmentType`
+* `agents` - all subfields except `mtoShipmentID`, `createdAt`, `updatedAt`. You cannot add new agents to a shipment.
+
+Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
+
 */
 func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOShipmentOK, error) {
 	// TODO: Validate the params before sending
@@ -38,7 +103,7 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOS
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "updateMTOShipment",
 		Method:             "PUT",
-		PathPattern:        "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},

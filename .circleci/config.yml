@@ -14,7 +14,7 @@ version: '2.1'
 # References for variables shared across the file
 references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ce60239ffca056a033af6330daf922a5a9635066
-  postgres: &postgres postgres:11.7
+  postgres: &postgres postgres:12.2
 
 executors:
   av_medium:
@@ -557,7 +557,7 @@ jobs:
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
-    parallelism: 6
+    parallelism: 3
     executor: mymove_medium_plus
     steps:
       - checkout
@@ -701,7 +701,7 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `storybook_tests` runs the loki test suite against the current storybook code
+  # `storybook_tests` builds the storybook application container and pushes to the container repository
   storybook_tests:
     executor: mymove_medium
     steps:
@@ -715,6 +715,11 @@ jobs:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make storybook_tests
+      - run: make storybook_build
+      - persist_to_workspace:
+          root: /home/circleci/transcom/mymove/
+          paths:
+            - storybook-static
       - store_artifacts:
           path: .loki/current
           destination: current
@@ -724,24 +729,6 @@ jobs:
       - store_artifacts:
           path: .loki/reference
           destination: reference
-      - announce_failure
-
-  # `build_storybook_app` builds the storybook application container and pushes to the container repository
-  build_storybook_app:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make storybook_build
-      - persist_to_workspace:
-          root: /home/circleci/transcom/mymove/
-          paths:
-            - storybook-static
       - announce_failure
 
   # `build_migrations` builds the migrations container and pushes to the container repository
@@ -1056,12 +1043,6 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests # don't bother building and pushing the application if it won't even start properly
 
-      - build_storybook_app:
-          requires:
-            - anti_virus
-            - pre_deps_yarn
-            - storybook_tests
-
       - build_tools:
           requires:
             - anti_virus
@@ -1192,13 +1173,10 @@ workflows:
 
       - deploy_prod_storybook:
           requires:
-            - build_storybook_app
-            - approve_prod_deploy
+            - storybook_tests
           filters:
             branches:
               only: master
-              # Uncomment below if pushing a test branch. Also comment out approve_prod_deploy few lines above.
-              #only: placeholder_branch_name
 
       - storybook_tests:
           requires:

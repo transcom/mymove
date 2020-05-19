@@ -53,8 +53,11 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	logger.Info(
-		"File name and size",
-		zap.String("name", file.Header.Filename),
+		"File uploader and size",
+		zap.String("userID", session.ServiceMemberID.String()),
+		zap.String("serviceMemberID", session.ServiceMemberID.String()),
+		zap.String("officeUserID", session.OfficeUserID.String()),
+		zap.String("AdminUserID", session.AdminUserID.String()),
 		zap.Int64("size", file.Header.Size),
 	)
 

@@ -23,8 +23,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil",
-    "title": "move.mil API",
+    "description": "The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.\n\nThis API is not available in production.\n\nAll endpoints are located at ` + "`" + `primelocal/support/v1/` + "`" + `.\n",
+    "title": "Milmove Support API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -36,75 +36,9 @@ func init() {
   },
   "basePath": "/support/v1",
   "paths": {
-    "/move-task-orders/{moveTaskOrderID}": {
-      "get": {
-        "description": "Gets an individual move task order",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Gets a move task order by ID",
-        "operationId": "getMoveTaskOrder",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieve an individual move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move task order to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move-task-orders/{moveTaskOrderID}/status": {
-      "patch": {
-        "description": "Changes move task order status to make it available to prime",
+    "/move-task-orders": {
+      "post": {
+        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -114,74 +48,421 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Change the status of a move task order to make it available to prime",
-        "operationId": "updateMoveTaskOrderStatus",
+        "summary": "createMoveTaskOrder",
+        "operationId": "createMoveTaskOrder",
         "parameters": [
           {
-            "type": "string",
-            "description": "ID of move order to use",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully updated move task order status",
+          "201": {
+            "description": "Successfully created MoveTaskOrder object.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
               "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/move-task-orders/{moveTaskOrderID}": {
+      "get": {
+        "description": "Gets an individual move task order by ID. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "getMoveTaskOrder",
+        "operationId": "getMoveTaskOrder",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieve an individual move task order.",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "UUID of move task order to use.",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/status": {
+      "patch": {
+        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "updateMoveTaskOrderStatus",
+        "operationId": "updateMoveTaskOrderStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMoveTaskOrderStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order status.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "UUID of move task order.",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/mto-shipments/{mtoShipmentID}/status": {
+      "patch": {
+        "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required. \u003cbr /\u003e \u003cbr /\u003e This is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOShipmentStatus",
+        "operationId": "updateMTOShipmentStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOShipmentStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the shipment's status.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict error due to trying to change the status of shipment that is not currently \"SUBMITTED\".",
+            "schema": {
+              "$ref": "#/responses/Conflict"
             }
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the shipment being updated.",
+          "name": "mtoShipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/status": {
+      "patch": {
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "updatePaymentRequestStatus",
+        "operationId": "updatePaymentRequestStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/UpdatePaymentRequestStatus"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated payment request status.",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of payment request.",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/service-items/{mtoServiceItemID}/status": {
+      "patch": {
+        "description": "Updates the status of a service item for a move order to APPROVED or REJECTED. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "updateMTOServiceItemStatus",
+        "operationId": "updateMTOServiceItemStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated service item status for a move task order.",
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "description": "Conflict error due to trying to change the status of service item that is not currently \"SUBMITTED\".",
+            "schema": {
+              "$ref": "#/responses/Conflict"
+            }
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "UUID of mto service item to use.",
+          "name": "mtoServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
     }
   },
   "definitions": {
@@ -377,11 +658,11 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
-        "current_address": {
+        "currentAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destination_address": {
+        "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
@@ -397,18 +678,19 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
-          "example": "John"
+          "example": "Vanya"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
-          "example": "Doe"
+          "example": "Petrovna"
         },
         "phone": {
           "type": "string",
@@ -448,7 +730,7 @@ func init() {
         }
       }
     },
-    "Entitlements": {
+    "Entitlement": {
       "type": "object",
       "properties": {
         "authorizedWeight": {
@@ -463,7 +745,8 @@ func init() {
           "example": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -483,11 +766,13 @@ func init() {
         "proGearWeight": {
           "type": "integer",
           "x-formatting": "weight",
+          "readOnly": true,
           "example": 2000
         },
         "proGearWeightSpouse": {
           "type": "integer",
           "x-formatting": "weight",
+          "readOnly": true,
           "example": 500
         },
         "storageInTransit": {
@@ -650,13 +935,13 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "status": {
+        "rejectionReason": {
           "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -672,23 +957,19 @@ func init() {
         }
       }
     },
+    "MTOServiceItemStatus": {
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
     "MTOServiceItems": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
-      }
-    },
-    "MTOServiceItemstatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
       }
     },
     "MTOShipment": {
@@ -778,20 +1059,17 @@ func init() {
     "MoveOrder": {
       "type": "object",
       "properties": {
-        "agency": {
-          "type": "string",
-          "example": "civilian"
-        },
-        "confirmation_number": {
-          "type": "string",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
+          "description": "ID of the Customer this MoveOrder belongs to.\n\nIf creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.\n",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "date_issued": {
+        "dateIssued": {
+          "description": "The date the orders were issued.",
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
@@ -799,57 +1077,48 @@ func init() {
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
-        "eTag": {
-          "type": "string"
-        },
-        "entitlement": {
-          "$ref": "#/definitions/Entitlements"
-        },
-        "first_name": {
-          "type": "string",
-          "readOnly": true,
-          "example": "John"
-        },
-        "grade": {
-          "type": "string",
-          "example": "E_1"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "last_name": {
-          "type": "string",
-          "readOnly": true,
-          "example": "Doe"
-        },
-        "moveTaskOrderID": {
+        "destinationDutyStationID": {
+          "description": "ID of the destination duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "order_number": {
+        "eTag": {
+          "description": "Uniquely identifies the state of the MoveOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveOrder will require that this eTag be passed in with the If-Match header.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "entitlement": {
+          "$ref": "#/definitions/Entitlement"
+        },
+        "id": {
+          "description": "ID of the MoveOrder object.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "orderNumber": {
+          "description": "ID of the military orders associated with this move.",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
         },
-        "order_type": {
-          "type": "string",
-          "example": "GHC"
-        },
-        "order_type_detail": {
-          "type": "string",
-          "enum": [
-            "GHC",
-            "NTS"
-          ],
-          "x-nullable": true
-        },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
-        "report_by_date": {
+        "originDutyStationID": {
+          "description": "ID of the origin duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "description": "Rank of the service member, must match specific list of available ranks.",
+          "type": "string",
+          "example": "E_1"
+        },
+        "reportByDate": {
+          "description": "Date that the service member must report to the new DutyStation by.",
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
@@ -864,70 +1133,88 @@ func init() {
     },
     "MoveTaskOrder": {
       "type": "object",
+      "required": [
+        "moveOrder"
+      ],
       "properties": {
+        "contractorID": {
+          "description": "ID associated with the contractor, in this case Prime\n",
+          "type": "string",
+          "format": "uuid",
+          "example": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6"
+        },
         "createdAt": {
+          "description": "Date the MoveTaskOrder was created on.",
           "type": "string",
           "format": "date"
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
         "eTag": {
+          "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
           "type": "string"
         },
-        "entitlements": {
-          "$ref": "#/definitions/Entitlements"
-        },
         "id": {
+          "description": "ID of the MoveTaskOrder object.",
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "isAvailableToPrime": {
+          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is true will be available to the API.\n",
           "type": "boolean",
           "x-nullable": true
         },
         "isCanceled": {
+          "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
           "x-nullable": true
         },
+        "moveOrder": {
+          "description": "MoveOrder associated with this MoveTaskOrder.",
+          "$ref": "#/definitions/MoveOrder"
+        },
         "moveOrderID": {
+          "description": "ID of the MoveOrder object",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "originDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        "mtoServiceItems": {
+          "description": "Array of MTOServiceItems associated with this MoveTaskOrder.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
+        "mtoShipments": {
+          "description": "array of MTOShipments associated with the MoveTaskOrder.",
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "paymentRequests": {
+          "description": "Array of PaymentRequests associated with this MoveTaskOrder.",
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "description": "If the move is a PPM, this is the estimated weight in lbs.",
+          "type": "integer"
+        },
+        "ppmType": {
+          "description": "If the move is a PPM, indicates whether it is full or partial.",
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
         },
         "referenceId": {
+          "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
           "type": "string",
           "example": "1001-3456"
         },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
         "updatedAt": {
+          "description": "Date on which this MoveTaskOrder was last updated.",
           "type": "string",
           "format": "date"
-        }
-      }
-    },
-    "MoveTaskOrderStatus": {
-      "type": "object",
-      "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
         }
       }
     },
@@ -935,23 +1222,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
-      }
-    },
-    "PatchMTOShipmentStatusPayload": {
-      "properties": {
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "MTO Shipment not good enough"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "REJECTED",
-            "APPROVED",
-            "SUBMITTED"
-          ]
-        }
       }
     },
     "PaymentRequest": {
@@ -987,14 +1257,6 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
@@ -1034,7 +1296,122 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestPayload": {
+    "UpdateMTOServiceItemStatus": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "description": {
+          "type": "string"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "feeType": {
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CRATING",
+            "TRUCKING",
+            "SHUTTLE"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "quantity": {
+          "type": "integer"
+        },
+        "rate": {
+          "type": "integer"
+        },
+        "reServiceCode": {
+          "type": "string"
+        },
+        "reServiceID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string"
+        },
+        "rejectedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "total": {
+          "type": "integer",
+          "format": "cents"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "UpdateMTOShipmentStatus": {
+      "properties": {
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment not good enough"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "REJECTED",
+            "APPROVED",
+            "SUBMITTED"
+          ]
+        }
+      }
+    },
+    "UpdateMoveTaskOrderStatus": {
+      "properties": {
+        "is_available_to_prime": {
+          "type": "boolean"
+        }
+      }
+    },
+    "UpdatePaymentRequest": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -1053,13 +1430,15 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {
+          "description": "Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for ` + "`" + `If-Match` + "`" + `. Required when sending PUT or PATCH requests to prevent updating stale data.",
           "type": "string"
         },
         "rejectionReason": {
+          "description": "A written reason to provide context for the status.",
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
@@ -1138,39 +1517,45 @@ func init() {
   },
   "responses": {
     "Conflict": {
-      "description": "Conflict error",
+      "description": "Conflict error.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "InvalidRequest": {
-      "description": "The request payload is invalid",
+      "description": "The parameters were invalid.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "NotFound": {
-      "description": "The requested resource wasn't found",
+      "description": "The requested resource wasn't found.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "PermissionDenied": {
-      "description": "The request was denied",
+      "description": "The request was denied.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "PreconditionFailed": {
-      "description": "Precondition failed",
+      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "ServerError": {
-      "description": "A server error occurred",
+      "description": "A server error occurred.",
       "schema": {
         "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
       }
     }
   }
@@ -1181,8 +1566,8 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The API for move.mil",
-    "title": "move.mil API",
+    "description": "The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.\n\nThis API is not available in production.\n\nAll endpoints are located at ` + "`" + `primelocal/support/v1/` + "`" + `.\n",
+    "title": "Milmove Support API",
     "contact": {
       "email": "dp3@truss.works"
     },
@@ -1194,90 +1579,9 @@ func init() {
   },
   "basePath": "/support/v1",
   "paths": {
-    "/move-task-orders/{moveTaskOrderID}": {
-      "get": {
-        "description": "Gets an individual move task order",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Gets a move task order by ID",
-        "operationId": "getMoveTaskOrder",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieve an individual move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move task order to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move-task-orders/{moveTaskOrderID}/status": {
-      "patch": {
-        "description": "Changes move task order status to make it available to prime",
+    "/move-task-orders": {
+      "post": {
+        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -1287,92 +1591,541 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Change the status of a move task order to make it available to prime",
-        "operationId": "updateMoveTaskOrderStatus",
+        "summary": "createMoveTaskOrder",
+        "operationId": "createMoveTaskOrder",
         "parameters": [
           {
-            "type": "string",
-            "description": "ID of move order to use",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully updated move task order status",
+          "201": {
+            "description": "Successfully created MoveTaskOrder object.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "400": {
-            "description": "The request payload is invalid",
+            "description": "The parameters were invalid.",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
-            "description": "The request was denied",
+            "description": "The request was unauthorized.",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
             }
           },
           "403": {
-            "description": "The request was denied",
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
-              "description": "The request was denied",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
+            "description": "The requested resource wasn't found.",
             "schema": {
-              "description": "The requested resource wasn't found",
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/move-task-orders/{moveTaskOrderID}": {
+      "get": {
+        "description": "Gets an individual move task order by ID. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "getMoveTaskOrder",
+        "operationId": "getMoveTaskOrder",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieve an individual move task order.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "description": "The parameters were invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "UUID of move task order to use.",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/status": {
+      "patch": {
+        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "updateMoveTaskOrderStatus",
+        "operationId": "updateMoveTaskOrderStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMoveTaskOrderStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order status.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "description": "The parameters were invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "UUID of move task order.",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/mto-shipments/{mtoShipmentID}/status": {
+      "patch": {
+        "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required. \u003cbr /\u003e \u003cbr /\u003e This is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOShipmentStatus",
+        "operationId": "updateMTOShipmentStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOShipmentStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the shipment's status.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The parameters were invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error due to trying to change the status of shipment that is not currently \"SUBMITTED\".",
+            "schema": {
+              "description": "Conflict error.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
-              "description": "Precondition failed",
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the shipment being updated.",
+          "name": "mtoShipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/status": {
+      "patch": {
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "updatePaymentRequestStatus",
+        "operationId": "updatePaymentRequestStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdatePaymentRequestStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated payment request status.",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "description": "The parameters were invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
             }
           },
-          "500": {
-            "description": "A server error occurred",
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
             "schema": {
-              "description": "A server error occurred",
+              "description": "The request was denied.",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
             }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of payment request.",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/service-items/{mtoServiceItemID}/status": {
+      "patch": {
+        "description": "Updates the status of a service item for a move order to APPROVED or REJECTED. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "updateMTOServiceItemStatus",
+        "operationId": "updateMTOServiceItemStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated service item status for a move task order.",
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOServiceItemStatus"
+            }
+          },
+          "400": {
+            "description": "The parameters were invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was unauthorized.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The client doesn't have permissions to perform the request.",
+            "schema": {
+              "description": "The request was denied.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error due to trying to change the status of service item that is not currently \"SUBMITTED\".",
+            "schema": {
+              "description": "Conflict error.",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "UUID of mto service item to use.",
+          "name": "mtoServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
     }
   },
   "definitions": {
@@ -1568,11 +2321,11 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
-        "current_address": {
+        "currentAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destination_address": {
+        "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
@@ -1588,18 +2341,19 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
-          "example": "John"
+          "example": "Vanya"
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "last_name": {
+        "lastName": {
           "type": "string",
-          "example": "Doe"
+          "example": "Petrovna"
         },
         "phone": {
           "type": "string",
@@ -1639,7 +2393,7 @@ func init() {
         }
       }
     },
-    "Entitlements": {
+    "Entitlement": {
       "type": "object",
       "properties": {
         "authorizedWeight": {
@@ -1654,7 +2408,8 @@ func init() {
           "example": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1674,11 +2429,13 @@ func init() {
         "proGearWeight": {
           "type": "integer",
           "x-formatting": "weight",
+          "readOnly": true,
           "example": 2000
         },
         "proGearWeightSpouse": {
           "type": "integer",
           "x-formatting": "weight",
+          "readOnly": true,
           "example": 500
         },
         "storageInTransit": {
@@ -1841,13 +2598,13 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "status": {
+        "rejectionReason": {
           "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -1863,23 +2620,19 @@ func init() {
         }
       }
     },
+    "MTOServiceItemStatus": {
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
     "MTOServiceItems": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOServiceItem"
-      }
-    },
-    "MTOServiceItemstatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
-        }
       }
     },
     "MTOShipment": {
@@ -1969,20 +2722,17 @@ func init() {
     "MoveOrder": {
       "type": "object",
       "properties": {
-        "agency": {
-          "type": "string",
-          "example": "civilian"
-        },
-        "confirmation_number": {
-          "type": "string",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "customerID": {
+          "description": "ID of the Customer this MoveOrder belongs to.\n\nIf creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.\n",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "date_issued": {
+        "dateIssued": {
+          "description": "The date the orders were issued.",
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
@@ -1990,57 +2740,48 @@ func init() {
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
-        "eTag": {
-          "type": "string"
-        },
-        "entitlement": {
-          "$ref": "#/definitions/Entitlements"
-        },
-        "first_name": {
-          "type": "string",
-          "readOnly": true,
-          "example": "John"
-        },
-        "grade": {
-          "type": "string",
-          "example": "E_1"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "last_name": {
-          "type": "string",
-          "readOnly": true,
-          "example": "Doe"
-        },
-        "moveTaskOrderID": {
+        "destinationDutyStationID": {
+          "description": "ID of the destination duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "order_number": {
+        "eTag": {
+          "description": "Uniquely identifies the state of the MoveOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveOrder will require that this eTag be passed in with the If-Match header.\n",
+          "type": "string",
+          "readOnly": true
+        },
+        "entitlement": {
+          "$ref": "#/definitions/Entitlement"
+        },
+        "id": {
+          "description": "ID of the MoveOrder object.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "orderNumber": {
+          "description": "ID of the military orders associated with this move.",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
         },
-        "order_type": {
-          "type": "string",
-          "example": "GHC"
-        },
-        "order_type_detail": {
-          "type": "string",
-          "enum": [
-            "GHC",
-            "NTS"
-          ],
-          "x-nullable": true
-        },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
-        "report_by_date": {
+        "originDutyStationID": {
+          "description": "ID of the origin duty station.\n\nIf creating a MoveTaskOrder, this should match an existing duty station.\n",
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rank": {
+          "description": "Rank of the service member, must match specific list of available ranks.",
+          "type": "string",
+          "example": "E_1"
+        },
+        "reportByDate": {
+          "description": "Date that the service member must report to the new DutyStation by.",
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
@@ -2055,70 +2796,88 @@ func init() {
     },
     "MoveTaskOrder": {
       "type": "object",
+      "required": [
+        "moveOrder"
+      ],
       "properties": {
+        "contractorID": {
+          "description": "ID associated with the contractor, in this case Prime\n",
+          "type": "string",
+          "format": "uuid",
+          "example": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6"
+        },
         "createdAt": {
+          "description": "Date the MoveTaskOrder was created on.",
           "type": "string",
           "format": "date"
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
         "eTag": {
+          "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
           "type": "string"
         },
-        "entitlements": {
-          "$ref": "#/definitions/Entitlements"
-        },
         "id": {
+          "description": "ID of the MoveTaskOrder object.",
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "isAvailableToPrime": {
+          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is true will be available to the API.\n",
           "type": "boolean",
           "x-nullable": true
         },
         "isCanceled": {
+          "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
           "x-nullable": true
         },
+        "moveOrder": {
+          "description": "MoveOrder associated with this MoveTaskOrder.",
+          "$ref": "#/definitions/MoveOrder"
+        },
         "moveOrderID": {
+          "description": "ID of the MoveOrder object",
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "originDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        "mtoServiceItems": {
+          "description": "Array of MTOServiceItems associated with this MoveTaskOrder.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
+        "mtoShipments": {
+          "description": "array of MTOShipments associated with the MoveTaskOrder.",
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "paymentRequests": {
+          "description": "Array of PaymentRequests associated with this MoveTaskOrder.",
+          "$ref": "#/definitions/PaymentRequests"
+        },
+        "ppmEstimatedWeight": {
+          "description": "If the move is a PPM, this is the estimated weight in lbs.",
+          "type": "integer"
+        },
+        "ppmType": {
+          "description": "If the move is a PPM, indicates whether it is full or partial.",
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
         },
         "referenceId": {
+          "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
           "type": "string",
           "example": "1001-3456"
         },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
         "updatedAt": {
+          "description": "Date on which this MoveTaskOrder was last updated.",
           "type": "string",
           "format": "date"
-        }
-      }
-    },
-    "MoveTaskOrderStatus": {
-      "type": "object",
-      "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
         }
       }
     },
@@ -2126,23 +2885,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
-      }
-    },
-    "PatchMTOShipmentStatusPayload": {
-      "properties": {
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "MTO Shipment not good enough"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "REJECTED",
-            "APPROVED",
-            "SUBMITTED"
-          ]
-        }
       }
     },
     "PaymentRequest": {
@@ -2178,14 +2920,6 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
@@ -2225,7 +2959,122 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestPayload": {
+    "UpdateMTOServiceItemStatus": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "description": {
+          "type": "string"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "feeType": {
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CRATING",
+            "TRUCKING",
+            "SHUTTLE"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "quantity": {
+          "type": "integer"
+        },
+        "rate": {
+          "type": "integer"
+        },
+        "reServiceCode": {
+          "type": "string"
+        },
+        "reServiceID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string"
+        },
+        "rejectedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "total": {
+          "type": "integer",
+          "format": "cents"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "UpdateMTOShipmentStatus": {
+      "properties": {
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment not good enough"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "REJECTED",
+            "APPROVED",
+            "SUBMITTED"
+          ]
+        }
+      }
+    },
+    "UpdateMoveTaskOrderStatus": {
+      "properties": {
+        "is_available_to_prime": {
+          "type": "boolean"
+        }
+      }
+    },
+    "UpdatePaymentRequest": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -2244,13 +3093,15 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {
+          "description": "Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for ` + "`" + `If-Match` + "`" + `. Required when sending PUT or PATCH requests to prevent updating stale data.",
           "type": "string"
         },
         "rejectionReason": {
+          "description": "A written reason to provide context for the status.",
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
@@ -2329,39 +3180,45 @@ func init() {
   },
   "responses": {
     "Conflict": {
-      "description": "Conflict error",
+      "description": "Conflict error.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "InvalidRequest": {
-      "description": "The request payload is invalid",
+      "description": "The parameters were invalid.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "NotFound": {
-      "description": "The requested resource wasn't found",
+      "description": "The requested resource wasn't found.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "PermissionDenied": {
-      "description": "The request was denied",
+      "description": "The request was denied.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "PreconditionFailed": {
-      "description": "Precondition failed",
+      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
         "$ref": "#/definitions/Error"
       }
     },
     "ServerError": {
-      "description": "A server error occurred",
+      "description": "A server error occurred.",
       "schema": {
         "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
       }
     }
   }

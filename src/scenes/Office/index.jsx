@@ -16,6 +16,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import QueueHeader from 'shared/Header/Office';
+import FOUOHeader from 'components/FOUOHeader';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import './office.scss';
@@ -29,11 +30,12 @@ const DocumentViewer = lazy(() => import('./DocumentViewer'));
 const ScratchPad = lazy(() => import('shared/ScratchPad'));
 const CustomerDetails = lazy(() => import('./TOO/customerDetails'));
 const TOO = lazy(() => import('./TOO/too'));
-const TOOAccessorials = lazy(() => import('pages/TOO/accessorials'));
+const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
 const TIO = lazy(() => import('./TIO/tio'));
 const TOOVerificationInProgress = lazy(() => import('./TOO/tooVerificationInProgress'));
 const PaymentRequestShow = lazy(() => import('./TIO/paymentRequestShow'));
 const PaymentRequestIndex = lazy(() => import('./TIO/paymentRequestIndex'));
+const MoveDetails = lazy(() => import('pages/TOO/moveDetails'));
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
@@ -78,6 +80,7 @@ export class OfficeWrapper extends Component {
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
+          <FOUOHeader />
           <Suspense fallback={<LoadingPlaceholder />}>{!userIsLoggedIn && <QueueHeader />}</Suspense>
           <ConditionalWrap
             condition={!userIsLoggedIn}
@@ -164,7 +167,9 @@ export class OfficeWrapper extends Component {
                 <Suspense fallback={<LoadingPlaceholder />}>
                   <Switch>
                     {too && <PrivateRoute path="/too/customer-moves" exact component={TOO} />}
-                    {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOAccessorials} />}
+                    {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOMoveTaskOrder} />}
+                    {too && <PrivateRoute path="/moves/:locator" exact component={MoveDetails} />}
+                    {/*TODO: remove CustomerDetails route when ready*/}
                     {too && (
                       <PrivateRoute
                         path="/too/customer-moves/:moveOrderId/customer/:customerId"

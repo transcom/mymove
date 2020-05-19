@@ -988,25 +988,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	testdatagen.MakeServiceItemParamKey(db, testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			ID:          uuid.FromStringOrNil("9ea783db-ebc8-4a99-93dd-56b507678a07"),
-			Key:         "weight",
-			Description: "actual weight",
-			Type:        models.ServiceItemParamTypeInteger,
-			Origin:      models.ServiceItemParamOriginPrime,
-		},
-	})
-	testdatagen.MakeServiceItemParamKey(db, testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			ID:          uuid.FromStringOrNil("421530ab-9c84-4207-8faf-f39a2f92ddaa"),
-			Key:         "pickup",
-			Description: "requested pickup date",
-			Type:        models.ServiceItemParamTypeDate,
-			Origin:      models.ServiceItemParamOriginPrime,
-		},
-	})
-
 	/* A user with Roles */
 	smRole := roles.Role{}
 	err := db.Where("role_type = $1", roles.RoleTypeCustomer).First(&smRole)
@@ -1152,5 +1133,16 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ID: uuid.FromStringOrNil("8a625314-1922-4987-93c5-a62c0d13f053"),
 		},
 		MoveTaskOrder: mto2,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("3624d82f-fa87-47f5-a09a-2d5639e45c02"),
+		},
+		MoveTaskOrder: mto2,
+		MTOShipment:   mtoShipment3,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
+		},
 	})
 }

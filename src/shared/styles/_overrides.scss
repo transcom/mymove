@@ -83,6 +83,9 @@
     @include u-bg('transparent');
     @include u-text('primary-vivid');
     @include u-text('no-underline');
+    @include u-margin(0);
+    @include u-padding-y(0);
+    @include u-height('auto');
     .icon {
       @include u-padding-x('1');
       svg path {
@@ -134,7 +137,7 @@
     background-color: #a8f2ff;
   }
   &--teal {
-        background-color: $accent-teal;
+    background-color: $accent-teal;
     @include u-text('white');
   }
   &--alert {
@@ -164,4 +167,55 @@
     padding-top: 0px;
     height: 23px;
   }
+}
+
+//Alerts
+
+.usa-alert__heading {
+  @include u-text('bold');
+}
+
+//Form
+
+.usa-label {
+  @include u-font-size('body', 'xs');
+}
+
+//Modals
+
+.modal {
+  width: 50%;
+  max-width: 900px;
+  min-height: 256px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  @include u-padding-x(4);
+  @include u-padding-y(3);
+  h4 {
+    @include u-margin-y(0);
+    @include u-margin-bottom(3);
+  }
+  .usa-form {
+    max-width: 100%;
+  }
+  button {
+    @include u-margin-y(0);
+    &:first-child {
+      @include u-margin-left(0);
+    }
+  }
+  .display-flex {
+    @include u-margin-top(3);
+  }
+}
+
+.src-components-Modal-Modal-module__title--1M23p + .src-components-Modal-Modal-module__content--I6vZk,
+.src-components-Modal-Modal-module__content--I6vZk + .src-components-Modal-Modal-module__actions--20euu {
+  @include u-border-top('white');
+}
+.src-components-Modal-Modal-module__modal--FqeFw .src-components-Modal-Modal-module__title--1M23p,
+.src-components-Modal-Modal-module__modal--FqeFw .src-components-Modal-Modal-module__content--I6vZk,
+.src-components-Modal-Modal-module__modal--FqeFw .src-components-Modal-Modal-module__actions--20euu {
+  @include u-padding(0);
 }

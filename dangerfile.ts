@@ -9,7 +9,7 @@ const githubChecks = () => {
     }
     // PRs should have a Jira ID in the title
     if (!danger.github.pr.title.match(/^(\[MB-\d+\]|MB-\d+)/)) {
-      warn('Please include the Jira ID at the start of the title with the format MB-123 or [MB-123]');
+      warn('Please include the Jira ID at the start of the title with the format MB-123 or \\[MB-123\\]');
     }
   }
 };

@@ -83,7 +83,7 @@ func NewUpdateMTOPostCounselingInformationOK() *UpdateMTOPostCounselingInformati
 
 /*UpdateMTOPostCounselingInformationOK handles this case with default header values.
 
-Successfully updated move task order post counseling information
+Successfully updated move task order with post counseling information.
 */
 type UpdateMTOPostCounselingInformationOK struct {
 	Payload *primemessages.MoveTaskOrder
@@ -116,24 +116,26 @@ func NewUpdateMTOPostCounselingInformationUnauthorized() *UpdateMTOPostCounselin
 
 /*UpdateMTOPostCounselingInformationUnauthorized handles this case with default header values.
 
-The request was denied
+The request was denied.
 */
 type UpdateMTOPostCounselingInformationUnauthorized struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOPostCounselingInformationUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationUnauthorized) GetPayload() interface{} {
+func (o *UpdateMTOPostCounselingInformationUnauthorized) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -147,24 +149,26 @@ func NewUpdateMTOPostCounselingInformationForbidden() *UpdateMTOPostCounselingIn
 
 /*UpdateMTOPostCounselingInformationForbidden handles this case with default header values.
 
-The request was denied
+The request was denied.
 */
 type UpdateMTOPostCounselingInformationForbidden struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOPostCounselingInformationForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationForbidden  %+v", 403, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationForbidden) GetPayload() interface{} {
+func (o *UpdateMTOPostCounselingInformationForbidden) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -178,24 +182,26 @@ func NewUpdateMTOPostCounselingInformationNotFound() *UpdateMTOPostCounselingInf
 
 /*UpdateMTOPostCounselingInformationNotFound handles this case with default header values.
 
-The requested resource wasn't found
+The requested resource wasn't found.
 */
 type UpdateMTOPostCounselingInformationNotFound struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOPostCounselingInformationNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationNotFound  %+v", 404, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationNotFound) GetPayload() interface{} {
+func (o *UpdateMTOPostCounselingInformationNotFound) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -209,24 +215,26 @@ func NewUpdateMTOPostCounselingInformationPreconditionFailed() *UpdateMTOPostCou
 
 /*UpdateMTOPostCounselingInformationPreconditionFailed handles this case with default header values.
 
-precondition failed
+Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
 type UpdateMTOPostCounselingInformationPreconditionFailed struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationPreconditionFailed) GetPayload() interface{} {
+func (o *UpdateMTOPostCounselingInformationPreconditionFailed) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -240,7 +248,7 @@ func NewUpdateMTOPostCounselingInformationUnprocessableEntity() *UpdateMTOPostCo
 
 /*UpdateMTOPostCounselingInformationUnprocessableEntity handles this case with default header values.
 
-The request payload is invalid
+The payload was unprocessable.
 */
 type UpdateMTOPostCounselingInformationUnprocessableEntity struct {
 	Payload *primemessages.ValidationError
@@ -273,24 +281,26 @@ func NewUpdateMTOPostCounselingInformationInternalServerError() *UpdateMTOPostCo
 
 /*UpdateMTOPostCounselingInformationInternalServerError handles this case with default header values.
 
-A server error occurred
+A server error occurred.
 */
 type UpdateMTOPostCounselingInformationInternalServerError struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOPostCounselingInformationInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationInternalServerError  %+v", 500, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationInternalServerError) GetPayload() interface{} {
+func (o *UpdateMTOPostCounselingInformationInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -302,13 +312,16 @@ swagger:model UpdateMTOPostCounselingInformationBody
 */
 type UpdateMTOPostCounselingInformationBody struct {
 
-	// Email or id of a contact person for this update
+	// UUID for the move task order to use.
+	MoveTaskOrderID string `json:"moveTaskOrderID,omitempty"`
+
+	// Email or id of a contact person for this update.
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
-	// ppm estimated weight
+	// The estimated weight determined post counseling.
 	PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
 
-	// ppm type
+	// Sets a ppmType to an allowed value.
 	// Enum: [FULL PARTIAL]
 	PpmType string `json:"ppmType,omitempty"`
 }

@@ -16,7 +16,7 @@ storiesOf('Components|Left Nav', module)
     <div style={{ padding: '20px', background: '#f0f0f0', display: 'flex' }}>
       <LeftNav />
       <div
-        className="content container container--accent--blue"
+        className="content container container--accent--hhg"
         style={{ position: 'relative', width: '85vw', marginTop: '0' }}
       >
         <ul>

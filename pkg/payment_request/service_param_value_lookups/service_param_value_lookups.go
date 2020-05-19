@@ -3,18 +3,22 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/models"
+
+	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/route"
 )
 
 // ServiceItemParamKeyData contains service item parameter keys
 type ServiceItemParamKeyData struct {
-	lookups            map[string]ServiceItemParamKeyLookup
-	PayloadServiceItem primemessages.ServiceItem
-	MTOServiceItemID   uuid.UUID
-	PaymentRequestID   uuid.UUID
-	MoveTaskOrderID    uuid.UUID
+	db               *pop.Connection
+	planner          route.Planner
+	lookups          map[string]ServiceItemParamKeyLookup
+	MTOServiceItemID uuid.UUID
+	PaymentRequestID uuid.UUID
+	MoveTaskOrderID  uuid.UUID
 }
 
 // ServiceItemParamKeyLookup does lookup on service item parameter keys
@@ -24,26 +28,28 @@ type ServiceItemParamKeyLookup interface {
 
 // ServiceParamLookupInitialize initializes service parameter lookup
 func ServiceParamLookupInitialize(
+	db *pop.Connection,
+	planner route.Planner,
 	mtoServiceItemID uuid.UUID,
 	paymentRequestID uuid.UUID,
 	moveTaskOrderID uuid.UUID,
 ) *ServiceItemParamKeyData {
 
 	s := ServiceItemParamKeyData{
+		db:               db,
+		planner:          planner,
 		lookups:          make(map[string]ServiceItemParamKeyLookup),
 		MTOServiceItemID: mtoServiceItemID,
 		PaymentRequestID: paymentRequestID,
 		MoveTaskOrderID:  moveTaskOrderID,
 	}
 
-	s.lookups["RequestedPickupDate"] = RequestedPickupDateLookup{}
-	s.lookups["WeightBilledActual"] = WeightBilledActualLookup{}
-	s.lookups["WeightActual"] = WeightActualLookup{}
-	s.lookups["WeightEstimated"] = WeightEstimatedLookup{}
-	s.lookups["DistanceZip3"] = DistanceZip3Lookup{}
-	s.lookups["ZipPickupAddress"] = ZipPickupAddressLookup{}
-	s.lookups["ZipDestAddress"] = ZipDestAddressLookup{}
-	s.lookups["ServiceAreaOrigin"] = ServiceAreaOriginLookup{}
+	for _, key := range models.ValidServiceItemParamName {
+		s.lookups[key] = NotImplementedLookup{}
+	}
+
+	s.lookups[models.ServiceItemParamNameRequestedPickupDate.String()] = RequestedPickupDateLookup{}
+	s.lookups[models.ServiceItemParamNameDistanceZip5.String()] = DistanceZip5Lookup{}
 
 	return &s
 }

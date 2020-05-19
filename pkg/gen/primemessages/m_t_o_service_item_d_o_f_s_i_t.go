@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemDOFSIT Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem
+// MTOServiceItemDOFSIT Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.
 // swagger:model MTOServiceItemDOFSIT
 type MTOServiceItemDOFSIT struct {
 	eTagField string
@@ -30,6 +30,8 @@ type MTOServiceItemDOFSIT struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
+
+	rejectionReasonField *string
 
 	statusField MTOServiceItemStatus
 
@@ -116,6 +118,16 @@ func (m *MTOServiceItemDOFSIT) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// RejectionReason gets the rejection reason of this subtype
+func (m *MTOServiceItemDOFSIT) RejectionReason() *string {
+	return m.rejectionReasonField
+}
+
+// SetRejectionReason sets the rejection reason of this subtype
+func (m *MTOServiceItemDOFSIT) SetRejectionReason(val *string) {
+	m.rejectionReasonField = val
+}
+
 // Status gets the status of this subtype
 func (m *MTOServiceItemDOFSIT) Status() MTOServiceItemStatus {
 	return m.statusField
@@ -173,6 +185,8 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
@@ -201,6 +215,8 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
+
+	result.rejectionReasonField = base.RejectionReason
 
 	result.statusField = base.Status
 
@@ -259,6 +275,8 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
 		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
@@ -275,6 +293,8 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		RejectionReason: m.RejectionReason(),
 
 		Status: m.Status(),
 	},

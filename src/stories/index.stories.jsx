@@ -3,120 +3,16 @@ import PropTypes from 'prop-types';
 
 import { storiesOf } from '@storybook/react';
 
-import { action } from '@storybook/addon-actions';
-import { Button, Tag } from '@trussworks/react-uswds';
-import { ReactComponent as EditIcon } from 'shared/images/edit-24px.svg';
+import { Tag } from '@trussworks/react-uswds';
 import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 
 import colors from '../shared/styles/colors.scss';
 
+import FOUOHeader from '../components/FOUOHeader';
 import MilMoveHeader from '../components/MilMoveHeader';
 import CustomerHeader from '../components/CustomerHeader';
 
 const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
-
-// Buttons
-
-const ButtonGroup = ({ className }) => (
-  <div className={className} style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
-    <Button onClick={action('clicked')}>
-      <span>Button</span>
-    </Button>
-    <Button className="usa-button--icon" onClick={action('clicked')}>
-      <span className="icon">
-        <EditIcon />
-      </span>
-      <span>Button</span>
-    </Button>
-    <Button secondary onClick={action('clicked')}>
-      <span>Button</span>
-    </Button>
-    <Button className="usa-button--small" onClick={action('clicked')}>
-      <span>Button</span>
-    </Button>
-    <Button className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-      <span className="icon">
-        <EditIcon />
-      </span>
-      <span>Button</span>
-    </Button>
-    <Button secondary className="usa-button--small" onClick={action('clicked')}>
-      <span>Button</span>
-    </Button>
-    <Button secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-      <span className="icon">
-        <EditIcon />
-      </span>
-      <span>Button</span>
-    </Button>
-    <Button className="usa-button--unstyled" onClick={action('clicked')}>
-      <span>Button</span>
-    </Button>
-    <Button className="usa-button--unstyled" onClick={action('clicked')}>
-      <span className="icon">
-        <EditIcon />
-      </span>
-      <span>Button</span>
-    </Button>
-  </div>
-);
-
-ButtonGroup.defaultProps = {
-  className: '',
-};
-
-ButtonGroup.propTypes = {
-  className: PropTypes.string,
-};
-
-storiesOf('Components|Button', module)
-  .add('default', () => <ButtonGroup />)
-  .add('active', () => <ButtonGroup className="active" />)
-  .add('hover', () => <ButtonGroup className="hover" />)
-  .add('focus', () => <ButtonGroup className="focus" />)
-  .add('disabled', () => (
-    <div className="disabled" style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
-      <Button disabled onClick={action('clicked')}>
-        <span>Button</span>
-      </Button>
-      <Button disabled className="usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">
-          <EditIcon />
-        </span>
-        <span>Button</span>
-      </Button>
-      <Button disabled secondary onClick={action('clicked')}>
-        <span>Button</span>
-      </Button>
-      <Button disabled className="usa-button--small" onClick={action('clicked')}>
-        <span>Button</span>
-      </Button>
-      <Button disabled className="usa-button--icon usa-button--small" onClick={action('clicked')}>
-        <span className="icon">
-          <EditIcon />
-        </span>
-        <span>Button</span>
-      </Button>
-      <Button disabled secondary className="usa-button--small" onClick={action('clicked')}>
-        <span>Button</span>
-      </Button>
-      <Button disabled secondary className="usa-button--small usa-button--icon" onClick={action('clicked')}>
-        <span className="icon">
-          <EditIcon />
-        </span>
-        <span>Button</span>
-      </Button>
-      <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
-        <span>Button</span>
-      </Button>
-      <Button disabled className="usa-button--unstyled" onClick={action('clicked')}>
-        <span className="icon">
-          <EditIcon />
-        </span>
-        <span>Button</span>
-      </Button>
-    </div>
-  ));
 
 // Colors
 
@@ -130,6 +26,8 @@ storiesOf('Global|Colors', module).add('all', () => (
     <ColorGroup group={filterGroup('base')} />
     <h3>Alert Colors</h3>
     <ColorGroup group={filterGroup('alert')} />
+    <h3>Primary Colors</h3>
+    <ColorGroup group={filterGroup('primary')} />
     <h3>Accent Colors</h3>
     <ColorGroup group={filterGroup('accent')} />
   </div>
@@ -283,58 +181,9 @@ storiesOf('Global|Typography', module)
     </div>
   ));
 
-// Containers
-
-storiesOf('Components|Containers', module).add('all', () => (
-  <div id="containers" style={{ padding: '20px' }}>
-    <div className="container">
-      <code>
-        <b>Container Default</b>
-        <br />
-        .container
-      </code>
-    </div>
-    <div className="container container--gray">
-      <code>
-        <b>Container Gray</b>
-        <br />
-        .container
-        <br />
-        .container--gray
-      </code>
-    </div>
-    <div className="container container--popout">
-      <code>
-        <b>Container Popout</b>
-        <br />
-        .container
-        <br />
-        .container--popout
-      </code>
-    </div>
-    <div className="container container--accent--blue">
-      <code>
-        <b>Container Accent Blue</b>
-        <br />
-        .container
-        <br />
-        .container--accent--blue
-      </code>
-    </div>
-    <div className="container container--accent--yellow">
-      <code>
-        <b>Container Accent Yellow</b>
-        <br />
-        .container
-        <br />
-        .container--accent--yellow
-      </code>
-    </div>
-  </div>
-));
-
 storiesOf('Components|Headers', module).add('all', () => (
   <div>
+    <FOUOHeader />
     <MilMoveHeader />
     <CustomerHeader />
   </div>

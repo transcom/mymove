@@ -15,7 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// ShowPPMEstimateHandler returns PPM SIT estimate for a weight, move date,
+// ShowPPMEstimateHandler returns PPM estimate for a weight, move date, origin zip, order id
 type ShowPPMEstimateHandler struct {
 	handlers.HandlerContext
 }

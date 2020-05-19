@@ -27,7 +27,7 @@ type Client struct {
 }
 
 /*
-CreateUpload creates a new upload for a payment request
+CreateUpload creates upload
 
 Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
 */
@@ -41,7 +41,7 @@ func (a *Client) CreateUpload(params *CreateUploadParams) (*CreateUploadCreated,
 		ID:                 "createUpload",
 		Method:             "POST",
 		PathPattern:        "/payment-requests/{paymentRequestID}/uploads",
-		ProducesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"multipart/form-data"},
 		Schemes:            []string{"http"},
 		Params:             params,

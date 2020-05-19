@@ -6,8 +6,6 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -19,69 +17,73 @@ import (
 // swagger:model MoveOrder
 type MoveOrder struct {
 
-	// agency
-	Agency string `json:"agency,omitempty"`
+	// customer
+	Customer *Customer `json:"customer,omitempty"`
 
-	// confirmation number
-	ConfirmationNumber string `json:"confirmation_number,omitempty"`
-
-	// customer ID
+	// ID of the Customer this MoveOrder belongs to.
+	//
+	// If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
+	//
 	// Format: uuid
 	CustomerID strfmt.UUID `json:"customerID,omitempty"`
 
-	// date issued
+	// The date the orders were issued.
 	// Format: date
-	DateIssued strfmt.Date `json:"date_issued,omitempty"`
+	DateIssued strfmt.Date `json:"dateIssued,omitempty"`
 
 	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
 
-	// e tag
+	// ID of the destination duty station.
+	//
+	// If creating a MoveTaskOrder, this should match an existing duty station.
+	//
+	// Format: uuid
+	DestinationDutyStationID strfmt.UUID `json:"destinationDutyStationID,omitempty"`
+
+	// Uniquely identifies the state of the MoveOrder object (but not the nested objects)
+	//
+	// It will change everytime the object is updated. Client should store the value.
+	// Updates to this MoveOrder will require that this eTag be passed in with the If-Match header.
+	//
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// entitlement
-	Entitlement *Entitlements `json:"entitlement,omitempty"`
+	Entitlement *Entitlement `json:"entitlement,omitempty"`
 
-	// first name
-	// Read Only: true
-	FirstName string `json:"first_name,omitempty"`
-
-	// grade
-	Grade string `json:"grade,omitempty"`
-
-	// id
+	// ID of the MoveOrder object.
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// last name
-	// Read Only: true
-	LastName string `json:"last_name,omitempty"`
-
-	// move task order ID
-	// Format: uuid
-	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
-
-	// order number
-	OrderNumber *string `json:"order_number,omitempty"`
-
-	// order type
-	OrderType string `json:"order_type,omitempty"`
-
-	// order type detail
-	// Enum: [GHC NTS]
-	OrderTypeDetail *string `json:"order_type_detail,omitempty"`
+	// ID of the military orders associated with this move.
+	OrderNumber *string `json:"orderNumber,omitempty"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
 
-	// report by date
+	// ID of the origin duty station.
+	//
+	// If creating a MoveTaskOrder, this should match an existing duty station.
+	//
+	// Format: uuid
+	OriginDutyStationID strfmt.UUID `json:"originDutyStationID,omitempty"`
+
+	// Rank of the service member, must match specific list of available ranks.
+	Rank string `json:"rank,omitempty"`
+
+	// Date that the service member must report to the new DutyStation by.
 	// Format: date
-	ReportByDate strfmt.Date `json:"report_by_date,omitempty"`
+	ReportByDate strfmt.Date `json:"reportByDate,omitempty"`
 }
 
 // Validate validates this move order
 func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateCustomer(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateCustomerID(formats); err != nil {
 		res = append(res, err)
@@ -95,6 +97,10 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationDutyStationID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateEntitlement(formats); err != nil {
 		res = append(res, err)
 	}
@@ -103,15 +109,11 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateMoveTaskOrderID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateOrderTypeDetail(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateOriginDutyStation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginDutyStationID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -122,6 +124,24 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveOrder) validateCustomer(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Customer) { // not required
+		return nil
+	}
+
+	if m.Customer != nil {
+		if err := m.Customer.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("customer")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -144,7 +164,7 @@ func (m *MoveOrder) validateDateIssued(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("date_issued", "body", "date", m.DateIssued.String(), formats); err != nil {
+	if err := validate.FormatOf("dateIssued", "body", "date", m.DateIssued.String(), formats); err != nil {
 		return err
 	}
 
@@ -164,6 +184,19 @@ func (m *MoveOrder) validateDestinationDutyStation(formats strfmt.Registry) erro
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateDestinationDutyStationID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DestinationDutyStationID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("destinationDutyStationID", "body", "uuid", m.DestinationDutyStationID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -200,62 +233,6 @@ func (m *MoveOrder) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.MoveTaskOrderID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var moveOrderTypeOrderTypeDetailPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["GHC","NTS"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		moveOrderTypeOrderTypeDetailPropEnum = append(moveOrderTypeOrderTypeDetailPropEnum, v)
-	}
-}
-
-const (
-
-	// MoveOrderOrderTypeDetailGHC captures enum value "GHC"
-	MoveOrderOrderTypeDetailGHC string = "GHC"
-
-	// MoveOrderOrderTypeDetailNTS captures enum value "NTS"
-	MoveOrderOrderTypeDetailNTS string = "NTS"
-)
-
-// prop value enum
-func (m *MoveOrder) validateOrderTypeDetailEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, moveOrderTypeOrderTypeDetailPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *MoveOrder) validateOrderTypeDetail(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.OrderTypeDetail) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateOrderTypeDetailEnum("order_type_detail", "body", *m.OrderTypeDetail); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.OriginDutyStation) { // not required
@@ -274,13 +251,26 @@ func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MoveOrder) validateOriginDutyStationID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.OriginDutyStationID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("originDutyStationID", "body", "uuid", m.OriginDutyStationID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MoveOrder) validateReportByDate(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ReportByDate) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("report_by_date", "body", "date", m.ReportByDate.String(), formats); err != nil {
+	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
 		return err
 	}
 

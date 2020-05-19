@@ -29,6 +29,7 @@ type Assertions struct {
 	BlackoutDate                             models.BlackoutDate
 	Contractor                               models.Contractor
 	Customer                                 models.Customer
+	DestinationAddress                       models.Address
 	DestinationDutyStation                   models.DutyStation
 	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
@@ -55,7 +56,10 @@ type Assertions struct {
 	Organization                             models.Organization
 	OriginDutyStation                        models.DutyStation
 	PaymentRequest                           models.PaymentRequest
+	PaymentServiceItem                       models.PaymentServiceItem
+	PaymentServiceItemParam                  models.PaymentServiceItemParam
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
+	PickupAddress                            models.Address
 	PrimeUpload                              models.PrimeUpload
 	PrimeUploader                            *uploader.PrimeUploader
 	ProofOfServiceDoc                        models.ProofOfServiceDoc

@@ -31,9 +31,12 @@ func NewGetMoveTaskOrder(ctx *middleware.Context, handler GetMoveTaskOrderHandle
 
 /*GetMoveTaskOrder swagger:route GET /move-task-orders/{moveTaskOrderID} moveTaskOrder getMoveTaskOrder
 
-Gets a move task order by ID
+getMoveTaskOrder
 
-Gets an individual move task order
+Gets an individual move task order by ID. <br />
+<br />
+This is a support endpoint and will not be available in production.
+
 
 */
 type GetMoveTaskOrder struct {
