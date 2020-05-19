@@ -1548,7 +1548,8 @@ func init() {
         "priceCents": {
           "type": "integer",
           "format": "cents",
-          "title": "Price of the service item in cents"
+          "title": "Price of the service item in cents",
+          "x-nullable": true
         },
         "rejectionReason": {
           "type": "string",
@@ -3534,7 +3535,8 @@ func init() {
         "priceCents": {
           "type": "integer",
           "format": "cents",
-          "title": "Price of the service item in cents"
+          "title": "Price of the service item in cents",
+          "x-nullable": true
         },
         "rejectionReason": {
           "type": "string",

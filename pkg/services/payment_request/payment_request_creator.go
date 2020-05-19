@@ -15,7 +15,6 @@ import (
 	serviceparamlookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 type paymentRequestCreator struct {
@@ -232,8 +231,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	paymentServiceItem.PaymentRequestID = paymentRequest.ID
 	paymentServiceItem.PaymentRequest = *paymentRequest
 	paymentServiceItem.Status = models.PaymentServiceItemStatusRequested
-	// TODO: should PriceCents be a pointer? "0 cents " might be a valid value
-	paymentServiceItem.PriceCents = unit.Cents(0) // TODO: Placeholder until we have pricing ready.
+	// TODO: No pricing yet, so skipping the PriceCents field.
 	paymentServiceItem.RequestedAt = requestedAt
 
 	verrs, err := tx.ValidateAndCreate(paymentServiceItem)

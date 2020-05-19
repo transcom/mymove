@@ -1165,6 +1165,7 @@ definitions:
         type: integer
         format: cents
         title: Price of the service item in cents
+        x-nullable: true
       rejectionReason:
         example: documentation was incomplete
         type: string
