@@ -139,24 +139,26 @@ func NewCreateUploadUnauthorized() *CreateUploadUnauthorized {
 
 /*CreateUploadUnauthorized handles this case with default header values.
 
-The request was unauthorized.
+The request was denied.
 */
 type CreateUploadUnauthorized struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *CreateUploadUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *CreateUploadUnauthorized) GetPayload() interface{} {
+func (o *CreateUploadUnauthorized) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *CreateUploadUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -170,24 +172,26 @@ func NewCreateUploadForbidden() *CreateUploadForbidden {
 
 /*CreateUploadForbidden handles this case with default header values.
 
-The client doesn't have permissions to perform the request.
+The request was denied.
 */
 type CreateUploadForbidden struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *CreateUploadForbidden) Error() string {
 	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadForbidden  %+v", 403, o.Payload)
 }
 
-func (o *CreateUploadForbidden) GetPayload() interface{} {
+func (o *CreateUploadForbidden) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *CreateUploadForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

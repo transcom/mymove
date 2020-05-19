@@ -29,11 +29,23 @@ func NewCreateMTOShipment(ctx *middleware.Context, handler CreateMTOShipmentHand
 	return &CreateMTOShipment{Context: ctx, Handler: handler}
 }
 
-/*CreateMTOShipment swagger:route POST /move-task-orders/{moveTaskOrderID}/mto-shipments mtoShipment createMTOShipment
+/*CreateMTOShipment swagger:route POST /mto-shipments mtoShipment createMTOShipment
 
 createMTOShipment
 
-Creates an instance of mtoShipment Required fields include * Shipment Type * Customer requested pick-up date * Pick-up Address * Delivery Address * Releasing / Receiving agents Optional fields include * Customer Remarks * Releasing / Receiving agents * An array of optional accessorial service item codes
+Creates a MTO shipment for the specified Move Task Order.
+Required fields include:
+* Shipment Type
+* Customer requested pick-up date
+* Pick-up Address
+* Delivery Address
+* Releasing / Receiving agents
+
+Optional fields include:
+* Customer Remarks
+* Releasing / Receiving agents
+* An array of optional accessorial service item codes
+
 
 */
 type CreateMTOShipment struct {

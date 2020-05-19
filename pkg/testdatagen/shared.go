@@ -56,6 +56,8 @@ type Assertions struct {
 	Organization                             models.Organization
 	OriginDutyStation                        models.DutyStation
 	PaymentRequest                           models.PaymentRequest
+	PaymentServiceItem                       models.PaymentServiceItem
+	PaymentServiceItemParam                  models.PaymentServiceItemParam
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	PickupAddress                            models.Address
 	PrimeUpload                              models.PrimeUpload
