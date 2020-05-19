@@ -2,9 +2,9 @@ import React from 'react';
 import classNames from 'classnames/bind';
 import { SHIPMENT_TYPE } from 'shared/constants';
 import * as PropTypes from 'prop-types';
+import styles from 'components/Office/ShipmentDisplay.module.scss';
 import { ReactComponent as ChevronDown } from '../../shared/icon/chevron-down.svg';
 import ShipmentContainer from './ShipmentContainer';
-import styles from './shipmentDisplay.module.scss';
 
 const cx = classNames.bind(styles);
 
