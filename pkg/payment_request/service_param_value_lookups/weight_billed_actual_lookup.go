@@ -10,7 +10,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 // WeightBilledActualLookup does lookup on actual weight billed
@@ -18,8 +17,6 @@ type WeightBilledActualLookup struct {
 }
 
 func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	var value string
-
 	db := *keyData.db
 
 	// Get the MTOServiceItem and associated MTOShipment
@@ -55,45 +52,70 @@ func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (stri
 		return "", fmt.Errorf("could not find actual weight for MTOShipmentID [%s]", mtoShipmentID)
 	}
 
+	var value string
 	estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
 	if float64(*actualWeight) > estimatedWeightCap {
 		value = fmt.Sprintf("%d", int(estimatedWeightCap))
-	} else if fiveHundredMinimumApplies(mtoServiceItem.ReService.Code, *actualWeight) {
-		value = "500"
 	} else {
-		value = fmt.Sprintf("%d", int(*actualWeight))
+		value = applyMinimumIfNeeded(mtoServiceItem.ReService.Code, mtoServiceItem.MTOShipment.ShipmentType, int(*actualWeight))
 	}
 
 	return value, nil
 }
 
-func fiveHundredMinimumApplies(code models.ReServiceCode, actual unit.Pound) bool {
-	switch code {
-	case models.ReServiceCodeDLH:
-		return int(actual) < 500
-	case models.ReServiceCodeDSH:
-		return int(actual) < 500
-	case models.ReServiceCodeDOP:
-		return int(actual) < 500
-	case models.ReServiceCodeDDP:
-		return int(actual) < 500
-	case models.ReServiceCodeDOFSIT:
-		return int(actual) < 500
-	case models.ReServiceCodeDDFSIT:
-		return int(actual) < 500
-	case models.ReServiceCodeDOASIT:
-		return int(actual) < 500
-	case models.ReServiceCodeDDASIT:
-		return int(actual) < 500
-	case models.ReServiceCodeDOPSIT:
-		return int(actual) < 500
-	case models.ReServiceCodeDDDSIT:
-		return int(actual) < 500
-	case models.ReServiceCodeDPK:
-		return int(actual) < 500
-	case models.ReServiceCodeDUPK:
-		return int(actual) < 500
+// Looks at code and applies minimum if necessary, otherwise returns actual
+func applyMinimumIfNeeded(code models.ReServiceCode, shipmentType models.MTOShipmentType, actual int) string {
+	result := actual
+	switch shipmentType {
+	case models.MTOShipmentTypeInternationalUB:
+		switch code {
+		case models.ReServiceCodeIOSHUT,
+			models.ReServiceCodeIDSHUT:
+			if int(actual) < 300 {
+				result = 300
+			}
+		}
 	default:
-		return false
+		switch code {
+		case models.ReServiceCodeDLH,
+			models.ReServiceCodeDSH,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDOFSIT,
+			models.ReServiceCodeDDFSIT,
+			models.ReServiceCodeDOASIT,
+			models.ReServiceCodeDDASIT,
+			models.ReServiceCodeDOPSIT,
+			models.ReServiceCodeDDDSIT,
+			models.ReServiceCodeDPK,
+			models.ReServiceCodeDUPK,
+			models.ReServiceCodeDOSHUT,
+			models.ReServiceCodeDDSHUT,
+			models.ReServiceCodeIOOLH,
+			models.ReServiceCodeICOLH,
+			models.ReServiceCodeIOCLH,
+			models.ReServiceCodeIHPK,
+			models.ReServiceCodeIHUPK,
+			models.ReServiceCodeIOFSIT,
+			models.ReServiceCodeIDFSIT,
+			models.ReServiceCodeIOASIT,
+			models.ReServiceCodeIDASIT,
+			models.ReServiceCodeIOPSIT,
+			models.ReServiceCodeIDDSIT,
+			models.ReServiceCodeIOSHUT,
+			models.ReServiceCodeIDSHUT:
+			if int(actual) < 500 {
+				result = 500
+			}
+		case models.ReServiceCodeIOOUB,
+			models.ReServiceCodeICOUB,
+			models.ReServiceCodeIOCUB,
+			models.ReServiceCodeIUBPK,
+			models.ReServiceCodeIUBUPK:
+			if int(actual) < 300 {
+				result = 300
+			}
+		}
 	}
+	return fmt.Sprintf("%d", result)
 }
