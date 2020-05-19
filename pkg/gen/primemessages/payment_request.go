@@ -36,6 +36,9 @@ type PaymentRequest struct {
 	// Read Only: true
 	PaymentRequestNumber string `json:"paymentRequestNumber,omitempty"`
 
+	// payment service items
+	PaymentServiceItems PaymentServiceItems `json:"paymentServiceItems,omitempty"`
+
 	// proof of service docs
 	ProofOfServiceDocs *ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`
 
@@ -55,6 +58,10 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePaymentServiceItems(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -92,6 +99,22 @@ func (m *PaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) error 
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validatePaymentServiceItems(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PaymentServiceItems) { // not required
+		return nil
+	}
+
+	if err := m.PaymentServiceItems.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("paymentServiceItems")
+		}
 		return err
 	}
 

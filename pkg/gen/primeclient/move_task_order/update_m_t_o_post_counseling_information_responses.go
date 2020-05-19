@@ -116,24 +116,26 @@ func NewUpdateMTOPostCounselingInformationUnauthorized() *UpdateMTOPostCounselin
 
 /*UpdateMTOPostCounselingInformationUnauthorized handles this case with default header values.
 
-The request was unauthorized.
+The request was denied.
 */
 type UpdateMTOPostCounselingInformationUnauthorized struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOPostCounselingInformationUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationUnauthorized) GetPayload() interface{} {
+func (o *UpdateMTOPostCounselingInformationUnauthorized) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -147,24 +149,26 @@ func NewUpdateMTOPostCounselingInformationForbidden() *UpdateMTOPostCounselingIn
 
 /*UpdateMTOPostCounselingInformationForbidden handles this case with default header values.
 
-The client doesn't have permissions to perform the request.
+The request was denied.
 */
 type UpdateMTOPostCounselingInformationForbidden struct {
-	Payload interface{}
+	Payload *primemessages.Error
 }
 
 func (o *UpdateMTOPostCounselingInformationForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMTOPostCounselingInformationForbidden  %+v", 403, o.Payload)
 }
 
-func (o *UpdateMTOPostCounselingInformationForbidden) GetPayload() interface{} {
+func (o *UpdateMTOPostCounselingInformationForbidden) GetPayload() *primemessages.Error {
 	return o.Payload
 }
 
 func (o *UpdateMTOPostCounselingInformationForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.Error)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

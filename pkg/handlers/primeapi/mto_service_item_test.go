@@ -2,10 +2,11 @@ package primeapi
 
 import (
 	"errors"
-	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
@@ -41,7 +42,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	})
 	builder := query.NewQueryBuilder(suite.DB())
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s/mto_service_items", mto.ID.String(), mtoShipment.ID.String()), nil)
+	req := httptest.NewRequest("POST", "/mto-service-items", nil)
 
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID:  mto.ID,
@@ -53,10 +54,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		UpdatedAt:        time.Now(),
 	}
 	params := mtoserviceitemops.CreateMTOServiceItemParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-		Body:            payloads.MTOServiceItem(&mtoServiceItem),
+		HTTPRequest: req,
+		Body:        payloads.MTOServiceItem(&mtoServiceItem),
 	}
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
@@ -132,11 +131,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			creator,
 		}
 
+		body := payloads.MTOServiceItem(&mtoServiceItem)
+		body.SetMoveTaskOrderID(strfmt.UUID(mtoShipment.MoveTaskOrderID.String()))
+		body.SetMtoShipmentID(strfmt.UUID(mtoShipment2.ID.String()))
+
 		newParams := mtoserviceitemops.CreateMTOServiceItemParams{
-			HTTPRequest:     req,
-			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-			MtoShipmentID:   *handlers.FmtUUID(mtoShipment2.ID),
-			Body:            payloads.MTOServiceItem(&mtoServiceItem),
+			HTTPRequest: req,
+			Body:        body,
 		}
 
 		response := handler.Handle(newParams)
@@ -182,10 +183,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			UpdatedAt:        time.Now(),
 		}
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
-			HTTPRequest:     req,
-			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-			MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-			Body:            payloads.MTOServiceItem(&mtoServiceItem),
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
@@ -214,7 +213,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 	})
 	builder := query.NewQueryBuilder(suite.DB())
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s/mto_service_items", mto.ID.String(), mtoShipment.ID.String()), nil)
+	req := httptest.NewRequest("POST", "/mto-service-items", nil)
 
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID: mto.ID,
@@ -247,10 +246,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDCRT
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
-			HTTPRequest:     req,
-			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-			MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-			Body:            payloads.MTOServiceItem(&mtoServiceItem),
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
 		response := handler.Handle(params)
@@ -269,10 +266,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDUCRT
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
-			HTTPRequest:     req,
-			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-			MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-			Body:            payloads.MTOServiceItem(&mtoServiceItem),
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
 		response := handler.Handle(params)
@@ -291,10 +286,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDCRTSA
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
-			HTTPRequest:     req,
-			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-			MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-			Body:            payloads.MTOServiceItem(&mtoServiceItem),
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
 		response := handler.Handle(params)
@@ -318,10 +311,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDCRTSA
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
-			HTTPRequest:     req,
-			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-			MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-			Body:            payloads.MTOServiceItem(&mtoServiceItem),
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
 		var height int32 = 0
@@ -343,7 +334,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 	})
 	builder := query.NewQueryBuilder(suite.DB())
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s/mto_service_items", mto.ID.String(), mtoShipment.ID.String()), nil)
+	req := httptest.NewRequest("POST", "/mto-service-items", nil)
 
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID: mto.ID,
@@ -366,10 +357,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 		UpdatedAt: time.Now(),
 	}
 	params := mtoserviceitemops.CreateMTOServiceItemParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		MtoShipmentID:   *handlers.FmtUUID(mtoShipment.ID),
-		Body:            payloads.MTOServiceItem(&mtoServiceItem),
+		HTTPRequest: req,
+		Body:        payloads.MTOServiceItem(&mtoServiceItem),
 	}
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {

@@ -88,11 +88,11 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 					MTOServiceItem:   mtoServiceItem1,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
-							IncomingKey: "WeightEstimated",
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
 							Value:       "3254",
 						},
 						{
-							IncomingKey: "RequestedPickupDate",
+							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
 							Value:       "2019-12-16",
 						},
 					},
@@ -102,7 +102,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 					MTOServiceItem:   mtoServiceItem2,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
-							IncomingKey: "WeightEstimated",
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
 							Value:       "7722",
 						},
 					},

@@ -37,9 +37,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
 	}
 
-	moveTaskOrderID := params.MoveTaskOrderID
-
-	mtoShipment := payloads.MTOShipmentModelFromCreate(payload, moveTaskOrderID)
+	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 
 	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
 	if verrs != nil && verrs.HasAny() {
