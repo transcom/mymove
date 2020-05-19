@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"text/template"
 
 	"github.com/spf13/pflag"
 
@@ -16,6 +15,8 @@ import (
 )
 
 //type PricingTemplate struct {}
+//Include instructions to start with a clean table/db because everything is going to be dumped
+// ideally these are coming from the flags
 const (
 	//ImportFlag string = "import"
 	DbHost   = "localhost"
@@ -61,6 +62,8 @@ func pgDump() {
 }
 
 func initGenPricingImportMigrationFlags(flag *pflag.FlagSet) {
+
+	//bring in the pricing template flag
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
@@ -94,19 +97,19 @@ func genPricingImportMigration(cmd *cobra.Command, args []string) error {
 
 	//pricingTemplate := PricingTemplate{}
 
-	t1 := template.New("pricing_import_migration")
-	err := createMigration(tempMigrationPath, secureMigrationName, t1, nil)
-	if err != nil {
-		return err
-	}
+	//t1 := template.New("pricing_import_migration")
+	//err := createMigration(tempMigrationPath, secureMigrationName, nil, nil)
+	//if err != nil {
+	//	return err
+	//}
 
-	t2 := template.Must(template.New("migrations/app/secure").Parse(localMigrationTemplate))
-	err = createMigration("./migrations/app/secure", secureMigrationName, t2, nil)
-	if err != nil {
-		return err
-	}
+	//t2 := template.Must(template.New("migrations/app/secure").Parse(localMigrationTemplate))
+	//err = createMigration("./migrations/app/secure", secureMigrationName, nil, nil)
+	//if err != nil {
+	//	return err
+	//}
 
-	err = addMigrationToManifest(migrationManifest, secureMigrationName)
+	err := addMigrationToManifest(migrationManifest, secureMigrationName)
 	if err != nil {
 		return err
 	}
