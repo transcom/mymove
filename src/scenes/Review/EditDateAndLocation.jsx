@@ -17,8 +17,8 @@ import {
   updatePPM,
   selectActivePPMForMove,
   updatePPMEstimate,
-  getPPMSITEstimate,
-  selectPPMSITEstimate,
+  getPPMSitEstimate,
+  selectPPMSitEstimate,
 } from 'shared/Entities/modules/ppms';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
@@ -39,7 +39,7 @@ let EditDateAndLocationForm = (props) => {
     sitReimbursement,
     submitting,
   } = props;
-  const displayedSITReimbursement = sitEstimate ? '$' + formatCents(sitEstimate) : sitReimbursement;
+  const displayedSitReimbursement = sitEstimate ? '$' + formatCents(sitEstimate) : sitReimbursement;
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">
@@ -81,9 +81,9 @@ let EditDateAndLocationForm = (props) => {
                   required
                 />{' '}
                 <span className="grey">You can choose up to 90 days.</span>
-                {displayedSITReimbursement && (
+                {displayedSitReimbursement && (
                   <div data-cy="storage-estimate" className="storage-estimate">
-                    You can spend up to {displayedSITReimbursement} on private storage. Save your receipts to submit
+                    You can spend up to {displayedSitReimbursement} on private storage. Save your receipts to submit
                     with your PPM paperwork.
                   </div>
                 )}
@@ -140,7 +140,7 @@ class EditDateAndLocation extends Component {
 
   getSitEstimate = (moveDate, sitDays, pickupZip, ordersID, weight) => {
     if (sitDays <= 90 && pickupZip.length === 5) {
-      this.props.getPPMSITEstimate(moveDate, sitDays, pickupZip, ordersID, weight);
+      this.props.getPPMSitEstimate(moveDate, sitDays, pickupZip, ordersID, weight);
     }
   };
 
@@ -170,7 +170,7 @@ class EditDateAndLocation extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.currentPPM !== this.props.currentPPM && prevProps.currentOrders !== this.props.currentOrders) {
       const currentPPM = this.props.currentPPM;
-      this.props.getPPMSITEstimate(
+      this.props.getPPMSitEstimate(
         currentPPM.original_move_date,
         currentPPM.days_in_storage,
         currentPPM.pickup_postal_code,
@@ -238,7 +238,7 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     error: get(state, 'ppm.error'),
     hasSubmitError: get(state, 'ppm.hasSubmitError'),
-    sitEstimate: selectPPMSITEstimate(state),
+    sitEstimate: selectPPMSitEstimate(state),
     entitiesSitReimbursement: get(
       selectActivePPMForMove(state, get(state, 'moves.currentMove.id')),
       'estimated_storage_reimbursement',
@@ -261,7 +261,7 @@ function mapDispatchToProps(dispatch) {
       push,
       updatePPM,
       loadPPMs,
-      getPPMSITEstimate,
+      getPPMSitEstimate,
       editBegin,
       editSuccessful,
       entitlementChangeBegin,

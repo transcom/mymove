@@ -12,7 +12,7 @@ const updatePPMLabel = 'office.updatePPM';
 const updatePPMEstimateLabel = 'ppm.updatePPMEstimate';
 const approveReimbursementLabel = 'office.approveReimbursement';
 const getPPMEstimateLabel = 'ppm.showPPMEstimate';
-const getPPMSITEstimateLabel = 'ppm.updatePPMEstimate';
+const getPPMSitEstimateLabel = 'ppm.updatePPMEstimate';
 
 export function approvePPM(personallyProcuredMoveId, personallyProcuredMoveApproveDate, label = approvePpmLabel) {
   const swaggerTag = 'office.approvePPM';
@@ -113,16 +113,16 @@ export function updatePPMEstimate(moveId, personallyProcuredMoveId, label = upda
   );
 }
 
-export function getPPMSITEstimate(
+export function getPPMSitEstimate(
   moveDate,
   sitDays,
   originZip,
   ordersID,
   weightEstimate,
-  label = getPPMSITEstimateLabel,
+  label = getPPMSitEstimateLabel,
 ) {
   const swaggerTag = 'ppm.showPPMSitEstimate';
-  const schemaKey = 'ppmSITEstimate';
+  const schemaKey = 'ppmSitEstimate';
   const payload = {
     original_move_date: moveDate,
     days_in_storage: sitDays,
@@ -158,9 +158,9 @@ export function selectPPMEstimateRange(state) {
   return {};
 }
 
-export function selectPPMSITEstimate(state) {
-  if (state.entities.ppmSITEstimate) {
-    return state.entities.ppmSITEstimate.undefined.estimate;
+export function selectPPMSitEstimate(state) {
+  if (state.entities.ppmSitEstimate) {
+    return state.entities.ppmSitEstimate.undefined.estimate;
   }
   return '';
 }
