@@ -21,9 +21,6 @@
   table {
     @include u-width(full);
 
-    td:hover {
-      background: none;
-    }
 
     th:first-child {
       @include u-padding-left('2');
