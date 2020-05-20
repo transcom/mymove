@@ -115,6 +115,7 @@ func (gre *GHCRateEngineImporter) createZip5s(dbTx *pop.Connection, fixturePath 
 			return fmt.Errorf("failed to map %s rate area to ID", zip5RateArea.RateArea)
 		}
 
+		reZip5.ContractID = gre.ContractID
 		reZip5.Zip5 = zip5RateArea.Zip
 		reZip5.RateAreaID = rateAreaID
 
