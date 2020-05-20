@@ -56,6 +56,7 @@ export class MoveSummaryComponent extends React.Component {
 
     this.state = {
       hasEstimateError: false,
+      netWeight: null,
     };
   }
 
@@ -82,6 +83,7 @@ export class MoveSummaryComponent extends React.Component {
               netWeight,
             )
             .catch((err) => this.setState({ hasEstimateError: true }));
+          this.setState({ netWeight: netWeight });
         }
       });
     }
@@ -147,6 +149,7 @@ export class MoveSummaryComponent extends React.Component {
               requestPaymentSuccess={requestPaymentSuccess}
               isMissingWeightTicketDocuments={isMissingWeightTicketDocuments}
               hasEstimateError={this.state.hasEstimateError}
+              netWeight={this.state.netWeight}
             />
           </div>
 
