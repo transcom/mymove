@@ -118,23 +118,23 @@ func NewUpdatePaymentRequestStatusBadRequest() *UpdatePaymentRequestStatusBadReq
 
 /*UpdatePaymentRequestStatusBadRequest handles this case with default header values.
 
-The parameters were invalid.
+The request payload is invalid.
 */
 type UpdatePaymentRequestStatusBadRequest struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdatePaymentRequestStatusBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *UpdatePaymentRequestStatusBadRequest) GetPayload() *supportmessages.Error {
+func (o *UpdatePaymentRequestStatusBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdatePaymentRequestStatusBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -216,20 +216,20 @@ func NewUpdatePaymentRequestStatusNotFound() *UpdatePaymentRequestStatusNotFound
 The requested resource wasn't found.
 */
 type UpdatePaymentRequestStatusNotFound struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdatePaymentRequestStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusNotFound  %+v", 404, o.Payload)
 }
 
-func (o *UpdatePaymentRequestStatusNotFound) GetPayload() *supportmessages.Error {
+func (o *UpdatePaymentRequestStatusNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdatePaymentRequestStatusNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -249,20 +249,20 @@ func NewUpdatePaymentRequestStatusPreconditionFailed() *UpdatePaymentRequestStat
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
 type UpdatePaymentRequestStatusPreconditionFailed struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdatePaymentRequestStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdatePaymentRequestStatusPreconditionFailed) GetPayload() *supportmessages.Error {
+func (o *UpdatePaymentRequestStatusPreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdatePaymentRequestStatusPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
