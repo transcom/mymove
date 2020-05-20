@@ -60,7 +60,7 @@ func (o *CreateMoveTaskOrderCreated) WriteResponse(rw http.ResponseWriter, produ
 // CreateMoveTaskOrderBadRequestCode is the HTTP code returned for type CreateMoveTaskOrderBadRequest
 const CreateMoveTaskOrderBadRequestCode int = 400
 
-/*CreateMoveTaskOrderBadRequest The parameters were invalid.
+/*CreateMoveTaskOrderBadRequest The request payload is invalid.
 
 swagger:response createMoveTaskOrderBadRequest
 */
@@ -69,7 +69,7 @@ type CreateMoveTaskOrderBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderBadRequest creates CreateMoveTaskOrderBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewCreateMoveTaskOrderBadRequest() *CreateMoveTaskOrderBadRequest {
 }
 
 // WithPayload adds the payload to the create move task order bad request response
-func (o *CreateMoveTaskOrderBadRequest) WithPayload(payload *supportmessages.Error) *CreateMoveTaskOrderBadRequest {
+func (o *CreateMoveTaskOrderBadRequest) WithPayload(payload *supportmessages.ClientError) *CreateMoveTaskOrderBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create move task order bad request response
-func (o *CreateMoveTaskOrderBadRequest) SetPayload(payload *supportmessages.Error) {
+func (o *CreateMoveTaskOrderBadRequest) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -197,7 +197,7 @@ type CreateMoveTaskOrderNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderNotFound creates CreateMoveTaskOrderNotFound with default headers values
@@ -207,13 +207,13 @@ func NewCreateMoveTaskOrderNotFound() *CreateMoveTaskOrderNotFound {
 }
 
 // WithPayload adds the payload to the create move task order not found response
-func (o *CreateMoveTaskOrderNotFound) WithPayload(payload *supportmessages.Error) *CreateMoveTaskOrderNotFound {
+func (o *CreateMoveTaskOrderNotFound) WithPayload(payload *supportmessages.ClientError) *CreateMoveTaskOrderNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create move task order not found response
-func (o *CreateMoveTaskOrderNotFound) SetPayload(payload *supportmessages.Error) {
+func (o *CreateMoveTaskOrderNotFound) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
