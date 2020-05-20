@@ -22,15 +22,15 @@ type Zip5Fixture struct {
 	RateArea string `csv:"rate_area"`
 }
 
-func (gre *GHCRateEngineImporter) mapZipsToRateAreas(dbTx *pop.Connection, zip3FixturePath string, zip5RateAreasFixturePath string) error {
+func (gre *GHCRateEngineImporter) mapZipsToRateAreas(dbTx *pop.Connection) error {
 	// Maps re_zip3s to re_rate_areas based on tariff400ng_zip3s_fixture.csv
-	err := gre.mapZip3s(dbTx, zip3FixturePath)
+	err := gre.mapZip3s(dbTx, "pkg/services/ghcimport/fixtures/tariff400ng_zip3s_fixture.csv")
 	if err != nil {
 		return fmt.Errorf("mapZip3s failed: %w", err)
 	}
 
 	// Creates re_zip5_rate_areas records from tariff400ng_zip5_rate_areas_fixture.csv
-	err = gre.createZip5s(dbTx, zip5RateAreasFixturePath)
+	err = gre.createZip5s(dbTx, "pkg/services/ghcimport/fixtures/tariff400ng_zip5_rate_areas_fixture.csv")
 	if err != nil {
 		return fmt.Errorf("createZip5s failed: %w", err)
 	}

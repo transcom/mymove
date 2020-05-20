@@ -48,7 +48,7 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 	}
 
 	gre.Logger.Info("Mapping zip codes to rate areas")
-	err = gre.mapZipsToRateAreas(dbTx, "pkg/services/ghcimport/fixtures/tariff400ng_zip3s_fixture.csv", "pkg/services/ghcimport/fixtures/tariff400ng_zip5_rate_areas_fixture.csv")
+	err = gre.mapZipsToRateAreas(dbTx)
 	if err != nil {
 		return fmt.Errorf("failed to map zip codes to rate areas: %w", err)
 	}
