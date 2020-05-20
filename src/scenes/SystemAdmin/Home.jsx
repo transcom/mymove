@@ -6,6 +6,8 @@ import Menu from './shared/Menu';
 import FOUOHeader from 'components/FOUOHeader';
 import AccessCodeList from './AccessCodes/AccessCodeList';
 import UploadShow from './Uploads/UploadShow';
+import UserShow from './Users/UserShow';
+import UserEdit from './Users/UserEdit';
 import OfficeUserList from './OfficeUsers/OfficeUserList';
 import OfficeUserCreate from './OfficeUsers/OfficeUserCreate';
 import OfficeUserEdit from './OfficeUsers/OfficeUserEdit';
@@ -80,6 +82,7 @@ const Home = () => (
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
+      <Resource name="users" options={{ label: 'Search User by ID' }} show={UserShow} edit={UserEdit} />
       <Resource name="organizations" />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
     </Admin>
