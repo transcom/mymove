@@ -549,6 +549,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	roleAuthMiddleware := authentication.RoleAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+	handlerContext.SetRedisPool(redisPool)
 	handlerContext.SetSessionManagers(sessionManagers)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
 	handlerContext.SetUseSecureCookie(useSecureCookie)

@@ -978,6 +978,90 @@ func init() {
           }
         }
       }
+    },
+    "/users/{userId}": {
+      "get": {
+        "description": "Returns the given user and their sessions",
+        "tags": [
+          "user"
+        ],
+        "summary": "Get information about a user",
+        "operationId": "getUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/UserInformation"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "user not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "users"
+        ],
+        "summary": "revokes a user's session on any specified apps",
+        "operationId": "revokeUserSession",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "User information",
+            "name": "User",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RevokedSessionPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated User",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update this user"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1677,6 +1761,32 @@ func init() {
         "$ref": "#/definitions/Organization"
       }
     },
+    "RevokedSessionPayload": {
+      "type": "object",
+      "properties": {
+        "currentAdminSessionId": {
+          "type": "string"
+        },
+        "currentMilSessionId": {
+          "type": "string"
+        },
+        "currentOfficeSessionId": {
+          "type": "string"
+        },
+        "revokeAdminSession": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "revokeMilSession": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "revokeOfficeSession": {
+          "type": "boolean",
+          "x-nullable": true
+        }
+      }
+    },
     "Role": {
       "type": "object",
       "required": [
@@ -1946,6 +2056,52 @@ func init() {
         },
         "upload": {
           "$ref": "#/definitions/Upload"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "required": [
+        "loginGovEmail",
+        "currentAdminSessionId",
+        "currentMilSessionId",
+        "currentOfficeSessionId"
+      ],
+      "properties": {
+        "currentAdminSessionId": {
+          "type": "string",
+          "example": "WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w"
+        },
+        "currentMilSessionId": {
+          "type": "string",
+          "example": "WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w"
+        },
+        "currentOfficeSessionId": {
+          "type": "string",
+          "example": "WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "loginGovEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        }
+      }
+    },
+    "UserInformation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
         }
       }
     },
@@ -2933,6 +3089,90 @@ func init() {
           }
         }
       }
+    },
+    "/users/{userId}": {
+      "get": {
+        "description": "Returns the given user and their sessions",
+        "tags": [
+          "user"
+        ],
+        "summary": "Get information about a user",
+        "operationId": "getUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/UserInformation"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "user not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "users"
+        ],
+        "summary": "revokes a user's session on any specified apps",
+        "operationId": "revokeUserSession",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "User information",
+            "name": "User",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RevokedSessionPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated User",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update this user"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -3633,6 +3873,32 @@ func init() {
         "$ref": "#/definitions/Organization"
       }
     },
+    "RevokedSessionPayload": {
+      "type": "object",
+      "properties": {
+        "currentAdminSessionId": {
+          "type": "string"
+        },
+        "currentMilSessionId": {
+          "type": "string"
+        },
+        "currentOfficeSessionId": {
+          "type": "string"
+        },
+        "revokeAdminSession": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "revokeMilSession": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "revokeOfficeSession": {
+          "type": "boolean",
+          "x-nullable": true
+        }
+      }
+    },
     "Role": {
       "type": "object",
       "required": [
@@ -3902,6 +4168,52 @@ func init() {
         },
         "upload": {
           "$ref": "#/definitions/Upload"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "required": [
+        "loginGovEmail",
+        "currentAdminSessionId",
+        "currentMilSessionId",
+        "currentOfficeSessionId"
+      ],
+      "properties": {
+        "currentAdminSessionId": {
+          "type": "string",
+          "example": "WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w"
+        },
+        "currentMilSessionId": {
+          "type": "string",
+          "example": "WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w"
+        },
+        "currentOfficeSessionId": {
+          "type": "string",
+          "example": "WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "loginGovEmail": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        }
+      }
+    },
+    "UserInformation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
         }
       }
     },

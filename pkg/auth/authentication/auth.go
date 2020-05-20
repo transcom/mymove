@@ -88,7 +88,6 @@ func RoleAuthLogin(logger Logger) func(next http.Handler) http.Handler {
 func UserAuthMiddleware(logger Logger, db *pop.Connection) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			fmt.Println("UserAuthMiddleware called")
 			session := auth.SessionFromRequestContext(r)
 
 			// We must have a logged in session and a user
@@ -116,13 +115,12 @@ func UserAuthMiddleware(logger Logger, db *pop.Connection) func(next http.Handle
 	}
 }
 
-func updateUserUniqueSessionID(session *auth.Session, sessionID string, r *http.Request, db *pop.Connection, logger Logger) error {
+func updateUserCurrentSessionID(session *auth.Session, sessionID string, r *http.Request, db *pop.Connection, logger Logger) error {
 	userID := session.UserID
 
-	fmt.Println("fetching user with id:", userID)
 	user, err := models.GetUser(db, userID)
 	if err != nil {
-		fmt.Println("error fetching user", err)
+		logger.Error("Fetching user", zap.String("user_id", userID.String()), zap.Error(err))
 	}
 
 	if session.IsAdminUser() {
@@ -146,10 +144,9 @@ func resetUserCurrentSessionID(session *auth.Session, db *pop.Connection, logger
 	userID := session.UserID
 	user, err := models.GetUser(db, userID)
 	if err != nil {
-		fmt.Println("error fetching user in ResetUserCurrentSessionID", err)
+		logger.Error("Fetching user", zap.String("user_id", userID.String()), zap.Error(err))
 	}
 
-	fmt.Println("resetting user's current session id to empty string:")
 	if session.IsAdminUser() {
 		user.CurrentAdminSessionID = ""
 	} else if session.IsOfficeUser() {
@@ -159,21 +156,21 @@ func resetUserCurrentSessionID(session *auth.Session, db *pop.Connection, logger
 	}
 	err = db.Save(user)
 	if err != nil {
-		logger.Error("Updating user's current_session_id", zap.String("email", session.Email), zap.Error(err))
+		logger.Error("Updating user's current_x_session_id", zap.String("email", session.Email), zap.Error(err))
 		return err
 	}
 
 	return err
 }
 
-func currentUser(session *auth.Session, db *pop.Connection) *models.User {
+func currentUser(session *auth.Session, db *pop.Connection) (*models.User, error) {
 	userID := session.UserID
 	user, err := models.GetUser(db, userID)
 	if err != nil {
-		fmt.Println("error fetching user in currentUser", err)
+		return nil, err
 	}
 
-	return user
+	return user, nil
 }
 
 func currentSessionID(session *auth.Session, user *models.User) string {
@@ -762,7 +759,6 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 		session.Roles = append(session.Roles, role)
 	}
 	session.UserID = userIdentity.ID
-	fmt.Println("userIdentity.ID in authorizeKnownUser:", userIdentity.ID)
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
@@ -803,7 +799,6 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 	}
 
 	if session.IsAdminApp() {
-		fmt.Println("session is admin app")
 		if userIdentity.AdminUserActive != nil && !*userIdentity.AdminUserActive {
 			h.logger.Error("Admin user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
@@ -833,7 +828,6 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 			session.AdminUserID = adminUser.ID
 			session.AdminUserRole = adminUser.Role.String()
 			adminUser.UserID = &userIdentity.ID
-			fmt.Println("saving admin user to DB")
 			verrs, err := h.db.ValidateAndSave(&adminUser)
 			if err != nil {
 				h.logger.Error("Updating admin user", zap.String("email", session.Email), zap.Error(err))
@@ -868,9 +862,14 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 		return
 	}
 	session.CurrentSessionID = sessionID
-	fmt.Println("updating user and session with current session id:", sessionID)
 	sessionManager.Put(r.Context(), "session", session)
-	user := currentUser(session, h.db)
+
+	user, err := currentUser(session, h.db)
+	if err != nil {
+		h.logger.Error("Fetching user", zap.String("user_id", session.UserID.String()), zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
 	// Check to see if sessionID is set on the user, presently
 	existingSessionID := currentSessionID(session, user)
 	if existingSessionID != "" {
@@ -896,7 +895,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 		}
 	}
 
-	updateUserUniqueSessionID(session, sessionID, r, h.db, h.logger)
+	updateUserCurrentSessionID(session, sessionID, r, h.db, h.logger)
 
 	h.logger.Info("logged in", zap.Any("session", session))
 

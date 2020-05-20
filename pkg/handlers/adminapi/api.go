@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/office"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	tspop "github.com/transcom/mymove/pkg/services/tsp"
+	user "github.com/transcom/mymove/pkg/services/user"
 
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -119,6 +120,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		pagination.NewPagination,
 	}
 
+	adminAPI.UsersRevokeUserSessionHandler = RevokeUserSessionHandler{
+		context,
+		user.NewSessionRevocation(queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	adminAPI.AdminUsersGetAdminUserHandler = GetAdminUserHandler{
 		context,
 		adminuser.NewAdminUserFetcher(queryBuilder),
@@ -140,6 +147,11 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{
 		context,
 		upload.NewUploadInformationFetcher(context.DB()),
+	}
+
+	adminAPI.UserGetUserHandler = GetUserHandler{
+		context,
+		user.NewUserInformationFetcher(context.DB()),
 	}
 
 	adminAPI.NotificationIndexNotificationsHandler = IndexNotificationsHandler{

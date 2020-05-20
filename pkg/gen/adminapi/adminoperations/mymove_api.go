@@ -29,6 +29,8 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/user"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -69,6 +71,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UploadGetUploadHandler: upload.GetUploadHandlerFunc(func(params upload.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation UploadGetUpload has not yet been implemented")
 		}),
+		UserGetUserHandler: user.GetUserHandlerFunc(func(params user.GetUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation UserGetUser has not yet been implemented")
+		}),
 		AccessCodesIndexAccessCodesHandler: access_codes.IndexAccessCodesHandlerFunc(func(params access_codes.IndexAccessCodesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AccessCodesIndexAccessCodes has not yet been implemented")
 		}),
@@ -95,6 +100,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		TransportationServiceProviderPerformancesIndexTSPPsHandler: transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
 			return middleware.NotImplemented("operation TransportationServiceProviderPerformancesIndexTSPPs has not yet been implemented")
+		}),
+		UsersRevokeUserSessionHandler: users.RevokeUserSessionHandlerFunc(func(params users.RevokeUserSessionParams) middleware.Responder {
+			return middleware.NotImplemented("operation UsersRevokeUserSession has not yet been implemented")
 		}),
 		AdminUsersUpdateAdminUserHandler: admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation AdminUsersUpdateAdminUser has not yet been implemented")
@@ -147,6 +155,8 @@ type MymoveAPI struct {
 	TransportationServiceProviderPerformancesGetTSPPHandler transportation_service_provider_performances.GetTSPPHandler
 	// UploadGetUploadHandler sets the operation handler for the get upload operation
 	UploadGetUploadHandler upload.GetUploadHandler
+	// UserGetUserHandler sets the operation handler for the get user operation
+	UserGetUserHandler user.GetUserHandler
 	// AccessCodesIndexAccessCodesHandler sets the operation handler for the index access codes operation
 	AccessCodesIndexAccessCodesHandler access_codes.IndexAccessCodesHandler
 	// AdminUsersIndexAdminUsersHandler sets the operation handler for the index admin users operation
@@ -165,6 +175,8 @@ type MymoveAPI struct {
 	OrganizationIndexOrganizationsHandler organization.IndexOrganizationsHandler
 	// TransportationServiceProviderPerformancesIndexTSPPsHandler sets the operation handler for the index t s p ps operation
 	TransportationServiceProviderPerformancesIndexTSPPsHandler transportation_service_provider_performances.IndexTSPPsHandler
+	// UsersRevokeUserSessionHandler sets the operation handler for the revoke user session operation
+	UsersRevokeUserSessionHandler users.RevokeUserSessionHandler
 	// AdminUsersUpdateAdminUserHandler sets the operation handler for the update admin user operation
 	AdminUsersUpdateAdminUserHandler admin_users.UpdateAdminUserHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
@@ -260,6 +272,10 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "upload.GetUploadHandler")
 	}
 
+	if o.UserGetUserHandler == nil {
+		unregistered = append(unregistered, "user.GetUserHandler")
+	}
+
 	if o.AccessCodesIndexAccessCodesHandler == nil {
 		unregistered = append(unregistered, "access_codes.IndexAccessCodesHandler")
 	}
@@ -294,6 +310,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
 		unregistered = append(unregistered, "transportation_service_provider_performances.IndexTSPPsHandler")
+	}
+
+	if o.UsersRevokeUserSessionHandler == nil {
+		unregistered = append(unregistered, "users.RevokeUserSessionHandler")
 	}
 
 	if o.AdminUsersUpdateAdminUserHandler == nil {
@@ -440,6 +460,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/users/{userId}"] = user.NewGetUser(o.context, o.UserGetUserHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/access_codes"] = access_codes.NewIndexAccessCodes(o.context, o.AccessCodesIndexAccessCodesHandler)
 
 	if o.handlers["GET"] == nil {
@@ -481,6 +506,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/transportation_service_provider_performances"] = transportation_service_provider_performances.NewIndexTSPPs(o.context, o.TransportationServiceProviderPerformancesIndexTSPPsHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/users/{userId}"] = users.NewRevokeUserSession(o.context, o.UsersRevokeUserSessionHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

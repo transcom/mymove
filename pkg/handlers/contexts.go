@@ -7,6 +7,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/gomodule/redigo/redis"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -23,6 +24,8 @@ import (
 //go:generate mockery -name HandlerContext
 type HandlerContext interface {
 	DB() *pop.Connection
+	RedisPool() *redis.Pool
+	SetRedisPool(redisPool *redis.Pool)
 	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, Logger)
 	SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, Logger)
 	SessionFromRequest(r *http.Request) *auth.Session
@@ -69,6 +72,7 @@ type FeatureFlag struct {
 // A single handlerContext is passed to each handler
 type handlerContext struct {
 	db                    *pop.Connection
+	redisPool             *redis.Pool
 	logger                Logger
 	cookieSecret          string
 	planner               route.Planner
@@ -267,4 +271,12 @@ func (hctx *handlerContext) SessionManager(session *auth.Session) *scs.SessionMa
 	}
 
 	return nil
+}
+
+func (hctx *handlerContext) SetRedisPool(redisPool *redis.Pool) {
+	hctx.redisPool = redisPool
+}
+
+func (hctx *handlerContext) RedisPool() *redis.Pool {
+	return hctx.redisPool
 }

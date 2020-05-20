@@ -21,6 +21,8 @@ import (
 
 	pop "github.com/gobuffalo/pop"
 
+	redis "github.com/gomodule/redigo/redis"
+
 	route "github.com/transcom/mymove/pkg/route"
 
 	scs "github.com/alexedwards/scs/v2"
@@ -255,6 +257,22 @@ func (_m *HandlerContext) Planner() route.Planner {
 	return r0
 }
 
+// RedisPool provides a mock function with given fields:
+func (_m *HandlerContext) RedisPool() *redis.Pool {
+	ret := _m.Called()
+
+	var r0 *redis.Pool
+	if rf, ok := ret.Get(0).(func() *redis.Pool); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*redis.Pool)
+		}
+	}
+
+	return r0
+}
+
 // SendProductionInvoice provides a mock function with given fields:
 func (_m *HandlerContext) SendProductionInvoice() bool {
 	ret := _m.Called()
@@ -415,6 +433,11 @@ func (_m *HandlerContext) SetNotificationSender(sender notifications.Notificatio
 // SetPlanner provides a mock function with given fields: planner
 func (_m *HandlerContext) SetPlanner(planner route.Planner) {
 	_m.Called(planner)
+}
+
+// SetRedisPool provides a mock function with given fields: redisPool
+func (_m *HandlerContext) SetRedisPool(redisPool *redis.Pool) {
+	_m.Called(redisPool)
 }
 
 // SetSendProductionInvoice provides a mock function with given fields: sendProductionInvoice
