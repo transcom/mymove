@@ -40,6 +40,7 @@ let EditDateAndLocationForm = (props) => {
     submitting,
   } = props;
   const displayedSitReimbursement = sitEstimate ? '$' + formatCents(sitEstimate) : sitReimbursement;
+
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">

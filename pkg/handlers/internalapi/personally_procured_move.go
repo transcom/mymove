@@ -1,12 +1,13 @@
 package internalapi
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -426,7 +427,8 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 			return sitChargeErr
 		}
 		sitCharge := float64(sitComputation.ApplyDiscount(cost.LHDiscount, cost.SITDiscount))
-		reimbursementString := fmt.Sprintf("$%.2f", sitCharge/100)
+		p := message.NewPrinter(language.English)
+		reimbursementString := p.Sprintf("$%.2f", sitCharge/100)
 		ppm.EstimatedStorageReimbursement = &reimbursementString
 	}
 
