@@ -27,7 +27,7 @@ class IconWithTooltip extends Component {
         />
         {showTooltip && (
           <div data-cy="tooltip" className={styles['tooltip']} style={{ ...toolTipStyles }}>
-            <div className={styles['arrow']} />
+            <div className={styles['arrow']} onClick={this.toggleTooltip} />
             <div className={`${styles['tooltiptext']} ${toolTipTextClassName}`}>{toolTipText}</div>
           </div>
         )}

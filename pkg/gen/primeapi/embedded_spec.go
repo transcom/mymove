@@ -67,158 +67,13 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
-    "/move-task-orders/{moveTaskOrderID}/mto-shipments": {
-      "post": {
-        "description": "Creates an instance of mtoShipment Required fields include * Shipment Type * Customer requested pick-up date * Pick-up Address * Delivery Address * Releasing / Receiving agents Optional fields include * Customer Remarks * Releasing / Receiving agents * An array of optional accessorial service item codes",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "createMTOShipment",
-        "operationId": "createMTOShipment",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "description": "This is an MTOShipment.",
-              "$ref": "#/definitions/CreateShipmentPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "created instance of a mto shipment",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "422": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "internal server error",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      }
-    },
-    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
-      "post": {
-        "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "createMTOServiceItem",
-        "operationId": "createMTOServiceItem",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of Move Task Order to use.",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of MTO Shipment to use.",
-            "name": "mtoShipmentID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully created an MTO service item.",
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -287,16 +142,10 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -321,6 +170,103 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/mto-service-items": {
+      "post": {
+        "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment. Must include UUIDs for the MTO and MTO Shipment connected to this service item.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "createMTOServiceItem",
+        "operationId": "createMTOServiceItem",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created an MTO service item.",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipmentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     },
     "/mto-shipments/{mtoShipmentID}": {
       "put": {
@@ -372,16 +318,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -435,16 +375,10 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "description": "The requested resource wasn't found.",
@@ -502,16 +436,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -739,6 +667,9 @@ func init() {
     },
     "CreateShipmentPayload": {
       "type": "object",
+      "required": [
+        "moveTaskOrderID"
+      ],
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -750,6 +681,11 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
           "type": "array",
@@ -1551,6 +1487,9 @@ func init() {
           "readOnly": true,
           "example": "1234-5678-1"
         },
+        "paymentServiceItems": {
+          "$ref": "#/definitions/PaymentServiceItems"
+        },
         "proofOfServiceDocs": {
           "$ref": "#/definitions/ProofOfServiceDocs"
         },
@@ -1579,6 +1518,102 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentRequest"
+      }
+    },
+    "PaymentServiceItem": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentServiceItemParams": {
+          "$ref": "#/definitions/PaymentServiceItemParams"
+        },
+        "priceCents": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the service item in cents",
+          "x-nullable": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentServiceItemStatus"
+        }
+      }
+    },
+    "PaymentServiceItemParam": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "key": {
+          "$ref": "#/definitions/ServiceItemParamName"
+        },
+        "origin": {
+          "$ref": "#/definitions/ServiceItemParamOrigin"
+        },
+        "paymentServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "type": {
+          "$ref": "#/definitions/ServiceItemParamType"
+        },
+        "value": {
+          "type": "string",
+          "example": 3025
+        }
+      }
+    },
+    "PaymentServiceItemParams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItemParam"
+      }
+    },
+    "PaymentServiceItemStatus": {
+      "type": "string",
+      "title": "Payment Service Item Status",
+      "enum": [
+        "REQUESTED",
+        "APPROVED",
+        "DENIED",
+        "SENT_TO_GEX",
+        "PAID"
+      ]
+    },
+    "PaymentServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItem"
       }
     },
     "ProofOfServiceDocs": {
@@ -1676,6 +1711,75 @@ func init() {
         }
       }
     },
+    "ServiceItemParamName": {
+      "type": "string",
+      "enum": [
+        "CanStandAlone",
+        "CubicFeetBilled",
+        "CubicFeetCrating",
+        "DistanceZip3",
+        "DistanceZip5",
+        "DistanceZip5SITDest",
+        "DistanceZip5SITOrigin",
+        "EIAFuelPrice",
+        "MarketDest",
+        "MarketOrigin",
+        "NumberDaysSIT",
+        "PriceAreaDest",
+        "PriceAreaIntlDest",
+        "PriceAreaIntlOrigin",
+        "PriceAreaOrigin",
+        "PSI_LinehaulDom",
+        "PSI_LinehaulDomPrice",
+        "PSI_LinehaulShort",
+        "PSI_LinehaulShortPrice",
+        "PSI_PackingDom",
+        "PSI_PackingDomPrice",
+        "PSI_PackingHHGIntl",
+        "PSI_PackingHHGIntlPrice",
+        "PSI_PriceDomDest",
+        "PSI_PriceDomDestPrice",
+        "PSI_PriceDomOrigin",
+        "PSI_PriceDomOriginPrice",
+        "PSI_ShippingLinehaulIntlCO",
+        "PSI_ShippingLinehaulIntlCOPrice",
+        "PSI_ShippingLinehaulIntlOC",
+        "PSI_ShippingLinehaulIntlOCPrice",
+        "PSI_ShippingLinehaulIntlOO",
+        "PSI_ShippingLinehaulIntlOOPrice",
+        "RateAreaNonStdDest",
+        "RateAreaNonStdOrigin",
+        "RequestedPickupDate",
+        "ServiceAreaDest",
+        "ServiceAreaOrigin",
+        "ServicesScheduleDest",
+        "ServicesScheduleOrigin",
+        "SITScheduleDest",
+        "SITScheduleOrigin",
+        "WeightActual",
+        "WeightBilledActual",
+        "WeightEstimated",
+        "ZipDestAddress",
+        "ZipPickupAddress",
+        "ZipSITAddress"
+      ]
+    },
+    "ServiceItemParamOrigin": {
+      "type": "string",
+      "enum": [
+        "PRIME",
+        "SYSTEM"
+      ]
+    },
+    "ServiceItemParamType": {
+      "type": "string",
+      "enum": [
+        "STRING",
+        "DATE",
+        "INTEGER",
+        "DECIMAL"
+      ]
+    },
     "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
@@ -1754,25 +1858,25 @@ func init() {
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "NotFound": {
       "description": "The requested resource wasn't found.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "PreconditionFailed": {
       "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "ServerError": {
@@ -1838,197 +1942,25 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/move-task-orders/{moveTaskOrderID}/mto-shipments": {
-      "post": {
-        "description": "Creates an instance of mtoShipment Required fields include * Shipment Type * Customer requested pick-up date * Pick-up Address * Delivery Address * Releasing / Receiving agents Optional fields include * Customer Remarks * Releasing / Receiving agents * An array of optional accessorial service item codes",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "createMTOShipment",
-        "operationId": "createMTOShipment",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "description": "This is an MTOShipment.",
-              "$ref": "#/definitions/CreateShipmentPayload"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "created instance of a mto shipment",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "description": "The request payload is invalid.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "422": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "internal server error",
-            "schema": {
-              "description": "A server error occurred.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items": {
-      "post": {
-        "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "createMTOServiceItem",
-        "operationId": "createMTOServiceItem",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of Move Task Order to use.",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of MTO Shipment to use.",
-            "name": "mtoShipmentID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully created an MTO service item.",
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "500": {
@@ -2101,33 +2033,27 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
@@ -2153,6 +2079,133 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/mto-service-items": {
+      "post": {
+        "description": "Creates a new instance of mtoServiceItem, which come from the list of services that can be provided. Upon creation these items are associated with a Move Task Order and an MTO Shipment. Must include UUIDs for the MTO and MTO Shipment connected to this service item.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoServiceItem"
+        ],
+        "summary": "createMTOServiceItem",
+        "operationId": "createMTOServiceItem",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created an MTO service item.",
+            "schema": {
+              "$ref": "#/definitions/MTOServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipmentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/mto-shipments/{mtoShipmentID}": {
       "put": {
@@ -2203,37 +2256,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
@@ -2288,21 +2335,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "404": {
@@ -2366,31 +2407,25 @@ func init() {
           "400": {
             "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "500": {
@@ -2619,6 +2654,9 @@ func init() {
     },
     "CreateShipmentPayload": {
       "type": "object",
+      "required": [
+        "moveTaskOrderID"
+      ],
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -2630,6 +2668,11 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
           "type": "array",
@@ -3431,6 +3474,9 @@ func init() {
           "readOnly": true,
           "example": "1234-5678-1"
         },
+        "paymentServiceItems": {
+          "$ref": "#/definitions/PaymentServiceItems"
+        },
         "proofOfServiceDocs": {
           "$ref": "#/definitions/ProofOfServiceDocs"
         },
@@ -3459,6 +3505,102 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentRequest"
+      }
+    },
+    "PaymentServiceItem": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentServiceItemParams": {
+          "$ref": "#/definitions/PaymentServiceItemParams"
+        },
+        "priceCents": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the service item in cents",
+          "x-nullable": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentServiceItemStatus"
+        }
+      }
+    },
+    "PaymentServiceItemParam": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "key": {
+          "$ref": "#/definitions/ServiceItemParamName"
+        },
+        "origin": {
+          "$ref": "#/definitions/ServiceItemParamOrigin"
+        },
+        "paymentServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "type": {
+          "$ref": "#/definitions/ServiceItemParamType"
+        },
+        "value": {
+          "type": "string",
+          "example": 3025
+        }
+      }
+    },
+    "PaymentServiceItemParams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItemParam"
+      }
+    },
+    "PaymentServiceItemStatus": {
+      "type": "string",
+      "title": "Payment Service Item Status",
+      "enum": [
+        "REQUESTED",
+        "APPROVED",
+        "DENIED",
+        "SENT_TO_GEX",
+        "PAID"
+      ]
+    },
+    "PaymentServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItem"
       }
     },
     "ProofOfServiceDocs": {
@@ -3556,6 +3698,75 @@ func init() {
         }
       }
     },
+    "ServiceItemParamName": {
+      "type": "string",
+      "enum": [
+        "CanStandAlone",
+        "CubicFeetBilled",
+        "CubicFeetCrating",
+        "DistanceZip3",
+        "DistanceZip5",
+        "DistanceZip5SITDest",
+        "DistanceZip5SITOrigin",
+        "EIAFuelPrice",
+        "MarketDest",
+        "MarketOrigin",
+        "NumberDaysSIT",
+        "PriceAreaDest",
+        "PriceAreaIntlDest",
+        "PriceAreaIntlOrigin",
+        "PriceAreaOrigin",
+        "PSI_LinehaulDom",
+        "PSI_LinehaulDomPrice",
+        "PSI_LinehaulShort",
+        "PSI_LinehaulShortPrice",
+        "PSI_PackingDom",
+        "PSI_PackingDomPrice",
+        "PSI_PackingHHGIntl",
+        "PSI_PackingHHGIntlPrice",
+        "PSI_PriceDomDest",
+        "PSI_PriceDomDestPrice",
+        "PSI_PriceDomOrigin",
+        "PSI_PriceDomOriginPrice",
+        "PSI_ShippingLinehaulIntlCO",
+        "PSI_ShippingLinehaulIntlCOPrice",
+        "PSI_ShippingLinehaulIntlOC",
+        "PSI_ShippingLinehaulIntlOCPrice",
+        "PSI_ShippingLinehaulIntlOO",
+        "PSI_ShippingLinehaulIntlOOPrice",
+        "RateAreaNonStdDest",
+        "RateAreaNonStdOrigin",
+        "RequestedPickupDate",
+        "ServiceAreaDest",
+        "ServiceAreaOrigin",
+        "ServicesScheduleDest",
+        "ServicesScheduleOrigin",
+        "SITScheduleDest",
+        "SITScheduleOrigin",
+        "WeightActual",
+        "WeightBilledActual",
+        "WeightEstimated",
+        "ZipDestAddress",
+        "ZipPickupAddress",
+        "ZipSITAddress"
+      ]
+    },
+    "ServiceItemParamOrigin": {
+      "type": "string",
+      "enum": [
+        "PRIME",
+        "SYSTEM"
+      ]
+    },
+    "ServiceItemParamType": {
+      "type": "string",
+      "enum": [
+        "STRING",
+        "DATE",
+        "INTEGER",
+        "DECIMAL"
+      ]
+    },
     "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
@@ -3634,25 +3845,25 @@ func init() {
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "NotFound": {
       "description": "The requested resource wasn't found.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "PreconditionFailed": {
       "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "ServerError": {

@@ -45,31 +45,29 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 		logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(verrs))
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-			"modelType() not allowed", detailErr, h.GetTraceID(), verrs))
+			detailErr, h.GetTraceID(), verrs))
 	}
 
-	params.Body.SetMoveTaskOrderID(params.MoveTaskOrderID)
-	params.Body.SetMtoShipmentID(params.MtoShipmentID)
 	// validation errors passed back if any
 	mtoServiceItem, verrs := payloads.MTOServiceItemModel(params.Body)
 	if verrs != nil && verrs.HasAny() {
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-			"Model validation error", verrs.Error(), h.GetTraceID(), verrs))
+			verrs.Error(), h.GetTraceID(), verrs))
 	}
 
 	mtoServiceItem, verrs, err := h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
 	if verrs != nil && verrs.HasAny() {
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-			"Model validation error", verrs.Error(), h.GetTraceID(), verrs))
+			verrs.Error(), h.GetTraceID(), verrs))
 	}
 
 	if err != nil {
 		logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(err))
 		switch err.(type) {
 		case services.NotFoundError:
-			return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		case services.InvalidInputError:
-			return mtoserviceitemops.NewCreateMTOServiceItemBadRequest().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoserviceitemops.NewCreateMTOServiceItemBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
 		default:
 			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
 		}

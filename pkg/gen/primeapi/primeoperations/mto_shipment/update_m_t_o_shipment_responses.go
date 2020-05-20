@@ -69,7 +69,7 @@ type UpdateMTOShipmentBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentBadRequest creates UpdateMTOShipmentBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdateMTOShipmentBadRequest() *UpdateMTOShipmentBadRequest {
 }
 
 // WithPayload adds the payload to the update m t o shipment bad request response
-func (o *UpdateMTOShipmentBadRequest) WithPayload(payload *primemessages.Error) *UpdateMTOShipmentBadRequest {
+func (o *UpdateMTOShipmentBadRequest) WithPayload(payload *primemessages.ClientError) *UpdateMTOShipmentBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o shipment bad request response
-func (o *UpdateMTOShipmentBadRequest) SetPayload(payload *primemessages.Error) {
+func (o *UpdateMTOShipmentBadRequest) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -104,7 +104,7 @@ func (o *UpdateMTOShipmentBadRequest) WriteResponse(rw http.ResponseWriter, prod
 // UpdateMTOShipmentUnauthorizedCode is the HTTP code returned for type UpdateMTOShipmentUnauthorized
 const UpdateMTOShipmentUnauthorizedCode int = 401
 
-/*UpdateMTOShipmentUnauthorized The request was unauthorized.
+/*UpdateMTOShipmentUnauthorized The request was denied.
 
 swagger:response updateMTOShipmentUnauthorized
 */
@@ -113,7 +113,7 @@ type UpdateMTOShipmentUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentUnauthorized creates UpdateMTOShipmentUnauthorized with default headers values
@@ -123,13 +123,13 @@ func NewUpdateMTOShipmentUnauthorized() *UpdateMTOShipmentUnauthorized {
 }
 
 // WithPayload adds the payload to the update m t o shipment unauthorized response
-func (o *UpdateMTOShipmentUnauthorized) WithPayload(payload interface{}) *UpdateMTOShipmentUnauthorized {
+func (o *UpdateMTOShipmentUnauthorized) WithPayload(payload *primemessages.ClientError) *UpdateMTOShipmentUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o shipment unauthorized response
-func (o *UpdateMTOShipmentUnauthorized) SetPayload(payload interface{}) {
+func (o *UpdateMTOShipmentUnauthorized) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -137,16 +137,18 @@ func (o *UpdateMTOShipmentUnauthorized) SetPayload(payload interface{}) {
 func (o *UpdateMTOShipmentUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMTOShipmentForbiddenCode is the HTTP code returned for type UpdateMTOShipmentForbidden
 const UpdateMTOShipmentForbiddenCode int = 403
 
-/*UpdateMTOShipmentForbidden The client doesn't have permissions to perform the request.
+/*UpdateMTOShipmentForbidden The request was denied.
 
 swagger:response updateMTOShipmentForbidden
 */
@@ -155,7 +157,7 @@ type UpdateMTOShipmentForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentForbidden creates UpdateMTOShipmentForbidden with default headers values
@@ -165,13 +167,13 @@ func NewUpdateMTOShipmentForbidden() *UpdateMTOShipmentForbidden {
 }
 
 // WithPayload adds the payload to the update m t o shipment forbidden response
-func (o *UpdateMTOShipmentForbidden) WithPayload(payload interface{}) *UpdateMTOShipmentForbidden {
+func (o *UpdateMTOShipmentForbidden) WithPayload(payload *primemessages.ClientError) *UpdateMTOShipmentForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o shipment forbidden response
-func (o *UpdateMTOShipmentForbidden) SetPayload(payload interface{}) {
+func (o *UpdateMTOShipmentForbidden) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -179,9 +181,11 @@ func (o *UpdateMTOShipmentForbidden) SetPayload(payload interface{}) {
 func (o *UpdateMTOShipmentForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -197,7 +201,7 @@ type UpdateMTOShipmentNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentNotFound creates UpdateMTOShipmentNotFound with default headers values
@@ -207,13 +211,13 @@ func NewUpdateMTOShipmentNotFound() *UpdateMTOShipmentNotFound {
 }
 
 // WithPayload adds the payload to the update m t o shipment not found response
-func (o *UpdateMTOShipmentNotFound) WithPayload(payload *primemessages.Error) *UpdateMTOShipmentNotFound {
+func (o *UpdateMTOShipmentNotFound) WithPayload(payload *primemessages.ClientError) *UpdateMTOShipmentNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o shipment not found response
-func (o *UpdateMTOShipmentNotFound) SetPayload(payload *primemessages.Error) {
+func (o *UpdateMTOShipmentNotFound) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -241,7 +245,7 @@ type UpdateMTOShipmentPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentPreconditionFailed creates UpdateMTOShipmentPreconditionFailed with default headers values
@@ -251,13 +255,13 @@ func NewUpdateMTOShipmentPreconditionFailed() *UpdateMTOShipmentPreconditionFail
 }
 
 // WithPayload adds the payload to the update m t o shipment precondition failed response
-func (o *UpdateMTOShipmentPreconditionFailed) WithPayload(payload *primemessages.Error) *UpdateMTOShipmentPreconditionFailed {
+func (o *UpdateMTOShipmentPreconditionFailed) WithPayload(payload *primemessages.ClientError) *UpdateMTOShipmentPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o shipment precondition failed response
-func (o *UpdateMTOShipmentPreconditionFailed) SetPayload(payload *primemessages.Error) {
+func (o *UpdateMTOShipmentPreconditionFailed) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 

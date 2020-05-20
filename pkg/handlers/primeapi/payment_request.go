@@ -49,7 +49,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				"move_task_order_id": {"id cannot be converted to UUID"},
 			},
 			}
-		errPayload := payloads.ValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), verrs)
+		errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), verrs)
 		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
 	}
 
@@ -72,7 +72,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		logger.Error("could not build service items", zap.Error(err))
 		// TODO: do not bail out before creating the payment request, we need the failed record
 		//       we should create the failed record and store it as failed with a rejection
-		errPayload := payloads.ValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), verrs)
+		errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), verrs)
 		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
 	}
 
@@ -81,9 +81,8 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		logger.Error("Error creating payment request", zap.Error(err))
 		if typedErr, ok := err.(services.InvalidCreateInputError); ok {
 			verrs := typedErr.ValidationErrors
-			title := handlers.ValidationErrMessage
 			detail := err.Error()
-			payload := payloads.ValidationError(title, detail, h.GetTraceID(), verrs)
+			payload := payloads.ValidationError(detail, h.GetTraceID(), verrs)
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))

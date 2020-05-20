@@ -69,7 +69,7 @@ type CreateMTOServiceItemBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMTOServiceItemBadRequest creates CreateMTOServiceItemBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewCreateMTOServiceItemBadRequest() *CreateMTOServiceItemBadRequest {
 }
 
 // WithPayload adds the payload to the create m t o service item bad request response
-func (o *CreateMTOServiceItemBadRequest) WithPayload(payload *primemessages.Error) *CreateMTOServiceItemBadRequest {
+func (o *CreateMTOServiceItemBadRequest) WithPayload(payload *primemessages.ClientError) *CreateMTOServiceItemBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o service item bad request response
-func (o *CreateMTOServiceItemBadRequest) SetPayload(payload *primemessages.Error) {
+func (o *CreateMTOServiceItemBadRequest) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -104,7 +104,7 @@ func (o *CreateMTOServiceItemBadRequest) WriteResponse(rw http.ResponseWriter, p
 // CreateMTOServiceItemUnauthorizedCode is the HTTP code returned for type CreateMTOServiceItemUnauthorized
 const CreateMTOServiceItemUnauthorizedCode int = 401
 
-/*CreateMTOServiceItemUnauthorized The request was unauthorized.
+/*CreateMTOServiceItemUnauthorized The request was denied.
 
 swagger:response createMTOServiceItemUnauthorized
 */
@@ -113,7 +113,7 @@ type CreateMTOServiceItemUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMTOServiceItemUnauthorized creates CreateMTOServiceItemUnauthorized with default headers values
@@ -123,13 +123,13 @@ func NewCreateMTOServiceItemUnauthorized() *CreateMTOServiceItemUnauthorized {
 }
 
 // WithPayload adds the payload to the create m t o service item unauthorized response
-func (o *CreateMTOServiceItemUnauthorized) WithPayload(payload interface{}) *CreateMTOServiceItemUnauthorized {
+func (o *CreateMTOServiceItemUnauthorized) WithPayload(payload *primemessages.ClientError) *CreateMTOServiceItemUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o service item unauthorized response
-func (o *CreateMTOServiceItemUnauthorized) SetPayload(payload interface{}) {
+func (o *CreateMTOServiceItemUnauthorized) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -137,16 +137,18 @@ func (o *CreateMTOServiceItemUnauthorized) SetPayload(payload interface{}) {
 func (o *CreateMTOServiceItemUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // CreateMTOServiceItemForbiddenCode is the HTTP code returned for type CreateMTOServiceItemForbidden
 const CreateMTOServiceItemForbiddenCode int = 403
 
-/*CreateMTOServiceItemForbidden The client doesn't have permissions to perform the request.
+/*CreateMTOServiceItemForbidden The request was denied.
 
 swagger:response createMTOServiceItemForbidden
 */
@@ -155,7 +157,7 @@ type CreateMTOServiceItemForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMTOServiceItemForbidden creates CreateMTOServiceItemForbidden with default headers values
@@ -165,13 +167,13 @@ func NewCreateMTOServiceItemForbidden() *CreateMTOServiceItemForbidden {
 }
 
 // WithPayload adds the payload to the create m t o service item forbidden response
-func (o *CreateMTOServiceItemForbidden) WithPayload(payload interface{}) *CreateMTOServiceItemForbidden {
+func (o *CreateMTOServiceItemForbidden) WithPayload(payload *primemessages.ClientError) *CreateMTOServiceItemForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o service item forbidden response
-func (o *CreateMTOServiceItemForbidden) SetPayload(payload interface{}) {
+func (o *CreateMTOServiceItemForbidden) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -179,9 +181,11 @@ func (o *CreateMTOServiceItemForbidden) SetPayload(payload interface{}) {
 func (o *CreateMTOServiceItemForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -197,7 +201,7 @@ type CreateMTOServiceItemNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMTOServiceItemNotFound creates CreateMTOServiceItemNotFound with default headers values
@@ -207,13 +211,13 @@ func NewCreateMTOServiceItemNotFound() *CreateMTOServiceItemNotFound {
 }
 
 // WithPayload adds the payload to the create m t o service item not found response
-func (o *CreateMTOServiceItemNotFound) WithPayload(payload *primemessages.Error) *CreateMTOServiceItemNotFound {
+func (o *CreateMTOServiceItemNotFound) WithPayload(payload *primemessages.ClientError) *CreateMTOServiceItemNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o service item not found response
-func (o *CreateMTOServiceItemNotFound) SetPayload(payload *primemessages.Error) {
+func (o *CreateMTOServiceItemNotFound) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 

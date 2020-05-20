@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -29,18 +28,15 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 	var mtos models.MoveTaskOrders
 
 	query := h.DB().Where("is_available_to_prime = ?", true).Eager(
-		"PaymentRequests",
-		"MTOServiceItems",
+		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
 		"MTOServiceItems.CustomerContacts",
-		"MTOShipments",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.MTOAgents",
-		"MoveOrder",
 		"MoveOrder.Customer",
 		"MoveOrder.Entitlement")
 	if params.Since != nil {
@@ -77,13 +73,16 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(mtoID, params.Body, eTag)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
-		switch err.(type) {
+		switch e := err.(type) {
 		case services.NotFoundError:
-			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound()
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		case services.PreconditionFailedError:
-			return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed().WithPayload(
+				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		case services.InvalidInputError:
-			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity()
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
+				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
 		default:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError()
 		}

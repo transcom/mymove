@@ -41,13 +41,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '500':
@@ -104,17 +100,54 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/mto-shipments':
+    post:
+      summary: createMTOShipment
+      description: |
+        Creates a MTO shipment for the specified Move Task Order.
+        Required fields include:
+        * Shipment Type
+        * Customer requested pick-up date
+        * Pick-up Address
+        * Delivery Address
+        * Releasing / Receiving agents
+
+        Optional fields include:
+        * Customer Remarks
+        * Releasing / Receiving agents
+        * An array of optional accessorial service item codes
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: createMTOShipment
+      tags:
+        - mtoShipment
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateShipmentPayload'
+      responses:
+        '200':
+          description: Successfully created a MTO shipment.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -172,13 +205,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '412':
@@ -187,66 +216,13 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments':
-    post:
-      summary: createMTOShipment
-      description:
-        Creates an instance of mtoShipment
-        Required fields include
-        * Shipment Type
-        * Customer requested pick-up date
-        * Pick-up Address
-        * Delivery Address
-        * Releasing / Receiving agents
-        Optional fields include
-        * Customer Remarks
-        * Releasing / Receiving agents
-        * An array of optional accessorial service item codes
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      operationId: createMTOShipment
-      tags:
-        - mtoShipment
-      parameters:
-        - in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-        - in: body
-          name: body
-          schema:
-            description: This is an MTOShipment.
-            $ref: '#/definitions/CreateShipmentPayload'
-      responses:
-        '200':
-          description: created instance of a mto shipment
-          schema:
-            $ref: '#/definitions/MTOShipment'
-        '400':
-          description: invalid request
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '422':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: internal server error
-          schema:
-            $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}/mto-service-items':
+  '/mto-service-items':
     post:
       summary: createMTOServiceItem
       description: >
         Creates a new instance of mtoServiceItem, which come from the list of services that can be provided.
         Upon creation these items are associated with a Move Task Order and an MTO Shipment.
+        Must include UUIDs for the MTO and MTO Shipment connected to this service item.
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
@@ -255,18 +231,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-          description: UUID of Move Task Order to use.
-        - in: path
-          name: mtoShipmentID
-          required: true
-          format: uuid
-          type: string
-          description: UUID of MTO Shipment to use.
         - in: body
           name: body
           schema:
@@ -280,13 +244,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '422':
@@ -323,13 +283,9 @@ paths:
           schema:
             $ref: '#/definitions/ClientError'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found.
           schema:
@@ -368,13 +324,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '500':
@@ -568,6 +520,10 @@ definitions:
   CreateShipmentPayload:
     type: object
     properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       requestedPickupDate:
@@ -590,6 +546,8 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MTOServiceItem'
+    required:
+      - moveTaskOrderID
   Customer:
     type: object
     properties:
@@ -1144,8 +1102,6 @@ definitions:
     type: object
   PaymentRequest:
     properties:
-      proofOfServiceDocs:
-        $ref: '#/definitions/ProofOfServiceDocs'
       id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -1168,6 +1124,10 @@ definitions:
         example: 1234-5678-1
         readOnly: true
         type: string
+      proofOfServiceDocs:
+        $ref: '#/definitions/ProofOfServiceDocs'
+      paymentServiceItems:
+        $ref: '#/definitions/PaymentServiceItems'
       eTag:
         type: string
     type: object
@@ -1184,6 +1144,77 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PaymentRequest'
+  PaymentServiceItem:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      paymentRequestID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      mtoServiceItemID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      status:
+        $ref: '#/definitions/PaymentServiceItemStatus'
+      priceCents:
+        type: integer
+        format: cents
+        title: Price of the service item in cents
+        x-nullable: true
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      paymentServiceItemParams:
+        $ref: '#/definitions/PaymentServiceItemParams'
+      eTag:
+        type: string
+    type: object
+  PaymentServiceItemStatus:
+    enum:
+      - REQUESTED
+      - APPROVED
+      - DENIED
+      - SENT_TO_GEX
+      - PAID
+    title: Payment Service Item Status
+    type: string
+  PaymentServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentServiceItem'
+  PaymentServiceItemParam:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      paymentServiceItemID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      key:
+        $ref: '#/definitions/ServiceItemParamName'
+      value:
+        example: 3025
+        type: string
+      type:
+        $ref: '#/definitions/ServiceItemParamType'
+      origin:
+        $ref: '#/definitions/ServiceItemParamOrigin'
+      eTag:
+        type: string
+    type: object
+  PaymentServiceItemParams:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentServiceItemParam'
   ServiceItem:
     properties:
       id:
@@ -1257,6 +1288,69 @@ definitions:
       - MS
       - NSTH
       - NSTUB
+  ServiceItemParamName:
+    type: string
+    enum:
+      - CanStandAlone
+      - CubicFeetBilled
+      - CubicFeetCrating
+      - DistanceZip3
+      - DistanceZip5
+      - DistanceZip5SITDest
+      - DistanceZip5SITOrigin
+      - EIAFuelPrice
+      - MarketDest
+      - MarketOrigin
+      - NumberDaysSIT
+      - PriceAreaDest
+      - PriceAreaIntlDest
+      - PriceAreaIntlOrigin
+      - PriceAreaOrigin
+      - PSI_LinehaulDom
+      - PSI_LinehaulDomPrice
+      - PSI_LinehaulShort
+      - PSI_LinehaulShortPrice
+      - PSI_PackingDom
+      - PSI_PackingDomPrice
+      - PSI_PackingHHGIntl
+      - PSI_PackingHHGIntlPrice
+      - PSI_PriceDomDest
+      - PSI_PriceDomDestPrice
+      - PSI_PriceDomOrigin
+      - PSI_PriceDomOriginPrice
+      - PSI_ShippingLinehaulIntlCO
+      - PSI_ShippingLinehaulIntlCOPrice
+      - PSI_ShippingLinehaulIntlOC
+      - PSI_ShippingLinehaulIntlOCPrice
+      - PSI_ShippingLinehaulIntlOO
+      - PSI_ShippingLinehaulIntlOOPrice
+      - RateAreaNonStdDest
+      - RateAreaNonStdOrigin
+      - RequestedPickupDate
+      - ServiceAreaDest
+      - ServiceAreaOrigin
+      - ServicesScheduleDest
+      - ServicesScheduleOrigin
+      - SITScheduleDest
+      - SITScheduleOrigin
+      - WeightActual
+      - WeightBilledActual
+      - WeightEstimated
+      - ZipDestAddress
+      - ZipPickupAddress
+      - ZipSITAddress
+  ServiceItemParamOrigin:
+    type: string
+    enum:
+      - PRIME
+      - SYSTEM
+  ServiceItemParamType:
+    type: string
+    enum:
+      - STRING
+      - DATE
+      - INTEGER
+      - DECIMAL
   Upload:
     type: object
     properties:
@@ -1310,15 +1404,15 @@ responses:
   InvalidRequest:
     description: The request payload is invalid.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   NotFound:
     description: The requested resource wasn't found.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   PermissionDenied:
     description: The request was denied.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   ServerError:
     description: A server error occurred.
     schema:
@@ -1326,7 +1420,7 @@ responses:
   PreconditionFailed:
     description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   UnprocessableEntity:
     description: The payload was unprocessable.
     schema:
