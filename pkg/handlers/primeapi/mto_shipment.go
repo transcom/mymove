@@ -154,33 +154,43 @@ type UpdateMTOShipmentHandler struct {
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtoShipment, fieldErrs := UpdateMTOShipmentModel(params.MtoShipmentID, params.Body)
-	if fieldErrs != nil {
-		logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(fieldErrs))
+	mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 
-		errPayload := payloads.ValidationError(handlers.ValidationErrMessage, "Fields that cannot be updated found in input",
-			h.GetTraceID(), fieldErrs)
-
-		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
-	}
-
-	eTag := params.IfMatch
-	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
+	mtoAvailableToPrime, err := h.mtoShipmentUpdater.MTOAvailableToPrime(mtoShipmentID)
 	if err != nil {
-		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
-		switch e := err.(type) {
-		case services.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.InvalidInputError:
-			payload := payloads.ValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
-			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
-			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError()
-		}
+		return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
 	}
-	mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
-	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload)
+
+	if mtoAvailableToPrime {
+		mtoShipment, fieldErrs := UpdateMTOShipmentModel(params.MtoShipmentID, params.Body)
+		if fieldErrs != nil {
+			logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(fieldErrs))
+
+			errPayload := payloads.ValidationError(handlers.ValidationErrMessage, "Fields that cannot be updated found in input",
+				h.GetTraceID(), fieldErrs)
+
+			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
+		}
+
+		eTag := params.IfMatch
+		logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
+		mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
+		if err != nil {
+			logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+			switch e := err.(type) {
+			case services.NotFoundError:
+				return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+			case services.InvalidInputError:
+				payload := payloads.ValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
+				return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
+			case services.PreconditionFailedError:
+				return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+			default:
+				return mtoshipmentops.NewUpdateMTOShipmentInternalServerError()
+			}
+		}
+		mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
+		return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload)
+	}
+	return mtoshipmentops.NewUpdateMTOShipmentInternalServerError()
 }
