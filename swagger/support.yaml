@@ -360,12 +360,15 @@ definitions:
       - $ref: '#/definitions/ClientError'
       - type: object
     properties:
-      invalid_fields:
+      invalidFields:
         type: object
         additionalProperties:
-          type: string
+          description: List of errors for the field
+          type: array
+          items:
+            type: string
     required:
-      - invalid_fields
+      - invalidFields
   Address:
     type: object
     properties:
@@ -683,16 +686,6 @@ definitions:
         type: string
         x-nullable: true
         example: '030-00362'
-      orderType:
-        example: GHC
-        type: string
-        enum:
-          - GHC
-          - NTS
-        x-nullable: true
-      orderTypeDetail:
-        type: string
-        x-nullable: true
       dateIssued:
         description: The date the orders were issued.
         type: string
@@ -1184,17 +1177,17 @@ definitions:
     type: object
 responses:
   InvalidRequest:
-    description: The parameters were invalid.
+    description: The request payload is invalid.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   NotFound:
     description: The requested resource wasn't found.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   PermissionDenied:
     description: The request was denied.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   ServerError:
     description: A server error occurred.
     schema:
@@ -1206,8 +1199,8 @@ responses:
   PreconditionFailed:
     description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   Conflict:
-    description: Conflict error.
+    description: There was a conflict with the request.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'

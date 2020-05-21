@@ -1,9 +1,8 @@
-import { get, every, isNumber, isEmpty } from 'lodash';
-import { GetPpm, GetPpmSitEstimate, RequestPayment } from './api.js';
+import { get, isEmpty } from 'lodash';
+import { GetPpm, RequestPayment } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive, fetchActivePPM } from 'shared/utils';
-import { formatCents } from 'shared/formatters';
 import { change } from 'redux-form';
 
 // Types
@@ -11,20 +10,6 @@ const CLEAR_SIT_ESTIMATE = 'CLEAR_SIT_ESTIMATE';
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
 export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_SIT_ESTIMATE');
-
-export function getPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightEstimate) {
-  const action = ReduxHelpers.generateAsyncActions('GET_SIT_ESTIMATE');
-  const canEstimate = every([moveDate, sitDays, originZip, destZip, weightEstimate]);
-  return function (dispatch, getState) {
-    if (!canEstimate) {
-      return dispatch(action.success({ estimate: null }));
-    }
-    dispatch(action.start());
-    GetPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightEstimate)
-      .then((item) => dispatch(action.success(item)))
-      .catch((error) => dispatch(action.error(error)));
-  };
-}
 
 export function clearPpmSitEstimate() {
   return { type: CLEAR_SIT_ESTIMATE };
@@ -197,32 +182,6 @@ export function ppmReducer(state = initialState, action) {
         hasLoadSuccess: false,
         hasLoadError: true,
         error: action.error,
-      });
-    case GET_SIT_ESTIMATE.start:
-      return Object.assign({}, state, {
-        hasEstimateSuccess: false,
-        hasEstimateInProgress: true,
-      });
-    case GET_SIT_ESTIMATE.success:
-      let estimate = null;
-      if (isNumber(action.payload.estimate)) {
-        // Convert from cents
-        estimate = '$' + formatCents(action.payload.estimate);
-      }
-      return Object.assign({}, state, {
-        sitReimbursement: estimate,
-        hasEstimateSuccess: true,
-        hasEstimateError: false,
-        hasEstimateInProgress: false,
-        rateEngineError: null,
-      });
-    case GET_SIT_ESTIMATE.failure:
-      return Object.assign({}, state, {
-        sitReimbursement: null,
-        hasEstimateSuccess: false,
-        hasEstimateError: true,
-        hasEstimateInProgress: false,
-        rateEngineError: action.error,
       });
     case CLEAR_SIT_ESTIMATE:
       return Object.assign({}, state, {

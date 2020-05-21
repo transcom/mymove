@@ -1165,6 +1165,7 @@ definitions:
         type: integer
         format: cents
         title: Price of the service item in cents
+        x-nullable: true
       rejectionReason:
         example: documentation was incomplete
         type: string
@@ -1403,15 +1404,15 @@ responses:
   InvalidRequest:
     description: The request payload is invalid.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   NotFound:
     description: The requested resource wasn't found.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   PermissionDenied:
     description: The request was denied.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   ServerError:
     description: A server error occurred.
     schema:
@@ -1419,7 +1420,7 @@ responses:
   PreconditionFailed:
     description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   UnprocessableEntity:
     description: The payload was unprocessable.
     schema:

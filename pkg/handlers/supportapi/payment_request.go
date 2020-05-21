@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/gen/supportmessages"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -43,7 +41,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	if err != nil {
 		msg := fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String())
 		logger.Error(msg, zap.Error(err))
-		return paymentrequestop.NewUpdatePaymentRequestStatusBadRequest().WithPayload(&supportmessages.Error{Message: &msg})
+		return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, h.GetTraceID()))
 	}
 
 	status := existingPaymentRequest.Status
@@ -112,9 +110,9 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	if err != nil {
 		switch err.(type) {
 		case services.NotFoundError:
-			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound()
+			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		case services.PreconditionFailedError:
-			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		default:
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
 			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
