@@ -65,11 +65,11 @@ func zip5TransitDistanceHelper(planner Planner, source string, destination strin
 }
 
 func zip3TransitDistanceHelper(planner Planner, source string, destination string) (int, error) {
-	sLL, err := Zip3ToLatLong(source)
+	sLL, err := Zip5ToZip3LatLong(source)
 	if err != nil {
 		return 0, err
 	}
-	dLL, err := Zip3ToLatLong(destination)
+	dLL, err := Zip5ToZip3LatLong(destination)
 	if err != nil {
 		return 0, err
 	}

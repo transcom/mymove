@@ -17,12 +17,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
-			PostalCode: "984",
+			PostalCode: "15602",
 		},
 	})
 	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
-			PostalCode: "112",
+			PostalCode: "29304",
 		},
 	})
 

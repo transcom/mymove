@@ -5,27 +5,6 @@ import (
 	"strings"
 )
 
-// Zip3ToLatLong return only first 5 char of zip (xxxxx-xxxx)
-func formatZip3(s string) string {
-	zipParts := strings.Split(s, "-")
-	return zipParts[0]
-}
-
-// Zip3ToLatLong looks up a zip code and returns the Lat Long from the census data
-func Zip3ToLatLong(zip3 string) (LatLong, error) {
-	var ll LatLong
-	zip := formatZip3(zip3)
-	zipAsInt, err := strconv.Atoi(zip)
-	if err == nil {
-		var ok bool
-		ll, ok = zip3ToLatLongMap[zipAsInt]
-		if !ok {
-			err = NewUnsupportedPostalCodeError(zip)
-		}
-	}
-	return ll, err
-}
-
 // Zip5ToLatLong return only first 5 char of zip (xxxxx-xxxx)
 func formatZip5(s string) string {
 	zipParts := strings.Split(s, "-")
@@ -45,17 +24,6 @@ func Zip5ToLatLong(zip5 string) (LatLong, error) {
 		}
 	}
 	return ll, err
-}
-
-// zip3ToLatLongMap maps Zip3 (as int) to LatLong according to
-// https://simplemaps.com/data/us-cities
-var zip3ToLatLongMap = map[int]LatLong{
-	// Tacoma, WA
-	984: {47.2431, -122.4531},
-	// Brooklyn, NY
-	112: {40.6501, -73.9496},
-	// Syracuse, NY
-	132: {43.0409, -76.1438},
 }
 
 // zip5ToLatLongMap maps Zip5 (as int) to LatLong according to
