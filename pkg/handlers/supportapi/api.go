@@ -1,13 +1,13 @@
 package supportapi
 
 import (
+	"github.com/transcom/mymove/pkg/services/support"
 	"log"
 	"net/http"
 
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
-	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	supportops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
@@ -42,7 +42,7 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	supportAPI.MoveTaskOrderCreateMoveTaskOrderHandler = CreateMoveTaskOrderHandler{
 		context,
-		customer.NewCustomerFetcher(context.DB()),
+		support.NewInternalMoveTaskOrderCreator(context.DB()),
 	}
 
 	supportAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{

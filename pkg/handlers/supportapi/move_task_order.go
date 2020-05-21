@@ -3,6 +3,7 @@ package supportapi
 import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/services/support"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
@@ -86,7 +87,7 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 // CreateMoveTaskOrderHandler creates a move task order
 type CreateMoveTaskOrderHandler struct {
 	handlers.HandlerContext
-	services.CustomerFetcher
+	support.InternalMoveTaskOrderCreator
 }
 
 // Handle updates to move task order post-counseling
