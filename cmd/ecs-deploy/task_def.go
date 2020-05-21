@@ -597,6 +597,8 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 				},
 				PortMappings:           portMappings,
 				ReadonlyRootFilesystem: aws.Bool(true),
+				Privileged:             aws.Bool(false),
+				User:                   aws.String("1042"),
 			},
 		},
 		Cpu:                     aws.String(cpu),

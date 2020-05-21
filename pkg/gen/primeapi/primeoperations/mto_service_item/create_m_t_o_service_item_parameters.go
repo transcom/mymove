@@ -11,9 +11,6 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 
 	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
@@ -38,16 +35,6 @@ type CreateMTOServiceItemParams struct {
 	  In: body
 	*/
 	Body primemessages.MTOServiceItem
-	/*UUID of Move Task Order to use.
-	  Required: true
-	  In: path
-	*/
-	MoveTaskOrderID strfmt.UUID
-	/*UUID of MTO Shipment to use.
-	  Required: true
-	  In: path
-	*/
-	MtoShipmentID strfmt.UUID
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -75,84 +62,8 @@ func (o *CreateMTOServiceItemParams) BindRequest(r *http.Request, route *middlew
 			}
 		}
 	}
-	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
-	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	rMtoShipmentID, rhkMtoShipmentID, _ := route.Params.GetOK("mtoShipmentID")
-	if err := o.bindMtoShipmentID(rMtoShipmentID, rhkMtoShipmentID, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-// bindMoveTaskOrderID binds and validates parameter MoveTaskOrderID from path.
-func (o *CreateMTOServiceItemParams) bindMoveTaskOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: true
-	// Parameter is provided by construction from the route
-
-	// Format: uuid
-	value, err := formats.Parse("uuid", raw)
-	if err != nil {
-		return errors.InvalidType("moveTaskOrderID", "path", "strfmt.UUID", raw)
-	}
-	o.MoveTaskOrderID = *(value.(*strfmt.UUID))
-
-	if err := o.validateMoveTaskOrderID(formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// validateMoveTaskOrderID carries on validations for parameter MoveTaskOrderID
-func (o *CreateMTOServiceItemParams) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
-	if err := validate.FormatOf("moveTaskOrderID", "path", "uuid", o.MoveTaskOrderID.String(), formats); err != nil {
-		return err
-	}
-	return nil
-}
-
-// bindMtoShipmentID binds and validates parameter MtoShipmentID from path.
-func (o *CreateMTOServiceItemParams) bindMtoShipmentID(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: true
-	// Parameter is provided by construction from the route
-
-	// Format: uuid
-	value, err := formats.Parse("uuid", raw)
-	if err != nil {
-		return errors.InvalidType("mtoShipmentID", "path", "strfmt.UUID", raw)
-	}
-	o.MtoShipmentID = *(value.(*strfmt.UUID))
-
-	if err := o.validateMtoShipmentID(formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// validateMtoShipmentID carries on validations for parameter MtoShipmentID
-func (o *CreateMTOServiceItemParams) validateMtoShipmentID(formats strfmt.Registry) error {
-
-	if err := validate.FormatOf("mtoShipmentID", "path", "uuid", o.MtoShipmentID.String(), formats); err != nil {
-		return err
 	}
 	return nil
 }

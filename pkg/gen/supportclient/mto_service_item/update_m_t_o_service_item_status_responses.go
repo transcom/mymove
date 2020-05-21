@@ -124,23 +124,23 @@ func NewUpdateMTOServiceItemStatusBadRequest() *UpdateMTOServiceItemStatusBadReq
 
 /*UpdateMTOServiceItemStatusBadRequest handles this case with default header values.
 
-The parameters were invalid.
+The request payload is invalid.
 */
 type UpdateMTOServiceItemStatusBadRequest struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdateMTOServiceItemStatusBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *UpdateMTOServiceItemStatusBadRequest) GetPayload() *supportmessages.Error {
+func (o *UpdateMTOServiceItemStatusBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOServiceItemStatusBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -222,20 +222,20 @@ func NewUpdateMTOServiceItemStatusNotFound() *UpdateMTOServiceItemStatusNotFound
 The requested resource wasn't found.
 */
 type UpdateMTOServiceItemStatusNotFound struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdateMTOServiceItemStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusNotFound  %+v", 404, o.Payload)
 }
 
-func (o *UpdateMTOServiceItemStatusNotFound) GetPayload() *supportmessages.Error {
+func (o *UpdateMTOServiceItemStatusNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOServiceItemStatusNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -286,20 +286,20 @@ func NewUpdateMTOServiceItemStatusPreconditionFailed() *UpdateMTOServiceItemStat
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
 type UpdateMTOServiceItemStatusPreconditionFailed struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdateMTOServiceItemStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdateMTOServiceItemStatusPreconditionFailed) GetPayload() *supportmessages.Error {
+func (o *UpdateMTOServiceItemStatusPreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOServiceItemStatusPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

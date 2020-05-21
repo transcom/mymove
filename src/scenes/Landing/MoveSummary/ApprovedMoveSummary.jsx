@@ -7,7 +7,7 @@ import PpmMoveDetails from 'scenes/Landing/MoveSummary/PpmMoveDetails';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { get } from 'lodash';
 
-const ApprovedMoveSummary = ({ ppm, move, weightTicketSets, isMissingWeightTicketDocuments, incentiveEstimate }) => {
+const ApprovedMoveSummary = ({ ppm, move, weightTicketSets, isMissingWeightTicketDocuments, netWeight }) => {
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const ppmPaymentRequestIntroRoute = `moves/${move.id}/ppm-payment-request-intro`;
   const ppmPaymentRequestReviewRoute = `moves/${move.id}/ppm-payment-review`;
@@ -83,7 +83,7 @@ const ApprovedMoveSummary = ({ ppm, move, weightTicketSets, isMissingWeightTicke
               )}
             </div>
             <div className="usa-width-one-third">
-              <PpmMoveDetails ppm={ppm} />
+              <PpmMoveDetails ppm={ppm} netWeight={netWeight} />
             </div>
           </div>
           <div className="step-links" />

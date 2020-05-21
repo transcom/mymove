@@ -3,8 +3,6 @@ package payloads
 import (
 	"time"
 
-	"github.com/go-openapi/strfmt"
-
 	"github.com/gobuffalo/validate"
 
 	"github.com/gofrs/uuid"
@@ -87,14 +85,14 @@ func MTOServiceItemList(mtoShipment *primemessages.CreateShipmentPayload) (model
 }
 
 // MTOShipmentModelFromCreate model
-func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload, moveTaskOrderID strfmt.UUID) *models.MTOShipment {
+func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload) *models.MTOShipment {
 	if mtoShipment == nil {
 		return nil
 	}
 
 	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
 	model := &models.MTOShipment{
-		MoveTaskOrderID:     uuid.FromStringOrNil(moveTaskOrderID.String()),
+		MoveTaskOrderID:     uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:        models.MTOShipmentType(mtoShipment.ShipmentType),
 		RequestedPickupDate: &requestedPickupDate,
 		CustomerRemarks:     mtoShipment.CustomerRemarks,
