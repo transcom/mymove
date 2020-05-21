@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
@@ -78,7 +81,8 @@ func (e *estimateCalculator) CalculateEstimate(ppm *models.PersonallyProcuredMov
 			return fmt.Errorf("error calculating estimate: cannot calculate SIT charge: %w", sitChargeErr)
 		}
 		sitCharge := float64(sitComputation.ApplyDiscount(cost.LHDiscount, cost.SITDiscount))
-		reimbursementString := fmt.Sprintf("$%.2f", sitCharge/100)
+		p := message.NewPrinter(language.English)
+		reimbursementString := p.Sprintf("$%.2f", sitCharge/100)
 		ppm.EstimatedStorageReimbursement = &reimbursementString
 	}
 
