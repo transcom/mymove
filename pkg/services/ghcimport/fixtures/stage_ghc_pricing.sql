@@ -594,21 +594,21 @@ INSERT INTO public.stage_domestic_service_area_prices (service_area_number, serv
 -- Data for Name: stage_domestic_service_areas; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Birmingham', 'AL', '004', '352.0');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Butler', 'MO', '452.0', '647.0');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Carbon Hill', 'AL', '004', '355.0');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Chulafinnee', 'AL', '004', '362.0');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Collinsville', 'AL', '004', '359.0');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Columbus', 'OH', '616.0', '432.0');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Cumberland', 'OH', '616.0', '437.0');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Dickinson', 'ND', '592.0', '586.0');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('La Rue', 'OH', '616.0', '433.0');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Leeds', 'AL', '004', '350,351');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Neosho', 'MO', '452.0', '648.0');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('South Bloomfield', 'OH', '616.0', '431.0');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Springfield', 'MO', '452.0', '656,657,658');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Tuscaloosa', 'AL', '004', '354.0');
-INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Worthington', 'OH', '616.0', '430.0');
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Birmingham', 'AL', '004', '352.0'); -- US47
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Butler', 'MO', '452.0', '647.0'); -- US56
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Carbon Hill', 'AL', '004', '355.0'); -- US47
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Chulafinnee', 'AL', '004', '362.0'); -- US47
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Collinsville', 'AL', '004', '359.0'); -- US47
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Columbus', 'OH', '616.0', '432.0'); -- US34
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Cumberland', 'OH', '616.0', '437.0'); -- US34
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Dickinson', 'ND', '592.0', '586.0'); -- US51
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('La Rue', 'OH', '616.0', '433.0'); -- US34
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Leeds', 'AL', '004', '350,351'); -- US47
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Neosho', 'MO', '452.0', '648.0'); -- US56
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('South Bloomfield', 'OH', '616.0', '431.0'); -- US34
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Springfield', 'MO', '452.0', '656,657,658'); -- US56
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Tuscaloosa', 'AL', '004', '354.0'); -- US47
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Worthington', 'OH', '616.0', '430.0'); -- US34
 
 
 --
