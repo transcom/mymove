@@ -60,7 +60,7 @@ func (o *UpdatePaymentRequestStatusOK) WriteResponse(rw http.ResponseWriter, pro
 // UpdatePaymentRequestStatusBadRequestCode is the HTTP code returned for type UpdatePaymentRequestStatusBadRequest
 const UpdatePaymentRequestStatusBadRequestCode int = 400
 
-/*UpdatePaymentRequestStatusBadRequest The parameters were invalid.
+/*UpdatePaymentRequestStatusBadRequest The request payload is invalid.
 
 swagger:response updatePaymentRequestStatusBadRequest
 */
@@ -69,7 +69,7 @@ type UpdatePaymentRequestStatusBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestStatusBadRequest creates UpdatePaymentRequestStatusBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdatePaymentRequestStatusBadRequest() *UpdatePaymentRequestStatusBadReq
 }
 
 // WithPayload adds the payload to the update payment request status bad request response
-func (o *UpdatePaymentRequestStatusBadRequest) WithPayload(payload *supportmessages.Error) *UpdatePaymentRequestStatusBadRequest {
+func (o *UpdatePaymentRequestStatusBadRequest) WithPayload(payload *supportmessages.ClientError) *UpdatePaymentRequestStatusBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request status bad request response
-func (o *UpdatePaymentRequestStatusBadRequest) SetPayload(payload *supportmessages.Error) {
+func (o *UpdatePaymentRequestStatusBadRequest) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -197,7 +197,7 @@ type UpdatePaymentRequestStatusNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestStatusNotFound creates UpdatePaymentRequestStatusNotFound with default headers values
@@ -207,13 +207,13 @@ func NewUpdatePaymentRequestStatusNotFound() *UpdatePaymentRequestStatusNotFound
 }
 
 // WithPayload adds the payload to the update payment request status not found response
-func (o *UpdatePaymentRequestStatusNotFound) WithPayload(payload *supportmessages.Error) *UpdatePaymentRequestStatusNotFound {
+func (o *UpdatePaymentRequestStatusNotFound) WithPayload(payload *supportmessages.ClientError) *UpdatePaymentRequestStatusNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request status not found response
-func (o *UpdatePaymentRequestStatusNotFound) SetPayload(payload *supportmessages.Error) {
+func (o *UpdatePaymentRequestStatusNotFound) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -241,7 +241,7 @@ type UpdatePaymentRequestStatusPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestStatusPreconditionFailed creates UpdatePaymentRequestStatusPreconditionFailed with default headers values
@@ -251,13 +251,13 @@ func NewUpdatePaymentRequestStatusPreconditionFailed() *UpdatePaymentRequestStat
 }
 
 // WithPayload adds the payload to the update payment request status precondition failed response
-func (o *UpdatePaymentRequestStatusPreconditionFailed) WithPayload(payload *supportmessages.Error) *UpdatePaymentRequestStatusPreconditionFailed {
+func (o *UpdatePaymentRequestStatusPreconditionFailed) WithPayload(payload *supportmessages.ClientError) *UpdatePaymentRequestStatusPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request status precondition failed response
-func (o *UpdatePaymentRequestStatusPreconditionFailed) SetPayload(payload *supportmessages.Error) {
+func (o *UpdatePaymentRequestStatusPreconditionFailed) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
