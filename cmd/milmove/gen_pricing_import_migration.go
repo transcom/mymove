@@ -5,6 +5,9 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/spf13/pflag"
 
@@ -19,37 +22,50 @@ import (
 // ideally these are coming from the flags
 const (
 	//ImportFlag string = "import"
-	DbHost   = "localhost"
-	DbUser   = "postgres"
-	DbName   = "dev_db"
-	Filename = "pricing_data_dump"
+	DbHost              = "localhost"
+	DbUser              = "postgres"
+	DbName              = "dev_db"
+	FilenameFlag string = "price_import_data"
 )
 
 //create a pg dump
+func pgDump(fileName string) {
+	fileName = FilenameFlag + ".sql"
 
-func pgDump() {
-	fileName := Filename
-	// GO script for pg_dump -h localhost -U postgres -d dev_db -t re_* --data-only -T re_services* --data-only > pricing_data_dump.sql
+	// GO script to run the following:
+	// pg_dump -h localhost -U postgres -d dev_db -t re_* --data-only -T re_services* --data-only > pricing_data_dump.sql
 	cmd := exec.Command(
 		"pg_dump",
-		"-h"+DbHost,
-		"-U"+DbUser,
+		"--compress=9",
+		"-h "+DbHost,
+		"-U "+DbUser,
 		DbName,
-		"-t re_* --data-only -T re_services --data-only",
+		"-t re_* --data-only -T re_services* --data-only ",
 	)
 
+	log.Print(cmd)
+
 	//Open the output file
-	outfile, err := os.Create(fileName + ".sql")
+	outfile, err := os.Create(fileName)
 	if err != nil {
+		log.Print("error in the os.Create")
 		log.Fatal(err)
 	}
 	defer outfile.Close()
 
-	//	Send stdout to the outfile
 	cmd.Stdout = outfile
+
+	//stdOut, err :=  cmd.StdoutPipe()
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+
+	//	Send stdout to the outfile
+	//_, err = io.Copy(outfile, stdOut)
 
 	// Start the command
 	if err = cmd.Start(); err != nil {
+		log.Print("error in the cmd.Start")
 		log.Fatal(err)
 	}
 
@@ -57,23 +73,37 @@ func pgDump() {
 
 	// Wait for the command to finish.
 	if err = cmd.Wait(); err != nil {
+		log.Print("error in the cmd.Wait")
 		log.Fatal(err)
 	}
 }
 
-func initGenPricingImportMigrationFlags(flag *pflag.FlagSet) {
+func initPricingImportMigrationFlags(flag *pflag.FlagSet) {
+	flag.StringP(FilenameFlag, "f", "", "name file")
+}
 
-	//bring in the pricing template flag
+func checkPricingImportMigration(v *viper.Viper) error {
+	migrationName := v.GetString(cli.MigrationNameFlag)
+	if len(migrationName) == 0 {
+		return fmt.Errorf("%s is missing", cli.MigrationNameFlag)
+	}
+	return nil
+}
+
+func initGenPricingImportMigrationFlags(flag *pflag.FlagSet) {
+	// Flag for filename
+	initPricingImportMigrationFlags(flag)
+
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
-	// Migration Config
+	//// Migration Config
 	cli.InitMigrationFlags(flag)
-
-	// Migration File Config
+	//
+	//// Migration File Config
 	cli.InitMigrationFileFlags(flag)
-
-	// Migration Gen Path Config
+	//
+	//// Migration Gen Path Config
 	cli.InitMigrationGenPathFlags(flag)
 
 	// Sort command line flags
@@ -82,34 +112,54 @@ func initGenPricingImportMigrationFlags(flag *pflag.FlagSet) {
 
 // generate migration
 func genPricingImportMigration(cmd *cobra.Command, args []string) error {
+	err := cmd.ParseFlags(args)
+	if err != nil {
+		return errors.Wrap(err, "could not ParseFlags on args")
+	}
+	flag := cmd.Flags()
+	err = flag.Parse(os.Args[1:])
+	if err != nil {
+		return errors.Wrap(err, "could not parse flags")
+	}
 
 	v := viper.New()
+	err = v.BindPFlags(flag)
+	if err != nil {
+		return errors.Wrap(err, "could not bind flags")
+	}
+
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	err = checkPricingImportMigration(v)
+	if err != nil {
+		return err
+	}
 
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
 	migrationName := v.GetString(cli.MigrationNameFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)
+	fileName := v.GetString(FilenameFlag)
 
-	// will i need a template?
+	pgDump(fileName)
 
-	//store the results of the pgDump in to a variable
-	pgDump()
+	// prompt migration_name preceded by -n
 	secureMigrationName := fmt.Sprintf("%s_%s.up.sql", migrationVersion, migrationName)
 
-	//pricingTemplate := PricingTemplate{}
+	err = createMigration(tempMigrationPath, secureMigrationName, nil, nil)
+	if err != nil {
+		log.Print("error in the createMigration1")
 
-	//t1 := template.New("pricing_import_migration")
-	//err := createMigration(tempMigrationPath, secureMigrationName, nil, nil)
-	//if err != nil {
-	//	return err
-	//}
+		return err
+	}
+	err = createMigration("./migrations/app/secure", secureMigrationName, nil, nil)
+	if err != nil {
+		log.Print("error in the createMigration")
 
-	//t2 := template.Must(template.New("migrations/app/secure").Parse(localMigrationTemplate))
-	//err = createMigration("./migrations/app/secure", secureMigrationName, nil, nil)
-	//if err != nil {
-	//	return err
-	//}
+		return err
+	}
 
-	err := addMigrationToManifest(migrationManifest, secureMigrationName)
+	err = addMigrationToManifest(migrationManifest, secureMigrationName)
 	if err != nil {
 		return err
 	}
