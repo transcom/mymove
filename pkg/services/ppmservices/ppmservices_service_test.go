@@ -14,6 +14,10 @@ type PPMServiceSuite struct {
 	logger Logger
 }
 
+func (suite *PPMServiceSuite) SetupTest() {
+	suite.DB().TruncateAll()
+}
+
 func TestPPMServiceSuite(t *testing.T) {
 
 	hs := &PPMServiceSuite{
