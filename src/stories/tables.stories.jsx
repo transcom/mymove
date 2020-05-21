@@ -258,6 +258,10 @@ storiesOf('Components|Tables', module)
           <h3>Data point</h3>
           <DataPoint header="Receiving agent" body={dataPointBody} />
         </div>
+        <div>
+          <h3>Data point compact</h3>
+          <DataPoint header="Receiving agent" body={dataPointBody} custClass="table--data-point--compact" />
+        </div>
         <div style={{ width: '40px' }} />
         <div>
           <h3>Data pair</h3>
