@@ -121,20 +121,20 @@ func NewUpdateMTOShipmentBadRequest() *UpdateMTOShipmentBadRequest {
 The request payload is invalid.
 */
 type UpdateMTOShipmentBadRequest struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *UpdateMTOShipmentBadRequest) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *UpdateMTOShipmentBadRequest) GetPayload() *primemessages.Error {
+func (o *UpdateMTOShipmentBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -154,20 +154,20 @@ func NewUpdateMTOShipmentUnauthorized() *UpdateMTOShipmentUnauthorized {
 The request was denied.
 */
 type UpdateMTOShipmentUnauthorized struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *UpdateMTOShipmentUnauthorized) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *UpdateMTOShipmentUnauthorized) GetPayload() *primemessages.Error {
+func (o *UpdateMTOShipmentUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -187,20 +187,20 @@ func NewUpdateMTOShipmentForbidden() *UpdateMTOShipmentForbidden {
 The request was denied.
 */
 type UpdateMTOShipmentForbidden struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *UpdateMTOShipmentForbidden) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentForbidden  %+v", 403, o.Payload)
 }
 
-func (o *UpdateMTOShipmentForbidden) GetPayload() *primemessages.Error {
+func (o *UpdateMTOShipmentForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -220,20 +220,20 @@ func NewUpdateMTOShipmentNotFound() *UpdateMTOShipmentNotFound {
 The requested resource wasn't found.
 */
 type UpdateMTOShipmentNotFound struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *UpdateMTOShipmentNotFound) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentNotFound  %+v", 404, o.Payload)
 }
 
-func (o *UpdateMTOShipmentNotFound) GetPayload() *primemessages.Error {
+func (o *UpdateMTOShipmentNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -253,20 +253,20 @@ func NewUpdateMTOShipmentPreconditionFailed() *UpdateMTOShipmentPreconditionFail
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
 type UpdateMTOShipmentPreconditionFailed struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *UpdateMTOShipmentPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdateMTOShipmentPreconditionFailed) GetPayload() *primemessages.Error {
+func (o *UpdateMTOShipmentPreconditionFailed) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOShipmentPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

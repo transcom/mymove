@@ -18,3 +18,14 @@ export function formatIncentiveRange(ppm, ppmEstimateRange) {
   }
   return incentiveRange;
 }
+
+export function formatActualIncentiveRange(ppmEstimateRange) {
+  // TODO: merge this with formatIncentiveRange when redux refactor is ready
+  // workaround for incentive not yet saved on entities ppm
+  let incentiveRange = '';
+  if (!isEmpty(ppmEstimateRange)) {
+    incentiveRange = formatCentsRange(ppmEstimateRange.range_min, ppmEstimateRange.range_max);
+  }
+
+  return incentiveRange;
+}

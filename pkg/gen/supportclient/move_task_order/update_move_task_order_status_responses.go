@@ -112,23 +112,23 @@ func NewUpdateMoveTaskOrderStatusBadRequest() *UpdateMoveTaskOrderStatusBadReque
 
 /*UpdateMoveTaskOrderStatusBadRequest handles this case with default header values.
 
-The parameters were invalid.
+The request payload is invalid.
 */
 type UpdateMoveTaskOrderStatusBadRequest struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdateMoveTaskOrderStatusBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] updateMoveTaskOrderStatusBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *UpdateMoveTaskOrderStatusBadRequest) GetPayload() *supportmessages.Error {
+func (o *UpdateMoveTaskOrderStatusBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMoveTaskOrderStatusBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -210,20 +210,20 @@ func NewUpdateMoveTaskOrderStatusNotFound() *UpdateMoveTaskOrderStatusNotFound {
 The requested resource wasn't found.
 */
 type UpdateMoveTaskOrderStatusNotFound struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdateMoveTaskOrderStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] updateMoveTaskOrderStatusNotFound  %+v", 404, o.Payload)
 }
 
-func (o *UpdateMoveTaskOrderStatusNotFound) GetPayload() *supportmessages.Error {
+func (o *UpdateMoveTaskOrderStatusNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMoveTaskOrderStatusNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -243,20 +243,20 @@ func NewUpdateMoveTaskOrderStatusPreconditionFailed() *UpdateMoveTaskOrderStatus
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
 type UpdateMoveTaskOrderStatusPreconditionFailed struct {
-	Payload *supportmessages.Error
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdateMoveTaskOrderStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] updateMoveTaskOrderStatusPreconditionFailed  %+v", 412, o.Payload)
 }
 
-func (o *UpdateMoveTaskOrderStatusPreconditionFailed) GetPayload() *supportmessages.Error {
+func (o *UpdateMoveTaskOrderStatusPreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMoveTaskOrderStatusPreconditionFailed) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(supportmessages.Error)
+	o.Payload = new(supportmessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
