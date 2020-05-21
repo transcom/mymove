@@ -23,16 +23,36 @@ import (
 const SQLErrMessage string = "Unhandled SQL error encountered"
 
 // NotFoundMessage string value to represent sql not found
-const NotFoundMessage string = "Not found error"
+const NotFoundMessage string = "Not Found Error"
 
 // NilErrMessage indicates an uninstantiated error was passed
 const NilErrMessage string = "Nil error passed"
 
+// ConflictErrMessage indicates that there was a conflict with input values
+const ConflictErrMessage string = "Conflict Error"
+
+// PreconditionErrMessage indicates that the IfMatch header (eTag) was stale
+const PreconditionErrMessage string = "Precondition Failed"
+
+// BadRequestErrMessage indicates that the request was malformed
+const BadRequestErrMessage string = "Bad Request"
+
 // ValidationErrMessage indicates that some fields were invalid
 const ValidationErrMessage string = "Validation Error"
 
-// ConflictErrMessage indicates that there was a conflict with input values
-const ConflictErrMessage string = "Conflict Error"
+// ValidationErrorListResponse maps field names to a list of errors for the field
+type ValidationErrorListResponse struct {
+	Errors map[string][]string `json:"errors,omitempty"`
+}
+
+// NewValidationErrorListResponse returns a new validations error list response
+func NewValidationErrorListResponse(verrs *validate.Errors) *ValidationErrorListResponse {
+	errorList := make(map[string][]string)
+	for _, key := range verrs.Keys() {
+		errorList[key] = verrs.Get(key)
+	}
+	return &ValidationErrorListResponse{Errors: errorList}
+}
 
 // ValidationErrorsResponse is a middleware.Responder for a set of validation errors
 type ValidationErrorsResponse struct {

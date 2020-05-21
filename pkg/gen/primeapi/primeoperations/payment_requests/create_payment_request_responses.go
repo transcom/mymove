@@ -113,7 +113,7 @@ type CreatePaymentRequestUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreatePaymentRequestUnauthorized creates CreatePaymentRequestUnauthorized with default headers values
@@ -123,13 +123,13 @@ func NewCreatePaymentRequestUnauthorized() *CreatePaymentRequestUnauthorized {
 }
 
 // WithPayload adds the payload to the create payment request unauthorized response
-func (o *CreatePaymentRequestUnauthorized) WithPayload(payload *primemessages.Error) *CreatePaymentRequestUnauthorized {
+func (o *CreatePaymentRequestUnauthorized) WithPayload(payload *primemessages.ClientError) *CreatePaymentRequestUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create payment request unauthorized response
-func (o *CreatePaymentRequestUnauthorized) SetPayload(payload *primemessages.Error) {
+func (o *CreatePaymentRequestUnauthorized) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -157,7 +157,7 @@ type CreatePaymentRequestForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreatePaymentRequestForbidden creates CreatePaymentRequestForbidden with default headers values
@@ -167,13 +167,13 @@ func NewCreatePaymentRequestForbidden() *CreatePaymentRequestForbidden {
 }
 
 // WithPayload adds the payload to the create payment request forbidden response
-func (o *CreatePaymentRequestForbidden) WithPayload(payload *primemessages.Error) *CreatePaymentRequestForbidden {
+func (o *CreatePaymentRequestForbidden) WithPayload(payload *primemessages.ClientError) *CreatePaymentRequestForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create payment request forbidden response
-func (o *CreatePaymentRequestForbidden) SetPayload(payload *primemessages.Error) {
+func (o *CreatePaymentRequestForbidden) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
