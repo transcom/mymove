@@ -1,8 +1,6 @@
 package ppmservices
 
 import (
-	"fmt"
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -18,101 +16,186 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *PPMServiceSuite) TestCalculateEstimate() {
-	// Subtests:
-	// estimate calculation success
-	// bad moveID fails
-	// bad origin zip fails (90210, 90210)
-	// bad origin duty station zip fails (90210, 90210)
-	// bad ppm weight estimate can't compute costs (0?) fails
-	// bad ppm value (sit charge) fails
+func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
-	move := suite.setupCalculateEstimateTest(moveID, "94540", "95632")
 
-	suite.T().Run("calculates ppm estimate success", func(t *testing.T) {
-		pickupZip := "94540"
-		// origin duty station zip: 94540
-		// dest duty station zip: 95632
-		moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
-		weightEstimate := unit.Pound(7500)
-		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				MoveID:           moveID,
-				Move:             move,
-				PickupPostalCode: &pickupZip,
-				OriginalMoveDate: &moveDate,
-				WeightEstimate:   &weightEstimate,
-			},
-		})
+	pickupZip := "94540"
+	originDutyStationZip := "94540"
+	destDutyStationZip := "95632"
+	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, destDutyStationZip)
+	moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
+	weightEstimate := unit.Pound(7500)
 
-		planner := route.NewTestingPlanner(3200)
-		calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
-		err := calculator.CalculateEstimate(&ppm, moveID)
-		suite.NoError(err)
-		suite.Equal(unit.Cents(0), *ppm.PlannedSITMax)
-		suite.Equal(unit.Cents(328901), *ppm.SITMax)
-		suite.Equal(unit.Cents(530122), *ppm.IncentiveEstimateMin)
-		suite.Equal(unit.Cents(585924), *ppm.IncentiveEstimateMax)
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			MoveID:           moveID,
+			Move:             move,
+			PickupPostalCode: &pickupZip,
+			OriginalMoveDate: &moveDate,
+			WeightEstimate:   &weightEstimate,
+		},
 	})
 
-	suite.T().Run("receives a bad moveID fails", func(t *testing.T) {
-		pickupZip := "94540"
-		weightEstimate := unit.Pound(7000)
-		moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
-		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				MoveID:           moveID,
-				Move:             move,
-				PickupPostalCode: &pickupZip,
-				OriginalMoveDate: &moveDate,
-				WeightEstimate:   &weightEstimate,
-			},
-		})
-		planner := route.NewTestingPlanner(3200)
-		calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
+	planner := route.NewTestingPlanner(3200)
+	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
+	err := calculator.CalculateEstimate(&ppm, moveID)
+	suite.NoError(err)
+	suite.Equal(unit.Cents(0), *ppm.PlannedSITMax)
+	suite.Equal(unit.Cents(328901), *ppm.SITMax)
+	suite.Equal(unit.Cents(530122), *ppm.IncentiveEstimateMin)
+	suite.Equal(unit.Cents(585924), *ppm.IncentiveEstimateMax)
+}
 
-		nonExistentMoveID, err := uuid.FromString("2ef27bd2-97ae-4808-96cb-0cadd7f48972")
-		if err != nil {
-			suite.logger.Fatal("failure to get uuid from string")
-		}
-		err = calculator.CalculateEstimate(&ppm, nonExistentMoveID)
-		suite.Error(err)
+func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
+	weightEstimate := unit.Pound(7000)
+
+	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
+	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+		suite.FailNow("failed to run scenario 2: %+v", err)
+	}
+
+	pickupZip := "94540"
+	originDutyStationZip := "94540"
+	destDutyStationZip := "95632"
+	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, destDutyStationZip)
+
+	moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			MoveID:           moveID,
+			Move:             move,
+			PickupPostalCode: &pickupZip,
+			OriginalMoveDate: &moveDate,
+			WeightEstimate:   &weightEstimate,
+		},
+	})
+	planner := route.NewTestingPlanner(3200)
+	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
+	nonExistentMoveID, err := uuid.FromString("2ef27bd2-97ae-4808-96cb-0cadd7f48972")
+	if err != nil {
+		suite.logger.Fatal("failure to get uuid from string")
+	}
+	err = calculator.CalculateEstimate(&ppm, nonExistentMoveID)
+
+	suite.Error(err)
+}
+
+func (suite *PPMServiceSuite) TestCalculateEstimateBadPickupZipFails() {
+	weightEstimate := unit.Pound(7000)
+
+	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
+	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+		suite.FailNow("failed to run scenario 2: %+v", err)
+	}
+
+	invalidPickupZip := "11111"
+	originDutyStationZip := "94540"
+	destDutyStationZip := "95632"
+	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, destDutyStationZip)
+
+	moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			MoveID:           moveID,
+			Move:             move,
+			PickupPostalCode: &invalidPickupZip,
+			OriginalMoveDate: &moveDate,
+			WeightEstimate:   &weightEstimate,
+		},
+	})
+	planner := route.NewTestingPlanner(3200)
+	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
+	err := calculator.CalculateEstimate(&ppm, moveID)
+
+	suite.Error(err)
+}
+
+func (suite *PPMServiceSuite) TestCalculateEstimateOriginDutyStationZipFails() {
+	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
+	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+		suite.FailNow("failed to run scenario 2: %+v", err)
+	}
+	originDutyStationZip := "11111"
+	destDutyStationZip := "95632"
+	pickupZip := "94540"
+	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, destDutyStationZip)
+
+	moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
+	weightEstimate := unit.Pound(7500)
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			MoveID:           moveID,
+			Move:             move,
+			PickupPostalCode: &pickupZip,
+			OriginalMoveDate: &moveDate,
+			WeightEstimate:   &weightEstimate,
+		},
 	})
 
-	suite.T().Run("given a bad pickup zip fails", func(t *testing.T) {
-		pickupZip := "11111"
-		weightEstimate := unit.Pound(7000)
-		moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
-		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				MoveID:           moveID,
-				Move:             move,
-				PickupPostalCode: &pickupZip,
-				OriginalMoveDate: &moveDate,
-				WeightEstimate:   &weightEstimate,
-			},
-		})
-		planner := route.NewTestingPlanner(3200)
-		calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
-		err := calculator.CalculateEstimate(&ppm, moveID)
-		fmt.Printf("bad pickup zip error %v", err)
-		suite.Error(err)
+	planner := route.NewTestingPlanner(3200)
+	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
+	err := calculator.CalculateEstimate(&ppm, moveID)
+	suite.Error(err)
+}
 
+func (suite *PPMServiceSuite) TestCalculateEstimateNewDutyStationZipFails() {
+	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
+	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+		suite.FailNow("failed to run scenario 2: %+v", err)
+	}
+	originDutyStationZip := "94540"
+	invalidDestDutyStationZip := "00000"
+	pickupZip := "94540"
+	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, invalidDestDutyStationZip)
+
+	moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
+	weightEstimate := unit.Pound(7500)
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			MoveID:           moveID,
+			Move:             move,
+			PickupPostalCode: &pickupZip,
+			OriginalMoveDate: &moveDate,
+			WeightEstimate:   &weightEstimate,
+		},
 	})
 
-	suite.T().Run("bad origin duty station zip fails", func(t *testing.T) {
+	planner := route.NewTestingPlanner(3200)
+	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
+	err := calculator.CalculateEstimate(&ppm, moveID)
+	suite.Error(err)
+}
+
+func (suite *PPMServiceSuite) TestCalculateEstimateInvalidWeightFails() {
+	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
+	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+		suite.FailNow("failed to run scenario 2: %+v", err)
+	}
+
+	originDutyStationZip := "94540"
+	destDutyStationZip := "95632"
+	pickupZip := "94540"
+	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, destDutyStationZip)
+
+	moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
+	weightEstimate := unit.Pound(0)
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			MoveID:           moveID,
+			Move:             move,
+			PickupPostalCode: &pickupZip,
+			OriginalMoveDate: &moveDate,
+			WeightEstimate:   &weightEstimate,
+		},
 	})
 
-	suite.T().Run("invalid weight estimate fails", func(t *testing.T) {
-
-	})
-
-	suite.T().Run("bad sit zip (dest. duty station zip) fails", func(t *testing.T) {
-
-	})
+	planner := route.NewTestingPlanner(3200)
+	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
+	err := calculator.CalculateEstimate(&ppm, moveID)
+	suite.Error(err)
 }
 
 func (suite *PPMServiceSuite) setupCalculateEstimateTest(moveID uuid.UUID, originDutyStationZip string, newDutyStationZip string) models.Move {
