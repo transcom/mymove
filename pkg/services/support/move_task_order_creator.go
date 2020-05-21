@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	movetaskordershared "github.com/transcom/mymove/pkg/services/move_task_order/shared"
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/unit"
 	"go.uber.org/zap"
@@ -21,7 +22,7 @@ type moveTaskOrderCreator struct {
 // InternalCreateMoveTaskOrder creates a move task order for the supportapi (internal use only, not used in production)
 func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessages.MoveTaskOrder, logger handlers.Logger) (*models.MoveTaskOrder, error) {
 	var moveTaskOrder *models.MoveTaskOrder
-
+	var refId string
 	if payload.MoveOrder == nil {
 		return nil, services.NewQueryError("MoveTaskOrder", nil, "MoveOrder is necessary")
 	}
@@ -40,6 +41,13 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 		}
 
 		moveTaskOrder = MoveTaskOrderModel(&payload)
+		if moveTaskOrder.ReferenceID == "" {
+			refId, err = movetaskordershared.GenerateReferenceID(tx)
+			moveTaskOrder.ReferenceID = refId
+		}
+		if err != nil {
+			return err
+		}
 		moveTaskOrder.MoveOrder = *moveOrder
 		moveTaskOrder.MoveOrderID = moveOrder.ID
 
@@ -136,7 +144,6 @@ func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, custome
 			return nil, returnErr
 		}
 		return customer, nil
-
 	}
 	// Else customerIDString is empty and we need to create a customer
 	// Since each customer has a unique userid we need to create a user
