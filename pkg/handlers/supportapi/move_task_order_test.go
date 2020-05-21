@@ -1,6 +1,7 @@
 package supportapi
 
 import (
+	"github.com/transcom/mymove/pkg/services/support"
 	"net/http/httptest"
 	"testing"
 
@@ -114,7 +115,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			customer.NewCustomerFetcher(context.DB()),
+			support.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -149,7 +150,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			customer.NewCustomerFetcher(context.DB()),
+			support.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -177,7 +178,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			customer.NewCustomerFetcher(context.DB()),
+			support.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -198,7 +199,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			customer.NewCustomerFetcher(context.DB()),
+			support.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -209,7 +210,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
 
-		mockFetcher := mocks.CustomerFetcher{}
+		mockFetcher := mocks.InternalMoveTaskOrderCreator{}
 		handler := CreateMoveTaskOrderHandler{context,
 			&mockFetcher,
 		}
@@ -244,7 +245,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			customer.NewCustomerFetcher(context.DB()),
+			support.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
 		response := handler.Handle(params)
 
