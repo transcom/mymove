@@ -217,8 +217,27 @@ storiesOf('Components|Tables', module)
       <h3>Data points</h3>
       <div className="sb-section-wrapper">
         <div className="sb-table-wrapper">
-          <code>data-point</code>
+          <code>data point</code>
+          <br />
+          <br />
           <DataPoint header="Receiving agent" body={dataPointBody} />
+          <br />
+          <br />
+          <code>data point compact</code>
+          <br />
+          <br />
+          <table className="table--data-point table--data-point--compact">
+            <thead className="table--small">
+              <tr>
+                <th>Dorothy Lagomarsino</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>+1 999-999-9999</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div className="sb-table-wrapper">
           <code>data-pair</code>
