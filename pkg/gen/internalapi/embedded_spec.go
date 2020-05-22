@@ -733,6 +733,13 @@ func init() {
         "parameters": [
           {
             "type": "string",
+            "format": "uuid",
+            "name": "personally_procured_move_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
             "format": "date",
             "name": "original_move_date",
             "in": "query",
@@ -6946,6 +6953,13 @@ func init() {
         "summary": "Return a PPM move's SIT cost estimate",
         "operationId": "showPPMSitEstimate",
         "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "personally_procured_move_id",
+            "in": "query",
+            "required": true
+          },
           {
             "type": "string",
             "format": "date",

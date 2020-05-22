@@ -114,6 +114,7 @@ export function updatePPMEstimate(moveId, personallyProcuredMoveId, label = upda
 }
 
 export function getPPMSitEstimate(
+  ppmId,
   moveDate,
   sitDays,
   originZip,
@@ -124,6 +125,7 @@ export function getPPMSitEstimate(
   const swaggerTag = 'ppm.showPPMSitEstimate';
   const schemaKey = 'ppmSitEstimate';
   const payload = {
+    personally_procured_move_id: ppmId,
     original_move_date: moveDate,
     days_in_storage: sitDays,
     origin_zip: originZip,

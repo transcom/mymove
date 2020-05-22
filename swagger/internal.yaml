@@ -2593,6 +2593,11 @@ paths:
         - ppm
       parameters:
         - in: query
+          name: personally_procured_move_id
+          type: string
+          format: uuid
+          required: true
+        - in: query
           name: original_move_date
           type: string
           format: date
