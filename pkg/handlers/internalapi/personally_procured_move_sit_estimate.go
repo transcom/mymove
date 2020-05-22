@@ -1,7 +1,10 @@
 package internalapi
 
 import (
+	"time"
+
 	"github.com/transcom/mymove/pkg/services/ppmservices"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/models"
 
@@ -21,7 +24,17 @@ type ShowPPMSitEstimateHandler struct {
 // Handle calculates SIT charge and retrieves SIT discount rate.
 // It returns the discount rate applied to relevant SIT charge.
 func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	ordersID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
@@ -33,10 +46,18 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 		return handlers.ResponseForError(logger, err)
 	}
 
+	// construct ppm with estimated values
+	weightEstimate := unit.Pound(params.WeightEstimate)
+	originalMoveDateTime := time.Time(params.OriginalMoveDate)
+
+	estimatedPPM := *ppm
+	estimatedPPM.OriginalMoveDate = &originalMoveDateTime
+	estimatedPPM.PickupPostalCode = &params.OriginZip
+	estimatedPPM.DaysInStorage = &params.DaysInStorage
+	estimatedPPM.WeightEstimate = &weightEstimate
+
 	calculator := ppmservices.NewEstimateCalculator(h.DB(), logger, h.Planner())
-	// TODO: pass in through params the active PPM or PPM ID to run the calculations
-	tempPPM := models.PersonallyProcuredMove{}
-	sitCharge, _, err := calculator.CalculateEstimates(&tempPPM, move.ID)
+	sitCharge, _, err := calculator.CalculateEstimates(&estimatedPPM, move.ID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
