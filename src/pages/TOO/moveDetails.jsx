@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import '../../index.scss';
-import '../../ghc_index.scss';
-import { get } from 'lodash';
-import RequestedShipments from 'components/Office/RequestedShipments';
 
+import 'pages/TOO/too.scss';
+
+import { get } from 'lodash';
 import { getMTOShipments, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
+import RequestedShipments from 'components/Office/RequestedShipments';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay';
 
 import { getMoveOrder, getAllMoveTaskOrders, selectMoveOrder } from '../../shared/Entities/modules/moveTaskOrders';
