@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"fmt"
+	//"github.com/transcom/mymove/pkg/services"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -14,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/services/ppmservices"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -383,37 +386,17 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 		return err
 	}
 
+	destinationDutyStationZip := ppm.Move.Orders.NewDutyStation.Address.PostalCode
 	re := rateengine.NewRateEngine(h.DB(), logger, move)
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
 		daysInSIT = int(*ppm.DaysInStorage)
 	}
 
-	originDutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
-	destinationDutyStationZip := ppm.Move.Orders.NewDutyStation.Address.PostalCode
-
-	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, destinationDutyStationZip)
+	calculator := ppmservices.NewEstimateCalculator(h.DB(), logger, h.Planner())
+	costDetails, err := calculator.CalculateEstimatedCostDetails(ppm, moveID)
 	if err != nil {
-		return err
-	}
-
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(originDutyStationZip, destinationDutyStationZip)
-	if err != nil {
-		return err
-	}
-
-	costDetails, err := re.ComputePPMMoveCosts(
-		unit.Pound(*ppm.WeightEstimate),
-		*ppm.PickupPostalCode,
-		originDutyStationZip,
-		destinationDutyStationZip,
-		distanceMilesFromOriginPickupZip,
-		distanceMilesFromOriginDutyStationZip,
-		time.Time(*ppm.OriginalMoveDate),
-		daysInSIT,
-	)
-	if err != nil {
-		return err
+		return fmt.Errorf("error getting cost details: %w", err)
 	}
 
 	cost := rateengine.GetWinningCostMove(costDetails)

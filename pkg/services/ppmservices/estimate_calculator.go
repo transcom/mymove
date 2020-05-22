@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
@@ -28,13 +25,13 @@ func NewEstimateCalculator(db *pop.Connection, logger Logger, planner route.Plan
 	return &estimateCalculator{db: db, logger: logger, planner: planner}
 }
 
-func (e *estimateCalculator) CalculateEstimate(ppm *models.PersonallyProcuredMove, moveID uuid.UUID) error {
+func (e *estimateCalculator) CalculateEstimatedCostDetails(ppm *models.PersonallyProcuredMove, moveID uuid.UUID) (rateengine.CostDetails, error) {
 	move, err := models.FetchMoveByMoveID(e.db, moveID)
 	if err != nil {
 		if err == models.ErrFetchNotFound {
-			return services.NewNotFoundError(moveID, "Unable to calculate estimate")
+			return rateengine.CostDetails{}, services.NewNotFoundError(moveID, "Unable to calculate estimate")
 		}
-		return fmt.Errorf("error calculating estimate: unable to fetch move with ID %s: %w", moveID, err)
+		return rateengine.CostDetails{}, fmt.Errorf("error calculating estimate: unable to fetch move with ID %s: %w", moveID, err)
 	}
 
 	re := rateengine.NewRateEngine(e.db, e.logger, move)
@@ -48,12 +45,12 @@ func (e *estimateCalculator) CalculateEstimate(ppm *models.PersonallyProcuredMov
 
 	distanceMilesFromOriginPickupZip, err := e.planner.Zip5TransitDistance(*ppm.PickupPostalCode, destinationDutyStationZip)
 	if err != nil {
-		return fmt.Errorf("error calculating estimate: cannot get distance from origin pickup to destination: %w", err)
+		return rateengine.CostDetails{}, fmt.Errorf("error calculating estimate: cannot get distance from origin pickup to destination: %w", err)
 	}
 
 	distanceMilesFromOriginDutyStationZip, err := e.planner.Zip5TransitDistance(originDutyStationZip, destinationDutyStationZip)
 	if err != nil {
-		return fmt.Errorf("error calculating estimate: cannot get distance from origin duty station to destination: %w", err)
+		return rateengine.CostDetails{}, fmt.Errorf("error calculating estimate: cannot get distance from origin duty station to destination: %w", err)
 	}
 
 	costDetails, err := re.ComputePPMMoveCosts(
@@ -67,33 +64,8 @@ func (e *estimateCalculator) CalculateEstimate(ppm *models.PersonallyProcuredMov
 		daysInSIT,
 	)
 	if err != nil {
-		return fmt.Errorf("error calculating estimate: cannot compute PPM move costs: %w", err)
+		return rateengine.CostDetails{}, fmt.Errorf("error calculating estimate: cannot compute PPM move costs: %w", err)
 	}
 
-	cost := rateengine.GetWinningCostMove(costDetails)
-
-	// Update SIT estimate
-	if ppm.HasSit != nil && *ppm.HasSit {
-		cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
-		sitZip3 := rateengine.Zip5ToZip3(destinationDutyStationZip)
-		sitComputation, sitChargeErr := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
-		if sitChargeErr != nil {
-			return fmt.Errorf("error calculating estimate: cannot calculate SIT charge: %w", sitChargeErr)
-		}
-		sitCharge := float64(sitComputation.ApplyDiscount(cost.LHDiscount, cost.SITDiscount))
-		p := message.NewPrinter(language.English)
-		reimbursementString := p.Sprintf("$%.2f", sitCharge/100)
-		ppm.EstimatedStorageReimbursement = &reimbursementString
-	}
-
-	mileage := int64(cost.LinehaulCostComputation.Mileage)
-	ppm.Mileage = &mileage
-	ppm.PlannedSITMax = &cost.SITFee
-	ppm.SITMax = &cost.SITMax
-	min := cost.GCC.MultiplyFloat64(0.95)
-	max := cost.GCC.MultiplyFloat64(1.05)
-	ppm.IncentiveEstimateMin = &min
-	ppm.IncentiveEstimateMax = &max
-
-	return nil
+	return costDetails, nil
 }
