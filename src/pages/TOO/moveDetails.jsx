@@ -4,21 +4,28 @@ import { connect } from 'react-redux';
 import '../../index.scss';
 import '../../ghc_index.scss';
 import { get } from 'lodash';
-import { getMoveOrder, selectMoveOrder } from '../../shared/Entities/modules/moveTaskOrders';
+import CustomerInfoTable from 'components/Office/CustomerInfoTable';
+import {
+  getMoveOrder,
+  getCustomer,
+  selectMoveOrder,
+  selectCustomer,
+} from '../../shared/Entities/modules/moveTaskOrders';
 import { loadOrders } from '../../shared/Entities/modules/orders';
 import OrdersTable from '../../components/Office/OrdersTable';
 
 class MoveDetails extends Component {
   componentDidMount() {
-    // eslint-disable-next-line react/destructuring-assignment,react/prop-types
+    /* eslint-disable */
     const { moveOrderId } = this.props.match.params;
-    // eslint-disable-next-line react/prop-types,react/destructuring-assignment
-    this.props.getMoveOrder(moveOrderId);
+    this.props.getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
+      this.props.getCustomer(moveOrder.customerID);
+    });
   }
 
   render() {
     // eslint-disable-next-line react/prop-types
-    const { moveOrder } = this.props;
+    const { moveOrder, customer } = this.props;
     return (
       <div className="grid-container-desktop-lg" data-cy="too-move-details">
         <h1>Move details</h1>
@@ -47,6 +54,19 @@ class MoveDetails extends Component {
               sacSDN: moveOrder.sacSDN,
             }}
           />
+          <CustomerInfoTable
+            customerInfo={{
+              name: `${customer.last_name}, ${customer.first_name}`,
+              dodId: customer.dodID,
+              phone: `+1 ${customer.phone}`,
+              email: customer.email,
+              currentAddress: customer.current_address,
+              destinationAddress: customer.destination_address,
+              backupContactName: '',
+              backupContactPhone: '',
+              backupContactEmail: '',
+            }}
+          />
         </div>
       </div>
     );
@@ -55,15 +75,19 @@ class MoveDetails extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   const { moveOrderId } = ownProps.match.params;
+  const moveOrder = selectMoveOrder(state, moveOrderId);
+  const customerId = moveOrder.customerID;
 
   return {
-    moveOrder: selectMoveOrder(state, moveOrderId),
+    moveOrder,
+    customer: selectCustomer(state, customerId),
   };
 };
 
 const mapDispatchToProps = {
   getMoveOrder,
   loadOrders,
+  getCustomer,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MoveDetails));
