@@ -41,7 +41,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 
 	planner := route.NewTestingPlanner(3200)
 	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
-	_, err := calculator.CalculateEstimatedCostDetails(&ppm, moveID)
+	_, _, err := calculator.CalculateEstimates(&ppm, moveID)
 	suite.NoError(err)
 	//suite.Equal(unit.Cents(0), *ppm.PlannedSITMax)
 	//suite.Equal(unit.Cents(328901), *ppm.SITMax)
@@ -78,7 +78,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 //	if err != nil {
 //		suite.logger.Fatal("failure to get uuid from string")
 //	}
-//	err = calculator.CalculateEstimatedCostDetails(&ppm, nonExistentMoveID)
+//	err = calculator.CalculateEstimates(&ppm, nonExistentMoveID)
 //
 //	suite.Error(err)
 //}
@@ -108,7 +108,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 //	})
 //	planner := route.NewTestingPlanner(3200)
 //	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
-//	err := calculator.CalculateEstimatedCostDetails(&ppm, moveID)
+//	err := calculator.CalculateEstimates(&ppm, moveID)
 //
 //	suite.Error(err)
 //}
@@ -137,7 +137,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 //
 //	planner := route.NewTestingPlanner(3200)
 //	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
-//	err := calculator.CalculateEstimatedCostDetails(&ppm, moveID)
+//	err := calculator.CalculateEstimates(&ppm, moveID)
 //	suite.Error(err)
 //}
 //
@@ -165,7 +165,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 //
 //	planner := route.NewTestingPlanner(3200)
 //	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
-//	err := calculator.CalculateEstimatedCostDetails(&ppm, moveID)
+//	err := calculator.CalculateEstimates(&ppm, moveID)
 //	suite.Error(err)
 //}
 //
@@ -194,7 +194,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 //
 //	planner := route.NewTestingPlanner(3200)
 //	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
-//	err := calculator.CalculateEstimatedCostDetails(&ppm, moveID)
+//	err := calculator.CalculateEstimates(&ppm, moveID)
 //	suite.Error(err)
 //}
 //

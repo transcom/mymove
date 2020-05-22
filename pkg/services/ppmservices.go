@@ -11,5 +11,5 @@ import (
 // EstimateCalculator is the exported interface for calculating the PPM estimate
 //go:generate mockery -name EstimateCalculator
 type EstimateCalculator interface {
-	CalculateEstimatedCostDetails(ppm *models.PersonallyProcuredMove, moveID uuid.UUID) (rateengine.CostDetails, error)
+	CalculateEstimates(ppm *models.PersonallyProcuredMove, moveID uuid.UUID) (int64, rateengine.CostComputation, error)
 }

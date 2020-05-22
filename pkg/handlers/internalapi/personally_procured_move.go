@@ -15,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/services/ppmservices"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
@@ -381,37 +380,17 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 }
 
 func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger, moveID uuid.UUID) error {
-	move, err := models.FetchMoveByMoveID(h.DB(), moveID)
-	if err != nil {
-		return err
-	}
-
-	destinationDutyStationZip := ppm.Move.Orders.NewDutyStation.Address.PostalCode
-	re := rateengine.NewRateEngine(h.DB(), logger, move)
-	daysInSIT := 0
-	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
-		daysInSIT = int(*ppm.DaysInStorage)
-	}
 
 	calculator := ppmservices.NewEstimateCalculator(h.DB(), logger, h.Planner())
-	costDetails, err := calculator.CalculateEstimatedCostDetails(ppm, moveID)
+	sitCharge, cost, err := calculator.CalculateEstimates(ppm, moveID)
 	if err != nil {
-		return fmt.Errorf("error getting cost details: %w", err)
+		return fmt.Errorf("error getting cost estimates: %w", err)
 	}
-
-	cost := rateengine.GetWinningCostMove(costDetails)
 
 	// Update SIT estimate
 	if ppm.HasSit != nil && *ppm.HasSit {
-		cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
-		sitZip3 := rateengine.Zip5ToZip3(destinationDutyStationZip)
-		sitComputation, sitChargeErr := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
-		if sitChargeErr != nil {
-			return sitChargeErr
-		}
-		sitCharge := float64(sitComputation.ApplyDiscount(cost.LHDiscount, cost.SITDiscount))
 		p := message.NewPrinter(language.English)
-		reimbursementString := p.Sprintf("$%.2f", sitCharge/100)
+		reimbursementString := p.Sprintf("$%.2f", float64(sitCharge)/100)
 		ppm.EstimatedStorageReimbursement = &reimbursementString
 	}
 

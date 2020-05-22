@@ -25,13 +25,15 @@ func NewEstimateCalculator(db *pop.Connection, logger Logger, planner route.Plan
 	return &estimateCalculator{db: db, logger: logger, planner: planner}
 }
 
-func (e *estimateCalculator) CalculateEstimatedCostDetails(ppm *models.PersonallyProcuredMove, moveID uuid.UUID) (rateengine.CostDetails, error) {
+func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMove, moveID uuid.UUID) (int64, rateengine.CostComputation, error) {
+	var sitCharge int64
+	cost := rateengine.CostComputation{}
 	move, err := models.FetchMoveByMoveID(e.db, moveID)
 	if err != nil {
 		if err == models.ErrFetchNotFound {
-			return rateengine.CostDetails{}, services.NewNotFoundError(moveID, "Unable to calculate estimate")
+			return sitCharge, cost, services.NewNotFoundError(moveID, "Unable to calculate estimate")
 		}
-		return rateengine.CostDetails{}, fmt.Errorf("error calculating estimate: unable to fetch move with ID %s: %w", moveID, err)
+		return sitCharge, cost, fmt.Errorf("error calculating estimate: unable to fetch move with ID %s: %w", moveID, err)
 	}
 
 	re := rateengine.NewRateEngine(e.db, e.logger, move)
@@ -45,12 +47,12 @@ func (e *estimateCalculator) CalculateEstimatedCostDetails(ppm *models.Personall
 
 	distanceMilesFromOriginPickupZip, err := e.planner.Zip5TransitDistance(*ppm.PickupPostalCode, destinationDutyStationZip)
 	if err != nil {
-		return rateengine.CostDetails{}, fmt.Errorf("error calculating estimate: cannot get distance from origin pickup to destination: %w", err)
+		return sitCharge, cost, fmt.Errorf("error calculating estimate: cannot get distance from origin pickup to destination: %w", err)
 	}
 
 	distanceMilesFromOriginDutyStationZip, err := e.planner.Zip5TransitDistance(originDutyStationZip, destinationDutyStationZip)
 	if err != nil {
-		return rateengine.CostDetails{}, fmt.Errorf("error calculating estimate: cannot get distance from origin duty station to destination: %w", err)
+		return sitCharge, cost, fmt.Errorf("error calculating estimate: cannot get distance from origin duty station to destination: %w", err)
 	}
 
 	costDetails, err := re.ComputePPMMoveCosts(
@@ -64,8 +66,18 @@ func (e *estimateCalculator) CalculateEstimatedCostDetails(ppm *models.Personall
 		daysInSIT,
 	)
 	if err != nil {
-		return rateengine.CostDetails{}, fmt.Errorf("error calculating estimate: cannot compute PPM move costs: %w", err)
+		return sitCharge, cost, fmt.Errorf("error calculating estimate: cannot compute PPM move costs: %w", err)
 	}
 
-	return costDetails, nil
+	// get the SIT charge
+	cost = rateengine.GetWinningCostMove(costDetails)
+	cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
+	sitZip3 := rateengine.Zip5ToZip3(destinationDutyStationZip)
+	sitComputation, sitChargeErr := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
+	if sitChargeErr != nil {
+		return sitCharge, cost, sitChargeErr
+	}
+	sitCharge = int64(sitComputation.ApplyDiscount(cost.LHDiscount, cost.SITDiscount))
+
+	return sitCharge, cost, nil
 }
