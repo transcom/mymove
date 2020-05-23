@@ -126,7 +126,7 @@ export function getPPMSitEstimate(
   const schemaKey = 'ppmSitEstimate';
   const payload = {
     personally_procured_move_id: ppmId,
-    original_move_date: moveDate,
+    original_move_date: formatDateForSwagger(moveDate),
     days_in_storage: sitDays,
     origin_zip: originZip,
     orders_id: ordersID,
