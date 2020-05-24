@@ -98,7 +98,7 @@
     "@storybook/addon-info": "^5.3.18",
     "@storybook/addon-knobs": "^5.3.18",
     "@storybook/addon-links": "^5.3.18",
-    "@storybook/addons": "^5.3.17",
+    "@storybook/addons": "^5.3.19",
     "@storybook/react": "^5.3.18",
     "danger": "^10.2.0",
     "eslint-config-airbnb": "^18.1.0",
