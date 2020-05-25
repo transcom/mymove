@@ -25,7 +25,7 @@ func (gre *GHCRateEngineImporter) mapZipCodesToRERateAreas(dbTx *pop.Connection)
 func (gre *GHCRateEngineImporter) mapREZip3sToRERateAreas(dbTx *pop.Connection) error {
 	var reZip3s []models.ReZip3
 
-	err := dbTx.All(&reZip3s)
+	err := dbTx.Where("contract_id = ?", gre.ContractID).All(&reZip3s)
 	if err != nil {
 		return fmt.Errorf("failed to collect all ReZip3 records: %w", err)
 	}
@@ -63,17 +63,6 @@ func (gre *GHCRateEngineImporter) mapREZip3sToRERateAreas(dbTx *pop.Connection) 
 			if verrs.HasAny() {
 				return fmt.Errorf("failed to validate ReZip3: %v: %w", reZip3.Zip3, verrs)
 			}
-		}
-
-		var reZip3sWithNoAssociatedReRateAreas []models.ReZip3
-		err :=  dbTx.Where("rate_area_id = ?", nil).All(&reZip3sWithNoAssociatedReRateAreas)
-		if err != nil {
-			return fmt.Errorf("failed to collect all ReZip3 records with no associated ReRateArea record: %w", err)
-		}
-
-		// TODO: Print list of ReZip3s that still have no ReRateArea association
-		if len(reZip3sWithNoAssociatedReRateAreas) != 0 {
-			return fmt.Errorf("the following ReZip3 records are not associated with a ReRateArea record: %p", &reZip3sWithNoAssociatedReRateAreas)
 		}
 	}
 
