@@ -1,9 +1,10 @@
 package supportapi
 
 import (
-	"github.com/transcom/mymove/pkg/services/support"
 	"log"
 	"net/http"
+
+	"github.com/transcom/mymove/pkg/services/support"
 
 	"github.com/go-openapi/loads"
 

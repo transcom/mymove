@@ -2,8 +2,9 @@ package supportapi
 
 import (
 	"github.com/gofrs/uuid"
-	"github.com/transcom/mymove/pkg/services/support"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/services/support"
 
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"

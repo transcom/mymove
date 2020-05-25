@@ -1,9 +1,13 @@
 package support
 
 import (
+	"time"
+
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -11,8 +15,6 @@ import (
 	movetaskordershared "github.com/transcom/mymove/pkg/services/move_task_order/shared"
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/unit"
-	"go.uber.org/zap"
-	"time"
 )
 
 type moveTaskOrderCreator struct {
@@ -22,7 +24,7 @@ type moveTaskOrderCreator struct {
 // InternalCreateMoveTaskOrder creates a move task order for the supportapi (internal use only, not used in production)
 func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessages.MoveTaskOrder, logger handlers.Logger) (*models.MoveTaskOrder, error) {
 	var moveTaskOrder *models.MoveTaskOrder
-	var refId string
+	var refID string
 	if payload.MoveOrder == nil {
 		return nil, services.NewQueryError("MoveTaskOrder", nil, "MoveOrder is necessary")
 	}
@@ -42,8 +44,8 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 
 		moveTaskOrder = MoveTaskOrderModel(&payload)
 		if moveTaskOrder.ReferenceID == "" {
-			refId, err = movetaskordershared.GenerateReferenceID(tx)
-			moveTaskOrder.ReferenceID = refId
+			refID, err = movetaskordershared.GenerateReferenceID(tx)
+			moveTaskOrder.ReferenceID = refID
 		}
 		if err != nil {
 			return err
