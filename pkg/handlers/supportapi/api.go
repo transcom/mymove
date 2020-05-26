@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/transcom/mymove/pkg/services/support"
+	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 
 	"github.com/go-openapi/loads"
 
@@ -43,7 +43,7 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	supportAPI.MoveTaskOrderCreateMoveTaskOrderHandler = CreateMoveTaskOrderHandler{
 		context,
-		support.NewInternalMoveTaskOrderCreator(context.DB()),
+		internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 	}
 
 	supportAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{

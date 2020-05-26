@@ -4,7 +4,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/transcom/mymove/pkg/services/support"
+	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			support.NewInternalMoveTaskOrderCreator(context.DB()),
+			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -150,7 +150,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			support.NewInternalMoveTaskOrderCreator(context.DB()),
+			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -178,7 +178,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			support.NewInternalMoveTaskOrderCreator(context.DB()),
+			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -199,7 +199,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			support.NewInternalMoveTaskOrderCreator(context.DB()),
+			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -243,7 +243,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			support.NewInternalMoveTaskOrderCreator(context.DB()),
+			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 		}
 		response := handler.Handle(params)
 

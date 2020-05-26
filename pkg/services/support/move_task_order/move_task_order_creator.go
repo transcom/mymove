@@ -1,7 +1,9 @@
-package support
+package supportmovetaskorder
 
 import (
 	"time"
+
+	"github.com/transcom/mymove/pkg/services/support"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
@@ -73,7 +75,7 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 }
 
 // NewInternalMoveTaskOrderCreator creates a new struct with the service dependencies
-func NewInternalMoveTaskOrderCreator(db *pop.Connection) InternalMoveTaskOrderCreator {
+func NewInternalMoveTaskOrderCreator(db *pop.Connection) support.InternalMoveTaskOrderCreator {
 	return &moveTaskOrderCreator{db}
 }
 
