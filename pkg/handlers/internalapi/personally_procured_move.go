@@ -380,9 +380,8 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 }
 
 func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger, moveID uuid.UUID) error {
-
-	calculator := ppmservices.NewEstimateCalculator(h.DB(), logger, h.Planner())
-	sitCharge, cost, err := calculator.CalculateEstimates(ppm, moveID)
+	calculator := ppmservices.NewEstimateCalculator(h.DB(), h.Planner())
+	sitCharge, cost, err := calculator.CalculateEstimates(ppm, moveID, logger)
 	if err != nil {
 		return fmt.Errorf("error getting cost estimates: %w", err)
 	}

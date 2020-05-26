@@ -43,8 +43,8 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 	})
 
 	planner := route.NewTestingPlanner(3200)
-	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
-	sitCharge, _, err := calculator.CalculateEstimates(&ppm, moveID)
+	calculator := NewEstimateCalculator(suite.DB(), planner)
+	sitCharge, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
 	suite.NoError(err)
 	suite.Equal(int64(171401), sitCharge)
 	//TODO: check the values of cost?
@@ -74,12 +74,12 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 		},
 	})
 	planner := route.NewTestingPlanner(3200)
-	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
+	calculator := NewEstimateCalculator(suite.DB(), planner)
 	nonExistentMoveID, err := uuid.FromString("2ef27bd2-97ae-4808-96cb-0cadd7f48972")
 	if err != nil {
 		suite.logger.Fatal("failure to get uuid from string")
 	}
-	_, _, err = calculator.CalculateEstimates(&ppm, nonExistentMoveID)
+	_, _, err = calculator.CalculateEstimates(&ppm, nonExistentMoveID, suite.logger)
 
 	suite.Error(err)
 }
@@ -108,8 +108,8 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadPickupZipFails() {
 		},
 	})
 	planner := route.NewTestingPlanner(3200)
-	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
-	_, _, err := calculator.CalculateEstimates(&ppm, moveID)
+	calculator := NewEstimateCalculator(suite.DB(), planner)
+	_, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
 
 	suite.Error(err)
 }
@@ -137,8 +137,8 @@ func (suite *PPMServiceSuite) TestCalculateEstimateOriginDutyStationZipFails() {
 	})
 
 	planner := route.NewTestingPlanner(3200)
-	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
-	_, _, err := calculator.CalculateEstimates(&ppm, moveID)
+	calculator := NewEstimateCalculator(suite.DB(), planner)
+	_, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
 	suite.Error(err)
 }
 
@@ -165,8 +165,8 @@ func (suite *PPMServiceSuite) TestCalculateEstimateNewDutyStationZipFails() {
 	})
 
 	planner := route.NewTestingPlanner(3200)
-	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
-	_, _, err := calculator.CalculateEstimates(&ppm, moveID)
+	calculator := NewEstimateCalculator(suite.DB(), planner)
+	_, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
 	suite.Error(err)
 }
 
@@ -194,8 +194,8 @@ func (suite *PPMServiceSuite) TestCalculateEstimateInvalidWeightFails() {
 	})
 
 	planner := route.NewTestingPlanner(3200)
-	calculator := NewEstimateCalculator(suite.DB(), suite.logger, planner)
-	_, _, err := calculator.CalculateEstimates(&ppm, moveID)
+	calculator := NewEstimateCalculator(suite.DB(), planner)
+	_, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
 	suite.Error(err)
 }
 

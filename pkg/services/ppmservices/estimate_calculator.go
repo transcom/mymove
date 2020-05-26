@@ -15,17 +15,19 @@ import (
 )
 
 type estimateCalculator struct {
-	db      *pop.Connection
-	logger  Logger
+	db *pop.Connection
+	//TODO: add logger back once we are able to pass a logger in through internalapi (see https://dp3.atlassian.net/browse/MB-2352)
+	//logger  Logger
 	planner route.Planner
 }
 
 // NewEstimateCalculator returns a new estimateCalculator
-func NewEstimateCalculator(db *pop.Connection, logger Logger, planner route.Planner) services.EstimateCalculator {
-	return &estimateCalculator{db: db, logger: logger, planner: planner}
+func NewEstimateCalculator(db *pop.Connection, planner route.Planner) services.EstimateCalculator {
+	return &estimateCalculator{db: db, planner: planner}
 }
 
-func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMove, moveID uuid.UUID) (int64, rateengine.CostComputation, error) {
+func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMove, moveID uuid.UUID, logger services.Logger) (int64, rateengine.CostComputation, error) {
+	// temporarily passing in logger here until fix listed above in service struct
 	var sitCharge int64
 	cost := rateengine.CostComputation{}
 	move, err := models.FetchMoveByMoveID(e.db, moveID)
@@ -36,7 +38,7 @@ func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMo
 		return sitCharge, cost, fmt.Errorf("error calculating estimate: unable to fetch move with ID %s: %w", moveID, err)
 	}
 
-	re := rateengine.NewRateEngine(e.db, e.logger, move)
+	re := rateengine.NewRateEngine(e.db, logger, move)
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
 		daysInSIT = int(*ppm.DaysInStorage)

@@ -3,7 +3,8 @@ package internalapi
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/services/ppmservices"
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -19,6 +20,7 @@ import (
 // ShowPPMSitEstimateHandler returns PPM SIT estimate for a weight, move date,
 type ShowPPMSitEstimateHandler struct {
 	handlers.HandlerContext
+	services.EstimateCalculator
 }
 
 // Handle calculates SIT charge and retrieves SIT discount rate.
@@ -56,8 +58,7 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 	estimatedPPM.DaysInStorage = &params.DaysInStorage
 	estimatedPPM.WeightEstimate = &weightEstimate
 
-	calculator := ppmservices.NewEstimateCalculator(h.DB(), logger, h.Planner())
-	sitCharge, _, err := calculator.CalculateEstimates(&estimatedPPM, move.ID)
+	sitCharge, _, err := h.EstimateCalculator.CalculateEstimates(&estimatedPPM, move.ID, logger)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
