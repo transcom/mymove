@@ -4,10 +4,12 @@ import { storiesOf } from '@storybook/react';
 import { ReactComponent as AddIcon } from 'shared/icon/add.svg';
 import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 import { ReactComponent as ArrowRightIcon } from 'shared/icon/arrow-right.svg';
+import { ReactComponent as ArrowLeftIcon } from 'shared/icon/arrow-left.svg';
 import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkmark.svg';
 import { ReactComponent as ChevLeftIcon } from 'shared/icon/chevron-left.svg';
 import { ReactComponent as ChevRightIcon } from 'shared/icon/chevron-right.svg';
 import { ReactComponent as DocsIcon } from 'shared/icon/documents.svg';
+import { ReactComponent as DocMenu } from 'shared/icon/doc-menu.svg';
 import { ReactComponent as EditIcon } from 'shared/icon/edit.svg';
 import { ReactComponent as ExtenalLinkIcon } from 'shared/icon/external-link.svg';
 import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
@@ -40,6 +42,10 @@ storiesOf('Global|Icons', module).add('all', () => (
         <code>arrow right</code>
       </div>
       <div>
+        <ArrowLeftIcon />
+        <code>arrow left</code>
+      </div>
+      <div>
         <ChevLeftIcon />
         <code>chevron left</code>
       </div>
@@ -54,6 +60,10 @@ storiesOf('Global|Icons', module).add('all', () => (
       <div>
         <DocsIcon />
         <code>documents</code>
+      </div>
+      <div>
+        <DocMenu />
+        <code>document menu</code>
       </div>
       <div>
         <EditIcon />
