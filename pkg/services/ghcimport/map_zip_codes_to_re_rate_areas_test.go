@@ -31,13 +31,26 @@ func (suite *GHCRateEngineImportSuite) Test_mapZipCodesToReRateAreas() {
 		var reZip3 models.ReZip3
 		err = suite.DB().
 			Where("contract_id = ?", reContract.ID).
+			Where("zip3 = ?", "352").
 			First(&reZip3)
 		suite.NoError(err)
 
-		suite.Assertions.Nil(reZip3.RateAreaID, "ReZip3 record %s should have nil rate_area_id", reZip3.ID)
+		var reZip3WithMultipleReRateAreas models.ReZip3
+		err = suite.DB().
+			Where("contract_id = ?", reContract.ID).
+			Where("zip3 = ?", "327").
+			First(&reZip3WithMultipleReRateAreas)
+		suite.NoError(err)
+
+		suite.Nil(reZip3.RateAreaID, "ReZip3 record %s should have nil rate_area_id", reZip3.ID)
+		suite.Nil(reZip3WithMultipleReRateAreas.RateAreaID, "ReZip3 record %s should have nil rate_area_id", reZip3WithMultipleReRateAreas.ID)
 
 		rateAreaCode, found := zip3ToRateAreaMappings[reZip3.Zip3]
-		suite.Assertions.True(found, "failed to find rate area map for zip3 %s in zip3ToRateAreaMappings", reZip3.Zip3)
+		suite.True(found, "failed to find rate area map for zip3 %s in zip3ToRateAreaMappings", reZip3.Zip3)
+
+		zipRateAreaCode, found := zip3ToRateAreaMappings[reZip3WithMultipleReRateAreas.Zip3]
+		suite.True(found, "failed to find rate area map for zip3 %s in zip3ToRateAreaMappings", reZip3WithMultipleReRateAreas.Zip3)
+		suite.Equal(zipRateAreaCode, "ZIP", "Rate area code should be ZIP but got %s", zipRateAreaCode)
 
 		reRateArea, err := suite.helperFetchReRateArea(reContract, rateAreaCode)
 		suite.NoError(err)
@@ -52,8 +65,16 @@ func (suite *GHCRateEngineImportSuite) Test_mapZipCodesToReRateAreas() {
 		suite.NoError(err)
 
 		suite.NotNil(updatedReZip3.RateAreaID, "ReZip3 record %s should not have nil rate_area_id", updatedReZip3.ID)
-		//QUESTION: Why is this requiring me to use a pointer for &reRateArea.ID
 		suite.Equal(*updatedReZip3.RateAreaID, reRateArea.ID, "ReZip3 %s record is mapped to ReRateArea record %s, but should be mapped to %s", updatedReZip3.RateAreaID, reRateArea.ID)
+
+		var updatedReZip3WithMultipleReRateAreas models.ReZip3
+		err = suite.DB().
+			Where("id = ?", reZip3WithMultipleReRateAreas.ID).
+			First(&updatedReZip3WithMultipleReRateAreas)
+		suite.NoError(err)
+
+		suite.Nil(updatedReZip3WithMultipleReRateAreas.RateAreaID, "ReZip3 record %s should have nil rate_area_id", updatedReZip3WithMultipleReRateAreas.ID)
+		suite.True(updatedReZip3WithMultipleReRateAreas.HasMultipleRateAreas)
 	})
 
 	suite.T().Run("create ReZip5RateArea records and map to correct ReRateArea records", func(t *testing.T) {
@@ -65,7 +86,7 @@ func (suite *GHCRateEngineImportSuite) Test_mapZipCodesToReRateAreas() {
 			Count(&models.ReZip5RateArea{})
 		suite.NoError(err)
 
-		suite.Assertions.Equal(0, reZip5RateAreasCount)
+		suite.Equal(0, reZip5RateAreasCount)
 
 		err = gre.createAndMapREZip5sToRERateAreas(suite.DB())
 		suite.NoError(err)
@@ -77,12 +98,12 @@ func (suite *GHCRateEngineImportSuite) Test_mapZipCodesToReRateAreas() {
 		suite.NoError(err)
 
 		rateAreaCode, found := zip5ToRateAreaMappings[reZip5RateArea.Zip5]
-		suite.Assertions.True(found, "failed to find rate area map for zip3 %s in zip3ToRateAreaMappings", reZip5RateArea.Zip5)
+		suite.True(found, "failed to find rate area map for zip3 %s in zip3ToRateAreaMappings", reZip5RateArea.Zip5)
 
 		reRateArea, err := suite.helperFetchReRateArea(reContract, rateAreaCode)
 		suite.NoError(err)
 
-		suite.Assertions.Equal(reZip5RateArea.RateAreaID, reRateArea.ID, "ReZip3 %s record is mapped to ReRateArea record %s, but should be mapped to %s", reZip5RateArea.RateAreaID, reRateArea.ID)
+		suite.Equal(reZip5RateArea.RateAreaID, reRateArea.ID, "ReZip3 %s record is mapped to ReRateArea record %s, but should be mapped to %s", reZip5RateArea.RateAreaID, reRateArea.ID)
 		suite.helperVerifyNumberOfReZip5RateAreasCreated()
 	})
 }
@@ -116,5 +137,5 @@ func (suite *GHCRateEngineImportSuite) helperVerifyNumberOfReZip5RateAreasCreate
 		Count(&models.ReZip5RateArea{})
 	suite.NoError(err)
 
-	suite.Assertions.Equal(922, reZip5RateAreasCount)
+	suite.Equal(922, reZip5RateAreasCount)
 }
