@@ -2,9 +2,8 @@
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/_mixins.scss';
 
-
 html {
-      scroll-behavior: smooth;
+  scroll-behavior: smooth;
 }
 
 //
@@ -197,6 +196,18 @@ table {
     background-color: rgba(255, 255, 255, 0);
     min-width: 290px;
   }
+  &--compact {
+    .table--small {
+      th {
+        @include u-padding(0);
+        @include u-border(0);
+      }
+    }
+    td {
+      @include u-padding(0);
+      @include u-padding-top(1);
+    }
+  }
 }
 
 .table--data-pair {
@@ -303,7 +314,8 @@ table {
       width: 40px;
       height: 40px;
       margin-bottom: 16px;
-      path, polygon {
+      path,
+      polygon {
         fill: $primary;
       }
     }
