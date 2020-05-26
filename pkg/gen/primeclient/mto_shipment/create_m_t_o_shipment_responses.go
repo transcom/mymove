@@ -103,20 +103,20 @@ func NewCreateMTOShipmentBadRequest() *CreateMTOShipmentBadRequest {
 The request payload is invalid.
 */
 type CreateMTOShipmentBadRequest struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *CreateMTOShipmentBadRequest) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *CreateMTOShipmentBadRequest) GetPayload() *primemessages.Error {
+func (o *CreateMTOShipmentBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateMTOShipmentBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -136,20 +136,20 @@ func NewCreateMTOShipmentNotFound() *CreateMTOShipmentNotFound {
 The requested resource wasn't found.
 */
 type CreateMTOShipmentNotFound struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *CreateMTOShipmentNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentNotFound  %+v", 404, o.Payload)
 }
 
-func (o *CreateMTOShipmentNotFound) GetPayload() *primemessages.Error {
+func (o *CreateMTOShipmentNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateMTOShipmentNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

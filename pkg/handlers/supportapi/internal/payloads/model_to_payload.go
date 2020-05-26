@@ -267,16 +267,16 @@ func PaymentRequest(pr *models.PaymentRequest) *supportmessages.PaymentRequest {
 // ValidationError payload describes validation errors from the model or properties
 func ValidationError(detail string, instance uuid.UUID, validationErrors *validate.Errors) *supportmessages.ValidationError {
 	payload := &supportmessages.ValidationError{
-		ClientError: *clientError(handlers.ValidationErrMessage, detail, instance),
+		ClientError: *ClientError(handlers.ValidationErrMessage, detail, instance),
 	}
 	if validationErrors != nil {
-		payload.InvalidFields = handlers.NewValidationErrorsResponse(validationErrors).Errors
+		payload.InvalidFields = handlers.NewValidationErrorListResponse(validationErrors).Errors
 	}
 	return payload
 }
 
 // ClientError payload contains the default information we send to the client on errors
-func clientError(title string, detail string, instance uuid.UUID) *supportmessages.ClientError {
+func ClientError(title string, detail string, instance uuid.UUID) *supportmessages.ClientError {
 	return &supportmessages.ClientError{
 		Title:    handlers.FmtString(title),
 		Detail:   handlers.FmtString(detail),

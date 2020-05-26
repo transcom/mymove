@@ -69,7 +69,7 @@ type CreateMTOShipmentBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMTOShipmentBadRequest creates CreateMTOShipmentBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewCreateMTOShipmentBadRequest() *CreateMTOShipmentBadRequest {
 }
 
 // WithPayload adds the payload to the create m t o shipment bad request response
-func (o *CreateMTOShipmentBadRequest) WithPayload(payload *primemessages.Error) *CreateMTOShipmentBadRequest {
+func (o *CreateMTOShipmentBadRequest) WithPayload(payload *primemessages.ClientError) *CreateMTOShipmentBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o shipment bad request response
-func (o *CreateMTOShipmentBadRequest) SetPayload(payload *primemessages.Error) {
+func (o *CreateMTOShipmentBadRequest) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -113,7 +113,7 @@ type CreateMTOShipmentNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
+	Payload *primemessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMTOShipmentNotFound creates CreateMTOShipmentNotFound with default headers values
@@ -123,13 +123,13 @@ func NewCreateMTOShipmentNotFound() *CreateMTOShipmentNotFound {
 }
 
 // WithPayload adds the payload to the create m t o shipment not found response
-func (o *CreateMTOShipmentNotFound) WithPayload(payload *primemessages.Error) *CreateMTOShipmentNotFound {
+func (o *CreateMTOShipmentNotFound) WithPayload(payload *primemessages.ClientError) *CreateMTOShipmentNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o shipment not found response
-func (o *CreateMTOShipmentNotFound) SetPayload(payload *primemessages.Error) {
+func (o *CreateMTOShipmentNotFound) SetPayload(payload *primemessages.ClientError) {
 	o.Payload = payload
 }
 

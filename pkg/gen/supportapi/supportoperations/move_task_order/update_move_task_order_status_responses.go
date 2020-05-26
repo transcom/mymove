@@ -60,7 +60,7 @@ func (o *UpdateMoveTaskOrderStatusOK) WriteResponse(rw http.ResponseWriter, prod
 // UpdateMoveTaskOrderStatusBadRequestCode is the HTTP code returned for type UpdateMoveTaskOrderStatusBadRequest
 const UpdateMoveTaskOrderStatusBadRequestCode int = 400
 
-/*UpdateMoveTaskOrderStatusBadRequest The parameters were invalid.
+/*UpdateMoveTaskOrderStatusBadRequest The request payload is invalid.
 
 swagger:response updateMoveTaskOrderStatusBadRequest
 */
@@ -69,7 +69,7 @@ type UpdateMoveTaskOrderStatusBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderStatusBadRequest creates UpdateMoveTaskOrderStatusBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdateMoveTaskOrderStatusBadRequest() *UpdateMoveTaskOrderStatusBadReque
 }
 
 // WithPayload adds the payload to the update move task order status bad request response
-func (o *UpdateMoveTaskOrderStatusBadRequest) WithPayload(payload *supportmessages.Error) *UpdateMoveTaskOrderStatusBadRequest {
+func (o *UpdateMoveTaskOrderStatusBadRequest) WithPayload(payload *supportmessages.ClientError) *UpdateMoveTaskOrderStatusBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order status bad request response
-func (o *UpdateMoveTaskOrderStatusBadRequest) SetPayload(payload *supportmessages.Error) {
+func (o *UpdateMoveTaskOrderStatusBadRequest) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -197,7 +197,7 @@ type UpdateMoveTaskOrderStatusNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderStatusNotFound creates UpdateMoveTaskOrderStatusNotFound with default headers values
@@ -207,13 +207,13 @@ func NewUpdateMoveTaskOrderStatusNotFound() *UpdateMoveTaskOrderStatusNotFound {
 }
 
 // WithPayload adds the payload to the update move task order status not found response
-func (o *UpdateMoveTaskOrderStatusNotFound) WithPayload(payload *supportmessages.Error) *UpdateMoveTaskOrderStatusNotFound {
+func (o *UpdateMoveTaskOrderStatusNotFound) WithPayload(payload *supportmessages.ClientError) *UpdateMoveTaskOrderStatusNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order status not found response
-func (o *UpdateMoveTaskOrderStatusNotFound) SetPayload(payload *supportmessages.Error) {
+func (o *UpdateMoveTaskOrderStatusNotFound) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -241,7 +241,7 @@ type UpdateMoveTaskOrderStatusPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderStatusPreconditionFailed creates UpdateMoveTaskOrderStatusPreconditionFailed with default headers values
@@ -251,13 +251,13 @@ func NewUpdateMoveTaskOrderStatusPreconditionFailed() *UpdateMoveTaskOrderStatus
 }
 
 // WithPayload adds the payload to the update move task order status precondition failed response
-func (o *UpdateMoveTaskOrderStatusPreconditionFailed) WithPayload(payload *supportmessages.Error) *UpdateMoveTaskOrderStatusPreconditionFailed {
+func (o *UpdateMoveTaskOrderStatusPreconditionFailed) WithPayload(payload *supportmessages.ClientError) *UpdateMoveTaskOrderStatusPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order status precondition failed response
-func (o *UpdateMoveTaskOrderStatusPreconditionFailed) SetPayload(payload *supportmessages.Error) {
+func (o *UpdateMoveTaskOrderStatusPreconditionFailed) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
