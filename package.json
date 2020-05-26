@@ -69,7 +69,7 @@
     "swagger-client": "^3.10.4",
     "swagger-ui-dist": "^3.25.4",
     "uswds": "2.7.0",
-    "yup": "^0.28.5"
+    "yup": "^0.29.0"
   },
   "resolutions": {
     "kind-of": "^6.0.2"
