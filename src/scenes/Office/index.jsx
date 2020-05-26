@@ -168,7 +168,7 @@ export class OfficeWrapper extends Component {
                   <Switch>
                     {too && <PrivateRoute path="/too/customer-moves" exact component={TOO} />}
                     {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOMoveTaskOrder} />}
-                    {too && <PrivateRoute path="/moves/:locator" exact component={MoveDetails} />}
+                    {too && <PrivateRoute path="/moves/:moveOrderId" exact component={MoveDetails} />}
                     {/*TODO: remove CustomerDetails route when ready*/}
                     {too && (
                       <PrivateRoute
