@@ -175,6 +175,24 @@
   @include u-text('bold');
 }
 
+.usa-alert--system-error {
+  @include u-bg('warning');
+  @include u-padding-y(1.5);
+  @include u-padding-x(3);
+  a {
+    @include u-text('base-darkest');
+    @include u-text('bold');
+  }
+  .usa-alert__text {
+    @include u-padding(0);
+    @include u-margin(0);
+    @include u-maxw('desktop');
+  }
+  &:before {
+    @include u-width(0);
+  }
+}
+
 //Form
 
 .usa-label {
