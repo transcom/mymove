@@ -1,12 +1,7 @@
 package ghcimport
 
-type Zip5ToRateAreaMapping struct {
-	Zip5     string
-	RateArea string
-}
-
-var zip5ToRateAreaMappings = map[string]string {
-//  Zip5     Rate Area
+var zip5ToRateAreaMappings = map[string]string{
+	//  Zip5     Rate Area
 	"32102": "US4964400",
 	"32105": "US4964400",
 	"32110": "US49",

@@ -89,7 +89,9 @@ func (suite *GHCRateEngineImportSuite) Test_mapZipCodesToReRateAreas() {
 
 func (suite *GHCRateEngineImportSuite) helperFetchReContract() (models.ReContract, error) {
 	var reContract models.ReContract
-	err := suite.DB().Where("code = ?", testContractCode).First(&reContract)
+	err := suite.DB().
+		Where("code = ?", testContractCode).
+		First(&reContract)
 
 	return reContract, err
 }
@@ -99,9 +101,8 @@ func (suite *GHCRateEngineImportSuite) helperFetchReRateArea(reContract models.R
 
 	err := suite.DB().
 		Where("contract_id = ?", reContract.ID).
-		Where("code = ?",rateAreaCode).
+		Where("code = ?", rateAreaCode).
 		First(&reRateArea)
-	suite.NoError(err)
 
 	return reRateArea, err
 }
