@@ -75,7 +75,7 @@ func (suite *GHCRateEngineImportSuite) helperVerifyDomesticRateAreaToIDMap(contr
 		Count(models.ReRateArea{})
 	suite.NoError(dbErr)
 
-	suite.Equal(4, count)
+	suite.Equal(12, count)
 	suite.Equal(count, len(domesticRateAreaToIDMap))
 
 	var rateArea models.ReRateArea
@@ -153,7 +153,7 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateAreaVerifyImportComplet
 	count, countErr := suite.DB().Where("contract_id = ?", contract.ID).Count(&rateArea)
 
 	suite.NoError(countErr)
-	suite.Equal(9, count)
+	suite.Equal(17, count)
 }
 
 func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateArea() {
