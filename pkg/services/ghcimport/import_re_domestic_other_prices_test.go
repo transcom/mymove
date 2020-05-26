@@ -57,16 +57,20 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures(
 	suite.NoError(err)
 
 	suite.T().Run("stage_domestic_other_sit_prices table missing", func(t *testing.T) {
-		// drop a staging table that we are depending on to do import
-		dropQuery := fmt.Sprintf("DROP TABLE IF EXISTS %s;", "stage_domestic_other_sit_prices")
-		dropErr := suite.DB().RawQuery(dropQuery).Exec()
-		suite.NoError(dropErr)
+		renameQuery := fmt.Sprintf("ALTER TABLE stage_domestic_other_sit_prices RENAME TO missing_stage_domestic_other_sit_prices")
+		renameErr := suite.DB().RawQuery(renameQuery).Exec()
+		suite.NoError(renameErr)
 
 		err = gre.importREDomesticOtherPrices(suite.DB())
 		if suite.Error(err) {
 			suite.Equal("error looking up StageDomesticOtherSitPrice data: unable to fetch records: pq: relation \"stage_domestic_other_sit_prices\" does not exist", err.Error())
 		}
+
+		renameQuery = fmt.Sprintf("ALTER TABLE missing_stage_domestic_other_sit_prices RENAME TO stage_domestic_other_sit_prices")
+		renameErr = suite.DB().RawQuery(renameQuery).Exec()
+		suite.NoError(renameErr)
 	})
+
 	suite.T().Run("stage_domestic_other_pack_prices table missing", func(t *testing.T) {
 		// drop a staging table that we are depending on to do import
 		dropQuery := fmt.Sprintf("DROP TABLE IF EXISTS %s;", "stage_domestic_other_pack_prices")
