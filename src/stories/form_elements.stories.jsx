@@ -2,6 +2,8 @@ import React from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
+import { Fieldset, Checkbox, Radio } from '@trussworks/react-uswds';
+
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
@@ -58,50 +60,26 @@ storiesOf('Components|Form', module).add('elements', () => (
             <option value="value3">Option C</option>
           </select>
         </label>
+        <br />
+        <Fieldset legend="Historical figures 1" legendSrOnly id="input-type-fieldset">
+          <Checkbox defaultChecked id="truth" label="Sojourner Truth" name="historical-figures-1" value="truth" />
+          <Checkbox id="douglass" label="Frederick Douglass" name="historical-figures-1" value="douglass" />
+          <Checkbox id="washington" label="Booker T. Washington" name="historical-figures-1" value="washington" />
+          <Checkbox disabled id="carver" label="George Washington Carver" name="historical-figures-1" />
+        </Fieldset>
 
-        <label className="usa-label" htmlFor="input-type-fieldset">
-          Checkboxes Label
-          <fieldset className="usa-fieldset" name="input-type-fieldset">
-            <legend className="usa-sr-only">Historical figures 1</legend>
-            <div className="usa-checkbox">
-              <label className="usa-checkbox__label" htmlFor="truth">
-                <input className="usa-checkbox__input" id="truth" type="checkbox" name="truth" value="truth" checked />
-                Sojourner Truth
-              </label>
-            </div>
-            <div className="usa-checkbox">
-              <label className="usa-checkbox__label" htmlFor="douglass">
-                <input className="usa-checkbox__input" id="douglass" type="checkbox" name="douglass" value="douglass" />
-                Frederick Douglass
-              </label>
-            </div>
-            <div className="usa-checkbox">
-              <label className="usa-checkbox__label" htmlFor="carver">
-                <input className="usa-checkbox__input" id="carver" type="checkbox" name="carver" disabled />
-                George Washington Carver
-              </label>
-            </div>
-          </fieldset>
-        </label>
-
-        <label className="usa-label" htmlFor="radios-fieldset">
-          Radios Label
-          <fieldset className="usa-fieldset" name="radios-fieldset">
-            <legend className="usa-sr-only">Historical figures 2</legend>
-            <div className="usa-radio">
-              <label className="usa-radio__label" htmlFor="stanton">
-                <input className="usa-radio__input" id="stanton" type="radio" checked name="ecs" value="stanton" />
-                Elizabeth Cady Stanton
-              </label>
-            </div>
-            <div className="usa-radio">
-              <label className="usa-radio__label" htmlFor="sba">
-                <input className="usa-radio__input" id="sba" type="radio" name="sba" value="anthony" />
-                Susan B. Anthony
-              </label>
-            </div>
-          </fieldset>
-        </label>
+        <Fieldset legend="Historical figures 2" legendSrOnly id="radios-fieldset">
+          <Radio
+            defaultChecked
+            id="stanton"
+            label="Elizabeth Cady Stanton"
+            name="historical-figures-2"
+            value="stanton"
+          />
+          <Radio id="anthony" label="Susan B. Anthony" name="historical-figures-2" value="anthony" />
+          <Radio id="tubman" label="Harriet Tubman" name="historical-figures-2" value="tubman" />
+          <Radio disabled id="invalid" label="Invalid option" name="historical-figures-2" value="invalid" />
+        </Fieldset>
       </form>
     </Formik>
   </div>
