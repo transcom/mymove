@@ -51,9 +51,9 @@ func (suite *GHCRateEngineImportSuite) Test_mapZipCodesToReRateAreas() {
 			First(&updatedReZip3)
 		suite.NoError(err)
 
-		suite.Assertions.NotNil(updatedReZip3.RateAreaID, "ReZip3 record %s should not have nil rate_area_id", updatedReZip3.ID)
+		suite.NotNil(updatedReZip3.RateAreaID, "ReZip3 record %s should not have nil rate_area_id", updatedReZip3.ID)
 		//QUESTION: Why is this requiring me to use a pointer for &reRateArea.ID
-		suite.Assertions.Equal(updatedReZip3.RateAreaID, &reRateArea.ID, "ReZip3 %s record is mapped to ReRateArea record %s, but should be mapped to %s", updatedReZip3.RateAreaID, reRateArea.ID)
+		suite.Equal(*updatedReZip3.RateAreaID, reRateArea.ID, "ReZip3 %s record is mapped to ReRateArea record %s, but should be mapped to %s", updatedReZip3.RateAreaID, reRateArea.ID)
 	})
 
 	suite.T().Run("create ReZip5RateArea records and map to correct ReRateArea records", func(t *testing.T) {
@@ -116,5 +116,5 @@ func (suite *GHCRateEngineImportSuite) helperVerifyNumberOfReZip5RateAreasCreate
 		Count(&models.ReZip5RateArea{})
 	suite.NoError(err)
 
-	suite.Assertions.Equal(955, reZip5RateAreasCount)
+	suite.Assertions.Equal(922, reZip5RateAreasCount)
 }
