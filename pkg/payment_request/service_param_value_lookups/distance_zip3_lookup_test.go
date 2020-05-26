@@ -13,25 +13,9 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
-	key := "DistanceZip3"
+	key := models.ServiceItemParamNameDistanceZip3.String()
 
-	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			PostalCode: "15602",
-		},
-	})
-	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: models.Address{
-			PostalCode: "29304",
-		},
-	})
-
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			DestinationAddress: &destinationAddress,
-			PickupAddress:      &pickupAddress,
-		},
-	})
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
