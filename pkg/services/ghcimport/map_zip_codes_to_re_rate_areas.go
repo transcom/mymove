@@ -70,16 +70,16 @@ func (gre *GHCRateEngineImporter) mapREZip3sToRERateAreas(dbTx *pop.Connection) 
 }
 
 func (gre *GHCRateEngineImporter) createAndMapREZip5sToRERateAreas(dbTx *pop.Connection) error {
-	for _, zip5ToRateAreaMapping := range zip5ToRateAreaMappings {
+	for zip5, rateArea := range zip5ToRateAreaMappings {
 		var reZip5RateArea models.ReZip5RateArea
 
-		rateAreaID, found := gre.domesticRateAreaToIDMap[zip5ToRateAreaMapping.RateArea]
+		rateAreaID, found := gre.domesticRateAreaToIDMap[rateArea]
 		if !found {
-			return fmt.Errorf("failed to find ID for rate area %s in domesticRateAreaToIDMap", zip5ToRateAreaMapping.RateArea)
+			return fmt.Errorf("failed to find ID for rate area %s in domesticRateAreaToIDMap", rateArea)
 		}
 
 		reZip5RateArea.ContractID = gre.ContractID
-		reZip5RateArea.Zip5 = zip5ToRateAreaMapping.Zip5
+		reZip5RateArea.Zip5 = zip5
 		reZip5RateArea.RateAreaID = rateAreaID
 
 		verrs, err := dbTx.ValidateAndCreate(&reZip5RateArea)
