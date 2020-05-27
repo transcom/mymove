@@ -1,0 +1,94 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+readonly db_name=${DB_NAME:-db_dev}
+readonly db_user=${DB_USER:-postgres}
+readonly db_host=${DB_HOST:-localhost}
+
+readonly path="tmp/db/pricing_import_dump.sql"
+
+pg_dump -h "$db_host" -U "$db_user" "$db_name" -t re_* --data-only -T re_services* --data-only > "$path"
+
+#/bin/bash ./scripts/generate-secure-migration "import_pricing_data"
+
+# directions on https://github.com/transcom/mymove/wiki/migrate-the-database#secure-migrations
+
+readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+readonly local_secure_migrations_dir="${dir}/../migrations/app/secure"
+readonly prod_migrations_temp_dir="${dir}/../tmp"
+
+#
+# Pre-flight checks
+#
+
+#if [[ -z ${1:-} ]]; then
+#  echo "usage: $0 <migration_name>"
+#  exit 1
+#fi
+#
+#if [[ ! -d "$prod_migrations_temp_dir" ]]; then
+#  mkdir "$prod_migrations_temp_dir"
+#fi
+
+readonly migration_name="import_pricing_data"
+
+#
+# Build secure migration file names
+#
+
+# Generate the secure migration filename:
+# - remove ".up.fizz" from filename
+# - remove "migrations/" from filename
+# - append ".sql"
+readonly version=$(date +"%Y%m%d%H%M%S")
+readonly secure_migration_name="${version}_${migration_name}.up.sql"
+
+readonly local_test_migration_name="${local_secure_migrations_dir}/${secure_migration_name}"
+readonly prod_migration_name="${prod_migrations_temp_dir}/${secure_migration_name}"
+
+#
+# Build secure migration stub content
+#
+
+# Create empty file for local test migration
+cat > "${local_test_migration_name}" << EOM
+-- Local test migration.
+-- This will be run on development environments.
+-- It should mirror what you intend to apply on prod/staging/experimental
+-- DO NOT include any sensitive data.
+EOM
+
+# Create empty file for real secure migration
+cat > "${prod_migration_name}" << EOM
+-- Production Migration!
+-- This will be distributed to all deployed environments (e.g. experimental, staging, prod)
+EOM
+
+#
+# Display next steps for user
+#
+
+cat << EOM
+Generated migration files:
+
+Pg Dump: ${path}
+Local test migration: ${local_test_migration_name}
+Production migration: ${prod_migration_name}
+
+Next:
+    1. Edit the production migration to have the actual change you wish to deploy
+    2. Copy the production migration into the local secure migration, scrubbing sensitive data
+    3. If everything looks good, upload the migration to S3 with this utility:
+       scripts/upload-secure-migration \\
+          ${prod_migration_name}
+    4. Run make run_prod_migrations to verify that the upload worked and that the migration can be applied successfully.
+    5. Open a pull request for this change; when it is accepted, your migration will run on staging.
+EOM
+
+#
+# Update the migrations manifest
+#
+
+./scripts/update-migrations-manifest
