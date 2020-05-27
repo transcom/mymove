@@ -1,16 +1,22 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import '../../index.scss';
-import '../../ghc_index.scss';
+
+import 'pages/TOO/too.scss';
+
 import { get } from 'lodash';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
+import { getMTOShipments, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
+import RequestedShipments from 'components/Office/RequestedShipments';
+import ShipmentDisplay from 'components/Office/ShipmentDisplay';
 import {
   getMoveOrder,
   getCustomer,
+  getAllMoveTaskOrders,
   selectMoveOrder,
   selectCustomer,
 } from '../../shared/Entities/modules/moveTaskOrders';
+
 import { loadOrders } from '../../shared/Entities/modules/orders';
 import OrdersTable from '../../components/Office/OrdersTable';
 
@@ -20,16 +26,34 @@ class MoveDetails extends Component {
     const { moveOrderId } = this.props.match.params;
     this.props.getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
       this.props.getCustomer(moveOrder.customerID);
+      this.props.getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
+        moveTaskOrder.forEach((item) => this.props.getMTOShipments(item.id));
+      });
     });
   }
 
   render() {
     // eslint-disable-next-line react/prop-types
-    const { moveOrder, customer } = this.props;
+    const { moveOrder, customer, mtoShipments } = this.props;
     return (
       <div className="grid-container-desktop-lg" data-cy="too-move-details">
         <h1>Move details</h1>
         <div className="container">
+          <RequestedShipments>
+            {mtoShipments &&
+              mtoShipments.map((shipment) => (
+                <ShipmentDisplay
+                  key={shipment.id}
+                  shipmentType={shipment.shipmentType}
+                  displayInfo={{
+                    heading: shipment.shipmentType,
+                    requestedMoveDate: shipment.requestedPickupDate,
+                    currentAddress: shipment.pickupAddress,
+                    destinationAddress: shipment.destinationAddress,
+                  }}
+                />
+              ))}
+          </RequestedShipments>
           <OrdersTable
             ordersInfo={{
               // eslint-disable-next-line react/prop-types
@@ -81,6 +105,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     moveOrder,
     customer: selectCustomer(state, customerId),
+    mtoShipments: selectMTOShipments(state, moveOrderId),
   };
 };
 
@@ -88,6 +113,8 @@ const mapDispatchToProps = {
   getMoveOrder,
   loadOrders,
   getCustomer,
+  getAllMoveTaskOrders,
+  getMTOShipments,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MoveDetails));

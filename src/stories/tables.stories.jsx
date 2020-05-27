@@ -217,38 +217,31 @@ storiesOf('Components|Tables', module)
       <h3>Data points</h3>
       <div className="sb-section-wrapper">
         <div className="sb-table-wrapper">
-          <code>data-point</code>
-          <table className="table--data-point">
+          <code>data point</code>
+          <br />
+          <br />
+          <DataPoint header="Receiving agent" body={dataPointBody} />
+          <br />
+          <br />
+          <code>data point compact</code>
+          <br />
+          <br />
+          <table className="table--data-point table--data-point--compact">
             <thead className="table--small">
               <tr>
-                <th>Label</th>
+                <th>Dorothy Lagomarsino</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Table Cell Content</td>
+                <td>+1 999-999-9999</td>
               </tr>
             </tbody>
           </table>
         </div>
         <div className="sb-table-wrapper">
           <code>data-pair</code>
-          <div className="table--data-pair">
-            <table className="table--data-point">
-              <thead className="table--small">
-                <tr>
-                  <th>Label</th>
-                  <th>Label</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Table Cell Content</td>
-                  <td>Table Cell Content</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <DataPair />
         </div>
       </div>
     </div>
@@ -264,6 +257,10 @@ storiesOf('Components|Tables', module)
         <div>
           <h3>Data point</h3>
           <DataPoint header="Receiving agent" body={dataPointBody} />
+        </div>
+        <div>
+          <h3>Data point compact</h3>
+          <DataPoint header="Receiving agent" body={dataPointBody} custClass="table--data-point--compact" />
         </div>
         <div style={{ width: '40px' }} />
         <div>
