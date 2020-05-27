@@ -41,6 +41,7 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+	//TODO: run rate engine to determine winning parameters and therefore proper discount rate to use in SIT calculation
 
 	sitZip3 := rateengine.Zip5ToZip3(destinationZip)
 	cwtWeight := unit.Pound(params.WeightEstimate).ToCWT()

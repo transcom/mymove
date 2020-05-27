@@ -6,10 +6,9 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/handlers"
-
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -224,6 +223,11 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primemessages.MTOAgents {
 
 // PaymentRequest payload
 func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.PaymentRequest {
+	if paymentRequest == nil {
+		return nil
+	}
+
+	paymentServiceItems := PaymentServiceItems(&paymentRequest.PaymentServiceItems)
 	return &primemessages.PaymentRequest{
 		ID:                   strfmt.UUID(paymentRequest.ID.String()),
 		IsFinal:              &paymentRequest.IsFinal,
@@ -231,16 +235,91 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 		PaymentRequestNumber: paymentRequest.PaymentRequestNumber,
 		RejectionReason:      paymentRequest.RejectionReason,
 		Status:               primemessages.PaymentRequestStatus(paymentRequest.Status),
+		PaymentServiceItems:  *paymentServiceItems,
 		ETag:                 etag.GenerateEtag(paymentRequest.UpdatedAt),
 	}
 }
 
 // PaymentRequests payload
 func PaymentRequests(paymentRequests *models.PaymentRequests) *primemessages.PaymentRequests {
+	if paymentRequests == nil {
+		return nil
+	}
+
 	payload := make(primemessages.PaymentRequests, len(*paymentRequests))
 
 	for i, p := range *paymentRequests {
 		payload[i] = PaymentRequest(&p)
+	}
+	return &payload
+}
+
+// PaymentServiceItem payload
+func PaymentServiceItem(paymentServiceItem *models.PaymentServiceItem) *primemessages.PaymentServiceItem {
+	if paymentServiceItem == nil {
+		return nil
+	}
+
+	paymentServiceItemParams := PaymentServiceItemParams(&paymentServiceItem.PaymentServiceItemParams)
+
+	payload := &primemessages.PaymentServiceItem{
+		ID:                       strfmt.UUID(paymentServiceItem.ID.String()),
+		PaymentRequestID:         strfmt.UUID(paymentServiceItem.PaymentRequestID.String()),
+		MtoServiceItemID:         strfmt.UUID(paymentServiceItem.MTOServiceItemID.String()),
+		Status:                   primemessages.PaymentServiceItemStatus(paymentServiceItem.Status),
+		RejectionReason:          paymentServiceItem.RejectionReason,
+		PaymentServiceItemParams: *paymentServiceItemParams,
+		ETag:                     etag.GenerateEtag(paymentServiceItem.UpdatedAt),
+	}
+
+	if paymentServiceItem.PriceCents != nil {
+		payload.PriceCents = swag.Int64(int64(*paymentServiceItem.PriceCents))
+	}
+
+	return payload
+}
+
+// PaymentServiceItems payload
+func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *primemessages.PaymentServiceItems {
+	if paymentServiceItems == nil {
+		return nil
+	}
+
+	payload := make(primemessages.PaymentServiceItems, len(*paymentServiceItems))
+
+	for i, p := range *paymentServiceItems {
+		payload[i] = PaymentServiceItem(&p)
+	}
+	return &payload
+}
+
+// PaymentServiceItemParam payload
+func PaymentServiceItemParam(paymentServiceItemParam *models.PaymentServiceItemParam) *primemessages.PaymentServiceItemParam {
+	if paymentServiceItemParam == nil {
+		return nil
+	}
+
+	return &primemessages.PaymentServiceItemParam{
+		ID:                   strfmt.UUID(paymentServiceItemParam.ID.String()),
+		PaymentServiceItemID: strfmt.UUID(paymentServiceItemParam.PaymentServiceItemID.String()),
+		Key:                  primemessages.ServiceItemParamName(paymentServiceItemParam.ServiceItemParamKey.Key),
+		Value:                paymentServiceItemParam.Value,
+		Type:                 primemessages.ServiceItemParamType(paymentServiceItemParam.ServiceItemParamKey.Type),
+		Origin:               primemessages.ServiceItemParamOrigin(paymentServiceItemParam.ServiceItemParamKey.Origin),
+		ETag:                 etag.GenerateEtag(paymentServiceItemParam.UpdatedAt),
+	}
+}
+
+// PaymentServiceItemParams payload
+func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceItemParams) *primemessages.PaymentServiceItemParams {
+	if paymentServiceItemParams == nil {
+		return nil
+	}
+
+	payload := make(primemessages.PaymentServiceItemParams, len(*paymentServiceItemParams))
+
+	for i, p := range *paymentServiceItemParams {
+		payload[i] = PaymentServiceItemParam(&p)
 	}
 	return &payload
 }
@@ -387,26 +466,15 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 	return &payload
 }
 
-// ValidationErrorsResponse is a middleware.Responder for a set of validation errors
-type ValidationErrorsResponse struct {
-	Errors map[string][]string `json:"errors,omitempty"`
-}
-
-// NewValidationErrorsResponse returns a new validations errors response
-func NewValidationErrorsResponse(verrs *validate.Errors) *ValidationErrorsResponse {
-	errors := make(map[string][]string)
-	for _, key := range verrs.Keys() {
-		errors[key] = verrs.Get(key)
-	}
-	return &ValidationErrorsResponse{Errors: errors}
-}
-
 // ValidationError describes validation errors from the model or properties
-func ValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
-	return &primemessages.ValidationError{
-		InvalidFields: NewValidationErrorsResponse(validationErrors).Errors,
-		ClientError:   *ClientError(title, detail, instance),
+func ValidationError(detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
+	payload := &primemessages.ValidationError{
+		ClientError: *ClientError(handlers.ValidationErrMessage, detail, instance),
 	}
+	if validationErrors != nil {
+		payload.InvalidFields = handlers.NewValidationErrorListResponse(validationErrors).Errors
+	}
+	return payload
 }
 
 // ClientError describes errors in a standard structure to be returned in the payload

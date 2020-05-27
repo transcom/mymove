@@ -1,11 +1,9 @@
 package supportapi
 
 import (
-	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/models"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 
@@ -17,22 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services"
 )
-
-// Copy of the validators from GHC API with supportmessages instead of ghcmessages
-func payloadForClientError(title string, detail string, instance uuid.UUID) *supportmessages.ClientError {
-	return &supportmessages.ClientError{
-		Title:    handlers.FmtString(title),
-		Detail:   handlers.FmtString(detail),
-		Instance: handlers.FmtUUID(instance),
-	}
-}
-
-func payloadForValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *supportmessages.ValidationError {
-	return &supportmessages.ValidationError{
-		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
-		ClientError:   *payloadForClientError(title, detail, instance),
-	}
-}
 
 // UpdateMTOShipmentStatusHandlerFunc updates the status of a MTO Shipment
 type UpdateMTOShipmentStatusHandlerFunc struct {
@@ -57,14 +39,14 @@ func (h UpdateMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.UpdateM
 
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		case services.InvalidInputError:
-			payload := payloadForValidationError(handlers.ValidationErrMessage, "The input provided did not pass validation.", h.GetTraceID(), e.ValidationErrors)
-			return mtoshipmentops.NewUpdateMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
+			return mtoshipmentops.NewUpdateMTOShipmentStatusUnprocessableEntity().WithPayload(
+				payloads.ValidationError("The input provided did not pass validation.", h.GetTraceID(), e.ValidationErrors))
 		case services.PreconditionFailedError:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusPreconditionFailed().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoshipmentops.NewUpdateMTOShipmentStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		case mtoshipment.ConflictStatusError:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusConflict().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoshipmentops.NewUpdateMTOShipmentStatusConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
 		default:
 			return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError()
 		}

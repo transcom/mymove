@@ -115,20 +115,20 @@ func NewCreateMTOServiceItemBadRequest() *CreateMTOServiceItemBadRequest {
 The request payload is invalid.
 */
 type CreateMTOServiceItemBadRequest struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *CreateMTOServiceItemBadRequest) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemBadRequest  %+v", 400, o.Payload)
 }
 
-func (o *CreateMTOServiceItemBadRequest) GetPayload() *primemessages.Error {
+func (o *CreateMTOServiceItemBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateMTOServiceItemBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -145,24 +145,26 @@ func NewCreateMTOServiceItemUnauthorized() *CreateMTOServiceItemUnauthorized {
 
 /*CreateMTOServiceItemUnauthorized handles this case with default header values.
 
-The request was unauthorized.
+The request was denied.
 */
 type CreateMTOServiceItemUnauthorized struct {
-	Payload interface{}
+	Payload *primemessages.ClientError
 }
 
 func (o *CreateMTOServiceItemUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *CreateMTOServiceItemUnauthorized) GetPayload() interface{} {
+func (o *CreateMTOServiceItemUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateMTOServiceItemUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -176,24 +178,26 @@ func NewCreateMTOServiceItemForbidden() *CreateMTOServiceItemForbidden {
 
 /*CreateMTOServiceItemForbidden handles this case with default header values.
 
-The client doesn't have permissions to perform the request.
+The request was denied.
 */
 type CreateMTOServiceItemForbidden struct {
-	Payload interface{}
+	Payload *primemessages.ClientError
 }
 
 func (o *CreateMTOServiceItemForbidden) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemForbidden  %+v", 403, o.Payload)
 }
 
-func (o *CreateMTOServiceItemForbidden) GetPayload() interface{} {
+func (o *CreateMTOServiceItemForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateMTOServiceItemForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -210,20 +214,20 @@ func NewCreateMTOServiceItemNotFound() *CreateMTOServiceItemNotFound {
 The requested resource wasn't found.
 */
 type CreateMTOServiceItemNotFound struct {
-	Payload *primemessages.Error
+	Payload *primemessages.ClientError
 }
 
 func (o *CreateMTOServiceItemNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemNotFound  %+v", 404, o.Payload)
 }
 
-func (o *CreateMTOServiceItemNotFound) GetPayload() *primemessages.Error {
+func (o *CreateMTOServiceItemNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateMTOServiceItemNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(primemessages.Error)
+	o.Payload = new(primemessages.ClientError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

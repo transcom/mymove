@@ -36,13 +36,11 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.MoveOrd
 		return nil
 	}
 	model := &models.MoveOrder{
-		ID:              uuid.FromStringOrNil(moveOrderPayload.ID.String()),
-		Grade:           &moveOrderPayload.Rank,
-		OrderNumber:     moveOrderPayload.OrderNumber,
-		OrderType:       moveOrderPayload.OrderType,
-		OrderTypeDetail: moveOrderPayload.OrderTypeDetail,
-		Customer:        CustomerModel(moveOrderPayload.Customer),
-		Entitlement:     EntitlementModel(moveOrderPayload.Entitlement),
+		ID:          uuid.FromStringOrNil(moveOrderPayload.ID.String()),
+		Grade:       &moveOrderPayload.Rank,
+		OrderNumber: moveOrderPayload.OrderNumber,
+		Customer:    CustomerModel(moveOrderPayload.Customer),
+		Entitlement: EntitlementModel(moveOrderPayload.Entitlement),
 	}
 
 	customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())

@@ -16,6 +16,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import QueueHeader from 'shared/Header/Office';
+import FOUOHeader from 'components/FOUOHeader';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import './office.scss';
@@ -79,6 +80,7 @@ export class OfficeWrapper extends Component {
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
+          <FOUOHeader />
           <Suspense fallback={<LoadingPlaceholder />}>{!userIsLoggedIn && <QueueHeader />}</Suspense>
           <ConditionalWrap
             condition={!userIsLoggedIn}
@@ -166,7 +168,7 @@ export class OfficeWrapper extends Component {
                   <Switch>
                     {too && <PrivateRoute path="/too/customer-moves" exact component={TOO} />}
                     {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOMoveTaskOrder} />}
-                    {too && <PrivateRoute path="/moves/:moveId" exact component={MoveDetails} />}
+                    {too && <PrivateRoute path="/moves/:moveOrderId" exact component={MoveDetails} />}
                     {/*TODO: remove CustomerDetails route when ready*/}
                     {too && (
                       <PrivateRoute

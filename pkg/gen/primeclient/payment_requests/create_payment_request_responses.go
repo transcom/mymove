@@ -145,24 +145,26 @@ func NewCreatePaymentRequestUnauthorized() *CreatePaymentRequestUnauthorized {
 
 /*CreatePaymentRequestUnauthorized handles this case with default header values.
 
-The request was unauthorized.
+The request was denied.
 */
 type CreatePaymentRequestUnauthorized struct {
-	Payload interface{}
+	Payload *primemessages.ClientError
 }
 
 func (o *CreatePaymentRequestUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *CreatePaymentRequestUnauthorized) GetPayload() interface{} {
+func (o *CreatePaymentRequestUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreatePaymentRequestUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -176,24 +178,26 @@ func NewCreatePaymentRequestForbidden() *CreatePaymentRequestForbidden {
 
 /*CreatePaymentRequestForbidden handles this case with default header values.
 
-The client doesn't have permissions to perform the request.
+The request was denied.
 */
 type CreatePaymentRequestForbidden struct {
-	Payload interface{}
+	Payload *primemessages.ClientError
 }
 
 func (o *CreatePaymentRequestForbidden) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestForbidden  %+v", 403, o.Payload)
 }
 
-func (o *CreatePaymentRequestForbidden) GetPayload() interface{} {
+func (o *CreatePaymentRequestForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreatePaymentRequestForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(primemessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
