@@ -268,6 +268,16 @@ func PaymentRequest(pr *models.PaymentRequest) *supportmessages.PaymentRequest {
 	}
 }
 
+// PaymentRequests payload
+func PaymentRequests(prs *models.PaymentRequests) *supportmessages.PaymentRequests {
+	paymentRequests := make(supportmessages.PaymentRequests, len(*prs))
+
+	for i, pr := range *prs {
+		paymentRequests[i] = PaymentRequest(&pr)
+	}
+	return &paymentRequests
+}
+
 // InternalServerError describes errors in a standard structure to be returned in the payload.
 // If detail is nil, string defaults to "An internal server error has occurred."
 func InternalServerError(detail *string, traceID uuid.UUID) *supportmessages.Error {

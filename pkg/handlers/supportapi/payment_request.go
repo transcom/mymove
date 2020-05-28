@@ -122,3 +122,34 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	returnPayload := payloads.PaymentRequest(updatedPaymentRequest)
 	return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload)
 }
+
+// GetMTOPaymentRequestsHandler updates payment requests status
+type GetMTOPaymentRequestsHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle updates payment requests status
+func (h GetMTOPaymentRequestsHandler) Handle(params paymentrequestop.GetMTOPaymentRequestsParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	mtoID, err := uuid.FromString(params.MoveTaskOrderID.String())
+
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error parsing move task order id: %s", params.MoveTaskOrderID.String()), zap.Error(err))
+		return paymentrequestop.NewGetMTOPaymentRequestsInternalServerError()
+	}
+
+	var paymentRequests models.PaymentRequests
+
+	query := h.DB().Where("move_task_order_id = ?", mtoID)
+
+	err = query.All(&paymentRequests)
+
+	if err != nil {
+		logger.Error("Unable to fetch records:", zap.Error(err))
+		return paymentrequestop.NewGetMTOPaymentRequestsInternalServerError()
+	}
+
+	payload := payloads.PaymentRequests(&paymentRequests)
+
+	return paymentrequestop.NewGetMTOPaymentRequestsOK().WithPayload(*payload)
+}
