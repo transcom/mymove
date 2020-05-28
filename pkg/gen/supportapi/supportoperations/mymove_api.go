@@ -45,6 +45,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderCreateMoveTaskOrderHandler: move_task_order.CreateMoveTaskOrderHandlerFunc(func(params move_task_order.CreateMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderCreateMoveTaskOrder has not yet been implemented")
 		}),
+		PaymentRequestsGetMTOPaymentRequestsHandler: payment_requests.GetMTOPaymentRequestsHandlerFunc(func(params payment_requests.GetMTOPaymentRequestsParams) middleware.Responder {
+			return middleware.NotImplemented("operation PaymentRequestsGetMTOPaymentRequests has not yet been implemented")
+		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrder has not yet been implemented")
 		}),
@@ -98,6 +101,8 @@ type MymoveAPI struct {
 
 	// MoveTaskOrderCreateMoveTaskOrderHandler sets the operation handler for the create move task order operation
 	MoveTaskOrderCreateMoveTaskOrderHandler move_task_order.CreateMoveTaskOrderHandler
+	// PaymentRequestsGetMTOPaymentRequestsHandler sets the operation handler for the get m t o payment requests operation
+	PaymentRequestsGetMTOPaymentRequestsHandler payment_requests.GetMTOPaymentRequestsHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// MoveTaskOrderMakeMoveTaskOrderAvailableHandler sets the operation handler for the make move task order available operation
@@ -173,6 +178,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveTaskOrderCreateMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.CreateMoveTaskOrderHandler")
+	}
+
+	if o.PaymentRequestsGetMTOPaymentRequestsHandler == nil {
+		unregistered = append(unregistered, "payment_requests.GetMTOPaymentRequestsHandler")
 	}
 
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
@@ -297,6 +306,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/move-task-orders"] = move_task_order.NewCreateMoveTaskOrder(o.context, o.MoveTaskOrderCreateMoveTaskOrderHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/payment-requests"] = payment_requests.NewGetMTOPaymentRequests(o.context, o.PaymentRequestsGetMTOPaymentRequestsHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

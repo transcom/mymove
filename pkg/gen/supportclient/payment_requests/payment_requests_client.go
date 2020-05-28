@@ -27,6 +27,43 @@ type Client struct {
 }
 
 /*
+GetMTOPaymentRequests gets m t o payment requests
+
+Gets all payment requests for a given move task order
+
+*/
+func (a *Client) GetMTOPaymentRequests(params *GetMTOPaymentRequestsParams) (*GetMTOPaymentRequestsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetMTOPaymentRequestsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getMTOPaymentRequests",
+		Method:             "GET",
+		PathPattern:        "/move-task-orders/{moveTaskOrderID}/payment-requests",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &GetMTOPaymentRequestsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetMTOPaymentRequestsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for getMTOPaymentRequests: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
 UpdatePaymentRequestStatus updates payment request status
 
 Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.
