@@ -30,4 +30,7 @@ describe('MoveDetails', () => {
     expect(wrapper.find({ 'data-cy': 'tacMDC' }).exists()).toBe(true);
     expect(wrapper.find({ 'data-cy': 'sacSDN' }).exists()).toBe(true);
   });
+  it('renders the Requested Shipments', () => {
+    expect(wrapper.find({ 'data-cy': 'requested-shipments' }).exists()).toBe(true);
+  });
 });

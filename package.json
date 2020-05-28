@@ -66,10 +66,10 @@
     "regenerator-runtime": "^0.13.5",
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
-    "swagger-client": "^3.10.4",
-    "swagger-ui-dist": "^3.25.4",
+    "swagger-client": "^3.10.5",
+    "swagger-ui-dist": "^3.25.5",
     "uswds": "2.7.0",
-    "yup": "^0.29.0"
+    "yup": "^0.29.1"
   },
   "resolutions": {
     "kind-of": "^6.0.2"
@@ -90,7 +90,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.9.6",
+    "@babel/core": "~7.10.1",
     "@dump247/storybook-state": "^1.6.1",
     "@rescripts/cli": "^0.0.14",
     "@rescripts/rescript-env": "^0.0.12",
