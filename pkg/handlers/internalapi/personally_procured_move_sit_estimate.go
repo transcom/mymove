@@ -53,9 +53,14 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 		logger.Error("original move date invalid")
 		return ppmop.NewShowPPMSitEstimateUnprocessableEntity()
 	}
-	// construct ppm with estimated values
+
+	if params.WeightEstimate == 0 {
+		logger.Error("weight estimate required")
+		return ppmop.NewShowPPMSitEstimateUnprocessableEntity()
+	}
 	weightEstimate := unit.Pound(params.WeightEstimate)
 
+	// construct ppm with estimated values
 	estimatedPPM := *ppm
 	estimatedPPM.OriginalMoveDate = &originalMoveDate
 	estimatedPPM.PickupPostalCode = &params.OriginZip

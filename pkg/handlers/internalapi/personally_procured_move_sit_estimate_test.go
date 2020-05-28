@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"errors"
 	"net/http/httptest"
 	"testing"
 
@@ -136,14 +137,57 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		suite.IsType(&ppmop.ShowPPMSitEstimateUnprocessableEntity{}, showResponse)
 	})
 
-	suite.T().Run("", func(t *testing.T) {
+	suite.T().Run("no estimated weight fails", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
+		req = suite.AuthenticateRequest(req, user)
 
+		params := ppmop.ShowPPMSitEstimateParams{
+			HTTPRequest:              req,
+			OriginalMoveDate:         *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
+			DaysInStorage:            4,
+			OriginZip:                "77901",
+			OrdersID:                 strfmt.UUID(ordersID.String()),
+			PersonallyProcuredMoveID: strfmt.UUID(ppmID.String()),
+		}
+
+		mockedSitCharge := int64(3000)
+		mockedCost := rateengine.CostComputation{}
+		estimateCalculator := &mocks.EstimateCalculator{}
+		estimateCalculator.On("CalculateEstimates",
+			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+		showResponse := showHandler.Handle(params)
+
+		suite.IsType(&ppmop.ShowPPMSitEstimateUnprocessableEntity{}, showResponse)
 	})
+}
 
-	suite.T().Run("", func(t *testing.T) {
+func (suite *HandlerSuite) TestShowPpmSitEstimateHandlerEstimateCalculationFails() {
+	ordersID, ppmID, user := setupShowPPMSitEstimateHandlerData(suite)
 
-	})
+	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
+	req = suite.AuthenticateRequest(req, user)
 
+	params := ppmop.ShowPPMSitEstimateParams{
+		HTTPRequest:              req,
+		OriginalMoveDate:         *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
+		DaysInStorage:            4,
+		OriginZip:                "77901",
+		OrdersID:                 strfmt.UUID(ordersID.String()),
+		WeightEstimate:           3000,
+		PersonallyProcuredMoveID: strfmt.UUID(ppmID.String()),
+	}
+
+	var mockedSitCharge int64
+	mockedCost := rateengine.CostComputation{}
+	estimateCalculator := &mocks.EstimateCalculator{}
+	mockedError := errors.New("this is an error")
+	estimateCalculator.On("CalculateEstimates",
+		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, mockedError).Once()
+	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+	showResponse := showHandler.Handle(params)
+
+	suite.IsType(&handlers.ErrResponse{}, showResponse)
 }
 
 func setupShowPPMSitEstimateHandlerData(suite *HandlerSuite) (orderID uuid.UUID, ppmID uuid.UUID, user models.ServiceMember) {
