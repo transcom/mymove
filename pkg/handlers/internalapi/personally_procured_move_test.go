@@ -4,6 +4,11 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/services/mocks"
+
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/strfmt"
@@ -385,7 +390,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	initialWeight := unit.Pound(4100)
 	newWeight := swag.Int64(4105)
 
-	// Date picked essentialy at random, but needs to be within TestYear
+	// Date picked essentially at random, but needs to be within TestYear
 	newMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
 	initialMoveDate := newMoveDate.Add(-2 * 24 * time.Hour)
 
@@ -490,7 +495,12 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
 	}
 
-	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	mockedSitCharge := int64(55000)
+	mockedCost := rateengine.CostComputation{}
+	estimateCalculator := &mocks.EstimateCalculator{}
+	estimateCalculator.On("CalculateEstimates",
+		&ppm1, mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
+	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
 	updatePPMEstimateHandler.SetPlanner(route.NewTestingPlanner(900))
 	updatePPMEstimateResponse := updatePPMEstimateHandler.Handle(updatePPMEstimateParams)
 

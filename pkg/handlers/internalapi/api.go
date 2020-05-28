@@ -35,7 +35,7 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{context}
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{context}
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{context}
-	internalAPI.PpmUpdatePersonallyProcuredMoveEstimateHandler = UpdatePersonallyProcuredMoveEstimateHandler{context}
+	internalAPI.PpmUpdatePersonallyProcuredMoveEstimateHandler = UpdatePersonallyProcuredMoveEstimateHandler{context, ppmservices.NewEstimateCalculator(context.DB(), context.Planner())}
 	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{context}
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{context}
 	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{context, ppmservices.NewEstimateCalculator(context.DB(), context.Planner())}

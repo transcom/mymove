@@ -2,6 +2,9 @@ package internalapi
 
 import (
 	"fmt"
+
+	"github.com/transcom/mymove/pkg/services"
+
 	//"github.com/transcom/mymove/pkg/services"
 	"time"
 
@@ -15,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/ppmservices"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -261,6 +263,7 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 // UpdatePersonallyProcuredMoveEstimateHandler Updates a PPMs incentive estimate
 type UpdatePersonallyProcuredMoveEstimateHandler struct {
 	handlers.HandlerContext
+	services.EstimateCalculator
 }
 
 // Handle recalculates the incentive value for a given PPM move
@@ -301,8 +304,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdateP
 }
 
 func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger, moveID uuid.UUID) error {
-	calculator := ppmservices.NewEstimateCalculator(h.DB(), h.Planner())
-	sitCharge, cost, err := calculator.CalculateEstimates(ppm, moveID, logger)
+	sitCharge, cost, err := h.CalculateEstimates(ppm, moveID, logger)
 	if err != nil {
 		return fmt.Errorf("error getting cost estimates: %w", err)
 	}
