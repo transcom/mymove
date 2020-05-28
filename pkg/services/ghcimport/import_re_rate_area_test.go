@@ -134,15 +134,6 @@ func (suite *GHCRateEngineImportSuite) helperVerifyInternationalRateAreaToIDMap(
 	suite.Equal(rateArea.ID, internationalRateAreaToIDMap["US8101000"])
 }
 
-//func (suite *GHCRateEngineImportSuite) helperImportRERateAreaDropStage(action string) {
-//	if action == "setup" {
-//		// drop a staging table that we are depending on to do import
-//		dropQuery := fmt.Sprintf("DROP TABLE IF EXISTS %s;", "stage_conus_to_oconus_prices")
-//		dropErr := suite.DB().RawQuery(dropQuery).Exec()
-//		suite.NoError(dropErr)
-//	}
-//}
-
 func (suite *GHCRateEngineImportSuite) helperImportRERateAreaVerifyImportComplete(contractCode string) {
 	// Get contract UUID.
 	var contract models.ReContract
