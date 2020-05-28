@@ -196,7 +196,52 @@
 //Form
 
 .usa-label {
+  @include u-font-size('body', '3xs');
+  @include u-text('bold');
+  @include u-text('base-darkest');
+}
+
+.usa-radio__input:checked + .usa-radio__label::before {
+  box-shadow: 0 0 0 2px $primary, inset 0 0 0 2px white;
+}
+
+.usa-checkbox__label::before,
+.usa-radio__label::before {
+  box-shadow: 0 0 0 2px $primary;
+}
+
+.usa-checkbox__input:checked + .usa-checkbox__label::before {
+  background-color: $primary;
+  box-shadow: 0 0 0 2px $primary;
+}
+
+.usa-radio__input:checked + .usa-radio__label::before {
+  background-color: $primary;
+}
+
+.usa-error-message,
+.usa-checkbox__label,
+.usa-input {
   @include u-font-size('body', 'xs');
+}
+
+.usa-error-message {
+  @include u-padding(0);
+}
+
+.usa-fieldset {
+  @include u-padding-top(2);
+}
+
+.usa-select {
+  option {
+    background: white;
+    @include u-font-size('body', 'sm');
+  }
+  &:hover {
+    background-image: url('/static/media/arrow-both.0bfe2193.svg'), linear-gradient(transparent, transparent);
+    background-color: $link-light;
+  }
 }
 
 //Modals
