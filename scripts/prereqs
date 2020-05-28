@@ -49,6 +49,7 @@ has node "brew install node@10 && brew link --force node@10"
 if [[ -z ${CIRCLECI-} ]]; then
   # CAC tools
   has pkcs11-tool "brew install opensc; chmod go+w /usr/local/bin/pkcs11-tool; brew link opensc"
+  has pkcs15-tool "brew install opensc; chmod go+w /usr/local/bin/pkcs15-tool; brew link opensc"
 
   has circleci "brew install circleci"
   has direnv "brew install direnv"
