@@ -83,9 +83,6 @@ func NewValidationErrorListResponse(verrs *validate.Errors) *ValidationErrorList
 	return &ValidationErrorListResponse{Errors: errorList}
 }
 
-// MethodNotAllowedMessage indicates the HTTP method was not supported
-const MethodNotAllowedMessage string = "Method Not Allowed Error"
-
 // ValidationErrorsResponse is a middleware.Responder for a set of validation errors
 type ValidationErrorsResponse struct {
 	Errors map[string]string `json:"errors,omitempty"`
