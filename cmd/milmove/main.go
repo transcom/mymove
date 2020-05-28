@@ -87,16 +87,6 @@ func main() {
 	initGenCertsMigrationFlags(genCertsMigrationCommand.Flags())
 	genCommand.AddCommand(genCertsMigrationCommand)
 
-	genPricingImportMigrationCommand := &cobra.Command{
-		Use:                   "pricing-data-migration -n MIGRATION_NAME",
-		Short:                 "Generate migrations required for uploading ghc pricing",
-		Long:                  "Generate migrations required for uploading ghc pricing",
-		RunE:                  genPricingImportMigration,
-		DisableFlagsInUseLine: true,
-	}
-	initGenPricingImportMigrationFlags(genPricingImportMigrationCommand.Flags())
-	genCommand.AddCommand(genPricingImportMigrationCommand)
-
 	genDutyStationsMigrationCommand := &cobra.Command{
 		Use:                   "duty-stations-migration -f CSV_FILENAME -n MIGRATION_NAME",
 		Short:                 "Generate migrations required for adding duty stations",
