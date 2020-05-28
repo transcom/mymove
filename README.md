@@ -22,57 +22,60 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
 
 <!-- toc -->
 
-* [Overview](#overview)
-  * [The TLS apps](#the-tls-apps)
-  * [The Mutual TLS apps](#the-mutual-tls-apps)
-  * [Historical note](#historical-note)
-* [Supported Browsers](#supported-browsers)
-* [Login.gov](#logingov)
-* [Application Setup](#application-setup)
-  * [Setup: Developer Setup](#setup-developer-setup)
-  * [Setup: Git](#setup-git)
-  * [Setup: Golang](#setup-golang)
-  * [Setup: Project Checkout](#setup-project-checkout)
-  * [Setup: Project Layout](#setup-project-layout)
-  * [Setup: Editor Config](#setup-editor-config)
-  * [Setup: Makefile](#setup-makefile)
-  * [Setup: Quick Initial Setup](#setup-quick-initial-setup)
-  * [Setup: Prerequisites](#setup-prerequisites)
-  * [Setup: Direnv](#setup-direnv)
-    * [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
-  * [Setup: Pre-Commit](#setup-pre-commit)
-  * [Setup: Dependencies](#setup-dependencies)
-  * [Setup: Build Tools](#setup-build-tools)
-  * [Setup: Database](#setup-database)
-  * [Setup: Server](#setup-server)
-  * [Setup: MilMoveLocal Client](#setup-milmovelocal-client)
-  * [Setup: OfficeLocal client](#setup-officelocal-client)
-  * [Setup: AdminLocal client](#setup-adminlocal-client)
-  * [Setup: DPS user](#setup-dps-user)
-  * [Setup: Orders Gateway](#setup-orders-gateway)
-  * [Setup: Prime API](#setup-prime-api)
-  * [Setup: AWS Services (Optional)](#setup-aws-services-optional)
-* [Development](#development)
-  * [TSP Award Queue](#tsp-award-queue)
-  * [Test Data Generator](#test-data-generator)
-  * [API / Swagger](#api--swagger)
-  * [Testing](#testing)
-  * [Logging](#logging)
-    * [Log files](#log-files)
-  * [Database](#database)
-    * [Dev DB Commands](#dev-db-commands)
-    * [Test DB Commands](#test-db-commands)
-    * [Migrations](#migrations)
-  * [Environment Variables](#environment-variables)
-  * [Documentation](#documentation)
-  * [Spellcheck](#spellcheck)
-    * [Tips for staying sane](#tips-for-staying-sane)
-  * [GoLand](#goland)
-  * [Troubleshooting](#troubleshooting)
-    * [Postgres Issues](#postgres-issues)
-    * [Development Machine Timezone Issues](#development-machine-timezone-issues)
-    * [Linters & Pre-commit Hooks](#linters--pre-commit-hooks)
-    * [Yarn install markdown-spell (aka mdspell)](#yarn-install-markdown-spell-aka-mdspell)
+- [Personal Property Prototype](#personal-property-prototype)
+  - [License Information](#license-information)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [The TLS apps](#the-tls-apps)
+    - [The Mutual TLS apps](#the-mutual-tls-apps)
+    - [Historical note](#historical-note)
+  - [Supported Browsers](#supported-browsers)
+  - [Login.gov](#logingov)
+  - [Application Setup](#application-setup)
+    - [Setup: Developer Setup](#setup-developer-setup)
+    - [Setup: Git](#setup-git)
+    - [Setup: Golang](#setup-golang)
+    - [Setup: Project Checkout](#setup-project-checkout)
+    - [Setup: Project Layout](#setup-project-layout)
+    - [Setup: Editor Config](#setup-editor-config)
+    - [Setup: Makefile](#setup-makefile)
+    - [Setup: Quick Initial Setup](#setup-quick-initial-setup)
+    - [Setup: Direnv](#setup-direnv)
+      - [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
+    - [Setup: Prerequisites](#setup-prerequisites)
+    - [Setup: Pre-Commit](#setup-pre-commit)
+    - [Setup: Dependencies](#setup-dependencies)
+    - [Setup: Build Tools](#setup-build-tools)
+    - [Setup: Database](#setup-database)
+    - [Setup: Server](#setup-server)
+    - [Setup: MilMoveLocal Client](#setup-milmovelocal-client)
+    - [Setup: OfficeLocal client](#setup-officelocal-client)
+    - [Setup: AdminLocal client](#setup-adminlocal-client)
+    - [Setup: DPS user](#setup-dps-user)
+    - [Setup: Orders Gateway](#setup-orders-gateway)
+    - [Setup: Prime API](#setup-prime-api)
+    - [Setup: AWS Services (Optional)](#setup-aws-services-optional)
+  - [Development](#development)
+    - [TSP Award Queue](#tsp-award-queue)
+    - [Test Data Generator](#test-data-generator)
+    - [API / Swagger](#api--swagger)
+    - [Testing](#testing)
+    - [Logging](#logging)
+      - [Log files](#log-files)
+    - [Database](#database)
+      - [Dev DB Commands](#dev-db-commands)
+      - [Test DB Commands](#test-db-commands)
+      - [Migrations](#migrations)
+    - [Environment Variables](#environment-variables)
+    - [Documentation](#documentation)
+    - [Spellcheck](#spellcheck)
+      - [Tips for staying sane](#tips-for-staying-sane)
+    - [GoLand](#goland)
+    - [Troubleshooting](#troubleshooting)
+      - [Postgres Issues](#postgres-issues)
+      - [Development Machine Timezone Issues](#development-machine-timezone-issues)
+      - [Linters & Pre-commit Hooks](#linters--pre-commit-hooks)
+      - [Yarn install markdown-spell (aka mdspell)](#yarn-install-markdown-spell-aka-mdspell)
 
 Regenerate with "pre-commit run -a markdown-toc"
 
@@ -247,8 +250,8 @@ so take the time to understand what it does.
 
 The following commands will get mymove running on your machine for the first time. This is an abbreviated list that should get you started. Please read below for explanations of each of the commands.
 
-1. `make prereqs`
 1. `direnv allow`
+1. `make prereqs`
 1. `make ensure_pre_commit`
 1. `make deps`
 1. `make db_dev_run`
@@ -256,12 +259,6 @@ The following commands will get mymove running on your machine for the first tim
 1. `make server_run`
 1. `make client_build`
 1. `make client_run`
-
-### Setup: Prerequisites
-
-Run `make prereqs` and install everything it tells you to. Most of the prerequisites need you to use `brew install <package>`.
-
-**NOTE:** Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!
 
 ### Setup: Direnv
 
@@ -278,6 +275,12 @@ If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envr
 
 * `export GOLANGCI_LINT_CONCURRENCY=8` - variable to increase concurrency of golangci-lint; defaults to 6 on dev machines and to 1 in CircleCI.
 * `export GOLAND=1` - variable to enable go code debugging in goland
+
+### Setup: Prerequisites
+
+Run `make prereqs` and install everything it tells you to. Most of the prerequisites need you to use `brew install <package>`.
+
+**NOTE:** Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!
 
 ### Setup: Pre-Commit
 
