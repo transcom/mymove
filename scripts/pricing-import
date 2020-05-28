@@ -29,10 +29,11 @@ while true
 do
   case $answer in
    [yY]* ) pg_dump -h "$db_host" -U "$db_user" "$db_name" -t re_* --data-only -T re_services* --data-only > "$path"
-    echo "Data successfully pg_dumped"
+    echo "Success pg-dump to tmp/db/pricing_import_dump.sql"
     break;;
-  [nN]* ) exit;;
-  * )     echo "enter Y or N, please.";;
+  [nN]* ) echo "See above instructions to run ghc pricing importer"
+    exit;;
+  * )     echo "enter Y or N, please."; exit;;
   esac
 done
 
@@ -49,7 +50,11 @@ readonly prod_migrations_temp_dir="${dir}/../tmp"
 # Pre-flight checks
 #
 
-if [[ -z ${1:-} ]]; then
+echo "Open tmp/db/pricing_import_dump.sql and copy the contract name in the re_contracts table, paste it here followed by [ENTER]:"
+
+read -r unique_contract_name
+
+if [[ -z ${unique_contract_name:-} ]]; then
   echo "usage: $0 <unique_contract_name>"
   exit 1
 fi
@@ -58,7 +63,7 @@ if [[ ! -d "$prod_migrations_temp_dir" ]]; then
   mkdir "$prod_migrations_temp_dir"
 fi
 
-readonly migration_name="import_pricing_data_${1}"
+readonly migration_name="import_pricing_data_${unique_contract_name}"
 
 #
 # Build secure migration file names
