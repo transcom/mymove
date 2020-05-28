@@ -300,6 +300,32 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdateP
 	return ppmop.NewUpdatePersonallyProcuredMoveEstimateOK().WithPayload(ppmPayload)
 }
 
+func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger, moveID uuid.UUID) error {
+	calculator := ppmservices.NewEstimateCalculator(h.DB(), h.Planner())
+	sitCharge, cost, err := calculator.CalculateEstimates(ppm, moveID, logger)
+	if err != nil {
+		return fmt.Errorf("error getting cost estimates: %w", err)
+	}
+
+	// Update SIT estimate
+	if ppm.HasSit != nil && *ppm.HasSit {
+		p := message.NewPrinter(language.English)
+		reimbursementString := p.Sprintf("$%.2f", float64(sitCharge)/100)
+		ppm.EstimatedStorageReimbursement = &reimbursementString
+	}
+
+	mileage := int64(cost.LinehaulCostComputation.Mileage)
+	ppm.Mileage = &mileage
+	ppm.PlannedSITMax = &cost.SITFee
+	ppm.SITMax = &cost.SITMax
+	min := cost.GCC.MultiplyFloat64(0.95)
+	max := cost.GCC.MultiplyFloat64(1.05)
+	ppm.IncentiveEstimateMin = &min
+	ppm.IncentiveEstimateMax = &max
+
+	return nil
+}
+
 // PatchPersonallyProcuredMoveHandler Patches a PPM
 type PatchPersonallyProcuredMoveHandler struct {
 	handlers.HandlerContext
@@ -377,32 +403,6 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 	}
 
 	return ppmop.NewSubmitPersonallyProcuredMoveOK().WithPayload(ppmPayload)
-}
-
-func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger, moveID uuid.UUID) error {
-	calculator := ppmservices.NewEstimateCalculator(h.DB(), h.Planner())
-	sitCharge, cost, err := calculator.CalculateEstimates(ppm, moveID, logger)
-	if err != nil {
-		return fmt.Errorf("error getting cost estimates: %w", err)
-	}
-
-	// Update SIT estimate
-	if ppm.HasSit != nil && *ppm.HasSit {
-		p := message.NewPrinter(language.English)
-		reimbursementString := p.Sprintf("$%.2f", float64(sitCharge)/100)
-		ppm.EstimatedStorageReimbursement = &reimbursementString
-	}
-
-	mileage := int64(cost.LinehaulCostComputation.Mileage)
-	ppm.Mileage = &mileage
-	ppm.PlannedSITMax = &cost.SITFee
-	ppm.SITMax = &cost.SITMax
-	min := cost.GCC.MultiplyFloat64(0.95)
-	max := cost.GCC.MultiplyFloat64(1.05)
-	ppm.IncentiveEstimateMin = &min
-	ppm.IncentiveEstimateMax = &max
-
-	return nil
 }
 
 // RequestPPMPaymentHandler requests a payment for a PPM
