@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"net/http/httptest"
+	"testing"
 
 	"github.com/stretchr/testify/mock"
 
@@ -16,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerSuccess() {
@@ -57,40 +57,95 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerSuccess() {
 	}
 }
 
-func helperCreateZip3AndServiceAreas(suite *HandlerSuite) (models.Tariff400ngServiceArea, models.Tariff400ngServiceArea) {
-	suite.MustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
-	suite.MustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
+func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
+	ordersID, ppmID, user := setupShowPPMSitEstimateHandlerData(suite)
 
-	originServiceArea := models.Tariff400ngServiceArea{
-		Name:               "Victoria, TX",
-		ServiceArea:        "748",
-		ServicesSchedule:   3,
-		LinehaulFactor:     39,
-		ServiceChargeCents: 350,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(1402),
-		SIT185BRateCents:   unit.Cents(53),
-		SITPDSchedule:      3,
-	}
-	suite.MustSave(&originServiceArea)
+	suite.T().Run("not found ppm ID fails", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
+		req = suite.AuthenticateRequest(req, user)
 
-	destServiceArea := models.Tariff400ngServiceArea{
-		Name:               "Salina, KS",
-		ServiceArea:        "320",
-		ServicesSchedule:   2,
-		LinehaulFactor:     43,
-		ServiceChargeCents: 350,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(1292),
-		SIT185BRateCents:   unit.Cents(51),
-		SITPDSchedule:      2,
-	}
-	suite.MustSave(&destServiceArea)
+		notFoundID := uuid.FromStringOrNil("07b277d6-8ee5-4288-9e08-72449aa6643f")
+		params := ppmop.ShowPPMSitEstimateParams{
+			HTTPRequest:              req,
+			OriginalMoveDate:         *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
+			DaysInStorage:            4,
+			OriginZip:                "77901",
+			OrdersID:                 strfmt.UUID(notFoundID.String()),
+			WeightEstimate:           3000,
+			PersonallyProcuredMoveID: strfmt.UUID(ppmID.String()),
+		}
 
-	return originServiceArea, destServiceArea
+		mockedSitCharge := int64(3000)
+		mockedCost := rateengine.CostComputation{}
+		estimateCalculator := &mocks.EstimateCalculator{}
+		estimateCalculator.On("CalculateEstimates",
+			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+		showResponse := showHandler.Handle(params)
+
+		suite.CheckResponseNotFound(showResponse)
+	})
+
+	suite.T().Run("not found orders ID fails", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
+		req = suite.AuthenticateRequest(req, user)
+
+		notFoundID := uuid.FromStringOrNil("07b277d6-8ee5-4288-9e08-72449aa6643f")
+		params := ppmop.ShowPPMSitEstimateParams{
+			HTTPRequest:              req,
+			OriginalMoveDate:         *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
+			DaysInStorage:            4,
+			OriginZip:                "77901",
+			OrdersID:                 strfmt.UUID(ordersID.String()),
+			WeightEstimate:           3000,
+			PersonallyProcuredMoveID: strfmt.UUID(notFoundID.String()),
+		}
+
+		mockedSitCharge := int64(3000)
+		mockedCost := rateengine.CostComputation{}
+		estimateCalculator := &mocks.EstimateCalculator{}
+		estimateCalculator.On("CalculateEstimates",
+			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+		showResponse := showHandler.Handle(params)
+
+		suite.CheckResponseNotFound(showResponse)
+	})
+
+	suite.T().Run("missing original move date fails", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
+		req = suite.AuthenticateRequest(req, user)
+
+		params := ppmop.ShowPPMSitEstimateParams{
+			HTTPRequest:              req,
+			DaysInStorage:            4,
+			OriginZip:                "77901",
+			OrdersID:                 strfmt.UUID(ordersID.String()),
+			WeightEstimate:           3000,
+			PersonallyProcuredMoveID: strfmt.UUID(ppmID.String()),
+		}
+
+		mockedSitCharge := int64(3000)
+		mockedCost := rateengine.CostComputation{}
+		estimateCalculator := &mocks.EstimateCalculator{}
+		estimateCalculator.On("CalculateEstimates",
+			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+		showResponse := showHandler.Handle(params)
+
+		suite.IsType(&ppmop.ShowPPMSitEstimateUnprocessableEntity{}, showResponse)
+	})
+
+	suite.T().Run("", func(t *testing.T) {
+
+	})
+
+	suite.T().Run("", func(t *testing.T) {
+
+	})
+
 }
+
 func setupShowPPMSitEstimateHandlerData(suite *HandlerSuite) (orderID uuid.UUID, ppmID uuid.UUID, user models.ServiceMember) {
 	address := models.Address{
 		StreetAddress1: "some address",
@@ -133,45 +188,8 @@ func setupShowPPMSitEstimateHandlerData(suite *HandlerSuite) (orderID uuid.UUID,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			MoveID: moveID,
 			Move:   move,
-			//PickupPostalCode: &pickupZip,
-			//OriginalMoveDate: &moveDate,
-			//WeightEstimate:   &weightEstimate,
 		},
 	})
 
 	return ordersID, ppm.ID, user
-}
-
-func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
-	orderID := uuid.Must(uuid.NewV4())
-
-	// Given: A PPM Estimate request with all relevant records except TSP performance
-	helperCreateZip3AndServiceAreas(suite)
-
-	user := testdatagen.MakeDefaultServiceMember(suite.DB())
-
-	// And: the context contains required auth values
-	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
-	req = suite.AuthenticateRequest(req, user)
-
-	params := ppmop.ShowPPMSitEstimateParams{
-		HTTPRequest:      req,
-		OriginalMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
-		DaysInStorage:    4,
-		OriginZip:        "77901",
-		OrdersID:         strfmt.UUID(orderID.String()),
-		WeightEstimate:   3000,
-	}
-	// And: ShowPPMSitEstimateHandler is queried
-	// temp values
-	mockedSitCharge := int64(3000)
-	mockedCost := rateengine.CostComputation{}
-	estimateCalculator := &mocks.EstimateCalculator{}
-	estimateCalculator.On("CalculateEstimates",
-		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(&mockedSitCharge, mockedCost, nil).Once()
-	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
-	showResponse := showHandler.Handle(params)
-
-	// Then: Expect bad request response
-	suite.CheckResponseNotFound(showResponse)
 }

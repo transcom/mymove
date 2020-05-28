@@ -792,6 +792,9 @@ func init() {
           "409": {
             "description": "distance is less than 50 miles (no short haul moves)"
           },
+          "422": {
+            "description": "the payload was unprocessable"
+          },
           "500": {
             "description": "internal server error"
           }
@@ -7013,6 +7016,9 @@ func init() {
           },
           "409": {
             "description": "distance is less than 50 miles (no short haul moves)"
+          },
+          "422": {
+            "description": "the payload was unprocessable"
           },
           "500": {
             "description": "internal server error"
