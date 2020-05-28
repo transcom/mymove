@@ -15,12 +15,14 @@ readonly path="tmp/db/pricing_import_dump.sql"
 cat << EOM
 To get started, make sure you have run the pricing parser on your most recent ghc pricing template
 Overview of steps is in the wiki at https://github.com/transcom/mymove/wiki/ghc-pricing-import
+
 Setup:
   make db_dev_reset db_dev_migrate
   rm -f bin/ghc-pricing-parser && make bin/ghc-pricing-parser
   ghc-pricing-parser --filename <path_to_xlsx_pricing_template> --display --contract-code=<Unique Code>
 
 Due to the size of pricing template, this may take several minutes to complete
+
 EOM
 
 read -r -p "Have you run the ghc pricing parser? (y/n) " answer
@@ -33,7 +35,7 @@ do
     break;;
   [nN]* ) echo "See above instructions to run ghc pricing importer"
     exit;;
-  * )     echo "enter Y or N, please."; exit;;
+  * )  exit;;
   esac
 done
 
@@ -50,9 +52,13 @@ readonly prod_migrations_temp_dir="${dir}/../tmp"
 # Pre-flight checks
 #
 
-echo "Open tmp/db/pricing_import_dump.sql and copy the contract name in the re_contracts table, paste it here followed by [ENTER]:"
+echo "Open tmp/db/pricing_import_dump.sql and find the contract name in the re_contracts table, paste it here followed by [ENTER]:"
 
 read -r unique_contract_name
+# make lowercase
+unique_contract_name=$(echo "$unique_contract_name" | tr '[:upper:]' '[:lower:]')
+# replace space with underscore
+unique_contract_name="${unique_contract_name// /_}"
 
 if [[ -z ${unique_contract_name:-} ]]; then
   echo "usage: $0 <unique_contract_name>"
