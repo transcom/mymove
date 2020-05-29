@@ -29,7 +29,7 @@ func NewMakeMoveTaskOrderAvailable(ctx *middleware.Context, handler MakeMoveTask
 	return &MakeMoveTaskOrderAvailable{Context: ctx, Handler: handler}
 }
 
-/*MakeMoveTaskOrderAvailable swagger:route PATCH /move-task-orders/{moveTaskOrderID}/status moveTaskOrder makeMoveTaskOrderAvailable
+/*MakeMoveTaskOrderAvailable swagger:route PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime moveTaskOrder makeMoveTaskOrderAvailable
 
 makeMoveTaskOrderAvailable
 

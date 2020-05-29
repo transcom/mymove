@@ -130,7 +130,7 @@ func (a *Client) MakeMoveTaskOrderAvailable(params *MakeMoveTaskOrderAvailablePa
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "makeMoveTaskOrderAvailable",
 		Method:             "PATCH",
-		PathPattern:        "/move-task-orders/{moveTaskOrderID}/status",
+		PathPattern:        "/move-task-orders/{moveTaskOrderID}/available-to-prime",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},

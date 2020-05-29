@@ -145,7 +145,7 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/status": {
+    "/move-task-orders/{moveTaskOrderID}/available-to-prime": {
       "patch": {
         "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
@@ -1728,7 +1728,7 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/status": {
+    "/move-task-orders/{moveTaskOrderID}/available-to-prime": {
       "patch": {
         "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [

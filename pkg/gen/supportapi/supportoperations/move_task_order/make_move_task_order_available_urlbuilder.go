@@ -40,7 +40,7 @@ func (o *MakeMoveTaskOrderAvailableURL) SetBasePath(bp string) {
 func (o *MakeMoveTaskOrderAvailableURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move-task-orders/{moveTaskOrderID}/status"
+	var _path = "/move-task-orders/{moveTaskOrderID}/available-to-prime"
 
 	moveTaskOrderID := o.MoveTaskOrderID
 	if moveTaskOrderID != "" {

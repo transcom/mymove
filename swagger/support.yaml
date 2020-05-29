@@ -105,7 +105,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/status':
+  '/move-task-orders/{moveTaskOrderID}/available-to-prime':
     parameters:
       - description: UUID of move task order.
         in: path

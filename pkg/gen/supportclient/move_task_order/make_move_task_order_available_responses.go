@@ -92,7 +92,7 @@ type MakeMoveTaskOrderAvailableOK struct {
 }
 
 func (o *MakeMoveTaskOrderAvailableOK) Error() string {
-	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] makeMoveTaskOrderAvailableOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableOK  %+v", 200, o.Payload)
 }
 
 func (o *MakeMoveTaskOrderAvailableOK) GetPayload() *supportmessages.MoveTaskOrder {
@@ -125,7 +125,7 @@ type MakeMoveTaskOrderAvailableBadRequest struct {
 }
 
 func (o *MakeMoveTaskOrderAvailableBadRequest) Error() string {
-	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] makeMoveTaskOrderAvailableBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *MakeMoveTaskOrderAvailableBadRequest) GetPayload() *supportmessages.ClientError {
@@ -158,7 +158,7 @@ type MakeMoveTaskOrderAvailableUnauthorized struct {
 }
 
 func (o *MakeMoveTaskOrderAvailableUnauthorized) Error() string {
-	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] makeMoveTaskOrderAvailableUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableUnauthorized  %+v", 401, o.Payload)
 }
 
 func (o *MakeMoveTaskOrderAvailableUnauthorized) GetPayload() interface{} {
@@ -189,7 +189,7 @@ type MakeMoveTaskOrderAvailableForbidden struct {
 }
 
 func (o *MakeMoveTaskOrderAvailableForbidden) Error() string {
-	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] makeMoveTaskOrderAvailableForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableForbidden  %+v", 403, o.Payload)
 }
 
 func (o *MakeMoveTaskOrderAvailableForbidden) GetPayload() interface{} {
@@ -220,7 +220,7 @@ type MakeMoveTaskOrderAvailableNotFound struct {
 }
 
 func (o *MakeMoveTaskOrderAvailableNotFound) Error() string {
-	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] makeMoveTaskOrderAvailableNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableNotFound  %+v", 404, o.Payload)
 }
 
 func (o *MakeMoveTaskOrderAvailableNotFound) GetPayload() *supportmessages.ClientError {
@@ -253,7 +253,7 @@ type MakeMoveTaskOrderAvailablePreconditionFailed struct {
 }
 
 func (o *MakeMoveTaskOrderAvailablePreconditionFailed) Error() string {
-	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] makeMoveTaskOrderAvailablePreconditionFailed  %+v", 412, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailablePreconditionFailed  %+v", 412, o.Payload)
 }
 
 func (o *MakeMoveTaskOrderAvailablePreconditionFailed) GetPayload() *supportmessages.ClientError {
@@ -286,7 +286,7 @@ type MakeMoveTaskOrderAvailableUnprocessableEntity struct {
 }
 
 func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] makeMoveTaskOrderAvailableUnprocessableEntity  %+v", 422, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableUnprocessableEntity  %+v", 422, o.Payload)
 }
 
 func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
@@ -319,7 +319,7 @@ type MakeMoveTaskOrderAvailableInternalServerError struct {
 }
 
 func (o *MakeMoveTaskOrderAvailableInternalServerError) Error() string {
-	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/status][%d] makeMoveTaskOrderAvailableInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *MakeMoveTaskOrderAvailableInternalServerError) GetPayload() *supportmessages.Error {
