@@ -714,7 +714,7 @@ func (f mtoShipmentUpdater) MTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, 
 		JOIN
 			mto_shipments ON move_task_orders.id = mto_shipments.move_task_order_id
 		WHERE
-			move_task_orders.is_available_to_prime is true
+			move_task_orders.available_to_prime_at IS NOT NULL
 		AND
 			mto_shipments.id = $1;
 		 `

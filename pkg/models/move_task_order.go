@@ -21,6 +21,7 @@ type MoveTaskOrder struct {
 	MTOShipments       MTOShipments    `has_many:"mto_shipments"`
 	MoveOrderID        uuid.UUID       `db:"move_order_id"`
 	ReferenceID        string          `db:"reference_id"`
+	IsAvailableToPrime bool            `db:"is_available_to_prime"`
 	AvailableToPrimeAt *time.Time      `db:"available_to_prime_at"`
 	IsCanceled         bool            `db:"is_canceled"`
 	PPMEstimatedWeight *unit.Pound     `db:"ppm_estimated_weight"`
