@@ -473,8 +473,9 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
+	mileage := 900
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.SetPlanner(route.NewTestingPlanner(900))
+	handler.SetPlanner(route.NewTestingPlanner(mileage))
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
@@ -494,19 +495,23 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	}
 
 	mockedSitCharge := int64(55000)
+	linehaulCosts := rateengine.LinehaulCostComputation{
+		Mileage: mileage,
+	}
 	mockedCost := rateengine.CostComputation{
-		SITFee:      255246,
-		SITMax:      552344,
-		GCC:         unit.Cents(4355223),
-		LHDiscount:  unit.DiscountRate(.51),
-		SITDiscount: unit.DiscountRate(.50),
-		Weight:      unit.Pound(*newWeight),
+		LinehaulCostComputation: linehaulCosts,
+		SITFee:                  255246,
+		SITMax:                  552344,
+		GCC:                     unit.Cents(4355223),
+		LHDiscount:              unit.DiscountRate(.51),
+		SITDiscount:             unit.DiscountRate(.50),
+		Weight:                  unit.Pound(*newWeight),
 	}
 	estimateCalculator := &mocks.EstimateCalculator{}
 	estimateCalculator.On("CalculateEstimates",
 		mock.AnythingOfType("*models.PersonallyProcuredMove"), move.ID, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
 	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
-	updatePPMEstimateHandler.SetPlanner(route.NewTestingPlanner(900))
+	updatePPMEstimateHandler.SetPlanner(route.NewTestingPlanner(mileage))
 	updatePPMEstimateResponse := updatePPMEstimateHandler.Handle(updatePPMEstimateParams)
 
 	// assert we got back the 201 response
@@ -515,6 +520,10 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 
 	suite.Assertions.Equal(int64(4137462), *updatePPMEstimatePayload.IncentiveEstimateMin)
 	suite.Assertions.Equal(int64(4572984), *updatePPMEstimatePayload.IncentiveEstimateMax)
+	suite.Assertions.Equal(int64(900), *updatePPMEstimatePayload.Mileage)
+	suite.Assertions.Equal(int64(255246), *updatePPMEstimatePayload.PlannedSitMax)
+	suite.Assertions.Equal(int64(552344), *updatePPMEstimatePayload.SitMax)
+	suite.Assertions.Equal("$550.00", *updatePPMEstimatePayload.EstimatedStorageReimbursement)
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
