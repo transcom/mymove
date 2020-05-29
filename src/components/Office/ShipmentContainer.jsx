@@ -8,7 +8,10 @@ const cx = classNames.bind(styles);
 
 const ShipmentContainer = ({ className, children, shipmentType }) => {
   const containerClasses = cx('container', 'shipment-container', {
-    'container--accent--hhg': shipmentType === SHIPMENT_TYPE.HHG,
+    'container--accent--hhg':
+      shipmentType === SHIPMENT_TYPE.HHG ||
+      shipmentType === SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC ||
+      shipmentType === SHIPMENT_TYPE.HHG_LONGHAUL_DOMESTIC,
     'container--accent--nts': shipmentType === SHIPMENT_TYPE.NTS,
   });
 
@@ -19,7 +22,12 @@ ShipmentContainer.propTypes = {
   className: PropTypes.string,
   children: PropTypes.element,
   /** Describes the type of shipment container. */
-  shipmentType: PropTypes.oneOf([SHIPMENT_TYPE.HHG, SHIPMENT_TYPE.NTS]),
+  shipmentType: PropTypes.oneOf([
+    SHIPMENT_TYPE.HHG,
+    SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC,
+    SHIPMENT_TYPE.HHG_LONGHAUL_DOMESTIC,
+    SHIPMENT_TYPE.NTS,
+  ]),
 };
 
 ShipmentContainer.defaultProps = {
