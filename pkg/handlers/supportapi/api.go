@@ -31,6 +31,8 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	supportAPI := supportops.NewMymoveAPI(supportSpec)
 
+	supportAPI.ServeError = handlers.ServeCustomError
+
 	supportAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
 		context,
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),

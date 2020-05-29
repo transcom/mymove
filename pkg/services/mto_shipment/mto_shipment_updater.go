@@ -703,3 +703,25 @@ func (e ConflictStatusError) Error() string {
 	return fmt.Sprintf("shipment with id '%s' can not transition status from '%s' to '%s'. Must be in status '%s'.",
 		e.id.String(), e.transitionFromStatus, e.transitionToStatus, models.MTOShipmentStatusSubmitted)
 }
+
+func (f mtoShipmentUpdater) MTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
+	mto := models.MoveTaskOrder{}
+
+	q := `SELECT
+			move_task_orders.*
+		FROM
+			move_task_orders
+		JOIN
+			mto_shipments ON move_task_orders.id = mto_shipments.move_task_order_id
+		WHERE
+			move_task_orders.is_available_to_prime is true
+		AND
+			mto_shipments.id = $1;
+		 `
+	err := f.db.RawQuery(q, mtoShipmentID).First(&mto)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}

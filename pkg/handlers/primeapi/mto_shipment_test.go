@@ -166,12 +166,19 @@ func ClearNonUpdateFields(mtoShipment *models.MTOShipment) *primemessages.MTOShi
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	primeEstimatedWeight := unit.Pound(500)
 	primeEstimatedWeightDate := testdatagen.DateInsidePeakRateCycle
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{IsAvailableToPrime: true},
+	})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 	})
 	mtoShipment.PrimeEstimatedWeight = &primeEstimatedWeight
 	mtoShipment.PrimeEstimatedWeightRecordedDate = &primeEstimatedWeightDate
+
+	mtoNotAvailable := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mtoShipmentNotAvailable := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: mtoNotAvailable,
+	})
 
 	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 		MaxDaysTransitTime: 12,
@@ -230,6 +237,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
 	})
 
+	suite.T().Run("PUT failure - Shipment is not part of MTO available to prime", func(t *testing.T) {
+		notAvailableShipment := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   params.HTTPRequest,
+			MtoShipmentID: *handlers.FmtUUID(mtoShipmentNotAvailable.ID),
+			Body:          ClearNonUpdateFields(&mtoShipmentNotAvailable),
+			IfMatch:       params.IfMatch,
+		}
+		response := handler.Handle(notAvailableShipment)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
+	})
+
 	suite.T().Run("PUT failure - 500", func(t *testing.T) {
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		mockHandler := UpdateMTOShipmentHandler{
@@ -237,6 +255,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			&mockUpdater,
 		}
 		internalServerErr := errors.New("ServerError")
+
+		mockUpdater.On("MTOAvailableToPrime",
+			mock.Anything,
+		).Return(true, nil)
 
 		mockUpdater.On("UpdateMTOShipment",
 			mock.Anything,
@@ -285,7 +307,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
 	})
 
-	mto2 := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto2 := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{IsAvailableToPrime: true},
+	})
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 	})
