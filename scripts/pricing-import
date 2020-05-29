@@ -40,10 +40,6 @@ do
   esac
 done
 
-#/bin/bash ./scripts/generate-secure-migration "import_pricing_data"
-
-# directions on https://github.com/transcom/mymove/wiki/migrate-the-database#secure-migrations
-
 readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 readonly local_secure_migrations_dir="${dir}/../migrations/app/secure"
@@ -107,6 +103,8 @@ EOM
 #
 # Display next steps for user
 #
+
+# directions for creating a secure migration: https://github.com/transcom/mymove/wiki/migrate-the-database#secure-migrations
 
 cat << EOM
 Generated migration files:
