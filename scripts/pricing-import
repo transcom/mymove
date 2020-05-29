@@ -5,6 +5,7 @@ set -eu -o pipefail
 readonly db_name=${DB_NAME:-db_dev}
 readonly db_user=${DB_USER:-postgres}
 readonly db_host=${DB_HOST:-localhost}
+mkdir -p tmp/db
 
 readonly path="tmp/db/pricing_import_dump.sql"
 
