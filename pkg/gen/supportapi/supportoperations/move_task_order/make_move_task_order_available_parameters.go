@@ -6,17 +6,13 @@ package move_task_order
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
-	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // NewMakeMoveTaskOrderAvailableParams creates a new MakeMoveTaskOrderAvailableParams object
@@ -41,11 +37,6 @@ type MakeMoveTaskOrderAvailableParams struct {
 	  In: header
 	*/
 	IfMatch string
-	/*
-	  Required: true
-	  In: body
-	*/
-	Body *supportmessages.UpdateMoveTaskOrderStatus
 	/*UUID of move task order.
 	  Required: true
 	  In: path
@@ -66,28 +57,6 @@ func (o *MakeMoveTaskOrderAvailableParams) BindRequest(r *http.Request, route *m
 		res = append(res, err)
 	}
 
-	if runtime.HasBody(r) {
-		defer r.Body.Close()
-		var body supportmessages.UpdateMoveTaskOrderStatus
-		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			if err == io.EOF {
-				res = append(res, errors.Required("body", "body"))
-			} else {
-				res = append(res, errors.NewParseError("body", "body", "", err))
-			}
-		} else {
-			// validate body object
-			if err := body.Validate(route.Formats); err != nil {
-				res = append(res, err)
-			}
-
-			if len(res) == 0 {
-				o.Body = &body
-			}
-		}
-	} else {
-		res = append(res, errors.Required("body", "body"))
-	}
 	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)

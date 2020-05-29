@@ -115,7 +115,7 @@ paths:
     patch:
       summary: makeMoveTaskOrderAvailable
       description: |
-        Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. <br />
+        Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. No request body required. <br />
         <br />
         This is a support endpoint and will not be available in production.
       operationId: makeMoveTaskOrderAvailable
@@ -133,11 +133,6 @@ paths:
           description: >
             Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
             the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdateMoveTaskOrderStatus'
       responses:
         '200':
           description: Successfully updated move task order status.
@@ -782,10 +777,6 @@ definitions:
           It will change everytime the object is updated. Client should store the value.
           Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
         type: string
-  UpdateMoveTaskOrderStatus:
-    properties:
-      is_available_to_prime:
-        type: boolean
   MoveOrders:
     items:
       $ref: '#/definitions/MoveOrder'

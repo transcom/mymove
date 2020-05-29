@@ -147,7 +147,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/available-to-prime": {
       "patch": {
-        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. No request body required. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -166,14 +166,6 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateMoveTaskOrderStatus"
-            }
           }
         ],
         "responses": {
@@ -1404,13 +1396,6 @@ func init() {
             "APPROVED",
             "SUBMITTED"
           ]
-        }
-      }
-    },
-    "UpdateMoveTaskOrderStatus": {
-      "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
         }
       }
     },
@@ -1730,7 +1715,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/available-to-prime": {
       "patch": {
-        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. No request body required. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -1749,14 +1734,6 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateMoveTaskOrderStatus"
-            }
           }
         ],
         "responses": {
@@ -3077,13 +3054,6 @@ func init() {
             "APPROVED",
             "SUBMITTED"
           ]
-        }
-      }
-    },
-    "UpdateMoveTaskOrderStatus": {
-      "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
         }
       }
     },

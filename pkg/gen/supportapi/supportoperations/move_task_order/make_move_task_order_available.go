@@ -33,7 +33,7 @@ func NewMakeMoveTaskOrderAvailable(ctx *middleware.Context, handler MakeMoveTask
 
 makeMoveTaskOrderAvailable
 
-Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. <br />
+Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. No request body required. <br />
 <br />
 This is a support endpoint and will not be available in production.
 

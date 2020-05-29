@@ -15,8 +15,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // NewMakeMoveTaskOrderAvailableParams creates a new MakeMoveTaskOrderAvailableParams object
@@ -69,8 +67,6 @@ type MakeMoveTaskOrderAvailableParams struct {
 
 	*/
 	IfMatch string
-	/*Body*/
-	Body *supportmessages.UpdateMoveTaskOrderStatus
 	/*MoveTaskOrderID
 	  UUID of move task order.
 
@@ -126,17 +122,6 @@ func (o *MakeMoveTaskOrderAvailableParams) SetIfMatch(ifMatch string) {
 	o.IfMatch = ifMatch
 }
 
-// WithBody adds the body to the make move task order available params
-func (o *MakeMoveTaskOrderAvailableParams) WithBody(body *supportmessages.UpdateMoveTaskOrderStatus) *MakeMoveTaskOrderAvailableParams {
-	o.SetBody(body)
-	return o
-}
-
-// SetBody adds the body to the make move task order available params
-func (o *MakeMoveTaskOrderAvailableParams) SetBody(body *supportmessages.UpdateMoveTaskOrderStatus) {
-	o.Body = body
-}
-
 // WithMoveTaskOrderID adds the moveTaskOrderID to the make move task order available params
 func (o *MakeMoveTaskOrderAvailableParams) WithMoveTaskOrderID(moveTaskOrderID string) *MakeMoveTaskOrderAvailableParams {
 	o.SetMoveTaskOrderID(moveTaskOrderID)
@@ -159,12 +144,6 @@ func (o *MakeMoveTaskOrderAvailableParams) WriteToRequest(r runtime.ClientReques
 	// header param If-Match
 	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
 		return err
-	}
-
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
 	}
 
 	// path param moveTaskOrderID
