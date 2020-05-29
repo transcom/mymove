@@ -113,12 +113,12 @@ paths:
         required: true
         type: string
     patch:
-      summary: updateMoveTaskOrderStatus
+      summary: makeMoveTaskOrderAvailable
       description: |
         Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. <br />
         <br />
         This is a support endpoint and will not be available in production.
-      operationId: updateMoveTaskOrderStatus
+      operationId: makeMoveTaskOrderAvailable
       tags:
         - moveTaskOrder
       consumes:
@@ -157,6 +157,8 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
   '/payment-requests/{paymentRequestID}/status':

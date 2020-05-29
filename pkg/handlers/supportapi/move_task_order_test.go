@@ -24,10 +24,10 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
+func (suite *HandlerSuite) TestMakeMoveTaskOrderAvailableHandlerIntegrationSuccess() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
-	params := move_task_order.UpdateMoveTaskOrderStatusParams{
+	params := move_task_order.MakeMoveTaskOrderAvailableParams{
 		HTTPRequest:     request,
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 		IfMatch:         etag.GenerateEtag(moveTaskOrder.UpdatedAt),
@@ -36,16 +36,16 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 
 	// make the request
-	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
+	handler := MakeMoveTaskOrderAvailableHandlerFunc{context,
 		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder),
 	}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
-	moveTaskOrdersResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusOK)
+	moveTaskOrdersResponse := response.(*movetaskorderops.MakeMoveTaskOrderAvailableOK)
 	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 
-	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
+	suite.Assertions.IsType(&move_task_order.MakeMoveTaskOrderAvailableOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
 	suite.Equal(*moveTaskOrdersPayload.IsAvailableToPrime, true)
 }

@@ -31,7 +31,7 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	supportAPI := supportops.NewMymoveAPI(supportSpec)
 
-	supportAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
+	supportAPI.MoveTaskOrderMakeMoveTaskOrderAvailableHandler = MakeMoveTaskOrderAvailableHandlerFunc{
 		context,
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
 	}

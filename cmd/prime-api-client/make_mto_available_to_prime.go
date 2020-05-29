@@ -54,7 +54,7 @@ func updateMTOStatus(cmd *cobra.Command, args []string) error {
 
 	// Decode json from file that was passed into MTOShipment
 	filename := v.GetString(FilenameFlag)
-	var updateMTOParams mto.UpdateMoveTaskOrderStatusParams
+	var updateMTOParams mto.MakeMoveTaskOrderAvailableParams
 	err = decodeJSONFileToPayload(filename, containsDash(args), &updateMTOParams)
 	if err != nil {
 		logger.Fatal(err)
@@ -72,7 +72,7 @@ func updateMTOStatus(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	resp, err := supportGateway.MoveTaskOrder.UpdateMoveTaskOrderStatus(&updateMTOParams)
+	resp, err := supportGateway.MoveTaskOrder.MakeMoveTaskOrderAvailable(&updateMTOParams)
 	if err != nil {
 		return handleGatewayError(err, logger)
 	}

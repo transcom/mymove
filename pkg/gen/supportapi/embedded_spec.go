@@ -157,8 +157,8 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "updateMoveTaskOrderStatus",
-        "operationId": "updateMoveTaskOrderStatus",
+        "summary": "makeMoveTaskOrderAvailable",
+        "operationId": "makeMoveTaskOrderAvailable",
         "parameters": [
           {
             "type": "string",
@@ -203,6 +203,9 @@ func init() {
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -1737,8 +1740,8 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "updateMoveTaskOrderStatus",
-        "operationId": "updateMoveTaskOrderStatus",
+        "summary": "makeMoveTaskOrderAvailable",
+        "operationId": "makeMoveTaskOrderAvailable",
         "parameters": [
           {
             "type": "string",
@@ -1797,6 +1800,12 @@ func init() {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
               "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
