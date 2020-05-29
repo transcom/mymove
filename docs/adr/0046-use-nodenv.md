@@ -12,6 +12,6 @@ environments.
 ## Decision Outcome
 
 Use `nodenv` to manage local Node versions. It's widely used, regularly updated,
-and allows folks to have mutliple Node versions on their system. The
+and allows folks to have multiple Node versions on their system. The
 Docker-based development environment would provide more a consistent local
 dependency story, but would add too much overhead.
