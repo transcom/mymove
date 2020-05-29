@@ -147,7 +147,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Updates move task order ` + "`" + `availableToPrimeAt` + "`" + ` to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -1137,6 +1137,12 @@ func init() {
         "moveOrder"
       ],
       "properties": {
+        "availableToPrimeAt": {
+          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is set will be available to the API.\n",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "contractorID": {
           "description": "ID associated with the contractor, in this case Prime\n",
           "type": "string",
@@ -1158,11 +1164,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isAvailableToPrime": {
-          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is true will be available to the API.\n",
-          "type": "boolean",
-          "x-nullable": true
         },
         "isCanceled": {
           "description": "Indicated this MoveTaskOrder has been canceled.",
@@ -1406,8 +1407,9 @@ func init() {
     },
     "UpdateMoveTaskOrderStatus": {
       "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -1727,7 +1729,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Updates move task order ` + "`" + `availableToPrimeAt` + "`" + ` to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -2804,6 +2806,12 @@ func init() {
         "moveOrder"
       ],
       "properties": {
+        "availableToPrimeAt": {
+          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is set will be available to the API.\n",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "contractorID": {
           "description": "ID associated with the contractor, in this case Prime\n",
           "type": "string",
@@ -2825,11 +2833,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isAvailableToPrime": {
-          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is true will be available to the API.\n",
-          "type": "boolean",
-          "x-nullable": true
         },
         "isCanceled": {
           "description": "Indicated this MoveTaskOrder has been canceled.",
@@ -3073,8 +3076,9 @@ func init() {
     },
     "UpdateMoveTaskOrderStatus": {
       "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },

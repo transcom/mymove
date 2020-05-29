@@ -33,7 +33,7 @@ func NewFetchMTOUpdates(ctx *middleware.Context, handler FetchMTOUpdatesHandler)
 
 fetchMTOUpdates
 
-Gets all move task orders where `isAvailableToPrime` is TRUE. This prevents viewing any move task orders that have not been made available to the Prime.
+Gets all move task orders where `availableToPrimeAt` has been set. This prevents viewing any move task orders that have not been made available to the Prime.
 
 
 */

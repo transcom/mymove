@@ -3,6 +3,7 @@ package supportapi
 import (
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
@@ -47,7 +48,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
-	suite.Equal(*moveTaskOrdersPayload.IsAvailableToPrime, true)
+	suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
 }
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
@@ -69,8 +70,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	suite.Assertions.IsType(&move_task_order.GetMoveTaskOrderOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
-	suite.Equal(*moveTaskOrdersPayload.IsAvailableToPrime, false)
-
+	suite.Nil(moveTaskOrdersPayload.AvailableToPrimeAt)
 }
 
 func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 	mtoWithoutCustomer := models.MoveTaskOrder{
 		ReferenceID:        "4857363",
-		IsAvailableToPrime: true,
+		AvailableToPrimeAt: swag.Time(time.Now()),
 		PPMType:            swag.String("FULL"),
 		ContractorID:       contractor.ID,
 		MoveOrder: models.MoveOrder{
@@ -124,7 +124,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 		suite.Assertions.IsType(&move_task_order.CreateMoveTaskOrderCreated{}, response)
 		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
-		suite.Equal(true, *moveTaskOrdersPayload.IsAvailableToPrime)
+		suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
 	})
 
 	suite.T().Run("successful create movetaskorder request -- with customer creation", func(t *testing.T) {
@@ -159,7 +159,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		suite.Assertions.IsType(&move_task_order.CreateMoveTaskOrderCreated{}, response)
 		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
-		suite.Equal(true, *moveTaskOrdersPayload.IsAvailableToPrime)
+		suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
 	})
 	suite.T().Run("failed create movetaskorder request 400 -- repeat ReferenceID", func(t *testing.T) {
 

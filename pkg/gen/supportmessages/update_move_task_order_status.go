@@ -8,19 +8,44 @@ package supportmessages
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // UpdateMoveTaskOrderStatus update move task order status
 // swagger:model UpdateMoveTaskOrderStatus
 type UpdateMoveTaskOrderStatus struct {
 
-	// is available to prime
-	IsAvailableToPrime bool `json:"is_available_to_prime,omitempty"`
+	// available to prime at
+	// Format: date-time
+	AvailableToPrimeAt strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 }
 
 // Validate validates this update move task order status
 func (m *UpdateMoveTaskOrderStatus) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateAvailableToPrimeAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UpdateMoveTaskOrderStatus) validateAvailableToPrimeAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.AvailableToPrimeAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("availableToPrimeAt", "body", "date-time", m.AvailableToPrimeAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
