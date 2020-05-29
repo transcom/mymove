@@ -38,6 +38,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI := adminops.NewMymoveAPI(adminSpec)
 	queryBuilder := query.NewQueryBuilder(context.DB())
+	adminAPI.ServeError = handlers.ServeCustomError
 
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		context,
