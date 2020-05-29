@@ -2,6 +2,7 @@ package serviceparamvaluelookups
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -16,6 +17,17 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 	key := models.ServiceItemParamNameDistanceZip3.String()
 
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+	mtoServiceItemA := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PickupAddress: nil,
+			PickupAddressID: nil,
+		},
+	})
+	//mtoServiceItemB := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+	//	MTOShipment: models.MTOShipment{
+	//		DestinationAddressID: nil,
+	//	},
+	//})
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
@@ -25,12 +37,23 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		})
 
 	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	paramLookupA := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemA.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	//paramLookupB := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemB.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
 
 	suite.T().Run("Calculate zip3 distance", func(t *testing.T) {
 		distanceStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(defaultDistance)
 		suite.Equal(expected, distanceStr)
+	})
+
+	suite.T().Run("nil PickupAddress", func(t *testing.T) {
+		fmt.Println("pickupaddressID")
+		fmt.Printf("%v", mtoServiceItemA.MTOShipment.PickupAddressID)
+		valueStr, err := paramLookupA.ServiceParamValue(key)
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
+		suite.Equal("", valueStr)
 	})
 
 	suite.T().Run("nil MTOShipmentID", func(t *testing.T) {
