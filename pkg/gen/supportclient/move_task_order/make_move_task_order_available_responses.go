@@ -85,7 +85,7 @@ func NewMakeMoveTaskOrderAvailableOK() *MakeMoveTaskOrderAvailableOK {
 
 /*MakeMoveTaskOrderAvailableOK handles this case with default header values.
 
-Successfully updated move task order status.
+Successfully made MTO available to Prime.
 */
 type MakeMoveTaskOrderAvailableOK struct {
 	Payload *supportmessages.MoveTaskOrder
@@ -151,24 +151,26 @@ func NewMakeMoveTaskOrderAvailableUnauthorized() *MakeMoveTaskOrderAvailableUnau
 
 /*MakeMoveTaskOrderAvailableUnauthorized handles this case with default header values.
 
-The request was unauthorized.
+The request was denied.
 */
 type MakeMoveTaskOrderAvailableUnauthorized struct {
-	Payload interface{}
+	Payload *supportmessages.ClientError
 }
 
 func (o *MakeMoveTaskOrderAvailableUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *MakeMoveTaskOrderAvailableUnauthorized) GetPayload() interface{} {
+func (o *MakeMoveTaskOrderAvailableUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *MakeMoveTaskOrderAvailableUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -182,24 +184,26 @@ func NewMakeMoveTaskOrderAvailableForbidden() *MakeMoveTaskOrderAvailableForbidd
 
 /*MakeMoveTaskOrderAvailableForbidden handles this case with default header values.
 
-The client doesn't have permissions to perform the request.
+The request was denied.
 */
 type MakeMoveTaskOrderAvailableForbidden struct {
-	Payload interface{}
+	Payload *supportmessages.ClientError
 }
 
 func (o *MakeMoveTaskOrderAvailableForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableForbidden  %+v", 403, o.Payload)
 }
 
-func (o *MakeMoveTaskOrderAvailableForbidden) GetPayload() interface{} {
+func (o *MakeMoveTaskOrderAvailableForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *MakeMoveTaskOrderAvailableForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

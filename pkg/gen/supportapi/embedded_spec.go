@@ -170,7 +170,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated move task order status.",
+            "description": "Successfully made MTO available to Prime.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
@@ -179,16 +179,10 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -1738,7 +1732,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated move task order status.",
+            "description": "Successfully made MTO available to Prime.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
@@ -1750,21 +1744,15 @@ func init() {
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/ClientError"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "404": {

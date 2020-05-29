@@ -16,7 +16,7 @@ import (
 // MakeMoveTaskOrderAvailableOKCode is the HTTP code returned for type MakeMoveTaskOrderAvailableOK
 const MakeMoveTaskOrderAvailableOKCode int = 200
 
-/*MakeMoveTaskOrderAvailableOK Successfully updated move task order status.
+/*MakeMoveTaskOrderAvailableOK Successfully made MTO available to Prime.
 
 swagger:response makeMoveTaskOrderAvailableOK
 */
@@ -104,7 +104,7 @@ func (o *MakeMoveTaskOrderAvailableBadRequest) WriteResponse(rw http.ResponseWri
 // MakeMoveTaskOrderAvailableUnauthorizedCode is the HTTP code returned for type MakeMoveTaskOrderAvailableUnauthorized
 const MakeMoveTaskOrderAvailableUnauthorizedCode int = 401
 
-/*MakeMoveTaskOrderAvailableUnauthorized The request was unauthorized.
+/*MakeMoveTaskOrderAvailableUnauthorized The request was denied.
 
 swagger:response makeMoveTaskOrderAvailableUnauthorized
 */
@@ -113,7 +113,7 @@ type MakeMoveTaskOrderAvailableUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewMakeMoveTaskOrderAvailableUnauthorized creates MakeMoveTaskOrderAvailableUnauthorized with default headers values
@@ -123,13 +123,13 @@ func NewMakeMoveTaskOrderAvailableUnauthorized() *MakeMoveTaskOrderAvailableUnau
 }
 
 // WithPayload adds the payload to the make move task order available unauthorized response
-func (o *MakeMoveTaskOrderAvailableUnauthorized) WithPayload(payload interface{}) *MakeMoveTaskOrderAvailableUnauthorized {
+func (o *MakeMoveTaskOrderAvailableUnauthorized) WithPayload(payload *supportmessages.ClientError) *MakeMoveTaskOrderAvailableUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the make move task order available unauthorized response
-func (o *MakeMoveTaskOrderAvailableUnauthorized) SetPayload(payload interface{}) {
+func (o *MakeMoveTaskOrderAvailableUnauthorized) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -137,16 +137,18 @@ func (o *MakeMoveTaskOrderAvailableUnauthorized) SetPayload(payload interface{})
 func (o *MakeMoveTaskOrderAvailableUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // MakeMoveTaskOrderAvailableForbiddenCode is the HTTP code returned for type MakeMoveTaskOrderAvailableForbidden
 const MakeMoveTaskOrderAvailableForbiddenCode int = 403
 
-/*MakeMoveTaskOrderAvailableForbidden The client doesn't have permissions to perform the request.
+/*MakeMoveTaskOrderAvailableForbidden The request was denied.
 
 swagger:response makeMoveTaskOrderAvailableForbidden
 */
@@ -155,7 +157,7 @@ type MakeMoveTaskOrderAvailableForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewMakeMoveTaskOrderAvailableForbidden creates MakeMoveTaskOrderAvailableForbidden with default headers values
@@ -165,13 +167,13 @@ func NewMakeMoveTaskOrderAvailableForbidden() *MakeMoveTaskOrderAvailableForbidd
 }
 
 // WithPayload adds the payload to the make move task order available forbidden response
-func (o *MakeMoveTaskOrderAvailableForbidden) WithPayload(payload interface{}) *MakeMoveTaskOrderAvailableForbidden {
+func (o *MakeMoveTaskOrderAvailableForbidden) WithPayload(payload *supportmessages.ClientError) *MakeMoveTaskOrderAvailableForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the make move task order available forbidden response
-func (o *MakeMoveTaskOrderAvailableForbidden) SetPayload(payload interface{}) {
+func (o *MakeMoveTaskOrderAvailableForbidden) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -179,9 +181,11 @@ func (o *MakeMoveTaskOrderAvailableForbidden) SetPayload(payload interface{}) {
 func (o *MakeMoveTaskOrderAvailableForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 

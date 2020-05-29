@@ -135,19 +135,15 @@ paths:
             the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
       responses:
         '200':
-          description: Successfully updated move task order status.
+          description: Successfully made MTO available to Prime.
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '412':
