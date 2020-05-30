@@ -705,20 +705,13 @@ func (e ConflictStatusError) Error() string {
 }
 
 func (f mtoShipmentUpdater) MTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
-	mto := models.MoveTaskOrder{}
+	var mto models.MoveTaskOrder
 
-	q := `SELECT
-			move_task_orders.*
-		FROM
-			move_task_orders
-		JOIN
-			mto_shipments ON move_task_orders.id = mto_shipments.move_task_order_id
-		WHERE
-			move_task_orders.available_to_prime_at IS NOT NULL
-		AND
-			mto_shipments.id = $1;
-		 `
-	err := f.db.RawQuery(q, mtoShipmentID).First(&mto)
+	err := f.db.Q().
+		Join("mto_shipments", "move_task_orders.id = mto_shipments.move_task_order_id").
+		Where("available_to_prime_at IS NOT NULL").
+		Where("mto_shipments.id = ?", mtoShipmentID).
+		First(&mto)
 	if err != nil {
 		return false, err
 	}
