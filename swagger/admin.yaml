@@ -208,15 +208,6 @@ definitions:
       - currentAdminSessionId
       - currentMilSessionId
       - currentOfficeSessionId
-  UserInformation:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      user:
-        $ref: '#/definitions/User'
   TransportationOffice:
     type: object
     properties:
@@ -562,15 +553,9 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
-  RevokedSessionPayload:
+  UserRevokeSessionPayload:
     type: object
     properties:
-      currentAdminSessionId:
-        type: string
-      currentOfficeSessionId:
-        type: string
-      currentMilSessionId:
-        type: string
       revokeAdminSession:
         type: boolean
         x-nullable: true
@@ -1452,7 +1437,7 @@ paths:
       description: Returns the given user and their sessions
       operationId: getUser
       tags:
-        - user
+        - users
       parameters:
         - in: path
           name: userId
@@ -1463,7 +1448,7 @@ paths:
         200:
           description: success
           schema:
-            $ref: '#/definitions/UserInformation'
+            $ref: '#/definitions/User'
         400:
           description: invalid request
         401:
@@ -1488,7 +1473,7 @@ paths:
           description: User information
           required: true
           schema:
-            $ref: '#/definitions/RevokedSessionPayload'
+            $ref: '#/definitions/UserRevokeSessionPayload'
       responses:
         200:
           description: Successfully updated User

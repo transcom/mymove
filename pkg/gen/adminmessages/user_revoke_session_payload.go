@@ -11,18 +11,9 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// RevokedSessionPayload revoked session payload
-// swagger:model RevokedSessionPayload
-type RevokedSessionPayload struct {
-
-	// current admin session Id
-	CurrentAdminSessionID string `json:"currentAdminSessionId,omitempty"`
-
-	// current mil session Id
-	CurrentMilSessionID string `json:"currentMilSessionId,omitempty"`
-
-	// current office session Id
-	CurrentOfficeSessionID string `json:"currentOfficeSessionId,omitempty"`
+// UserRevokeSessionPayload user revoke session payload
+// swagger:model UserRevokeSessionPayload
+type UserRevokeSessionPayload struct {
 
 	// revoke admin session
 	RevokeAdminSession *bool `json:"revokeAdminSession,omitempty"`
@@ -34,13 +25,13 @@ type RevokedSessionPayload struct {
 	RevokeOfficeSession *bool `json:"revokeOfficeSession,omitempty"`
 }
 
-// Validate validates this revoked session payload
-func (m *RevokedSessionPayload) Validate(formats strfmt.Registry) error {
+// Validate validates this user revoke session payload
+func (m *UserRevokeSessionPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *RevokedSessionPayload) MarshalBinary() ([]byte, error) {
+func (m *UserRevokeSessionPayload) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -48,8 +39,8 @@ func (m *RevokedSessionPayload) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *RevokedSessionPayload) UnmarshalBinary(b []byte) error {
-	var res RevokedSessionPayload
+func (m *UserRevokeSessionPayload) UnmarshalBinary(b []byte) error {
+	var res UserRevokeSessionPayload
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

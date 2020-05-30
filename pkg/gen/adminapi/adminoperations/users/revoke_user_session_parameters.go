@@ -39,7 +39,7 @@ type RevokeUserSessionParams struct {
 	  Required: true
 	  In: body
 	*/
-	User *adminmessages.RevokedSessionPayload
+	User *adminmessages.UserRevokeSessionPayload
 	/*
 	  Required: true
 	  In: path
@@ -58,7 +58,7 @@ func (o *RevokeUserSessionParams) BindRequest(r *http.Request, route *middleware
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body adminmessages.RevokedSessionPayload
+		var body adminmessages.UserRevokeSessionPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("user", "body"))

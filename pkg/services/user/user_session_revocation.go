@@ -13,18 +13,16 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-type userQueryBuilder interface {
-	FetchOne(model interface{}, filters []services.QueryFilter) error
-	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
-}
-
-type sessionRevocation struct {
+type userSessionRevocation struct {
 	builder userQueryBuilder
 }
 
-// RevokeUserSession revoke's the user's session
-func (o *sessionRevocation) RevokeUserSession(userID uuid.UUID, payload *adminmessages.RevokedSessionPayload, redisPool *redis.Pool) (*models.User, *validate.Errors, error) {
-	user, err := foundUser(userID, o)
+// RevokeUserSession revokes the user's session
+func (o *userSessionRevocation) RevokeUserSession(id uuid.UUID, payload *adminmessages.UserRevokeSessionPayload, redisPool *redis.Pool) (*models.User, *validate.Errors, error) {
+	var foundUser models.User
+	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
+	err := o.builder.FetchOne(&foundUser, filters)
+
 	if err != nil {
 		return nil, nil, err
 	}
@@ -32,26 +30,26 @@ func (o *sessionRevocation) RevokeUserSession(userID uuid.UUID, payload *adminme
 	var currentSessionID string
 
 	if payload.RevokeAdminSession != nil && *payload.RevokeAdminSession == true {
-		currentSessionID = user.CurrentAdminSessionID
+		currentSessionID = foundUser.CurrentAdminSessionID
 		deleteSessionIDFromRedis(currentSessionID, redisPool)
 	}
 
 	if payload.RevokeOfficeSession != nil && *payload.RevokeOfficeSession == true {
-		currentSessionID = user.CurrentOfficeSessionID
+		currentSessionID = foundUser.CurrentOfficeSessionID
 		deleteSessionIDFromRedis(currentSessionID, redisPool)
 	}
 
 	if payload.RevokeMilSession != nil && *payload.RevokeMilSession == true {
-		currentSessionID = user.CurrentMilSessionID
+		currentSessionID = foundUser.CurrentMilSessionID
 		deleteSessionIDFromRedis(currentSessionID, redisPool)
 	}
 
-	return deleteSessionIDFromDB(o, userID, payload)
+	return deleteSessionIDFromDB(o, foundUser, payload)
 }
 
-// NewSessionRevocation returns a new admin user creator builder
-func NewSessionRevocation(builder userQueryBuilder) services.SessionRevocation {
-	return &sessionRevocation{builder}
+// NewUserSessionRevocation returns a new admin user creator builder
+func NewUserSessionRevocation(builder userQueryBuilder) services.UserSessionRevocation {
+	return &userSessionRevocation{builder}
 }
 
 func deleteSessionIDFromRedis(currentSessionID string, redisPool *redis.Pool) error {
@@ -75,12 +73,7 @@ func deleteSessionIDFromRedis(currentSessionID string, redisPool *redis.Pool) er
 	return nil
 }
 
-func deleteSessionIDFromDB(o *sessionRevocation, userID uuid.UUID, payload *adminmessages.RevokedSessionPayload) (*models.User, *validate.Errors, error) {
-	user, err := foundUser(userID, o)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func deleteSessionIDFromDB(o *userSessionRevocation, user models.User, payload *adminmessages.UserRevokeSessionPayload) (*models.User, *validate.Errors, error) {
 	if payload.RevokeAdminSession != nil && *payload.RevokeAdminSession == true {
 		user.CurrentAdminSessionID = ""
 	}
@@ -93,22 +86,22 @@ func deleteSessionIDFromDB(o *sessionRevocation, userID uuid.UUID, payload *admi
 		user.CurrentMilSessionID = ""
 	}
 
-	verrs, err := o.builder.UpdateOne(user, nil)
+	verrs, err := o.builder.UpdateOne(&user, nil)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}
 
-	return user, nil, nil
+	return &user, nil, nil
 }
 
-func foundUser(userID uuid.UUID, o *sessionRevocation) (*models.User, error) {
-	var foundUser models.User
-	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", userID.String())}
-	err := o.builder.FetchOne(&foundUser, filters)
+// func foundUser(userID uuid.UUID, o *sessionRevocation) (*models.User, error) {
+// 	var foundUser models.User
+// 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", userID.String())}
+// 	err := o.builder.FetchOne(&foundUser, filters)
 
-	if err != nil {
-		return nil, err
-	}
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return &foundUser, nil
-}
+// 	return &foundUser, nil
+// }

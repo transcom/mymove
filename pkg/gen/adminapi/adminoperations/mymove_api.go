@@ -29,7 +29,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/user"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 )
 
@@ -71,8 +70,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UploadGetUploadHandler: upload.GetUploadHandlerFunc(func(params upload.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation UploadGetUpload has not yet been implemented")
 		}),
-		UserGetUserHandler: user.GetUserHandlerFunc(func(params user.GetUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation UserGetUser has not yet been implemented")
+		UsersGetUserHandler: users.GetUserHandlerFunc(func(params users.GetUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation UsersGetUser has not yet been implemented")
 		}),
 		AccessCodesIndexAccessCodesHandler: access_codes.IndexAccessCodesHandlerFunc(func(params access_codes.IndexAccessCodesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AccessCodesIndexAccessCodes has not yet been implemented")
@@ -155,8 +154,8 @@ type MymoveAPI struct {
 	TransportationServiceProviderPerformancesGetTSPPHandler transportation_service_provider_performances.GetTSPPHandler
 	// UploadGetUploadHandler sets the operation handler for the get upload operation
 	UploadGetUploadHandler upload.GetUploadHandler
-	// UserGetUserHandler sets the operation handler for the get user operation
-	UserGetUserHandler user.GetUserHandler
+	// UsersGetUserHandler sets the operation handler for the get user operation
+	UsersGetUserHandler users.GetUserHandler
 	// AccessCodesIndexAccessCodesHandler sets the operation handler for the index access codes operation
 	AccessCodesIndexAccessCodesHandler access_codes.IndexAccessCodesHandler
 	// AdminUsersIndexAdminUsersHandler sets the operation handler for the index admin users operation
@@ -272,8 +271,8 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "upload.GetUploadHandler")
 	}
 
-	if o.UserGetUserHandler == nil {
-		unregistered = append(unregistered, "user.GetUserHandler")
+	if o.UsersGetUserHandler == nil {
+		unregistered = append(unregistered, "users.GetUserHandler")
 	}
 
 	if o.AccessCodesIndexAccessCodesHandler == nil {
@@ -460,7 +459,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/users/{userId}"] = user.NewGetUser(o.context, o.UserGetUserHandler)
+	o.handlers["GET"]["/users/{userId}"] = users.NewGetUser(o.context, o.UsersGetUserHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

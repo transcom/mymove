@@ -11,10 +11,7 @@ const UserEdit = (props) => (
   <Edit {...props}>
     <SimpleForm toolbar={<UserEditToolbar />}>
       <TextInput source="id" disabled />
-      <TextInput source="user.loginGovEmail" disabled />
-      <TextInput source="user.currentAdminSessionId" InputProps={{ readOnly: true }} />
-      <TextInput source="user.currentOfficeSessionId" InputProps={{ readOnly: true }} />
-      <TextInput source="user.currentMilSessionId" InputProps={{ readOnly: true }} />
+      <TextInput source="loginGovEmail" disabled />
       <SelectInput
         source="revokeAdminSession"
         choices={[

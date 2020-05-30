@@ -6,10 +6,10 @@ const UserShow = (props) => (
     {(controllerProps) => (
       <ShowView {...props} {...controllerProps}>
         <SimpleShowLayout>
-          <TextField source="user.loginGovEmail" label="user email" />
-          <TextField source="user.currentAdminSessionId" label="user current admin session ID" />
-          <TextField source="user.currentOfficeSessionId" label="user current office session ID" />
-          <TextField source="user.currentMilSessionId" label="user current mil session ID" />
+          <TextField source="loginGovEmail" label="user email" />
+          <TextField source="currentAdminSessionId" label="user current admin session ID" />
+          <TextField source="currentOfficeSessionId" label="user current office session ID" />
+          <TextField source="currentMilSessionId" label="user current mil session ID" />
         </SimpleShowLayout>
       </ShowView>
     )}

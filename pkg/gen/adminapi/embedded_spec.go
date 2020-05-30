@@ -983,7 +983,7 @@ func init() {
       "get": {
         "description": "Returns the given user and their sessions",
         "tags": [
-          "user"
+          "users"
         ],
         "summary": "Get information about a user",
         "operationId": "getUser",
@@ -1000,7 +1000,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/UserInformation"
+              "$ref": "#/definitions/User"
             }
           },
           "400": {
@@ -1037,7 +1037,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/RevokedSessionPayload"
+              "$ref": "#/definitions/UserRevokeSessionPayload"
             }
           }
         ],
@@ -1761,32 +1761,6 @@ func init() {
         "$ref": "#/definitions/Organization"
       }
     },
-    "RevokedSessionPayload": {
-      "type": "object",
-      "properties": {
-        "currentAdminSessionId": {
-          "type": "string"
-        },
-        "currentMilSessionId": {
-          "type": "string"
-        },
-        "currentOfficeSessionId": {
-          "type": "string"
-        },
-        "revokeAdminSession": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "revokeMilSession": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "revokeOfficeSession": {
-          "type": "boolean",
-          "x-nullable": true
-        }
-      }
-    },
     "Role": {
       "type": "object",
       "required": [
@@ -2092,16 +2066,20 @@ func init() {
         }
       }
     },
-    "UserInformation": {
+    "UserRevokeSessionPayload": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "revokeAdminSession": {
+          "type": "boolean",
+          "x-nullable": true
         },
-        "user": {
-          "$ref": "#/definitions/User"
+        "revokeMilSession": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "revokeOfficeSession": {
+          "type": "boolean",
+          "x-nullable": true
         }
       }
     },
@@ -3094,7 +3072,7 @@ func init() {
       "get": {
         "description": "Returns the given user and their sessions",
         "tags": [
-          "user"
+          "users"
         ],
         "summary": "Get information about a user",
         "operationId": "getUser",
@@ -3111,7 +3089,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/UserInformation"
+              "$ref": "#/definitions/User"
             }
           },
           "400": {
@@ -3148,7 +3126,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/RevokedSessionPayload"
+              "$ref": "#/definitions/UserRevokeSessionPayload"
             }
           }
         ],
@@ -3873,32 +3851,6 @@ func init() {
         "$ref": "#/definitions/Organization"
       }
     },
-    "RevokedSessionPayload": {
-      "type": "object",
-      "properties": {
-        "currentAdminSessionId": {
-          "type": "string"
-        },
-        "currentMilSessionId": {
-          "type": "string"
-        },
-        "currentOfficeSessionId": {
-          "type": "string"
-        },
-        "revokeAdminSession": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "revokeMilSession": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "revokeOfficeSession": {
-          "type": "boolean",
-          "x-nullable": true
-        }
-      }
-    },
     "Role": {
       "type": "object",
       "required": [
@@ -4204,16 +4156,20 @@ func init() {
         }
       }
     },
-    "UserInformation": {
+    "UserRevokeSessionPayload": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "revokeAdminSession": {
+          "type": "boolean",
+          "x-nullable": true
         },
-        "user": {
-          "$ref": "#/definitions/User"
+        "revokeMilSession": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "revokeOfficeSession": {
+          "type": "boolean",
+          "x-nullable": true
         }
       }
     },

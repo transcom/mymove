@@ -122,7 +122,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.UsersRevokeUserSessionHandler = RevokeUserSessionHandler{
 		context,
-		user.NewSessionRevocation(queryBuilder),
+		user.NewUserSessionRevocation(queryBuilder),
 		query.NewQueryFilter,
 	}
 
@@ -144,14 +144,15 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.UsersGetUserHandler = GetUserHandler{
+		context,
+		user.NewUserFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{
 		context,
 		upload.NewUploadInformationFetcher(context.DB()),
-	}
-
-	adminAPI.UserGetUserHandler = GetUserHandler{
-		context,
-		user.NewUserInformationFetcher(context.DB()),
 	}
 
 	adminAPI.NotificationIndexNotificationsHandler = IndexNotificationsHandler{

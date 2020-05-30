@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 func payloadForUserModel(o models.User) *adminmessages.User {
@@ -24,10 +25,30 @@ func payloadForUserModel(o models.User) *adminmessages.User {
 	}
 }
 
+// GetUserHandler returns an user via GET /users/{userID}
+type GetUserHandler struct {
+	handlers.HandlerContext
+	services.UserFetcher
+	services.NewQueryFilter
+}
+
+// Handle retrieves a specific user
+func (h GetUserHandler) Handle(params userop.GetUserParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	userID := uuid.FromStringOrNil(params.UserID.String())
+	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", userID)}
+	user, err := h.UserFetcher.FetchUser(queryFilters)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	payload := payloadForUserModel(user)
+	return userop.NewGetUserOK().WithPayload(payload)
+}
+
 // RevokeUserSessionHandler is the handler for creating users.
 type RevokeUserSessionHandler struct {
 	handlers.HandlerContext
-	services.SessionRevocation
+	services.UserSessionRevocation
 	services.NewQueryFilter
 }
 
@@ -41,7 +62,7 @@ func (h RevokeUserSessionHandler) Handle(params userop.RevokeUserSessionParams) 
 		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.UserID.String()), zap.Error(err))
 	}
 
-	updatedUser, validationErrors, revokeErr := h.SessionRevocation.RevokeUserSession(userID, payload, h.RedisPool())
+	updatedUser, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(userID, payload, h.RedisPool())
 	if revokeErr != nil || validationErrors != nil {
 		fmt.Printf("%#v", validationErrors)
 		logger.Error("Error saving user", zap.Error(err))

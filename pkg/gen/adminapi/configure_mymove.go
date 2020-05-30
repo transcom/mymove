@@ -21,7 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
-	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/user"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 )
 
@@ -80,9 +79,9 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation upload.GetUpload has not yet been implemented")
 		})
 	}
-	if api.UserGetUserHandler == nil {
-		api.UserGetUserHandler = user.GetUserHandlerFunc(func(params user.GetUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation user.GetUser has not yet been implemented")
+	if api.UsersGetUserHandler == nil {
+		api.UsersGetUserHandler = users.GetUserHandlerFunc(func(params users.GetUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.GetUser has not yet been implemented")
 		})
 	}
 	if api.AccessCodesIndexAccessCodesHandler == nil {
