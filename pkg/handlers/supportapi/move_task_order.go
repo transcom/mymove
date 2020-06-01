@@ -17,41 +17,41 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// UpdateMoveTaskOrderStatusHandlerFunc updates the status of a Move Task Order
-type UpdateMoveTaskOrderStatusHandlerFunc struct {
+// MakeMoveTaskOrderAvailableHandlerFunc updates the status of a Move Task Order
+type MakeMoveTaskOrderAvailableHandlerFunc struct {
 	handlers.HandlerContext
-	moveTaskOrderStatusUpdater services.MoveTaskOrderUpdater
+	moveTaskOrderAvailabilityUpdater services.MoveTaskOrderUpdater
 }
 
-// Handle updates the status of a MoveTaskOrder
-func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
+// Handle updates the prime availability of a MoveTaskOrder
+func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.MakeMoveTaskOrderAvailableParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	eTag := params.IfMatch
 
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-	mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag)
+	mto, err := h.moveTaskOrderAvailabilityUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag)
 
 	if err != nil {
-		logger.Error("supportapi.MoveTaskOrderHandler error", zap.Error(err))
+		logger.Error("supportapi.MakeMoveTaskOrderAvailableHandlerFunc error", zap.Error(err))
 		switch typedErr := err.(type) {
 		case services.NotFoundError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound().WithPayload(
+			return movetaskorderops.NewMakeMoveTaskOrderAvailableNotFound().WithPayload(
 				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		case services.InvalidInputError:
-			return movetaskorderops.NewCreateMoveTaskOrderUnprocessableEntity().WithPayload(
+			return movetaskorderops.NewMakeMoveTaskOrderAvailableUnprocessableEntity().WithPayload(
 				payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors))
 		case services.PreconditionFailedError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().WithPayload(
+			return movetaskorderops.NewMakeMoveTaskOrderAvailablePreconditionFailed().WithPayload(
 				payloads.ClientError(handlers.PreconditionErrMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		default:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return movetaskorderops.NewMakeMoveTaskOrderAvailableInternalServerError().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
 		}
 	}
 
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
 
-	return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
+	return movetaskorderops.NewMakeMoveTaskOrderAvailableOK().WithPayload(moveTaskOrderPayload)
 }
 
 // GetMoveTaskOrderHandlerFunc updates the status of a Move Task Order

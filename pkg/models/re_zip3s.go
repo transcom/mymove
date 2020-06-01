@@ -35,8 +35,8 @@ type ReZip3s []ReZip3
 // This method is not required and may be deleted.
 func (r *ReZip3) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
 		&validators.StringLengthInRange{Field: r.Zip3, Name: "Zip3", Min: 3, Max: 3},
+		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
 		&validators.StringIsPresent{Field: r.BasePointCity, Name: "BasePointCity"},
 		&validators.StringIsPresent{Field: r.State, Name: "State"},
 		&validators.UUIDIsPresent{Field: r.DomesticServiceAreaID, Name: "DomesticServiceAreaID"},
