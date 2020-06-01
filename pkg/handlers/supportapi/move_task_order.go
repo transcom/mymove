@@ -33,7 +33,7 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 	mto, err := h.moveTaskOrderAvailabilityUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag)
 
 	if err != nil {
-		logger.Error("supportapi.MoveTaskOrderHandler error", zap.Error(err))
+		logger.Error("supportapi.MakeMoveTaskOrderAvailableHandlerFunc error", zap.Error(err))
 		switch typedErr := err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewMakeMoveTaskOrderAvailableNotFound().WithPayload(
