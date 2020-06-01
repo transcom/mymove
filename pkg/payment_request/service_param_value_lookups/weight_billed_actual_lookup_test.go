@@ -148,7 +148,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		// Set the actual weight to nil
 		mtoServiceItem, _, paramLookup := suite.setupTest(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		mtoShipment := mtoServiceItem.MTOShipment
-		oldActualWeight := mtoShipment.PrimeActualWeight
 		mtoShipment.PrimeActualWeight = nil
 		suite.MustSave(&mtoShipment)
 
@@ -157,16 +156,12 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		expected := fmt.Sprintf("could not find actual weight for MTOShipmentID [%s]", mtoShipment.ID)
 		suite.Contains(err.Error(), expected)
 		suite.Equal("", valueStr)
-
-		mtoShipment.PrimeActualWeight = oldActualWeight
-		suite.MustSave(&mtoShipment)
 	})
 
 	suite.T().Run("nil_PrimeEstimatedWeight", func(t *testing.T) {
 		// Set the estimated weight to nil
 		mtoServiceItem, _, paramLookup := suite.setupTest(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		mtoShipment := mtoServiceItem.MTOShipment
-		oldEstimatedWeight := mtoShipment.PrimeEstimatedWeight
 		mtoShipment.PrimeEstimatedWeight = nil
 		suite.MustSave(&mtoShipment)
 
@@ -175,15 +170,11 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		expected := fmt.Sprintf("could not find estimated weight for MTOShipmentID [%s]", mtoShipment.ID)
 		suite.Contains(err.Error(), expected)
 		suite.Equal("", valueStr)
-
-		mtoShipment.PrimeEstimatedWeight = oldEstimatedWeight
-		suite.MustSave(&mtoShipment)
 	})
 
 	suite.T().Run("nil MTOShipmentID", func(t *testing.T) {
 		// Set the MTOShipmentID to nil
 		mtoServiceItem, _, paramLookup := suite.setupTest(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
-		oldMTOShipmentID := mtoServiceItem.MTOShipmentID
 		mtoServiceItem.MTOShipmentID = nil
 		suite.MustSave(&mtoServiceItem)
 
@@ -191,9 +182,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
 		suite.Equal("", valueStr)
-
-		mtoServiceItem.MTOShipmentID = oldMTOShipmentID
-		suite.MustSave(&mtoServiceItem)
 	})
 
 	suite.T().Run("bogus MTOServiceItemID", func(t *testing.T) {
