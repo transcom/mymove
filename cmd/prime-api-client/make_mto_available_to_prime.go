@@ -15,13 +15,13 @@ import (
 	mto "github.com/transcom/mymove/pkg/gen/supportclient/move_task_order"
 )
 
-func initUpdateMTOStatusFlags(flag *pflag.FlagSet) {
+func initMakeMTOAvailableFlags(flag *pflag.FlagSet) {
 	flag.String(FilenameFlag, "", "Name of the file being passed in")
 
 	flag.SortFlags = false
 }
 
-func checkUpdateMTOStatusConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+func checkMakeMTOAvailableConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
@@ -34,7 +34,7 @@ func checkUpdateMTOStatusConfig(v *viper.Viper, args []string, logger *log.Logge
 	return nil
 }
 
-func updateMTOStatus(cmd *cobra.Command, args []string) error {
+func makeMTOAvailable(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	//  Create the logger
@@ -47,14 +47,14 @@ func updateMTOStatus(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkUpdateMTOStatusConfig(v, args, logger)
+	err := checkMakeMTOAvailableConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	// Decode json from file that was passed into MTOShipment
 	filename := v.GetString(FilenameFlag)
-	var updateMTOParams mto.UpdateMoveTaskOrderStatusParams
+	var updateMTOParams mto.MakeMoveTaskOrderAvailableParams
 	err = decodeJSONFileToPayload(filename, containsDash(args), &updateMTOParams)
 	if err != nil {
 		logger.Fatal(err)
@@ -72,7 +72,7 @@ func updateMTOStatus(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	resp, err := supportGateway.MoveTaskOrder.UpdateMoveTaskOrderStatus(&updateMTOParams)
+	resp, err := supportGateway.MoveTaskOrder.MakeMoveTaskOrderAvailable(&updateMTOParams)
 	if err != nil {
 		return handleGatewayError(err, logger)
 	}

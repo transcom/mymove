@@ -164,25 +164,25 @@ func main() {
 	root.AddCommand(createMTOServiceItemCommand)
 
 	makeAvailableToPrimeCommand := &cobra.Command{
-		Use:   "support-update-move-task-order-status",
-		Short: "Make mto available to prime",
+		Use:   "support-make-move-task-order-available",
+		Short: "Make MTO available to prime",
 		Long: `
   This command makes an MTO available for prime consumption.
   This is a support endpoint and is not available in production.
   It requires the caller to pass in a file using the --filename arg.
   The file should contain path parameters and headers.
 
-  Endpoint path: /move-task-orders/{moveTaskOrderID}/status
+  Endpoint path: /move-task-orders/{moveTaskOrderID}/available-to-prime
   The file should contain json as follows:
   	{
   	"moveTaskOrderID": <uuid string>,
-  	"ifMatch": <eTag>,
+  	"ifMatch": <eTag>
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         updateMTOStatus,
+		RunE:         makeMTOAvailable,
 		SilenceUsage: true,
 	}
-	initUpdateMTOStatusFlags(makeAvailableToPrimeCommand.Flags())
+	initMakeMTOAvailableFlags(makeAvailableToPrimeCommand.Flags())
 	root.AddCommand(makeAvailableToPrimeCommand)
 
 	updatePaymentRequestStatusCommand := &cobra.Command{
