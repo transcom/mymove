@@ -45,7 +45,7 @@ require (
 	github.com/jstemmer/go-junit-report v0.9.1
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/leodido/go-urn v1.2.0
-	github.com/lib/pq v1.5.2
+	github.com/lib/pq v1.6.0
 	github.com/markbates/goth v1.64.1
 	github.com/mattn/go-shellwords v1.0.6 // indirect
 	github.com/mitchellh/mapstructure v1.3.1
@@ -66,7 +66,7 @@ require (
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.uber.org/zap v1.15.0
 	goji.io v2.0.2+incompatible
-	golang.org/x/crypto v0.0.0-20200128174031-69ecbb4d6d5d
+	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
 	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
 	golang.org/x/text v0.3.2
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
