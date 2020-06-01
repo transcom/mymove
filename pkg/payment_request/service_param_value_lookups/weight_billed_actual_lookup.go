@@ -57,14 +57,14 @@ func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (stri
 	if float64(*actualWeight) > estimatedWeightCap {
 		value = fmt.Sprintf("%d", int(estimatedWeightCap))
 	} else {
-		value = applyMinimumIfNeeded(mtoServiceItem.ReService.Code, mtoServiceItem.MTOShipment.ShipmentType, int(*actualWeight))
+		value = applyMinimum(mtoServiceItem.ReService.Code, mtoServiceItem.MTOShipment.ShipmentType, int(*actualWeight))
 	}
 
 	return value, nil
 }
 
 // Looks at code and applies minimum if necessary, otherwise returns actual
-func applyMinimumIfNeeded(code models.ReServiceCode, shipmentType models.MTOShipmentType, actual int) string {
+func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType, actual int) string {
 	result := actual
 	switch shipmentType {
 	case models.MTOShipmentTypeInternationalUB:
