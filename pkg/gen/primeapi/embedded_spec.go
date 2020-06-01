@@ -38,7 +38,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE. This prevents viewing any move task orders that have not been made available to the Prime.\n",
+        "description": "Gets all move task orders where ` + "`" + `availableToPrimeAt` + "`" + ` has been set. This prevents viewing any move task orders that have not been made available to the Prime.\n",
         "produces": [
           "application/json"
         ],
@@ -58,7 +58,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE.",
+            "description": "Successfully retrieved move task orders where ` + "`" + `availableToPrimeAt` + "`" + ` has been set.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrders"
             }
@@ -1395,6 +1395,11 @@ func init() {
         "paymentRequests"
       ],
       "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "createdAt": {
           "type": "string",
           "format": "date"
@@ -1406,10 +1411,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isAvailableToPrime": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "isCanceled": {
           "type": "boolean",
@@ -1914,7 +1915,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE. This prevents viewing any move task orders that have not been made available to the Prime.\n",
+        "description": "Gets all move task orders where ` + "`" + `availableToPrimeAt` + "`" + ` has been set. This prevents viewing any move task orders that have not been made available to the Prime.\n",
         "produces": [
           "application/json"
         ],
@@ -1934,7 +1935,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task orders where ` + "`" + `isAvailableToPrime` + "`" + ` is TRUE.",
+            "description": "Successfully retrieved move task orders where ` + "`" + `availableToPrimeAt` + "`" + ` has been set.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrders"
             }
@@ -3382,6 +3383,11 @@ func init() {
         "paymentRequests"
       ],
       "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "createdAt": {
           "type": "string",
           "format": "date"
@@ -3393,10 +3399,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isAvailableToPrime": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "isCanceled": {
           "type": "boolean",

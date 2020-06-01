@@ -73,7 +73,7 @@ func NewFetchMTOUpdatesOK() *FetchMTOUpdatesOK {
 
 /*FetchMTOUpdatesOK handles this case with default header values.
 
-Successfully retrieved move task orders where `isAvailableToPrime` is TRUE.
+Successfully retrieved move task orders where `availableToPrimeAt` has been set.
 */
 type FetchMTOUpdatesOK struct {
 	Payload primemessages.MoveTaskOrders
