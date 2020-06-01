@@ -41,11 +41,12 @@ func (r DistanceZip3Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 
 	// Make sure there's a pickup and destination address since those are nullable
 	pickupAddressID := mtoServiceItem.MTOShipment.PickupAddressID
-	if pickupAddressID == nil {
+	if pickupAddressID == nil || *pickupAddressID == uuid.Nil {
+		//check for string of all zeros
 		return "", services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
 	}
 	destinationAddressID := mtoServiceItem.MTOShipment.DestinationAddressID
-	if destinationAddressID == nil {
+	if destinationAddressID == nil || *destinationAddressID == uuid.Nil {
 		return "", services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
 	}
 

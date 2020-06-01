@@ -34,27 +34,36 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 	})
 
 	suite.T().Run("nil PickupAddressID", func(t *testing.T) {
+		oldPickupAddressID := mtoServiceItem.MTOShipment.PickupAddressID
+
 		mtoServiceItem.MTOShipment.PickupAddress = nil
 		mtoServiceItem.MTOShipment.PickupAddressID = nil
-		suite.MustSave(&mtoServiceItem)
-
-		expected := strconv.Itoa(defaultDistance)
+		suite.MustSave(&mtoServiceItem.MTOShipment)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
-		suite.FatalNoError(err)
-		suite.Equal(expected, valueStr)
+
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
+		suite.Equal("", valueStr)
+
+		mtoServiceItem.MTOShipment.PickupAddressID = oldPickupAddressID
+		suite.MustSave(&mtoServiceItem.MTOShipment)
 	})
 
 	suite.T().Run("nil DestinationAddressID", func(t *testing.T) {
+		oldDestinationAddressID := mtoServiceItem.MTOShipment.PickupAddressID
+
 		mtoServiceItem.MTOShipment.DestinationAddress = nil
 		mtoServiceItem.MTOShipment.DestinationAddressID = nil
-		suite.MustSave(&mtoServiceItem)
-
-		expected := strconv.Itoa(defaultDistance)
+		suite.MustSave(&mtoServiceItem.MTOShipment)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
-		suite.FatalNoError(err)
-		suite.Equal(expected, valueStr)
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
+		suite.Equal("", valueStr)
+
+		mtoServiceItem.MTOShipment.PickupAddressID = oldDestinationAddressID
+		suite.MustSave(&mtoServiceItem.MTOShipment)
 	})
 
 	suite.T().Run("nil MTOShipmentID", func(t *testing.T) {
