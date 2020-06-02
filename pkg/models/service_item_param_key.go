@@ -38,6 +38,8 @@ const (
 	ServiceItemParamNameMarketDest ServiceItemParamName = "MarketDest"
 	// ServiceItemParamNameMarketOrigin is the param key name MarketOrigin
 	ServiceItemParamNameMarketOrigin ServiceItemParamName = "MarketOrigin"
+	// ServiceItemParamNameMTOAvailableToPrimeDateTime is the param key name MTOAvailableToPrimeDateTime
+	ServiceItemParamNameMTOAvailableToPrimeDateTime ServiceItemParamName = "MTOAvailableToPrimeDateTime"
 	// ServiceItemParamNameNumberDaysSIT is the param key name NumberDaysSIT
 	ServiceItemParamNameNumberDaysSIT ServiceItemParamName = "NumberDaysSIT"
 	// ServiceItemParamNamePriceAreaDest is the param key name PriceAreaDest
