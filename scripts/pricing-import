@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-readonly db_name=${DB_NAME:-db_dev}
+readonly db_name=${DB_NAME:-dev_db}
 readonly db_user=${DB_USER:-postgres}
 readonly db_host=${DB_HOST:-localhost}
 readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -15,13 +15,15 @@ readonly path="${dir}/../tmp/db/pricing_import_dump.sql"
 #
 
 cat << EOM
-To get started, make sure you have run the pricing parser on your most recent ghc pricing template
+To get started, make sure you have cleared all 're_' prefixed tables (rate engine tables, and run the pricing parser on your most recent ghc pricing template.
+
 Overview of steps is in the wiki at https://github.com/transcom/mymove/wiki/ghc-pricing-import
 
 Setup:
-  make db_dev_reset db_dev_migrate
-  rm -f bin/ghc-pricing-parser && make bin/ghc-pricing-parser
-  ghc-pricing-parser --filename <path_to_xlsx_pricing_template> --display --contract-code=<Unique Code>
+  1. make db_dev_reset db_dev_migrate
+  2. psql-dev and run the following query: TRUNCATE re_contracts, re_contract_years CASCADE;
+  3. rm -f bin/ghc-pricing-parser && make bin/ghc-pricing-parser
+  4. ghc-pricing-parser --filename <path_to_xlsx_pricing_template> --display --contract-code=<Unique Code>
 
 Due to the size of pricing template, this may take several minutes to complete
 
@@ -32,7 +34,7 @@ read -r -p "Have you run the ghc pricing parser? (y/n) " answer
 while true
 do
   case $answer in
-   [yY]* ) pg_dump -h "$db_host" -U "$db_user" "$db_name" -t re_* --data-only -T re_services --data-only > "$path"
+   [yY]* ) pg_dump -h "$db_host"   "$db_user" "$db_name" -t re_* --data-only -T re_services --data-only > "$path"
       echo "Success pg-dump to tmp/db/pricing_import_dump.sql"
       break;;
     [nN]* ) echo "See above instructions to run ghc pricing importer"
