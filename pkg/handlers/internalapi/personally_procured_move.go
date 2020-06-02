@@ -2,10 +2,6 @@ package internalapi
 
 import (
 	"fmt"
-
-	"github.com/transcom/mymove/pkg/services"
-
-	//"github.com/transcom/mymove/pkg/services"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -18,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
 )
