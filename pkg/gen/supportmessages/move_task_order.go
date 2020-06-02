@@ -20,6 +20,13 @@ import (
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
+	// Indicates this MoveTaskOrder is available for Prime API handling.
+	//
+	// In production, only MoveTaskOrders for which this is set will be available to the API.
+	//
+	// Format: date-time
+	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
+
 	// ID associated with the contractor, in this case Prime
 	//
 	// Format: uuid
@@ -40,12 +47,6 @@ type MoveTaskOrder struct {
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
-
-	// Indicates this MoveTaskOrder is available for Prime API handling.
-	//
-	// In production, only MoveTaskOrders for which this is true will be available to the API.
-	//
-	IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
 
 	// Indicated this MoveTaskOrder has been canceled.
 	IsCanceled *bool `json:"isCanceled,omitempty"`
@@ -90,6 +91,10 @@ type MoveTaskOrder struct {
 func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAvailableToPrimeAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateContractorID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -133,6 +138,19 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.AvailableToPrimeAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("availableToPrimeAt", "body", "date-time", m.AvailableToPrimeAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

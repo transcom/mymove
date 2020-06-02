@@ -35,7 +35,7 @@ type CostComputation struct {
 	Weight      unit.Pound
 }
 
-// CostDetail holds the costComputation and a bool that signifies if the calcuation is the winning (lowest cost) computation
+// CostDetail holds the costComputation and a bool that signifies if the calculation is the winning (lowest cost) computation
 type CostDetail struct {
 	Cost      CostComputation
 	IsWinning bool

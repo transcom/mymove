@@ -1,54 +1,94 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import '../../index.scss';
-import '../../ghc_index.scss';
-// import OrdersTable from '../../components/Office/OrdersTable';
-import { get } from 'lodash';
-import { getMoveByLocator, selectMoveByLocator } from '../../shared/Entities/modules/moves';
-import { loadOrders, selectOrdersForMove } from '../../shared/Entities/modules/orders';
-import OrdersTable from '../../components/Office/OrdersTable';
 
-// import OrdersTable from "../../components/Office/OrdersTable";
+import 'pages/TOO/too.scss';
+
+import { get } from 'lodash';
+import CustomerInfoTable from 'components/Office/CustomerInfoTable';
+import { getMTOShipments, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
+import RequestedShipments from 'components/Office/RequestedShipments';
+import ShipmentDisplay from 'components/Office/ShipmentDisplay';
+import {
+  getMoveOrder,
+  getCustomer,
+  getAllMoveTaskOrders,
+  selectMoveOrder,
+  selectCustomer,
+} from '../../shared/Entities/modules/moveTaskOrders';
+
+import { loadOrders } from '../../shared/Entities/modules/orders';
+import OrdersTable from '../../components/Office/OrdersTable';
 
 class MoveDetails extends Component {
   componentDidMount() {
-    // eslint-disable-next-line react/destructuring-assignment,react/prop-types
-    const { locator } = this.props.match.params;
-    // eslint-disable-next-line react/prop-types,react/destructuring-assignment
-    this.props.getMoveByLocator(locator).then(({ response: { body: move } }) => {
-      // eslint-disable-next-line react/prop-types,react/destructuring-assignment
-      this.props.loadOrders(move.orders_id);
+    /* eslint-disable */
+    const { moveOrderId } = this.props.match.params;
+    this.props.getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
+      this.props.getCustomer(moveOrder.customerID);
+      this.props.getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
+        moveTaskOrder.forEach((item) => this.props.getMTOShipments(item.id));
+      });
     });
   }
 
   render() {
     // eslint-disable-next-line react/prop-types
-    const { orders } = this.props;
+    const { moveOrder, customer, mtoShipments } = this.props;
     return (
       <div className="grid-container-desktop-lg" data-cy="too-move-details">
         <h1>Move details</h1>
         <div className="container">
+          <RequestedShipments>
+            {mtoShipments &&
+              mtoShipments.map((shipment) => (
+                <ShipmentDisplay
+                  key={shipment.id}
+                  shipmentType={shipment.shipmentType}
+                  displayInfo={{
+                    heading: shipment.shipmentType,
+                    requestedMoveDate: shipment.requestedPickupDate,
+                    currentAddress: shipment.pickupAddress,
+                    destinationAddress: shipment.destinationAddress,
+                  }}
+                />
+              ))}
+          </RequestedShipments>
           <OrdersTable
             ordersInfo={{
               // eslint-disable-next-line react/prop-types
-              newDutyStation: get(orders.new_duty_station, 'name'),
+              newDutyStation: get(moveOrder.destinationDutyStation, 'name'),
               // eslint-disable-next-line react/prop-types
-              issuedDate: orders.issue_date,
+              currentDutyStation: get(moveOrder.originDutyStation, 'name'),
               // eslint-disable-next-line react/prop-types
-              reportByDate: orders.report_by_date,
+              issuedDate: moveOrder.date_issued,
               // eslint-disable-next-line react/prop-types
-              departmentIndicator: orders.department_indicator,
+              reportByDate: moveOrder.report_by_date,
               // eslint-disable-next-line react/prop-types
-              ordersNumber: orders.orders_number,
+              departmentIndicator: moveOrder.department_indicator,
               // eslint-disable-next-line react/prop-types
-              ordersType: orders.orders_type,
+              ordersNumber: moveOrder.order_number,
               // eslint-disable-next-line react/prop-types
-              ordersTypeDetail: orders.orders_type_detail,
+              ordersType: moveOrder.order_type,
               // eslint-disable-next-line react/prop-types
-              tacMDC: orders.tac,
+              ordersTypeDetail: moveOrder.order_type_detail,
               // eslint-disable-next-line react/prop-types
-              sacSDN: orders.sacSDN,
+              tacMDC: moveOrder.tac,
+              // eslint-disable-next-line react/prop-types
+              sacSDN: moveOrder.sacSDN,
+            }}
+          />
+          <CustomerInfoTable
+            customerInfo={{
+              name: `${customer.last_name}, ${customer.first_name}`,
+              dodId: customer.dodID,
+              phone: `+1 ${customer.phone}`,
+              email: customer.email,
+              currentAddress: customer.current_address,
+              destinationAddress: customer.destination_address,
+              backupContactName: '',
+              backupContactPhone: '',
+              backupContactEmail: '',
             }}
           />
         </div>
@@ -58,21 +98,23 @@ class MoveDetails extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const { locator } = ownProps.match.params;
-  const move = selectMoveByLocator(state, locator);
-  let moveId;
-  if (move) {
-    moveId = move.id;
-  }
+  const { moveOrderId } = ownProps.match.params;
+  const moveOrder = selectMoveOrder(state, moveOrderId);
+  const customerId = moveOrder.customerID;
+
   return {
-    move,
-    orders: selectOrdersForMove(state, moveId),
+    moveOrder,
+    customer: selectCustomer(state, customerId),
+    mtoShipments: selectMTOShipments(state, moveOrderId),
   };
 };
 
 const mapDispatchToProps = {
-  getMoveByLocator,
+  getMoveOrder,
   loadOrders,
+  getCustomer,
+  getAllMoveTaskOrders,
+  getMTOShipments,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MoveDetails));

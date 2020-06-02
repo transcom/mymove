@@ -1493,8 +1493,9 @@ definitions:
       referenceId:
         example: 1001-3456
         type: string
-      isAvailableToPrime:
-        type: boolean
+      availableToPrimeAt:
+        format: date-time
+        type: string
         x-nullable: true
       isCanceled:
         type: boolean
@@ -1521,11 +1522,6 @@ definitions:
         type: string
       eTag:
         type: string
-    type: object
-  MoveTaskOrderStatus:
-    properties:
-      is_available_to_prime:
-        type: boolean
     type: object
   MoveOrders:
     items:

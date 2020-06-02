@@ -29,7 +29,7 @@ type Client struct {
 /*
 FetchMTOUpdates fetches m t o updates
 
-Gets all move task orders where `isAvailableToPrime` is TRUE. This prevents viewing any move task orders that have not been made available to the Prime.
+Gets all move task orders where `availableToPrimeAt` has been set. This prevents viewing any move task orders that have not been made available to the Prime.
 
 */
 func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdatesOK, error) {

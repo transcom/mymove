@@ -6,10 +6,9 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/handlers"
-
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -24,7 +23,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
-		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
+		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
@@ -467,26 +466,15 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 	return &payload
 }
 
-// ValidationErrorsResponse is a middleware.Responder for a set of validation errors
-type ValidationErrorsResponse struct {
-	Errors map[string][]string `json:"errors,omitempty"`
-}
-
-// NewValidationErrorsResponse returns a new validations errors response
-func NewValidationErrorsResponse(verrs *validate.Errors) *ValidationErrorsResponse {
-	errors := make(map[string][]string)
-	for _, key := range verrs.Keys() {
-		errors[key] = verrs.Get(key)
-	}
-	return &ValidationErrorsResponse{Errors: errors}
-}
-
 // ValidationError describes validation errors from the model or properties
-func ValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
-	return &primemessages.ValidationError{
-		InvalidFields: NewValidationErrorsResponse(validationErrors).Errors,
-		ClientError:   *ClientError(title, detail, instance),
+func ValidationError(detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
+	payload := &primemessages.ValidationError{
+		ClientError: *ClientError(handlers.ValidationErrMessage, detail, instance),
 	}
+	if validationErrors != nil {
+		payload.InvalidFields = handlers.NewValidationErrorListResponse(validationErrors).Errors
+	}
+	return payload
 }
 
 // ClientError describes errors in a standard structure to be returned in the payload
