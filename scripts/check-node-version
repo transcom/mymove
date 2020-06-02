@@ -10,7 +10,7 @@ if [[ $NODE_VERSION = *$VERSION* ]]; then
   echo "Node $NODE_VERSION installed"
 else
   echo "Node $VERSION_NUMBER is required to run this project! Found $NODE_VERSION"
-  echo "Run 'nodenv local @${VERSION_NUMBER} to install"
+  echo "Run 'nodenv local ${VERSION_NUMBER} to install"
   exit 1
 fi
 
