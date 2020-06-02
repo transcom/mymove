@@ -32,8 +32,22 @@ describe('Shipment Container', () => {
     expect(wrapper.find(ShipmentHeading).length).toBe(1);
   });
   it('renders a container with className container--accent--hhg', () => {
-    const wrapper = shallow(
+    let wrapper = shallow(
       <ShipmentContainer shipmentType="HHG">
+        <ShipmentHeading shipmentInfo={headingInfo} />
+      </ShipmentContainer>,
+    );
+    expect(wrapper.find('.container--accent--hhg').length).toBe(1);
+
+    wrapper = shallow(
+      <ShipmentContainer shipmentType="HHG_SHORTHAUL_DOMESTIC">
+        <ShipmentHeading shipmentInfo={headingInfo} />
+      </ShipmentContainer>,
+    );
+    expect(wrapper.find('.container--accent--hhg').length).toBe(1);
+
+    wrapper = shallow(
+      <ShipmentContainer shipmentType="HHG_LONGHAUL_DOMESTIC">
         <ShipmentHeading shipmentInfo={headingInfo} />
       </ShipmentContainer>,
     );
