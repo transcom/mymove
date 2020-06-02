@@ -93,6 +93,7 @@ func main() {
 		Long:                  "Generate migrations required for adding duty stations",
 		RunE:                  genDutyStationsMigration,
 		DisableFlagsInUseLine: true,
+		SilenceErrors:         true, // not needed
 	}
 	initGenDutyStationsMigrationFlags(genDutyStationsMigrationCommand.Flags())
 	genCommand.AddCommand(genDutyStationsMigrationCommand)

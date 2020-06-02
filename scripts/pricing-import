@@ -28,17 +28,15 @@ EOM
 
 read -r -p "Have you run the ghc pricing parser? (y/n) " answer
 
-while true
-do
-  case $answer in
-   [yY]* ) pg_dump -h "$db_host" -U "$db_user" "$db_name" -t re_* --data-only -T re_services* --data-only > "$path"
-    echo "Success pg-dump to tmp/db/pricing_import_dump.sql"
-    break;;
-  [nN]* ) echo "See above instructions to run ghc pricing importer"
-    exit;;
-  * )  exit;;
-  esac
-done
+case $answer in
+ [yY]* ) pg_dump -h "$db_host" -U "$db_user" "$db_name" -t re_* --data-only -T re_services --data-only > "$path"
+  echo "Success pg-dump to tmp/db/pricing_import_dump.sql"
+  break;;
+[nN]* ) echo "See above instructions to run ghc pricing importer"
+  exit;;
+* )  exit;;
+esac
+
 
 readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -49,24 +47,19 @@ readonly prod_migrations_temp_dir="${dir}/../tmp"
 # Pre-flight checks
 #
 
-echo "Open tmp/db/pricing_import_dump.sql and find the contract name in the re_contracts table, paste it here followed by [ENTER]:"
+echo "Open tmp/db/pricing_import_dump.sql and find the contract code in the re_contracts table, paste it here followed by [ENTER]:"
 
-read -r unique_contract_name
+read -r unique_contract_code
 # make lowercase
-unique_contract_name=$(echo "$unique_contract_name" | tr '[:upper:]' '[:lower:]')
+unique_contract_code=$(echo "$unique_contract_code" | tr '[:upper:]' '[:lower:]')
 # replace space with underscore
-unique_contract_name="${unique_contract_name// /_}"
-
-if [[ -z ${unique_contract_name:-} ]]; then
-  echo "usage: $0 <unique_contract_name>"
-  exit 1
-fi
+unique_contract_code="${unique_contract_code// /_}"
 
 if [[ ! -d "$prod_migrations_temp_dir" ]]; then
   mkdir "$prod_migrations_temp_dir"
 fi
 
-readonly migration_name="import_pricing_data_${unique_contract_name}"
+readonly migration_name="import_pricing_data_${unique_contract_code}"
 
 #
 # Build secure migration file names
