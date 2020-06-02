@@ -298,9 +298,9 @@ Run `make build_tools` to get all the server and tool dependencies built. These 
 
 You will need to setup a local database before you can begin working on the local server / client. Docker will need to be running for any of this to work.
 
-1. `make db_dev_run`: Creates a PostgreSQL docker container if you haven't made one yet
+1. `make db_dev_run` and `make db_test_run`: Creates a PostgreSQL docker container for dev and test, if they don't already exist.
 
-1. `make db_dev_migrate`:  Runs all existing database migrations, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
+1. `make db_dev_migrate` and `make db_test_migrate`:  Runs all existing database migrations for dev and test databases, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
 
 You can validate that your dev database is running by running `psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
 You can validate that your test database is running by running `psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
@@ -326,7 +326,7 @@ After importing _any_ go dependency it's a good practice to run `go mod tidy`, w
 
 The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
 
-If both the server and client are running, you should be able to view the Swagger UI at <http://milmovelocal:3000/api/v1/docs>.  If it does not, try running `make client_build` (this only needs to be run the first time).
+If both the server and client are running, you should be able to view the Swagger UI at <http://milmovelocal:3000/swagger-ui/internal.html>.  If it does not, try running `make client_build` (this only needs to be run the first time).
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
@@ -395,6 +395,7 @@ Currently, scenarios have the following numbers:
 
 ### API / Swagger
 
+<!-- TODO: api.yaml was last updated 2 years ago - is this description still accurate for the public API? Is there still a single "public" API? -->
 The public API is defined in a single file: `swagger/api.yaml` and served at `/api/v1/swagger.yaml`. This file is the single source of truth for the public API.
 
 In addition, internal services, i.e. endpoints only intended for use by the React client are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
@@ -403,7 +404,23 @@ The Orders Gateway's API is defined in the file `swagger/orders.yaml` and served
 
 The Admin API is defined in the file `swagger/admin.yaml` and served at `/admin/v1/swagger.yaml`.
 
-You can view the API's documentation (powered by Swagger UI) at <http://localhost:3000/api/v1/docs> when a local server is running.
+You can view the documentation for the APIs (powered by Swagger UI) at the following URLS with a local client and server running:
+
+* internal API: <http://milmovelocal:3000/swagger-ui/internal.html>
+
+* admin API: <http://milmovelocal:3000/swagger-ui/admin.html>
+
+* GHC API: <http://milmovelocal:3000/swagger-ui/ghc.html>
+
+The additional API swagger docs will require some nebulous extra setup (TODO: link to instructions for these):
+
+* DPS
+
+* Orders
+
+* Prime
+
+* Support
 
 ### Testing
 
