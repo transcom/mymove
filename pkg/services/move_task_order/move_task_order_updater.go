@@ -1,6 +1,8 @@
 package movetaskorder
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 
@@ -30,7 +32,12 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
 	}
-	mto.IsAvailableToPrime = true
+
+	if mto.AvailableToPrimeAt == nil {
+		now := time.Now()
+		mto.AvailableToPrimeAt = &now
+	}
+
 	verrs, err := o.builder.UpdateOne(mto, &eTag)
 	if verrs != nil && verrs.HasAny() {
 		return &models.MoveTaskOrder{}, services.InvalidInputError{}
