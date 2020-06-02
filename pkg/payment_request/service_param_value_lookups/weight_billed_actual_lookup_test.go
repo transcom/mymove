@@ -144,7 +144,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		})
 	}
 
-	suite.T().Run("nil_PrimeActualWeight", func(t *testing.T) {
+	suite.T().Run("nil PrimeActualWeight", func(t *testing.T) {
 		// Set the actual weight to nil
 		mtoServiceItem, _, paramLookup := suite.setupTest(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		mtoShipment := mtoServiceItem.MTOShipment
@@ -158,7 +158,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		suite.Equal("", valueStr)
 	})
 
-	suite.T().Run("nil_PrimeEstimatedWeight", func(t *testing.T) {
+	suite.T().Run("nil PrimeEstimatedWeight", func(t *testing.T) {
 		// Set the estimated weight to nil
 		mtoServiceItem, _, paramLookup := suite.setupTest(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		mtoShipment := mtoServiceItem.MTOShipment
@@ -181,6 +181,8 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
+		expected := fmt.Sprintf("looking for MTOShipmentID")
+		suite.Contains(err.Error(), expected)
 		suite.Equal("", valueStr)
 	})
 
@@ -193,6 +195,8 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		valueStr, err := badParamLookup.ServiceParamValue(key)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
+		expected := fmt.Sprintf("looking for MTOServiceItemID")
+		suite.Contains(err.Error(), expected)
 		suite.Equal("", valueStr)
 	})
 }
