@@ -508,3 +508,6 @@
 20200423174512_add-status-to-service-item.up.sql
 20200505194253_import_rates_may_2020.up.sql
 20200511185126_make_service_item_param_key_unique.up.sql
+20200513151500_uploader_refactor_zero_down_alter_tables.up.sql
+20200515202122_payment_service_item_nullable_price.up.sql
+20200527145249_add_mto_available_timestamp.up.sql

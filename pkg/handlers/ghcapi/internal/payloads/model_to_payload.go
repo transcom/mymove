@@ -10,6 +10,23 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// Move payload
+func Move(move *models.Move) *ghcmessages.Move {
+	if move == nil {
+		return nil
+	}
+
+	payload := &ghcmessages.Move{
+		CreatedAt: strfmt.DateTime(move.CreatedAt),
+		ID:        strfmt.UUID(move.ID.String()),
+		Locator:   move.Locator,
+		OrdersID:  strfmt.UUID(move.OrdersID.String()),
+		UpdatedAt: strfmt.DateTime(move.UpdatedAt),
+	}
+
+	return payload
+}
+
 // MoveTaskOrder payload
 func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
@@ -19,7 +36,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 	payload := &ghcmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
-		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
+		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,

@@ -145,9 +145,9 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/status": {
+    "/move-task-orders/{moveTaskOrderID}/available-to-prime": {
       "patch": {
-        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Updates move task order ` + "`" + `availableToPrimeAt` + "`" + ` to make it available to prime. No request body required. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -157,8 +157,8 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "updateMoveTaskOrderStatus",
-        "operationId": "updateMoveTaskOrderStatus",
+        "summary": "makeMoveTaskOrderAvailable",
+        "operationId": "makeMoveTaskOrderAvailable",
         "parameters": [
           {
             "type": "string",
@@ -166,19 +166,11 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateMoveTaskOrderStatus"
-            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated move task order status.",
+            "description": "Successfully made MTO available to Prime.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
@@ -187,22 +179,19 @@ func init() {
             "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthorized.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -1103,19 +1092,6 @@ func init() {
           "x-nullable": true,
           "example": "030-00362"
         },
-        "orderType": {
-          "type": "string",
-          "enum": [
-            "GHC",
-            "NTS"
-          ],
-          "x-nullable": true,
-          "example": "GHC"
-        },
-        "orderTypeDetail": {
-          "type": "string",
-          "x-nullable": true
-        },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -1150,6 +1126,12 @@ func init() {
         "moveOrder"
       ],
       "properties": {
+        "availableToPrimeAt": {
+          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is set will be available to the API.\n",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "contractorID": {
           "description": "ID associated with the contractor, in this case Prime\n",
           "type": "string",
@@ -1171,11 +1153,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isAvailableToPrime": {
-          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is true will be available to the API.\n",
-          "type": "boolean",
-          "x-nullable": true
         },
         "isCanceled": {
           "description": "Indicated this MoveTaskOrder has been canceled.",
@@ -1417,13 +1394,6 @@ func init() {
         }
       }
     },
-    "UpdateMoveTaskOrderStatus": {
-      "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
-        }
-      }
-    },
     "UpdatePaymentRequest": {
       "type": "object",
       "properties": {
@@ -1508,7 +1478,7 @@ func init() {
     },
     "ValidationError": {
       "required": [
-        "invalid_fields"
+        "invalidFields"
       ],
       "allOf": [
         {
@@ -1519,10 +1489,14 @@ func init() {
         }
       ],
       "properties": {
-        "invalid_fields": {
+        "invalidFields": {
           "type": "object",
           "additionalProperties": {
-            "type": "string"
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }
@@ -1530,33 +1504,33 @@ func init() {
   },
   "responses": {
     "Conflict": {
-      "description": "Conflict error.",
+      "description": "There was a conflict with the request.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "InvalidRequest": {
-      "description": "The parameters were invalid.",
+      "description": "The request payload is invalid.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "NotFound": {
       "description": "The requested resource wasn't found.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "PreconditionFailed": {
       "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "ServerError": {
@@ -1624,9 +1598,9 @@ func init() {
             }
           },
           "400": {
-            "description": "The parameters were invalid.",
+            "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
@@ -1634,7 +1608,7 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
@@ -1643,14 +1617,14 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
@@ -1687,9 +1661,9 @@ func init() {
             }
           },
           "400": {
-            "description": "The parameters were invalid.",
+            "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
@@ -1697,7 +1671,7 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
@@ -1706,14 +1680,14 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "500": {
@@ -1734,9 +1708,9 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/status": {
+    "/move-task-orders/{moveTaskOrderID}/available-to-prime": {
       "patch": {
-        "description": "Updates move task order ` + "`" + `isAvailableToPrime` + "`" + ` to TRUE to make it available to prime. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Updates move task order ` + "`" + `availableToPrimeAt` + "`" + ` to make it available to prime. No request body required. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -1746,8 +1720,8 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "updateMoveTaskOrderStatus",
-        "operationId": "updateMoveTaskOrderStatus",
+        "summary": "makeMoveTaskOrderAvailable",
+        "operationId": "makeMoveTaskOrderAvailable",
         "parameters": [
           {
             "type": "string",
@@ -1755,57 +1729,49 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateMoveTaskOrderStatus"
-            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated move task order status.",
+            "description": "Successfully made MTO available to Prime.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "400": {
-            "description": "The parameters were invalid.",
+            "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
-            "description": "The request was unauthorized.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "403": {
-            "description": "The client doesn't have permissions to perform the request.",
+            "description": "The request was denied.",
             "schema": {
-              "description": "The request was denied.",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ClientError"
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -1865,9 +1831,9 @@ func init() {
             }
           },
           "400": {
-            "description": "The parameters were invalid.",
+            "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
@@ -1875,7 +1841,7 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
@@ -1884,29 +1850,29 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "409": {
             "description": "Conflict error due to trying to change the status of shipment that is not currently \"SUBMITTED\".",
             "schema": {
-              "description": "Conflict error.",
+              "description": "There was a conflict with the request.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
@@ -1973,9 +1939,9 @@ func init() {
             }
           },
           "400": {
-            "description": "The parameters were invalid.",
+            "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
@@ -1983,7 +1949,7 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
@@ -1992,20 +1958,20 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
@@ -2072,9 +2038,9 @@ func init() {
             }
           },
           "400": {
-            "description": "The parameters were invalid.",
+            "description": "The request payload is invalid.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "401": {
@@ -2082,7 +2048,7 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
@@ -2091,29 +2057,29 @@ func init() {
             "schema": {
               "description": "The request was denied.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "409": {
             "description": "Conflict error due to trying to change the status of service item that is not currently \"SUBMITTED\".",
             "schema": {
-              "description": "Conflict error.",
+              "description": "There was a conflict with the request.",
               "schema": {
-                "$ref": "#/definitions/Error"
+                "$ref": "#/definitions/ClientError"
               }
             }
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ClientError"
             }
           },
           "422": {
@@ -2779,19 +2745,6 @@ func init() {
           "x-nullable": true,
           "example": "030-00362"
         },
-        "orderType": {
-          "type": "string",
-          "enum": [
-            "GHC",
-            "NTS"
-          ],
-          "x-nullable": true,
-          "example": "GHC"
-        },
-        "orderTypeDetail": {
-          "type": "string",
-          "x-nullable": true
-        },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -2826,6 +2779,12 @@ func init() {
         "moveOrder"
       ],
       "properties": {
+        "availableToPrimeAt": {
+          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is set will be available to the API.\n",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "contractorID": {
           "description": "ID associated with the contractor, in this case Prime\n",
           "type": "string",
@@ -2847,11 +2806,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isAvailableToPrime": {
-          "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is true will be available to the API.\n",
-          "type": "boolean",
-          "x-nullable": true
         },
         "isCanceled": {
           "description": "Indicated this MoveTaskOrder has been canceled.",
@@ -3093,13 +3047,6 @@ func init() {
         }
       }
     },
-    "UpdateMoveTaskOrderStatus": {
-      "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
-        }
-      }
-    },
     "UpdatePaymentRequest": {
       "type": "object",
       "properties": {
@@ -3184,7 +3131,7 @@ func init() {
     },
     "ValidationError": {
       "required": [
-        "invalid_fields"
+        "invalidFields"
       ],
       "allOf": [
         {
@@ -3195,10 +3142,14 @@ func init() {
         }
       ],
       "properties": {
-        "invalid_fields": {
+        "invalidFields": {
           "type": "object",
           "additionalProperties": {
-            "type": "string"
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }
@@ -3206,33 +3157,33 @@ func init() {
   },
   "responses": {
     "Conflict": {
-      "description": "Conflict error.",
+      "description": "There was a conflict with the request.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "InvalidRequest": {
-      "description": "The parameters were invalid.",
+      "description": "The request payload is invalid.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "NotFound": {
       "description": "The requested resource wasn't found.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "PreconditionFailed": {
       "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
       "schema": {
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/ClientError"
       }
     },
     "ServerError": {

@@ -15,7 +15,7 @@ const headingInfo = {
 };
 
 describe('Shipment Container', () => {
-  it('should render the container successfully', () => {
+  it('renders the container successfully', () => {
     const wrapper = shallow(
       <ShipmentContainer>
         <ShipmentHeading shipmentInfo={headingInfo} />
@@ -23,12 +23,42 @@ describe('Shipment Container', () => {
     );
     expect(wrapper.find('.container').exists()).toBe(true);
   });
-  it('should render a child component passed to it', () => {
+  it('renders a child component passed to it', () => {
     const wrapper = shallow(
       <ShipmentContainer>
         <ShipmentHeading shipmentInfo={headingInfo} />
       </ShipmentContainer>,
     );
     expect(wrapper.find(ShipmentHeading).length).toBe(1);
+  });
+  it('renders a container with className container--accent--hhg', () => {
+    let wrapper = shallow(
+      <ShipmentContainer shipmentType="HHG">
+        <ShipmentHeading shipmentInfo={headingInfo} />
+      </ShipmentContainer>,
+    );
+    expect(wrapper.find('.container--accent--hhg').length).toBe(1);
+
+    wrapper = shallow(
+      <ShipmentContainer shipmentType="HHG_SHORTHAUL_DOMESTIC">
+        <ShipmentHeading shipmentInfo={headingInfo} />
+      </ShipmentContainer>,
+    );
+    expect(wrapper.find('.container--accent--hhg').length).toBe(1);
+
+    wrapper = shallow(
+      <ShipmentContainer shipmentType="HHG_LONGHAUL_DOMESTIC">
+        <ShipmentHeading shipmentInfo={headingInfo} />
+      </ShipmentContainer>,
+    );
+    expect(wrapper.find('.container--accent--hhg').length).toBe(1);
+  });
+  it('renders a container with className container--accent--nts', () => {
+    const wrapper = shallow(
+      <ShipmentContainer shipmentType="NTS">
+        <ShipmentHeading shipmentInfo={headingInfo} />
+      </ShipmentContainer>,
+    );
+    expect(wrapper.find('.container--accent--nts').length).toBe(1);
   });
 });

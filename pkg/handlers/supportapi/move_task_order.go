@@ -17,38 +17,41 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// UpdateMoveTaskOrderStatusHandlerFunc updates the status of a Move Task Order
-type UpdateMoveTaskOrderStatusHandlerFunc struct {
+// MakeMoveTaskOrderAvailableHandlerFunc updates the status of a Move Task Order
+type MakeMoveTaskOrderAvailableHandlerFunc struct {
 	handlers.HandlerContext
-	moveTaskOrderStatusUpdater services.MoveTaskOrderUpdater
+	moveTaskOrderAvailabilityUpdater services.MoveTaskOrderUpdater
 }
 
-// Handle updates the status of a MoveTaskOrder
-func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
+// Handle updates the prime availability of a MoveTaskOrder
+func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.MakeMoveTaskOrderAvailableParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	eTag := params.IfMatch
 
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-	mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag)
+	mto, err := h.moveTaskOrderAvailabilityUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag)
 
 	if err != nil {
-		logger.Error("supportapi.MoveTaskOrderHandler error", zap.Error(err))
-		switch err.(type) {
+		logger.Error("supportapi.MakeMoveTaskOrderAvailableHandlerFunc error", zap.Error(err))
+		switch typedErr := err.(type) {
 		case services.NotFoundError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return movetaskorderops.NewMakeMoveTaskOrderAvailableNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		case services.InvalidInputError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusBadRequest().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return movetaskorderops.NewMakeMoveTaskOrderAvailableUnprocessableEntity().WithPayload(
+				payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors))
 		case services.PreconditionFailedError:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return movetaskorderops.NewMakeMoveTaskOrderAvailablePreconditionFailed().WithPayload(
+				payloads.ClientError(handlers.PreconditionErrMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		default:
-			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return movetaskorderops.NewMakeMoveTaskOrderAvailableInternalServerError().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
 		}
 	}
 
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
 
-	return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
+	return movetaskorderops.NewMakeMoveTaskOrderAvailableOK().WithPayload(moveTaskOrderPayload)
 }
 
 // GetMoveTaskOrderHandlerFunc updates the status of a Move Task Order
@@ -65,11 +68,13 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
 	if err != nil {
 		logger.Error("primeapi.support.GetMoveTaskOrderHandler error", zap.Error(err))
-		switch err.(type) {
+		switch typedErr := err.(type) {
 		case services.NotFoundError:
-			return movetaskorderops.NewGetMoveTaskOrderNotFound().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return movetaskorderops.NewGetMoveTaskOrderNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		case services.InvalidInputError:
-			return movetaskorderops.NewGetMoveTaskOrderBadRequest().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return movetaskorderops.NewCreateMoveTaskOrderUnprocessableEntity().WithPayload(
+				payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors))
 		default:
 			return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
 		}
@@ -91,20 +96,20 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 	moveTaskOrder, err := createMoveTaskOrderSupport(h, params, logger)
 
 	if err != nil {
-		errorPayload := supportmessages.Error{Message: handlers.FmtString(err.Error())}
-
 		switch typedErr := err.(type) {
 		case services.NotFoundError:
-			return movetaskorderops.NewCreateMoveTaskOrderNotFound().WithPayload(&errorPayload)
+			return movetaskorderops.NewCreateMoveTaskOrderNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		case services.InvalidInputError:
 			errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors)
 			return movetaskorderops.NewCreateMoveTaskOrderUnprocessableEntity().WithPayload(errPayload)
 		case services.QueryError:
 			// This error is generated when the validation passed but there was an error in creation
 			// Usually this is due to a more complex dependency like a foreign key constraint
-			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(&errorPayload)
+			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(
+				payloads.ClientError(handlers.SQLErrMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		default:
-			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(&errorPayload)
+			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
 		}
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(moveTaskOrder)

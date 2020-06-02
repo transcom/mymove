@@ -65,7 +65,22 @@ func zip5TransitDistanceHelper(planner Planner, source string, destination strin
 }
 
 func zip3TransitDistanceHelper(planner Planner, source string, destination string) (int, error) {
-	return 0, NewUnsupportedPostalCodeError(source)
+	sLL, err := Zip5ToZip3LatLong(source)
+	if err != nil {
+		return 0, err
+	}
+	dLL, err := Zip5ToZip3LatLong(destination)
+	if err != nil {
+		return 0, err
+	}
+	distance, err := planner.LatLongTransitDistance(sLL, dLL)
+	if err != nil {
+		return 0, err
+	}
+	if distance < 50 {
+		err = NewShortHaulError(sLL, dLL, distance)
+	}
+	return distance, err
 }
 
 // Planner is the interface needed by Handlers to be able to evaluate the distance to be used for move accounting

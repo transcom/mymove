@@ -60,7 +60,7 @@ func (o *UpdateMTOShipmentStatusOK) WriteResponse(rw http.ResponseWriter, produc
 // UpdateMTOShipmentStatusBadRequestCode is the HTTP code returned for type UpdateMTOShipmentStatusBadRequest
 const UpdateMTOShipmentStatusBadRequestCode int = 400
 
-/*UpdateMTOShipmentStatusBadRequest The parameters were invalid.
+/*UpdateMTOShipmentStatusBadRequest The request payload is invalid.
 
 swagger:response updateMTOShipmentStatusBadRequest
 */
@@ -69,7 +69,7 @@ type UpdateMTOShipmentStatusBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentStatusBadRequest creates UpdateMTOShipmentStatusBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdateMTOShipmentStatusBadRequest() *UpdateMTOShipmentStatusBadRequest {
 }
 
 // WithPayload adds the payload to the update m t o shipment status bad request response
-func (o *UpdateMTOShipmentStatusBadRequest) WithPayload(payload *supportmessages.Error) *UpdateMTOShipmentStatusBadRequest {
+func (o *UpdateMTOShipmentStatusBadRequest) WithPayload(payload *supportmessages.ClientError) *UpdateMTOShipmentStatusBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o shipment status bad request response
-func (o *UpdateMTOShipmentStatusBadRequest) SetPayload(payload *supportmessages.Error) {
+func (o *UpdateMTOShipmentStatusBadRequest) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -197,7 +197,7 @@ type UpdateMTOShipmentStatusNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentStatusNotFound creates UpdateMTOShipmentStatusNotFound with default headers values
@@ -207,13 +207,13 @@ func NewUpdateMTOShipmentStatusNotFound() *UpdateMTOShipmentStatusNotFound {
 }
 
 // WithPayload adds the payload to the update m t o shipment status not found response
-func (o *UpdateMTOShipmentStatusNotFound) WithPayload(payload *supportmessages.Error) *UpdateMTOShipmentStatusNotFound {
+func (o *UpdateMTOShipmentStatusNotFound) WithPayload(payload *supportmessages.ClientError) *UpdateMTOShipmentStatusNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o shipment status not found response
-func (o *UpdateMTOShipmentStatusNotFound) SetPayload(payload *supportmessages.Error) {
+func (o *UpdateMTOShipmentStatusNotFound) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -283,7 +283,7 @@ type UpdateMTOShipmentStatusPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload *supportmessages.Error `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentStatusPreconditionFailed creates UpdateMTOShipmentStatusPreconditionFailed with default headers values
@@ -293,13 +293,13 @@ func NewUpdateMTOShipmentStatusPreconditionFailed() *UpdateMTOShipmentStatusPrec
 }
 
 // WithPayload adds the payload to the update m t o shipment status precondition failed response
-func (o *UpdateMTOShipmentStatusPreconditionFailed) WithPayload(payload *supportmessages.Error) *UpdateMTOShipmentStatusPreconditionFailed {
+func (o *UpdateMTOShipmentStatusPreconditionFailed) WithPayload(payload *supportmessages.ClientError) *UpdateMTOShipmentStatusPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o shipment status precondition failed response
-func (o *UpdateMTOShipmentStatusPreconditionFailed) SetPayload(payload *supportmessages.Error) {
+func (o *UpdateMTOShipmentStatusPreconditionFailed) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 

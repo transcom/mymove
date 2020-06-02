@@ -38,6 +38,7 @@ class TOO extends Component {
                 agency,
                 originDutyStation,
                 customerID,
+                moveTaskOrderId,
               }) => (
                 <tr data-cy="too-row" onClick={() => this.handleCustomerInfoClick(moveOrderId)} key={moveOrderId}>
                   <td>{`${last_name}, ${first_name}`}</td>

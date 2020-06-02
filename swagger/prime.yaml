@@ -20,7 +20,7 @@ paths:
     get:
       summary: fetchMTOUpdates
       description: >
-        Gets all move task orders where `isAvailableToPrime` is TRUE.
+        Gets all move task orders where `availableToPrimeAt` has been set.
         This prevents viewing any move task orders that have not been made available to the Prime.
       operationId: fetchMTOUpdates
       tags:
@@ -35,7 +35,7 @@ paths:
           description: Only return move task orders updated since this time.
       responses:
         '200':
-          description: Successfully retrieved move task orders where `isAvailableToPrime` is TRUE.
+          description: Successfully retrieved move task orders where `availableToPrimeAt` has been set.
           schema:
             $ref: '#/definitions/MoveTaskOrders'
         '400':
@@ -715,8 +715,9 @@ definitions:
       referenceId:
         example: 1001-3456
         type: string
-      isAvailableToPrime:
-        type: boolean
+      availableToPrimeAt:
+        format: date-time
+        type: string
         x-nullable: true
       isCanceled:
         type: boolean
@@ -1165,6 +1166,7 @@ definitions:
         type: integer
         format: cents
         title: Price of the service item in cents
+        x-nullable: true
       rejectionReason:
         example: documentation was incomplete
         type: string
@@ -1403,15 +1405,15 @@ responses:
   InvalidRequest:
     description: The request payload is invalid.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   NotFound:
     description: The requested resource wasn't found.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   PermissionDenied:
     description: The request was denied.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   ServerError:
     description: A server error occurred.
     schema:
@@ -1419,7 +1421,7 @@ responses:
   PreconditionFailed:
     description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ClientError'
   UnprocessableEntity:
     description: The payload was unprocessable.
     schema:

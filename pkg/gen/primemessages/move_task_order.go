@@ -23,6 +23,10 @@ import (
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
+	// available to prime at
+	// Format: date-time
+	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
+
 	// created at
 	// Format: date
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
@@ -33,9 +37,6 @@ type MoveTaskOrder struct {
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
-
-	// is available to prime
-	IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
 
 	// is canceled
 	IsCanceled *bool `json:"isCanceled,omitempty"`
@@ -85,13 +86,13 @@ func (m *MoveTaskOrder) SetMtoServiceItems(val []MTOServiceItem) {
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	var data struct {
+		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
+
 		CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
 
 		ID strfmt.UUID `json:"id,omitempty"`
-
-		IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
@@ -128,6 +129,9 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 	var result MoveTaskOrder
 
+	// availableToPrimeAt
+	result.AvailableToPrimeAt = data.AvailableToPrimeAt
+
 	// createdAt
 	result.CreatedAt = data.CreatedAt
 
@@ -136,9 +140,6 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 	// id
 	result.ID = data.ID
-
-	// isAvailableToPrime
-	result.IsAvailableToPrime = data.IsAvailableToPrime
 
 	// isCanceled
 	result.IsCanceled = data.IsCanceled
@@ -180,13 +181,13 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
+		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
+
 		CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
 
 		ID strfmt.UUID `json:"id,omitempty"`
-
-		IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
@@ -207,13 +208,13 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
 	}{
 
+		AvailableToPrimeAt: m.AvailableToPrimeAt,
+
 		CreatedAt: m.CreatedAt,
 
 		ETag: m.ETag,
 
 		ID: m.ID,
-
-		IsAvailableToPrime: m.IsAvailableToPrime,
 
 		IsCanceled: m.IsCanceled,
 
@@ -255,6 +256,10 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAvailableToPrimeAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -294,6 +299,19 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.AvailableToPrimeAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("availableToPrimeAt", "body", "date-time", m.AvailableToPrimeAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

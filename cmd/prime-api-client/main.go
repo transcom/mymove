@@ -64,8 +64,8 @@ func main() {
 	initRootFlags(root.PersistentFlags())
 
 	fetchMTOsCommand := &cobra.Command{
-		Use:          "fetch-mtos",
-		Short:        "fetch mtos",
+		Use:          "fetch-mto-updates",
+		Short:        "Fetch all MTOs available to prime",
 		Long:         "fetch move task orders",
 		RunE:         fetchMTOs,
 		SilenceUsage: true,
@@ -74,7 +74,7 @@ func main() {
 	root.AddCommand(fetchMTOsCommand)
 
 	createMTOCommand := &cobra.Command{
-		Use:   "support-create-mto",
+		Use:   "support-create-move-task-order",
 		Short: "Create a MoveTaskOrder",
 		Long: `
   This command creates a MoveTaskOrder object.
@@ -134,9 +134,9 @@ func main() {
 	root.AddCommand(updateMTOShipmentCommand)
 
 	updatePostCounselingInfo := &cobra.Command{
-		Use:          "update-post-counseling-info",
+		Use:          "update-mto-post-counseling-information",
 		Short:        "update post counseling info",
-		Long:         "update post counseling info such as discovering that customer has a PPM",
+		Long:         "Update post counseling info such as discovering that customer has a PPM",
 		RunE:         updatePostCounselingInfo,
 		SilenceUsage: true,
 	}
@@ -164,25 +164,25 @@ func main() {
 	root.AddCommand(createMTOServiceItemCommand)
 
 	makeAvailableToPrimeCommand := &cobra.Command{
-		Use:   "support-make-mto-available-to-prime",
-		Short: "Make mto available to prime",
+		Use:   "support-make-move-task-order-available",
+		Short: "Make MTO available to prime",
 		Long: `
   This command makes an MTO available for prime consumption.
   This is a support endpoint and is not available in production.
   It requires the caller to pass in a file using the --filename arg.
   The file should contain path parameters and headers.
 
-  Endpoint path: /move-task-orders/{moveTaskOrderID}/status
+  Endpoint path: /move-task-orders/{moveTaskOrderID}/available-to-prime
   The file should contain json as follows:
   	{
   	"moveTaskOrderID": <uuid string>,
-  	"ifMatch": <eTag>,
+  	"ifMatch": <eTag>
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         updateMTOStatus,
+		RunE:         makeMTOAvailable,
 		SilenceUsage: true,
 	}
-	initUpdateMTOStatusFlags(makeAvailableToPrimeCommand.Flags())
+	initMakeMTOAvailableFlags(makeAvailableToPrimeCommand.Flags())
 	root.AddCommand(makeAvailableToPrimeCommand)
 
 	updatePaymentRequestStatusCommand := &cobra.Command{
@@ -209,7 +209,7 @@ func main() {
 	root.AddCommand(updatePaymentRequestStatusCommand)
 
 	getMoveTaskOrder := &cobra.Command{
-		Use:   "support-get-mto",
+		Use:   "support-get-move-task-order",
 		Short: "Get an individual mto",
 		Long: `
   This command gets a single move task order by ID
@@ -272,7 +272,7 @@ func main() {
 	root.AddCommand(createPaymentRequestCommand)
 
 	createPaymentRequestUploadCommand := &cobra.Command{
-		Use:          "create-payment-request-upload",
+		Use:          "create-upload",
 		Short:        "Create payment request upload",
 		Long:         "Create payment request upload for a payment request",
 		RunE:         createPaymentRequestUpload,
