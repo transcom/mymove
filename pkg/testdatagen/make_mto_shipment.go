@@ -32,6 +32,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 
 	// mock weights
 	actualWeight := unit.Pound(980)
+	estimatedWeight := unit.Pound(1024)
 
 	// mock dates
 	scheduledPickupDate := time.Date(TestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
@@ -48,6 +49,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		DestinationAddress:       &destinationAddress,
 		DestinationAddressID:     &destinationAddress.ID,
 		PrimeActualWeight:        &actualWeight,
+		PrimeEstimatedWeight:     &estimatedWeight,
 		SecondaryPickupAddress:   &secondaryPickupAddress,
 		SecondaryDeliveryAddress: &secondaryDeliveryAddress,
 		ShipmentType:             shipmentType,
