@@ -227,4 +227,146 @@ storiesOf('Global|Grid', module)
         <Grid col={5}>{testContent}</Grid>
       </Grid>
     </GridContainer>
+  ))
+  .add('gutters', () => (
+    <div>
+      <h2>Default gutter</h2>
+      <GridContainer>
+        <Grid row gap>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+        </Grid>
+      </GridContainer>
+
+      <h2>Small gutter</h2>
+      <GridContainer>
+        <Grid row gap="sm">
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+        </Grid>
+      </GridContainer>
+
+      <h2>Medium gutter</h2>
+      <GridContainer>
+        <Grid row gap="md">
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+        </Grid>
+      </GridContainer>
+
+      <h2>Large gutter</h2>
+      <GridContainer>
+        <Grid row gap="lg">
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+        </Grid>
+      </GridContainer>
+
+      <h2>2px gutter</h2>
+      <GridContainer>
+        <Grid row gap="2px">
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+        </Grid>
+      </GridContainer>
+
+      <h2>05 gutter</h2>
+      <GridContainer>
+        <Grid row gap="05">
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+        </Grid>
+      </GridContainer>
+
+      <h2>1 gutter</h2>
+      <GridContainer>
+        <Grid row gap={1}>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+        </Grid>
+      </GridContainer>
+
+      <h2>2 gutter</h2>
+      <GridContainer>
+        <Grid row gap={2}>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+        </Grid>
+      </GridContainer>
+
+      <h2>3 gutter</h2>
+      <GridContainer>
+        <Grid row gap={3}>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+        </Grid>
+      </GridContainer>
+
+      <h2>4 gutter</h2>
+      <GridContainer>
+        <Grid row gap={4}>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+        </Grid>
+      </GridContainer>
+
+      <h2>5 gutter</h2>
+      <GridContainer>
+        <Grid row gap={5}>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+        </Grid>
+      </GridContainer>
+
+      <h2>6 gutter</h2>
+      <GridContainer>
+        <Grid row gap={6}>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+          <Grid col={4}>{testContent}</Grid>
+        </Grid>
+      </GridContainer>
+    </div>
+  ))
+  .add('device breakpoints', () => (
+    <div>
+      <GridContainer containerSize="card">
+        <div style={exampleStyles}>card</div>
+      </GridContainer>
+      <GridContainer containerSize="card-lg">
+        <div style={exampleStyles}>card-lg</div>
+      </GridContainer>
+      <GridContainer containerSize="mobile">
+        <div style={exampleStyles}>mobile</div>
+      </GridContainer>
+      <GridContainer containerSize="mobile-lg">
+        <div style={exampleStyles}>mobile-lg</div>
+      </GridContainer>
+      <GridContainer containerSize="tablet">
+        <div style={exampleStyles}>tablet</div>
+      </GridContainer>
+      <GridContainer containerSize="tablet-lg">
+        <div style={exampleStyles}>tablet-lg</div>
+      </GridContainer>
+      <GridContainer containerSize="desktop">
+        <div style={exampleStyles}>desktop</div>
+      </GridContainer>
+      <GridContainer containerSize="desktop-lg">
+        <div style={exampleStyles}>desktop-lg</div>
+      </GridContainer>
+      <GridContainer containerSize="widescreen">
+        <div style={exampleStyles}>widescreen</div>
+      </GridContainer>
+    </div>
   ));
