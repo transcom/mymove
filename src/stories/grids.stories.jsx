@@ -94,7 +94,7 @@ storiesOf('Global|Grid', module)
   ))
   .add('responsive', () => (
     <div>
-      <h2>Same at all breakpoints</h2>
+      <h4>Same at all breakpoints</h4>
       <GridContainer>
         <Grid row>
           <Grid col={1}>{testContent}</Grid>
@@ -110,7 +110,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>Stacked columns at narrow widths</h2>
+      <h4>Stacked columns at narrow widths</h4>
       <GridContainer>
         <Grid row>
           <Grid tablet={{ col: true }}>{testContent}</Grid>
@@ -123,7 +123,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>Mix and match</h2>
+      <h4>Mix and match</h4>
       <GridContainer>
         <Grid row>
           <Grid tablet={{ col: 8 }}>{testContent}</Grid>
@@ -230,7 +230,7 @@ storiesOf('Global|Grid', module)
   ))
   .add('gutters', () => (
     <div>
-      <h2>Default gutter</h2>
+      <h4>Default gutter</h4>
       <GridContainer>
         <Grid row gap>
           <Grid col={4}>{testContent}</Grid>
@@ -239,7 +239,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>Small gutter</h2>
+      <h4>Small gutter</h4>
       <GridContainer>
         <Grid row gap="sm">
           <Grid col={4}>{testContent}</Grid>
@@ -248,7 +248,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>Medium gutter</h2>
+      <h4>Medium gutter</h4>
       <GridContainer>
         <Grid row gap="md">
           <Grid col={4}>{testContent}</Grid>
@@ -257,7 +257,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>Large gutter</h2>
+      <h4>Large gutter</h4>
       <GridContainer>
         <Grid row gap="lg">
           <Grid col={4}>{testContent}</Grid>
@@ -266,7 +266,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>2px gutter</h2>
+      <h4>2px gutter</h4>
       <GridContainer>
         <Grid row gap="2px">
           <Grid col={4}>{testContent}</Grid>
@@ -275,7 +275,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>05 gutter</h2>
+      <h4>05 gutter</h4>
       <GridContainer>
         <Grid row gap="05">
           <Grid col={4}>{testContent}</Grid>
@@ -284,7 +284,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>1 gutter</h2>
+      <h4>1 gutter</h4>
       <GridContainer>
         <Grid row gap={1}>
           <Grid col={4}>{testContent}</Grid>
@@ -293,7 +293,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>2 gutter</h2>
+      <h4>2 gutter</h4>
       <GridContainer>
         <Grid row gap={2}>
           <Grid col={4}>{testContent}</Grid>
@@ -302,7 +302,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>3 gutter</h2>
+      <h4>3 gutter</h4>
       <GridContainer>
         <Grid row gap={3}>
           <Grid col={4}>{testContent}</Grid>
@@ -311,7 +311,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>4 gutter</h2>
+      <h4>4 gutter</h4>
       <GridContainer>
         <Grid row gap={4}>
           <Grid col={4}>{testContent}</Grid>
@@ -320,7 +320,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>5 gutter</h2>
+      <h4>5 gutter</h4>
       <GridContainer>
         <Grid row gap={5}>
           <Grid col={4}>{testContent}</Grid>
@@ -329,7 +329,7 @@ storiesOf('Global|Grid', module)
         </Grid>
       </GridContainer>
 
-      <h2>6 gutter</h2>
+      <h4>6 gutter</h4>
       <GridContainer>
         <Grid row gap={6}>
           <Grid col={4}>{testContent}</Grid>
