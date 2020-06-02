@@ -1301,7 +1301,7 @@ definitions:
       - EIAFuelPrice
       - MarketDest
       - MarketOrigin
-      - MTOAvailableToPrimeDateTime
+      - MTOAvailableToPrimeAt
       - NumberDaysSIT
       - PriceAreaDest
       - PriceAreaIntlDest

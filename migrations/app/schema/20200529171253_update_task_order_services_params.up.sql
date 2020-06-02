@@ -6,10 +6,10 @@ DROP TYPE IF EXISTS service_item_param_type;
 CREATE TYPE service_item_param_type AS ENUM (
     'STRING',
     'DATE',
-    'DATETIME',
     'INTEGER',
     'DECIMAL',
-    'PaymentServiceItemUUID'
+    'PaymentServiceItemUUID',
+    'TIMESTAMP'
     );
 
 -- Revert type from varchar to request_type for all columns/tables (revert step one):
@@ -18,8 +18,8 @@ ALTER TABLE service_item_param_keys ALTER COLUMN type TYPE service_item_param_ty
 INSERT INTO service_item_param_keys
 (id,key,description,type,origin,created_at,updated_at)
 VALUES
-('958e43d9-a10c-4cf9-9737-4103f9d2de29','MTOAvailableToPrimeDateTime', 'Date & Time MTO was made available to prime', 'DATETIME', 'SYSTEM', now(), now());
+('958e43d9-a10c-4cf9-9737-4103f9d2de29','MTOAvailableToPrimeAt', 'Timestamp MTO was made available to prime', 'TIMESTAMP', 'SYSTEM', now(), now());
 
 UPDATE service_params
-SET service_item_param_key_id = (SELECT id FROM service_item_param_keys where key='MTOAvailableToPrimeDateTime')
+SET service_item_param_key_id = (SELECT id FROM service_item_param_keys where key='MTOAvailableToPrimeAt')
 WHERE service_id in (SELECT id FROM re_services WHERE code='MS' or code ='CS');
