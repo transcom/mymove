@@ -27,6 +27,8 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	}
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
 
+	internalAPI.ServeError = handlers.ServeCustomError
+
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context}
 
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{context}
