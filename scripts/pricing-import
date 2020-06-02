@@ -5,9 +5,10 @@ set -eu -o pipefail
 readonly db_name=${DB_NAME:-db_dev}
 readonly db_user=${DB_USER:-postgres}
 readonly db_host=${DB_HOST:-localhost}
-mkdir -p tmp/db
+readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-readonly path="tmp/db/pricing_import_dump.sql"
+mkdir -p "${dir}"/../tmp/db
+readonly path="${dir}/../tmp/db/pricing_import_dump.sql"
 
 #
 # Ensure Pricing Parser has been run
@@ -28,17 +29,17 @@ EOM
 
 read -r -p "Have you run the ghc pricing parser? (y/n) " answer
 
-case $answer in
- [yY]* ) pg_dump -h "$db_host" -U "$db_user" "$db_name" -t re_* --data-only -T re_services --data-only > "$path"
-  echo "Success pg-dump to tmp/db/pricing_import_dump.sql"
-  break;;
-[nN]* ) echo "See above instructions to run ghc pricing importer"
-  exit;;
-* )  exit;;
-esac
-
-
-readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+while true
+do
+  case $answer in
+   [yY]* ) pg_dump -h "$db_host" -U "$db_user" "$db_name" -t re_* --data-only -T re_services --data-only > "$path"
+      echo "Success pg-dump to tmp/db/pricing_import_dump.sql"
+      break;;
+    [nN]* ) echo "See above instructions to run ghc pricing importer"
+      exit;;
+    * ) echo "Enter Y or N, please."; exit ;;
+  esac
+done
 
 readonly local_secure_migrations_dir="${dir}/../migrations/app/secure"
 readonly prod_migrations_temp_dir="${dir}/../tmp"
@@ -122,4 +123,4 @@ EOM
 # Update the migrations manifest
 #
 
-./scripts/update-migrations-manifest
+"${dir}"/../scripts/update-migrations-manifest
