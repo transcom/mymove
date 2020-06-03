@@ -1,4 +1,4 @@
-FROM alpine:3.11.6
+FROM alpine:3.12.0
 
 COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY bin/milmove /bin/milmove
