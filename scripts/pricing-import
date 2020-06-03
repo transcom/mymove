@@ -25,8 +25,8 @@ Overview of steps is in the wiki at https://github.com/transcom/mymove/wiki/ghc-
 
 Setup:
   1. make db_dev_reset db_dev_migrate
-  2. If your rate engine tables currently have records we want to clear them.
-      Open psql-dev and run the following query: TRUNCATE re_contracts, re_contract_years CASCADE;
+  2. If your rate engine tables currently have records we want to clear them. Open psql-dev and run the following query:
+     TRUNCATE re_contracts, re_contract_years CASCADE;
   3. rm -f bin/ghc-pricing-parser && make bin/ghc-pricing-parser
   4. ghc-pricing-parser --filename <path_to_xlsx_pricing_template> --display --contract-code=<Unique Code>
 
