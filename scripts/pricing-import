@@ -13,8 +13,6 @@ readonly local_secure_migrations_dir="${dir}/../migrations/app/secure"
 readonly prod_migrations_temp_dir="${dir}/../tmp"
 readonly path="${dir}/../tmp/pricing_import_dump.sql"
 
-#mkdir -p "${dir}"/../tmp/db
-
 #
 # Ensure Pricing Parser has been run on clean rate engine tables
 #
@@ -127,7 +125,7 @@ Next:
           ${prod_migration_name}
     3. Run make run_prod_migrations to verify that the upload worked and that the migration can be applied successfully.
     4. Open a pull request for this change; when it is accepted, your migration will run on staging.
-    5. Delete Pg Dump, local test and production migrations
+    5. Delete local test and production migrations
 EOM
 
 #
