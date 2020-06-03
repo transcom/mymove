@@ -38,8 +38,8 @@ read -r -p "Have you run the above steps? (y/n) " answer
 
 if [[ $answer == 'y' || $answer == 'Y' ]]
   then
-   pg_dump -h "$db_host" -U "$db_user" "$db_name" -t re_* --data-only -T re_services --data-only > "$path"
-      echo "Success pg-dump to tmp/db/pricing_import_dump.sql"
+    pg_dump -h "$db_host" -U "$db_user" "$db_name" -t re_* --data-only -T re_services --data-only > "$path"
+    echo "Successful pg-dump to tmp/db/pricing_import_dump.sql"
 elif [[ $answer == 'n' || $answer == 'N' ]]
   then
     echo "See above instructions to run ghc pricing importer"
@@ -59,6 +59,11 @@ readonly prod_migrations_temp_dir="${dir}/../tmp"
 echo "Open tmp/db/pricing_import_dump.sql and find the contract code in the re_contracts table, paste it here followed by [ENTER]:"
 
 read -r unique_contract_code
+
+while [[ -z ${unique_contract_code:-} ]]; do
+  echo "Please enter contract code from the re_contracts table for this migration"
+  read -r unique_contract_code
+done
 # make lowercase
 unique_contract_code=$(echo "$unique_contract_code" | tr '[:upper:]' '[:lower:]')
 # replace space with underscore
