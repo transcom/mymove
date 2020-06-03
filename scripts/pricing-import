@@ -2,26 +2,31 @@
 
 set -eu -o pipefail
 
+#set up variable names used in script
 readonly db_name=${DB_NAME:-dev_db}
 readonly db_user=${DB_USER:-postgres}
 readonly db_host=${DB_HOST:-localhost}
+
+# find current directory
 readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 mkdir -p "${dir}"/../tmp/db
 readonly path="${dir}/../tmp/db/pricing_import_dump.sql"
 
 #
-# Ensure Pricing Parser has been run
+# Ensure Pricing Parser has been run on clean rate engine tables
 #
 
 cat << EOM
-To get started, make sure you have cleared all 're_' prefixed tables (rate engine tables, and run the pricing parser on your most recent ghc pricing template.
+
+To get started, make sure you have cleared all 're_' prefixed tables (rate engine tables), and run the pricing parser on your most recent ghc pricing template.
 
 Overview of steps is in the wiki at https://github.com/transcom/mymove/wiki/ghc-pricing-import
 
 Setup:
   1. make db_dev_reset db_dev_migrate
-  2. psql-dev and run the following query: TRUNCATE re_contracts, re_contract_years CASCADE;
+  2. If your rate engine tables currently have records we want to clear them.
+      Open psql-dev and run the following query: TRUNCATE re_contracts, re_contract_years CASCADE;
   3. rm -f bin/ghc-pricing-parser && make bin/ghc-pricing-parser
   4. ghc-pricing-parser --filename <path_to_xlsx_pricing_template> --display --contract-code=<Unique Code>
 
@@ -29,19 +34,20 @@ Due to the size of pricing template, this may take several minutes to complete
 
 EOM
 
-read -r -p "Have you run the ghc pricing parser? (y/n) " answer
+read -r -p "Have you run the above steps? (y/n) " answer
 
-while true
-do
-  case $answer in
-   [yY]* ) pg_dump -h "$db_host"   "$db_user" "$db_name" -t re_* --data-only -T re_services --data-only > "$path"
+if [[ $answer == 'y' || $answer == 'Y' ]]
+  then
+   pg_dump -h "$db_host" -U "$db_user" "$db_name" -t re_* --data-only -T re_services --data-only > "$path"
       echo "Success pg-dump to tmp/db/pricing_import_dump.sql"
-      break;;
-    [nN]* ) echo "See above instructions to run ghc pricing importer"
-      exit;;
-    * ) echo "Enter Y or N, please."; exit ;;
-  esac
-done
+elif [[ $answer == 'n' || $answer == 'N' ]]
+  then
+    echo "See above instructions to run ghc pricing importer"
+    exit
+else
+  echo "Enter Y or N, please."
+  exit
+fi
 
 readonly local_secure_migrations_dir="${dir}/../migrations/app/secure"
 readonly prod_migrations_temp_dir="${dir}/../tmp"
