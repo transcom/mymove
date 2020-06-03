@@ -9,9 +9,11 @@ readonly db_host=${DB_HOST:-localhost}
 
 # find current directory
 readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly local_secure_migrations_dir="${dir}/../migrations/app/secure"
+readonly prod_migrations_temp_dir="${dir}/../tmp"
+readonly path="${dir}/../tmp/pricing_import_dump.sql"
 
-mkdir -p "${dir}"/../tmp/db
-readonly path="${dir}/../tmp/db/pricing_import_dump.sql"
+#mkdir -p "${dir}"/../tmp/db
 
 #
 # Ensure Pricing Parser has been run on clean rate engine tables
@@ -39,7 +41,7 @@ read -r -p "Have you run the above steps? (y/n) " answer
 if [[ $answer == 'y' || $answer == 'Y' ]]
   then
     pg_dump -h "$db_host" -U "$db_user" "$db_name" -t re_* --data-only -T re_services --data-only > "$path"
-    echo "Successful pg-dump to tmp/db/pricing_import_dump.sql"
+    echo "Successful pg-dump to tmp/pricing_import_dump.sql"
 elif [[ $answer == 'n' || $answer == 'N' ]]
   then
     echo "See above instructions to run ghc pricing importer"
@@ -49,14 +51,11 @@ else
   exit
 fi
 
-readonly local_secure_migrations_dir="${dir}/../migrations/app/secure"
-readonly prod_migrations_temp_dir="${dir}/../tmp"
-
 #
 # Pre-flight checks
 #
 
-echo "Open tmp/db/pricing_import_dump.sql and find the contract code in the re_contracts table, paste it here followed by [ENTER]:"
+echo "Open tmp/pricing_import_dump.sql and find the contract code in the re_contracts table, paste it here followed by [ENTER]:"
 
 read -r unique_contract_code
 
@@ -107,8 +106,8 @@ cat > "${prod_migration_name}" << EOM
 -- This will be distributed to all deployed environments (e.g. experimental, staging, prod)
 EOM
 
-# insert migration from pg_dump into production migration
-cp "${path}" "${prod_migration_name}"
+# replace pg_dump with production migration
+mv -v "${path}" "${prod_migration_name}"
 #
 # Display next steps for user
 #
@@ -118,7 +117,6 @@ cp "${path}" "${prod_migration_name}"
 cat << EOM
 Generated migration files:
 
-PG Dump: ${path}
 Local test migration: ${local_test_migration_name}
 Production migration: ${prod_migration_name}
 
