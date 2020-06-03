@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -39,7 +41,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			IsAvailableToPrime: true,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -168,7 +170,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerPaymentRequest() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			IsAvailableToPrime: true,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -212,7 +214,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerMinimal() {
 	// or service items
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			IsAvailableToPrime: true,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -244,14 +246,14 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			IsAvailableToPrime: true,
+			AvailableToPrimeAt: &now,
 		},
 	})
 
 	// this MTO should not be returned
 	olderMoveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			IsAvailableToPrime: true,
+			AvailableToPrimeAt: &now,
 		},
 	})
 

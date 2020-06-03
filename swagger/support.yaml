@@ -105,7 +105,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/status':
+  '/move-task-orders/{moveTaskOrderID}/available-to-prime':
     parameters:
       - description: UUID of move task order.
         in: path
@@ -113,12 +113,12 @@ paths:
         required: true
         type: string
     patch:
-      summary: updateMoveTaskOrderStatus
+      summary: makeMoveTaskOrderAvailable
       description: |
-        Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. <br />
+        Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
         <br />
         This is a support endpoint and will not be available in production.
-      operationId: updateMoveTaskOrderStatus
+      operationId: makeMoveTaskOrderAvailable
       tags:
         - moveTaskOrder
       consumes:
@@ -133,30 +133,23 @@ paths:
           description: >
             Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
             the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdateMoveTaskOrderStatus'
       responses:
         '200':
-          description: Successfully updated move task order status.
+          description: Successfully made MTO available to Prime.
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
   '/payment-requests/{paymentRequestID}/status':
@@ -731,13 +724,14 @@ definitions:
 
           No two MoveTaskOrders may have the same ID.
           Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
-      isAvailableToPrime:
-        type: boolean
+      availableToPrimeAt:
+        format: date-time
+        type: string
         x-nullable: true
         description: |
           Indicates this MoveTaskOrder is available for Prime API handling.
 
-          In production, only MoveTaskOrders for which this is true will be available to the API.
+          In production, only MoveTaskOrders for which this is set will be available to the API.
       isCanceled:
         type: boolean
         x-nullable: true
@@ -780,10 +774,6 @@ definitions:
           It will change everytime the object is updated. Client should store the value.
           Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
         type: string
-  UpdateMoveTaskOrderStatus:
-    properties:
-      is_available_to_prime:
-        type: boolean
   MoveOrders:
     items:
       $ref: '#/definitions/MoveOrder'

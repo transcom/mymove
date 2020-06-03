@@ -114,41 +114,41 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 }
 
 /*
-UpdateMoveTaskOrderStatus updates move task order status
+MakeMoveTaskOrderAvailable makes move task order available
 
-Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. <br />
+Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
 <br />
 This is a support endpoint and will not be available in production.
 
 */
-func (a *Client) UpdateMoveTaskOrderStatus(params *UpdateMoveTaskOrderStatusParams) (*UpdateMoveTaskOrderStatusOK, error) {
+func (a *Client) MakeMoveTaskOrderAvailable(params *MakeMoveTaskOrderAvailableParams) (*MakeMoveTaskOrderAvailableOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUpdateMoveTaskOrderStatusParams()
+		params = NewMakeMoveTaskOrderAvailableParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "updateMoveTaskOrderStatus",
+		ID:                 "makeMoveTaskOrderAvailable",
 		Method:             "PATCH",
-		PathPattern:        "/move-task-orders/{moveTaskOrderID}/status",
+		PathPattern:        "/move-task-orders/{moveTaskOrderID}/available-to-prime",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UpdateMoveTaskOrderStatusReader{formats: a.formats},
+		Reader:             &MakeMoveTaskOrderAvailableReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*UpdateMoveTaskOrderStatusOK)
+	success, ok := result.(*MakeMoveTaskOrderAvailableOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for updateMoveTaskOrderStatus: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for makeMoveTaskOrderAvailable: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
