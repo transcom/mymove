@@ -1,0 +1,6 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+
+.doc-viewer--menu {
+  @include u-bg('white');
+}
