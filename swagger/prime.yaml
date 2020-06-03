@@ -1353,6 +1353,8 @@ definitions:
       - DATE
       - INTEGER
       - DECIMAL
+      - TIMESTAMP
+      - PAYMENTSERVICEITEMUUID
   Upload:
     type: object
     properties:

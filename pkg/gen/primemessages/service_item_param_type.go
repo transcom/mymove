@@ -31,6 +31,12 @@ const (
 
 	// ServiceItemParamTypeDECIMAL captures enum value "DECIMAL"
 	ServiceItemParamTypeDECIMAL ServiceItemParamType = "DECIMAL"
+
+	// ServiceItemParamTypeTIMESTAMP captures enum value "TIMESTAMP"
+	ServiceItemParamTypeTIMESTAMP ServiceItemParamType = "TIMESTAMP"
+
+	// ServiceItemParamTypePAYMENTSERVICEITEMUUID captures enum value "PAYMENTSERVICEITEMUUID"
+	ServiceItemParamTypePAYMENTSERVICEITEMUUID ServiceItemParamType = "PAYMENTSERVICEITEMUUID"
 )
 
 // for schema
@@ -38,7 +44,7 @@ var serviceItemParamTypeEnum []interface{}
 
 func init() {
 	var res []ServiceItemParamType
-	if err := json.Unmarshal([]byte(`["STRING","DATE","INTEGER","DECIMAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["STRING","DATE","INTEGER","DECIMAL","TIMESTAMP","PAYMENTSERVICEITEMUUID"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

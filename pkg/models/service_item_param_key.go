@@ -135,6 +135,10 @@ const (
 	ServiceItemParamTypeInteger ServiceItemParamType = "INTEGER"
 	// ServiceItemParamTypeDecimal is a decimal
 	ServiceItemParamTypeDecimal ServiceItemParamType = "DECIMAL"
+	// ServiceItemParamTypeTimestamp is a timestamp
+	ServiceItemParamTypeTimestamp ServiceItemParamType = "TIMESTAMP"
+	// ServiceItemParamTypePaymentServiceItemUUID is a UUUID
+	ServiceItemParamTypePaymentServiceItemUUID ServiceItemParamType = "PAYMENTSERVICEITEMUUID"
 )
 
 // ServiceItemParamOrigin is a type of service item parameter origin
@@ -164,6 +168,7 @@ var ValidServiceItemParamName = []string{
 	string(ServiceItemParamNameEIAFuelPrice),
 	string(ServiceItemParamNameMarketDest),
 	string(ServiceItemParamNameMarketOrigin),
+	string(ServiceItemParamNameMTOAvailableToPrimeAt),
 	string(ServiceItemParamNameNumberDaysSIT),
 	string(ServiceItemParamNamePriceAreaDest),
 	string(ServiceItemParamNamePriceAreaIntlDest),
