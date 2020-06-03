@@ -1354,7 +1354,7 @@ definitions:
       - INTEGER
       - DECIMAL
       - TIMESTAMP
-      - PAYMENTSERVICEITEMUUID
+      - PaymentServiceItemUUID
   Upload:
     type: object
     properties:

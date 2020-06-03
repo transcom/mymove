@@ -1781,7 +1781,7 @@ func init() {
         "INTEGER",
         "DECIMAL",
         "TIMESTAMP",
-        "PAYMENTSERVICEITEMUUID"
+        "PaymentServiceItemUUID"
       ]
     },
     "UpdatePaymentRequestStatus": {
@@ -3772,7 +3772,7 @@ func init() {
         "INTEGER",
         "DECIMAL",
         "TIMESTAMP",
-        "PAYMENTSERVICEITEMUUID"
+        "PaymentServiceItemUUID"
       ]
     },
     "UpdatePaymentRequestStatus": {

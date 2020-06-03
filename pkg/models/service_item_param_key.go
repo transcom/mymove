@@ -138,7 +138,7 @@ const (
 	// ServiceItemParamTypeTimestamp is a timestamp
 	ServiceItemParamTypeTimestamp ServiceItemParamType = "TIMESTAMP"
 	// ServiceItemParamTypePaymentServiceItemUUID is a UUUID
-	ServiceItemParamTypePaymentServiceItemUUID ServiceItemParamType = "PAYMENTSERVICEITEMUUID"
+	ServiceItemParamTypePaymentServiceItemUUID ServiceItemParamType = "PaymentServiceItemUUID"
 )
 
 // ServiceItemParamOrigin is a type of service item parameter origin
