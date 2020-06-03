@@ -137,7 +137,7 @@ const (
 	ServiceItemParamTypeDecimal ServiceItemParamType = "DECIMAL"
 	// ServiceItemParamTypeTimestamp is a timestamp
 	ServiceItemParamTypeTimestamp ServiceItemParamType = "TIMESTAMP"
-	// ServiceItemParamTypePaymentServiceItemUUID is a UUUID
+	// ServiceItemParamTypePaymentServiceItemUUID is a UUID
 	ServiceItemParamTypePaymentServiceItemUUID ServiceItemParamType = "PaymentServiceItemUUID"
 )
 
@@ -156,8 +156,8 @@ const (
 	ServiceItemParamOriginSystem ServiceItemParamOrigin = "SYSTEM"
 )
 
-// ValidServiceItemParamName lists all valid service item param key names
-var ValidServiceItemParamName = []string{
+// ValidServiceItemParamNames lists all valid service item param key names
+var ValidServiceItemParamNames = []string{
 	string(ServiceItemParamNameCanStandAlone),
 	string(ServiceItemParamNameCubicFeetBilled),
 	string(ServiceItemParamNameCubicFeetCrating),
@@ -209,14 +209,18 @@ var ValidServiceItemParamName = []string{
 	string(ServiceItemParamNameZipSITAddress),
 }
 
-var validServiceItemParamType = []string{
+// ValidServiceItemParamTypes lists all valid service item param types
+var ValidServiceItemParamTypes = []string{
 	string(ServiceItemParamTypeString),
 	string(ServiceItemParamTypeDate),
 	string(ServiceItemParamTypeInteger),
 	string(ServiceItemParamTypeDecimal),
+	string(ServiceItemParamTypeTimestamp),
+	string(ServiceItemParamTypePaymentServiceItemUUID),
 }
 
-var validServiceItemParamOrigin = []string{
+// ValidServiceItemParamOrigins lists all valid service item param origins
+var ValidServiceItemParamOrigins = []string{
 	string(ServiceItemParamOriginPrime),
 	string(ServiceItemParamOriginSystem),
 }
@@ -239,11 +243,11 @@ type ServiceItemParamKeys []ServiceItemParamKey
 func (s *ServiceItemParamKey) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: s.Key.String(), Name: "Key"},
-		&validators.StringInclusion{Field: s.Key.String(), Name: "Key", List: ValidServiceItemParamName},
+		&validators.StringInclusion{Field: s.Key.String(), Name: "Key", List: ValidServiceItemParamNames},
 		&validators.StringIsPresent{Field: s.Description, Name: "Description"},
 		&validators.StringIsPresent{Field: string(s.Type), Name: "Type"},
-		&validators.StringInclusion{Field: s.Type.String(), Name: "Type", List: validServiceItemParamType},
+		&validators.StringInclusion{Field: s.Type.String(), Name: "Type", List: ValidServiceItemParamTypes},
 		&validators.StringIsPresent{Field: string(s.Origin), Name: "Origin"},
-		&validators.StringInclusion{Field: s.Origin.String(), Name: "Origin", List: validServiceItemParamOrigin},
+		&validators.StringInclusion{Field: s.Origin.String(), Name: "Origin", List: ValidServiceItemParamOrigins},
 	), nil
 }
