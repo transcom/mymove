@@ -376,10 +376,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           name: Install YARN dependencies
           # setting network concurrency to 1 because using the default failed with errors trying to extract package tar files saying they were corrupt.
@@ -387,14 +387,14 @@ jobs:
           # This is caused by a timing issue when using react-uswds branch. It can be removed once we switch to a released version
           command: yarn install --network-concurrency 1
       - run: scripts/check-generated-code yarn.lock
-      # `v2-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
+      # `v3-cache-yarn-v3-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
-          key: v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+          key: v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
           paths:
-            - ~/.cache/yarn/v2
+            - ~/.cache/yarn/v3
       # `v2-mymove-node-modules-{{ checksum "yarn.lock" }}` is used to cache installed node modules
       - save_cache:
-          key: v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+          key: v3-mymove-node-modules-{{ checksum "yarn.lock" }}
           paths:
             - ~/transcom/mymove/node_modules
       - announce_failure
@@ -455,10 +455,10 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
@@ -568,10 +568,10 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
@@ -601,10 +601,10 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
@@ -646,7 +646,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
@@ -687,10 +687,10 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make bin/rds-ca-2019-root.pem
       - run: make client_build
       - run: make server_build
@@ -710,10 +710,10 @@ jobs:
           docker_layer_caching: false
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make storybook_tests
       - run: make storybook_build
       - persist_to_workspace:
