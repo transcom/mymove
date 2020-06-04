@@ -1,5 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
+import { get } from 'lodash';
 
 const CustomerInfoTable = ({ customerInfo }) => {
   return (
@@ -33,11 +34,24 @@ const CustomerInfoTable = ({ customerInfo }) => {
           </tr>
           <tr>
             <th scope="row">Current address</th>
-            <td data-cy="currentAddress">{`${customerInfo.currentAddress.street_address_1}, ${customerInfo.currentAddress.city}, ${customerInfo.currentAddress.state} ${customerInfo.currentAddress.postal_code}`}</td>
+            <td data-cy="currentAddress">
+              {`${get(customerInfo, 'currentAddress.street_address_1')}, ${get(
+                customerInfo,
+                'currentAddress.city',
+              )}, ${get(customerInfo, 'currentAddress.state')} ${get(customerInfo, 'currentAddress.postal_code')}`}
+            </td>
           </tr>
           <tr>
             <th scope="row">Destination address</th>
-            <td data-cy="destinationAddress">{`${customerInfo.destinationAddress.street_address_1}, ${customerInfo.destinationAddress.city}, ${customerInfo.destinationAddress.state} ${customerInfo.destinationAddress.postal_code}`}</td>
+            <td data-cy="destinationAddress">
+              {`${get(customerInfo, 'destinationAddress.street_address_1')}, ${get(
+                customerInfo,
+                'destinationAddress.city',
+              )}, ${get(customerInfo, 'destinationAddress.state')} ${get(
+                customerInfo,
+                'destinationAddress.postal_code',
+              )}`}
+            </td>
           </tr>
           <tr>
             <th scope="row">Backup contact name</th>

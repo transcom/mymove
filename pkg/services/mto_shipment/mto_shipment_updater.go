@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/route"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -34,7 +33,12 @@ type mtoShipmentUpdater struct {
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
 func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner) services.MTOShipmentUpdater {
-	return &mtoShipmentUpdater{db, builder, fetch.NewFetcher(builder), planner}
+	return &mtoShipmentUpdater{
+		db,
+		builder,
+		fetch.NewFetcher(builder),
+		planner,
+	}
 }
 
 // setNewShipmentFields validates the updated shipment
@@ -191,7 +195,7 @@ func (e StaleIdentifierError) Error() string {
 }
 
 //UpdateMTOShipment updates the mto shipment
-func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", mtoShipment.ID.String()),
 	}
@@ -207,84 +211,7 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 		return &oldShipment, err
 	}
 
-	err = f.db.Transaction(func(tx *pop.Connection) error {
-		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
-		encodedUpdatedAt := etag.GenerateEtag(oldShipment.UpdatedAt)
-		if encodedUpdatedAt != eTag {
-			return StaleIdentifierError{StaleIdentifier: eTag}
-		}
-
-		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
-		params := generateMTOShipmentParams(oldShipment)
-		err = f.db.RawQuery(updateMTOShipmentQuery, params...).Exec()
-
-		if err != nil {
-			return err
-		}
-
-		if mtoShipment.DestinationAddress != nil || mtoShipment.PickupAddress != nil || mtoShipment.SecondaryPickupAddress != nil || mtoShipment.SecondaryDeliveryAddress != nil {
-
-			addressBaseQuery := `UPDATE addresses
-				SET
-			`
-
-			if mtoShipment.DestinationAddress != nil {
-				destinationAddressQuery := generateAddressQuery()
-				params := generateAddressParams(mtoShipment.DestinationAddress)
-				err = f.db.RawQuery(addressBaseQuery+destinationAddressQuery, params...).Exec()
-			}
-
-			if err != nil {
-				return err
-			}
-
-			if mtoShipment.PickupAddress != nil {
-				pickupAddressQuery := generateAddressQuery()
-				params := generateAddressParams(mtoShipment.PickupAddress)
-				err = f.db.RawQuery(addressBaseQuery+pickupAddressQuery, params...).Exec()
-			}
-
-			if err != nil {
-				return err
-			}
-
-			if mtoShipment.SecondaryDeliveryAddress != nil {
-				secondaryDeliveryAddressQuery := generateAddressQuery()
-				params := generateAddressParams(mtoShipment.SecondaryDeliveryAddress)
-				err = f.db.RawQuery(addressBaseQuery+secondaryDeliveryAddressQuery, params...).Exec()
-			}
-
-			if err != nil {
-				return err
-			}
-
-			if mtoShipment.SecondaryPickupAddress != nil {
-				secondaryPickupAddressQuery := generateAddressQuery()
-				params := generateAddressParams(mtoShipment.SecondaryPickupAddress)
-				err = f.db.RawQuery(addressBaseQuery+secondaryPickupAddressQuery, params...).Exec()
-			}
-
-			if err != nil {
-				return err
-			}
-		}
-
-		if mtoShipment.MTOAgents != nil {
-			agentQuery := `UPDATE mto_agents
-					SET
-				`
-			for _, agent := range oldShipment.MTOAgents {
-				updateAgentQuery := generateAgentQuery()
-				params := generateMTOAgentsParams(agent)
-				err = f.db.RawQuery(agentQuery+updateAgentQuery, params...).Exec()
-				if err != nil {
-					return err
-				}
-			}
-		}
-
-		return nil
-	})
+	err = f.updateShipmentRecord(mtoShipment, &oldShipment, eTag)
 
 	if err != nil {
 		switch err.(type) {
@@ -302,6 +229,87 @@ func (f mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, e
 		return &models.MTOShipment{}, err
 	}
 	return &updatedShipment, nil
+}
+
+// Takes the validated shipment input and updates the database using a transaction. If any part of the
+// update fails, the entire transaction will be rolled back.
+func (f *mtoShipmentUpdater) updateShipmentRecord(mtoShipment *models.MTOShipment, oldShipment *models.MTOShipment, eTag string) error {
+
+	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
+
+		addressBaseQuery := `UPDATE addresses
+				SET
+			`
+
+		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
+		encodedUpdatedAt := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		if encodedUpdatedAt != eTag {
+			return StaleIdentifierError{StaleIdentifier: eTag}
+		}
+
+		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
+		params := generateMTOShipmentParams(*oldShipment)
+
+		if err := tx.RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
+			return err
+		}
+
+		if mtoShipment.DestinationAddress != nil {
+			destinationAddressQuery := generateAddressQuery()
+			params := generateAddressParams(mtoShipment.DestinationAddress)
+
+			if err := tx.RawQuery(addressBaseQuery+destinationAddressQuery, params...).Exec(); err != nil {
+				return err
+			}
+		}
+
+		if mtoShipment.PickupAddress != nil {
+			pickupAddressQuery := generateAddressQuery()
+			params := generateAddressParams(mtoShipment.PickupAddress)
+
+			if err := tx.RawQuery(addressBaseQuery+pickupAddressQuery, params...).Exec(); err != nil {
+				return err
+			}
+		}
+
+		if mtoShipment.SecondaryPickupAddress != nil {
+			secondaryPickupAddressQuery := generateAddressQuery()
+			params := generateAddressParams(mtoShipment.SecondaryPickupAddress)
+
+			if err := tx.RawQuery(addressBaseQuery+secondaryPickupAddressQuery, params...).Exec(); err != nil {
+				return err
+			}
+		}
+
+		if mtoShipment.SecondaryDeliveryAddress != nil {
+			secondaryDeliveryAddressQuery := generateAddressQuery()
+			params := generateAddressParams(mtoShipment.SecondaryDeliveryAddress)
+
+			if err := tx.RawQuery(addressBaseQuery+secondaryDeliveryAddressQuery, params...).Exec(); err != nil {
+				return err
+			}
+		}
+
+		if mtoShipment.MTOAgents != nil {
+			agentQuery := `UPDATE mto_agents
+					SET
+				`
+			for _, agent := range oldShipment.MTOAgents {
+				updateAgentQuery := generateAgentQuery()
+				params := generateMTOAgentsParams(agent)
+
+				if err := tx.RawQuery(agentQuery+updateAgentQuery, params...).Exec(); err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+
+	})
+
+	return transactionError
 }
 
 func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
@@ -702,4 +710,19 @@ type ConflictStatusError struct {
 func (e ConflictStatusError) Error() string {
 	return fmt.Sprintf("shipment with id '%s' can not transition status from '%s' to '%s'. Must be in status '%s'.",
 		e.id.String(), e.transitionFromStatus, e.transitionToStatus, models.MTOShipmentStatusSubmitted)
+}
+
+func (f mtoShipmentUpdater) MTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
+	var mto models.MoveTaskOrder
+
+	err := f.db.Q().
+		Join("mto_shipments", "move_task_orders.id = mto_shipments.move_task_order_id").
+		Where("available_to_prime_at IS NOT NULL").
+		Where("mto_shipments.id = ?", mtoShipmentID).
+		First(&mto)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

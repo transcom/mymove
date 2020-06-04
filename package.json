@@ -4,7 +4,7 @@
     "@fortawesome/fontawesome": "^1.1.6",
     "@fortawesome/fontawesome-free-solid": "^5.0.11",
     "@fortawesome/react-fontawesome": "^0.0.20",
-    "@trussworks/react-uswds": "^1.2.0",
+    "@trussworks/react-uswds": "^1.4.0",
     "bytes": "^3.0.0",
     "classnames": "^2.2.5",
     "connected-react-router": "^6.8.0",
@@ -36,7 +36,7 @@
     "query-string": "6",
     "ra-data-simple-rest": "^2.9.9",
     "react": "^16.13.1",
-    "react-admin": "^3.5.3",
+    "react-admin": "^3.5.5",
     "react-app-polyfill": "^1.0.6",
     "react-day-picker": "=7.4.8",
     "react-dom": "^16.13.1",
@@ -60,16 +60,16 @@
     "reduce-reducers": "^1.0.4",
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.2",
-    "redux-form": "^8.3.5",
+    "redux-form": "^8.3.6",
     "redux-mock-store": "1.5.4",
     "redux-thunk": "^2.2.0",
     "regenerator-runtime": "^0.13.5",
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
-    "swagger-client": "^3.10.4",
-    "swagger-ui-dist": "^3.25.4",
+    "swagger-client": "^3.10.5",
+    "swagger-ui-dist": "^3.25.5",
     "uswds": "2.7.0",
-    "yup": "^0.29.0"
+    "yup": "^0.29.1"
   },
   "resolutions": {
     "kind-of": "^6.0.2"
@@ -90,7 +90,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.9.6",
+    "@babel/core": "~7.10.2",
     "@dump247/storybook-state": "^1.6.1",
     "@rescripts/cli": "^0.0.14",
     "@rescripts/rescript-env": "^0.0.12",

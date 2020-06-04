@@ -30,6 +30,8 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 	primeAPI := primeops.NewMymoveAPI(primeSpec)
 	queryBuilder := query.NewQueryBuilder(context.DB())
 
+	primeAPI.ServeError = handlers.ServeCustomError
+
 	primeAPI.MoveTaskOrderFetchMTOUpdatesHandler = FetchMTOUpdatesHandler{
 		context,
 	}
