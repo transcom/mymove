@@ -3,4 +3,8 @@
 
 .doc-viewer--menu {
   @include u-bg('white');
+  @include u-shadow(2);
+  @include u-padding-x(1.5);
+  @include u-padding-y(3);
+  color: red;
 }
