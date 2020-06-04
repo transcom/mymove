@@ -6,7 +6,7 @@ require (
 	github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.5
-	github.com/aws/aws-sdk-go v1.31.9
+	github.com/aws/aws-sdk-go v1.31.10
 	github.com/cockroachdb/cockroach-go v0.0.0-20200411195601-6f5842749cfc // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
