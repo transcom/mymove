@@ -1,10 +1,26 @@
 @import '../../shared/styles/basics';
 @import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
 
 .doc-viewer--menu {
+  svg path {
+    fill: $primary;
+  }
   @include u-bg('white');
   @include u-shadow(2);
   @include u-padding-x(1.5);
   @include u-padding-y(3);
-  color: red;
+  &--collapsed {
+    @include u-width(9);
+  }
+  .thumbnail-image {
+    @include u-border('1px');
+    @include u-border('base-lightest');
+    @include u-width(6);
+    @include u-height(6);
+    @include u-padding(1.5);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
 }
