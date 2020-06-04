@@ -10,21 +10,29 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	// Create some records we'll need to link to
 	moveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	estimatedWeight := unit.Pound(2048)
 	mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder,
 		ReService: models.ReService{
 			Code: "DLH",
+		},
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedWeight,
 		},
 	})
 	mtoServiceItem2 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder,
 		ReService: models.ReService{
 			Code: "DOP",
+		},
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedWeight,
 		},
 	})
 	serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
