@@ -3,6 +3,7 @@ import classNames from 'classnames/bind';
 import { SHIPMENT_TYPE } from 'shared/constants';
 import * as PropTypes from 'prop-types';
 import styles from 'components/Office/ShipmentDisplay.module.scss';
+import { formatDate } from 'shared/dates';
 import { ReactComponent as ChevronDown } from '../../shared/icon/chevron-down.svg';
 import ShipmentContainer from './ShipmentContainer';
 
@@ -43,7 +44,7 @@ const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo }) => {
             <tr>
               <td />
               <td className={`${cx('shipment-display__label')}`}>Requested move date</td>
-              <td>{displayInfo.requestedMoveDate}</td>
+              <td>{formatDate(displayInfo.requestedMoveDate, 'DD MMM YYYY')}</td>
               <td />
             </tr>
             <tr>
@@ -75,7 +76,12 @@ const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo }) => {
 
 ShipmentDisplay.propTypes = {
   checkboxId: PropTypes.string,
-  shipmentType: PropTypes.oneOf([SHIPMENT_TYPE.HHG, SHIPMENT_TYPE.NTS]),
+  shipmentType: PropTypes.oneOf([
+    SHIPMENT_TYPE.HHG,
+    SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC,
+    SHIPMENT_TYPE.HHG_LONGHAUL_DOMESTIC,
+    SHIPMENT_TYPE.NTS,
+  ]),
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,
     requestedMoveDate: PropTypes.string.isRequired,

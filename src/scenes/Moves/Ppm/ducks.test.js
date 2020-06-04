@@ -136,23 +136,6 @@ describe('Ppm Reducer', () => {
     });
   });
 
-  describe('CLEAR_SIT_ESTIMATE', () => {
-    it('Should handle SUCCESS', () => {
-      const initialState = {};
-      const newState = ppmReducer(initialState, {
-        type: 'CLEAR_SIT_ESTIMATE',
-      });
-
-      expect(newState).toEqual({
-        sitReimbursement: null,
-        hasEstimateSuccess: true,
-        hasEstimateError: false,
-        hasEstimateInProgress: false,
-        rateEngineError: null,
-      });
-    });
-  });
-
   describe('getMaxAdvance', () => {
     describe('when there is a max estimated incentive', () => {
       const state = { ppm: { incentive_estimate_max: 10000 } };

@@ -877,7 +877,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		MoveTaskOrder: models.MoveTaskOrder{
 			ID:                 uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
 			MoveOrderID:        moveOrders.ID,
-			IsAvailableToPrime: true,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -1080,7 +1080,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ID:                 uuid.FromStringOrNil("da3f34cc-fb94-4e0b-1c90-ba3333cb7791"),
 			MoveOrderID:        moveOrders6.ID,
 			UpdatedAt:          time.Unix(1576779681256, 0),
-			IsAvailableToPrime: true,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 

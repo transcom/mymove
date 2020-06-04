@@ -48,14 +48,14 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrder has not yet been implemented")
 		}),
+		MoveTaskOrderMakeMoveTaskOrderAvailableHandler: move_task_order.MakeMoveTaskOrderAvailableHandlerFunc(func(params move_task_order.MakeMoveTaskOrderAvailableParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveTaskOrderMakeMoveTaskOrderAvailable has not yet been implemented")
+		}),
 		MtoServiceItemUpdateMTOServiceItemStatusHandler: mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoServiceItemUpdateMTOServiceItemStatus has not yet been implemented")
 		}),
 		MtoShipmentUpdateMTOShipmentStatusHandler: mto_shipment.UpdateMTOShipmentStatusHandlerFunc(func(params mto_shipment.UpdateMTOShipmentStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoShipmentUpdateMTOShipmentStatus has not yet been implemented")
-		}),
-		MoveTaskOrderUpdateMoveTaskOrderStatusHandler: move_task_order.UpdateMoveTaskOrderStatusHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderStatus has not yet been implemented")
 		}),
 		PaymentRequestsUpdatePaymentRequestStatusHandler: payment_requests.UpdatePaymentRequestStatusHandlerFunc(func(params payment_requests.UpdatePaymentRequestStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsUpdatePaymentRequestStatus has not yet been implemented")
@@ -100,12 +100,12 @@ type MymoveAPI struct {
 	MoveTaskOrderCreateMoveTaskOrderHandler move_task_order.CreateMoveTaskOrderHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
+	// MoveTaskOrderMakeMoveTaskOrderAvailableHandler sets the operation handler for the make move task order available operation
+	MoveTaskOrderMakeMoveTaskOrderAvailableHandler move_task_order.MakeMoveTaskOrderAvailableHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
 	MtoServiceItemUpdateMTOServiceItemStatusHandler mto_service_item.UpdateMTOServiceItemStatusHandler
 	// MtoShipmentUpdateMTOShipmentStatusHandler sets the operation handler for the update m t o shipment status operation
 	MtoShipmentUpdateMTOShipmentStatusHandler mto_shipment.UpdateMTOShipmentStatusHandler
-	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
-	MoveTaskOrderUpdateMoveTaskOrderStatusHandler move_task_order.UpdateMoveTaskOrderStatusHandler
 	// PaymentRequestsUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
 	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
 
@@ -179,16 +179,16 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
 	}
 
+	if o.MoveTaskOrderMakeMoveTaskOrderAvailableHandler == nil {
+		unregistered = append(unregistered, "move_task_order.MakeMoveTaskOrderAvailableHandler")
+	}
+
 	if o.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemStatusHandler")
 	}
 
 	if o.MtoShipmentUpdateMTOShipmentStatusHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentStatusHandler")
-	}
-
-	if o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {
-		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderStatusHandler")
 	}
 
 	if o.PaymentRequestsUpdatePaymentRequestStatusHandler == nil {
@@ -306,17 +306,17 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/available-to-prime"] = move_task_order.NewMakeMoveTaskOrderAvailable(o.context, o.MoveTaskOrderMakeMoveTaskOrderAvailableHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
 	o.handlers["PATCH"]["/service-items/{mtoServiceItemID}/status"] = mto_service_item.NewUpdateMTOServiceItemStatus(o.context, o.MtoServiceItemUpdateMTOServiceItemStatusHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/mto-shipments/{mtoShipmentID}/status"] = mto_shipment.NewUpdateMTOShipmentStatus(o.context, o.MtoShipmentUpdateMTOShipmentStatusHandler)
-
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/status"] = move_task_order.NewUpdateMoveTaskOrderStatus(o.context, o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
