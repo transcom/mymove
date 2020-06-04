@@ -2412,15 +2412,15 @@
     "@babel/runtime" "^7.5.5"
     "@testing-library/dom" "^5.6.1"
 
-"@trussworks/react-uswds@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-1.2.0.tgz#ff8a5d1cd370c4cab8a05f747371355a3a784bd0"
-  integrity sha512-07RCbBgVn0G3WhnJbDHuH2Uz29bnWdvBqvsMKCtvbu0PS30HecEVNEaQG2AnLoSwEx/2HpD9TIJdqVJ1YqugOg==
+"@trussworks/react-uswds@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-1.4.0.tgz#fc2df438e454c25281b12f58e38e3b31fb61d99a"
+  integrity sha512-vcOODQRC51eRhLPffAAZ48raC1L+z8iWF1eoixEbXG4HfGmMmTPScfPuQ8FQwC2peDEKZM2qqbb/V1Nn9Xq8bA==
   dependencies:
     classnames "^2.2.6"
     react "^16.10.0"
     react-dom "^16.10.0"
-    uswds "^2.2.1"
+    uswds "^2.7.0"
 
 "@types/babel__core@^7.1.0":
   version "7.1.6"
@@ -15624,7 +15624,7 @@ use@^3.1.0:
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
 
-uswds@2.7.0, uswds@^2.2.1:
+uswds@2.7.0, uswds@^2.7.0:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.7.0.tgz#83af2f8d097b1f3d313d8b43f004558d0d40fc18"
   integrity sha512-1NJJFg5PzPHWt/s7lHGzU1ox4xEA4+Njs/2h2xWHDscA3THvm+vMCvpnrKP1M9yzdXNd3Rb/G5se0w+2n69XkQ==

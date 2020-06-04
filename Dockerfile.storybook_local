@@ -1,4 +1,4 @@
-FROM milmove/circleci-docker:milmove-app-browsers-ce60239ffca056a033af6330daf922a5a9635066
+FROM milmove/circleci-docker:milmove-app-browsers-1e5a1038cb264651fbd844b82489401a476e9f7e
 
 EXPOSE 6006
 
