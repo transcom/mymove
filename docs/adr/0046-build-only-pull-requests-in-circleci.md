@@ -10,7 +10,13 @@ Currently our CircleCI costs are very high, well over the initial expected budge
 
 ## Decision Outcome
 
-*Chosen Alternative:* Switch on the CircleCI option to only build PRs and our default branch (master)
+*Chosen Alternative:* Switch on the CircleCI option to only build PRs and our default branch (master)A
+
+Once accepted this switch `CircleCI -> Project Settings -> Advanced -> Only build pull requests` should be enabled.
+
+### How do we undo this
+
+We turn the `CircleCI -> Project Settings -> Advanced -> Only build pull requests` option off.
 
 ## Pros and Cons of the Alternatives
 
@@ -25,6 +31,7 @@ Currently our CircleCI costs are very high, well over the initial expected budge
 * `+` Easy to implement, just a project setting in CircleCI
 * `+` Should reduce our CircleCI costs significantly by only building PR branches
 * `+` CircleCI usage reduction will buy us time before having to review all stages of the pipeline
+* `+` Encourage people to push more often not just when ready for review
 * `-` Lose the ability to have our branches run in CircleCI without creating a PR
 
 ### Keep building all branches and review build pipeline
