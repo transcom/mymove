@@ -17,14 +17,28 @@ import (
 // swagger:model Error
 type Error struct {
 
+	// detail
+	Detail string `json:"detail,omitempty"`
+
+	// instance
+	// Format: uuid
+	Instance strfmt.UUID `json:"instance,omitempty"`
+
 	// message
 	// Required: true
 	Message *string `json:"message"`
+
+	// title
+	Title string `json:"title,omitempty"`
 }
 
 // Validate validates this error
 func (m *Error) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateInstance(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateMessage(formats); err != nil {
 		res = append(res, err)
@@ -33,6 +47,19 @@ func (m *Error) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Error) validateInstance(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Instance) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("instance", "body", "uuid", m.Instance.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

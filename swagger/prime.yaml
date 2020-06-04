@@ -650,6 +650,13 @@ definitions:
     properties:
       message:
         type: string
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
     required:
       - message
     type: object

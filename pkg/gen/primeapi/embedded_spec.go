@@ -862,7 +862,17 @@ func init() {
         "message"
       ],
       "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
         "message": {
+          "type": "string"
+        },
+        "title": {
           "type": "string"
         }
       }
@@ -2853,7 +2863,17 @@ func init() {
         "message"
       ],
       "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
         "message": {
+          "type": "string"
+        },
+        "title": {
           "type": "string"
         }
       }
