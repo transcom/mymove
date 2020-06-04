@@ -53,6 +53,7 @@ func ServiceParamLookupInitialize(
 	s.lookups[models.ServiceItemParamNameDistanceZip3.String()] = DistanceZip3Lookup{}
 	s.lookups[models.ServiceItemParamNameWeightBilledActual.String()] = WeightBilledActualLookup{}
 	s.lookups[models.ServiceItemParamNameWeightEstimated.String()] = WeightEstimatedLookup{}
+	s.lookups[models.ServiceItemParamNameWeightActual.String()] = WeightActualLookup{}
 
 	return &s
 }
