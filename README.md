@@ -332,11 +332,10 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 ### Setup: OfficeLocal client
 
-1. Ensure that you have a test account which can log into the office site...
+1. Ensure that you have a test account which can log into the office site:
     * run `generate-test-data --named-scenario e2e_basic` to load test data
+2. Run `make office_client_run`
     * Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
-2. `make office_client_run`
-3. Login with the email used above to access the office
 
 ### Setup: AdminLocal client
 
@@ -355,9 +354,8 @@ Nothing to do.
 
 The API that the Prime will use is authenticated via mutual TSL so there are a few things you need to do to interact with it in a local environment.
 
-1. Make sure that the `primelocal` alias is setup for localhost. See [Setup:Hosts](#setup-hosts)
-2. run `make server_run`
-3. Access the Prime API using the devlocal-mtls certs. There is a script that shows you how to do this with curl at `./scripts/prime-api`. For instance to call the `move-task-orders` endpoint, call `./scripts/prime-api move-task-orders`
+1. run `make server_run`
+2. Access the Prime API using the devlocal-mtls certs. There is a script that shows you how to do this with curl at `./scripts/prime-api`. For instance to call the `move-task-orders` endpoint, call `./scripts/prime-api move-task-orders`
 
 
 
@@ -404,23 +402,13 @@ The Orders Gateway's API is defined in the file `swagger/orders.yaml` and served
 
 The Admin API is defined in the file `swagger/admin.yaml` and served at `/admin/v1/swagger.yaml`.
 
-You can view the documentation for the APIs (powered by Swagger UI) at the following URLS with a local client and server running:
+You can view the documentation for the following APIs (powered by Swagger UI) at the following URLS with a local client and server running:
 
 * internal API: <http://milmovelocal:3000/swagger-ui/internal.html>
 
 * admin API: <http://milmovelocal:3000/swagger-ui/admin.html>
 
 * GHC API: <http://milmovelocal:3000/swagger-ui/ghc.html>
-
-The additional API swagger docs will require some nebulous extra setup (TODO: link to instructions for these):
-
-* DPS
-
-* Orders
-
-* Prime
-
-* Support
 
 ### Testing
 
