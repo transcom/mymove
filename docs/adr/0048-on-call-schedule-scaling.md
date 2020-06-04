@@ -3,7 +3,7 @@
 As the Milmove team has grown, we need to address several concerns with our on-call schedule:
 
 - The schedule is very long and people cannot anticipate/plan for when they will be on-call.
-- Team members are often on-cal at the same time.
+- Team members are often on-call at the same time.
 - The long gaps between times on-call mean that people aren’t able to learn the skills needed or discern patterns of failures.
 
 ## Considered Alternatives
