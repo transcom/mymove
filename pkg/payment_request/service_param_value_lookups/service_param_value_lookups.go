@@ -44,7 +44,7 @@ func ServiceParamLookupInitialize(
 		MoveTaskOrderID:  moveTaskOrderID,
 	}
 
-	for _, key := range models.ValidServiceItemParamName {
+	for _, key := range models.ValidServiceItemParamNames {
 		s.lookups[key] = NotImplementedLookup{}
 	}
 
