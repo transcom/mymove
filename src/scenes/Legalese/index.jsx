@@ -1,4 +1,5 @@
 import { get } from 'lodash';
+import moment from 'moment';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -12,9 +13,11 @@ import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatSwaggerDate } from 'shared/formatters';
 import './index.css';
-
+import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
+import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
 import { loadCertificationText, signAndSubmitForApproval } from './ducks';
-import moment from 'moment';
+import { SubmitMoveForApproval } from '../Moves/api';
+import { ppmStandardLiability, storageLiability, ppmAdvance, additionalInformation } from './legaleseText';
 
 const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName);
@@ -25,16 +28,38 @@ export class SignedCertification extends Component {
   };
 
   componentDidMount() {
-    const { hasLoggedInUser, certificationText, has_advance, has_sit } = this.props;
+    this.props.loadPPMs(this.props.moveId);
+    const { hasLoggedInUser, certificationText, currentPpm } = this.props;
     if (hasLoggedInUser && !certificationText) {
-      this.props.loadCertificationText(has_sit, has_advance);
-      return;
+      this.props.loadCertificationText(currentPpm.has_sit, currentPpm.has_requested_advance);
     }
   }
 
+  getCertificationText() {
+    const { hasSit, hasRequestedAdvance } = this.props.currentPpm;
+    const txt = [ppmStandardLiability];
+    if (hasSit) txt.push(storageLiability);
+    if (hasRequestedAdvance) txt.push(ppmAdvance);
+    txt.push(additionalInformation);
+    return txt.join('');
+  }
+
+  submitCertificate = () => {
+    const signatureTime = moment().format();
+    const { currentPpm, moveId } = this.props;
+    const certificate = {
+      certification_text: this.getCertificationText(),
+      date: signatureTime,
+      signature: 'CHECKBOX',
+      personally_procured_move_id: currentPpm.id,
+      certification_type: 'PPM_PAYMENT',
+    };
+    return this.props.createSignedCertification(moveId, certificate);
+  };
+
   handleSubmit = () => {
     const pendingValues = this.props.values;
-    const { latestSignedCertification, ppmId } = this.props;
+    const { latestSignedCertification } = this.props;
     const submitDate = moment().format();
     if (latestSignedCertification) {
       return this.props.push('/');
@@ -42,24 +67,21 @@ export class SignedCertification extends Component {
 
     if (pendingValues) {
       const moveId = this.props.match.params.moveId;
-      const { certificationText } = this.props;
-
-      return this.props
-        .signAndSubmitForApproval(
-          moveId,
-          certificationText,
-          pendingValues.signature,
-          pendingValues.date,
-          ppmId,
-          submitDate,
-        )
+      Promise.all([
+        this.submitCertificate(),
+        SubmitMoveForApproval(moveId, {
+          ppm_submit_date: submitDate,
+        }),
+      ])
         .then(() => this.props.push('/'))
         .catch(() => this.setState({ hasMoveSubmitError: true }));
     }
   };
+
   print() {
     window.print();
   }
+
   render() {
     const { hasSubmitError, pages, pageKey, latestSignedCertification } = this.props;
     const today = formatSwaggerDate(new Date());
@@ -67,10 +89,11 @@ export class SignedCertification extends Component {
       date: get(latestSignedCertification, 'date', today),
       signature: get(latestSignedCertification, 'signature', null),
     };
+    const certificationText = this.getCertificationText();
     return (
       <div>
         <div className="legalese">
-          {this.props.certificationText && (
+          {certificationText && (
             <SignatureWizardForm
               handleSubmit={this.handleSubmit}
               className={formName}
@@ -91,7 +114,7 @@ export class SignedCertification extends Component {
                     </a>
                   </span>
 
-                  <CertificationText certificationText={this.props.certificationText} />
+                  <CertificationText certificationText={certificationText} />
 
                   <div className="signature-box">
                     <h3>SIGNATURE</h3>
@@ -141,13 +164,16 @@ SignedCertification.propTypes = {
   ppmId: PropTypes.string,
 };
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
+  const { moveId } = ownProps.match.params;
   return {
+    moveId: moveId,
     schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
     hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
     values: getFormValues(formName)(state),
     ...state.signedCertification,
-    ppmId: get(state.ppm, 'currentPpm.id', null),
+    currentPpm: selectActivePPMForMove(state, moveId),
+    tempPpmId: get(state.ppm, 'currentPpm.id', null),
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),
     has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
   };
@@ -158,6 +184,8 @@ function mapDispatchToProps(dispatch) {
     {
       loadCertificationText,
       signAndSubmitForApproval,
+      createSignedCertification,
+      loadPPMs,
       push,
     },
     dispatch,
