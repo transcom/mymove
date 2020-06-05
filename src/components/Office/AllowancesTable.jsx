@@ -4,12 +4,12 @@ import * as PropTypes from 'prop-types';
 const AllowancesTable = ({ info }) => {
   return (
     <div>
-      <div className="stackedtable-header">
-        <div>
-          <h4>Allowances</h4>
-        </div>
-      </div>
       <table className="table--stacked">
+        <caption>
+          <div className="stackedtable-header">
+            <h4>Allowances</h4>
+          </div>
+        </caption>
         <colgroup>
           <col style={{ width: '25%' }} />
           <col style={{ width: '75%' }} />
