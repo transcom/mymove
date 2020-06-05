@@ -1725,6 +1725,7 @@ func init() {
         "EIAFuelPrice",
         "MarketDest",
         "MarketOrigin",
+        "MTOAvailableToPrimeAt",
         "NumberDaysSIT",
         "PriceAreaDest",
         "PriceAreaIntlDest",
@@ -1778,7 +1779,9 @@ func init() {
         "STRING",
         "DATE",
         "INTEGER",
-        "DECIMAL"
+        "DECIMAL",
+        "TIMESTAMP",
+        "PaymentServiceItemUUID"
       ]
     },
     "UpdatePaymentRequestStatus": {
@@ -3713,6 +3716,7 @@ func init() {
         "EIAFuelPrice",
         "MarketDest",
         "MarketOrigin",
+        "MTOAvailableToPrimeAt",
         "NumberDaysSIT",
         "PriceAreaDest",
         "PriceAreaIntlDest",
@@ -3766,7 +3770,9 @@ func init() {
         "STRING",
         "DATE",
         "INTEGER",
-        "DECIMAL"
+        "DECIMAL",
+        "TIMESTAMP",
+        "PaymentServiceItemUUID"
       ]
     },
     "UpdatePaymentRequestStatus": {

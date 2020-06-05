@@ -44,7 +44,7 @@ func ServiceParamLookupInitialize(
 		MoveTaskOrderID:  moveTaskOrderID,
 	}
 
-	for _, key := range models.ValidServiceItemParamName {
+	for _, key := range models.ValidServiceItemParamNames {
 		s.lookups[key] = NotImplementedLookup{}
 	}
 
@@ -52,6 +52,8 @@ func ServiceParamLookupInitialize(
 	s.lookups[models.ServiceItemParamNameDistanceZip5.String()] = DistanceZip5Lookup{}
 	s.lookups[models.ServiceItemParamNameDistanceZip3.String()] = DistanceZip3Lookup{}
 	s.lookups[models.ServiceItemParamNameWeightBilledActual.String()] = WeightBilledActualLookup{}
+	s.lookups[models.ServiceItemParamNameWeightEstimated.String()] = WeightEstimatedLookup{}
+	s.lookups[models.ServiceItemParamNameWeightActual.String()] = WeightActualLookup{}
 
 	return &s
 }
