@@ -14991,10 +14991,10 @@ swagger-client@^3.10.5:
     utf8-bytes "0.0.1"
     utfstring "^2.0.0"
 
-swagger-ui-dist@^3.25.5:
-  version "3.25.5"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.25.5.tgz#57a17c9b45851370a9a76c1659f21d4f14a9f3d2"
-  integrity sha512-JZ6dVQS2nPgVYW0+JIIxm84vvFbR/ole6xYJG2DcSdejDLt8ARqIhbZ4InL7RVsLdXpPirUMb7hf2z4Fzqesyw==
+swagger-ui-dist@^3.26.0:
+  version "3.26.0"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.26.0.tgz#6dccd492bf9c97fe508d8438c754991277a6164f"
+  integrity sha512-z58RlRUk//dTg6jwgFBVv0JNyfDpoRNUgEyoA9cRheNvUuklMTKMY3hgDfXSZpmnGgZEG8iA/SAZGE56hvRuug==
 
 symbol-observable@^1.0.3, symbol-observable@^1.0.4, symbol-observable@^1.2.0:
   version "1.2.0"
