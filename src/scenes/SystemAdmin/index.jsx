@@ -7,6 +7,7 @@ import SignIn from 'scenes/SystemAdmin/shared/SignIn';
 import { isDevelopment } from 'shared/constants';
 import { LoginButton } from 'scenes/SystemAdmin/shared/LoginButton';
 import { GetLoggedInUser } from 'shared/User/api.js';
+import FOUOHeader from 'components/FOUOHeader';
 
 class AdminWrapper extends Component {
   constructor(props) {
@@ -29,13 +30,16 @@ class AdminWrapper extends Component {
   render() {
     if (!this.state.isLoggedIn) {
       return (
-        <React.Fragment>
-          <LoginButton
-            showDevlocalButton={get(this.state, 'isDevelopment', isDevelopment)}
-            isLoggedIn={this.state.isLoggedIn}
-          />
-          <SignIn location={window.location} />
-        </React.Fragment>
+        <div className="Admin site">
+          <FOUOHeader />
+          <React.Fragment>
+            <LoginButton
+              showDevlocalButton={get(this.state, 'isDevelopment', isDevelopment)}
+              isLoggedIn={this.state.isLoggedIn}
+            />
+            <SignIn location={window.location} />
+          </React.Fragment>
+        </div>
       );
     } else {
       return <Home />;

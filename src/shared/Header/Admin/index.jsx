@@ -6,6 +6,7 @@ import UserGreeting from 'shared/User/UserGreeting';
 
 import './index.css';
 
+// TODO: Should this be removed if it's not used anywhere?
 function AdminHeader() {
   return (
     <header role="banner" className="header">
