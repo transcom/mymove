@@ -181,7 +181,16 @@ export class OfficeWrapper extends Component {
                       <PrivateRoute
                         path="/moves/queue"
                         exact
-                        component={TOO}
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={TOO}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
                         requiredRoles={['transportation_ordering_officer']}
                       />
                     )}
@@ -189,7 +198,16 @@ export class OfficeWrapper extends Component {
                       <PrivateRoute
                         path="/move/mto/:moveTaskOrderId"
                         exact
-                        component={TOOMoveTaskOrder}
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={TOOMoveTaskOrder}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
                         requiredRoles={['transportation_ordering_officer']}
                       />
                     )}
@@ -197,14 +215,32 @@ export class OfficeWrapper extends Component {
                       <PrivateRoute
                         path="/moves/:locator"
                         exact
-                        component={MoveDetails}
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={MoveDetails}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
                         requiredRoles={['transportation_ordering_officer']}
                       />
                     )}
                     {too && (
                       <PrivateRoute
                         path="/moves/:moveOrderId/customer/:customerId"
-                        component={CustomerDetails}
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={CustomerDetails}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
                         requiredRoles={['transportation_ordering_officer']}
                       />
                     )}
@@ -212,21 +248,48 @@ export class OfficeWrapper extends Component {
                     {tio && (
                       <PrivateRoute
                         path="/invoicing/queue"
-                        component={TIO}
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={TIO}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
                         requiredRoles={['transportation_invoicing_officer']}
                       />
                     )}
                     {tio && (
                       <PrivateRoute
                         path="/payment_requests/:id"
-                        component={PaymentRequestShow}
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={PaymentRequestShow}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
                         requiredRoles={['transportation_invoicing_officer']}
                       />
                     )}
                     {tio && (
                       <PrivateRoute
                         path="/payment_requests"
-                        component={PaymentRequestIndex}
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={PaymentRequestIndex}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
                         requiredRoles={['transportation_invoicing_officer']}
                       />
                     )}
