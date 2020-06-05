@@ -17,7 +17,6 @@ import {
   selectMoveOrder,
   selectCustomer,
 } from '../../shared/Entities/modules/moveTaskOrders';
-import { loadServiceMember } from '../../shared/Entities/modules/serviceMembers';
 
 import { loadOrders } from '../../shared/Entities/modules/orders';
 import OrdersTable from '../../components/Office/OrdersTable';
@@ -131,7 +130,6 @@ const mapDispatchToProps = {
   getCustomer,
   getAllMoveTaskOrders,
   getMTOShipments,
-  loadServiceMember,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MoveDetails));
