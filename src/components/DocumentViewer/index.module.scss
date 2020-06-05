@@ -2,25 +2,67 @@
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
 
-.doc-viewer--menu {
+.docViewerMenu {
+  @include u-bg('white');
+  @include u-shadow(2);
+  @include u-padding-y(3);
+  @include u-padding-x(0);
+  @include u-height(100vh);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 308px;
+}
+
+#doc-menu-1 {
+  display: none;
+}
+
+/*.collapsed {
+  @include u-width(9);
+}*/
+
+.menuControls {
+  @include u-padding-bottom(4);
   svg path {
     fill: $primary;
   }
-  @include u-bg('white');
-  @include u-shadow(2);
+}
+
+.thumbnailItem {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  @include u-border-top(1px);
+  @include u-border-top('base-lighter');
   @include u-padding-x(1.5);
-  @include u-padding-y(3);
-  &--collapsed {
-    @include u-width(9);
+  width: 308px;
+  p {
+    width: 212px;
+    @include u-padding-y(2);
+    @include u-text('gray-50');
+    word-wrap: break-word;
   }
-  .thumbnail-image {
-    @include u-border('1px');
-    @include u-border('base-lightest');
-    @include u-width(6);
-    @include u-height(6);
-    @include u-padding(1.5);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
+  &:hover {
+    @include u-text('no-underline');
+    @include u-text('blue-50v');
+  }
+}
+
+.thumbnailImage {
+  @include u-border('1px');
+  @include u-border('base-lightest');
+  @include u-width(6);
+  @include u-height(6);
+  @include u-margin-y(1.5);
+  @include u-margin-left(1.5);
+  background-image: url('../../shared/images/fake-doc.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  &:hover,
+  &:focus {
+    @include border-inset(2px, $link);
   }
 }

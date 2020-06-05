@@ -3,4 +3,9 @@ import { storiesOf } from '@storybook/react';
 
 import DocViewerMenu from '../components/DocumentViewer';
 
-storiesOf('Components|Document Viewer', module).add('menu', () => <DocViewerMenu />);
+storiesOf('Components|Document Viewer', module).add('menu', () => (
+  <div className="display-flex">
+    <DocViewerMenu />
+    <DocViewerMenu />
+  </div>
+));
