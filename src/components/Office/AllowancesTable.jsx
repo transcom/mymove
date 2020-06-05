@@ -21,27 +21,27 @@ const AllowancesTable = ({ info }) => {
           </tr>
           <tr>
             <th scope="row">Weight allowance</th>
-            <td data-cy="weightAllowance">{info.weightAllowance}</td>
+            <td data-cy="weightAllowance">{`${info.weightAllowance} lbs`}</td>
           </tr>
           <tr>
             <th scope="row">Authorized weight</th>
-            <td data-cy="authorizedWeight">{info.authorizedWeight}</td>
+            <td data-cy="authorizedWeight">{`${info.authorizedWeight} lbs`}</td>
           </tr>
           <tr>
             <th scope="row">Pro-gear</th>
-            <td data-cy="progear">{info.progear}</td>
+            <td data-cy="progear">{`${info.progear} lbs`}</td>
           </tr>
           <tr>
             <th scope="row">Spouse pro-gear</th>
-            <td data-cy="spouseProgear">{info.spouseProgear}</td>
+            <td data-cy="spouseProgear">{`${info.spouseProgear} lbs`}</td>
           </tr>
           <tr>
             <th scope="row">Storage in transit</th>
-            <td data-cy="storageInTransit">{info.storageInTransit}</td>
+            <td data-cy="storageInTransit">{`${info.storageInTransit} days`}</td>
           </tr>
           <tr>
             <th scope="row">Dependents</th>
-            <td data-cy="dependents">{info.dependents}</td>
+            <td data-cy="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</td>
           </tr>
         </tbody>
       </table>
@@ -53,12 +53,12 @@ AllowancesTable.propTypes = {
   info: PropTypes.shape({
     branch: PropTypes.string,
     rank: PropTypes.string,
-    weightAllowance: PropTypes.string,
-    authorizedWeight: PropTypes.string,
-    progear: PropTypes.string,
-    spouseProgear: PropTypes.string,
-    storageInTransit: PropTypes.string,
-    dependents: PropTypes.string,
+    weightAllowance: PropTypes.number,
+    authorizedWeight: PropTypes.number,
+    progear: PropTypes.number,
+    spouseProgear: PropTypes.number,
+    storageInTransit: PropTypes.number,
+    dependents: PropTypes.bool,
   }).isRequired,
 };
 

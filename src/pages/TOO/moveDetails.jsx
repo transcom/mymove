@@ -83,12 +83,12 @@ class MoveDetails extends Component {
             info={{
               branch: customer.agency,
               rank: moveOrder.grade,
-              weightAllowance: `${allowances.totalWeight} lbs`,
-              authorizedWeight: `${allowances.authorizedWeight} lbs`,
-              progear: `${allowances.proGearWeight} lbs`,
-              spouseProgear: `${allowances.proGearWeightSpouse} lbs`,
-              storageInTransit: `${allowances.storageInTransit} days`,
-              dependents: allowances.dependentsAuthorized ? 'Authorized' : 'Unauthorized',
+              weightAllowance: allowances.totalWeight,
+              authorizedWeight: allowances.authorizedWeight,
+              progear: allowances.proGearWeight,
+              spouseProgear: allowances.proGearWeightSpouse,
+              storageInTransit: allowances.storageInTransit,
+              dependents: allowances.dependentsAuthorized,
             }}
           />
           <CustomerInfoTable
