@@ -101,6 +101,7 @@
     "@storybook/addons": "^5.3.17",
     "@storybook/react": "^5.3.19",
     "danger": "^10.2.0",
+    "danger-plugin-jira-issue": "^1.4.1",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",

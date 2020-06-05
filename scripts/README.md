@@ -204,3 +204,12 @@ These scripts are primarily used for working with the Prime API
 | Script Name | Description |
 | --- | --- |
 | `run-prime-docker` | Runs a docker container allowing access to the Prime API |
+
+
+### Pricing & Rate Engine Scripts
+
+These scripts are primarily for working with the pricing and rate engine
+
+| Script Name | Description |
+| --- | --- |
+| `pricing-import` | Creates secure migration to move pricing data into production |
