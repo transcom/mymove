@@ -266,7 +266,7 @@ Run `direnv allow` to load up the `.envrc` file. It should complain that you hav
 You can add a `.envrc.local` file. One way to do this is using the [chamber tool](https://github.com/segmentio/chamber) to read secrets from AWS vault.
 Then run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
 
-If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`.
+If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`. **Note also** that as of 2020/6 this method appears to be somewhat broken. If you do not wish to troubleshoot it, the best way forward is to follow the above `.envrc.local` instructions.
 
 #### Helpful variables for `.envrc.local`
 
