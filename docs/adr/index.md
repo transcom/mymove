@@ -51,6 +51,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0044](0044-params-styling.md) - Use camelCase for API params
 - [ADR-0045](0045-nesting-swagger-paths.md) - Nesting Swagger paths in the Prime API with multiple IDs
 - [ADR-0046](0046-use-nodenv.md) - Use [nodenv](https://github.com/nodenv/nodenv) to manage Node versions in development
+- [ADR-0047](0047-build-only-pull-requests-in-circleci.md) - Use CircleCI to build only Pull Requests and master
 
 <!-- adrlogstop -->
 
