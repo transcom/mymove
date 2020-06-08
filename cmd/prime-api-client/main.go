@@ -271,6 +271,27 @@ func main() {
 	initCreatePaymentRequestFlags(createPaymentRequestCommand.Flags())
 	root.AddCommand(createPaymentRequestCommand)
 
+	getMTOPaymentRequestsCommand := &cobra.Command{
+		Use:   "support-get-mto-payment-requests",
+		Short: "Get all payment requests for a given MTO",
+		Long: `
+  This command allows the user to get all payment requests associated with an MTO.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters.
+
+  Endpoint path: /move-task-orders/{moveTaskOrderID}/payment-requests
+  The file should contain json as follows:
+    {
+      "moveTaskOrderID": <uuid string>,
+    }
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         getMTOPaymentRequests,
+		SilenceUsage: true,
+	}
+	initUpdatePaymentRequestStatusFlags(getMTOPaymentRequestsCommand.Flags())
+	root.AddCommand(getMTOPaymentRequestsCommand)
+
 	createPaymentRequestUploadCommand := &cobra.Command{
 		Use:          "create-upload",
 		Short:        "Create payment request upload",
