@@ -13,7 +13,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestZipDestAddress() {
-	key := "ZipDestAddress"
+	key := models.ServiceItemParamNameZipDestAddress.String()
 
 	suite.T().Run("zip destination address is present on MTO Shipment", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
