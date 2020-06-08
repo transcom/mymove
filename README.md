@@ -365,7 +365,7 @@ The API that the Prime will use is authenticated via mutual TSL so there are a f
 
 If you want to develop against AWS services you will need an AWS user account with `engineering` privileges.
 
-AWS credentials are managed via `aws-vault`. See the [the instructions in transcom-ppp](https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#setup) to set things up.
+AWS credentials are managed via `aws-vault`. See the [the instructions in transcom-ppp](https://github.com/transcom/transcom-infrasec-com/blob/master/transcom-ppp/README.md#setup) to set things up.
 
 ## Development
 
