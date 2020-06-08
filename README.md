@@ -133,6 +133,8 @@ To create an account in the sandbox, follow the same instructions, but [in the s
 
 ### Setup: Developer Setup
 
+Note: These instructions are a living document and often fall out-of-date. If you run into anything that needs correcting or updating, please create a PR with those changes to help those coming after you.
+
 There are a number of things you'll need at a minimum to be able to check out, develop and run this project.
 
 * Install [Homebrew](https://brew.sh)
@@ -393,10 +395,7 @@ Currently, scenarios have the following numbers:
 
 ### API / Swagger
 
-<!-- TODO: api.yaml was last updated 2 years ago - is this description still accurate for the public API? Is there still a single "public" API? -->
-The public API is defined in a single file: `swagger/api.yaml` and served at `/api/v1/swagger.yaml`. This file is the single source of truth for the public API.
-
-In addition, internal services, i.e. endpoints only intended for use by the React client are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
+Internal services (i.e. endpoints only intended for use by the React client) are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
 
 The Orders Gateway's API is defined in the file `swagger/orders.yaml` and served at `/orders/v0/orders.yaml`.
 
