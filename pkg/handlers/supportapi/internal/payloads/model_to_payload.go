@@ -181,6 +181,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
+		PrimeActualWeight:        int64(*mtoShipment.PrimeActualWeight),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
