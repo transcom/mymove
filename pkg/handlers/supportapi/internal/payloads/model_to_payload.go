@@ -172,7 +172,10 @@ func Address(address *models.Address) *supportmessages.Address {
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 	strfmt.MarshalFormat = strfmt.RFC3339Micro
-
+	var primeActualWeight int64
+	if mtoShipment.PrimeActualWeight != nil {
+		primeActualWeight = int64(*mtoShipment.PrimeActualWeight)
+	}
 	payload := &supportmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
@@ -181,7 +184,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
-		PrimeActualWeight:        int64(*mtoShipment.PrimeActualWeight),
+		PrimeActualWeight:        primeActualWeight,
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
