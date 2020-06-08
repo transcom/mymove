@@ -41,6 +41,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
   * [Setup: Prerequisites](#setup-prerequisites)
   * [Setup: Pre-Commit](#setup-pre-commit)
+    * [Troubleshooting install issues (process hanging on install hooks)](#troubleshooting-install-issues-process-hanging-on-install-hooks)
   * [Setup: Dependencies](#setup-dependencies)
   * [Setup: Build Tools](#setup-build-tools)
   * [Setup: Database](#setup-database)
@@ -284,6 +285,10 @@ Run `make prereqs` and install everything it tells you to. Most of the prerequis
 Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than `brew install pre-commit` and must be done so that the hook will check files you are about to commit to the repository.  Next install the pre-commit hook libraries with `pre-commit install-hooks`.
 
 Before running `pre-commit run -a` you will need to install Javascript dependencies and generate some golang code from Swagger files. An easier way to handle this is by running `make pre_commit_tests` or `make server_generate client_deps && pre-commit run -a`. But it's early to do this so you can feel free to skip running the pre-commit checks at this time.
+
+#### Troubleshooting install issues (process hanging on install hooks)
+
+Since pre-commit uses node to hook things up in both your local repo and its cache folder (located at `~/.cache/pre-commit`),it requires a global node install. If you are using nodenv to manage multiple installed nodes, you'll need to set a global version to proceed (eg `nodenv global 12.16.3`). You can find the current supported node version [here (in `.node-version`)](./.node-version).
 
 ### Setup: Dependencies
 
