@@ -26,21 +26,25 @@ type MTOShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
-	// approved date
+	// date when the shipment was given the status "APPROVED"
+	// Read Only: true
 	// Format: date
 	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
 
 	// created at
+	// Read Only: true
 	// Format: datetime
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// customer remarks
+	// Read Only: true
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// first available delivery date
@@ -48,17 +52,19 @@ type MTOShipment struct {
 	FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
 
 	// id
+	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// move task order ID
+	// Read Only: true
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
-	// Email or id of a contact person for this update
+	// Email or id of a contact person for this update.
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
 	// prime actual weight
@@ -68,12 +74,23 @@ type MTOShipment struct {
 	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
 	// prime estimated weight recorded date
+	// Read Only: true
 	// Format: date
 	PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
 
+	// rejection reason
+	// Read Only: true
+	RejectionReason *string `json:"rejectionReason,omitempty"`
+
 	// requested pickup date
+	// Read Only: true
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+
+	// required delivery date
+	// Read Only: true
+	// Format: date
+	RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
 
 	// scheduled pickup date
 	// Format: date
@@ -89,10 +106,12 @@ type MTOShipment struct {
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
 	// status
+	// Read Only: true
 	// Enum: [APPROVED SUBMITTED REJECTED]
 	Status string `json:"status,omitempty"`
 
 	// updated at
+	// Read Only: true
 	// Format: datetime
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
@@ -142,6 +161,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRequestedPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRequiredDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -325,6 +348,19 @@ func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error
 	}
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateRequiredDeliveryDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.RequiredDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("requiredDeliveryDate", "body", "date", m.RequiredDeliveryDate.String(), formats); err != nil {
 		return err
 	}
 

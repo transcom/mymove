@@ -58,7 +58,7 @@ func (suite *ModelSuite) TestFetchDocument() {
 
 	verrs, err := suite.DB().ValidateAndSave(&document)
 	if err != nil {
-		t.Fatalf("could not save Upload: %v", err)
+		t.Fatalf("could not save UserUpload: %v", err)
 	}
 
 	if verrs.Count() != 0 {
@@ -89,7 +89,7 @@ func (suite *ModelSuite) TestFetchDeletedDocument() {
 
 	verrs, err := suite.DB().ValidateAndSave(&document)
 	if err != nil {
-		t.Fatalf("could not save Upload: %v", err)
+		t.Fatalf("could not save UserUpload: %v", err)
 	}
 
 	if verrs.Count() != 0 {

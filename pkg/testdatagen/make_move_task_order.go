@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 
 	mtoservicehelper "github.com/transcom/mymove/pkg/services/move_task_order/shared"
 
@@ -20,6 +21,13 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 		referenceID, _ = mtoservicehelper.GenerateReferenceID(db)
 	}
 
+	var contractorID uuid.UUID
+
+	if assertions.MoveTaskOrder.ContractorID == uuid.Nil {
+		contractor := MakeContractor(db, assertions)
+		contractorID = contractor.ID
+	}
+
 	ppmType := assertions.MoveTaskOrder.PPMType
 	if assertions.MoveTaskOrder.PPMType == nil {
 		partialType := "PARTIAL"
@@ -27,12 +35,12 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	}
 
 	moveTaskOrder := models.MoveTaskOrder{
-		MoveOrder:          moveOrder,
-		MoveOrderID:        moveOrder.ID,
-		ReferenceID:        referenceID,
-		IsAvailableToPrime: false,
-		IsCanceled:         false,
-		PPMType:            ppmType,
+		MoveOrder:    moveOrder,
+		MoveOrderID:  moveOrder.ID,
+		ContractorID: contractorID,
+		ReferenceID:  referenceID,
+		IsCanceled:   false,
+		PPMType:      ppmType,
 	}
 
 	// Overwrite values with those from assertions

@@ -85,7 +85,7 @@ func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection, includeAllMoveDo
 	  wt.weight_ticket_date,
 	  wt.trailer_ownership_missing`)
 
-	err := db.RawQuery(sql, args...).Eager("Document.Uploads").All(&moveDocs)
+	err := db.RawQuery(sql, args...).Eager("Document.UserUploads.Upload").All(&moveDocs)
 	if err != nil {
 		return moveDocs, err
 	}

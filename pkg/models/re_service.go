@@ -24,6 +24,8 @@ const (
 	ReServiceCodeDBTF ReServiceCode = "DBTF"
 	// ReServiceCodeDCRT Dom. Crating
 	ReServiceCodeDCRT ReServiceCode = "DCRT"
+	// ReServiceCodeDCRTSA Dom. Crating - Standalone
+	ReServiceCodeDCRTSA ReServiceCode = "DCRTSA"
 	// ReServiceCodeDDASIT "Dom. Destination Add'l SIT"
 	ReServiceCodeDDASIT ReServiceCode = "DDASIT"
 	// ReServiceCodeDDDSIT Dom. Destination SIT Delivery
@@ -70,6 +72,8 @@ const (
 	ReServiceCodeICOUB ReServiceCode = "ICOUB"
 	// ReServiceCodeICRT "Int'l. Crating"
 	ReServiceCodeICRT ReServiceCode = "ICRT"
+	// ReServiceCodeICRTSA "Int'l. Crating - Standalone"
+	ReServiceCodeICRTSA ReServiceCode = "ICRTSA"
 	// ReServiceCodeIDASIT "Int'l. Destination Add'l Day SIT"
 	ReServiceCodeIDASIT ReServiceCode = "IDASIT"
 	// ReServiceCodeIDDSIT "Int'l. Destination SIT Delivery"

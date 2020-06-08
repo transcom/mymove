@@ -298,7 +298,7 @@ class WeightTicket extends Component {
                       title={
                         this.isProGear
                           ? "Pro-gear type (ex. 'My pro-gear', 'Spouse pro-gear', 'Both')"
-                          : "Vehicle nickname (ex. 'Large box truck')"
+                          : 'Nickname (ex. "15-foot truck")'
                       }
                       swagger={schema}
                       required={!this.isCarTrailer && !this.isCar}

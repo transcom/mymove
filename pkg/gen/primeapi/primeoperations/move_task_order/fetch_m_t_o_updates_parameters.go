@@ -32,7 +32,7 @@ type FetchMTOUpdatesParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Only return MTOs updated since this time
+	/*Only return move task orders updated since this time.
 	  In: query
 	*/
 	Since *int64

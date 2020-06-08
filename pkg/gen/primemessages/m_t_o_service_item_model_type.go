@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemModelType Describes all model sub-types for a MTOServiceItem model
+// MTOServiceItemModelType Describes all model sub-types for a MTOServiceItem model.
 // swagger:model MTOServiceItemModelType
 type MTOServiceItemModelType string
 

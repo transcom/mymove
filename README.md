@@ -37,11 +37,10 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
   * [Setup: Editor Config](#setup-editor-config)
   * [Setup: Makefile](#setup-makefile)
   * [Setup: Quick Initial Setup](#setup-quick-initial-setup)
-  * [Setup: Prerequisites](#setup-prerequisites)
   * [Setup: Direnv](#setup-direnv)
     * [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
+  * [Setup: Prerequisites](#setup-prerequisites)
   * [Setup: Pre-Commit](#setup-pre-commit)
-  * [Setup: Hosts](#setup-hosts)
   * [Setup: Dependencies](#setup-dependencies)
   * [Setup: Build Tools](#setup-build-tools)
   * [Setup: Database](#setup-database)
@@ -248,8 +247,8 @@ so take the time to understand what it does.
 
 The following commands will get mymove running on your machine for the first time. This is an abbreviated list that should get you started. Please read below for explanations of each of the commands.
 
-1. `make prereqs`
 1. `direnv allow`
+1. `make prereqs`
 1. `make ensure_pre_commit`
 1. `make deps`
 1. `make db_dev_run`
@@ -257,12 +256,6 @@ The following commands will get mymove running on your machine for the first tim
 1. `make server_run`
 1. `make client_build`
 1. `make client_run`
-
-### Setup: Prerequisites
-
-Run `make prereqs` and install everything it tells you to. Most of the prerequisites need you to use `brew install <package>`.
-
-**NOTE:** Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!
 
 ### Setup: Direnv
 
@@ -280,45 +273,17 @@ If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envr
 * `export GOLANGCI_LINT_CONCURRENCY=8` - variable to increase concurrency of golangci-lint; defaults to 6 on dev machines and to 1 in CircleCI.
 * `export GOLAND=1` - variable to enable go code debugging in goland
 
+### Setup: Prerequisites
+
+Run `make prereqs` and install everything it tells you to. Most of the prerequisites need you to use `brew install <package>`.
+
+**NOTE:** Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!
+
 ### Setup: Pre-Commit
 
 Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than `brew install pre-commit` and must be done so that the hook will check files you are about to commit to the repository.  Next install the pre-commit hook libraries with `pre-commit install-hooks`.
 
-Before running `pre-commit run -a` you will need to install Javascript dependencies and generate some golang code from Swagger files. An easier way to handle this is by running `make pre_commit_tests` or `make server generate client_deps && pre-commit run -a`. But it's early to do this so you can feel free to skip running the pre-commit checks at this time.
-
-### Setup: Hosts
-
-You need to modify your `/etc/hosts` file. This is a tricky file to modify and you will need to use `sudo` to edit it.
-Here are the steps:
-
-  ```bash
-  echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 orderslocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
-  ```
-
-Check that the file looks correct with `cat /etc/hosts`:
-
-  ```text
-  ##
-  # Host Database
-  #
-  # localhost is used to configure the loopback interface
-  # when the system is booting.  Do not change this entry.
-  ##
-  255.255.255.255 broadcasthost
-  ::1             localhost
-  127.0.0.1   localhost
-  127.0.0.1   milmovelocal
-  127.0.0.1   officelocal
-  127.0.0.1   orderslocal
-  127.0.0.1   adminlocal
-  127.0.0.1   primelocal
-```
-
-You can also verify this by running `scripts/check-hosts-file`.
+Before running `pre-commit run -a` you will need to install Javascript dependencies and generate some golang code from Swagger files. An easier way to handle this is by running `make pre_commit_tests` or `make server_generate client_deps && pre-commit run -a`. But it's early to do this so you can feel free to skip running the pre-commit checks at this time.
 
 ### Setup: Dependencies
 

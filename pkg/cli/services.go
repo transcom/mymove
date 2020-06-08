@@ -23,6 +23,8 @@ const (
 	ServeGHCFlag string = "serve-api-ghc"
 	// ServePrimeFlag is the prime api flag
 	ServePrimeFlag string = "serve-api-prime"
+	// ServeSupportFlag is the prime api flag
+	ServeSupportFlag string = "serve-api-support"
 )
 
 // InitServiceFlags initializes the service command line flags
@@ -34,6 +36,7 @@ func InitServiceFlags(flag *pflag.FlagSet) {
 	flag.Bool(ServeAPIInternalFlag, false, "Enable the Internal API Service.")
 	flag.Bool(ServeGHCFlag, false, "Enable the GHC API Service.")
 	flag.Bool(ServePrimeFlag, false, "Enable the Prime API Service.")
+	flag.Bool(ServeSupportFlag, true, "Enable the Support Service.")
 }
 
 // CheckServices validates these lovely service flags

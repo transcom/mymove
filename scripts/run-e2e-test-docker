@@ -36,7 +36,7 @@ make e2e_clean
 
 if [[ -n "${CIRCLECI+x}" ]]; then
   # CI/CD allows us to use pre-built images using the branch name
-  scripts/update-docker-compose
+  scripts/update-docker-compose docker-compose.yml
 
   # Let's clean things up before starting
   # This may show an error locally but can be safely ignored, its only for CircleCI

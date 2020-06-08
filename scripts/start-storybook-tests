@@ -23,4 +23,4 @@ done
 
 echo ""
 echo "Running loki tests"
-yarn run loki test --host storybook --requireReference
+yarn run loki test --chromeConcurrency 1 --chromeRetries 5 --host storybook --requireReference

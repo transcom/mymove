@@ -51,18 +51,21 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 	suite.MustSave(&document)
 
 	uploadID, _ := uuid.NewV4()
-	uploadAssertions := models.Upload{
-		ID:          uploadID,
-		Document:    document,
-		DocumentID:  &document.ID,
-		Filename:    "FileName",
-		Bytes:       int64(15),
-		ContentType: "application/pdf",
-		CreatedAt:   time.Now(),
-		UploaderID:  sm.UserID,
+	uploadUserAssertions := models.UserUpload{
+		Document:   document,
+		DocumentID: &document.ID,
+		CreatedAt:  time.Now(),
+		UploaderID: sm.UserID,
+		Upload: models.Upload{
+			ID:          uploadID,
+			Filename:    "FileName",
+			Bytes:       int64(15),
+			ContentType: "application/pdf",
+			CreatedAt:   time.Now(),
+		},
 	}
 
-	uploadInstance := testdatagen.MakeUpload(suite.DB(), testdatagen.Assertions{Upload: uploadAssertions})
+	uploadInstance := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{UserUpload: uploadUserAssertions})
 	suite.MustSave(&uploadInstance)
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())

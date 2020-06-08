@@ -12,7 +12,6 @@ func (suite *ModelSuite) TestProofOfServiceDocValidation() {
 	suite.T().Run("test valid ProofOfServiceDoc", func(t *testing.T) {
 		validProofOfServiceDoc := models.ProofOfServiceDoc{
 			PaymentRequestID: uuid.Must(uuid.NewV4()),
-			UploadID:         uuid.Must(uuid.NewV4()),
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validProofOfServiceDoc, expErrors)
@@ -23,7 +22,6 @@ func (suite *ModelSuite) TestProofOfServiceDocValidation() {
 
 		expErrors := map[string][]string{
 			"payment_request_id": {"PaymentRequestID can not be blank."},
-			"upload_id":          {"UploadID can not be blank."},
 		}
 
 		suite.verifyValidationErrors(&invalidProofOfServiceDoc, expErrors)

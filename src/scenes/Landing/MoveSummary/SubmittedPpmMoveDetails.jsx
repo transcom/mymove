@@ -4,28 +4,29 @@ import { get, isEmpty } from 'lodash';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents } from 'shared/formatters';
 import { formatIncentiveRange } from 'shared/incentive';
-import { selectReimbursement } from 'shared/Entities/modules/ppms';
+import { selectPPMEstimateRange, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
+import styles from './PpmMoveDetails.module.scss';
 
 const SubmittedPpmMoveDetails = (props) => {
-  const { advance, ppm, currentPPM, tempCurrentPPM } = props;
+  const { advance, ppm, currentPPM, tempCurrentPPM, hasEstimateError, estimateRange } = props;
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
   const advanceString = ppm.has_requested_advance ? `Advance Requested: $${formatCents(advance.requested_amount)}` : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
-  const incentiveRange = formatIncentiveRange(ppm);
+  const currentPPMToUse = isEmpty(currentPPM) ? tempCurrentPPM : currentPPM;
+  const incentiveRange = formatIncentiveRange(currentPPMToUse, estimateRange);
 
-  const weightEstimate = isEmpty(currentPPM) ? tempCurrentPPM.weight_estimate : currentPPM.weight_estimate;
-
+  const weightEstimate = currentPPMToUse.weight_estimate;
   return (
     <div className="titled_block">
-      <div className="title">Details</div>
-      <div>Weight (est.): {weightEstimate} lbs</div>
+      <div className={styles['detail-title']}>Estimated</div>
+      <div>Weight: {weightEstimate} lbs</div>
       <div>
-        Incentive (est.):{' '}
-        {ppm.hasEstimateError ? (
+        Payment:{' '}
+        {ppm.hasEstimateError || hasEstimateError ? (
           <>
             Not ready yet{' '}
             <IconWithTooltip
@@ -58,6 +59,7 @@ const mapStateToProps = (state, ownProps) => {
     ppm: get(state, 'ppm', {}),
     advance,
     isMissingWeightTicketDocuments,
+    estimateRange: selectPPMEstimateRange(state),
   };
   return props;
 };

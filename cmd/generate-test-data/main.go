@@ -163,12 +163,12 @@ func main() {
 		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
 		fsParams := storage.NewFilesystemParams(localStorageRoot, localStorageWebRoot, logger)
 		storer := storage.NewFilesystem(fsParams)
-		loader, uploaderErr := uploader.NewUploader(dbConnection, logger, storer, 25*uploader.MB)
+		userUploader, uploaderErr := uploader.NewUserUploader(dbConnection, logger, storer, 25*uploader.MB)
 		if uploaderErr != nil {
-			logger.Fatal("could not instantiate uploader", zap.Error(err))
+			logger.Fatal("could not instantiate user uploader", zap.Error(err))
 		}
 
-		tdgs.E2eBasicScenario.Run(dbConnection, loader, logger, storer)
+		tdgs.E2eBasicScenario.Run(dbConnection, userUploader, logger, storer)
 		logger.Info("Success! Created e2e test data.")
 	} else {
 		flag.PrintDefaults()

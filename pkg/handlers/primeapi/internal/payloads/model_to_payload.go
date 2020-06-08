@@ -6,10 +6,9 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/handlers"
-
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -24,7 +23,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
-		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
+		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
@@ -96,7 +95,6 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
-	reportByDate := strfmt.Date(*moveOrder.ReportByDate)
 	entitlements := Entitlement(moveOrder.Entitlement)
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
@@ -109,8 +107,10 @@ func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
 		LinesOfAccounting:      moveOrder.LinesOfAccounting,
 		Rank:                   moveOrder.Grade,
 		ConfirmationNumber:     moveOrder.ConfirmationNumber,
-		ReportByDate:           reportByDate,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
+	}
+	if moveOrder.ReportByDate != nil {
+		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
 	}
 	return &payload
 }
@@ -195,12 +195,14 @@ func MTOAgent(mtoAgent *models.MTOAgent) *primemessages.MTOAgent {
 
 	return &primemessages.MTOAgent{
 		AgentType:     primemessages.MTOAgentType(mtoAgent.MTOAgentType),
-		Email:         mtoAgent.Email,
 		FirstName:     mtoAgent.FirstName,
-		ID:            strfmt.UUID(mtoAgent.ID.String()),
 		LastName:      mtoAgent.LastName,
-		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
 		Phone:         mtoAgent.Phone,
+		Email:         mtoAgent.Email,
+		ID:            strfmt.UUID(mtoAgent.ID.String()),
+		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
+		CreatedAt:     strfmt.Date(mtoAgent.CreatedAt),
+		UpdatedAt:     strfmt.Date(mtoAgent.UpdatedAt),
 	}
 }
 
@@ -221,6 +223,11 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primemessages.MTOAgents {
 
 // PaymentRequest payload
 func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.PaymentRequest {
+	if paymentRequest == nil {
+		return nil
+	}
+
+	paymentServiceItems := PaymentServiceItems(&paymentRequest.PaymentServiceItems)
 	return &primemessages.PaymentRequest{
 		ID:                   strfmt.UUID(paymentRequest.ID.String()),
 		IsFinal:              &paymentRequest.IsFinal,
@@ -228,16 +235,91 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 		PaymentRequestNumber: paymentRequest.PaymentRequestNumber,
 		RejectionReason:      paymentRequest.RejectionReason,
 		Status:               primemessages.PaymentRequestStatus(paymentRequest.Status),
+		PaymentServiceItems:  *paymentServiceItems,
 		ETag:                 etag.GenerateEtag(paymentRequest.UpdatedAt),
 	}
 }
 
 // PaymentRequests payload
 func PaymentRequests(paymentRequests *models.PaymentRequests) *primemessages.PaymentRequests {
+	if paymentRequests == nil {
+		return nil
+	}
+
 	payload := make(primemessages.PaymentRequests, len(*paymentRequests))
 
 	for i, p := range *paymentRequests {
 		payload[i] = PaymentRequest(&p)
+	}
+	return &payload
+}
+
+// PaymentServiceItem payload
+func PaymentServiceItem(paymentServiceItem *models.PaymentServiceItem) *primemessages.PaymentServiceItem {
+	if paymentServiceItem == nil {
+		return nil
+	}
+
+	paymentServiceItemParams := PaymentServiceItemParams(&paymentServiceItem.PaymentServiceItemParams)
+
+	payload := &primemessages.PaymentServiceItem{
+		ID:                       strfmt.UUID(paymentServiceItem.ID.String()),
+		PaymentRequestID:         strfmt.UUID(paymentServiceItem.PaymentRequestID.String()),
+		MtoServiceItemID:         strfmt.UUID(paymentServiceItem.MTOServiceItemID.String()),
+		Status:                   primemessages.PaymentServiceItemStatus(paymentServiceItem.Status),
+		RejectionReason:          paymentServiceItem.RejectionReason,
+		PaymentServiceItemParams: *paymentServiceItemParams,
+		ETag:                     etag.GenerateEtag(paymentServiceItem.UpdatedAt),
+	}
+
+	if paymentServiceItem.PriceCents != nil {
+		payload.PriceCents = swag.Int64(int64(*paymentServiceItem.PriceCents))
+	}
+
+	return payload
+}
+
+// PaymentServiceItems payload
+func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *primemessages.PaymentServiceItems {
+	if paymentServiceItems == nil {
+		return nil
+	}
+
+	payload := make(primemessages.PaymentServiceItems, len(*paymentServiceItems))
+
+	for i, p := range *paymentServiceItems {
+		payload[i] = PaymentServiceItem(&p)
+	}
+	return &payload
+}
+
+// PaymentServiceItemParam payload
+func PaymentServiceItemParam(paymentServiceItemParam *models.PaymentServiceItemParam) *primemessages.PaymentServiceItemParam {
+	if paymentServiceItemParam == nil {
+		return nil
+	}
+
+	return &primemessages.PaymentServiceItemParam{
+		ID:                   strfmt.UUID(paymentServiceItemParam.ID.String()),
+		PaymentServiceItemID: strfmt.UUID(paymentServiceItemParam.PaymentServiceItemID.String()),
+		Key:                  primemessages.ServiceItemParamName(paymentServiceItemParam.ServiceItemParamKey.Key),
+		Value:                paymentServiceItemParam.Value,
+		Type:                 primemessages.ServiceItemParamType(paymentServiceItemParam.ServiceItemParamKey.Type),
+		Origin:               primemessages.ServiceItemParamOrigin(paymentServiceItemParam.ServiceItemParamKey.Origin),
+		ETag:                 etag.GenerateEtag(paymentServiceItemParam.UpdatedAt),
+	}
+}
+
+// PaymentServiceItemParams payload
+func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceItemParams) *primemessages.PaymentServiceItemParams {
+	if paymentServiceItemParams == nil {
+		return nil
+	}
+
+	payload := make(primemessages.PaymentServiceItemParams, len(*paymentServiceItemParams))
+
+	for i, p := range *paymentServiceItemParams {
+		payload[i] = PaymentServiceItemParam(&p)
 	}
 	return &payload
 }
@@ -280,6 +362,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.FirstAvailableDeliveryDate = strfmt.Date(*mtoShipment.FirstAvailableDeliveryDate)
 	}
 
+	if mtoShipment.RequiredDeliveryDate != nil && !mtoShipment.RequiredDeliveryDate.IsZero() {
+		payload.RequiredDeliveryDate = strfmt.Date(*mtoShipment.RequiredDeliveryDate)
+	}
+
 	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.PrimeEstimatedWeightRecordedDate != nil {
 		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
 		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
@@ -319,7 +405,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
 		}
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
 		item := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		payload = &primemessages.MTOServiceItemDomesticCrating{
@@ -364,8 +450,9 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
 	payload.SetReServiceID(strfmt.UUID(mtoServiceItem.ReServiceID.String()))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)
+	payload.SetStatus(primemessages.MTOServiceItemStatus(mtoServiceItem.Status))
+	payload.SetRejectionReason(mtoServiceItem.Reason)
 	payload.SetETag(etag.GenerateEtag(mtoServiceItem.UpdatedAt))
-
 	return payload
 }
 
@@ -380,14 +467,18 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 }
 
 // ValidationError describes validation errors from the model or properties
-func ValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
-	return &primemessages.ValidationError{
-		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
-		ClientError:   *clientError(title, detail, instance),
+func ValidationError(detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
+	payload := &primemessages.ValidationError{
+		ClientError: *ClientError(handlers.ValidationErrMessage, detail, instance),
 	}
+	if validationErrors != nil {
+		payload.InvalidFields = handlers.NewValidationErrorListResponse(validationErrors).Errors
+	}
+	return payload
 }
 
-func clientError(title string, detail string, instance uuid.UUID) *primemessages.ClientError {
+// ClientError describes errors in a standard structure to be returned in the payload
+func ClientError(title string, detail string, instance uuid.UUID) *primemessages.ClientError {
 	return &primemessages.ClientError{
 		Title:    handlers.FmtString(title),
 		Detail:   handlers.FmtString(detail),

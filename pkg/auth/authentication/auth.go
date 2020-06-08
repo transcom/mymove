@@ -206,6 +206,7 @@ func PrimeAuthorizationMiddleware(logger Logger) func(next http.Handler) http.Ha
 		return http.HandlerFunc(mw)
 	}
 }
+
 func (context Context) landingURL(session *auth.Session) string {
 	return fmt.Sprintf(context.callbackTemplate, session.Hostname)
 }

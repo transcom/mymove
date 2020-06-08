@@ -13,6 +13,16 @@ import ServiceItemTableHasImg from '../components/ServiceItemTableHasImg';
 import DataPoint from '../components/DataPoint';
 import DataPair from '../components/DataPair';
 
+const dataPointBody = (
+  <>
+    Dorothy Lagomarsino
+    <br />
+    +1 999-999-9999
+    <br />
+    dorothyl@email.com
+  </>
+);
+
 // Tables
 
 storiesOf('Components|Tables', module)
@@ -207,38 +217,31 @@ storiesOf('Components|Tables', module)
       <h3>Data points</h3>
       <div className="sb-section-wrapper">
         <div className="sb-table-wrapper">
-          <code>data-point</code>
-          <table className="table--data-point">
+          <code>data point</code>
+          <br />
+          <br />
+          <DataPoint header="Receiving agent" body={dataPointBody} />
+          <br />
+          <br />
+          <code>data point compact</code>
+          <br />
+          <br />
+          <table className="table--data-point table--data-point--compact">
             <thead className="table--small">
               <tr>
-                <th>Label</th>
+                <th>Dorothy Lagomarsino</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Table Cell Content</td>
+                <td>+1 999-999-9999</td>
               </tr>
             </tbody>
           </table>
         </div>
         <div className="sb-table-wrapper">
           <code>data-pair</code>
-          <div className="table--data-pair">
-            <table className="table--data-point">
-              <thead className="table--small">
-                <tr>
-                  <th>Label</th>
-                  <th>Label</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Table Cell Content</td>
-                  <td>Table Cell Content</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <DataPair />
         </div>
       </div>
     </div>
@@ -253,7 +256,11 @@ storiesOf('Components|Tables', module)
       <div className="display-flex">
         <div>
           <h3>Data point</h3>
-          <DataPoint />
+          <DataPoint header="Receiving agent" body={dataPointBody} />
+        </div>
+        <div>
+          <h3>Data point compact</h3>
+          <DataPoint header="Receiving agent" body={dataPointBody} custClass="table--data-point--compact" />
         </div>
         <div style={{ width: '40px' }} />
         <div>
@@ -271,6 +278,23 @@ storiesOf('Components|Tables', module)
       <br />
       <hr />
       <h3>Service item table with images and buttons</h3>
-      <ServiceItemTableHasImg />
+      <ServiceItemTableHasImg
+        serviceItems={[
+          {
+            id: 'abc12345',
+            dateRequested: '22 Nov 2020',
+            serviceItem: 'Dom. Crating',
+            code: 'DCRT',
+            details: {
+              text: {
+                Description: "Here's the description",
+                'Item dimensions': '84"x26"x42"',
+                'Crate dimensions': '110"x36"x54"',
+              },
+              imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
+            },
+          },
+        ]}
+      />
     </div>
   ));

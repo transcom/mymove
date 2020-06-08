@@ -101,14 +101,14 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 
 	payload := params.CreateWeightTicketDocument
 	uploadIds := payload.UploadIds
-	uploads := models.Uploads{}
+	userUploads := models.UserUploads{}
 	for _, id := range uploadIds {
-		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, fetchUploadErr := models.FetchUpload(ctx, h.DB(), session, converted)
+		convertedUploadID := uuid.Must(uuid.FromString(id.String()))
+		userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(ctx, h.DB(), session, convertedUploadID)
 		if fetchUploadErr != nil {
 			return handlers.ResponseForError(logger, fetchUploadErr)
 		}
-		uploads = append(uploads, upload)
+		userUploads = append(userUploads, userUpload)
 	}
 
 	ppmID := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
@@ -167,7 +167,7 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 	}
 	newWeightTicketSetDocument, verrs, err := move.CreateWeightTicketSetDocument(
 		h.DB(),
-		uploads,
+		userUploads,
 		&ppmID,
 		&wtsd,
 		*move.SelectedMoveType,

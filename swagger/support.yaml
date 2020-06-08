@@ -1,0 +1,1196 @@
+swagger: '2.0'
+info:
+  contact:
+    email: dp3@truss.works
+  description: |
+    The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.
+
+    This API is not available in production.
+
+    All endpoints are located at `primelocal/support/v1/`.
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+  title: Milmove Support API
+  version: 0.0.1
+basePath: /support/v1
+schemes:
+  - http
+paths:
+  '/move-task-orders':
+    post:
+      summary: createMoveTaskOrder
+      description: |
+        Creates an instance of moveTaskOrder.
+        Current this will also create a number of nested objects but not all.
+        It will currently create
+        * MoveTaskOrder
+        * MoveOrder
+        * Customer
+        * User
+        * Entitlement
+
+        It will not create addresses or duty stations. <br />
+        <br />
+        This is a support endpoint and will not be available in production.
+      operationId: createMoveTaskOrder
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - moveTaskOrder
+      parameters:
+        - in: body
+          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+      responses:
+        '201':
+          description: Successfully created MoveTaskOrder object.
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/move-task-orders/{moveTaskOrderID}':
+    parameters:
+      - description: UUID of move task order to use.
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      summary: getMoveTaskOrder
+      description: |
+        Gets an individual move task order by ID. <br />
+        <br />
+        This is a support endpoint and will not be available in production.
+      operationId: getMoveTaskOrder
+      tags:
+        - moveTaskOrder
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieve an individual move task order.
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/move-task-orders/{moveTaskOrderID}/available-to-prime':
+    parameters:
+      - description: UUID of move task order.
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      summary: makeMoveTaskOrderAvailable
+      description: |
+        Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
+        <br />
+        This is a support endpoint and will not be available in production.
+      operationId: makeMoveTaskOrderAvailable
+      tags:
+        - moveTaskOrder
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+      responses:
+        '200':
+          description: Successfully made MTO available to Prime.
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/payment-requests/{paymentRequestID}/status':
+    parameters:
+      - description: UUID of payment request.
+        format: uuid
+        in: path
+        name: paymentRequestID
+        required: true
+        type: string
+    patch:
+      summary: updatePaymentRequestStatus
+      description: |
+        Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.
+        A status of REVIEWED can optionally have a `rejectionReason`. <br />
+        <br />
+        This is a support endpoint and will not be available in production.
+      operationId: updatePaymentRequestStatus
+      tags:
+        - paymentRequests
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdatePaymentRequestStatus'
+      responses:
+        '200':
+          description: Successfully updated payment request status.
+          schema:
+            $ref: '#/definitions/PaymentRequest'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/service-items/{mtoServiceItemID}/status':
+    parameters:
+      - description: UUID of mto service item to use.
+        in: path
+        name: mtoServiceItemID
+        required: true
+        type: string
+    patch:
+      summary: updateMTOServiceItemStatus
+      description: |
+        Updates the status of a service item for a move order to APPROVED or REJECTED. <br />
+        <br />
+        This is a support endpoint and will not be available in production.
+      operationId: updateMTOServiceItemStatus
+      tags:
+        - mtoServiceItem
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMTOServiceItemStatus'
+      responses:
+        '200':
+          description: Successfully updated service item status for a move task order.
+          schema:
+            $ref: '#/definitions/UpdateMTOServiceItemStatus'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error due to trying to change the status of service item that is not currently "SUBMITTED".
+          schema:
+            $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/mto-shipments/{mtoShipmentID}/status':
+    parameters:
+      - description: UUID of the shipment being updated.
+        in: path
+        name: mtoShipmentID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      summary: updateMTOShipmentStatus
+      description: >
+        Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED,
+        `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in
+        `rejectionReason` is required. <br />
+        <br />
+        This is a support endpoint and will not be available in production.
+      operationId: updateMTOShipmentStatus
+      tags:
+        - mtoShipment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMTOShipmentStatus'
+      responses:
+        '200':
+          description: Successfully updated the shipment's status.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthorized.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The client doesn't have permissions to perform the request.
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error due to trying to change the status of shipment that is not currently "SUBMITTED".
+          schema:
+            $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+definitions:
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+    properties:
+      invalidFields:
+        type: object
+        additionalProperties:
+          description: List of errors for the field
+          type: array
+          items:
+            type: string
+    required:
+      - invalidFields
+  Address:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      street_address_1:
+        type: string
+        example: 123 Main Ave
+        title: Street address 1
+      street_address_2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Street address 2
+      street_address_3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      eTag:
+        type: string
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postal_code:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: 'USA'
+        default: USA
+    required:
+      - street_address_1
+      - city
+      - state
+      - postal_code
+  Customer:
+    type: object
+    properties:
+      agency:
+        type: string
+        title: Agency customer is affilated with
+      firstName:
+        type: string
+        example: Vanya
+      lastName:
+        type: string
+        example: Petrovna
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      currentAddress:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      dodID:
+        type: string
+      userID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      eTag:
+        type: string
+  DutyStation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
+        $ref: '#/definitions/Address'
+      eTag:
+        type: string
+  Entitlement:
+    properties:
+      id:
+        example: 571008b1-b0de-454d-b843-d71be9f02c04
+        format: uuid
+        type: string
+      authorizedWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      dependentsAuthorized:
+        example: true
+        type: boolean
+        x-nullable: true
+      nonTemporaryStorage:
+        example: false
+        type: boolean
+        x-nullable: true
+      privatelyOwnedVehicle:
+        example: false
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+        readOnly: true
+      proGearWeightSpouse:
+        example: 500
+        type: integer
+        x-formatting: weight
+        readOnly: true
+      storageInTransit:
+        example: 90
+        type: integer
+      totalWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      totalDependents:
+        example: 2
+        type: integer
+      eTag:
+        type: string
+        readOnly: true
+    type: object
+  Error:
+    properties:
+      message:
+        type: string
+    required:
+      - message
+    type: object
+  MoveOrder:
+    properties:
+      id:
+        description: ID of the MoveOrder object.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      customer:
+        $ref: '#/definitions/Customer'
+      customerID:
+        description: |
+          ID of the Customer this MoveOrder belongs to.
+
+          If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      entitlement:
+        $ref: '#/definitions/Entitlement'
+      destinationDutyStation:
+        $ref: '#/definitions/DutyStation'
+      destinationDutyStationID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        description: |
+          ID of the destination duty station.
+
+          If creating a MoveTaskOrder, this should match an existing duty station.
+      originDutyStation:
+        $ref: '#/definitions/DutyStation'
+      originDutyStationID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        description: |
+          ID of the origin duty station.
+
+          If creating a MoveTaskOrder, this should match an existing duty station.
+      rank:
+        description: Rank of the service member, must match specific list of available ranks.
+        type: string
+        example: E_1
+      reportByDate:
+        description: Date that the service member must report to the new DutyStation by.
+        type: string
+        format: date
+        example: '2020-01-01'
+      orderNumber:
+        description: ID of the military orders associated with this move.
+        type: string
+        x-nullable: true
+        example: '030-00362'
+      dateIssued:
+        description: The date the orders were issued.
+        type: string
+        format: date
+        example: '2020-01-01'
+      eTag:
+        description: |
+          Uniquely identifies the state of the MoveOrder object (but not the nested objects)
+
+          It will change everytime the object is updated. Client should store the value.
+          Updates to this MoveOrder will require that this eTag be passed in with the If-Match header.
+        type: string
+        readOnly: true
+    type: object
+  MoveTaskOrder:
+    type: object
+    required:
+      - moveOrder
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+        description: ID of the MoveTaskOrder object.
+      createdAt:
+        format: date
+        type: string
+        description: Date the MoveTaskOrder was created on.
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        description: ID of the MoveOrder object
+      moveOrder:
+        $ref: '#/definitions/MoveOrder'
+        description: MoveOrder associated with this MoveTaskOrder.
+      referenceId:
+        example: 1001-3456
+        type: string
+        description: |
+          Unique ID associated with this MoveOrder.
+
+          No two MoveTaskOrders may have the same ID.
+          Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
+      availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        description: |
+          Indicates this MoveTaskOrder is available for Prime API handling.
+
+          In production, only MoveTaskOrders for which this is set will be available to the API.
+      isCanceled:
+        type: boolean
+        x-nullable: true
+        description:
+          Indicated this MoveTaskOrder has been canceled.
+      contractorID:
+        type: string
+        format: uuid
+        description: |
+          ID associated with the contractor, in this case Prime
+        example: 5db13bb4-6d29-4bdb-bc81-262f4513ecf6
+      updatedAt:
+        format: date
+        type: string
+        description: Date on which this MoveTaskOrder was last updated.
+      paymentRequests:
+        $ref: '#/definitions/PaymentRequests'
+        description: Array of PaymentRequests associated with this MoveTaskOrder.
+      mtoServiceItems:
+        description: Array of MTOServiceItems associated with this MoveTaskOrder.
+        type: array
+        items:
+          $ref: "#/definitions/MTOServiceItem"
+      mtoShipments:
+        description: array of MTOShipments associated with the MoveTaskOrder.
+        $ref: '#/definitions/MTOShipments'
+      ppmType:
+        description: If the move is a PPM, indicates whether it is full or partial.
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      ppmEstimatedWeight:
+        description: If the move is a PPM, this is the estimated weight in lbs.
+        type: integer
+      eTag:
+        description: |
+          Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)
+
+          It will change everytime the object is updated. Client should store the value.
+          Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
+        type: string
+  MoveOrders:
+    items:
+      $ref: '#/definitions/MoveOrder'
+    type: array
+  MoveTaskOrders:
+    items:
+      $ref: '#/definitions/MoveTaskOrder'
+    type: array
+  MTOAgents:
+    items:
+      $ref: '#/definitions/MTOAgent'
+    type: array
+  MTOAgent:
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        readOnly: true
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date
+        type: string
+      updatedAt:
+        format: date
+        type: string
+      firstName:
+        type: string
+        x-nullable: true
+      lastName:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      agentType:
+        type: string
+        enum:
+          - RELEASING_AGENT
+          - RECEIVING_AGENT
+      eTag:
+        type: string
+    type: object
+  PaymentRequest:
+    properties:
+      documentPackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      isFinal:
+        default: false
+        type: boolean
+      moveTaskOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+      paymentRequestNumber:
+        example: 1234-5678-1
+        readOnly: true
+        type: string
+      eTag:
+        type: string
+    type: object
+  PaymentRequests:
+    items:
+      $ref: '#/definitions/PaymentRequest'
+    type: array
+  PaymentRequestStatus:
+    enum:
+      - PENDING
+      - REVIEWED
+      - SENT_TO_GEX
+      - RECEIVED_BY_GEX
+      - PAID
+    title: Payment Request Status
+    type: string
+  ProofOfServicePackage:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
+    type: object
+  MTOShipment:
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: datetime
+        type: string
+      updatedAt:
+        format: datetime
+        type: string
+      scheduledPickupDate:
+        format: date
+        type: string
+      requestedPickupDate:
+        format: date
+        type: string
+      approvedDate:
+        format: date
+        type: string
+      pickupAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      customerRemarks:
+        type: string
+        example: handle with care
+        x-nullable: true
+      shipmentType:
+        enum:
+          - HHG
+          - INTERNATIONAL_HHG
+          - INTERNATIONAL_UB
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
+      rejectionReason:
+        type: string
+        example: MTO Shipment not good enough
+        x-nullable: true
+      eTag:
+        type: string
+  MTOShipments:
+    items:
+      $ref: '#/definitions/MTOShipment'
+    type: array
+  UpdateMTOShipmentStatus:
+    properties:
+      status:
+        type: string
+        enum:
+          - REJECTED
+          - APPROVED
+          - SUBMITTED
+      rejectionReason:
+        type: string
+        example: MTO Shipment not good enough
+        x-nullable: true
+  MTOServiceItem:
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceCode:
+        type: string
+      reServiceName:
+        type: string
+      approvedAt:
+        format: date
+        type: string
+      createdAt:
+        format: date
+        type: string
+      deletedAt:
+        format: date
+        type: string
+      description:
+        type: string
+      feeType:
+        enum:
+          - COUNSELING
+          - CRATING
+          - TRUCKING
+          - SHUTTLE
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      quantity:
+        type: integer
+      rate:
+        type: integer
+      rejectionReason:
+        example: item was too heavy
+        type: string
+        x-nullable: true
+      rejectedAt:
+        format: date
+        type: string
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
+      submittedAt:
+        format: date
+        type: string
+      total:
+        format: cents
+        type: integer
+      updatedAt:
+        format: datetime
+        type: string
+      eTag:
+        type: string
+    required:
+      - id
+      - moveTaskOrderID
+      - reServiceID
+      - reServiceCode
+      - reServiceName
+      - mtoShipmentID
+    type: object
+  MTOServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/MTOServiceItem'
+  MTOServiceItemStatus:
+    description: Describes all statuses for a MTOServiceItem
+    type: string
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
+  UpdatePaymentRequest:
+    properties:
+      proofOfServicePackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+      eTag:
+        type: string
+    type: object
+  UpdateMTOServiceItemStatus:
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceCode:
+        type: string
+      reServiceName:
+        type: string
+      approvedAt:
+        format: date
+        type: string
+      createdAt:
+        format: date
+        type: string
+      deletedAt:
+        format: date
+        type: string
+      description:
+        type: string
+      feeType:
+        enum:
+          - COUNSELING
+          - CRATING
+          - TRUCKING
+          - SHUTTLE
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      quantity:
+        type: integer
+      rate:
+        type: integer
+      rejectionReason:
+        example: item was too heavy
+        type: string
+        x-nullable: true
+      rejectedAt:
+        format: date
+        type: string
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
+      submittedAt:
+        format: date
+        type: string
+      total:
+        format: cents
+        type: integer
+      updatedAt:
+        format: datetime
+        type: string
+      eTag:
+        type: string
+    required:
+      - status
+    type: object
+  UpdatePaymentRequestStatus:
+    properties:
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+        description: A written reason to provide context for the status.
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+      eTag:
+        type: string
+        description: Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
+    type: object
+  Upload:
+    properties:
+      bytes:
+        type: integer
+      contentType:
+        example: application/pdf
+        format: mime-type
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+      filename:
+        example: filename.pdf
+        format: binary
+        type: string
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      updatedAt:
+        format: date-time
+        type: string
+      url:
+        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
+        format: uri
+        type: string
+    required:
+      - id
+      - url
+      - filename
+      - contentType
+      - bytes
+      - createdAt
+      - updatedAt
+    type: object
+responses:
+  InvalidRequest:
+    description: The request payload is invalid.
+    schema:
+      $ref: '#/definitions/ClientError'
+  NotFound:
+    description: The requested resource wasn't found.
+    schema:
+      $ref: '#/definitions/ClientError'
+  PermissionDenied:
+    description: The request was denied.
+    schema:
+      $ref: '#/definitions/ClientError'
+  ServerError:
+    description: A server error occurred.
+    schema:
+      $ref: '#/definitions/Error'
+  UnprocessableEntity:
+    description: The payload was unprocessable.
+    schema:
+      $ref: '#/definitions/ValidationError'
+  PreconditionFailed:
+    description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+    schema:
+      $ref: '#/definitions/ClientError'
+  Conflict:
+    description: There was a conflict with the request.
+    schema:
+      $ref: '#/definitions/ClientError'

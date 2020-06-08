@@ -104,7 +104,7 @@ func SumWeightTicketSetsForPPM(db *pop.Connection, session *auth.Session, ppmID 
 // CreateWeightTicketSetDocument creates a moving weight ticket document associated to a move and move document
 func (m Move) CreateWeightTicketSetDocument(
 	db *pop.Connection,
-	uploads Uploads,
+	userUploads UserUploads,
 	personallyProcuredMoveID *uuid.UUID,
 	weightTicketSetDocument *WeightTicketSetDocument,
 	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
@@ -123,7 +123,7 @@ func (m Move) CreateWeightTicketSetDocument(
 		var newMoveDocument *MoveDocument
 		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
 			db,
-			uploads,
+			userUploads,
 			personallyProcuredMoveID,
 			MoveDocumentTypeWEIGHTTICKETSET,
 			weightTicketSetTitle,

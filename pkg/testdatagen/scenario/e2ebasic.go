@@ -34,7 +34,7 @@ var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate
 var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger Logger, storer *storage.Filesystem) {
+func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, logger Logger, storer *storage.Filesystem) {
 	/*
 	 * Basic user with office access
 	 */
@@ -107,7 +107,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			AdvanceID:           &advance.ID,
 			HasRequestedAdvance: true,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	ppm0.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppm0.Move)
@@ -140,7 +140,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	ppmNoAdvance.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
@@ -172,7 +172,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	ppmStorage.Move.Submit(time.Now())
 	ppmStorage.Move.Approve()
@@ -208,7 +208,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	ppmNoStorage.Move.Submit(time.Now())
 	ppmNoStorage.Move.Approve()
@@ -245,7 +245,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	ppmToCancel.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppmToCancel.Move)
@@ -279,7 +279,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &pastTime,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	ppm1.Move.Submit(time.Now())
 	ppm1.Move.Approve()
@@ -322,7 +322,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &futureTime,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	ppm2.Move.Submit(time.Now())
 	ppm2.Move.Approve()
@@ -372,7 +372,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			OriginalMoveDate: &originalMoveDate,
 			ActualMoveDate:   &actualMoveDate,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	docAssertions := testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
@@ -438,7 +438,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			OriginalMoveDate: &originalMoveDate,
 			ActualMoveDate:   &actualMoveDate,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	}
 	ppmExcludedCalculations := testdatagen.MakePPM(db, assertions)
 
@@ -499,7 +499,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	ppmCanceled.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppmCanceled.Move)
@@ -536,7 +536,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:      uuid.FromStringOrNil("173da49c-fcec-4d01-a622-3651e81c654e"),
 			Locator: "BLABLA",
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 
 	/*
@@ -606,7 +606,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:      uuid.FromStringOrNil("7201788b-92f4-430b-8541-6430b2cc7f3e"),
 			Locator: "CLAIMD",
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
 		AccessCode: models.AccessCode{
@@ -652,7 +652,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &pastTime,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	ppm6.Move.Submit(time.Now())
 	ppm6.Move.Approve()
@@ -695,7 +695,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &pastTime,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	ppm7.Move.Submit(time.Now())
 	ppm7.Move.Approve()
@@ -738,7 +738,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &pastTime,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	ppm5.Move.Submit(time.Now())
 	ppm5.Move.Approve()
@@ -784,7 +784,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &inProgressDate,
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 	ppmApproved.Move.Submit(time.Now())
 	ppmApproved.Move.Approve()
@@ -823,7 +823,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:      uuid.FromStringOrNil("6f6ac599-e23f-43af-9b83-5d75a78e933f"),
 			Locator: "COMPLE",
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 
 	email = "profile@complete.draft"
@@ -853,7 +853,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:      uuid.FromStringOrNil("a5d9c7b2-0fe8-4b80-b7c5-3323a066e98c"),
 			Locator: "DFTMVE",
 		},
-		Uploader: loader,
+		UserUploader: userUploader,
 	})
 
 	customer := testdatagen.MakeCustomer(db, testdatagen.Assertions{
@@ -867,8 +867,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			ID:          uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
-			MoveOrderID: moveOrders.ID,
+			ID:                 uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
+			MoveOrderID:        moveOrders.ID,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -947,6 +948,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("d73cc488-d5a1-4c9c-bea3-8b02d9bd0dea"),
 			MTOShipment:   MTOShipment,
 			MTOShipmentID: MTOShipment.ID,
 			FirstName:     swag.String("Test"),
@@ -983,25 +985,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			MoveTaskOrder: mto,
 			IsFinal:       false,
 			Status:        models.PaymentRequestStatusPending,
-		},
-	})
-
-	testdatagen.MakeServiceItemParamKey(db, testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			ID:          uuid.FromStringOrNil("9ea783db-ebc8-4a99-93dd-56b507678a07"),
-			Key:         "weight",
-			Description: "actual weight",
-			Type:        models.ServiceItemParamTypeInteger,
-			Origin:      models.ServiceItemParamOriginPrime,
-		},
-	})
-	testdatagen.MakeServiceItemParamKey(db, testdatagen.Assertions{
-		ServiceItemParamKey: models.ServiceItemParamKey{
-			ID:          uuid.FromStringOrNil("421530ab-9c84-4207-8faf-f39a2f92ddaa"),
-			Key:         "pickup",
-			Description: "requested pickup date",
-			Type:        models.ServiceItemParamTypeDate,
-			Origin:      models.ServiceItemParamOriginPrime,
 		},
 	})
 
@@ -1086,10 +1069,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 	mto2 := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			ID:                 uuid.FromStringOrNil("0da3f34cc-fb94-4e0b-1c90-ba3333cb7791"),
+			ID:                 uuid.FromStringOrNil("da3f34cc-fb94-4e0b-1c90-ba3333cb7791"),
 			MoveOrderID:        moveOrders6.ID,
 			UpdatedAt:          time.Unix(1576779681256, 0),
-			IsAvailableToPrime: true,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -1146,6 +1129,20 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("8a625314-1922-4987-93c5-a62c0d13f053"),
+		},
 		MoveTaskOrder: mto2,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("3624d82f-fa87-47f5-a09a-2d5639e45c02"),
+		},
+		MoveTaskOrder: mto2,
+		MTOShipment:   mtoShipment3,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
+		},
 	})
 }

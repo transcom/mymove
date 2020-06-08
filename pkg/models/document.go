@@ -23,7 +23,7 @@ type Document struct {
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
 	DeletedAt       *time.Time    `db:"deleted_at"`
-	Uploads         Uploads       `has_many:"uploads" order_by:"created_at asc"`
+	UserUploads     UserUploads   `has_many:"user_uploads" order_by:"created_at asc"`
 }
 
 // Documents is not required by pop and may be deleted
@@ -38,15 +38,17 @@ func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 // FetchDocument returns a document if the user has access to that document
 func FetchDocument(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool) (Document, error) {
-
 	var document Document
 	query := db.Q()
 
 	if !includeDeletedDocs {
-		query = query.Where("documents.deleted_at is null")
+		query = query.Where("documents.deleted_at is null and u.deleted_at is null")
 	}
 
-	err := query.Eager().Find(&document, id)
+	err := query.Eager("UserUploads.Upload").
+		LeftJoin("user_uploads as uu", "documents.id = uu.document_id").
+		LeftJoin("uploads as u", "uu.upload_id = u.id").
+		Find(&document, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {

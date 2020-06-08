@@ -64,8 +64,8 @@ func main() {
 	initRootFlags(root.PersistentFlags())
 
 	fetchMTOsCommand := &cobra.Command{
-		Use:          "fetch-mtos",
-		Short:        "fetch mtos",
+		Use:          "fetch-mto-updates",
+		Short:        "Fetch all MTOs available to prime",
 		Long:         "fetch move task orders",
 		RunE:         fetchMTOs,
 		SilenceUsage: true,
@@ -73,25 +73,236 @@ func main() {
 	initFetchMTOsFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
 
+	createMTOCommand := &cobra.Command{
+		Use:   "support-create-move-task-order",
+		Short: "Create a MoveTaskOrder",
+		Long: `
+  This command creates a MoveTaskOrder object.
+  It requires the caller to pass in a file using the --filename param.
+
+  Endpoint path: /move-task-orders
+  The file should contain json as follows:
+    {
+      "body": <MoveTaskOrder>
+    }
+  Please see API documentation for full details on the MoveTaskOrder definition.`,
+		RunE:         createMTO,
+		SilenceUsage: true,
+	}
+	initCreateMTOFlags(createMTOCommand.Flags())
+	root.AddCommand(createMTOCommand)
+
+	createMTOShipmentCommand := &cobra.Command{
+		Use:   "create-mto-shipment",
+		Short: "Create MTO shipment",
+		Long: `
+	This command creates a MTO shipment.
+	It requires the caller to pass in a file using the --filename arg.
+	The file should contain a body defining the MTOShipment object.
+	Endpoint path: /mto-shipments
+	The file should contain json as follows:
+		{
+			"body": <MTOShipment>,
+		}
+	Please see API documentation for full details on the endpoint definition.`,
+		RunE:         createMTOShipment,
+		SilenceUsage: true,
+	}
+	initCreateMTOShipmentFlags(createMTOShipmentCommand.Flags())
+	root.AddCommand(createMTOShipmentCommand)
+
 	updateMTOShipmentCommand := &cobra.Command{
-		Use:          "update-mto-shipment",
-		Short:        "update mto shipment",
-		Long:         "update move task order shipment",
+		Use:   "update-mto-shipment",
+		Short: "Update MTO shipment",
+		Long: `
+  This command updates an MTO shipment.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters, headers and a body for the payload.
+
+  Endpoint path: /mto-shipments/{mtoShipmentID}
+  The file should contain json as follows:
+  	{
+      "mtoShipmentID": <uuid string>,
+      "ifMatch": <eTag>,
+      "body": <MTOShipment>
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         updateMTOShipment,
 		SilenceUsage: true,
 	}
 	initUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
 	root.AddCommand(updateMTOShipmentCommand)
 
+	updatePostCounselingInfo := &cobra.Command{
+		Use:          "update-mto-post-counseling-information",
+		Short:        "update post counseling info",
+		Long:         "Update post counseling info such as discovering that customer has a PPM",
+		RunE:         updatePostCounselingInfo,
+		SilenceUsage: true,
+	}
+	initUpdatePostCounselingInfoFlags(updatePostCounselingInfo.Flags())
+	root.AddCommand(updatePostCounselingInfo)
+
 	createMTOServiceItemCommand := &cobra.Command{
-		Use:          "create-mto-service-item",
-		Short:        "Create mto service item",
-		Long:         "Create move task order service item for move task order and/or shipment",
+		Use:   "create-mto-service-item",
+		Short: "Create mto service item",
+		Long: `
+  This command creates an MTO service item on an MTO shipment.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and headers and a body for the payload.
+
+  Endpoint path: /mto-service-items
+  The file should contain json as follows:
+  	{
+  	"body": <MTOServiceItem>
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
 		RunE:         createMTOServiceItem,
 		SilenceUsage: true,
 	}
 	initCreateMTOServiceItemFlags(createMTOServiceItemCommand.Flags())
 	root.AddCommand(createMTOServiceItemCommand)
+
+	makeAvailableToPrimeCommand := &cobra.Command{
+		Use:   "support-make-move-task-order-available",
+		Short: "Make MTO available to prime",
+		Long: `
+  This command makes an MTO available for prime consumption.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and headers.
+
+  Endpoint path: /move-task-orders/{moveTaskOrderID}/available-to-prime
+  The file should contain json as follows:
+  	{
+  	"moveTaskOrderID": <uuid string>,
+  	"ifMatch": <eTag>
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         makeMTOAvailable,
+		SilenceUsage: true,
+	}
+	initMakeMTOAvailableFlags(makeAvailableToPrimeCommand.Flags())
+	root.AddCommand(makeAvailableToPrimeCommand)
+
+	updatePaymentRequestStatusCommand := &cobra.Command{
+		Use:   "support-update-payment-request-status",
+		Short: "Update payment request status for prime",
+		Long: `
+  This command allows prime to update payment request status.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and headers.
+
+  Endpoint path: /payment-requests/{paymentRequestID}/status
+  The file should contain json as follows:
+    {
+      "paymentRequestID": <uuid string>,
+      "ifMatch": <etag>,
+      "body" : <paymentRequestStatus>
+    }
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         updatePaymentRequestStatus,
+		SilenceUsage: true,
+	}
+	initUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
+	root.AddCommand(updatePaymentRequestStatusCommand)
+
+	getMoveTaskOrder := &cobra.Command{
+		Use:   "support-get-move-task-order",
+		Short: "Get an individual mto",
+		Long: `
+  This command gets a single move task order by ID
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and headers.
+
+  Endpoint path: /move-task-orders/{moveTaskOrderID}
+  The file should contain json as follows:
+  	{
+  	"moveTaskOrderID": <uuid string>,
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         getMTO,
+		SilenceUsage: true,
+	}
+	initGetMTOFlags(getMoveTaskOrder.Flags())
+	root.AddCommand(getMoveTaskOrder)
+
+	updateMTOServiceItemStatus := &cobra.Command{
+		Use:   "support-update-mto-service-item-status",
+		Short: "Update service item status",
+		Long: `
+  This command allows prime to update the MTO service item status.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain a body defining the request body.
+
+  Endpoint path: service-items/{mtoServiceItemID}/status
+    {
+      "mtoServiceItemID": <uuid string>,
+      "ifMatch": <etag>,
+      "body": {
+        "status": "APPROVED"
+    }
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         updateMTOServiceItemStatus,
+		SilenceUsage: true,
+	}
+	initUpdateMTOServiceItemStatusFlags(updateMTOServiceItemStatus.Flags())
+	root.AddCommand(updateMTOServiceItemStatus)
+
+	createPaymentRequestCommand := &cobra.Command{
+		Use:   "create-payment-request",
+		Short: "Create payment request",
+		Long: `
+  This command gets a single move task order by ID
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain a body defining the PaymentRequest object.
+  Endpoint path: /payment-requests
+  The file should contain json as follows:
+  	{
+  	"body": <PaymentRequest>,
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         createPaymentRequest,
+		SilenceUsage: true,
+	}
+	initCreatePaymentRequestFlags(createPaymentRequestCommand.Flags())
+	root.AddCommand(createPaymentRequestCommand)
+
+	createPaymentRequestUploadCommand := &cobra.Command{
+		Use:          "create-upload",
+		Short:        "Create payment request upload",
+		Long:         "Create payment request upload for a payment request",
+		RunE:         createPaymentRequestUpload,
+		SilenceUsage: true,
+	}
+	initCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
+	root.AddCommand(createPaymentRequestUploadCommand)
+
+	updateMTOShipmentStatusCommand := &cobra.Command{
+		Use:   "support-update-mto-shipment-status",
+		Short: "Update MTO shipment status for prime",
+		Long: `
+  This command allows prime to update the MTO shipment status.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain a body defining the request body.
+
+  Endpoint path: /mto-shipments/{mtoShipmentID}/status
+  The file should contain json as follows:
+    {
+      "mtoShipmentID": <uuid string>,
+      "ifMatch": <etag>,
+      "body": <MtoShipmentRequestStatus>,
+    }
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         updateMTOShipmentStatus,
+		SilenceUsage: true,
+	}
+	initUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
+	root.AddCommand(updateMTOShipmentStatusCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",

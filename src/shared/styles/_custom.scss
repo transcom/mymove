@@ -2,12 +2,16 @@
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/_mixins.scss';
 
+html {
+  scroll-behavior: smooth;
+}
+
 //
 //Containers
 //
 .container {
   @include u-bg('white');
-  @include u-padding('3');
+  @include u-padding('2');
   @include u-margin('3');
   @include u-radius('05');
   &--gray {
@@ -15,17 +19,28 @@
   }
   &--popout {
     @include u-border('base-light');
-    @include u-border('2px');
+    @include u-border('1px');
     @include u-shadow(2);
   }
   &--accent {
-    &--blue {
-      border-top: 8px solid $accent-blue;
-      @include u-shadow(2);
+    &--hhg, &--ppm, &--ub, &--nts, &--ntsr {
+      @include u-radius('0');
     }
-    &--yellow {
-      border-top: 8px solid $accent-yellow;
-      @include u-shadow(2);
+
+    &--hhg {
+      @include cont-border-top($accent-hhg);
+    }
+    &--ppm {
+      @include cont-border-top($accent-ppm);
+    }
+    &--ub {
+      @include cont-border-top($accent-ub);
+    }
+    &--nts {
+      @include cont-border-top($accent-nts);
+    }
+    &--ntsr {
+      @include cont-border-top($accent-ntsr);
     }
   }
 }
@@ -39,8 +54,9 @@
     background-color: $base-lighter;
   }
   .container {
-    width: 300px;
-    height: 135px;
+    max-width: 322px;
+    min-width: 300px;
+    min-height: 135px;
   }
 }
 
@@ -64,10 +80,6 @@ table {
     @include u-border('base-lighter');
   }
   td {
-    &:hover,
-    &.hover {
-      background-color: $link-light;
-    }
     &.locked {
       @include u-border-bottom(0);
       background-color: rgba(255, 255, 255, 0);
@@ -132,6 +144,13 @@ table {
     }
   }
 }
+.stackedtable-header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  max-width: 802px;
+  align-items: center;
+}
 .tcontrol--pagination {
   display: flex;
   align-items: center;
@@ -162,11 +181,12 @@ table {
   @include u-border(0);
   .table--small th {
     @include u-border('base-lighter');
+    @include u-padding-x(0);
   }
   td {
     @include u-border(0);
     @include u-padding-top(1.5);
-    @include u-padding-left(1);
+    @include u-padding-x(0);
     &:hover {
       background-color: rgba(255, 255, 255, 0);
     }
@@ -175,6 +195,18 @@ table {
   th {
     background-color: rgba(255, 255, 255, 0);
     min-width: 290px;
+  }
+  &--compact {
+    .table--small {
+      th {
+        @include u-padding(0);
+        @include u-border(0);
+      }
+    }
+    td {
+      @include u-padding(0);
+      @include u-padding-top(1);
+    }
   }
 }
 
@@ -231,9 +263,6 @@ table {
       fill: #adadad;
     }
   }
-  small {
-    @include u-text('gray-30');
-  }
   &--hasimg {
     table {
       table-layout: fixed;
@@ -271,4 +300,27 @@ table {
 }
 #root #sb-tables {
   background-color: lighten($mm-blue, 78%);
+}
+
+//
+#icons {
+  div {
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 150px;
+    svg {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 16px;
+      path,
+      polygon {
+        fill: $primary;
+      }
+    }
+    code {
+      font-size: 9px;
+    }
+  }
 }

@@ -19,6 +19,8 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/transcom/mymove/pkg/handlers/supportapi"
+
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -565,6 +567,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerContext.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagConvertPPMsToGHC, Active: v.GetBool(cli.FeatureFlagConvertPPMsToGHC)},
 	)
+	handlerContext.SetFeatureFlag(
+		handlers.FeatureFlag{Name: cli.FeatureFlagSupportEndpoints, Active: v.GetBool(cli.FeatureFlagSupportEndpoints)},
+	)
 
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
@@ -614,6 +619,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// called first).
 	site.Use(middleware.Recovery(logger))
 	site.Use(middleware.SecurityHeaders(logger))
+	site.Use(middleware.Trace(logger, &handlerContext)) // injects trace id into the context
+	site.Use(middleware.ContextLogger("milmove_trace_id", logger))
+
 	if maxBodySize := v.GetInt64(cli.MaxBodySizeFlag); maxBodySize > 0 {
 		site.Use(middleware.LimitBodySize(maxBodySize, logger))
 	}
@@ -773,10 +781,27 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		site.Handle(pat.New("/prime/v1/*"), primeMux)
 	}
 
+	if v.GetBool(cli.ServeSupportFlag) && handlerContext.GetFeatureFlag(cli.FeatureFlagSupportEndpoints) {
+		supportMux := goji.SubMux()
+		supportDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.PrimeServername)
+		supportMux.Use(supportDetectionMiddleware)
+		supportMux.Use(clientCertMiddleware)
+		supportMux.Use(authentication.PrimeAuthorizationMiddleware(logger))
+		supportMux.Use(middleware.NoCache(logger))
+		supportMux.Use(middleware.RequestLogger(logger))
+		supportMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.SupportSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("Support API Swagger UI serving is enabled")
+			supportMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "support.html")))
+		} else {
+			supportMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+		supportMux.Handle(pat.New("/*"), supportapi.NewSupportAPIHandler(handlerContext))
+		site.Handle(pat.New("/support/v1/*"), supportMux)
+	}
+
 	// Handlers under mutual TLS need to go before this section that sets up middleware that shouldn't be enabled for mutual TLS (such as CSRF)
 	root := goji.NewMux()
-	root.Use(middleware.Trace(logger, &handlerContext))            // injects http request trace id
-	root.Use(middleware.ContextLogger("milmove_trace_id", logger)) // injects http request logger
 	root.Use(sessionCookieMiddleware)
 	root.Use(middleware.RequestLogger(logger))
 

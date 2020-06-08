@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemDOFSIT Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem
+// MTOServiceItemDOFSIT Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.
 // swagger:model MTOServiceItemDOFSIT
 type MTOServiceItemDOFSIT struct {
 	eTagField string
@@ -30,6 +30,10 @@ type MTOServiceItemDOFSIT struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
+
+	rejectionReasonField *string
+
+	statusField MTOServiceItemStatus
 
 	// pickup postal code
 	// Required: true
@@ -114,6 +118,26 @@ func (m *MTOServiceItemDOFSIT) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// RejectionReason gets the rejection reason of this subtype
+func (m *MTOServiceItemDOFSIT) RejectionReason() *string {
+	return m.rejectionReasonField
+}
+
+// SetRejectionReason sets the rejection reason of this subtype
+func (m *MTOServiceItemDOFSIT) SetRejectionReason(val *string) {
+	m.rejectionReasonField = val
+}
+
+// Status gets the status of this subtype
+func (m *MTOServiceItemDOFSIT) Status() MTOServiceItemStatus {
+	return m.statusField
+}
+
+// SetStatus sets the status of this subtype
+func (m *MTOServiceItemDOFSIT) SetStatus(val MTOServiceItemStatus) {
+	m.statusField = val
+}
+
 // PickupPostalCode gets the pickup postal code of this subtype
 
 // ReServiceCode gets the re service code of this subtype
@@ -160,6 +184,10 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
 	dec = json.NewDecoder(buf)
@@ -187,6 +215,10 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
+
+	result.rejectionReasonField = base.RejectionReason
+
+	result.statusField = base.Status
 
 	result.PickupPostalCode = data.PickupPostalCode
 
@@ -242,6 +274,10 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
 		ETag: m.ETag(),
@@ -257,6 +293,10 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		RejectionReason: m.RejectionReason(),
+
+		Status: m.Status(),
 	},
 	)
 	if err != nil {
@@ -283,6 +323,10 @@ func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -350,6 +394,22 @@ func (m *MTOServiceItemDOFSIT) validateReServiceID(formats strfmt.Registry) erro
 	}
 
 	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDOFSIT) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
+	if err := m.Status().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

@@ -107,7 +107,7 @@ const configureDecimalField = (swaggerField, props, decimalLength, warningMessag
 const configureTelephoneField = (swaggerField, props) => {
   props.normalize = normalizer.normalizePhone;
   props.validate.push(
-    validator.patternMatches(swaggerField.pattern, 'Number must have 10 digits and a valid area code.'),
+    validator.patternMatches(swaggerField.pattern, 'Number must have 10 digits and a valid area code'),
   );
   props.type = 'text';
 

@@ -7,7 +7,7 @@ import TransportationOfficeContactInfo from 'shared/TransportationOffices/Transp
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { calcNetWeight } from 'scenes/Moves/Ppm/utility';
-import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
+import { getPpmWeightEstimate } from 'shared/Entities/modules/ppms';
 
 import ApprovedMoveSummary from 'scenes/Landing/MoveSummary/ApprovedMoveSummary';
 import CanceledMoveSummary from 'scenes/Landing/MoveSummary/CanceledMoveSummary';
@@ -51,6 +51,15 @@ const getPPMStatus = (moveStatus, ppm) => {
 };
 
 export class MoveSummaryComponent extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      hasEstimateError: false,
+      netWeight: null,
+    };
+  }
+
   componentDidMount() {
     if (this.props.move.id) {
       this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
@@ -61,13 +70,21 @@ export class MoveSummaryComponent extends React.Component {
         if (netWeight === 0) {
           netWeight = this.props.ppm.weight_estimate;
         }
-        this.props.getPpmWeightEstimate(
-          this.props.ppm.original_move_date,
-          this.props.ppm.pickup_postal_code,
-          this.props.originDutyStationZip,
-          this.props.orders.id,
-          netWeight,
-        );
+        if (!netWeight) {
+          this.setState({ hasEstimateError: true });
+        }
+        if (!isEmpty(this.props.ppm) && netWeight) {
+          this.props
+            .getPpmWeightEstimate(
+              this.props.ppm.original_move_date,
+              this.props.ppm.pickup_postal_code,
+              this.props.originDutyStationZip,
+              this.props.orders.id,
+              netWeight,
+            )
+            .catch((err) => this.setState({ hasEstimateError: true }));
+          this.setState({ netWeight: netWeight });
+        }
       });
     }
   }
@@ -131,6 +148,8 @@ export class MoveSummaryComponent extends React.Component {
               reviewProfile={reviewProfile}
               requestPaymentSuccess={requestPaymentSuccess}
               isMissingWeightTicketDocuments={isMissingWeightTicketDocuments}
+              hasEstimateError={this.state.hasEstimateError}
+              netWeight={this.state.netWeight}
             />
           </div>
 

@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -28,13 +30,18 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+type FeatureFlag struct {
+	Name   string
+	Active bool
+}
+
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	// unavailable MTO
 	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			IsAvailableToPrime: true,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -53,26 +60,6 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 
 	// make the request
 	handler := FetchMTOUpdatesHandler{HandlerContext: context}
-
-	suite.T().Run("with mto payments", func(t *testing.T) {
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: moveTaskOrder.ID,
-			},
-		})
-
-		response := handler.Handle(params)
-
-		suite.IsNotErrResponse(response)
-		moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
-		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
-
-		suite.Equal(1, len(moveTaskOrdersPayload))
-		suite.Equal(moveTaskOrder.ID.String(), moveTaskOrdersPayload[0].ID.String())
-		suite.Equal(1, len(moveTaskOrdersPayload[0].PaymentRequests))
-		suite.Equal(2, len(moveTaskOrdersPayload[0].MtoShipments))
-		suite.NotNil(moveTaskOrdersPayload[0].MtoShipments[0].ETag)
-	})
 
 	suite.T().Run("with mto service item dimensions", func(t *testing.T) {
 		reServiceDomCrating := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
@@ -180,12 +167,54 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	})
 }
 
+func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerPaymentRequest() {
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			AvailableToPrimeAt: swag.Time(time.Now()),
+		},
+	})
+
+	// This should create all the other associated records we need.
+	paymentServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder,
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key: models.ServiceItemParamNameRequestedPickupDate,
+		},
+	})
+
+	request := httptest.NewRequest("GET", "/move-task-orders", nil)
+
+	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	// make the request
+	handler := FetchMTOUpdatesHandler{HandlerContext: context}
+
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
+	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+	suite.Equal(1, len(moveTaskOrdersPayload))
+	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrdersPayload[0].ID.String())
+	suite.Equal(1, len(moveTaskOrdersPayload[0].PaymentRequests))
+	suite.Equal(paymentServiceItemParam.PaymentServiceItem.PaymentRequestID.String(), moveTaskOrdersPayload[0].PaymentRequests[0].ID.String())
+	suite.Equal(1, len(moveTaskOrdersPayload[0].PaymentRequests[0].PaymentServiceItems))
+	suite.Equal(paymentServiceItemParam.PaymentServiceItemID.String(), moveTaskOrdersPayload[0].PaymentRequests[0].PaymentServiceItems[0].ID.String())
+	suite.Equal(1, len(moveTaskOrdersPayload[0].PaymentRequests[0].PaymentServiceItems[0].PaymentServiceItemParams))
+	suite.Equal(paymentServiceItemParam.ID.String(), moveTaskOrdersPayload[0].PaymentRequests[0].PaymentServiceItems[0].PaymentServiceItemParams[0].ID.String())
+	suite.Equal(1, len(moveTaskOrdersPayload[0].MtoShipments))
+	suite.Equal(paymentServiceItemParam.PaymentServiceItem.MTOServiceItem.MTOShipmentID.String(), moveTaskOrdersPayload[0].MtoShipments[0].ID.String())
+	suite.NotNil(moveTaskOrdersPayload[0].MtoShipments[0].ETag)
+}
+
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerMinimal() {
 	// Creates a move task order with one minimal shipment and no payment requests
 	// or service items
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			IsAvailableToPrime: true,
+			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
@@ -217,14 +246,14 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			IsAvailableToPrime: true,
+			AvailableToPrimeAt: &now,
 		},
 	})
 
 	// this MTO should not be returned
 	olderMoveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			IsAvailableToPrime: true,
+			AvailableToPrimeAt: &now,
 		},
 	})
 

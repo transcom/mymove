@@ -3,12 +3,7 @@ import { getGHCClient } from 'shared/Swagger/api';
 import { get, filter } from 'lodash';
 
 const updateMoveTaskOrders = 'moveTaskOrder.updateMoveTaskOrderStatus';
-export function updateMoveTaskOrderStatus(
-  moveTaskOrderID,
-  ifMatchETag,
-  isAvailableToPrime,
-  label = updateMoveTaskOrders,
-) {
+export function updateMoveTaskOrderStatus(moveTaskOrderID, ifMatchETag, label = updateMoveTaskOrders) {
   const swaggerTag = 'moveTaskOrder.updateMoveTaskOrderStatus';
   return swaggerRequest(
     getGHCClient,

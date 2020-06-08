@@ -3,6 +3,7 @@ package internalapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
@@ -13,14 +14,17 @@ import (
 )
 
 func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
-	uploads := make([]*internalmessages.UploadPayload, len(document.Uploads))
-	for i, upload := range document.Uploads {
-		url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType)
+	uploads := make([]*internalmessages.UploadPayload, len(document.UserUploads))
+	for i, userUpload := range document.UserUploads {
+		if userUpload.Upload.ID == uuid.Nil {
+			return nil, errors.New("No uploads for user")
+		}
+		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType)
 		if err != nil {
 			return nil, err
 		}
 
-		uploadPayload := payloadForUploadModel(storer, upload, url)
+		uploadPayload := payloadForUploadModel(storer, userUpload.Upload, url)
 		uploads[i] = uploadPayload
 	}
 

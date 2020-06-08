@@ -23,6 +23,8 @@ const (
 	PrimeSwaggerFlag string = "prime-swagger"
 	// ServeSwaggerUIFlag is the Serve Swagger UI Flag
 	ServeSwaggerUIFlag string = "serve-swagger-ui"
+	// SupportSwaggerFlag is the Support Swagger Flag
+	SupportSwaggerFlag string = "support-swagger"
 )
 
 // InitSwaggerFlags initializes the Swagger command line flags

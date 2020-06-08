@@ -930,6 +930,69 @@ func init() {
         ]
       }
     },
+    "/move/{locator}": {
+      "get": {
+        "description": "Returns a given move",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns a given move",
+        "operationId": "getMove",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the individual move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "The locator provided is invalid"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "Code used to identify a move in the system",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move_task_orders/{moveTaskOrderID}/mto_service_items": {
       "get": {
         "description": "Gets all line items for a move orders",
@@ -1961,7 +2024,9 @@ func init() {
         "reServiceID",
         "reServiceCode",
         "reServiceName",
-        "mtoShipmentID"
+        "mtoShipmentID",
+        "reason",
+        "pickupPostalCode"
       ],
       "properties": {
         "approvedAt": {
@@ -2006,6 +2071,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupPostalCode": {
+          "type": "string"
+        },
         "quantity": {
           "type": "integer"
         },
@@ -2023,17 +2091,15 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
+        "reason": {
+          "type": "string"
+        },
         "rejectedAt": {
           "type": "string",
           "format": "date"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -2048,6 +2114,15 @@ func init() {
           "format": "datetime"
         }
       }
+    },
+    "MTOServiceItemStatus": {
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOServiceItems": {
       "type": "array",
@@ -2152,6 +2227,32 @@ func init() {
         "$ref": "#/definitions/MTOShipment"
       }
     },
+    "Move": {
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43A"
+        },
+        "orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "MoveOrder": {
       "type": "object",
       "properties": {
@@ -2242,6 +2343,11 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "createdAt": {
           "type": "string",
           "format": "date"
@@ -2264,10 +2370,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isAvailableToPrime": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "isCanceled": {
           "type": "boolean",
@@ -2297,14 +2399,6 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date"
-        }
-      }
-    },
-    "MoveTaskOrderStatus": {
-      "type": "object",
-      "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
         }
       }
     },
@@ -3672,6 +3766,81 @@ func init() {
         ]
       }
     },
+    "/move/{locator}": {
+      "get": {
+        "description": "Returns a given move",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Returns a given move",
+        "operationId": "getMove",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the individual move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "400": {
+            "description": "The locator provided is invalid"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "Code used to identify a move in the system",
+          "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move_task_orders/{moveTaskOrderID}/mto_service_items": {
       "get": {
         "description": "Gets all line items for a move orders",
@@ -4787,7 +4956,9 @@ func init() {
         "reServiceID",
         "reServiceCode",
         "reServiceName",
-        "mtoShipmentID"
+        "mtoShipmentID",
+        "reason",
+        "pickupPostalCode"
       ],
       "properties": {
         "approvedAt": {
@@ -4832,6 +5003,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupPostalCode": {
+          "type": "string"
+        },
         "quantity": {
           "type": "integer"
         },
@@ -4849,17 +5023,15 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
+        "reason": {
+          "type": "string"
+        },
         "rejectedAt": {
           "type": "string",
           "format": "date"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ]
+          "$ref": "#/definitions/MTOServiceItemStatus"
         },
         "submittedAt": {
           "type": "string",
@@ -4874,6 +5046,15 @@ func init() {
           "format": "datetime"
         }
       }
+    },
+    "MTOServiceItemStatus": {
+      "description": "Describes all statuses for a MTOServiceItem",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
     },
     "MTOServiceItems": {
       "type": "array",
@@ -4978,6 +5159,32 @@ func init() {
         "$ref": "#/definitions/MTOShipment"
       }
     },
+    "Move": {
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "locator": {
+          "type": "string",
+          "example": "1K43A"
+        },
+        "orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "MoveOrder": {
       "type": "object",
       "properties": {
@@ -5068,6 +5275,11 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "createdAt": {
           "type": "string",
           "format": "date"
@@ -5090,10 +5302,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isAvailableToPrime": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "isCanceled": {
           "type": "boolean",
@@ -5123,14 +5331,6 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date"
-        }
-      }
-    },
-    "MoveTaskOrderStatus": {
-      "type": "object",
-      "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
         }
       }
     },

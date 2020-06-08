@@ -61,6 +61,58 @@ func MTOAgentsModel(mtoAgents *primemessages.MTOAgents) *models.MTOAgents {
 	return &agents
 }
 
+// MTOServiceItemList model
+func MTOServiceItemList(mtoShipment *primemessages.CreateShipmentPayload) (models.MTOServiceItems, *validate.Errors) {
+
+	if mtoShipment == nil {
+		return nil, nil
+	}
+
+	serviceItemsListFromPayload := mtoShipment.MtoServiceItems()
+
+	serviceItemsList := make(models.MTOServiceItems, len(serviceItemsListFromPayload))
+
+	for i, m := range serviceItemsListFromPayload {
+		serviceItem, verrs := MTOServiceItemModel(m)
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+
+		serviceItemsList[i] = *serviceItem
+	}
+
+	return serviceItemsList, nil
+}
+
+// MTOShipmentModelFromCreate model
+func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload) *models.MTOShipment {
+	if mtoShipment == nil {
+		return nil
+	}
+
+	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
+	model := &models.MTOShipment{
+		MoveTaskOrderID:     uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:        models.MTOShipmentType(mtoShipment.ShipmentType),
+		RequestedPickupDate: &requestedPickupDate,
+		CustomerRemarks:     mtoShipment.CustomerRemarks,
+	}
+
+	if mtoShipment.PickupAddress != nil {
+		model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
+	}
+
+	if mtoShipment.DestinationAddress != nil {
+		model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+	}
+
+	if mtoShipment.Agents != nil {
+		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
+	}
+
+	return model
+}
+
 // MTOShipmentModel model
 func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipment {
 	if mtoShipment == nil {
@@ -90,6 +142,11 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 	actualPickupDate := time.Time(mtoShipment.ActualPickupDate)
 	if !actualPickupDate.IsZero() {
 		model.ActualPickupDate = &actualPickupDate
+	}
+
+	requiredDeliveryDate := time.Time(mtoShipment.RequiredDeliveryDate)
+	if !requiredDeliveryDate.IsZero() {
+		model.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
 	if mtoShipment.PickupAddress != nil {

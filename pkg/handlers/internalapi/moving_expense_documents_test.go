@@ -20,14 +20,14 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	sm := move.Orders.ServiceMember
 
-	upload := testdatagen.MakeUpload(suite.DB(), testdatagen.Assertions{
-		Upload: models.Upload{
+	userUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+		UserUpload: models.UserUpload{
 			UploaderID: sm.UserID,
 		},
 	})
-	upload.DocumentID = nil
-	suite.MustSave(&upload)
-	uploadIds := []strfmt.UUID{*handlers.FmtUUID(upload.ID)}
+	userUpload.DocumentID = nil
+	suite.MustSave(&userUpload)
+	uploadIds := []strfmt.UUID{*handlers.FmtUUID(userUpload.Upload.ID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
@@ -59,10 +59,10 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
 
-	// Make sure the Upload was associated to the new document
+	// Make sure the UserUpload was associated to the new document
 	createdDocumentID := createdPayload.Document.ID
-	var fetchedUpload models.Upload
-	suite.DB().Find(&fetchedUpload, upload.ID)
+	var fetchedUpload models.UserUpload
+	suite.DB().Find(&fetchedUpload, userUpload.ID)
 	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
 
 	// Check that the status is correct

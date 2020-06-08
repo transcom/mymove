@@ -66,14 +66,14 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	}
 
 	// Fetch uploads to confirm ownership
-	uploads := models.Uploads{}
+	userUploads := models.UserUploads{}
 	for _, id := range uploadIds {
-		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, fetchUploadErr := models.FetchUpload(ctx, h.DB(), session, converted)
+		convertedUploadID := uuid.Must(uuid.FromString(id.String()))
+		userUpload, fetchUploadErr := models.FetchUserUploadFromUploadID(ctx, h.DB(), session, convertedUploadID)
 		if fetchUploadErr != nil {
 			return handlers.ResponseForError(logger, fetchUploadErr)
 		}
-		uploads = append(uploads, upload)
+		userUploads = append(userUploads, userUpload)
 	}
 
 	var ppmID *uuid.UUID
@@ -110,7 +110,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	}
 	newMovingExpenseDocument, verrs, err := move.CreateMovingExpenseDocument(
 		h.DB(),
-		uploads,
+		userUploads,
 		ppmID,
 		models.MoveDocumentType(payload.MoveDocumentType),
 		*payload.Title,

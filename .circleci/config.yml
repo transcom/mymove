@@ -13,8 +13,8 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ce60239ffca056a033af6330daf922a5a9635066
-  postgres: &postgres postgres:11.7
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-1e5a1038cb264651fbd844b82489401a476e9f7e
+  postgres: &postgres postgres:12.2
 
 executors:
   av_medium:
@@ -327,6 +327,29 @@ commands:
             HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
 
+  e2e_tests_mtls:
+    steps:
+      - run:
+          name: make e2e_mtls_test_docker
+          command: |
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
+            source $BASH_ENV
+            make e2e_mtls_test_docker
+          environment:
+            # Env vars needed for the webserver to run inside docker
+            APPLICATION: app
+            LOGIN_GOV_CALLBACK_PROTOCOL: http
+            LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
+            LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
+            LOGIN_GOV_ADMIN_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:adminmovemillocal
+            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
@@ -353,10 +376,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           name: Install YARN dependencies
           # setting network concurrency to 1 because using the default failed with errors trying to extract package tar files saying they were corrupt.
@@ -364,14 +387,14 @@ jobs:
           # This is caused by a timing issue when using react-uswds branch. It can be removed once we switch to a released version
           command: yarn install --network-concurrency 1
       - run: scripts/check-generated-code yarn.lock
-      # `v2-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
+      # `v3-cache-yarn-v3-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
-          key: v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+          key: v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
           paths:
-            - ~/.cache/yarn/v2
-      # `v2-mymove-node-modules-{{ checksum "yarn.lock" }}` is used to cache installed node modules
+            - ~/.cache/yarn/v3
+      # `v3-mymove-node-modules-{{ checksum "yarn.lock" }}` is used to cache installed node modules
       - save_cache:
-          key: v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+          key: v3-mymove-node-modules-{{ checksum "yarn.lock" }}
           paths:
             - ~/transcom/mymove/node_modules
       - announce_failure
@@ -432,10 +455,10 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
@@ -534,7 +557,7 @@ jobs:
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
-    parallelism: 6
+    parallelism: 3
     executor: mymove_medium_plus
     steps:
       - checkout
@@ -545,13 +568,16 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - attach_workspace:
+          at: /home/circleci/transcom/mymove/bin
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate
       - run: rm -f bin/generate-test-data && make bin/generate-test-data
+      - run: rm -f bin/prime-api-client && make bin/prime-api-client
       - e2e_tests
       - store_artifacts:
           path: cypress/videos
@@ -559,6 +585,33 @@ jobs:
       - store_artifacts:
           path: cypress/screenshots
           destination: screenshots
+      - store_test_results:
+          path: cypress/results
+      - announce_failure
+
+  # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
+  integration_tests_mtls:
+    executor: mymove_medium_plus
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - restore_cache:
+          keys:
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - attach_workspace:
+          at: /home/circleci/transcom/mymove/bin
+      - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
+      - run: make server_generate
+      - run: rm -f bin/generate-test-data && make bin/generate-test-data
+      - run: rm -f bin/prime-api-client && make bin/prime-api-client
+      - e2e_tests_mtls
       - store_test_results:
           path: cypress/results
       - announce_failure
@@ -593,7 +646,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
@@ -619,6 +672,7 @@ jobs:
             - mockery # for generating mocks
             - renderer # for rendering ECS task definition
             - tls-checker # for confirming app won't respond to invalid TLS settings.
+            - prime-api-client #for running Prime API integration tests
       - announce_failure
 
   # `build_app` builds the application container and pushes to the container repository
@@ -633,10 +687,10 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make bin/rds-ca-2019-root.pem
       - run: make client_build
       - run: make server_build
@@ -647,7 +701,7 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `storybook_tests` runs the loki test suite against the current storybook code
+  # `storybook_tests` builds the storybook application container and pushes to the container repository
   storybook_tests:
     executor: mymove_medium
     steps:
@@ -656,11 +710,16 @@ jobs:
           docker_layer_caching: false
       - restore_cache:
           keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make storybook_tests
+      - run: make storybook_build
+      - persist_to_workspace:
+          root: /home/circleci/transcom/mymove/
+          paths:
+            - storybook-static
       - store_artifacts:
           path: .loki/current
           destination: current
@@ -670,24 +729,6 @@ jobs:
       - store_artifacts:
           path: .loki/reference
           destination: reference
-      - announce_failure
-
-  # `build_storybook_app` builds the storybook application container and pushes to the container repository
-  build_storybook_app:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make storybook_build
-      - persist_to_workspace:
-          root: /home/circleci/transcom/mymove/
-          paths:
-            - storybook-static
       - announce_failure
 
   # `build_migrations` builds the migrations container and pushes to the container repository
@@ -967,6 +1008,18 @@ workflows:
             branches:
               ignore: placeholder_branch_name
 
+      - integration_tests_mtls:
+          requires:
+            - pre_deps_golang
+            - check_generated_code
+            - build_app
+            - build_migrations
+            - acceptance_tests
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          filters:
+            branches:
+              ignore: placeholder_branch_name
+
       - client_test:
           requires:
             - pre_deps_yarn
@@ -989,12 +1042,6 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
             - acceptance_tests # don't bother building and pushing the application if it won't even start properly
-
-      - build_storybook_app:
-          requires:
-            - anti_virus
-            - pre_deps_yarn
-            - storybook_tests
 
       - build_tools:
           requires:
@@ -1056,6 +1103,7 @@ workflows:
             - build_tasks
             - acceptance_tests
             - integration_tests
+            - integration_tests_mtls
           filters:
             branches:
               only: master
@@ -1125,13 +1173,10 @@ workflows:
 
       - deploy_prod_storybook:
           requires:
-            - build_storybook_app
-            - approve_prod_deploy
+            - storybook_tests
           filters:
             branches:
               only: master
-              # Uncomment below if pushing a test branch. Also comment out approve_prod_deploy few lines above.
-              #only: placeholder_branch_name
 
       - storybook_tests:
           requires:

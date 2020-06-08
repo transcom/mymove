@@ -20,3 +20,9 @@ export function selectMTOServiceItems(state, moveOrderId) {
     moveTaskOrders.find((mto) => mto.id === item.moveTaskOrderID),
   );
 }
+
+export function selectMTOServiceItemsByMTOId(state, moveTaskOrderID) {
+  return filter(state.entities.mtoServiceItems, (item) => {
+    return moveTaskOrderID === item.moveTaskOrderID;
+  });
+}

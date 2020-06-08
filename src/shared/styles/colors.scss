@@ -28,10 +28,14 @@ $success-light: #ecf3ec;
 //Group 5 Accents
 $link: #0050d8;
 $link-light: #d9e8f6;
-$accent-blue: #0096f4;
-$accent-yellow: #face00;
+$accent-teal: #009bc2;
+$accent-hhg: #0096f4;
+$accent-ppm: #E6C74C;
+$accent-ub: #F2938C;
+$accent-nts: #D85BEF;
+$accent-ntsr: #8168B3;
 
-//USWDS Colorrs that need to be added
+//USWDS Colorrs
 $primary: #0050d8;
 $primary-dark: #1a4480;
 $primary-darker: #162e51;
@@ -41,6 +45,7 @@ $color-gold: #fdb81e;
 $color-icon-gray: #ababab;
 $color-gray-lightest: #f1f1f1;
 $color-gray-medium: #a2a2a2;
+$color-gray-dark: #767676;
 $color-gray-light: #b2b2b2;
 $color-red: #cd3504;
 $color-blue: #005ea2;
@@ -73,10 +78,19 @@ $color-blue: #005ea2;
     success: $success;
     successlight: $success-light;
   }
+  primary: {
+    primary: $primary;
+    primarydark: $primary-dark;
+    primarydarker: $primary-darker;
+  }
   accent: {
     link: $link;
     linklight: $link-light;
-    accentblue: $accent-blue;
-    accentyellow: $accent-yellow;
+    accenteal: $accent-teal;
+    accenthhg: $accent-hhg;
+    accentppm: $accent-ppm;
+    accentub: $accent-ub;
+    accentnts: $accent-nts;
+    accentntsr: $accent-ntsr;
   }
 }

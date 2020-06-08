@@ -3,6 +3,8 @@ package primeapi
 import (
 	"fmt"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -28,10 +30,10 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	payload := params.Body
-
 	if payload == nil {
-		logger.Error("Invalid payment request: params Body is nil")
-		return paymentrequestop.NewCreatePaymentRequestBadRequest()
+		errPayload := payloads.ClientError(handlers.SQLErrMessage, "Invalid payment request: params Body is nil", h.GetTraceID())
+		logger.Error("Invalid payment request: params Body is nil", zap.Any("payload", errPayload))
+		return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(errPayload)
 	}
 
 	logger.Info("primeapi.CreatePaymentRequestHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
@@ -41,7 +43,14 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	if err != nil {
 		logger.Error("Invalid payment request: params MoveTaskOrderID cannot be converted to a UUID",
 			zap.String("MoveTaskOrderID", moveTaskOrderIDString), zap.Error(err))
-		return paymentrequestop.NewCreatePaymentRequestBadRequest()
+		// create a custom verrs for returning a 422
+		verrs :=
+			&validate.Errors{Errors: map[string][]string{
+				"move_task_order_id": {"id cannot be converted to UUID"},
+			},
+			}
+		errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), verrs)
+		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
 	}
 
 	isFinal := false
@@ -56,36 +65,66 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	// Build up the paymentRequest.PaymentServiceItems using the incoming payload to offload Swagger data coming
 	// in from the API. These paymentRequest.PaymentServiceItems will be used as a temp holder to process the incoming API data
-	paymentRequest.PaymentServiceItems, err = h.buildPaymentServiceItems(payload)
-	if err != nil {
+	verrs := validate.NewErrors()
+	paymentRequest.PaymentServiceItems, verrs, err = h.buildPaymentServiceItems(payload)
+	if err != nil || verrs.HasAny() {
+
 		logger.Error("could not build service items", zap.Error(err))
 		// TODO: do not bail out before creating the payment request, we need the failed record
 		//       we should create the failed record and store it as failed with a rejection
-		return paymentrequestop.NewCreatePaymentRequestBadRequest()
+		errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), verrs)
+		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
 	}
 
 	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
 	if err != nil {
 		logger.Error("Error creating payment request", zap.Error(err))
+		if typedErr, ok := err.(services.InvalidCreateInputError); ok {
+			verrs := typedErr.ValidationErrors
+			detail := err.Error()
+			payload := payloads.ValidationError(detail, h.GetTraceID(), verrs)
+
+			logger.Error("Payment Request",
+				zap.Any("payload", payload))
+			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
+		}
+
+		if _, ok := err.(services.NotFoundError); ok {
+			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID())
+
+			logger.Error("Payment Request",
+				zap.Any("payload", payload))
+			return paymentrequestop.NewCreatePaymentRequestNotFound().WithPayload(payload)
+		}
+		if _, ok := err.(*services.BadDataError); ok {
+			payload := payloads.ClientError(handlers.SQLErrMessage, err.Error(), h.GetTraceID())
+
+			logger.Error("Payment Request",
+				zap.Any("payload", payload))
+			return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(payload)
+		}
+		logger.Error("Payment Request",
+			zap.Any("payload", payload))
 		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
 	}
 
-	logger.Info("Payment Request params",
-		zap.Any("payload", payload),
-		// TODO add ProofOfService object to log
-	)
-
 	returnPayload := payloads.PaymentRequest(createdPaymentRequest)
+	logger.Info("Successful payment request creation for mto ID", zap.String("moveID", moveTaskOrderIDString))
 	return paymentrequestop.NewCreatePaymentRequestCreated().WithPayload(returnPayload)
 }
 
-func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemessages.CreatePaymentRequestPayload) (models.PaymentServiceItems, error) {
+func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemessages.CreatePaymentRequestPayload) (models.PaymentServiceItems, *validate.Errors, error) {
 	var paymentServiceItems models.PaymentServiceItems
-
+	verrs := validate.NewErrors()
 	for _, payloadServiceItem := range payload.ServiceItems {
 		mtoServiceItemID, err := uuid.FromString(payloadServiceItem.ID.String())
 		if err != nil {
-			return nil, fmt.Errorf("could not convert service item ID [%v] to UUID: %w", payloadServiceItem.ID, err)
+			// create a custom verrs for returning a 422
+			verrs = &validate.Errors{Errors: map[string][]string{
+				"payment_service_item_id": {"id cannot be converted to UUID"},
+			},
+			}
+			return nil, verrs, fmt.Errorf("could not convert service item ID [%v] to UUID: %w", payloadServiceItem.ID, err)
 		}
 
 		paymentServiceItem := models.PaymentServiceItem{
@@ -98,7 +137,7 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 		paymentServiceItems = append(paymentServiceItems, paymentServiceItem)
 	}
 
-	return paymentServiceItems, nil
+	return paymentServiceItems, verrs, nil
 }
 
 func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem) models.PaymentServiceItemParams {

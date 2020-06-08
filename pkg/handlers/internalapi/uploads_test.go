@@ -140,34 +140,36 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	fakeS3 := storageTest.NewFakeS3Storage(false)
 	document, params := createPrereqs(suite)
 
+	currentCount, countErr := suite.DB().Count(&models.Upload{})
+	suite.Nil(countErr)
+
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
 	suite.CheckResponseInternalServerError(response)
 
 	count, err := suite.DB().Count(&models.Upload{})
-
 	if err != nil {
 		t.Fatalf("Couldn't count uploads in database: %s", err)
 	}
 
-	if count != 0 {
-		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
+	if count != currentCount {
+		t.Fatalf("Wrong number of uploads in database: expected %d, got %d", currentCount, count)
 	}
 }
 
 func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	upload := testdatagen.MakeDefaultUpload(suite.DB())
-	suite.Nil(upload.DeletedAt)
+	uploadUser := testdatagen.MakeDefaultUserUpload(suite.DB())
+	suite.Nil(uploadUser.Upload.DeletedAt)
 
 	file := suite.Fixture("test.pdf")
-	fakeS3.Store(upload.StorageKey, file.Data, "somehash", nil)
+	fakeS3.Store(uploadUser.Upload.StorageKey, file.Data, "somehash", nil)
 
 	params := uploadop.NewDeleteUploadParams()
-	params.UploadID = strfmt.UUID(upload.ID.String())
+	params.UploadID = strfmt.UUID(uploadUser.Upload.ID.String())
 
 	req := &http.Request{}
-	req = suite.AuthenticateRequest(req, upload.Document.ServiceMember)
+	req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
 	params.HTTPRequest = req
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -179,7 +181,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}
-	err := suite.DB().Find(&queriedUpload, upload.ID)
+	err := suite.DB().Find(&queriedUpload, uploadUser.Upload.ID)
 	suite.Nil(err)
 	suite.NotNil(queriedUpload.DeletedAt)
 }
@@ -187,29 +189,29 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	upload1 := testdatagen.MakeDefaultUpload(suite.DB())
-	suite.Nil(upload1.DeletedAt)
+	uploadUser1 := testdatagen.MakeDefaultUserUpload(suite.DB())
+	suite.Nil(uploadUser1.Upload.DeletedAt)
 
-	upload2Assertions := testdatagen.Assertions{
-		Upload: models.Upload{
-			Document:   upload1.Document,
-			DocumentID: &upload1.Document.ID,
+	uploadUser2Assertions := testdatagen.Assertions{
+		UserUpload: models.UserUpload{
+			Document:   uploadUser1.Document,
+			DocumentID: &uploadUser1.Document.ID,
 		},
 	}
-	upload2 := testdatagen.MakeUpload(suite.DB(), upload2Assertions)
+	uploadUser2 := testdatagen.MakeUserUpload(suite.DB(), uploadUser2Assertions)
 
 	file := suite.Fixture("test.pdf")
-	fakeS3.Store(upload1.StorageKey, file.Data, "somehash", nil)
-	fakeS3.Store(upload2.StorageKey, file.Data, "somehash", nil)
+	fakeS3.Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
+	fakeS3.Store(uploadUser2.Upload.StorageKey, file.Data, "somehash", nil)
 
 	params := uploadop.NewDeleteUploadsParams()
 	params.UploadIds = []strfmt.UUID{
-		strfmt.UUID(upload1.ID.String()),
-		strfmt.UUID(upload2.ID.String()),
+		strfmt.UUID(uploadUser1.Upload.ID.String()),
+		strfmt.UUID(uploadUser2.Upload.ID.String()),
 	}
 
 	req := &http.Request{}
-	req = suite.AuthenticateRequest(req, upload1.Document.ServiceMember)
+	req = suite.AuthenticateRequest(req, uploadUser1.Document.ServiceMember)
 	params.HTTPRequest = req
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -221,7 +223,39 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}
-	err := suite.DB().Find(&queriedUpload, upload1.ID)
+	err := suite.DB().Find(&queriedUpload, uploadUser1.Upload.ID)
 	suite.Nil(err)
 	suite.NotNil(queriedUpload.DeletedAt)
+}
+
+func (suite *HandlerSuite) TestDeleteUploadHandlerFailure() {
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+
+	uploadUser := testdatagen.MakeDefaultUserUpload(suite.DB())
+	suite.Nil(uploadUser.Upload.DeletedAt)
+
+	file := suite.Fixture("test.pdf")
+	fakeS3.Store(uploadUser.Upload.StorageKey, file.Data, "somehash", nil)
+
+	params := uploadop.NewDeleteUploadParams()
+	params.UploadID = strfmt.UUID(uploadUser.Upload.ID.String())
+
+	req := &http.Request{}
+	req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
+	params.HTTPRequest = req
+
+	fakeS3Failure := storageTest.NewFakeS3Storage(false)
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context.SetFileStorer(fakeS3Failure)
+	handler := DeleteUploadHandler{context}
+	response := handler.Handle(params)
+
+	_, ok := response.(*uploadop.DeleteUploadNoContent)
+	suite.False(ok)
+
+	queriedUpload := models.Upload{}
+	err := suite.DB().Find(&queriedUpload, uploadUser.Upload.ID)
+	suite.Nil(err)
+	suite.Nil(queriedUpload.DeletedAt)
 }

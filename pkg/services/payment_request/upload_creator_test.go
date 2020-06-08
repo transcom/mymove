@@ -6,26 +6,17 @@ import (
 	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage/test"
 
 	"github.com/gofrs/uuid"
 
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/storage"
-	"github.com/transcom/mymove/pkg/storage/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
-	storer := &mocks.FileStorer{}
-	storer.On("Store",
-		mock.AnythingOfType("string"),
-		mock.AnythingOfType("*mem.File"),
-		mock.AnythingOfType("string"),
-		mock.AnythingOfType("*string"),
-	).Return(&storage.StoreResult{}, nil).Once()
+	contractor := testdatagen.MakeDefaultContractor(suite.DB())
 
-	activeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}) // temp user-- will need to be connected to prime
+	fakeS3 := test.NewFakeS3Storage(true)
 	paymentRequestID, err := uuid.FromString("9b873071-149f-43c2-8971-e93348ebc5e3")
 	suite.NoError(err)
 
@@ -39,17 +30,16 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder,
 		PaymentRequest: models.PaymentRequest{
-			ID:            paymentRequestID,
-			MoveTaskOrder: moveTaskOrder,
+			ID: paymentRequestID,
 		},
 	})
 
 	testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 	suite.NoError(err)
 
-	suite.T().Run("Upload is created successfully", func(t *testing.T) {
-		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
-		upload, err := uploadCreator.CreateUpload(testFile, paymentRequest.ID, *activeUser.UserID)
+	suite.T().Run("PrimeUpload is created successfully", func(t *testing.T) {
+		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
+		upload, err := uploadCreator.CreateUpload(testFile, paymentRequest.ID, contractor.ID)
 
 		expectedFilename := fmt.Sprintf("/app/payment-request-uploads/mto-%s/payment-request-%s", moveTaskOrderID, paymentRequest.ID)
 		suite.NoError(err)
@@ -58,7 +48,13 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 		suite.Equal("application/pdf", upload.ContentType)
 
 		var proofOfServiceDoc models.ProofOfServiceDoc
-		proofOfServiceDocExists, err := suite.DB().Where("upload_id = $1", upload.ID).Where("payment_request_id = $2", paymentRequest.ID).Exists(&proofOfServiceDoc)
+		proofOfServiceDocExists, err := suite.DB().Q().
+			LeftJoin("payment_requests pr", "pr.id = proof_of_service_docs.payment_request_id").
+			LeftJoin("prime_uploads pu", "proof_of_service_docs.id = pu.proof_of_service_docs_id").
+			LeftJoin("uploads u", "pu.upload_id = u.id").
+			Where("u.id = $1", upload.ID).Where("pr.id = $2", paymentRequest.ID).
+			Eager("PrimeUploads.Upload").
+			Exists(&proofOfServiceDoc)
 		suite.NoError(err)
 		suite.Equal(true, proofOfServiceDocExists)
 	})
@@ -67,22 +63,16 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 }
 
 func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
-	storer := &mocks.FileStorer{}
-	storer.On("Store",
-		mock.AnythingOfType("string"),
-		mock.AnythingOfType("*mem.File"),
-		mock.AnythingOfType("string"),
-		mock.AnythingOfType("*string"),
-	).Return(&storage.StoreResult{}, nil).Once()
-	activeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}) // temp user-- will need to be connected to prime
+	contractor := testdatagen.MakeDefaultContractor(suite.DB())
+	fakeS3 := test.NewFakeS3Storage(true)
 	testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
 	suite.T().Run("invalid payment request ID", func(t *testing.T) {
 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
 		defer testFile.Close()
-		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
-		_, err = uploadCreator.CreateUpload(testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), *activeUser.UserID)
+		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
+		_, err = uploadCreator.CreateUpload(testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), contractor.ID)
 		suite.Error(err)
 	})
 
@@ -92,19 +82,19 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		defer testFile.Close()
 
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
+		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
 		_, err = uploadCreator.CreateUpload(testFile, paymentRequest.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"))
 		suite.Error(err)
 	})
 
 	suite.T().Run("invalid file type", func(t *testing.T) {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
+		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
 		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
 		suite.NoError(err)
 		defer wrongTypeFile.Close()
 
-		_, err = uploadCreator.CreateUpload(wrongTypeFile, paymentRequest.ID, *activeUser.UserID)
+		_, err = uploadCreator.CreateUpload(wrongTypeFile, paymentRequest.ID, contractor.ID)
 		suite.Error(err)
 	})
 

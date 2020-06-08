@@ -26,7 +26,7 @@ func (suite *PaymentRequestHelperSuite) TestValidServiceParamList() {
 	})
 	serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         "WeightEstimated",
+			Key:         models.ServiceItemParamNameWeightEstimated,
 			Description: "estimated weight",
 			Type:        models.ServiceItemParamTypeInteger,
 			Origin:      models.ServiceItemParamOriginPrime,
@@ -34,7 +34,7 @@ func (suite *PaymentRequestHelperSuite) TestValidServiceParamList() {
 	})
 	serviceItemParamKey2 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         "RequestedPickupDate",
+			Key:         models.ServiceItemParamNameRequestedPickupDate,
 			Description: "requested pickup date",
 			Type:        models.ServiceItemParamTypeDate,
 			Origin:      models.ServiceItemParamOriginPrime,
@@ -42,7 +42,7 @@ func (suite *PaymentRequestHelperSuite) TestValidServiceParamList() {
 	})
 	serviceItemParamKey3 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         "ZipPickupAddress",
+			Key:         models.ServiceItemParamNameZipPickupAddress,
 			Description: "ZIP Pickup Address",
 			Type:        models.ServiceItemParamTypeString,
 			Origin:      models.ServiceItemParamOriginPrime,
@@ -51,7 +51,7 @@ func (suite *PaymentRequestHelperSuite) TestValidServiceParamList() {
 
 	serviceItemParamKey4 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         "DistanceZip3",
+			Key:         models.ServiceItemParamNameDistanceZip3,
 			Description: "ZIP 3 Distance",
 			Type:        models.ServiceItemParamTypeString,
 			Origin:      models.ServiceItemParamOriginPrime,

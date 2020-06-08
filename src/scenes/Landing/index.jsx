@@ -23,12 +23,13 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
+import { loadPPMs } from 'shared/Entities/modules/ppms';
 
 export class Landing extends Component {
   componentDidMount() {
     scrollToTop();
   }
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     const {
       serviceMember,
       createdServiceMemberIsLoading,
@@ -46,6 +47,9 @@ export class Landing extends Component {
         // If the service member exists, but is not complete, redirect to next incomplete page.
         this.resumeMove();
       }
+    }
+    if (prevProps.move && prevProps.move.id !== this.props.move.id) {
+      this.props.loadPPMs(this.props.move.id);
     }
   }
   startMove = (values) => {
@@ -172,7 +176,7 @@ const mapStateToProps = (state) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, createServiceMember, updateMove }, dispatch);
+  return bindActionCreators({ push, createServiceMember, updateMove, loadPPMs }, dispatch);
 }
 
 export default withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing));

@@ -42,7 +42,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREIntlAccessorialPrices() {
 func (suite *GHCRateEngineImportSuite) helperVerifyIntlAccessorialPrices() {
 	count, err := suite.DB().Count(&models.ReIntlAccessorialPrice{})
 	suite.NoError(err)
-	suite.Equal(8, count)
+	suite.Equal(10, count)
 }
 
 func (suite *GHCRateEngineImportSuite) helperCheckIntlAccessorialPrices() {
@@ -51,63 +51,40 @@ func (suite *GHCRateEngineImportSuite) helperCheckIntlAccessorialPrices() {
 	err := suite.DB().Where("code = $1", testContractCode).First(&contract)
 	suite.NoError(err)
 
-	// Get service UUID.
-	var serviceICRT models.ReService
-	err = suite.DB().Where("code = 'ICRT'").First(&serviceICRT)
-	suite.NoError(err)
+	testCases := []struct {
+		serviceCode   string
+		market        string
+		expectedPrice int
+		isError       bool
+	}{
+		{"ICRT", "C", 2561, false},
+		{"ICRTSA", "C", 2561, false},
+		{"IUCRT", "C", 654, false},
+		{"IDSHUT", "C", 14529, false},
+		{"IDSHUT", "O", 15623, false},
+		{"IOSHUT", "O", 15623, false},
+		{"MS", "O", 0, true},
+		{"ICRT", "R", 0, true},
+	}
 
-	var serviceIUCRT models.ReService
-	err = suite.DB().Where("code = 'IUCRT'").First(&serviceIUCRT)
-	suite.NoError(err)
+	for _, testCase := range testCases {
+		// Get service UUID.
+		var service models.ReService
+		err = suite.DB().Where("code = ?", testCase.serviceCode).First(&service)
+		suite.NoError(err)
 
-	var serviceIDSHUT models.ReService
-	err = suite.DB().Where("code = 'IDSHUT'").First(&serviceIDSHUT)
-	suite.NoError(err)
+		var intlAccessorialPrice models.ReIntlAccessorialPrice
+		err = suite.DB().
+			Where("contract_id = $1", contract.ID).
+			Where("service_id = $2", service.ID).
+			Where("market = $3", testCase.market).
+			First(&intlAccessorialPrice)
 
-	var serviceNotValid models.ReService
-	err = suite.DB().Where("code = 'MS'").First(&serviceNotValid)
-	suite.NoError(err)
-
-	var intlAccessorialPriceICRT models.ReIntlAccessorialPrice
-	err = suite.DB().
-		Where("contract_id = $1", contract.ID).
-		Where("service_id = $2", serviceICRT.ID).
-		Where("market = $3", "C").
-		First(&intlAccessorialPriceICRT)
-	suite.NoError(err)
-	suite.Equal(unit.Cents(2561), intlAccessorialPriceICRT.PerUnitCents)
-
-	var intlAccessorialPriceIUCRT models.ReIntlAccessorialPrice
-	err = suite.DB().
-		Where("contract_id = $1", contract.ID).
-		Where("service_id = $2", serviceIUCRT.ID).
-		Where("market = $3", "C").
-		First(&intlAccessorialPriceIUCRT)
-	suite.NoError(err)
-	suite.Equal(unit.Cents(654), intlAccessorialPriceIUCRT.PerUnitCents)
-
-	var intlAccessorialPriceIDSHUT models.ReIntlAccessorialPrice
-	err = suite.DB().
-		Where("contract_id = $1", contract.ID).
-		Where("service_id = $2", serviceIDSHUT.ID).
-		Where("market = $3", "O").
-		First(&intlAccessorialPriceIDSHUT)
-	suite.NoError(err)
-	suite.Equal(unit.Cents(15623), intlAccessorialPriceIDSHUT.PerUnitCents)
-
-	var intlAccessorialPriceServiceNotValid models.ReIntlAccessorialPrice
-	err = suite.DB().
-		Where("contract_id = $1", contract.ID).
-		Where("service_id = $2", serviceNotValid.ID).
-		Where("market = $3", "O").
-		First(&intlAccessorialPriceServiceNotValid)
-	suite.Error(err)
-
-	var intlAccessorialPriceMarketNotValid models.ReIntlAccessorialPrice
-	err = suite.DB().
-		Where("contract_id = $1", contract.ID).
-		Where("service_id = $2", serviceNotValid.ID).
-		Where("market = $3", "R").
-		First(&intlAccessorialPriceMarketNotValid)
-	suite.Error(err)
+		if testCase.isError {
+			suite.Error(err)
+		} else {
+			suite.NoError(err)
+			suite.Equal(unit.Cents(testCase.expectedPrice), intlAccessorialPrice.PerUnitCents, "test case: %+v", testCase)
+		}
+	}
 }

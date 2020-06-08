@@ -1,8 +1,6 @@
 package internalapi
 
 import (
-	"io"
-
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -41,7 +39,7 @@ type CreateUploadHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle creates a new Upload from a request payload
+// Handle creates a new UserUpload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
 
 	ctx := params.HTTPRequest.Context()
@@ -55,8 +53,11 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	logger.Info(
-		"File name and size",
-		zap.String("name", file.Header.Filename),
+		"File uploader and size",
+		zap.String("userID", session.ServiceMemberID.String()),
+		zap.String("serviceMemberID", session.ServiceMemberID.String()),
+		zap.String("officeUserID", session.OfficeUserID.String()),
+		zap.String("AdminUserID", session.AdminUserID.String()),
 		zap.Int64("size", file.Header.Size),
 	)
 
@@ -76,24 +77,18 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		docID = &document.ID
 	}
 
-	// Read the incoming data into a temporary afero.File for consumption
-	aFile, err := h.FileStorer().TempFileSystem().Create(file.Header.Filename)
-	if err != nil {
-		logger.Error("Error opening afero file.", zap.Error(err))
-		return uploadop.NewCreateUploadInternalServerError()
-	}
-
-	_, err = io.Copy(aFile, file.Data)
-	if err != nil {
-		logger.Error("Error copying incoming data into afero file.", zap.Error(err))
-		return uploadop.NewCreateUploadInternalServerError()
-	}
-
-	uploader, err := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
+	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}
-	newUpload, verrs, err := uploader.CreateUploadForDocument(docID, session.UserID, uploaderpkg.File{File: aFile}, uploaderpkg.AllowedTypesServiceMember)
+
+	aFile, err := userUploader.PrepareFileForUpload(file.Data, file.Header.Filename)
+	if err != nil {
+		logger.Fatal("could not prepare file for uploader", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+
+	newUserUpload, verrs, err := userUploader.CreateUserUploadForDocument(docID, session.UserID, uploaderpkg.File{File: aFile}, uploaderpkg.AllowedTypesServiceMember)
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {
 		case uploaderpkg.ErrTooLarge:
@@ -103,12 +98,12 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		}
 	}
 
-	url, err := uploader.PresignedURL(newUpload)
+	url, err := userUploader.PresignedURL(newUserUpload)
 	if err != nil {
 		logger.Error("failed to get presigned url", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
-	uploadPayload := payloadForUploadModel(h.FileStorer(), *newUpload, url)
+	uploadPayload := payloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
 	return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload)
 }
 
@@ -125,16 +120,16 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	uploadID, _ := uuid.FromString(params.UploadID.String())
-	upload, err := models.FetchUpload(ctx, h.DB(), session, uploadID)
+	userUpload, err := models.FetchUserUploadFromUploadID(ctx, h.DB(), session, uploadID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	uploader, err := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
+	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}
-	if err = uploader.DeleteUpload(&upload); err != nil {
+	if err = userUploader.DeleteUserUpload(&userUpload); err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
@@ -153,19 +148,19 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 
 	// User should always be populated by middleware
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	uploader, err := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
+	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}
 
 	for _, uploadID := range params.UploadIds {
-		uuid, _ := uuid.FromString(uploadID.String())
-		upload, err := models.FetchUpload(ctx, h.DB(), session, uuid)
+		uploadUUID, _ := uuid.FromString(uploadID.String())
+		userUpload, err := models.FetchUserUploadFromUploadID(ctx, h.DB(), session, uploadUUID)
 		if err != nil {
 			return handlers.ResponseForError(logger, err)
 		}
 
-		if err = uploader.DeleteUpload(&upload); err != nil {
+		if err = userUploader.DeleteUserUpload(&userUpload); err != nil {
 			return handlers.ResponseForError(logger, err)
 		}
 	}

@@ -8,7 +8,7 @@ if [ -n "${CIRCLECI+x}" ]; then
   echo "CircleCI has swagger built in"
 else
   # Locally we need to download the docker image to get the binary
-  image=milmove/circleci-docker:milmove-app-ce60239ffca056a033af6330daf922a5a9635066
+  image=milmove/circleci-docker:milmove-app-1e5a1038cb264651fbd844b82489401a476e9f7e
   docker pull -q "${image}"
 fi
 
@@ -71,9 +71,11 @@ generate_server swagger/ghc.yaml      ghcmessages      ghcapi      ghcoperations
 generate_server swagger/internal.yaml internalmessages internalapi internaloperations
 generate_server swagger/orders.yaml   ordersmessages   ordersapi   ordersoperations
 generate_server swagger/prime.yaml    primemessages    primeapi    primeoperations
+generate_server swagger/support.yaml supportmessages supportapi supportoperations
 
 # Generate Client Code
 generate_client swagger/prime.yaml primemessages primeclient
+generate_client swagger/support.yaml supportmessages supportclient
 
 # Wait for all processes to finish
 for pid in ${pids[*]}; do

@@ -22,6 +22,7 @@ func (gre *GHCRateEngineImporter) importREIntlAccessorialPrices(dbTx *pop.Connec
 		serviceProvided string
 	}{
 		{"ICRT", "Crating (per cubic ft.)"},
+		{"ICRTSA", "Crating (per cubic ft.)"},
 		{"IUCRT", "Uncrating (per cubic ft.)"},
 		{"IDSHUT", "Shuttle Service (per cwt)"},
 		{"IOSHUT", "Shuttle Service (per cwt)"},

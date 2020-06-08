@@ -1,12 +1,20 @@
 #! /usr/bin/env bash
 
 #
-# Update branch name before running docker-compose
+# Update branch name before running docker-compose.
+#
+# Will need to pass the docker-compose file being used.
+#
+# Example:
+#
+# update-docker-compose docker-compose.mtls.yml
 #
 
 set -eu -o pipefail
 shopt -s extglob
 
+readonly filename=$1
+
 BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-perl -pi.bak -e "s/(.*git-branch).*/\$1-${BRANCH_NAME//+([^A-Za-z0-9-.])/-}/g" docker-compose.yml
-rm docker-compose.yml.bak
+perl -pi.bak -e "s/(.*git-branch).*/\$1-${BRANCH_NAME//+([^A-Za-z0-9-.])/-}/g" "${filename}"
+rm "${filename}".bak

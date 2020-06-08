@@ -1,12 +1,13 @@
 package internalapi
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -176,6 +177,14 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 
 	if payload.WeightEstimate != nil {
 		ppm.WeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.WeightEstimate)
+	}
+	if payload.IncentiveEstimateMax != nil {
+		incentiveEstimateMax := unit.Cents(int(*payload.IncentiveEstimateMax))
+		ppm.IncentiveEstimateMax = &incentiveEstimateMax
+	}
+	if payload.IncentiveEstimateMin != nil {
+		incentiveEstimateMin := unit.Cents(int(*payload.IncentiveEstimateMin))
+		ppm.IncentiveEstimateMin = &incentiveEstimateMin
 	}
 	if payload.NetWeight != nil {
 		ppm.NetWeight = handlers.PoundPtrFromInt64Ptr(payload.NetWeight)
@@ -412,13 +421,14 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 	// Update SIT estimate
 	if ppm.HasSit != nil && *ppm.HasSit {
 		cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
-		sitZip3 := rateengine.Zip5ToZip3(*ppm.DestinationPostalCode)
+		sitZip3 := rateengine.Zip5ToZip3(destinationDutyStationZip)
 		sitComputation, sitChargeErr := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
 		if sitChargeErr != nil {
 			return sitChargeErr
 		}
 		sitCharge := float64(sitComputation.ApplyDiscount(cost.LHDiscount, cost.SITDiscount))
-		reimbursementString := fmt.Sprintf("$%.2f", sitCharge/100)
+		p := message.NewPrinter(language.English)
+		reimbursementString := p.Sprintf("$%.2f", sitCharge/100)
 		ppm.EstimatedStorageReimbursement = &reimbursementString
 	}
 

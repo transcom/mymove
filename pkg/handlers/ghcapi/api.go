@@ -30,6 +30,13 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 	queryBuilder := query.NewQueryBuilder(context.DB())
+	ghcAPI.ServeError = handlers.ServeCustomError
+
+	ghcAPI.MoveGetMoveHandler = GetMoveHandler{
+		HandlerContext: context,
+		Fetcher:        fetch.NewFetcher(queryBuilder),
+		NewQueryFilter: query.NewQueryFilter,
+	}
 
 	ghcAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
 		context,

@@ -22,6 +22,7 @@ func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(dbTx *pop.Co
 		serviceProvided string
 	}{
 		{"DCRT", "Crating (per cubic ft.)"},
+		{"DCRTSA", "Crating (per cubic ft.)"},
 		{"DUCRT", "Uncrating (per cubic ft.)"},
 		{"DDSHUT", "Shuttle Service (per cwt)"},
 		{"DOSHUT", "Shuttle Service (per cwt)"},

@@ -60,9 +60,9 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 func (suite *HandlerSuite) TestShowDocumentHandler() {
 	t := suite.T()
 
-	upload := testdatagen.MakeDefaultUpload(suite.DB())
+	userUpload := testdatagen.MakeDefaultUserUpload(suite.DB())
 
-	documentID := upload.DocumentID
+	documentID := userUpload.DocumentID
 	var document models.Document
 
 	err := suite.DB().Eager("ServiceMember.User").Find(&document, documentID)
@@ -99,7 +99,7 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 	}
 
 	uploadPayload := documentPayload.Uploads[0]
-	expectedURL := fmt.Sprintf("https://example.com/dir/%s?contentType=application/pdf&signed=test", upload.StorageKey)
+	expectedURL := fmt.Sprintf("https://example.com/dir/%s?contentType=application/pdf&signed=test", userUpload.Upload.StorageKey)
 	if (*uploadPayload.URL).String() != expectedURL {
 		t.Errorf("wrong URL for upload, expected %s, got %s", expectedURL, uploadPayload.URL)
 	}

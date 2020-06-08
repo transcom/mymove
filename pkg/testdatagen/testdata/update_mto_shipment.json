@@ -1,0 +1,14 @@
+{
+  "body": {
+    "ID": "475579d5-aaa4-4755-8c43-c510381ff9b5",
+    "agents": [
+      {
+        "agentType": "RECEIVING_AGENT",
+        "email": "updatedagentemail@test.email.com",
+        "firstName": "Super",
+        "id": "d73cc488-d5a1-4c9c-bea3-8b02d9bd0dea",
+        "lastName": "Agent"
+      }
+    ]
+  }
+}

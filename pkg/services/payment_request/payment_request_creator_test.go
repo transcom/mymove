@@ -7,16 +7,23 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	// Create some records we'll need to link to
 	moveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	estimatedWeight := unit.Pound(2048)
 	mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder,
 		ReService: models.ReService{
 			Code: "DLH",
+		},
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedWeight,
 		},
 	})
 	mtoServiceItem2 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
@@ -24,10 +31,13 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		ReService: models.ReService{
 			Code: "DOP",
 		},
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedWeight,
+		},
 	})
 	serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         "WeightEstimated",
+			Key:         models.ServiceItemParamNameWeightEstimated,
 			Description: "estimated weight",
 			Type:        models.ServiceItemParamTypeInteger,
 			Origin:      models.ServiceItemParamOriginPrime,
@@ -35,9 +45,17 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 	serviceItemParamKey2 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         "RequestedPickupDate",
+			Key:         models.ServiceItemParamNameRequestedPickupDate,
 			Description: "requested pickup date",
 			Type:        models.ServiceItemParamTypeDate,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	serviceItemParamKey3 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameCanStandAlone,
+			Description: "can stand alone",
+			Type:        models.ServiceItemParamTypeString,
 			Origin:      models.ServiceItemParamOriginPrime,
 		},
 	})
@@ -66,7 +84,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		},
 	})
 
-	creator := NewPaymentRequestCreator(suite.DB())
+	creator := NewPaymentRequestCreator(suite.DB(), route.NewTestingPlanner(0))
 
 	suite.T().Run("Payment request is created successfully (using IncomingKey)", func(t *testing.T) {
 		paymentRequest := models.PaymentRequest{
@@ -78,11 +96,11 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 					MTOServiceItem:   mtoServiceItem1,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
-							IncomingKey: "WeightEstimated",
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
 							Value:       "3254",
 						},
 						{
-							IncomingKey: "RequestedPickupDate",
+							IncomingKey: models.ServiceItemParamNameRequestedPickupDate.String(),
 							Value:       "2019-12-16",
 						},
 					},
@@ -92,7 +110,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 					MTOServiceItem:   mtoServiceItem2,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
-							IncomingKey: "WeightEstimated",
+							IncomingKey: models.ServiceItemParamNameWeightEstimated.String(),
 							Value:       "7722",
 						},
 					},
@@ -142,6 +160,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 							ServiceItemParamKeyID: serviceItemParamKey2.ID,
 							Value:                 "2019-12-16",
 						},
+						{
+							ServiceItemParamKeyID: serviceItemParamKey3.ID,
+							Value:                 "foobar",
+						},
 					},
 				},
 				{
@@ -165,10 +187,11 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Equal(2, len(paymentRequest.PaymentServiceItems), "PaymentServiceItems expect 2")
 		if suite.Len(paymentRequest.PaymentServiceItems, 2) {
 			suite.NotEqual(paymentRequest.PaymentServiceItems[0].ID, uuid.Nil)
-			suite.Equal(2, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItemParams expect 2")
-			if suite.Len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams, 2) {
+			suite.Equal(3, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItemParams expect 3")
+			if suite.Len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams, 3) {
 				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[0].ID, uuid.Nil)
 				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[1].ID, uuid.Nil)
+				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[2].ID, uuid.Nil)
 			}
 			suite.NotEqual(paymentRequest.PaymentServiceItems[1].ID, uuid.Nil)
 			suite.Equal(1, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 1")
@@ -217,18 +240,21 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 	})
 
-	badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
-
 	suite.T().Run("Given a non-existent move task order id, the create should fail", func(t *testing.T) {
+		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: badID,
 			IsFinal:         false,
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+
 		suite.Error(err)
+		_, ok := err.(services.NotFoundError)
+		suite.Equal(true, ok)
 	})
 
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {
+		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -240,9 +266,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+		_, ok := err.(services.NotFoundError)
+		suite.Equal(true, ok)
 	})
 
 	suite.T().Run("Given a non-existent service item param key id, the create should fail", func(t *testing.T) {
+		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: moveTaskOrder.ID,
 			IsFinal:         false,
@@ -261,6 +290,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+		_, ok := err.(services.NotFoundError)
+		suite.Equal(true, ok)
 	})
 
 	suite.T().Run("Given a non-existent service item param key name, the create should fail", func(t *testing.T) {
@@ -282,6 +313,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+		_, ok := err.(*services.BadDataError)
+		suite.Equal(true, ok)
 	})
 
 	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {

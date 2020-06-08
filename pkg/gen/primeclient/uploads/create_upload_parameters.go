@@ -62,12 +62,12 @@ for the create upload operation typically these are written to a http.Request
 type CreateUploadParams struct {
 
 	/*File
-	  The file to upload
+	  The file to upload.
 
 	*/
 	File runtime.NamedReadCloser
 	/*PaymentRequestID
-	  ID of payment request to use
+	  UUID of payment request to use.
 
 	*/
 	PaymentRequestID string

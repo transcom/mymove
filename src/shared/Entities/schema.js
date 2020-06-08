@@ -102,6 +102,9 @@ export const signedCertification = new schema.Entity('signedCertifications');
 
 export const signedCertifications = new schema.Array(signedCertification);
 
+// PPM Weight Estimate Range
+export const ppmEstimateRange = new schema.Entity('ppmEstimateRanges');
+
 // AvailableMoveDates
 export const availableMoveDates = new schema.Entity(
   'availableMoveDates',
@@ -121,6 +124,8 @@ export const transportationServiceProvider = new schema.Entity('transportationSe
 export const storageInTransit = new schema.Entity('storageInTransits');
 
 export const storageInTransits = new schema.Array(storageInTransit);
+
+export const ppmSitEstimate = new schema.Entity('ppmSitEstimate');
 
 // AccessCodes
 export const accessCode = new schema.Entity('accessCodes');

@@ -63,7 +63,7 @@ for the fetch m t o updates operation typically these are written to a http.Requ
 type FetchMTOUpdatesParams struct {
 
 	/*Since
-	  Only return MTOs updated since this time
+	  Only return move task orders updated since this time.
 
 	*/
 	Since *int64

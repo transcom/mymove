@@ -20,6 +20,7 @@ func NewUploadInformationFetcher(db *pop.Connection) services.UploadInformationF
 
 // FetchUploadInformation fetches upload information
 func (uif *uploadInformationFetcher) FetchUploadInformation(uploadID uuid.UUID) (services.UploadInformation, error) {
+	pop.Debug = true
 	q := `
 SELECT uploads.id as upload_id,
        uploads.content_type,
@@ -38,8 +39,9 @@ SELECT uploads.id as upload_id,
        ou.email AS office_user_email,
        ou.telephone AS office_user_telephone
 FROM uploads
-         JOIN users u ON uploads.uploader_id = u.id
-         LEFT JOIN documents d ON uploads.document_id = d.id
+         LEFT JOIN user_uploads ON uploads.id = user_uploads.upload_id
+         LEFT JOIN users u ON user_uploads.uploader_id = u.id
+         LEFT JOIN documents d ON user_uploads.document_id = d.id
          LEFT JOIN service_members documents_service_members ON d.service_member_id = documents_service_members.id
          LEFT JOIN orders ON documents_service_members.id = orders.service_member_id
          LEFT JOIN moves ON orders.id = moves.orders_id
@@ -56,5 +58,6 @@ where uploads.id = $1`
 			return services.UploadInformation{}, err
 		}
 	}
+	pop.Debug = false
 	return ui, nil
 }

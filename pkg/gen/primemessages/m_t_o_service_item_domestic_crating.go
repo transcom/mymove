@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemDomesticCrating Describes a domestic crating/uncrating service item subtype of a MTOServiceItem
+// MTOServiceItemDomesticCrating Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
 // swagger:model MTOServiceItemDomesticCrating
 type MTOServiceItemDomesticCrating struct {
 	eTagField string
@@ -30,6 +30,10 @@ type MTOServiceItemDomesticCrating struct {
 	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
+
+	rejectionReasonField *string
+
+	statusField MTOServiceItemStatus
 
 	// crate
 	// Required: true
@@ -45,7 +49,7 @@ type MTOServiceItemDomesticCrating struct {
 
 	// re service code
 	// Required: true
-	// Enum: [DCRT DUCRT]
+	// Enum: [DCRT DCRTSA DUCRT]
 	ReServiceCode *string `json:"reServiceCode"`
 }
 
@@ -119,6 +123,26 @@ func (m *MTOServiceItemDomesticCrating) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
+// RejectionReason gets the rejection reason of this subtype
+func (m *MTOServiceItemDomesticCrating) RejectionReason() *string {
+	return m.rejectionReasonField
+}
+
+// SetRejectionReason sets the rejection reason of this subtype
+func (m *MTOServiceItemDomesticCrating) SetRejectionReason(val *string) {
+	m.rejectionReasonField = val
+}
+
+// Status gets the status of this subtype
+func (m *MTOServiceItemDomesticCrating) Status() MTOServiceItemStatus {
+	return m.statusField
+}
+
+// SetStatus sets the status of this subtype
+func (m *MTOServiceItemDomesticCrating) SetStatus(val MTOServiceItemStatus) {
+	m.statusField = val
+}
+
 // Crate gets the crate of this subtype
 
 // Description gets the description of this subtype
@@ -145,7 +169,7 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 
 		// re service code
 		// Required: true
-		// Enum: [DCRT DUCRT]
+		// Enum: [DCRT DCRTSA DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
 	}
 	buf := bytes.NewBuffer(raw)
@@ -172,6 +196,10 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
 	dec = json.NewDecoder(buf)
@@ -199,6 +227,10 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
+
+	result.rejectionReasonField = base.RejectionReason
+
+	result.statusField = base.Status
 
 	result.Crate = data.Crate
 
@@ -233,7 +265,7 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 
 		// re service code
 		// Required: true
-		// Enum: [DCRT DUCRT]
+		// Enum: [DCRT DCRTSA DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
 	}{
 
@@ -263,6 +295,10 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
+		Status MTOServiceItemStatus `json:"status,omitempty"`
 	}{
 
 		ETag: m.ETag(),
@@ -278,6 +314,10 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
+
+		RejectionReason: m.RejectionReason(),
+
+		Status: m.Status(),
 	},
 	)
 	if err != nil {
@@ -304,6 +344,10 @@ func (m *MTOServiceItemDomesticCrating) Validate(formats strfmt.Registry) error 
 	}
 
 	if err := m.validateReServiceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -381,6 +425,22 @@ func (m *MTOServiceItemDomesticCrating) validateReServiceID(formats strfmt.Regis
 	return nil
 }
 
+func (m *MTOServiceItemDomesticCrating) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
+	if err := m.Status().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItemDomesticCrating) validateCrate(formats strfmt.Registry) error {
 
 	if err := validate.Required("crate", "body", m.Crate); err != nil {
@@ -430,7 +490,7 @@ var mTOServiceItemDomesticCratingTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DCRT","DUCRT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DCRT","DCRTSA","DUCRT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

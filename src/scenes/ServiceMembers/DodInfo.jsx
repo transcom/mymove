@@ -53,7 +53,7 @@ class SSNField extends Component {
     return (
       <div className={classNames('usa-form-group', { 'usa-form-group--error': displayError })}>
         <label className={classNames('usa-label', { 'usa-label--error': displayError })} htmlFor={name}>
-          Social security number
+          Social Security number
         </label>
         {touched && error && (
           <span className="usa-error-message" id={name + '-error'} role="alert">
@@ -84,13 +84,13 @@ const validateDodForm = (values, form) => {
 
   if (hasSSN) {
     if (ssnPresent && !validSSN) {
-      errors.social_security_number = 'SSN must have 9 digits.';
+      errors.social_security_number = 'SSN must have 9 digits';
     }
   } else {
     if (!ssnPresent) {
-      errors.social_security_number = 'Required.';
+      errors.social_security_number = 'Required';
     } else if (!validSSN) {
-      errors.social_security_number = 'SSN must have 9 digits.';
+      errors.social_security_number = 'SSN must have 9 digits';
     }
   }
 

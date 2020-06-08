@@ -3307,7 +3307,7 @@ func init() {
         "AIR_FORCE": "Air Force",
         "ARMY": "Army",
         "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
+        "MARINES": "Marine Corps",
         "NAVY": "Navy"
       },
       "x-nullable": true
@@ -3535,7 +3535,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -3548,14 +3548,14 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "x-nullable": true
         },
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -3567,7 +3567,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -3596,7 +3596,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "net_weight": {
@@ -3615,7 +3615,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -3718,26 +3718,26 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
         "personal_email": {
           "type": "string",
           "format": "x-email",
-          "title": "Personal Email",
+          "title": "Personal email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true,
           "example": "john_bob@example.com"
@@ -3757,7 +3757,7 @@ func init() {
         "secondary_telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Alternate Phone",
+          "title": "Alternate phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -3778,7 +3778,7 @@ func init() {
         "telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Best Contact Phone",
+          "title": "Best contact phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -4983,7 +4983,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -4996,21 +4996,21 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "x-nullable": true
         },
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -5040,7 +5040,19 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
+          "x-nullable": true
+        },
+        "incentive_estimate_max": {
+          "type": "integer",
+          "title": "Incentive Estimate Max",
+          "minimum": 1,
+          "x-nullable": true
+        },
+        "incentive_estimate_min": {
+          "type": "integer",
+          "title": "Incentive Estimate Min",
+          "minimum": 1,
           "x-nullable": true
         },
         "net_weight": {
@@ -5059,7 +5071,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -5113,19 +5125,19 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -5217,7 +5229,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -5241,14 +5253,14 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "x-nullable": true
         },
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -5260,7 +5272,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -5300,7 +5312,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "id": {
@@ -5345,7 +5357,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -5632,7 +5644,7 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
@@ -5649,13 +5661,13 @@ func init() {
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -5708,7 +5720,7 @@ func init() {
         "telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Best Contact Phone",
+          "title": "Best contact phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -5988,7 +6000,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -6001,14 +6013,14 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "x-nullable": true
         },
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -6020,7 +6032,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -6050,7 +6062,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "net_weight": {
@@ -6069,7 +6081,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -9510,7 +9522,7 @@ func init() {
         "AIR_FORCE": "Air Force",
         "ARMY": "Army",
         "COAST_GUARD": "Coast Guard",
-        "MARINES": "Marines",
+        "MARINES": "Marine Corps",
         "NAVY": "Navy"
       },
       "x-nullable": true
@@ -9738,7 +9750,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -9751,7 +9763,7 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "minimum": 0,
           "x-nullable": true
@@ -9759,7 +9771,7 @@ func init() {
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -9771,7 +9783,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -9800,7 +9812,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "net_weight": {
@@ -9819,7 +9831,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -9923,26 +9935,26 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
         "personal_email": {
           "type": "string",
           "format": "x-email",
-          "title": "Personal Email",
+          "title": "Personal email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true,
           "example": "john_bob@example.com"
@@ -9962,7 +9974,7 @@ func init() {
         "secondary_telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Alternate Phone",
+          "title": "Alternate phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -9983,7 +9995,7 @@ func init() {
         "telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Best Contact Phone",
+          "title": "Best contact phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -11192,7 +11204,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -11205,7 +11217,7 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "minimum": 0,
           "x-nullable": true
@@ -11213,14 +11225,14 @@ func init() {
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -11250,7 +11262,19 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
+          "x-nullable": true
+        },
+        "incentive_estimate_max": {
+          "type": "integer",
+          "title": "Incentive Estimate Max",
+          "minimum": 1,
+          "x-nullable": true
+        },
+        "incentive_estimate_min": {
+          "type": "integer",
+          "title": "Incentive Estimate Min",
+          "minimum": 1,
           "x-nullable": true
         },
         "net_weight": {
@@ -11269,7 +11293,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -11324,19 +11348,19 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -11428,7 +11452,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -11452,7 +11476,7 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "minimum": 0,
           "x-nullable": true
@@ -11460,7 +11484,7 @@ func init() {
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -11472,7 +11496,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -11512,7 +11536,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "id": {
@@ -11557,7 +11581,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -11845,7 +11869,7 @@ func init() {
         },
         "first_name": {
           "type": "string",
-          "title": "First Name",
+          "title": "First name",
           "x-nullable": true,
           "example": "John"
         },
@@ -11862,13 +11886,13 @@ func init() {
         },
         "last_name": {
           "type": "string",
-          "title": "Last Name",
+          "title": "Last name",
           "x-nullable": true,
           "example": "Donut"
         },
         "middle_name": {
           "type": "string",
-          "title": "Middle Name",
+          "title": "Middle name",
           "x-nullable": true,
           "example": "L."
         },
@@ -11921,7 +11945,7 @@ func init() {
         "telephone": {
           "type": "string",
           "format": "telephone",
-          "title": "Best Contact Phone",
+          "title": "Best contact phone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
@@ -12201,7 +12225,7 @@ func init() {
         "additional_pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -12214,7 +12238,7 @@ func init() {
         },
         "days_in_storage": {
           "type": "integer",
-          "title": "How many days do you plan to put your stuff in storage?",
+          "title": "How many days of storage do you think you'll need?",
           "maximum": 90,
           "minimum": 0,
           "x-nullable": true
@@ -12222,7 +12246,7 @@ func init() {
         "destination_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"
@@ -12234,7 +12258,7 @@ func init() {
         },
         "has_additional_postal_code": {
           "type": "boolean",
-          "title": "Do you have stuff at another pickup location?",
+          "title": "Will you move anything from another pickup location?",
           "x-nullable": true
         },
         "has_pro_gear": {
@@ -12264,7 +12288,7 @@ func init() {
         },
         "has_sit": {
           "type": "boolean",
-          "title": "Are you going to put your stuff in temporary storage before moving into your new home?",
+          "title": "Will you put anything in storage?",
           "x-nullable": true
         },
         "net_weight": {
@@ -12283,7 +12307,7 @@ func init() {
         "pickup_postal_code": {
           "type": "string",
           "format": "zip",
-          "title": "ZIP/Postal Code",
+          "title": "ZIP code",
           "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
           "x-nullable": true,
           "example": "90210"

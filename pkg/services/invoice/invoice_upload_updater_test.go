@@ -42,27 +42,27 @@ func (suite *InvoiceServiceSuite) openLocalFile(path string) (afero.File, error)
 	return outputFile, nil
 }
 
-func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer) *models.Upload {
+func (suite *InvoiceServiceSuite) helperCreateUserUpload(storer *storage.FileStorer) *models.UserUpload {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 	userID := document.ServiceMember.UserID
-	up, err := uploader.NewUploader(suite.DB(), suite.logger, *storer, 25*uploader.MB)
+	up, err := uploader.NewUserUploader(suite.DB(), suite.logger, *storer, 25*uploader.MB)
 	suite.NoError(err)
 
 	// Create file to use for upload
 	testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 	suite.NoError(err)
 
-	// Create Upload and save it
-	upload, verrs, err := up.CreateUpload(userID, uploader.File{File: testFile}, uploader.AllowedTypesPDF)
-	suite.Nil(err, "CreateUpload() failed to create upload")
-	suite.Empty(verrs.Error(), "CreateUpload() verrs returned error")
-	suite.NotNil(upload, "CreateUpload() failed to create upload structure")
-	if upload == nil {
-		suite.T().Fatalf("failed to create a upload object: %s", err)
+	// Create UserUpload and save it
+	userUpload, verrs, err := up.CreateUserUpload(userID, uploader.File{File: testFile}, uploader.AllowedTypesPDF)
+	suite.Nil(err, "CreateUserUpload() failed to create upload")
+	suite.Empty(verrs.Error(), "CreateUserUpload() verrs returned error")
+	suite.NotNil(userUpload, "CreateUserUpload() failed to create user upload structure")
+	if userUpload == nil {
+		suite.T().Fatalf("failed to create a user upload object: %s", err)
 	}
-	// Call Close on file after CreateUploadForDocument is complete
+	// Call Close on file after CreateUpload is complete
 	testFile.Close()
-	return upload
+	return userUpload
 }
 
 func (suite *InvoiceServiceSuite) helperCreateFileStorer() *storage.FileStorer {
