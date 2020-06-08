@@ -1,5 +1,5 @@
 import React, { Component, lazy, Suspense } from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'connected-react-router';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
@@ -24,6 +24,7 @@ import './office.scss';
 import { withContext } from 'shared/AppContext';
 
 // Lazy load these dependencies
+const OfficeHome = lazy(() => import('pages/OfficeHome/OfficeHome'));
 const MoveInfo = lazy(() => import('./MoveInfo'));
 const Queues = lazy(() => import('./Queues'));
 const OrdersInfo = lazy(() => import('./OrdersInfo'));
@@ -76,8 +77,8 @@ export class OfficeWrapper extends Component {
   render() {
     const ConditionalWrap = ({ condition, wrap, children }) => (condition ? wrap(children) : <>{children}</>);
     const { context: { flags: { too, tio } } = { flags: { too: null } } } = this.props;
-    const DivOrMainTag = detectIE11() ? 'div' : 'main';
-    const { userIsLoggedIn } = this.props;
+    const DivOrMainTag = detectIE11() ? 'div' : 'main'; // TODO - double check in IE11 but I think <main> is fine
+    const { userIsLoggedIn, userRoles } = this.props;
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
@@ -95,18 +96,22 @@ export class OfficeWrapper extends Component {
             {this.state.hasError && <SomethingWentWrong error={this.state.error} info={this.state.info} />}
             {!this.state.hasError && (
               <Switch>
-                <Route
+                <PrivateRoute
                   exact
                   path="/"
-                  component={({ location }) => (
-                    <Redirect
-                      from="/"
-                      to={{
-                        ...location,
-                        pathname: '/queues/new',
-                      }}
-                    />
+                  component={(props) => (
+                    <Suspense fallback={<LoadingPlaceholder />}>
+                      <QueueHeader />
+                      <main role="main" className="site__content">
+                        <OfficeHome userRoles={userRoles} {...props} />
+                      </main>
+                    </Suspense>
                   )}
+                  requiredRoles={[
+                    'ppm_office_users',
+                    'transportation_ordering_officer',
+                    'transportation_invoicing_officer',
+                  ]}
                 />
                 <PrivateRoute
                   exact
@@ -314,6 +319,7 @@ const mapStateToProps = (state) => {
   return {
     swaggerError: state.swaggerInternal.hasErrored,
     userIsLoggedIn: user.isLoggedIn,
+    userRoles: user.roles,
   };
 };
 

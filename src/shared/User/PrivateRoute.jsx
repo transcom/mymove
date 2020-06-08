@@ -6,7 +6,6 @@ import { selectCurrentUser, selectGetCurrentUserIsLoading } from 'shared/Data/us
 import SignIn from './SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { Redirect, Link } from 'react-router-dom';
-import { intersection } from 'lodash';
 
 // this was adapted from https://github.com/ReactTraining/react-router/blob/master/packages/react-router-redux/examples/AuthExample.js
 // note that it does not work if the route is not inside a Switch
@@ -24,7 +23,7 @@ class PrivateRouteContainer extends React.Component {
       return wrapRouteForMultipleRoles(<Route {...props} />, userRoles);
     else if (userIsLoggedIn) return <Redirect exact to={redirectURLForRole(userRoles[0].roleType)} />;
     else if (loginIsLoading) return <LoadingPlaceholder />;
-    else return <Route path={path} component={SignIn} />;
+    else return <Route path={path} component={SignIn} />; // TODO - change this to a redirect
   }
 }
 const mapStateToProps = (state) => ({
@@ -34,7 +33,7 @@ const mapStateToProps = (state) => ({
 });
 
 function userIsAuthorized(userRoles, requiredRoles) {
-  return intersection(userRoles?.sort(), requiredRoles?.sort()).length === requiredRoles.length;
+  return userRoles.find((r) => requiredRoles.indexOf(r) > -1).length > 0;
 }
 
 function redirectURLForRole(role) {
