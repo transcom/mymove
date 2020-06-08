@@ -30,16 +30,14 @@ class AdminWrapper extends Component {
   render() {
     if (!this.state.isLoggedIn) {
       return (
-        <div className="Admin site">
+        <React.Fragment>
           <FOUOHeader />
-          <React.Fragment>
-            <LoginButton
-              showDevlocalButton={get(this.state, 'isDevelopment', isDevelopment)}
-              isLoggedIn={this.state.isLoggedIn}
-            />
-            <SignIn location={window.location} />
-          </React.Fragment>
-        </div>
+          <LoginButton
+            showDevlocalButton={get(this.state, 'isDevelopment', isDevelopment)}
+            isLoggedIn={this.state.isLoggedIn}
+          />
+          <SignIn location={window.location} />
+        </React.Fragment>
       );
     } else {
       return <Home />;

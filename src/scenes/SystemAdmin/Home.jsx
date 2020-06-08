@@ -39,11 +39,11 @@ const httpClient = (url, options = {}) => {
   return fetchUtils.fetchJson(url, options);
 };
 
-const FOUOWrapper = (props) => (
-  <div className="FOUO Wrapper">
+const FOUOWrapper = () => (
+  <React.Fragment>
     <FOUOHeader />
-    <AppBar {...props} />
-  </div>
+    <AppBar />
+  </React.Fragment>
 );
 
 const dataProvider = restProvider('/admin/v1', httpClient);
