@@ -33,7 +33,7 @@ const mapStateToProps = (state) => ({
 });
 
 function userIsAuthorized(userRoles, requiredRoles) {
-  return userRoles.find((r) => requiredRoles.indexOf(r) > -1).length > 0;
+  return !!userRoles.find((r) => requiredRoles.indexOf(r) > -1);
 }
 
 function redirectURLForRole(role) {
