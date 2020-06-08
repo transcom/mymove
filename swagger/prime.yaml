@@ -1302,6 +1302,7 @@ definitions:
       - EIAFuelPrice
       - MarketDest
       - MarketOrigin
+      - MTOAvailableToPrimeAt
       - NumberDaysSIT
       - PriceAreaDest
       - PriceAreaIntlDest
@@ -1352,6 +1353,8 @@ definitions:
       - DATE
       - INTEGER
       - DECIMAL
+      - TIMESTAMP
+      - PaymentServiceItemUUID
   Upload:
     type: object
     properties:
