@@ -218,15 +218,15 @@ class PaymentsTable extends Component {
               <div className="paperwork">
                 <div className="paperwork-step">
                   <div>
-                    <p>Download Shipment Summary Worksheet</p>
-                    <p>Download and complete the worksheet, which is a fill-in PDF form.</p>
+                    <p>Complete the Shipment Summary Worksheet</p>
+                    <p>Open the SSW in a new tab. Download and open the PDF, then fill in any required info.</p>
                   </div>
                   <button
                     className="usa-button"
                     disabled={this.props.disableSSW}
                     onClick={this.downloadShipmentSummary}
                   >
-                    Download Worksheet (PDF)
+                    Open SSW in a New Tab
                   </button>
                 </div>
                 {this.props.disableSSW && (
