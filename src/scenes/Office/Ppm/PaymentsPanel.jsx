@@ -106,7 +106,7 @@ class PaymentsTable extends Component {
     const userDate = getUserDate();
 
     // eslint-disable-next-line
-    window.open(`/internal/moves/${moveId}/shipment_summary_worksheet/?preparationDate=${userDate}`);
+    window.open(`/internal/moves/${moveId}/shipment_summary_worksheet/?preparationDate=${userDate}`, '_blank');
   };
 
   renderAdvanceAction = () => {
