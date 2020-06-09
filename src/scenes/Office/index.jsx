@@ -7,6 +7,7 @@ import { bindActionCreators } from 'redux';
 
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
+import './office.scss';
 
 import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
@@ -19,8 +20,9 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import QueueHeader from 'shared/Header/Office';
 import FOUOHeader from 'components/FOUOHeader';
 
+import { roleTypes } from 'constants/userRoles';
+
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import './office.scss';
 import { withContext } from 'shared/AppContext';
 
 // Lazy load these dependencies
@@ -99,7 +101,7 @@ export class OfficeWrapper extends Component {
                 <PrivateRoute
                   exact
                   path="/"
-                  component={(props) => (
+                  render={(props) => (
                     <Suspense fallback={<LoadingPlaceholder />}>
                       <QueueHeader />
                       <main role="main" className="site__content">
@@ -107,17 +109,13 @@ export class OfficeWrapper extends Component {
                       </main>
                     </Suspense>
                   )}
-                  requiredRoles={[
-                    'ppm_office_users',
-                    'transportation_ordering_officer',
-                    'transportation_invoicing_officer',
-                  ]}
+                  requiredRoles={[roleTypes.PPM, roleTypes.TOO, roleTypes.TIO]}
                 />
                 <PrivateRoute
                   exact
                   path="/select-application"
                   component={SelectApplication}
-                  requiredRoles={['transportation_ordering_officer', 'transportation_invoicing_officer']}
+                  requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
                 />
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
@@ -126,7 +124,7 @@ export class OfficeWrapper extends Component {
                       <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
                   )}
-                  requiredRoles={['ppm_office_users']}
+                  requiredRoles={[roleTypes.PPM]}
                 />
                 <PrivateRoute
                   path="/queues/:queueType"
@@ -135,7 +133,7 @@ export class OfficeWrapper extends Component {
                       <RenderWithOrWithoutHeader component={Queues} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
                   )}
-                  requiredRoles={['ppm_office_users']}
+                  requiredRoles={[roleTypes.PPM]}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/orders"
@@ -149,7 +147,7 @@ export class OfficeWrapper extends Component {
                       />
                     </Suspense>
                   )}
-                  requiredRoles={['ppm_office_users']}
+                  requiredRoles={[roleTypes.PPM]}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/documents/:moveDocumentId?"
@@ -163,7 +161,7 @@ export class OfficeWrapper extends Component {
                       />
                     </Suspense>
                   )}
-                  requiredRoles={['ppm_office_users']}
+                  requiredRoles={[roleTypes.PPM]}
                 />
                 {!isProduction && (
                   <PrivateRoute
@@ -196,7 +194,7 @@ export class OfficeWrapper extends Component {
                             />
                           </Suspense>
                         )}
-                        requiredRoles={['transportation_ordering_officer']}
+                        requiredRoles={[roleTypes.TOO]}
                       />
                     )}
                     {too && (
@@ -213,7 +211,7 @@ export class OfficeWrapper extends Component {
                             />
                           </Suspense>
                         )}
-                        requiredRoles={['transportation_ordering_officer']}
+                        requiredRoles={[roleTypes.TOO]}
                       />
                     )}
                     {too && (
@@ -230,7 +228,7 @@ export class OfficeWrapper extends Component {
                             />
                           </Suspense>
                         )}
-                        requiredRoles={['transportation_ordering_officer']}
+                        requiredRoles={[roleTypes.TOO]}
                       />
                     )}
                     {too && (
@@ -246,7 +244,7 @@ export class OfficeWrapper extends Component {
                             />
                           </Suspense>
                         )}
-                        requiredRoles={['transportation_ordering_officer']}
+                        requiredRoles={[roleTypes.TOO]}
                       />
                     )}
                     {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
@@ -263,7 +261,7 @@ export class OfficeWrapper extends Component {
                             />
                           </Suspense>
                         )}
-                        requiredRoles={['transportation_invoicing_officer']}
+                        requiredRoles={[roleTypes.TIO]}
                       />
                     )}
                     {tio && (
@@ -279,7 +277,7 @@ export class OfficeWrapper extends Component {
                             />
                           </Suspense>
                         )}
-                        requiredRoles={['transportation_invoicing_officer']}
+                        requiredRoles={[roleTypes.TIO]}
                       />
                     )}
                     {tio && (
@@ -295,7 +293,7 @@ export class OfficeWrapper extends Component {
                             />
                           </Suspense>
                         )}
-                        requiredRoles={['transportation_invoicing_officer']}
+                        requiredRoles={[roleTypes.TIO]}
                       />
                     )}
                   </Switch>

@@ -21,10 +21,11 @@ const OfficeHome = ({ userRoles, ...props }) => {
     case roleTypes.TOO:
       return <TOO {...props} />;
     default:
+      return <div>Office home</div>;
   }
-
-  return <div>Office home</div>;
 };
+
+OfficeHome.displayName = 'OfficeHome';
 
 OfficeHome.propTypes = {
   userRoles: PropTypes.arrayOf(
