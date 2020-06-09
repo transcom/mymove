@@ -9,7 +9,7 @@ import ShipmentContainer from './ShipmentContainer';
 
 const cx = classNames.bind(styles);
 
-const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo }) => {
+const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo, onChange }) => {
   return (
     <div className={`${cx('shipment-display')}`} data-cy="shipment-display">
       <ShipmentContainer className={`${cx('shipment-display__container')}`} shipmentType={shipmentType}>
@@ -23,6 +23,7 @@ const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo }) => {
                     type="checkbox"
                     className="usa-checkbox__input"
                     data-cy="shipment-display-checkbox"
+                    onChange={onChange}
                   />
                   {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                   <label
@@ -76,6 +77,7 @@ const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo }) => {
 
 ShipmentDisplay.propTypes = {
   checkboxId: PropTypes.string,
+  onChange: PropTypes.func,
   shipmentType: PropTypes.oneOf([SHIPMENT_TYPE.HHG, SHIPMENT_TYPE.NTS]),
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,

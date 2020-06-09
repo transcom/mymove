@@ -21,3 +21,12 @@
     }
   }
 }
+
+.usa-button--small {
+  @include u-margin-top(2em);
+  @include u-margin-left(0);
+}
+
+.usa-form {
+  @include u-maxw(full);
+}
