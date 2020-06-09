@@ -511,3 +511,5 @@
 20200513151500_uploader_refactor_zero_down_alter_tables.up.sql
 20200515202122_payment_service_item_nullable_price.up.sql
 20200527145249_add_mto_available_timestamp.up.sql
+20200529171253_update_task_order_services_params.up.sql
+20200602144311_remove_is_available_to_prime.up.sql

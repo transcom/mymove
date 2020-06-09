@@ -6,7 +6,7 @@ require (
 	github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.5
-	github.com/aws/aws-sdk-go v1.31.7
+	github.com/aws/aws-sdk-go v1.31.9
 	github.com/cockroachdb/cockroach-go v0.0.0-20200411195601-6f5842749cfc // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -48,7 +48,7 @@ require (
 	github.com/lib/pq v1.6.0
 	github.com/markbates/goth v1.64.1
 	github.com/mattn/go-shellwords v1.0.6 // indirect
-	github.com/mitchellh/mapstructure v1.3.1
+	github.com/mitchellh/mapstructure v1.3.2
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
@@ -59,7 +59,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/objx v0.2.0
-	github.com/stretchr/testify v1.6.0
+	github.com/stretchr/testify v1.6.1
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx v1.0.5
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5

@@ -5411,6 +5411,11 @@ damerau-levenshtein@^1.0.4:
   resolved "https://registry.yarnpkg.com/damerau-levenshtein/-/damerau-levenshtein-1.0.6.tgz#143c1641cb3d85c60c32329e26899adea8701791"
   integrity sha512-JVrozIeElnj3QzfUIt8tB8YMluBJom4Vw9qTPpjGYQ9fYlB3D/rb6OordUxf3xeFB35LKWs0xqcO5U6ySvBtug==
 
+danger-plugin-jira-issue@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/danger-plugin-jira-issue/-/danger-plugin-jira-issue-1.4.1.tgz#1e2317ae8a291d96dc19762a55cb905681320940"
+  integrity sha512-B/XaW8YigUboK4BH4sMM8GmE0e+Bc6ibAg+Xyf0HFGph4DIawNYOuwKbCh2K1fAyXafott6tGpxFMe9Tc0Aabw==
+
 danger@^10.2.0:
   version "10.2.0"
   resolved "https://registry.yarnpkg.com/danger/-/danger-10.2.0.tgz#e3500c2003aa85dca029ba695cd04a85afcc34ff"
@@ -12580,9 +12585,9 @@ qs@~6.5.2:
   integrity sha512-N5ZAX4/LxJmF+7wN74pUD6qAh9/wnvdQcjq9TZjevvXzSUo7bfmw91saqMjzGS2xq91/odN2dW/WOl7qQHNDGA==
 
 query-string@6, query-string@^6.8.2:
-  version "6.12.1"
-  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.12.1.tgz#2ae4d272db4fba267141665374e49a1de09e8a7c"
-  integrity sha512-OHj+zzfRMyj3rmo/6G8a5Ifvw3AleL/EbcHMD27YA31Q+cO5lfmQxECkImuNVjcskLcvBRVHNAB3w6udMs1eAA==
+  version "6.13.0"
+  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.13.0.tgz#8d875f66581c854d7480ac79478abb847de742f6"
+  integrity sha512-KJe8p8EUcixhPCp4cJoTYVfmgKHjnAB/Pq3fiqlmyNHvpHnOL5U4YE7iI2PYivGHp4HFocWz300906BAQX0H7g==
   dependencies:
     decode-uri-component "^0.2.0"
     split-on-first "^1.0.0"
@@ -12648,10 +12653,10 @@ ra-core@^2.9.9:
     redux-saga "~0.16.0"
     reselect "~3.0.0"
 
-ra-core@^3.5.5:
-  version "3.5.5"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.5.5.tgz#f9b511952e68938987956ca81782329594c2e1d7"
-  integrity sha512-NmXVcjA2RZw6EOCpYnhXegMeW8a69YcD5igWiwN81fuN45kQLjF/9TR2QUmbyUwel8HhNrzCG4Mm31dVgnF9Dw==
+ra-core@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.6.0.tgz#f264c9cdc4655c99841bd2d5b783e4a3d98009b9"
+  integrity sha512-dMABSXtBDUX8FYIeE/Ac2XKg/mkD3UwAiNBtaMvvWxfzRiyNM8CMBXAHQOj0NTtHvaond7yKSF/Ji4oKPMULCw==
   dependencies:
     "@testing-library/react" "^8.0.7"
     classnames "~2.2.5"
@@ -12672,30 +12677,30 @@ ra-data-simple-rest@^2.9.9:
     query-string "~5.1.1"
     ra-core "^2.9.9"
 
-ra-i18n-polyglot@^3.5.5:
-  version "3.5.5"
-  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.5.5.tgz#e07eaacf833747edd9ae25500c41a206c0cc117b"
-  integrity sha512-dj1uL5H8oaBZrbibyal9Yxd3EHEEJAsK1usU+7v8KiA07bRXjLe6Z1d/tD+u8A07MB5jQb2nqQRPBhc+3y3GYA==
+ra-i18n-polyglot@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.6.0.tgz#352bf93ee37b3c132de4a729ce99fdf19222d545"
+  integrity sha512-RqipBjPFyrmy46GnnGNiJCzXCYla+FUDcbygeYHdwK9tCVknedCzxOVvAyU7DtmDlpA+pxGgcwoOWprsAg61Ww==
   dependencies:
     node-polyglot "^2.2.2"
-    ra-core "^3.5.5"
+    ra-core "^3.6.0"
 
 ra-language-english@^2.9.9:
   version "2.9.9"
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-2.9.9.tgz#e8d90d40df8e5e66de8a7b3a72f33dd9de638501"
   integrity sha512-tWybE7ZnCRyiVAWcyN02LA4v5oi030A853lLDmTJUJySUMSwqyy3EpAdiLrOXfe3XKEoyIjRLGQK54iX2cQ/Mw==
 
-ra-language-english@^3.5.5:
-  version "3.5.5"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.5.5.tgz#d5ff06b21b0260a8ea06d2eedfaaac465da5b4be"
-  integrity sha512-aFf3fcOorj+SWV/Y3aXzrFGJYFAYPVZ2RieiEcmkkJ5AKji3hUETn25sUDAomDKt9+04PuUjOqatQ62Yz9Q+Zw==
+ra-language-english@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.6.0.tgz#94f8a6c9889674651231aae1881c4d80156bbd07"
+  integrity sha512-a4FnwUTLN+4dWglCiPKIqbOLE5mQTbUMbeVKzhd7liAa0vtBeJGb6JHOArn5+mTaBaxWSF0GOUWXG5uWQqe+pw==
   dependencies:
-    ra-core "^3.5.5"
+    ra-core "^3.6.0"
 
-ra-ui-materialui@^3.5.5:
-  version "3.5.5"
-  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.5.5.tgz#b0c6b02181ab25912fbe53cbc4a5507917b3b5e7"
-  integrity sha512-lk2AgYEogl+MZVOnQwfg56t1s1bTuMac8MsmcGln+jNI+XwQy2Z2ANQ+94bf9ipga39lJwXdaGCn/g2AQebNSQ==
+ra-ui-materialui@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.6.0.tgz#442b0542fbf4470e9bf45e8856d1248fca4f6b44"
+  integrity sha512-3KwPa077hlNcLuKhGjF0h09MRmnOS90Y4MSZBY5M3fu7rXmpdOGvyISA4eU6oiBIrMQyXbGTSX0s3a1xtcCLlw==
   dependencies:
     autosuggest-highlight "^3.1.1"
     classnames "~2.2.5"
@@ -12788,10 +12793,10 @@ react-addons-create-fragment@^15.6.2:
     loose-envify "^1.3.1"
     object-assign "^4.1.0"
 
-react-admin@^3.5.5:
-  version "3.5.5"
-  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.5.5.tgz#f3ebb2bf8d8262e87b6a3ef31e78b42f5c26464c"
-  integrity sha512-Xqz3u3cmM6xOAK3EUMssNU6bgm6TCJD4bu+tkoIw3H8Gk+vJQ0hcAsyL4SKXV1tqelMSicMN4fzLJNJhTeE8Tw==
+react-admin@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.6.0.tgz#c6ad0eab167fad30495a761f54a8f88754e6a883"
+  integrity sha512-PvH/1FCVWvz5aHO3fP+tx4Cvbfq9BoPgRHfhBc+O3W4SmLhnZt9+aI7A8gysTNIoH3td9hGPTqi49FL6Xt1P2g==
   dependencies:
     "@material-ui/core" "^4.3.3"
     "@material-ui/icons" "^4.2.1"
@@ -12799,10 +12804,10 @@ react-admin@^3.5.5:
     connected-react-router "^6.5.2"
     final-form "^4.18.5"
     final-form-arrays "^3.0.1"
-    ra-core "^3.5.5"
-    ra-i18n-polyglot "^3.5.5"
-    ra-language-english "^3.5.5"
-    ra-ui-materialui "^3.5.5"
+    ra-core "^3.6.0"
+    ra-i18n-polyglot "^3.6.0"
+    ra-language-english "^3.6.0"
+    ra-ui-materialui "^3.6.0"
     react-final-form "^6.3.3"
     react-final-form-arrays "^3.1.1"
     react-redux "^7.1.0"
@@ -15110,10 +15115,10 @@ svgo@^1.0.0, svgo@^1.2.2:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swagger-client@^3.10.5:
-  version "3.10.5"
-  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.10.5.tgz#d1992e116a454dae5c9077e6033d70aaee6c0b06"
-  integrity sha512-7DRt7YxIa6hEHlm8GRDj87AfMhBRlrTXKklNjmuxkY6dNrr1TKwWnQUjuxmGXZ8JKuF4FlJTyJaN8BAr2ZvZpA==
+swagger-client@^3.10.6:
+  version "3.10.6"
+  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.10.6.tgz#9f01b52fbda4ad352242f6bb7334176cc9664a2e"
+  integrity sha512-kKNdVYZmRVT+wZ6+oe/5YyMme9bv7N6JuPhrrXcCgQQLtlfyrgJZIyrSij7j2p9Q79L/oOwq3x80yokZK6TF2Q==
   dependencies:
     "@babel/runtime-corejs2" "^7.0.0"
     "@kyleshockey/object-assign-deep" "^0.4.0"
@@ -15134,10 +15139,10 @@ swagger-client@^3.10.5:
     utf8-bytes "0.0.1"
     utfstring "^2.0.0"
 
-swagger-ui-dist@^3.25.5:
-  version "3.25.5"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.25.5.tgz#57a17c9b45851370a9a76c1659f21d4f14a9f3d2"
-  integrity sha512-JZ6dVQS2nPgVYW0+JIIxm84vvFbR/ole6xYJG2DcSdejDLt8ARqIhbZ4InL7RVsLdXpPirUMb7hf2z4Fzqesyw==
+swagger-ui-dist@^3.26.0:
+  version "3.26.0"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.26.0.tgz#6dccd492bf9c97fe508d8438c754991277a6164f"
+  integrity sha512-z58RlRUk//dTg6jwgFBVv0JNyfDpoRNUgEyoA9cRheNvUuklMTKMY3hgDfXSZpmnGgZEG8iA/SAZGE56hvRuug==
 
 symbol-observable@^1.0.3, symbol-observable@^1.0.4, symbol-observable@^1.2.0:
   version "1.2.0"
