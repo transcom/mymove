@@ -19,6 +19,7 @@ import (
 // THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS.
 // We will eventually remove this when all service items are added.
 var allowedServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
+	primemessages.MTOServiceItemModelTypeMTOServiceItemBasic:           true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:          true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:          true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:         true,
