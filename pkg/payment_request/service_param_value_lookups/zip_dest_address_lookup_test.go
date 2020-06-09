@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ServiceParamValueLookupsSuite) TestZipDestAddress() {
+func (suite *ServiceParamValueLookupsSuite) TestZipDestAddressLookup() {
 	key := models.ServiceItemParamNameZipDestAddress.String()
 
 	suite.T().Run("zip destination address is present on MTO Shipment", func(t *testing.T) {

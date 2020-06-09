@@ -11,11 +11,11 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// ZipDestAddress does lookup on actual weight billed
-type ZipDestAddress struct {
+// ZipDestAddressLookup does lookup on actual weight billed
+type ZipDestAddressLookup struct {
 }
 
-func (r ZipDestAddress) lookup(keyData *ServiceItemParamKeyData) (string, error) {
+func (r ZipDestAddressLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
 	db := *keyData.db
 
 	// Get the MTOServiceItem and associated MTOShipment
