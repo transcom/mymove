@@ -2,6 +2,7 @@ package serviceparamvaluelookups
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 
@@ -9,6 +10,12 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/route"
+)
+
+// Constants for formatting Time-based parameters
+const (
+	DateParamFormat      = "2006-01-02"
+	TimestampParamFormat = time.RFC3339
 )
 
 // ServiceItemParamKeyData contains service item parameter keys
@@ -56,6 +63,7 @@ func ServiceParamLookupInitialize(
 	s.lookups[models.ServiceItemParamNameWeightActual.String()] = WeightActualLookup{}
 	s.lookups[models.ServiceItemParamNameZipPickupAddress.String()] = ZipPickupAddressLookup{}
 	s.lookups[models.ServiceItemParamNameZipDestAddress.String()] = ZipDestAddress{}
+	s.lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt.String()] = MTOAvailableToPrimeAtLookup{}
 
 	return &s
 }

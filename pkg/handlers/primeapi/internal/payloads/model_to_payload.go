@@ -370,6 +370,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
 		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
 	}
+
+	if mtoShipment.PrimeActualWeight != nil {
+		payload.PrimeActualWeight = int64(*mtoShipment.PrimeActualWeight)
+	}
+
 	return payload
 }
 

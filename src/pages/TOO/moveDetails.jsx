@@ -9,6 +9,7 @@ import CustomerInfoTable from 'components/Office/CustomerInfoTable';
 import { getMTOShipments, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
 import RequestedShipments from 'components/Office/RequestedShipments';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay';
+import AllowancesTable from 'components/Office/AllowancesTable';
 import {
   getMoveOrder,
   getCustomer,
@@ -34,7 +35,7 @@ class MoveDetails extends Component {
 
   render() {
     // eslint-disable-next-line react/prop-types
-    const { moveOrder, customer, mtoShipments } = this.props;
+    const { moveOrder, allowances, customer, mtoShipments } = this.props;
     return (
       <div className="grid-container-desktop-lg" data-cy="too-move-details">
         <h1>Move details</h1>
@@ -78,6 +79,18 @@ class MoveDetails extends Component {
               sacSDN: moveOrder.sacSDN,
             }}
           />
+          <AllowancesTable
+            info={{
+              branch: customer.agency,
+              rank: moveOrder.grade,
+              weightAllowance: allowances.totalWeight,
+              authorizedWeight: allowances.authorizedWeight,
+              progear: allowances.proGearWeight,
+              spouseProgear: allowances.proGearWeightSpouse,
+              storageInTransit: allowances.storageInTransit,
+              dependents: allowances.dependentsAuthorized,
+            }}
+          />
           <CustomerInfoTable
             customerInfo={{
               name: `${customer.last_name}, ${customer.first_name}`,
@@ -100,10 +113,12 @@ class MoveDetails extends Component {
 const mapStateToProps = (state, ownProps) => {
   const { moveOrderId } = ownProps.match.params;
   const moveOrder = selectMoveOrder(state, moveOrderId);
+  const allowances = get(moveOrder, 'entitlement', {});
   const customerId = moveOrder.customerID;
 
   return {
     moveOrder,
+    allowances,
     customer: selectCustomer(state, customerId),
     mtoShipments: selectMTOShipments(state, moveOrderId),
   };

@@ -43,5 +43,5 @@ func (r RequestedPickupDateLookup) lookup(keyData *ServiceItemParamKeyData) (str
 		return "", fmt.Errorf("could not find a requested pickup date for MTOShipmentID [%s]", mtoShipmentID)
 	}
 
-	return requestedPickupDate.Format("2006-01-02"), nil
+	return requestedPickupDate.Format(DateParamFormat), nil
 }
