@@ -1,0 +1,72 @@
+# Accepting Payment Linehaul
+
+## Tips
+
+
+### Filter down to one mto
+
+```
+prime-api-client --cac --hostname api.staging.move.mil --port 443 fetch-mto-updates |jq 'map(select(.id == "53d5128e-158b-49a6-b3b3-64648b17afaa")) | .[0]'
+```
+
+## Create MTO Shipment
+
+https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/transcom/mymove/master/swagger/prime.yaml#operation/createMTOShipment
+
+
+
+notes
+
+transaction rollback error when creating a mto shipment with a mto service item
+
+```
+{
+  "body": {
+    "moveTaskOrderID": "da3f34cc-fb94-4e0b-1c90-ba3333cb7791",
+    "shipmentType": "HHG",
+    "requestedPickupDate": "2020-06-08",
+    "customerRemarks": "special one handle with care",
+    "pickupAddress": {
+      "city": "Beverly Hills",
+      "country": "US",
+      "postalCode": "90210",
+      "state": "CA",
+      "streetAddress1": "123 Any Street",
+      "streetAddress2": "P.O. Box 12345",
+      "streetAddress3": "c/o Some Person"
+    },
+    "destinationAddress": {
+      "city": "Fairfield",
+      "country": "US",
+      "postalCode": "94535",
+      "state": "CA",
+      "streetAddress1": "987 Any Avenue",
+      "streetAddress2": "P.O. Box 9876",
+      "streetAddress3": "c/o Some Person"
+    },
+    "agents": [
+      {
+        "firstName": "James",
+        "lastName": "Semaj",
+        "email": "jsemaj@example.com",
+        "phone": "234-555-1234",
+        "agentType": "RELEASING_AGENT"
+      }
+    ],
+    "pointOfContact": "string",
+    "mtoServiceItems": [
+      {
+        "reServiceCode": "DLH",
+        "modelType": "MTOServiceItemBasic",
+        "mtoShipmentID": "1933761b-7f51-49d6-a4c0-d23951e80a75",
+        "moveTaskOrderID": "da3f34cc-fb94-4e0b-1c90-ba3333cb7791",
+        "reServiceID": "8d600f25-1def-422d-b159-617c7d59156e",
+        "reServiceName": "Dom. Linehaul",
+        "status": "SUBMITTED"
+      }
+    ]
+  }
+}
+```
+
+nil error when updating MTO if scheduled_pickup_date is null

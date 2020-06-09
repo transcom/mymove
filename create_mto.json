@@ -1,0 +1,165 @@
+{
+  "body": {
+    "moveOrder": {
+      "id": "1f2270c7-7166-40ae-981e-b200ebdf3054",
+      "customer": {
+        "agency": "string",
+        "firstName": "Vanya",
+        "lastName": "Petrovna",
+        "phone": "223-555-1234",
+        "email": "string@example.com",
+        "currentAddress": {
+          "id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+          "street_address_1": "123 Main Ave",
+          "street_address_2": "Apartment 9000",
+          "street_address_3": "Montmârtre",
+          "city": "Anytown",
+          "state": "AL",
+          "postal_code": "90210",
+          "country": "USA"
+        },
+        "destinationAddress": {
+          "id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+          "street_address_1": "123 Main Ave",
+          "street_address_2": "Apartment 9000",
+          "street_address_3": "Montmârtre",
+          "city": "Anytown",
+          "state": "AL",
+          "postal_code": "90210",
+          "country": "USA"
+        },
+        "dodID": "123456789",
+        "userID": "6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"
+      },
+      "customerID": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+      "entitlement": {
+        "id": "571008b1-b0de-454d-b843-d71be9f02c04",
+        "authorizedWeight": 2000,
+        "dependentsAuthorized": true,
+        "nonTemporaryStorage": false,
+        "privatelyOwnedVehicle": false,
+        "storageInTransit": 90,
+        "totalWeight": 500,
+        "totalDependents": 2
+      },
+      "destinationDutyStation": {
+        "id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+        "name": "Fort Bragg North Station",
+        "address_id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+        "address": {
+          "id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+          "street_address_1": "123 Main Ave",
+          "street_address_2": "Apartment 9000",
+          "street_address_3": "Montmârtre",
+          "city": "Anytown",
+          "state": "AL",
+          "postal_code": "90210",
+          "country": "USA"
+        }
+      },
+      "destinationDutyStationID": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+      "originDutyStation": {
+        "id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+        "name": "Fort Bragg North Station",
+        "address_id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+        "address": {
+          "id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+          "street_address_1": "123 Main Ave",
+          "street_address_2": "Apartment 9000",
+          "street_address_3": "Montmârtre",
+          "city": "Anytown",
+          "state": "AL",
+          "postal_code": "90210",
+          "country": "USA"
+        }
+      },
+      "originDutyStationID": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+      "rank": "E_1",
+      "reportByDate": "2020-01-01",
+      "orderNumber": "030-00362",
+      "dateIssued": "2020-01-01"
+    },
+    "referenceId": "1001-3456",
+    "availableToPrimeAt": "2020-06-08T21:57:01Z",
+    "isCanceled": true,
+    "contractorID": "5db13bb4-6d29-4bdb-bc81-262f4513ecf6",
+    "updatedAt": "2020-06-08",
+    "paymentRequests": [],
+    "mtoServiceItems": [
+      {
+        "moveTaskOrderID": "1f2270c7-7166-40ae-981e-b200ebdf3054",
+        "mtoShipmentID": "1f2270c7-7166-40ae-981e-b200ebdf3054",
+        "reServiceID": "1f2270c7-7166-40ae-981e-b200ebdf3054",
+        "reServiceCode": "DLH",
+        "reServiceName": "Domestic Line Haul",
+        "approvedAt": "2020-06-08",
+        "createdAt": "2020-06-08",
+        "deletedAt": "2020-06-08",
+        "feeType": "COUNSELING",
+        "id": "1f2270c7-7166-40ae-981e-b200ebdf3054",
+        "quantity": 0,
+        "rate": 0,
+        "rejectionReason": "item was too heavy",
+        "rejectedAt": "2020-06-08",
+        "status": "SUBMITTED",
+        "submittedAt": "2020-06-08",
+        "total": 0
+      }
+    ],
+    "mtoShipments": [
+      {
+        "moveTaskOrderID": "1f2270c7-7166-40ae-981e-b200ebdf3054",
+        "id": "1f2270c7-7166-40ae-981e-b200ebdf3054",
+        "scheduledPickupDate": "2020-06-08",
+        "requestedPickupDate": "2020-06-08",
+        "approvedDate": "2020-06-08",
+        "pickupAddress": {
+          "id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+          "street_address_1": "123 Main Ave",
+          "street_address_2": "Apartment 9000",
+          "street_address_3": "Montmârtre",
+          "city": "Anytown",
+          "state": "AL",
+          "postal_code": "90210",
+          "country": "USA"
+        },
+        "destinationAddress": {
+          "id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+          "street_address_1": "123 Main Ave",
+          "street_address_2": "Apartment 9000",
+          "street_address_3": "Montmârtre",
+          "city": "Anytown",
+          "state": "AL",
+          "postal_code": "90210",
+          "country": "USA"
+        },
+        "secondaryPickupAddress": {
+          "id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+          "street_address_1": "123 Main Ave",
+          "street_address_2": "Apartment 9000",
+          "street_address_3": "Montmârtre",
+          "city": "Anytown",
+          "state": "AL",
+          "postal_code": "90210",
+          "country": "USA"
+        },
+        "secondaryDeliveryAddress": {
+          "id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+          "street_address_1": "123 Main Ave",
+          "street_address_2": "Apartment 9000",
+          "street_address_3": "Montmârtre",
+          "city": "Anytown",
+          "state": "AL",
+          "postal_code": "90210",
+          "country": "USA"
+        },
+        "customerRemarks": "handle with care",
+        "shipmentType": "HHG",
+        "status": "APPROVED",
+        "rejectionReason": "MTO Shipment not good enough"
+      }
+    ],
+    "ppmType": "FULL",
+    "ppmEstimatedWeight": 1000
+  }
+}

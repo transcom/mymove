@@ -1,0 +1,28 @@
+{
+  "mtoShipmentID": "fe161ef5-aa21-4ddf-aadf-0399b0ab2502",
+  "ifMatch": "MjAyMC0wNi0wOVQwNTo1ODowMC44MjA3NDha",
+  "body": {
+    "secondaryPickupAddress": {
+      "city": "Beverly Hills",
+      "country": "US",
+      "postalCode": "90210",
+      "state": "CA",
+      "streetAddress1": "124 Any Street",
+      "streetAddress2": "P.O. Box 12346",
+      "streetAddress3": "c/o Some Person"
+    },
+    "secondaryDeliveryAddress": {
+      "city": "Fairfield",
+      "country": "US",
+      "postalCode": "94535",
+      "state": "CA",
+      "streetAddress1": "988 Any Avenue",
+      "streetAddress2": "P.O. Box 9877",
+      "streetAddress3": "c/o Some Person"
+    },
+    "scheduledPickupDate": "2020-06-04",
+    "actualPickupDate": "2020-06-02",
+    "primeEstimatedWeight": 1000,
+    "primeActualWeight": 3000
+  }
+}

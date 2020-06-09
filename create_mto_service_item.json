@@ -1,0 +1,11 @@
+{
+  "body": {
+    "reServiceCode": "DLH",
+    "modelType": "MTOServiceItemBasic",
+    "mtoShipmentID": "b4148fad-acc6-4065-b387-90d05a702a24",
+    "moveTaskOrderID": "da3f34cc-fb94-4e0b-1c90-ba3333cb7791",
+    "reServiceID": "8d600f25-1def-422d-b159-617c7d59156e",
+    "reServiceName": "Dom. Linehaul",
+    "status": "SUBMITTED"
+  }
+}
