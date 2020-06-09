@@ -997,6 +997,10 @@ func init() {
           "x-nullabe": true,
           "$ref": "#/definitions/Address"
         },
+        "primeActualWeight": {
+          "type": "integer",
+          "example": 4500
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -2649,6 +2653,10 @@ func init() {
         "pickupAddress": {
           "x-nullabe": true,
           "$ref": "#/definitions/Address"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "example": 4500
         },
         "rejectionReason": {
           "type": "string",

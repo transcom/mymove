@@ -905,6 +905,9 @@ definitions:
       approvedDate:
         format: date
         type: string
+      primeActualWeight:
+        type: integer
+        example: 4500
       pickupAddress:
         x-nullabe: true
         $ref: '#/definitions/Address'
