@@ -8,8 +8,14 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { Redirect, Link } from 'react-router-dom';
 
 export function userIsAuthorized(userRoles, requiredRoles) {
+  // Return true if no roles are required
+  if (!requiredRoles || !requiredRoles.length) return true;
+
+  // Return false if user has no roles
+  if (!userRoles || !userRoles.length) return false;
+
   // User must have at least one of the roles defined in requiredRoles
-  return !!userRoles.find((r) => requiredRoles.indexOf(r) > -1);
+  return !!userRoles?.find((r) => requiredRoles.indexOf(r) > -1);
 }
 
 export function wrapRouteForMultipleRoles(route, userRoles) {
@@ -35,10 +41,19 @@ const PrivateRouteContainer = (props) => {
       userRoles.map((role) => role.roleType),
       requiredRoles,
     )
-  )
+  ) {
     // User is logged in & authorized to view the requested URL
-    return wrapRouteForMultipleRoles(<Route {...routeProps} />, userRoles);
-  else if (userIsLoggedIn)
+
+    const displaySelectApplication = userRoles?.length > 1 && routeProps.location?.pathname !== '/select-application';
+    return displaySelectApplication ? (
+      <>
+        <Link to="/select-application">Select application</Link>
+        <Route {...routeProps} />
+      </>
+    ) : (
+      <Route {...routeProps} />
+    );
+  } else if (userIsLoggedIn)
     // User is logged in but not authorized to view the requested URL, redirect home
     return <Redirect exact to="/" />;
   else if (loginIsLoading)

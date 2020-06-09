@@ -8,6 +8,14 @@ import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
 
 describe('userIsAuthorized function', () => {
+  it('returns true if no roles are required', () => {
+    expect(userIsAuthorized()).toEqual(true);
+  });
+
+  it('returns false if the user has no roles', () => {
+    expect(userIsAuthorized(undefined, [roleTypes.PPM])).toEqual(false);
+  });
+
   it('returns true if the user has at least one required role', () => {
     expect(userIsAuthorized([roleTypes.TIO], [roleTypes.TIO, roleTypes.PPM])).toEqual(true);
   });

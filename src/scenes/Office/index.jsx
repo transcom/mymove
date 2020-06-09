@@ -79,7 +79,7 @@ export class OfficeWrapper extends Component {
   render() {
     const ConditionalWrap = ({ condition, wrap, children }) => (condition ? wrap(children) : <>{children}</>);
     const { context: { flags: { too, tio } } = { flags: { too: null } } } = this.props;
-    const DivOrMainTag = detectIE11() ? 'div' : 'main'; // TODO - double check in IE11 but I think <main> is fine
+    const DivOrMainTag = detectIE11() ? 'div' : 'main';
     const { userIsLoggedIn, userRoles } = this.props;
     return (
       <ConnectedRouter history={history}>

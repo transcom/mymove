@@ -28,6 +28,7 @@ import {
 } from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { convertDollarsToCents } from 'shared/utils';
+import { roleTypes } from 'constants/userRoles';
 
 import DocumentDetailPanel from './DocumentDetailPanel';
 
@@ -142,7 +143,7 @@ class DocumentViewer extends Component {
                   exact
                   path={defaultPath}
                   render={() => <Redirect replace to={newUrl} />}
-                  requiredRoles={['ppm_office_users']}
+                  requiredRoles={[roleTypes.PPM]}
                 />
                 <PrivateRoute
                   path={newPath}
@@ -150,17 +151,13 @@ class DocumentViewer extends Component {
                   render={() => {
                     return <DocumentUploader {...this.getDocumentUploaderProps} />;
                   }}
-                  requiredRoles={['ppm_office_users']}
+                  requiredRoles={[roleTypes.PPM]}
                 />
-                <PrivateRoute
-                  path={documentPath}
-                  component={DocumentUploadViewer}
-                  requiredRoles={['ppm_office_users']}
-                />
+                <PrivateRoute path={documentPath} component={DocumentUploadViewer} requiredRoles={[roleTypes.PPM]} />
                 <PrivateRoute
                   path={defaultUrl}
                   render={() => <div> document viewer coming soon</div>}
-                  requiredRoles={['ppm_office_users']}
+                  requiredRoles={[roleTypes.PPM]}
                 />
               </Switch>
             </div>

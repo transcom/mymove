@@ -43,6 +43,8 @@ import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modul
 import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';
 
+import { roleTypes } from 'constants/userRoles';
+
 import { showBanner, removeBanner } from './ducks';
 import {
   loadMove,
@@ -305,12 +307,12 @@ class MoveInfo extends Component {
                       to={{ pathname: `${this.props.match.url}/basics`, state: this.props.history.location.state }}
                     />
                   )}
-                  requiredRoles={['ppm_office_users']}
+                  requiredRoles={[roleTypes.PPM]}
                 />
-                <PrivateRoute path={`${this.props.match.path}/basics`} requiredRoles={['ppm_office_users']}>
+                <PrivateRoute path={`${this.props.match.path}/basics`} requiredRoles={[roleTypes.PPM]}>
                   <BasicsTabContent moveId={moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
-                <PrivateRoute path={`${this.props.match.path}/ppm`} requiredRoles={['ppm_office_users']}>
+                <PrivateRoute path={`${this.props.match.path}/ppm`} requiredRoles={[roleTypes.PPM]}>
                   <PPMTabContent
                     ppmPaymentRequestedFlag={this.props.context.flags.ppmPaymentRequest}
                     moveId={moveId}
