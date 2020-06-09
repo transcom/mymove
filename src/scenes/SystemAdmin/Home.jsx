@@ -1,8 +1,9 @@
 import restProvider from './shared/rest_provider';
-import { fetchUtils, Admin, Resource, Layout } from 'react-admin';
+import { fetchUtils, Admin, Resource, Layout, AppBar } from 'react-admin';
 import { createBrowserHistory } from 'history';
 import React from 'react';
 import Menu from './shared/Menu';
+import FOUOHeader from 'components/FOUOHeader';
 import AccessCodeList from './AccessCodes/AccessCodeList';
 import UploadShow from './Uploads/UploadShow';
 import OfficeUserList from './OfficeUsers/OfficeUserList';
@@ -38,8 +39,15 @@ const httpClient = (url, options = {}) => {
   return fetchUtils.fetchJson(url, options);
 };
 
+const FOUOWrapper = () => (
+  <React.Fragment>
+    <FOUOHeader />
+    <AppBar />
+  </React.Fragment>
+);
+
 const dataProvider = restProvider('/admin/v1', httpClient);
-const AdminLayout = (props) => <Layout {...props} menu={Menu} />;
+const AdminLayout = (props) => <Layout {...props} menu={Menu} appBar={FOUOWrapper} />;
 const history = createBrowserHistory({ basename: '/system' });
 
 const Home = () => (
