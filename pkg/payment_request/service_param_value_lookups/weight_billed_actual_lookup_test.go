@@ -40,7 +40,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(es
 }
 
 func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
-	key := "WeightBilledActual"
+	key := models.ServiceItemParamNameWeightBilledActual.String()
 
 	suite.T().Run("estimated and actual are the same", func(t *testing.T) {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
