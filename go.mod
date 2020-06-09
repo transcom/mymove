@@ -38,7 +38,7 @@ require (
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.1
 	github.com/gofrs/uuid v3.3.0+incompatible
-	github.com/google/go-github/v31 v31.0.0 // indirect
+	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.0
 	github.com/imdario/mergo v0.3.9
 	github.com/jessevdk/go-flags v1.4.0
@@ -69,6 +69,7 @@ require (
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
 	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
+	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/text v0.3.2
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect

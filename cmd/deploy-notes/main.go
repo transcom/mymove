@@ -13,15 +13,18 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Pipelines represents multiple CircleCI pipelines
 type Pipelines struct {
 	Items []Pipeline `json:"items"`
 }
 
+// Pipeline represents a single CircleCI pipeline
 type Pipeline struct {
 	ID  string            `json:"id"`
 	VCS map[string]string `json:"vcs"`
 }
 
+// Fetch gets all pipelines for the mymove project
 func (p *Pipelines) Fetch() {
 	client := http.DefaultClient
 	req, err := http.NewRequest("GET", "https://circleci.com/api/v2/project/github/transcom/mymove/pipeline", nil)
@@ -36,44 +39,70 @@ func (p *Pipelines) Fetch() {
 	q.Add("branch", "master")
 	req.URL.RawQuery = q.Encode()
 	resp, err := client.Do(req)
+
+	if err != nil {
+		panic(err)
+	}
+
 	defer resp.Body.Close()
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		panic(err)
+	}
 
 	json.Unmarshal(bodyBytes, &p)
 }
 
+// Workflow gets the workflow information associated with a CircleCI Pipeline
 func (p *Pipeline) Workflow() *Workflow {
 	client := http.DefaultClient
 	req, _ := http.NewRequest("GET", fmt.Sprintf("https://circleci.com/api/v2/pipeline/%s/workflow", p.ID), nil)
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Circle-Token", os.Getenv("CIRCLE_TOKEN"))
-	resp, _ := client.Do(req)
+	resp, err := client.Do(req)
+
+	if err != nil {
+		panic(err)
+	}
+
 	defer resp.Body.Close()
-	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		panic(err)
+	}
+
 	workflow := &Workflow{PipelineID: p.ID}
 	json.Unmarshal(bodyBytes, workflow)
 	return workflow
 }
 
+// Workflows represents a collection of CircleCI workflows
 type Workflows []Workflow
 
+// Workflow represents a CircleCI workflow
 type Workflow struct {
 	PipelineID string
 	Items      []map[string]string `json:"items"`
 }
 
+// Attributes gets the attributes of a workflow
 func (w *Workflow) Attributes() map[string]string {
 	return w.Items[0]
 }
 
+// Status gets the status of a workflow
 func (w *Workflow) Status() string {
 	return w.Attributes()["status"]
 }
 
+// Success checks if the status is "success"
 func (w *Workflow) Success() bool {
 	return w.Status() == "success"
 }
 
+// OnHold checks if the status is "on_hold"
 func (w *Workflow) OnHold() bool {
 	return w.Status() == "on_hold"
 }
@@ -136,6 +165,11 @@ func main() {
 	ghClient := github.NewClient(tc)
 
 	commit, _, err := ghClient.Repositories.GetCommit(ctx, "transcom", "mymove", latestDeployedCommit)
+
+	if err != nil {
+		panic(err)
+	}
+
 	commit2, _, err := ghClient.Repositories.GetCommit(ctx, "transcom", "mymove", latestOnHoldCommit)
 
 	if err != nil {
