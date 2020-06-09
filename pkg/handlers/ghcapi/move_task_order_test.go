@@ -54,7 +54,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 
 	suite.Assertions.IsType(&move_task_order.GetMoveTaskOrderOK{}, response)
 	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
-	suite.False(*moveTaskOrderPayload.IsAvailableToPrime)
+	suite.Nil(moveTaskOrderPayload.AvailableToPrimeAt)
 	suite.False(*moveTaskOrderPayload.IsCanceled)
 	suite.Equal(strfmt.UUID(moveTaskOrder.MoveOrderID.String()), moveTaskOrderPayload.MoveOrderID)
 	suite.NotNil(moveTaskOrderPayload.ReferenceID)
@@ -86,7 +86,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
-	suite.Equal(*moveTaskOrdersPayload.IsAvailableToPrime, true)
+	suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEtag() {

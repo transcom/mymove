@@ -115,7 +115,7 @@ paths:
     patch:
       summary: makeMoveTaskOrderAvailable
       description: |
-        Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. No request body required. <br />
+        Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
         <br />
         This is a support endpoint and will not be available in production.
       operationId: makeMoveTaskOrderAvailable
@@ -724,13 +724,14 @@ definitions:
 
           No two MoveTaskOrders may have the same ID.
           Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
-      isAvailableToPrime:
-        type: boolean
+      availableToPrimeAt:
+        format: date-time
+        type: string
         x-nullable: true
         description: |
           Indicates this MoveTaskOrder is available for Prime API handling.
 
-          In production, only MoveTaskOrders for which this is true will be available to the API.
+          In production, only MoveTaskOrders for which this is set will be available to the API.
       isCanceled:
         type: boolean
         x-nullable: true
@@ -904,6 +905,9 @@ definitions:
       approvedDate:
         format: date
         type: string
+      primeActualWeight:
+        type: integer
+        example: 4500
       pickupAddress:
         x-nullabe: true
         $ref: '#/definitions/Address'

@@ -122,12 +122,12 @@ class CustomerDetails extends Component {
         {!isEmpty(moveTaskOrder) && (
           <>
             <h2>Move Task Order</h2>
-            <h3>Status: {moveTaskOrder.isAvailableToPrime ? 'Available to Prime' : 'Draft'}</h3>
+            <h3>Status: {moveTaskOrder.availableToPrimeAt ? 'Available to Prime' : 'Draft'}</h3>
             <dl>
               <dt>ID</dt>
               <dd>{get(moveTaskOrder, 'id')}</dd>
-              <dt>Is Available to Prime</dt>
-              <dd>{get(moveTaskOrder, 'isAvailableToPrime').toString()}</dd>
+              <dt>Available to Prime At</dt>
+              <dd>{get(moveTaskOrder, 'availableToPrimeAt', 'N/A')}</dd>
               <dt>Is Canceled</dt>
               <dd>{get(moveTaskOrder, 'isCanceled', false).toString()}</dd>
               <dt>Reference ID</dt>

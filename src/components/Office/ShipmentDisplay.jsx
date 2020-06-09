@@ -78,7 +78,12 @@ const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo, onChange }) =>
 ShipmentDisplay.propTypes = {
   checkboxId: PropTypes.string,
   onChange: PropTypes.func,
-  shipmentType: PropTypes.oneOf([SHIPMENT_TYPE.HHG, SHIPMENT_TYPE.NTS]),
+  shipmentType: PropTypes.oneOf([
+    SHIPMENT_TYPE.HHG,
+    SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC,
+    SHIPMENT_TYPE.HHG_LONGHAUL_DOMESTIC,
+    SHIPMENT_TYPE.NTS,
+  ]),
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,
     requestedMoveDate: PropTypes.string.isRequired,

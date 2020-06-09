@@ -27,7 +27,7 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 	var mtos models.MoveTaskOrders
 
-	query := h.DB().Where("is_available_to_prime = ?", true).Eager(
+	query := h.DB().Where("available_to_prime_at IS NOT NULL").Eager(
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",

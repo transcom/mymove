@@ -2,6 +2,7 @@ package serviceparamvaluelookups
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 
@@ -9,6 +10,12 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/route"
+)
+
+// Constants for formatting Time-based parameters
+const (
+	DateParamFormat      = "2006-01-02"
+	TimestampParamFormat = time.RFC3339
 )
 
 // ServiceItemParamKeyData contains service item parameter keys
@@ -44,12 +51,19 @@ func ServiceParamLookupInitialize(
 		MoveTaskOrderID:  moveTaskOrderID,
 	}
 
-	for _, key := range models.ValidServiceItemParamName {
+	for _, key := range models.ValidServiceItemParamNames {
 		s.lookups[key] = NotImplementedLookup{}
 	}
 
 	s.lookups[models.ServiceItemParamNameRequestedPickupDate.String()] = RequestedPickupDateLookup{}
 	s.lookups[models.ServiceItemParamNameDistanceZip5.String()] = DistanceZip5Lookup{}
+	s.lookups[models.ServiceItemParamNameDistanceZip3.String()] = DistanceZip3Lookup{}
+	s.lookups[models.ServiceItemParamNameWeightBilledActual.String()] = WeightBilledActualLookup{}
+	s.lookups[models.ServiceItemParamNameWeightEstimated.String()] = WeightEstimatedLookup{}
+	s.lookups[models.ServiceItemParamNameWeightActual.String()] = WeightActualLookup{}
+	s.lookups[models.ServiceItemParamNameZipPickupAddress.String()] = ZipPickupAddressLookup{}
+	s.lookups[models.ServiceItemParamNameZipDestAddress.String()] = ZipDestAddressLookup{}
+	s.lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt.String()] = MTOAvailableToPrimeAtLookup{}
 
 	return &s
 }

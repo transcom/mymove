@@ -2343,6 +2343,11 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "createdAt": {
           "type": "string",
           "format": "date"
@@ -2365,10 +2370,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isAvailableToPrime": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "isCanceled": {
           "type": "boolean",
@@ -2398,14 +2399,6 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date"
-        }
-      }
-    },
-    "MoveTaskOrderStatus": {
-      "type": "object",
-      "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
         }
       }
     },
@@ -5282,6 +5275,11 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "createdAt": {
           "type": "string",
           "format": "date"
@@ -5304,10 +5302,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isAvailableToPrime": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "isCanceled": {
           "type": "boolean",
@@ -5337,14 +5331,6 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date"
-        }
-      }
-    },
-    "MoveTaskOrderStatus": {
-      "type": "object",
-      "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
         }
       }
     },

@@ -167,7 +167,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	primeEstimatedWeight := unit.Pound(500)
 	primeEstimatedWeightDate := testdatagen.DateInsidePeakRateCycle
 	mto := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{IsAvailableToPrime: true},
+		MoveTaskOrder: models.MoveTaskOrder{
+			AvailableToPrimeAt: swag.Time(time.Now()),
+		},
 	})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
@@ -308,7 +310,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	mto2 := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{IsAvailableToPrime: true},
+		MoveTaskOrder: models.MoveTaskOrder{
+			AvailableToPrimeAt: swag.Time(time.Now()),
+		},
 	})
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
