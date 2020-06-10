@@ -1,13 +1,16 @@
+/* eslint-disable react/jsx-one-expression-per-line */
 import React from 'react';
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { Button, GridContainer } from '@trussworks/react-uswds';
+
+import { selectCurrentUser } from 'shared/Data/users';
 
 import { setActiveRole as setActiveRoleAction } from 'store/auth/actions';
 import { roleTypes } from 'constants/userRoles';
 
-const SelectApplication = ({ setActiveRole, activeRole }) => {
+const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
   const history = useHistory();
 
   const handleSelectRole = (roleType) => {
@@ -16,47 +19,45 @@ const SelectApplication = ({ setActiveRole, activeRole }) => {
   };
 
   return (
-    <>
-      {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-      <h2>Active role: {activeRole}</h2>
-      <Button
-        type="button"
-        onClick={() => {
-          handleSelectRole(roleTypes.PPM);
-        }}
-      >
-        PPM Move Queue
-      </Button>
-      <br />
-      <Button
-        type="button"
-        onClick={() => {
-          handleSelectRole(roleTypes.TOO);
-        }}
-      >
-        TOO Move Queue
-      </Button>
-      <br />
-      <Button
-        type="button"
-        onClick={() => {
-          handleSelectRole(roleTypes.TIO);
-        }}
-      >
-        TIO Payment Request Queue
-      </Button>
-    </>
+    <GridContainer>
+      <h2>Current role: {activeRole || userRoles[0].roleType}</h2>
+
+      <ul className="usa-button-group">
+        {[roleTypes.PPM, roleTypes.TOO, roleTypes.TIO]
+          .filter((r) => userRoles.find((role) => r === role.roleType))
+          .map((r) => (
+            <li key={`selectRole_${r}`}>
+              <Button
+                type="button"
+                onClick={() => {
+                  handleSelectRole(r);
+                }}
+              >
+                Select {r}
+              </Button>
+            </li>
+          ))}
+      </ul>
+    </GridContainer>
   );
 };
 
 SelectApplication.propTypes = {
   activeRole: PropTypes.string,
   setActiveRole: PropTypes.func.isRequired,
+  userRoles: PropTypes.arrayOf(
+    PropTypes.shape({
+      roleType: PropTypes.string,
+    }),
+  ),
 };
 
 const mapStateToProps = (state) => {
+  const user = selectCurrentUser(state);
+
   return {
     activeRole: state.auth.activeRole,
+    userRoles: user.roles,
   };
 };
 

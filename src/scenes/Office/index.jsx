@@ -81,7 +81,7 @@ export class OfficeWrapper extends Component {
     const ConditionalWrap = ({ condition, wrap, children }) => (condition ? wrap(children) : <>{children}</>);
     const { context: { flags: { too, tio } } = { flags: { too: null } } } = this.props;
     const DivOrMainTag = detectIE11() ? 'div' : 'main';
-    const { userIsLoggedIn, userRoles } = this.props;
+    const { userIsLoggedIn } = this.props;
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
@@ -106,7 +106,7 @@ export class OfficeWrapper extends Component {
                     <Suspense fallback={<LoadingPlaceholder />}>
                       <QueueHeader />
                       <main role="main" className="site__content">
-                        <ConnectedOfficeHome userRoles={userRoles} {...props} />
+                        <ConnectedOfficeHome {...props} />
                       </main>
                     </Suspense>
                   )}
@@ -312,7 +312,6 @@ const mapStateToProps = (state) => {
   return {
     swaggerError: state.swaggerInternal.hasErrored,
     userIsLoggedIn: user.isLoggedIn,
-    userRoles: user.roles,
   };
 };
 

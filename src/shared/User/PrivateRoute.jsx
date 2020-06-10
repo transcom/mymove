@@ -18,20 +18,6 @@ export function userIsAuthorized(userRoles, requiredRoles) {
   return !!userRoles?.find((r) => requiredRoles.indexOf(r) > -1);
 }
 
-export function wrapRouteForMultipleRoles(route, userRoles) {
-  // If user has multiple roles, add a link to let them select which role they are using
-  if (userRoles?.length > 1 && route.props.location.pathname !== '/select-application') {
-    return (
-      <div>
-        <Link to="/select-application">Select application</Link>
-        {route}
-      </div>
-    );
-  } else {
-    return route;
-  }
-}
-
 const PrivateRouteContainer = (props) => {
   const { loginIsLoading, userIsLoggedIn, path, requiredRoles, userRoles, ...routeProps } = props;
 
@@ -43,11 +29,13 @@ const PrivateRouteContainer = (props) => {
     )
   ) {
     // User is logged in & authorized to view the requested URL
+    // If user has multiple roles, add a link to let them select which role they are using
+    // TODO improve this UI
 
     const displaySelectApplication = userRoles?.length > 1 && routeProps.location?.pathname !== '/select-application';
     return displaySelectApplication ? (
       <>
-        <Link to="/select-application">Select application</Link>
+        <Link to="/select-application">Change user role</Link>
         <Route {...routeProps} />
       </>
     ) : (
