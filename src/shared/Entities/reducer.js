@@ -32,6 +32,7 @@ const initialState = {
   invoices: {},
   moveDocuments: {},
   moves: {},
+  orders: {},
   personallyProcuredMoves: {},
   reimbursements: {},
   signedCertifications: {},

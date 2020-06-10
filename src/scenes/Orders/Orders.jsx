@@ -7,7 +7,15 @@ import { getFormValues } from 'redux-form';
 
 import { Field } from 'redux-form';
 
-import { createOrders, updateOrders } from './ducks';
+// import { createOrders, updateOrders } from './ducks';
+import {
+  createOrders,
+  updateOrders,
+  showServiceMemberOrders,
+  getLatestOrdersLabel,
+  // selectOrders,
+} from 'shared/Entities/modules/orders';
+import { getRequestStatus } from 'shared/Swagger/selectors';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { withContext } from 'shared/AppContext';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -21,8 +29,12 @@ const formName = 'orders_info';
 const OrdersWizardForm = reduxifyWizardForm(formName, validateOrdersForm);
 
 export class Orders extends Component {
+  componentDidMount() {
+    const { serviceMemberId } = this.props;
+    this.props.showServiceMemberOrders(serviceMemberId);
+  }
+
   handleSubmit = () => {
-    // const pendingValues = Object.assign({}, this.props.formData.values);
     const pendingValues = Object.assign({}, this.props.formValues);
 
     // Update if orders object already extant
@@ -33,17 +45,27 @@ export class Orders extends Component {
       pendingValues['spouse_has_pro_gear'] =
         (pendingValues.has_dependents && pendingValues.spouse_has_pro_gear) || false;
       if (this.props.currentOrders) {
-        return this.props.updateOrders(this.props.currentOrders.id, pendingValues);
+        return this.props.update(this.props.currentOrders.id, pendingValues);
       } else {
-        return this.props.createOrders(pendingValues);
+        return this.props.create(pendingValues);
       }
     }
   };
 
   render() {
-    const { pages, pageKey, error, currentOrders, serviceMemberId, newDutyStation, currentStation } = this.props;
+    const {
+      pages,
+      pageKey,
+      error,
+      // currentOrders,
+      orders,
+      serviceMemberId,
+      newDutyStation,
+      currentStation,
+    } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
-    const initialValues = currentOrders ? currentOrders : null;
+    const initialValues = orders ? orders : null;
+    // const initialValues = currentOrders ? currentOrders : null;
     const newDutyStationErrorMsg =
       newDutyStation.name === currentStation.name
         ? 'You entered the same duty station for your origin and destination. Please change one of them.'
@@ -86,21 +108,29 @@ Orders.propTypes = {
 
 function mapStateToProps(state) {
   const formValues = getFormValues(formName)(state);
+  const showOrdersRequest = getRequestStatus(state, getLatestOrdersLabel);
+  // const ordersId = get(state, `entities.orders`);
+
   return {
     serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
     formValues,
     currentOrders: state.orders.currentOrders,
+    // orders: get(state, 'entities.orders'),
+    // orders: selectOrders(state, ordersId),
     currentStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
     newDutyStation: get(formValues, 'new_duty_station', {}),
+    loadDependenciesHasSuccess: showOrdersRequest.isSuccess,
+    loadDependenciesHasError: showOrdersRequest.error,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      updateOrders,
-      createOrders,
+      showServiceMemberOrders,
+      update: updateOrders,
+      create: createOrders,
     },
     dispatch,
   );
