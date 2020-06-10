@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -7,13 +7,12 @@ import { getFormValues } from 'redux-form';
 
 import { Field } from 'redux-form';
 
-// import { createOrders, updateOrders } from './ducks';
 import {
   createOrders,
   updateOrders,
-  showServiceMemberOrders,
+  fetchLatestOrders,
   getLatestOrdersLabel,
-  // selectOrders,
+  selectOrdersFromServiceMemberId,
 } from 'shared/Entities/modules/orders';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -31,7 +30,7 @@ const OrdersWizardForm = reduxifyWizardForm(formName, validateOrdersForm);
 export class Orders extends Component {
   componentDidMount() {
     const { serviceMemberId } = this.props;
-    this.props.showServiceMemberOrders(serviceMemberId);
+    this.props.fetchLatestOrders(serviceMemberId);
   }
 
   handleSubmit = () => {
@@ -44,28 +43,18 @@ export class Orders extends Component {
       pendingValues['has_dependents'] = pendingValues.has_dependents || false;
       pendingValues['spouse_has_pro_gear'] =
         (pendingValues.has_dependents && pendingValues.spouse_has_pro_gear) || false;
-      if (this.props.currentOrders) {
-        return this.props.update(this.props.currentOrders.id, pendingValues);
-      } else {
+      if (isEmpty(this.props.currentOrders)) {
         return this.props.create(pendingValues);
+      } else {
+        return this.props.update(this.props.currentOrders.id, pendingValues);
       }
     }
   };
 
   render() {
-    const {
-      pages,
-      pageKey,
-      error,
-      // currentOrders,
-      orders,
-      serviceMemberId,
-      newDutyStation,
-      currentStation,
-    } = this.props;
+    const { pages, pageKey, error, currentOrders, serviceMemberId, newDutyStation, currentStation } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
-    const initialValues = orders ? orders : null;
-    // const initialValues = currentOrders ? currentOrders : null;
+    const initialValues = currentOrders ? currentOrders : null;
     const newDutyStationErrorMsg =
       newDutyStation.name === currentStation.name
         ? 'You entered the same duty station for your origin and destination. Please change one of them.'
@@ -109,15 +98,14 @@ Orders.propTypes = {
 function mapStateToProps(state) {
   const formValues = getFormValues(formName)(state);
   const showOrdersRequest = getRequestStatus(state, getLatestOrdersLabel);
-  // const ordersId = get(state, `entities.orders`);
+  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
 
   return {
-    serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
+    serviceMemberId: serviceMemberId,
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
     formValues,
-    currentOrders: state.orders.currentOrders,
-    // orders: get(state, 'entities.orders'),
-    // orders: selectOrders(state, ordersId),
+    // tempOrders: state.orders.currentOrders, // in master
+    currentOrders: selectOrdersFromServiceMemberId(state, serviceMemberId),
     currentStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
     newDutyStation: get(formValues, 'new_duty_station', {}),
     loadDependenciesHasSuccess: showOrdersRequest.isSuccess,
@@ -128,7 +116,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      showServiceMemberOrders,
+      fetchLatestOrders,
       update: updateOrders,
       create: createOrders,
     },

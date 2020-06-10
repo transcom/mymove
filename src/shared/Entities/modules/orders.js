@@ -4,7 +4,7 @@ import { denormalize } from 'normalizr';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { formatDateForSwagger } from 'shared/dates';
 import { getClient } from 'shared/Swagger/api';
-import { get } from 'lodash';
+import { get, filter } from 'lodash';
 
 export const STATE_KEY = 'orders';
 export const loadOrdersLabel = 'Orders.loadOrders';
@@ -25,7 +25,7 @@ export default function reducer(state = {}, action) {
   }
 }
 
-export function showServiceMemberOrders(serviceMemberId, label = getLatestOrdersLabel) {
+export function fetchLatestOrders(serviceMemberId, label = getLatestOrdersLabel) {
   const swaggerTag = 'service_members.showServiceMemberOrders';
   return swaggerRequest(getClient, swaggerTag, { serviceMemberId }, { label });
 }
@@ -72,4 +72,10 @@ export function selectUploadsForOrders(state, ordersId) {
   } else {
     return [];
   }
+}
+
+export function selectOrdersFromServiceMemberId(state, serviceMemberId) {
+  const orders = Object.values(state.entities.orders);
+  filter(orders, (order) => order.service_member_id === serviceMemberId);
+  return orders[0] || {};
 }
