@@ -105,7 +105,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		}
 		logger.Error("Payment Request",
 			zap.Any("payload", payload))
-		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
+		return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError("", h.GetTraceID()))
 	}
 
 	returnPayload := payloads.PaymentRequest(createdPaymentRequest)
