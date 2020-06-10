@@ -15,6 +15,7 @@ import (
 	serviceparamlookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
 type paymentRequestCreator struct {
@@ -56,6 +57,9 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 		if paymentRequestArg == nil {
 			return fmt.Errorf("failure creating payment request <nil> for %s", mtoMessageString+prMessageString)
 		}
+
+		// Create a pricer
+		pricer := ghcrateengine.NewServiceItemPricer(tx)
 
 		// Create a payment service item for each incoming payment service item in the payment request
 		// These incoming payment service items have not been created in the database yet
@@ -144,8 +148,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 			paymentServiceItem.PaymentServiceItemParams = newPaymentServiceItemParams
 
-			newPaymentServiceItems = append(newPaymentServiceItems, paymentServiceItem)
-
 			//
 			// Validate that all params are available to prices the service item that is in
 			// the payment request
@@ -155,7 +157,21 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 				errMessage := "service item param list is not valid (will not be able to price the item) " + validateMessage + " for " + errMessageString
 				return fmt.Errorf("%s err: %w", errMessage, err)
 			}
+
+			// Price the payment service item
+			err = p.pricePaymentServiceItem(tx, pricer, &paymentServiceItem)
+			if err != nil {
+				if _, ok := err.(services.InvalidCreateInputError); ok {
+					return err
+				}
+				// TODO: Other error types to deal with?
+
+				return fmt.Errorf("failure pricing payment service item: %w for %s", err, paymentServiceItem.ID)
+			}
+
+			newPaymentServiceItems = append(newPaymentServiceItems, paymentServiceItem)
 		}
+
 		paymentRequestArg.PaymentServiceItems = newPaymentServiceItems
 
 		return nil
@@ -231,7 +247,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	paymentServiceItem.PaymentRequestID = paymentRequest.ID
 	paymentServiceItem.PaymentRequest = *paymentRequest
 	paymentServiceItem.Status = models.PaymentServiceItemStatusRequested
-	// TODO: No pricing yet, so skipping the PriceCents field.
+	// No pricing at this point, so skipping the PriceCents field.
 	paymentServiceItem.RequestedAt = requestedAt
 
 	verrs, err := tx.ValidateAndCreate(paymentServiceItem)
@@ -244,6 +260,33 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	}
 
 	return *paymentServiceItem, mtoServiceItem, nil
+}
+
+func (p *paymentRequestCreator) pricePaymentServiceItem(tx *pop.Connection, pricer services.ServiceItemPricer, paymentServiceItem *models.PaymentServiceItem) error {
+	price, err := pricer.PriceServiceItem(*paymentServiceItem)
+	if err != nil {
+		// If a pricer isn't implemented yet, just skip saving any pricing for now.
+		// TODO: Once all pricers are implemented, change this to be a real error.
+		if _, ok := err.(services.NotImplementedError); ok {
+			return nil
+		}
+
+		// TODO: Should we use a different type of error here?
+		return err
+	}
+
+	paymentServiceItem.PriceCents = &price
+
+	verrs, err := tx.ValidateAndUpdate(paymentServiceItem)
+	if verrs.HasAny() {
+		// TODO: May need to be a different error type -- or maybe just a generic error since this shouldn't happen
+		return services.NewInvalidCreateInputError(verrs, "validation error updating payment request service item with price in payment request creation")
+	}
+	if err != nil {
+		return fmt.Errorf("failure updating payment service item: %w for Payment Service Item ID <%s>", err, paymentServiceItem.ID.String())
+	}
+
+	return nil
 }
 
 func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection, paymentServiceItemParam *models.PaymentServiceItemParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, *string, *string, error) {

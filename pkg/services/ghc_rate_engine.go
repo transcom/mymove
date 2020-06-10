@@ -3,10 +3,18 @@ package services
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+// ServiceItemPricer prices a generic service item for a GHC move
+//go:generate mockery -name ServiceItemPricer
+type ServiceItemPricer interface {
+	PriceServiceItem(item models.PaymentServiceItem) (unit.Cents, error)
+	// PriceServiceItemByID(paymentServiceItemID uuid.UUID) (unit.Cents, error)
+}
 
 // DomesticLinehaulPricer prices domestic linehaul for a GHC move
 //go:generate mockery -name DomesticLinehaulPricer

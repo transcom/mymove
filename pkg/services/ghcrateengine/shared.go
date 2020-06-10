@@ -8,6 +8,11 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// Pricer is an interface that all our pricers implement
+type Pricer interface {
+	Price() (unit.Cents, error)
+}
+
 // minDomesticWeight is the minimum weight used in domestic calculations (weights below this are upgraded to the min)
 const minDomesticWeight = unit.Pound(500)
 
