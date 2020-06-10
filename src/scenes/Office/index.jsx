@@ -14,11 +14,12 @@ import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
 import { detectIE11, no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
-import SelectApplication from 'shared/User/SelectApplication';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import QueueHeader from 'shared/Header/Office';
 import FOUOHeader from 'components/FOUOHeader';
+
+import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
 
 import { roleTypes } from 'constants/userRoles';
 
@@ -26,7 +27,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 
 // Lazy load these dependencies
-const OfficeHome = lazy(() => import('pages/OfficeHome/OfficeHome'));
+const ConnectedOfficeHome = lazy(() => import('pages/OfficeHome'));
 const MoveInfo = lazy(() => import('./MoveInfo'));
 const Queues = lazy(() => import('./Queues'));
 const OrdersInfo = lazy(() => import('./OrdersInfo'));
@@ -105,18 +106,12 @@ export class OfficeWrapper extends Component {
                     <Suspense fallback={<LoadingPlaceholder />}>
                       <QueueHeader />
                       <main role="main" className="site__content">
-                        <OfficeHome userRoles={userRoles} {...props} />
+                        <ConnectedOfficeHome userRoles={userRoles} {...props} />
                       </main>
                     </Suspense>
                   )}
-                  requiredRoles={[roleTypes.PPM, roleTypes.TOO, roleTypes.TIO]}
                 />
-                <PrivateRoute
-                  exact
-                  path="/select-application"
-                  component={SelectApplication}
-                  requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
-                />
+                <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
                   component={(props) => (
