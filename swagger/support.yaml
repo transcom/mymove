@@ -705,7 +705,7 @@ definitions:
         readOnly: true
         description: ID of the MoveTaskOrder object.
       createdAt:
-        format: date
+        format: date-time
         type: string
         description: Date the MoveTaskOrder was created on.
       moveOrderID:
@@ -744,7 +744,7 @@ definitions:
           ID associated with the contractor, in this case Prime
         example: 5db13bb4-6d29-4bdb-bc81-262f4513ecf6
       updatedAt:
-        format: date
+        format: date-time
         type: string
         description: Date on which this MoveTaskOrder was last updated.
       paymentRequests:
@@ -798,10 +798,10 @@ definitions:
         format: uuid
         type: string
       createdAt:
-        format: date
+        format: date-time
         type: string
       updatedAt:
-        format: date
+        format: date-time
         type: string
       firstName:
         type: string
@@ -891,10 +891,10 @@ definitions:
         format: uuid
         type: string
       createdAt:
-        format: datetime
+        format: date-time
         type: string
       updatedAt:
-        format: datetime
+        format: date-time
         type: string
       scheduledPickupDate:
         format: date
@@ -979,7 +979,7 @@ definitions:
         format: date
         type: string
       createdAt:
-        format: date
+        format: date-time
         type: string
       deletedAt:
         format: date
@@ -1017,7 +1017,7 @@ definitions:
         format: cents
         type: integer
       updatedAt:
-        format: datetime
+        format: date-time
         type: string
       eTag:
         type: string
@@ -1075,7 +1075,7 @@ definitions:
         format: date
         type: string
       createdAt:
-        format: date
+        format: date-time
         type: string
       deletedAt:
         format: date
@@ -1113,7 +1113,7 @@ definitions:
         format: cents
         type: integer
       updatedAt:
-        format: datetime
+        format: date-time
         type: string
       eTag:
         type: string
