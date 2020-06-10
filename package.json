@@ -84,7 +84,7 @@
     "test:debug": "rescripts --inspect-brk test --runInBand --env=jsdom",
     "test:coverage": "rescripts test --coverage --env=jsdom",
     "prettier": "prettier --loglevel warn 'src/**/*.{js,jsx}'",
-    "lint": "eslint --ext .js --ext .jsx src",
+    "lint": "eslint --ext .js,.jsx src",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },

@@ -1,7 +1,8 @@
 {
   "plugins": ["prettier", "security", "no-only-tests"],
-  "extends": ["react-app", "plugin:prettier/recommended", "plugin:security/recommended"],
+  "extends": ["react-app", "airbnb", "plugin:prettier/recommended", "plugin:security/recommended"],
   "root": true,
+  "ignorePatterns": ["src/shared/**/*", "src/scenes/**/*"],
   "rules": {
     "prettier/prettier": "error",
     "no-only-tests/no-only-tests": "error",
@@ -9,5 +10,28 @@
     "jsx-a11y/anchor-is-valid": "off",
     "react/jsx-no-target-blank": "off",
     "react/jsx-curly-brace-presence": "error",
+    "react/require-default-props": ["error", { "ignoreFunctionalComponents": true }],
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["*.stories.js", "*.stories.jsx"],
+      "rules": {
+        "import/no-extraneous-dependencies": "off"
+      }
+    }
+  ],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "paths": ["src"],
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
   }
 }
