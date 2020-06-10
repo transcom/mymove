@@ -21,7 +21,8 @@ const OfficeHome = ({ userRoles, ...props }) => {
     case roleTypes.TOO:
       return <TOO {...props} />;
     default:
-      return <div>Office home</div>;
+      // User should have been redirected, doesn't have access to the office
+      return <div />;
   }
 };
 

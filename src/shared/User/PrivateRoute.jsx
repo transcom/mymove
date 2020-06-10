@@ -55,7 +55,7 @@ const PrivateRouteContainer = (props) => {
     );
   } else if (userIsLoggedIn)
     // User is logged in but not authorized to view the requested URL, redirect home
-    return <Redirect exact to="/" />;
+    return <Redirect to="/" />;
   else if (loginIsLoading)
     // User is still loading
     return <LoadingPlaceholder />;
