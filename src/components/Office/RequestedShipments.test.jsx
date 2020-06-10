@@ -37,27 +37,7 @@ describe('RequestedShipments', () => {
     );
     expect(wrapper.find('button[data-testid="button"]').exists()).toBe(true);
     expect(wrapper.find('button[data-testid="button"]').text()).toContain('Approve selected shipments');
-  });
-
-  it('renders the button disabled', () => {
-    const wrapper = mount(
-      <RequestedShipments>
-        <>TESTING1</>
-        <>TESTING2</>
-      </RequestedShipments>,
-    );
     expect(wrapper.find('button[data-testid="button"]').html()).toContain('disabled=""');
-  });
-
-  it('renders the checkboxes', () => {
-    const wrapper = mount(
-      <RequestedShipments>
-        <>TESTING1</>
-        <>TESTING2</>
-      </RequestedShipments>,
-    );
-    expect(wrapper.find('div[data-testid="checkbox"]').exists()).toBe(true);
-    expect(wrapper.find('div[data-testid="checkbox"]').length).toEqual(2);
   });
 
   it('renders the checkboxes', () => {

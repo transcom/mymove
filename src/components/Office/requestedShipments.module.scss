@@ -32,6 +32,6 @@
 }
 
 .approval-close {
-  @include u-float('right')
+  @include u-float('right');
   color: $color-icon-gray;
 }
