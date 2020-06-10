@@ -3,7 +3,7 @@
     "@18f/us-federal-holidays": "^1.2.0",
     "@fortawesome/fontawesome": "^1.1.6",
     "@fortawesome/fontawesome-free-solid": "^5.0.11",
-    "@fortawesome/react-fontawesome": "^0.0.20",
+    "@fortawesome/react-fontawesome": "^0.1.10",
     "@trussworks/react-uswds": "^1.5.0",
     "bytes": "^3.0.0",
     "classnames": "^2.2.5",
