@@ -34,6 +34,6 @@ func (suite *testSuite) TestRecoveryPanic() {
 	var response recoveryError
 	err = json.Unmarshal(body, &response)
 	suite.Nil(err)
-	suite.Equal(handlers.InternalServerErrMessage, string(response.Title), errBody) // check body (body was written before panic)
+	suite.Equal(handlers.InternalServerErrMessage, string(response.Title), errBody)
 
 }

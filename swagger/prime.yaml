@@ -648,8 +648,6 @@ definitions:
     type: object
   Error:
     properties:
-      message:
-        type: string
       title:
         type: string
       detail:
@@ -658,7 +656,8 @@ definitions:
         type: string
         format: uuid
     required:
-      - message
+      - title
+      - detail
     type: object
   MoveOrder:
     required:

@@ -18,35 +18,46 @@ import (
 type Error struct {
 
 	// detail
-	Detail string `json:"detail,omitempty"`
+	// Required: true
+	Detail *string `json:"detail"`
 
 	// instance
 	// Format: uuid
 	Instance strfmt.UUID `json:"instance,omitempty"`
 
-	// message
-	// Required: true
-	Message *string `json:"message"`
-
 	// title
-	Title string `json:"title,omitempty"`
+	// Required: true
+	Title *string `json:"title"`
 }
 
 // Validate validates this error
 func (m *Error) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateDetail(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateInstance(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateMessage(formats); err != nil {
+	if err := m.validateTitle(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Error) validateDetail(formats strfmt.Registry) error {
+
+	if err := validate.Required("detail", "body", m.Detail); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -63,9 +74,9 @@ func (m *Error) validateInstance(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Error) validateMessage(formats strfmt.Registry) error {
+func (m *Error) validateTitle(formats strfmt.Registry) error {
 
-	if err := validate.Required("message", "body", m.Message); err != nil {
+	if err := validate.Required("title", "body", m.Title); err != nil {
 		return err
 	}
 

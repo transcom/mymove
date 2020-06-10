@@ -19,7 +19,6 @@ func Recovery(logger Logger) func(inner http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
 				if obj := recover(); obj != nil {
-					fmt.Println("\n\nwe got to recovery")
 
 					// Log the error and optionally the stacktrace
 					fields := []zap.Field{

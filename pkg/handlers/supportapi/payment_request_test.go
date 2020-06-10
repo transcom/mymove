@@ -79,7 +79,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		response := handler.Handle(params)
 
-		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), response)
+		suite.IsType(&paymentrequestop.UpdatePaymentRequestStatusInternalServerError{}, response)
+
+		errResponse := response.(*paymentrequestop.UpdatePaymentRequestStatusInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
 
 	})
 

@@ -471,14 +471,15 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 	return &payload
 }
 
-// InternalServerError describes errors in a standard structure to be returned in the payload
-func InternalServerError(detail string, instance uuid.UUID) *primemessages.Error {
+// InternalServerError describes errors in a standard structure to be returned in the payload.
+// If detail is nil, string defaults to "An internal server error has occurred."
+func InternalServerError(detail *string, traceID uuid.UUID) *primemessages.Error {
 	payload := primemessages.Error{
-		Title:    handlers.InternalServerErrMessage,
-		Detail:   "An unexpected server error occurred.",
-		Instance: strfmt.UUID(instance.String()),
+		Title:    handlers.FmtString(handlers.InternalServerErrMessage),
+		Detail:   handlers.FmtString(handlers.InternalServerErrDetail),
+		Instance: strfmt.UUID(traceID.String()),
 	}
-	if detail != "" {
+	if detail != nil {
 		payload.Detail = detail
 	}
 	return &payload
