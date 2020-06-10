@@ -30,3 +30,8 @@
 .usa-form {
   @include u-maxw(full);
 }
+
+.approval-close {
+  @include u-float('right')
+  color: $color-icon-gray;
+}

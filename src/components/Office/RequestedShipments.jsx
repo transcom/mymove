@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames/bind';
 import { Button, Checkbox, Fieldset, Modal, Overlay, ModalContainer } from '@trussworks/react-uswds';
-
+import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import styles from './requestedShipments.module.scss';
 
 const cx = classNames.bind(styles);
@@ -32,10 +33,16 @@ const RequestedShipments = ({ children }) => {
         <Overlay />
         <ModalContainer>
           <Modal>
+            <div className={`${cx('approval-close')}`}>
+              <FontAwesomeIcon
+                aria-hidden
+                icon={faTimes}
+                title="Close shipment approval modal"
+                onClick={() => setIsModalVisible(false)}
+                className={`${cx('approval-close')} icon`}
+              />
+            </div>
             <h1>Preview and post move task order</h1>
-            <button type="button" onClick={() => setIsModalVisible(false)}>
-              Temporary Close Button
-            </button>
           </Modal>
         </ModalContainer>
       </div>
