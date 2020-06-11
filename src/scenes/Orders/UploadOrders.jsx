@@ -6,6 +6,14 @@ import { get } from 'lodash';
 
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 import { deleteUpload, addUploads } from './ducks';
+import {
+  fetchLatestOrders,
+  getLatestOrdersLabel,
+  selectOrdersFromServiceMemberId,
+  selectUploadsForOrders,
+} from 'shared/Entities/modules/orders';
+import { selectDocument } from 'shared/Entities/modules/documents';
+import { getRequestStatus } from 'shared/Swagger/selectors';
 import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import WizardPage from 'shared/WizardPage';
@@ -30,6 +38,11 @@ export class UploadOrders extends Component {
     this.setShowAmendedOrders = this.setShowAmendedOrders.bind(this);
   }
 
+  componentDidMount() {
+    const { serviceMemberId } = this.props;
+    this.props.fetchLatestOrders(serviceMemberId);
+  }
+
   handleSubmit() {
     return this.props.addUploads(this.state.newUploads);
   }
@@ -50,7 +63,7 @@ export class UploadOrders extends Component {
   }
 
   render() {
-    const { pages, pageKey, error, currentOrders, uploads } = this.props;
+    const { pages, pageKey, error, currentOrders, uploads, document } = this.props;
     const isValid = Boolean(uploads.length || this.state.newUploads.length);
     const isDirty = Boolean(this.state.newUploads.length);
     return (
@@ -76,11 +89,7 @@ export class UploadOrders extends Component {
         )}
         {currentOrders && (
           <div className="uploader-box">
-            <Uploader
-              document={currentOrders.uploaded_orders}
-              onChange={this.onChange}
-              options={{ labelIdle: uploaderLabelIdle }}
-            />
+            <Uploader document={document} onChange={this.onChange} options={{ labelIdle: uploaderLabelIdle }} />
             <div className="hint">(Each page must be clear and legible.)</div>
           </div>
         )}
@@ -111,14 +120,26 @@ UploadOrders.propTypes = {
   deleteUpload: PropTypes.func.isRequired,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadServiceMember, deleteUpload, addUploads }, dispatch);
-}
 function mapStateToProps(state) {
+  const showOrdersRequest = getRequestStatus(state, getLatestOrdersLabel);
+  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const currentOrders = selectOrdersFromServiceMemberId(state, serviceMemberId);
+
   const props = {
-    uploads: get(state, 'orders.currentOrders.uploaded_orders.uploads', []),
-    ...state.orders,
+    serviceMemberId: serviceMemberId,
+    currentOrders,
+    uploads: selectUploadsForOrders(state, currentOrders.id),
+    document: selectDocument(state, currentOrders.uploaded_orders),
+    // uploads: get(state, 'orders.currentOrders.uploaded_orders.uploads', []),
+    // ...state.orders,
+    loadDependenciesHasSuccess: showOrdersRequest.isSuccess,
+    loadDependenciesHasError: showOrdersRequest.error,
   };
   return props;
 }
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ fetchLatestOrders, loadServiceMember, deleteUpload, addUploads }, dispatch);
+}
+
 export default connect(mapStateToProps, mapDispatchToProps)(UploadOrders);

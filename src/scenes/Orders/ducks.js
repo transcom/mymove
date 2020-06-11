@@ -1,6 +1,6 @@
 import { reject, pick, cloneDeep, concat, includes, get } from 'lodash';
-import { CreateOrders, UpdateOrders, GetOrders, ShowServiceMemberOrders } from './api.js';
-import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
+import { UpdateOrders, GetOrders } from './api.js';
+// import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
 import { DeleteUploads } from 'shared/api';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
@@ -21,32 +21,6 @@ export const SHOW_CURRENT_ORDERS = ReduxHelpers.generateAsyncActionTypes(showCur
 
 const deleteUploadType = 'DELETE_UPLOAD';
 export const DELETE_UPLOAD = ReduxHelpers.generateAsyncActionTypes(deleteUploadType);
-
-// Actions
-export const showServiceMemberOrders = ReduxHelpers.generateAsyncActionCreator(
-  showCurrentOrdersType,
-  ShowServiceMemberOrders,
-);
-
-export function createOrders(ordersPayload) {
-  return function (dispatch, getState) {
-    const action = ReduxHelpers.generateAsyncActions(createOrUpdateOrdersType);
-    const moveAction = ReduxHelpers.generateAsyncActions(createOrUpdateMoveType);
-    const state = getState();
-    const currentOrders = state.orders.currentOrders;
-    if (!currentOrders) {
-      return CreateOrders(ordersPayload)
-        .then((item) => {
-          const newMove = get(item, 'moves.0', null);
-          dispatch(action.success(item));
-          dispatch(moveAction.success(newMove));
-        })
-        .catch((error) => dispatch(action.error(error)));
-    } else {
-      return Promise.reject();
-    }
-  };
-}
 
 export const updateOrders = ReduxHelpers.generateAsyncActionCreator(createOrUpdateOrdersType, UpdateOrders);
 

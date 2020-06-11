@@ -14,7 +14,15 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
-import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
+import { deleteUploads, addUploads } from 'scenes/Orders/ducks';
+import {
+  updateOrders,
+  fetchLatestOrders,
+  getLatestOrdersLabel,
+  selectOrdersFromServiceMemberId,
+  selectUploadsForOrders,
+} from 'shared/Entities/modules/orders';
+import { getRequestStatus } from 'shared/Swagger/selectors';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
@@ -41,6 +49,7 @@ let EditOrdersForm = (props) => {
   const visibleUploads = reject(existingUploads, (upload) => {
     return includes(deleteQueue, upload.id);
   });
+  console.log('vals in form', initialValues); // Form not rerendering after EditOrders component finishes componentDidMount
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">
@@ -151,11 +160,14 @@ class EditOrders extends Component {
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
+    const { serviceMemberId } = this.props;
+    this.props.fetchLatestOrders(serviceMemberId);
   }
 
   render() {
-    const { error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
-
+    const { initialValues, error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
+    console.log('orders', currentOrders);
+    console.log('initial VALS', initialValues);
     return (
       <div className="usa-grid">
         {error && (
@@ -175,7 +187,7 @@ class EditOrders extends Component {
         {!moveIsApproved && (
           <div className="usa-width-one-whole">
             <EditOrdersForm
-              initialValues={currentOrders}
+              initialValues={initialValues}
               onSubmit={this.updateOrders}
               schema={schema}
               existingUploads={existingUploads}
@@ -193,8 +205,16 @@ class EditOrders extends Component {
 }
 
 function mapStateToProps(state) {
+  const showOrdersRequest = getRequestStatus(state, getLatestOrdersLabel);
+  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const currentOrders = selectOrdersFromServiceMemberId(state, serviceMemberId);
+  const uploads = selectUploadsForOrders(state, currentOrders.id);
+
   const props = {
-    currentOrders: state.orders.currentOrders,
+    // currentOrders: state.orders.currentOrders, // in master
+    serviceMemberId: serviceMemberId,
+    currentOrders,
+    uploads,
     error: get(state, 'orders.error'),
     existingUploads: get(state, `orders.currentOrders.uploaded_orders.uploads`, []),
     formValues: getFormValues(editOrdersFormName)(state),
@@ -202,7 +222,11 @@ function mapStateToProps(state) {
     moveIsApproved: moveIsApproved(state),
     isPpm: isPpm(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
+    loadDependenciesHasSuccess: showOrdersRequest.isSuccess,
+    loadDependenciesHasError: showOrdersRequest.error,
   };
+  const tempOrders = state.orders.currentOrders; // in master
+  props.initialValues = props.currentOrders ? props.currentOrders : tempOrders;
   return props;
 }
 
@@ -211,6 +235,7 @@ function mapDispatchToProps(dispatch) {
     {
       push,
       updateOrders,
+      fetchLatestOrders,
       addUploads,
       deleteUploads,
       editBegin,

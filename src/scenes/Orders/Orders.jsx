@@ -90,8 +90,6 @@ export class Orders extends Component {
 }
 Orders.propTypes = {
   schema: PropTypes.object.isRequired,
-  updateOrders: PropTypes.func.isRequired,
-  currentOrders: PropTypes.object,
   error: PropTypes.object,
 };
 
