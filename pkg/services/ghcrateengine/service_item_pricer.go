@@ -29,15 +29,15 @@ func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (uni
 		return unit.Cents(0), err
 	}
 
-	return pricer.Price()
+	return pricer.PriceUsingParams(item.PaymentServiceItemParams)
 }
 
-func (p serviceItemPricer) getPricer(item models.PaymentServiceItem) (Pricer, error) {
+func (p serviceItemPricer) getPricer(item models.PaymentServiceItem) (services.ParamsPricer, error) {
 	serviceCode := item.MTOServiceItem.ReService.Code
 
 	switch serviceCode {
 	case models.ReServiceCodeMS, models.ReServiceCodeCS:
-		return NewTaskOrderServicesPricerFromParams(p.db, serviceCode, item.PaymentServiceItemParams)
+		return NewTaskOrderServicesPricer(p.db, serviceCode), nil
 	default:
 		return nil, services.NewNotImplementedError(fmt.Sprintf("pricer not found for code %s", serviceCode))
 	}

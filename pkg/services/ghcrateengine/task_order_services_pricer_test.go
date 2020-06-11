@@ -21,50 +21,49 @@ func (suite *GHCRateEngineServiceSuite) TestPriceTaskOrderServices() {
 	params := suite.setupTaskOrderServicesParams()
 
 	suite.T().Run("management success using PaymentServiceItemParams", func(t *testing.T) {
-		taskOrderServicesPricer, err := NewTaskOrderServicesPricerFromParams(suite.DB(), models.ReServiceCodeMS, params)
-		suite.NoError(err)
-		priceCents, err := taskOrderServicesPricer.Price()
+		taskOrderServicesPricer := NewTaskOrderServicesPricer(suite.DB(), models.ReServiceCodeMS)
+		priceCents, err := taskOrderServicesPricer.PriceUsingParams(params)
 		suite.NoError(err)
 		suite.Equal(tosManagementFee, priceCents)
 	})
 
 	suite.T().Run("management success without PaymentServiceItemParams", func(t *testing.T) {
-		taskOrderServicesPricer := NewTaskOrderServicesPricer(suite.DB(), testdatagen.DefaultContractCode, models.ReServiceCodeMS, tosAvailableToPrimeAt)
-		priceCents, err := taskOrderServicesPricer.Price()
+		taskOrderServicesPricer := NewTaskOrderServicesPricer(suite.DB(), models.ReServiceCodeMS)
+		priceCents, err := taskOrderServicesPricer.Price(testdatagen.DefaultContractCode, tosAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(tosManagementFee, priceCents)
 	})
 
 	suite.T().Run("counseling success using PaymentServiceItemParams", func(t *testing.T) {
-		taskOrderServicesPricer, err := NewTaskOrderServicesPricerFromParams(suite.DB(), models.ReServiceCodeCS, params)
-		suite.NoError(err)
-		priceCents, err := taskOrderServicesPricer.Price()
+		taskOrderServicesPricer := NewTaskOrderServicesPricer(suite.DB(), models.ReServiceCodeCS)
+		priceCents, err := taskOrderServicesPricer.PriceUsingParams(params)
 		suite.NoError(err)
 		suite.Equal(tosCounselingFee, priceCents)
 	})
 
 	suite.T().Run("counseling success without PaymentServiceItemParams", func(t *testing.T) {
-		taskOrderServicesPricer := NewTaskOrderServicesPricer(suite.DB(), testdatagen.DefaultContractCode, models.ReServiceCodeCS, tosAvailableToPrimeAt)
-		priceCents, err := taskOrderServicesPricer.Price()
+		taskOrderServicesPricer := NewTaskOrderServicesPricer(suite.DB(), models.ReServiceCodeCS)
+		priceCents, err := taskOrderServicesPricer.Price(testdatagen.DefaultContractCode, tosAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(tosCounselingFee, priceCents)
 	})
 
 	suite.T().Run("sending PaymentServiceItemParams without expected param", func(t *testing.T) {
 		emptyParams := models.PaymentServiceItemParams{}
-		_, err := NewTaskOrderServicesPricerFromParams(suite.DB(), models.ReServiceCodeMS, emptyParams)
+		taskOrderServicesPricer := NewTaskOrderServicesPricer(suite.DB(), models.ReServiceCodeMS)
+		_, err := taskOrderServicesPricer.PriceUsingParams(emptyParams)
 		suite.Error(err)
 	})
 
 	suite.T().Run("sending invalid service code", func(t *testing.T) {
-		taskOrderServicesPricer := NewTaskOrderServicesPricer(suite.DB(), testdatagen.DefaultContractCode, models.ReServiceCodeDLH, tosAvailableToPrimeAt)
-		_, err := taskOrderServicesPricer.Price()
+		taskOrderServicesPricer := NewTaskOrderServicesPricer(suite.DB(), models.ReServiceCodeDLH)
+		_, err := taskOrderServicesPricer.Price(testdatagen.DefaultContractCode, tosAvailableToPrimeAt)
 		suite.Error(err)
 	})
 
 	suite.T().Run("not finding a rate record", func(t *testing.T) {
-		taskOrderServicesPricer := NewTaskOrderServicesPricer(suite.DB(), "BOGUS", models.ReServiceCodeMS, tosAvailableToPrimeAt)
-		_, err := taskOrderServicesPricer.Price()
+		taskOrderServicesPricer := NewTaskOrderServicesPricer(suite.DB(), models.ReServiceCodeMS)
+		_, err := taskOrderServicesPricer.Price("BOGUS", tosAvailableToPrimeAt)
 		suite.Error(err)
 	})
 }

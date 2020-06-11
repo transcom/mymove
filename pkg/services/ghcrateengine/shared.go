@@ -8,11 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// Pricer is an interface that all our pricers implement
-type Pricer interface {
-	Price() (unit.Cents, error)
-}
-
 // DefaultContractCode is the default contract code to assume for now
 const DefaultContractCode = "TRUSS"
 

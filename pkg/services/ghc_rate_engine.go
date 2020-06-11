@@ -9,12 +9,25 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// ServiceItemPricer prices a generic service item for a GHC move
+// ServiceItemPricer prices a generic payment service item for a GHC move
 //go:generate mockery -name ServiceItemPricer
 type ServiceItemPricer interface {
 	PriceServiceItem(item models.PaymentServiceItem) (unit.Cents, error)
-	// PriceServiceItemByID(paymentServiceItemID uuid.UUID) (unit.Cents, error)
 }
+
+// ParamsPricer is an interface that all param-aware pricers implement
+type ParamsPricer interface {
+	PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error)
+}
+
+// TaskOrderServicesPricer prices task order services for a GHC move
+//go:generate mockery -name TaskOrderServicesPricer
+type TaskOrderServicesPricer interface {
+	Price(contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, error)
+	ParamsPricer
+}
+
+// Older pricers below (pre-dates payment requests)
 
 // DomesticLinehaulPricer prices domestic linehaul for a GHC move
 //go:generate mockery -name DomesticLinehaulPricer
