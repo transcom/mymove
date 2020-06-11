@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -181,7 +182,13 @@ func main() {
 
 	issues, _, err := ghClient.Search.Issues(ctx, fmt.Sprintf("repo:transcom/mymove is:pr is:closed base:master merged:%s..%s sort:updated-asc", after, before), nil)
 	if err != nil {
-		fmt.Println(err)
+		var githubError *github.ErrorResponse
+
+		if errors.As(err, &githubError) {
+			fmt.Println("Nothing to deploy!")
+		} else {
+			fmt.Println(err)
+		}
 	}
 
 	for _, issue := range issues.Issues {
