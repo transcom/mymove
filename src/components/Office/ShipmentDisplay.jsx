@@ -12,7 +12,7 @@ import ShipmentContainer from './ShipmentContainer';
 
 const cx = classNames.bind(styles);
 
-const ShipmentDisplay = ({ index, shipmentType, checkboxId, displayInfo, onChange, checked, shipmentId }) => {
+const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, checked, shipmentId }) => {
   return (
     <div className={`${cx('shipment-display')}`} data-cy="shipment-display">
       <ShipmentContainer className={`${cx('shipment-display__container')}`} shipmentType={shipmentType}>
@@ -21,11 +21,11 @@ const ShipmentDisplay = ({ index, shipmentType, checkboxId, displayInfo, onChang
             <tr>
               <th className={`${cx('shipment-display__header-checkbox')}`}>
                 <Checkbox
-                  id={checkboxId || `shipment-display-checkbox-${shipmentId}`}
+                  id={`shipment-display-checkbox-${shipmentId}`}
                   data-cy="shipment-display-checkbox"
                   onChange={onChange}
                   checked={checked}
-                  name={`shipments[${index}]`}
+                  name="shipments"
                   label=""
                   value={shipmentId}
                 />
@@ -74,8 +74,6 @@ const ShipmentDisplay = ({ index, shipmentType, checkboxId, displayInfo, onChang
 };
 
 ShipmentDisplay.propTypes = {
-  index: PropTypes.number.isRequired,
-  checkboxId: PropTypes.string,
   onChange: PropTypes.func,
   shipmentId: PropTypes.string.isRequired,
   checked: PropTypes.bool,

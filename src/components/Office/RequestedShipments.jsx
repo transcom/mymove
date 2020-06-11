@@ -28,6 +28,9 @@ const RequestedShipments = ({ mtoShipments }) => {
     },
   });
 
+  const isButtonEnabled =
+    formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
+
   return (
     <div className={`${cx('requested-shipments')} container`} data-cy="requested-shipments">
       <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>
@@ -64,7 +67,7 @@ const RequestedShipments = ({ mtoShipments }) => {
                   destinationAddress: shipment.destinationAddress,
                 }}
                 /* eslint-disable-next-line react/jsx-props-no-spreading */
-                {...formik.getFieldProps(`shipments[${i}]`)}
+                {...formik.getFieldProps(`shipments`)}
               />
             ))}
         </div>
@@ -85,6 +88,7 @@ const RequestedShipments = ({ mtoShipments }) => {
             className={`${cx('usa-button--small')} usa-button--icon`}
             onClick={formik.handleSubmit}
             type="submit"
+            disabled={!isButtonEnabled}
           >
             <span>Approve selected shipments</span>
           </Button>
