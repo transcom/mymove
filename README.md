@@ -618,9 +618,9 @@ yarn global add markdown-spellcheck
 
 ### PII Best Practices
 
-Server side: any downloadable content passed to the client should by default have an inline content disposition (like PDFs). You can read more about content disposition headers in [the official Mozilla docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition "MDN: Content-Disposition Headers").
+Server side: any downloadable content passed to the client should by default have an inline content disposition (like PDFs).
 
-Client side: before accessing any prod environment, fix your browser settings __or only use Edge when accessing prod data__
+Client side: before accessing any prod environment, fix your browser settings to display PDFs, not use an external app.
 
 #### More about content dispositions
 
@@ -630,4 +630,4 @@ An inline disposition tells the browser to display a file inline if it can. If y
 
 Even if an inline disposition is set, most browsers still allow you to override that behavior and automatically download certain file types.
 
-Since Edge does not download PDFs by default _and that setting cannot be changed_, we strongly recommend using that browser when investigating or debugging production issues. If you must use another browser, ensure you have changed your settings to display PDFs in the browser. In most browsers, you can find the relevant setting by searching "PDF" in the settings menu.
+Before working with the prod environment, ensure you have changed your settings to display PDFs in the browser. In most browsers, you can find the relevant setting by searching "PDF" in the settings menu.
