@@ -4,12 +4,13 @@ import { SHIPMENT_TYPE } from 'shared/constants';
 import * as PropTypes from 'prop-types';
 import styles from 'components/Office/ShipmentDisplay.module.scss';
 import { formatDate } from 'shared/dates';
+import { Checkbox } from '@trussworks/react-uswds';
 import { ReactComponent as ChevronDown } from '../../shared/icon/chevron-down.svg';
 import ShipmentContainer from './ShipmentContainer';
 
 const cx = classNames.bind(styles);
 
-const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo, onChange }) => {
+const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo, onChange, shipmentId, checked }) => {
   return (
     <div className={`${cx('shipment-display')}`} data-cy="shipment-display">
       <ShipmentContainer className={`${cx('shipment-display__container')}`} shipmentType={shipmentType}>
@@ -18,12 +19,14 @@ const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo, onChange }) =>
             <tr>
               <th className={`${cx('shipment-display__header-checkbox')}`}>
                 <div className="usa-checkbox">
-                  <input
-                    id={checkboxId || `shipment-display-checkbox-${shipmentType.toLowerCase()}`}
-                    type="checkbox"
+                  <Checkbox
+                    id={checkboxId || `shipment-display-checkbox-${shipmentId}`}
                     className="usa-checkbox__input"
                     data-cy="shipment-display-checkbox"
                     onChange={onChange}
+                    name={`shipments[${shipmentId}]`}
+                    checked={checked}
+                    label="Shipment selection"
                   />
                   {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                   <label
@@ -78,6 +81,8 @@ const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo, onChange }) =>
 ShipmentDisplay.propTypes = {
   checkboxId: PropTypes.string,
   onChange: PropTypes.func,
+  shipmentId: PropTypes.string.isRequired,
+  checked: PropTypes.bool,
   shipmentType: PropTypes.oneOf([
     SHIPMENT_TYPE.HHG,
     SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC,
