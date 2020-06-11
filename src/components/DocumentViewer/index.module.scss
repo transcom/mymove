@@ -2,6 +2,8 @@
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
 
+$content-width: 308px;
+
 .docViewerMenu {
   @include u-bg('white');
   @include u-shadow(2);
@@ -14,19 +16,45 @@
   width: 308px;
 }
 
-#doc-menu-1 {
+.collapsed {
+  @include u-width(9);
+  .menuOpen {
+    display: block;
+  }
+  .menuClose {
+    display: none;
+  }
+  h3 {
+    display: none;
+  }
+}
+
+.menuControls {
+  svg {
+    @include u-width(2);
+    @include u-height(2);
+    path {
+      fill: $primary;
+    }
+  }
+  button {
+    @include u-padding-right(2);
+  }
+}
+.menuHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  @include u-padding-x(1.5);
+  width: 308px;
+}
+
+.menuOpen {
   display: none;
 }
 
-/*.collapsed {
-  @include u-width(9);
-}*/
-
-.menuControls {
-  @include u-padding-bottom(4);
-  svg path {
-    fill: $primary;
-  }
+.menuClose {
+  display: block;
 }
 
 .thumbnailItem {
