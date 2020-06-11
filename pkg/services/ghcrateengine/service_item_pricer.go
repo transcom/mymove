@@ -36,8 +36,10 @@ func (p serviceItemPricer) getPricer(item models.PaymentServiceItem) (services.P
 	serviceCode := item.MTOServiceItem.ReService.Code
 
 	switch serviceCode {
-	case models.ReServiceCodeMS, models.ReServiceCodeCS:
-		return NewTaskOrderServicesPricer(p.db, serviceCode), nil
+	case models.ReServiceCodeMS:
+		return NewManagementServicesPricer(p.db), nil
+	case models.ReServiceCodeCS:
+		return NewCounselingServicesPricer(p.db), nil
 	default:
 		return nil, services.NewNotImplementedError(fmt.Sprintf("pricer not found for code %s", serviceCode))
 	}

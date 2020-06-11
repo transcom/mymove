@@ -20,9 +20,16 @@ type ParamsPricer interface {
 	PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error)
 }
 
-// TaskOrderServicesPricer prices task order services for a GHC move
-//go:generate mockery -name TaskOrderServicesPricer
-type TaskOrderServicesPricer interface {
+// ManagementServicesPricer prices management services for a GHC move
+//go:generate mockery -name ManagementServicesPricer
+type ManagementServicesPricer interface {
+	Price(contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, error)
+	ParamsPricer
+}
+
+// CounselingServicesPricer prices counseling services for a GHC move
+//go:generate mockery -name CounselingServicesPricer
+type CounselingServicesPricer interface {
 	Price(contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, error)
 	ParamsPricer
 }

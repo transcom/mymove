@@ -1,7 +1,6 @@
 package ghcrateengine
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -11,32 +10,26 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-type taskOrderServicesPricer struct {
-	db          *pop.Connection
-	serviceCode models.ReServiceCode
+type counselingServicesPricer struct {
+	db *pop.Connection
 }
 
-// NewTaskOrderServicesPricer creates a new pricer for task order services given explicit parameter values
-func NewTaskOrderServicesPricer(db *pop.Connection, serviceCode models.ReServiceCode) services.TaskOrderServicesPricer {
-	return &taskOrderServicesPricer{
-		db:          db,
-		serviceCode: serviceCode,
+// NewCounselingServicesPricer creates a new pricer for counseling services
+func NewCounselingServicesPricer(db *pop.Connection) services.CounselingServicesPricer {
+	return &counselingServicesPricer{
+		db: db,
 	}
 }
 
-// Price determines the price for a task order service
-func (p taskOrderServicesPricer) Price(contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, error) {
-	if p.serviceCode != models.ReServiceCodeMS && p.serviceCode != models.ReServiceCodeCS {
-		return 0, fmt.Errorf("invalid service code: %s", p.serviceCode)
-	}
-
+// Price determines the price for a counseling service
+func (p counselingServicesPricer) Price(contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, error) {
 	var taskOrderFee models.ReTaskOrderFee
 	err := p.db.Q().
 		Join("re_contract_years cy", "re_task_order_fees.contract_year_id = cy.id").
 		Join("re_contracts c", "cy.contract_id = c.id").
 		Join("re_services s", "re_task_order_fees.service_id = s.id").
 		Where("c.code = $1", contractCode).
-		Where("s.code = $2", p.serviceCode).
+		Where("s.code = $2", models.ReServiceCodeCS).
 		Where("$3 between cy.start_date and cy.end_date", mtoAvailableToPrimeAt).
 		First(&taskOrderFee)
 
@@ -47,8 +40,8 @@ func (p taskOrderServicesPricer) Price(contractCode string, mtoAvailableToPrimeA
 	return taskOrderFee.PriceCents, nil
 }
 
-// PriceUsingParams determines the price for a task order service given PaymentServiceItemParams
-func (p taskOrderServicesPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+// PriceUsingParams determines the price for a counseling service given PaymentServiceItemParams
+func (p counselingServicesPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), err
