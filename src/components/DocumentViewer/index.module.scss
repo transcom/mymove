@@ -27,6 +27,11 @@ $content-width: 308px;
   h3 {
     display: none;
   }
+  .thumbnailItem {
+    p {
+      display: none;
+    }
+  }
 }
 
 .menuControls {
@@ -77,7 +82,7 @@ $content-width: 308px;
   &:hover {
     @include u-text('no-underline');
     p {
-      @include u-text('blue-50v');
+      @include u-text('primary-vivid');
     }
     .thumbnailImage {
       @include border-inset(2px, $link);
@@ -86,7 +91,7 @@ $content-width: 308px;
   &:active,
   &.active {
     @include u-border-left('05');
-    @include u-border-left('blue-50v');
+    @include u-border-left('primary-vivid');
     @include u-text('bold');
     .thumbnailImage {
       @include border-inset(2px, $link);
