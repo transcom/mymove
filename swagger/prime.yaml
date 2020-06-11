@@ -710,7 +710,7 @@ definitions:
         format: uuid
         type: string
       createdAt:
-        format: date
+        format: date-time
         type: string
       moveOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -729,7 +729,7 @@ definitions:
         type: boolean
         x-nullable: true
       updatedAt:
-        format: date
+        format: date-time
         type: string
       paymentRequests:
         $ref: '#/definitions/PaymentRequests'
@@ -769,11 +769,11 @@ definitions:
         type: string
         readOnly: true
       createdAt:
-        format: date
+        format: date-time
         type: string
         readOnly: true
       updatedAt:
-        format: date
+        format: date-time
         type: string
         readOnly: true
       firstName:
@@ -808,11 +808,11 @@ definitions:
         type: string
         readOnly: true
       createdAt:
-        format: datetime
+        format: date-time
         type: string
         readOnly: true
       updatedAt:
-        format: datetime
+        format: date-time
         type: string
         readOnly: true
       approvedDate:

@@ -22,7 +22,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
-		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
+		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
@@ -30,7 +30,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		PaymentRequests:    *paymentRequests,
 		MtoShipments:       *mtoShipments,
-		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
+		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
@@ -201,8 +201,8 @@ func MTOAgent(mtoAgent *models.MTOAgent) *primemessages.MTOAgent {
 		Email:         mtoAgent.Email,
 		ID:            strfmt.UUID(mtoAgent.ID.String()),
 		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
-		CreatedAt:     strfmt.Date(mtoAgent.CreatedAt),
-		UpdatedAt:     strfmt.Date(mtoAgent.UpdatedAt),
+		CreatedAt:     strfmt.DateTime(mtoAgent.CreatedAt),
+		UpdatedAt:     strfmt.DateTime(mtoAgent.UpdatedAt),
 	}
 }
 

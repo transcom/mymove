@@ -74,14 +74,10 @@ definitions:
         example: Transportation Ordering Officer
       createdAt:
         type: string
-        format: datetime
-        example: 2018-04-12T23:20:50.52Z
-        description: when the role was created
+        format: date-time
       updatedAt:
         type: string
-        format: datetime
-        example: 2018-04-12T23:20:50.52Z
-        description: when the role was updated
+        format: date-time
     required:
       - id
       - roleType
@@ -120,10 +116,10 @@ definitions:
           $ref: '#/definitions/Role'
       createdAt:
         type: string
-        format: datetime
+        format: date-time
       updatedAt:
         type: string
-        format: datetime
+        format: date-time
     required:
       - id
       - firstName
@@ -165,10 +161,10 @@ definitions:
         type: boolean
       createdAt:
         type: string
-        format: datetime
+        format: date-time
       updatedAt:
         type: string
-        format: datetime
+        format: date-time
     required:
       - id
       - firstName
@@ -562,11 +558,11 @@ definitions:
         title: Orders Number
       createdAt:
         type: string
-        format: datetime
+        format: date-time
         title: Created at
       updatedAt:
         type: string
-        format: datetime
+        format: date-time
         title: Updated at
   ElectronicOrders:
     type: array
@@ -599,11 +595,11 @@ definitions:
         x-nullable: true
       createdAt:
         type: string
-        format: datetime
+        format: date-time
         title: Created at
       updatedAt:
         type: string
-        format: datetime
+        format: date-time
         title: Updated at
   Organizations:
     type: array
@@ -639,7 +635,7 @@ definitions:
     properties:
       createdAt:
         type: string
-        format: datetime
+        format: date-time
         title: Created at
       filename:
         type: string
@@ -727,7 +723,7 @@ definitions:
           - MOVE_PAYMENT_REMINDER_EMAIL
       createdAt:
         type: string
-        format: datetime
+        format: date-time
   Notifications:
     type: array
     items:
