@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/access_codes"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/gex"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
@@ -121,6 +122,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
 		api.TransportationServiceProviderPerformancesIndexTSPPsHandler = transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_service_provider_performances.IndexTSPPs has not yet been implemented")
+		})
+	}
+	if api.GexSendGexRequestHandler == nil {
+		api.GexSendGexRequestHandler = gex.SendGexRequestHandlerFunc(func(params gex.SendGexRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation gex.SendGexRequest has not yet been implemented")
 		})
 	}
 	if api.AdminUsersUpdateAdminUserHandler == nil {

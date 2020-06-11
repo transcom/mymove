@@ -784,6 +784,25 @@ definitions:
       - locator
       - createdAt
       - updatedAt
+  SendGexRequest:
+    type: object
+    properties:
+      reportName:
+        type: string
+        title: transaction name
+        example: report name
+      createdAt:
+        type: string
+        format: datetime
+    required:
+      - reportName
+      - createdAt
+  GexResponse:
+    type: object
+    properties:
+      gexResponse:
+        type: string
+        title: HTTP response received from GEX
 paths:
   /access_codes:
     get:
@@ -1394,3 +1413,25 @@ paths:
           description: not found
         500:
           description: server error
+  /gex/report:
+    post:
+      summary: Sends a request to GEX
+      description: Sends a request to GEX
+      operationId: sendGexRequest
+      tags:
+        - gex
+      parameters:
+        - in: body
+          name: SendGexRequest
+          required: true
+          schema:
+            $ref: '#/definitions/SendGexRequest'
+      responses:
+        200:
+          description: sent request
+          schema:
+            $ref: '#/definitions/GexResponse'
+        400:
+          description: invalid request
+        500:
+          description: internal server error

@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/access_codes"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/gex"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
@@ -96,6 +97,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		TransportationServiceProviderPerformancesIndexTSPPsHandler: transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
 			return middleware.NotImplemented("operation TransportationServiceProviderPerformancesIndexTSPPs has not yet been implemented")
 		}),
+		GexSendGexRequestHandler: gex.SendGexRequestHandlerFunc(func(params gex.SendGexRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation GexSendGexRequest has not yet been implemented")
+		}),
 		AdminUsersUpdateAdminUserHandler: admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation AdminUsersUpdateAdminUser has not yet been implemented")
 		}),
@@ -165,6 +169,8 @@ type MymoveAPI struct {
 	OrganizationIndexOrganizationsHandler organization.IndexOrganizationsHandler
 	// TransportationServiceProviderPerformancesIndexTSPPsHandler sets the operation handler for the index t s p ps operation
 	TransportationServiceProviderPerformancesIndexTSPPsHandler transportation_service_provider_performances.IndexTSPPsHandler
+	// GexSendGexRequestHandler sets the operation handler for the send gex request operation
+	GexSendGexRequestHandler gex.SendGexRequestHandler
 	// AdminUsersUpdateAdminUserHandler sets the operation handler for the update admin user operation
 	AdminUsersUpdateAdminUserHandler admin_users.UpdateAdminUserHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
@@ -294,6 +300,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
 		unregistered = append(unregistered, "transportation_service_provider_performances.IndexTSPPsHandler")
+	}
+
+	if o.GexSendGexRequestHandler == nil {
+		unregistered = append(unregistered, "gex.SendGexRequestHandler")
 	}
 
 	if o.AdminUsersUpdateAdminUserHandler == nil {
@@ -481,6 +491,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/transportation_service_provider_performances"] = transportation_service_provider_performances.NewIndexTSPPs(o.context, o.TransportationServiceProviderPerformancesIndexTSPPsHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/gex/report"] = gex.NewSendGexRequest(o.context, o.GexSendGexRequestHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

@@ -24,6 +24,7 @@ import * as Cookies from 'js-cookie';
 import customRoutes from './CustomRoutes';
 import AdminUserEdit from './AdminUsers/AdminUserEdit';
 import NotificationList from './Notifications/NotificationList';
+import GexShow from './Gex/GexShow';
 
 const httpClient = (url, options = {}) => {
   const token = Cookies.get('masked_gorilla_csrf');
@@ -82,6 +83,7 @@ const Home = () => (
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
+      <Resource name="gex" options={{ label: 'Send to Gex' }} show={GexShow} />
     </Admin>
   </div>
 );

@@ -401,6 +401,40 @@ func init() {
         }
       }
     },
+    "/gex/report": {
+      "post": {
+        "description": "Sends a request to GEX",
+        "tags": [
+          "gex"
+        ],
+        "summary": "Sends a request to GEX",
+        "operationId": "sendGexRequest",
+        "parameters": [
+          {
+            "name": "SendGexRequest",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SendGexRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "sent request",
+            "schema": {
+              "$ref": "#/definitions/GexResponse"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/moves": {
       "get": {
         "description": "Returns a list of moves",
@@ -1346,6 +1380,15 @@ func init() {
         "$ref": "#/definitions/ElectronicOrdersTotal"
       }
     },
+    "GexResponse": {
+      "type": "object",
+      "properties": {
+        "gexResponse": {
+          "type": "string",
+          "title": "HTTP response received from GEX"
+        }
+      }
+    },
     "Issuer": {
       "description": "Organization that issues orders. If more organizations, especially civilian ones, become clients of this API in the future, this enumeration may need to be expanded.",
       "type": "string",
@@ -1711,6 +1754,24 @@ func init() {
           "type": "string",
           "format": "datetime",
           "example": "2018-04-12T23:20:50.52Z"
+        }
+      }
+    },
+    "SendGexRequest": {
+      "type": "object",
+      "required": [
+        "reportName",
+        "createdAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "reportName": {
+          "type": "string",
+          "title": "transaction name",
+          "example": "report name"
         }
       }
     },
@@ -2352,6 +2413,40 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      }
+    },
+    "/gex/report": {
+      "post": {
+        "description": "Sends a request to GEX",
+        "tags": [
+          "gex"
+        ],
+        "summary": "Sends a request to GEX",
+        "operationId": "sendGexRequest",
+        "parameters": [
+          {
+            "name": "SendGexRequest",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SendGexRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "sent request",
+            "schema": {
+              "$ref": "#/definitions/GexResponse"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -3302,6 +3397,15 @@ func init() {
         "$ref": "#/definitions/ElectronicOrdersTotal"
       }
     },
+    "GexResponse": {
+      "type": "object",
+      "properties": {
+        "gexResponse": {
+          "type": "string",
+          "title": "HTTP response received from GEX"
+        }
+      }
+    },
     "Issuer": {
       "description": "Organization that issues orders. If more organizations, especially civilian ones, become clients of this API in the future, this enumeration may need to be expanded.",
       "type": "string",
@@ -3667,6 +3771,24 @@ func init() {
           "type": "string",
           "format": "datetime",
           "example": "2018-04-12T23:20:50.52Z"
+        }
+      }
+    },
+    "SendGexRequest": {
+      "type": "object",
+      "required": [
+        "reportName",
+        "createdAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "reportName": {
+          "type": "string",
+          "title": "transaction name",
+          "example": "report name"
         }
       }
     },
