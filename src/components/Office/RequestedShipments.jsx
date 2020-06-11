@@ -27,6 +27,7 @@ const RequestedShipments = ({ mtoShipments }) => {
       handleApprovalClick();
     },
   });
+
   return (
     <div className={`${cx('requested-shipments')} container`} data-cy="requested-shipments">
       <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>
@@ -50,9 +51,10 @@ const RequestedShipments = ({ mtoShipments }) => {
       <form onSubmit={formik.handleSubmit}>
         <div className={`${cx('__content')}`}>
           {mtoShipments &&
-            mtoShipments.map((shipment) => (
+            mtoShipments.map((shipment, i) => (
               <ShipmentDisplay
                 key={shipment.id}
+                index={i}
                 shipmentId={shipment.id}
                 shipmentType={shipment.shipmentType}
                 displayInfo={{
@@ -62,7 +64,7 @@ const RequestedShipments = ({ mtoShipments }) => {
                   destinationAddress: shipment.destinationAddress,
                 }}
                 /* eslint-disable-next-line react/jsx-props-no-spreading */
-                {...formik.getFieldProps(`shipments[${shipment.id}`)}
+                {...formik.getFieldProps(`shipments[${i}]`)}
               />
             ))}
         </div>

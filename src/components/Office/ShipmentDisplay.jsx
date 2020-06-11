@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable react/jsx-wrap-multilines */
 import React from 'react';
 import classNames from 'classnames/bind';
 import { SHIPMENT_TYPE } from 'shared/constants';
@@ -10,7 +12,7 @@ import ShipmentContainer from './ShipmentContainer';
 
 const cx = classNames.bind(styles);
 
-const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo, onChange, shipmentId, checked }) => {
+const ShipmentDisplay = ({ index, shipmentType, checkboxId, displayInfo, onChange, checked, shipmentId }) => {
   return (
     <div className={`${cx('shipment-display')}`} data-cy="shipment-display">
       <ShipmentContainer className={`${cx('shipment-display__container')}`} shipmentType={shipmentType}>
@@ -18,22 +20,15 @@ const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo, onChange, ship
           <thead>
             <tr>
               <th className={`${cx('shipment-display__header-checkbox')}`}>
-                <div className="usa-checkbox">
-                  <Checkbox
-                    id={checkboxId || `shipment-display-checkbox-${shipmentId}`}
-                    className="usa-checkbox__input"
-                    data-cy="shipment-display-checkbox"
-                    onChange={onChange}
-                    name={`shipments[${shipmentId}]`}
-                    checked={checked}
-                    label="Shipment selection"
-                  />
-                  {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                  <label
-                    className={checkboxId || `usa-checkbox__label ${cx('shipment-display__checkbox__label')}`}
-                    htmlFor={`shipment-display-checkbox-${shipmentType.toLowerCase()}`}
-                  />
-                </div>
+                <Checkbox
+                  id={checkboxId || `shipment-display-checkbox-${shipmentId}`}
+                  data-cy="shipment-display-checkbox"
+                  onChange={onChange}
+                  checked={checked}
+                  name={`shipments[${index}]`}
+                  label=""
+                  value={shipmentId}
+                />
               </th>
               <th>
                 <h3 className={`${cx('shipment-display__heading')}`}>{displayInfo.heading}</h3>
@@ -79,6 +74,7 @@ const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo, onChange, ship
 };
 
 ShipmentDisplay.propTypes = {
+  index: PropTypes.number.isRequired,
   checkboxId: PropTypes.string,
   onChange: PropTypes.func,
   shipmentId: PropTypes.string.isRequired,
