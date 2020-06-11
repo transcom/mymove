@@ -4,7 +4,7 @@ import { SignedCertification } from './index';
 import { getFormValues } from 'redux-form';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
-import { signAndSubmitPpm } from './ducks';
+// import { signAndSubmitPpm } from './ducks';
 import { selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 
 const formName = 'signature-form';
@@ -25,7 +25,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      signAndSubmitForApproval: signAndSubmitPpm,
+      // signAndSubmitForApproval: signAndSubmitPpm,
       push,
     },
     dispatch,

@@ -10,7 +10,7 @@ import { getClient } from 'shared/Swagger/api';
 import moment from 'moment';
 
 const signAndSubmitForApprovalType = 'SIGN_AND_SUBMIT_FOR_APPROVAL';
-const signAndSubmitPpmForApprovalType = 'SIGN_AND_SUBMIT_PPM_FOR_APPROVAL';
+// const signAndSubmitPpmForApprovalType = 'SIGN_AND_SUBMIT_PPM_FOR_APPROVAL';
 
 // Actions
 
@@ -28,7 +28,7 @@ const createSignedCertification = ReduxHelpers.generateAsyncActionCreator('CREAT
 const SIGN_AND_SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(signAndSubmitForApprovalType);
 
 const signAndSubmitForApprovalActions = ReduxHelpers.generateAsyncActions(signAndSubmitForApprovalType);
-const signAndSubmitPpmForApprovalActions = ReduxHelpers.generateAsyncActions(signAndSubmitPpmForApprovalType);
+// const signAndSubmitPpmForApprovalActions = ReduxHelpers.generateAsyncActions(signAndSubmitPpmForApprovalType);
 
 export function dateToTimestamp(dt) {
   return moment(dt).format();
@@ -68,29 +68,29 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
 };
 
 // this function signature needs to match signAndSubmitForApproval
-export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId, ppmSubmitDate) => {
-  return async function (dispatch) {
-    const dateTimeSigned = dateToTimestamp(dateSigned);
-    dispatch(signAndSubmitPpmForApprovalActions.start());
-    try {
-      await dispatch(
-        createSignedCertification({
-          moveId,
-          createSignedCertificationPayload: {
-            certification_text: certificationText,
-            signature,
-            date: dateTimeSigned,
-          },
-        }),
-      );
-      await dispatch(submitPpm(ppmId, ppmSubmitDate));
-      return dispatch(signAndSubmitPpmForApprovalActions.success());
-    } catch (error) {
-      console.log(error);
-      return dispatch(signAndSubmitPpmForApprovalActions.error(error));
-    }
-  };
-};
+// export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId, ppmSubmitDate) => {
+//   return async function (dispatch) {
+//     const dateTimeSigned = dateToTimestamp(dateSigned);
+//     dispatch(signAndSubmitPpmForApprovalActions.start());
+//     try {
+//       await dispatch(
+//         createSignedCertification({
+//           moveId,
+//           createSignedCertificationPayload: {
+//             certification_text: certificationText,
+//             signature,
+//             date: dateTimeSigned,
+//           },
+//         }),
+//       );
+//       await dispatch(submitPpm(ppmId, ppmSubmitDate));
+//       return dispatch(signAndSubmitPpmForApprovalActions.success());
+//     } catch (error) {
+//       console.log(error);
+//       return dispatch(signAndSubmitPpmForApprovalActions.error(error));
+//     }
+//   };
+// };
 
 export function submitPpm(personallyProcuredMoveId, personallyProcuredMoveSubmitDate) {
   return swaggerRequest(

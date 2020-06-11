@@ -1,4 +1,4 @@
-import { isNull, get } from 'lodash';
+import { isNull, get, isEmpty } from 'lodash';
 import { moves } from '../schema';
 import { ADD_ENTITIES } from '../actions';
 import { denormalize } from 'normalizr';
@@ -9,6 +9,7 @@ import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
 import { getGHCClient } from 'shared/Swagger/api';
 import { filter } from 'lodash';
+import { fetchActive } from 'shared/utils';
 
 export const STATE_KEY = 'moves';
 const approveBasicsLabel = 'Moves.ApproveBasics';
@@ -16,6 +17,7 @@ const cancelMoveLabel = 'Moves.CancelMove';
 export const loadMoveLabel = 'Moves.loadMove';
 export const getMoveDatesSummaryLabel = 'Moves.getMoveDatesSummary';
 export const getMoveByLocatorOperation = 'move.getMove';
+export const submitMoveForApprovalLabel = 'move.submitMoveForApproval';
 
 export default function reducer(state = {}, action) {
   switch (action.type) {
@@ -86,4 +88,33 @@ export const selectMove = (state, id) => {
 export function selectMoveStatus(state, moveId) {
   const move = selectMove(state, moveId);
   return move.status;
+}
+
+export function submitMoveForApproval(moveId, ppmSubmitDate, label = submitMoveForApprovalLabel) {
+  const swaggerTag = 'moves.submitMoveForApproval';
+  const submitMoveForApprovalPayload = { ppm_submit_date: ppmSubmitDate };
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    { moveId, submitMoveForApprovalPayload },
+    {
+      label,
+    },
+  );
+}
+
+export function selectActiveMove(state) {
+  // temp until full redux refactor: gets active move from entities if it exists.  If not, gets it from currentMove
+  const activeOrders = fetchActive(get(state, 'user.userInfo.service_member.orders', {}));
+  if (isNull(activeOrders)) {
+    return null;
+  }
+  console.log('activeOrders', activeOrders);
+  const activeMoveId = fetchActive(get(activeOrders, 'moves')).id;
+  let activeMove = selectMove(state, activeMoveId);
+  if (isEmpty(activeMove)) {
+    activeMove = get(state, 'moves.currentMove') || get(state, 'moves.latestMove') || {};
+    return activeMove;
+  }
+  return activeMove;
 }

@@ -15,8 +15,8 @@ import { formatSwaggerDate } from 'shared/formatters';
 import './index.css';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
+import { submitMoveForApproval } from 'shared/Entities/modules/moves';
 import { loadCertificationText, signAndSubmitForApproval } from './ducks';
-import { SubmitMoveForApproval } from '../Moves/api';
 import { ppmStandardLiability, storageLiability, ppmAdvance, additionalInformation } from './legaleseText';
 
 const formName = 'signature-form';
@@ -67,12 +67,7 @@ export class SignedCertification extends Component {
 
     if (pendingValues) {
       const moveId = this.props.match.params.moveId;
-      Promise.all([
-        this.submitCertificate(),
-        SubmitMoveForApproval(moveId, {
-          ppm_submit_date: submitDate,
-        }),
-      ])
+      Promise.all([this.submitCertificate(), this.props.submitMoveForApproval(moveId, submitDate)])
         .then(() => this.props.push('/'))
         .catch(() => this.setState({ hasMoveSubmitError: true }));
     }
@@ -186,6 +181,7 @@ function mapDispatchToProps(dispatch) {
       signAndSubmitForApproval,
       createSignedCertification,
       loadPPMs,
+      submitMoveForApproval,
       push,
     },
     dispatch,
