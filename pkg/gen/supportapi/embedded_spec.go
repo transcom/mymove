@@ -782,10 +782,18 @@ func init() {
     "Error": {
       "type": "object",
       "required": [
-        "message"
+        "title",
+        "detail"
       ],
       "properties": {
-        "message": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
           "type": "string"
         }
       }
@@ -802,7 +810,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "eTag": {
           "type": "string"
@@ -840,7 +848,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         }
       }
     },
@@ -867,7 +875,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "deletedAt": {
           "type": "string",
@@ -942,7 +950,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         }
       }
     },
@@ -969,7 +977,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         },
         "customerRemarks": {
           "type": "string",
@@ -1039,7 +1047,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         }
       }
     },
@@ -1145,7 +1153,7 @@ func init() {
         "createdAt": {
           "description": "Date the MoveTaskOrder was created on.",
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "eTag": {
           "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
@@ -1208,7 +1216,7 @@ func init() {
         "updatedAt": {
           "description": "Date on which this MoveTaskOrder was last updated.",
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         }
       }
     },
@@ -1302,7 +1310,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "deletedAt": {
           "type": "string",
@@ -1377,7 +1385,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         }
       }
     },
@@ -2439,10 +2447,18 @@ func init() {
     "Error": {
       "type": "object",
       "required": [
-        "message"
+        "title",
+        "detail"
       ],
       "properties": {
-        "message": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
           "type": "string"
         }
       }
@@ -2459,7 +2475,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "eTag": {
           "type": "string"
@@ -2497,7 +2513,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         }
       }
     },
@@ -2524,7 +2540,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "deletedAt": {
           "type": "string",
@@ -2599,7 +2615,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         }
       }
     },
@@ -2626,7 +2642,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         },
         "customerRemarks": {
           "type": "string",
@@ -2696,7 +2712,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         }
       }
     },
@@ -2802,7 +2818,7 @@ func init() {
         "createdAt": {
           "description": "Date the MoveTaskOrder was created on.",
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "eTag": {
           "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
@@ -2865,7 +2881,7 @@ func init() {
         "updatedAt": {
           "description": "Date on which this MoveTaskOrder was last updated.",
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         }
       }
     },
@@ -2959,7 +2975,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "deletedAt": {
           "type": "string",
@@ -3034,7 +3050,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         }
       }
     },
