@@ -54,10 +54,9 @@ const RequestedShipments = ({ mtoShipments }) => {
       <form onSubmit={formik.handleSubmit}>
         <div className={`${cx('__content')}`}>
           {mtoShipments &&
-            mtoShipments.map((shipment, i) => (
+            mtoShipments.map((shipment) => (
               <ShipmentDisplay
                 key={shipment.id}
-                index={i}
                 shipmentId={shipment.id}
                 shipmentType={shipment.shipmentType}
                 displayInfo={{

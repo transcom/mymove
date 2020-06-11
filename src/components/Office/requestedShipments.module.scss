@@ -7,6 +7,11 @@
     @include u-display('flex');
     @include u-flex('wrap');
 
+    :first-child {
+      @include u-margin-left(0);
+      @include u-margin-right(2em);
+    }
+
     .__item {
       @include u-flex(1);
       @include u-margin(1);

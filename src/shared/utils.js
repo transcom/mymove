@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { get, includes, find, mapValues, capitalize } from 'lodash';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
@@ -141,20 +141,4 @@ export function openLinkInNewWindow(url, windowName, window, relativeSize) {
     )
     .focus(); // required in IE to put re-used window on top
   return false;
-}
-
-export function useCheckboxInput(initialValue) {
-  const [value, setValue] = useState(initialValue);
-
-  function handleChange(e) {
-    if (e.target.type === 'checkbox') {
-      setValue(e.target.checked);
-    }
-    setValue(e.target.value);
-  }
-
-  return {
-    value,
-    onChange: handleChange,
-  };
 }
