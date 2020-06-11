@@ -1,23 +1,9 @@
 {
   "plugins": ["prettier", "security", "no-only-tests"],
-  "extends": [
-    "react-app",
-    "plugin:react/recommended",
-    "airbnb",
-    "plugin:jsx-a11y/recommended",
-    "plugin:prettier/recommended",
-    "plugin:security/recommended"
-  ],
+  "extends": ["react-app", "airbnb", "prettier", "prettier/react", "plugin:security/recommended"],
   "root": true,
   "ignorePatterns": ["src/shared/**/*", "src/scenes/**/*"],
   "rules": {
-    "import/order": [
-      "error",
-      {
-        "newlines-between": "always"
-      }
-    ],
-
     "prettier/prettier": "error",
     "no-only-tests/no-only-tests": "error",
     "no-debugger": "warn",
@@ -25,7 +11,13 @@
     "react/jsx-no-target-blank": "off",
     "react/jsx-curly-brace-presence": "error",
     "react/require-default-props": ["error", { "ignoreFunctionalComponents": true }],
-    "no-unused-vars": "error"
+    "no-unused-vars": "error",
+    "import/order": [
+      "error",
+      {
+        "newlines-between": "always"
+      }
+    ]
   },
   "overrides": [
     {
