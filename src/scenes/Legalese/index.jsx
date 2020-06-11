@@ -16,7 +16,6 @@ import './index.css';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
 import { submitMoveForApproval } from 'shared/Entities/modules/moves';
-import { loadCertificationText, signAndSubmitForApproval } from './ducks';
 import { ppmStandardLiability, storageLiability, ppmAdvance, additionalInformation } from './legaleseText';
 
 const formName = 'signature-form';
@@ -29,14 +28,9 @@ export class SignedCertification extends Component {
 
   componentDidMount() {
     this.props.loadPPMs(this.props.moveId);
-    const { hasLoggedInUser, certificationText, currentPpm } = this.props;
-    if (hasLoggedInUser && !certificationText) {
-      this.props.loadCertificationText(currentPpm.has_sit, currentPpm.has_requested_advance);
-    }
   }
 
-  getCertificationText() {
-    const { hasSit, hasRequestedAdvance } = this.props.currentPpm;
+  getCertificationText(hasSit, hasRequestedAdvance) {
     const txt = [ppmStandardLiability];
     if (hasSit) txt.push(storageLiability);
     if (hasRequestedAdvance) txt.push(ppmAdvance);
@@ -48,7 +42,7 @@ export class SignedCertification extends Component {
     const signatureTime = moment().format();
     const { currentPpm, moveId } = this.props;
     const certificate = {
-      certification_text: this.getCertificationText(),
+      certification_text: this.getCertificationText(currentPpm.has_sit, currentPpm.has_requested_advance),
       date: signatureTime,
       signature: 'CHECKBOX',
       personally_procured_move_id: currentPpm.id,
@@ -68,7 +62,7 @@ export class SignedCertification extends Component {
     if (pendingValues) {
       const moveId = this.props.match.params.moveId;
       Promise.all([this.submitCertificate(), this.props.submitMoveForApproval(moveId, submitDate)])
-        .then(() => this.props.push('/'))
+        .then(() => this.props.push('/')) // set hasSubmitSuccess to true
         .catch(() => this.setState({ hasMoveSubmitError: true }));
     }
   };
@@ -78,13 +72,13 @@ export class SignedCertification extends Component {
   }
 
   render() {
-    const { hasSubmitError, pages, pageKey, latestSignedCertification } = this.props;
+    const { hasSubmitError, pages, pageKey, latestSignedCertification, currentPpm } = this.props;
     const today = formatSwaggerDate(new Date());
     const initialValues = {
       date: get(latestSignedCertification, 'date', today),
       signature: get(latestSignedCertification, 'signature', null),
     };
-    const certificationText = this.getCertificationText();
+    const certificationText = this.getCertificationText(currentPpm.has_sit, currentPpm.has_requested_advance);
     return (
       <div>
         <div className="legalese">
@@ -151,7 +145,6 @@ export class SignedCertification extends Component {
 }
 
 SignedCertification.propTypes = {
-  signAndSubmitForApproval: PropTypes.func.isRequired,
   match: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func,
   hasSubmitError: PropTypes.bool.isRequired,
@@ -177,8 +170,6 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      loadCertificationText,
-      signAndSubmitForApproval,
       createSignedCertification,
       loadPPMs,
       submitMoveForApproval,
