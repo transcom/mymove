@@ -1,5 +1,5 @@
 /* global cy */
-import { officeAppName } from '../../support/constants';
+import { officeAppName, officeBaseURL } from '../../support/constants';
 
 describe('Office Home Page', function () {
   beforeEach(() => {
@@ -22,16 +22,48 @@ describe('Office Home Page', function () {
 });
 
 describe('Office authorization', () => {
-  it('redirects TOO to TOO homepage', () => {
-    cy.signInAsNewTOOUser();
+  describe('for a TOO user', () => {
+    it('redirects TOO to TOO homepage', () => {
+      cy.signInAsNewTOOUser();
+    });
   });
 
-  it('redirects TIO to TIO homepage', () => {
-    cy.signInAsNewTIOUser();
+  describe('for a TIO user', () => {
+    it('redirects TIO to TIO homepage', () => {
+      cy.signInAsNewTIOUser();
+    });
   });
 
-  it('redirects PPM office user to old office queue', () => {
-    cy.signInAsNewOfficeUser();
+  describe('for a PPM user', () => {
+    it('redirects PPM office user to old office queue', () => {
+      cy.signInAsNewOfficeUser();
+    });
+  });
+
+  describe('multiple role selection', () => {
+    it('displays the first role home page by default', () => {
+      cy.signInAsMultiRoleUser();
+      cy.contains('All Customer Moves'); // TOO home
+    });
+
+    it('displays a link to change role', () => {
+      cy.contains('Change user role').click();
+      cy.url().should('contain', '/select-application');
+    });
+
+    it('can change role to TIO', () => {
+      cy.contains('Select transportation_invoicing_officer').click();
+      cy.url().should('eq', officeBaseURL + '/');
+      cy.contains('TIO interface');
+    });
+
+    it('can change role back to TOO', () => {
+      cy.contains('Change user role').click();
+      cy.url().should('contain', '/select-application');
+      cy.contains('Select transportation_ordering_officer').click();
+      cy.url().should('eq', officeBaseURL + '/');
+      cy.contains('All Customer Moves');
+    });
   });
 });
 

@@ -78,6 +78,11 @@ Cypress.Commands.add('signInAsNewTIOUser', () => {
   cy.url().should('eq', officeBaseURL + '/');
 });
 
+Cypress.Commands.add('signInAsMultiRoleUser', () => {
+  cy.signInAsUserPostRequest(PPMOfficeUserType, '9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b');
+  cy.waitForLoadingScreen();
+});
+
 Cypress.Commands.add('signInAsNewDPSUser', () => {
   cy.signInAsNewUser(dpsUserType);
   cy.url().should('contain', 'milmovelocal');
@@ -91,6 +96,7 @@ Cypress.Commands.add('signIntoOfficeAsUser', (userId) => {
   cy.signInAsUserPostRequest(PPMOfficeUserType, userId);
   cy.waitForReactTableLoad();
 });
+
 Cypress.Commands.add('signIntoOffice', () => {
   cy.signIntoOfficeAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
 });

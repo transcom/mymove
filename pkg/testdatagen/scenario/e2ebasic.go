@@ -1065,6 +1065,26 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	/* A user with both too and tio roles */
+	email = "too_tio_role@office.mil"
+	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tooTioUUID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tooRole, tioRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
+			Email:  email,
+			Active: true,
+			UserID: &tooTioUUID,
+		},
+	})
+
 	// A more recent MTO for demonstrating the since parameter
 	customer6 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
 		Customer: models.Customer{
