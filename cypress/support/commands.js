@@ -62,17 +62,20 @@ Cypress.Commands.add('signInAsNewMilMoveUser', () => {
 
 Cypress.Commands.add('signInAsNewOfficeUser', () => {
   cy.signInAsNewUser(PPMOfficeUserType);
-  cy.url().should('eq', officeBaseURL + '/queues/new');
+  cy.contains('New moves');
+  cy.url().should('eq', officeBaseURL + '/');
 });
 
 Cypress.Commands.add('signInAsNewTOOUser', () => {
   cy.signInAsNewUser(TOOOfficeUserType);
-  cy.url().should('eq', officeBaseURL + '/moves/queue');
+  cy.contains('All Customer Moves');
+  cy.url().should('eq', officeBaseURL + '/');
 });
 
 Cypress.Commands.add('signInAsNewTIOUser', () => {
   cy.signInAsNewUser(TIOOfficeUserType);
-  cy.url().should('eq', officeBaseURL + '/invoicing/queue');
+  cy.contains('TIO interface');
+  cy.url().should('eq', officeBaseURL + '/');
 });
 
 Cypress.Commands.add('signInAsNewDPSUser', () => {
