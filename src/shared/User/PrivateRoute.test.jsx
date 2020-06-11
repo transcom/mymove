@@ -187,7 +187,7 @@ describe('PrivateRouteContainer', () => {
             expect(wrapper.contains(<div>My page</div>)).toEqual(true);
           });
           it('renders the Select Application link', () => {
-            expect(wrapper.containsMatchingElement(<a href="/select-application">Select application</a>)).toEqual(true);
+            expect(wrapper.containsMatchingElement(<a href="/select-application">Change user role</a>)).toEqual(true);
           });
         });
 
@@ -228,9 +228,7 @@ describe('PrivateRouteContainer', () => {
             expect(wrapper.contains(<div>My page</div>)).toEqual(true);
           });
           it('does not render the Select Application link', () => {
-            expect(wrapper.containsMatchingElement(<a href="/select-application">Select application</a>)).toEqual(
-              false,
-            );
+            expect(wrapper.containsMatchingElement(<a href="/select-application">Change user role</a>)).toEqual(false);
           });
         });
       });
