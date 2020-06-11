@@ -71,10 +71,28 @@ $content-width: 308px;
     @include u-padding-y(2);
     @include u-text('gray-50');
     word-wrap: break-word;
+    @include u-margin-y(0);
+    @include u-line-height('body', 2);
   }
   &:hover {
     @include u-text('no-underline');
-    @include u-text('blue-50v');
+    p {
+      @include u-text('blue-50v');
+    }
+    .thumbnailImage {
+      @include border-inset(2px, $link);
+    }
+  }
+  &:active,
+  &.active {
+    @include u-border-left('05');
+    @include u-border-left('blue-50v');
+    @include u-text('bold');
+    .thumbnailImage {
+      @include border-inset(2px, $link);
+    }
+  }
+  &:focus {
   }
 }
 
@@ -89,8 +107,4 @@ $content-width: 308px;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  &:hover,
-  &:focus {
-    @include border-inset(2px, $link);
-  }
 }
