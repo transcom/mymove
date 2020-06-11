@@ -18,6 +18,9 @@ $content-width: 308px;
 
 .collapsed {
   @include u-width(9);
+  .menuHeader {
+    justify-content: center;
+  }
   .menuOpen {
     display: block;
   }
@@ -28,6 +31,9 @@ $content-width: 308px;
     display: none;
   }
   .thumbnailItem {
+    @include u-border-top(0);
+    @include u-border-left(0);
+    justify-content: center;
     p {
       display: none;
     }
@@ -98,6 +104,7 @@ $content-width: 308px;
     }
   }
   &:focus {
+    @include focus-outline;
   }
 }
 

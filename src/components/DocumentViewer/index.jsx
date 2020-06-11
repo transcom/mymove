@@ -1,5 +1,4 @@
 import React from 'react';
-import propTypes from 'prop-types';
 
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { ReactComponent as DocMenu } from 'shared/icon/doc-menu.svg';
@@ -9,13 +8,13 @@ import styles from './index.module.scss';
 
 const testThumbnail = (
   <a className={styles.thumbnailItem}>
-    <p>ASampleLongDocumentTitle.png</p>
+    <p>ASamplePrettyLongDocumentTitle.png</p>
     <div className={styles.thumbnailImage} />
   </a>
 );
 
-const DocViewerMenu = ({ menuClass }) => (
-  <div className={`${styles.docViewerMenu} ${menuClass}`}>
+const DocViewerMenu = () => (
+  <div className={`${styles.docViewerMenu}`}>
     <div className={styles.menuHeader}>
       <h3>Documents</h3>
       <div className={styles.menuControls}>
@@ -36,9 +35,5 @@ const DocViewerMenu = ({ menuClass }) => (
     </div>
   </div>
 );
-
-DocViewerMenu.propTypes = {
-  menuClass: propTypes.string,
-};
 
 export default DocViewerMenu;

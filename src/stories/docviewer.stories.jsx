@@ -6,6 +6,5 @@ import DocViewerMenu from '../components/DocumentViewer';
 storiesOf('Components|Document Viewer', module).add('menu', () => (
   <div className="display-flex">
     <DocViewerMenu />
-    <DocViewerMenu />
   </div>
 ));
