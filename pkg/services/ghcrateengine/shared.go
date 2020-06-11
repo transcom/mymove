@@ -13,6 +13,9 @@ type Pricer interface {
 	Price() (unit.Cents, error)
 }
 
+// DefaultContractCode is the default contract code to assume for now
+const DefaultContractCode = "TRUSS"
+
 // minDomesticWeight is the minimum weight used in domestic calculations (weights below this are upgraded to the min)
 const minDomesticWeight = unit.Pound(500)
 

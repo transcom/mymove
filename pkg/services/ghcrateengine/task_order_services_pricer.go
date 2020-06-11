@@ -7,7 +7,6 @@ import (
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -31,12 +30,17 @@ func NewTaskOrderServicesPricer(db *pop.Connection, contractCode string, service
 // NewTaskOrderServicesPricerFromParams creates a new pricer for task order services based upon PaymentServiceItemParams
 func NewTaskOrderServicesPricerFromParams(db *pop.Connection, serviceCode models.ReServiceCode, params models.PaymentServiceItemParams) (Pricer, error) {
 	pricer := &taskOrderServicesPricer{
-		db:           db,
-		contractCode: testdatagen.DefaultContractCode, // TODO: What to do about contract code?
-		serviceCode:  serviceCode,
+		db:          db,
+		serviceCode: serviceCode,
 	}
 
 	var err error
+
+	pricer.contractCode, err = getParamString(params, models.ServiceItemParamNameContractCode)
+	if err != nil {
+		return nil, err
+	}
+
 	pricer.mtoAvailableToPrimeAt, err = getParamTime(params, models.ServiceItemParamNameMTOAvailableToPrimeAt)
 	if err != nil {
 		return nil, err

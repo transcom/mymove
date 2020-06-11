@@ -13,19 +13,19 @@ const (
 	TimestampParamFormat = time.RFC3339
 )
 
-//func getParamString(params models.PaymentServiceItemParams, name models.ServiceItemParamName) (string, error) {
-//	paymentServiceItemParam := getPaymentServiceItemParam(params, name)
-//	if paymentServiceItemParam == nil {
-//		return "", fmt.Errorf("could not find param with key %s", name)
-//	}
-//
-//	paramType := paymentServiceItemParam.ServiceItemParamKey.Type
-//	if paramType != models.ServiceItemParamTypeString {
-//		return "", fmt.Errorf("trying to convert %s to a string, but param is of type %s", name, paramType)
-//	}
-//
-//	return paymentServiceItemParam.Value, nil
-//}
+func getParamString(params models.PaymentServiceItemParams, name models.ServiceItemParamName) (string, error) {
+	paymentServiceItemParam := getPaymentServiceItemParam(params, name)
+	if paymentServiceItemParam == nil {
+		return "", fmt.Errorf("could not find param with key %s", name)
+	}
+
+	paramType := paymentServiceItemParam.ServiceItemParamKey.Type
+	if paramType != models.ServiceItemParamTypeString {
+		return "", fmt.Errorf("trying to convert %s to a string, but param is of type %s", name, paramType)
+	}
+
+	return paymentServiceItemParam.Value, nil
+}
 
 func getParamTime(params models.PaymentServiceItemParams, name models.ServiceItemParamName) (time.Time, error) {
 	paymentServiceItemParam := getPaymentServiceItemParam(params, name)

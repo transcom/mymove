@@ -1716,6 +1716,7 @@ func init() {
       "type": "string",
       "enum": [
         "CanStandAlone",
+        "ContractCode",
         "CubicFeetBilled",
         "CubicFeetCrating",
         "DistanceZip3",
@@ -3707,6 +3708,7 @@ func init() {
       "type": "string",
       "enum": [
         "CanStandAlone",
+        "ContractCode",
         "CubicFeetBilled",
         "CubicFeetCrating",
         "DistanceZip3",

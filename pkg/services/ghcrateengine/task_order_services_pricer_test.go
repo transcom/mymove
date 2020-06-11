@@ -102,24 +102,43 @@ func (suite *GHCRateEngineServiceSuite) setupTaskOrderServicesData() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupTaskOrderServicesParams() models.PaymentServiceItemParams {
-	mtoAvailableToPrimeAtKey := testdatagen.MakeServiceItemParamKey(suite.DB(),
-		testdatagen.Assertions{
-			ServiceItemParamKey: models.ServiceItemParamKey{
-				Key:  models.ServiceItemParamNameMTOAvailableToPrimeAt,
-				Type: models.ServiceItemParamTypeTimestamp,
-			},
-		})
-
 	var params models.PaymentServiceItemParams
 
-	mtoAvailableToPrimeAtParam := testdatagen.MakePaymentServiceItemParam(suite.DB(),
-		testdatagen.Assertions{
-			ServiceItemParamKey: mtoAvailableToPrimeAtKey,
-			PaymentServiceItemParam: models.PaymentServiceItemParam{
-				Value: tosAvailableToPrimeAt.Format(TimestampParamFormat),
-			},
-		})
-	params = append(params, mtoAvailableToPrimeAtParam)
+	paramsToCreate := []struct {
+		key     models.ServiceItemParamName
+		keyType models.ServiceItemParamType
+		value   string
+	}{
+		{
+			models.ServiceItemParamNameContractCode,
+			models.ServiceItemParamTypeString,
+			testdatagen.DefaultContractCode,
+		},
+		{
+			models.ServiceItemParamNameMTOAvailableToPrimeAt,
+			models.ServiceItemParamTypeTimestamp,
+			tosAvailableToPrimeAt.Format(TimestampParamFormat),
+		},
+	}
+
+	for _, param := range paramsToCreate {
+		paramKey := testdatagen.MakeServiceItemParamKey(suite.DB(),
+			testdatagen.Assertions{
+				ServiceItemParamKey: models.ServiceItemParamKey{
+					Key:  param.key,
+					Type: param.keyType,
+				},
+			})
+
+		mtoAvailableToPrimeAtParam := testdatagen.MakePaymentServiceItemParam(suite.DB(),
+			testdatagen.Assertions{
+				ServiceItemParamKey: paramKey,
+				PaymentServiceItemParam: models.PaymentServiceItemParam{
+					Value: param.value,
+				},
+			})
+		params = append(params, mtoAvailableToPrimeAtParam)
+	}
 
 	return params
 }

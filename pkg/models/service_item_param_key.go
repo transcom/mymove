@@ -20,6 +20,8 @@ func (s ServiceItemParamName) String() string {
 const (
 	// ServiceItemParamNameCanStandAlone is the param key name CanStandAlone
 	ServiceItemParamNameCanStandAlone ServiceItemParamName = "CanStandAlone"
+	// ServiceItemParamNameContractCode is the param key name ContractCode
+	ServiceItemParamNameContractCode ServiceItemParamName = "ContractCode"
 	// ServiceItemParamNameCubicFeetBilled is the param key name CubicFeetBilled
 	ServiceItemParamNameCubicFeetBilled ServiceItemParamName = "CubicFeetBilled"
 	// ServiceItemParamNameCubicFeetCrating is the param key name CubicFeetCrating
@@ -159,6 +161,7 @@ const (
 // ValidServiceItemParamNames lists all valid service item param key names
 var ValidServiceItemParamNames = []string{
 	string(ServiceItemParamNameCanStandAlone),
+	string(ServiceItemParamNameContractCode),
 	string(ServiceItemParamNameCubicFeetBilled),
 	string(ServiceItemParamNameCubicFeetCrating),
 	string(ServiceItemParamNameDistanceZip3),
