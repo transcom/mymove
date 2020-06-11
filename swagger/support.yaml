@@ -154,10 +154,10 @@ paths:
           $ref: '#/responses/ServerError'
   /move-task-orders/{moveTaskOrderID}/payment-requests:
     get:
-      summary: getMTOPaymentRequests
+      summary: listMTOPaymentRequests
       description: >
         Gets all payment requests for a given move task order
-      operationId: getMTOPaymentRequests
+      operationId: listMTOPaymentRequests
       tags:
         - paymentRequests
       produces:

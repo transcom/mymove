@@ -15,18 +15,18 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewGetMTOPaymentRequestsParams creates a new GetMTOPaymentRequestsParams object
+// NewListMTOPaymentRequestsParams creates a new ListMTOPaymentRequestsParams object
 // no default values defined in spec.
-func NewGetMTOPaymentRequestsParams() GetMTOPaymentRequestsParams {
+func NewListMTOPaymentRequestsParams() ListMTOPaymentRequestsParams {
 
-	return GetMTOPaymentRequestsParams{}
+	return ListMTOPaymentRequestsParams{}
 }
 
-// GetMTOPaymentRequestsParams contains all the bound params for the get m t o payment requests operation
+// ListMTOPaymentRequestsParams contains all the bound params for the list m t o payment requests operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters getMTOPaymentRequests
-type GetMTOPaymentRequestsParams struct {
+// swagger:parameters listMTOPaymentRequests
+type ListMTOPaymentRequestsParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -41,8 +41,8 @@ type GetMTOPaymentRequestsParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewGetMTOPaymentRequestsParams() beforehand.
-func (o *GetMTOPaymentRequestsParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewListMTOPaymentRequestsParams() beforehand.
+func (o *ListMTOPaymentRequestsParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -59,7 +59,7 @@ func (o *GetMTOPaymentRequestsParams) BindRequest(r *http.Request, route *middle
 }
 
 // bindMoveTaskOrderID binds and validates parameter MoveTaskOrderID from path.
-func (o *GetMTOPaymentRequestsParams) bindMoveTaskOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *ListMTOPaymentRequestsParams) bindMoveTaskOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -83,7 +83,7 @@ func (o *GetMTOPaymentRequestsParams) bindMoveTaskOrderID(rawData []string, hasK
 }
 
 // validateMoveTaskOrderID carries on validations for parameter MoveTaskOrderID
-func (o *GetMTOPaymentRequestsParams) validateMoveTaskOrderID(formats strfmt.Registry) error {
+func (o *ListMTOPaymentRequestsParams) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("moveTaskOrderID", "path", "uuid", o.MoveTaskOrderID.String(), formats); err != nil {
 		return err

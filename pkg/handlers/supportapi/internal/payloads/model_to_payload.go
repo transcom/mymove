@@ -269,13 +269,13 @@ func PaymentRequest(pr *models.PaymentRequest) *supportmessages.PaymentRequest {
 }
 
 // PaymentRequests payload
-func PaymentRequests(prs *models.PaymentRequests) *supportmessages.PaymentRequests {
-	paymentRequests := make(supportmessages.PaymentRequests, len(*prs))
+func PaymentRequests(paymentRequests *models.PaymentRequests) *supportmessages.PaymentRequests {
+	payload := make(supportmessages.PaymentRequests, len(*paymentRequests))
 
-	for i, pr := range *prs {
-		paymentRequests[i] = PaymentRequest(&pr)
+	for i, pr := range *paymentRequests {
+		payload[i] = PaymentRequest(&pr)
 	}
-	return &paymentRequests
+	return &payload
 }
 
 // InternalServerError describes errors in a standard structure to be returned in the payload.

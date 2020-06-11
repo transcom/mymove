@@ -217,8 +217,8 @@ func init() {
         "tags": [
           "paymentRequests"
         ],
-        "summary": "getMTOPaymentRequests",
-        "operationId": "getMTOPaymentRequests",
+        "summary": "listMTOPaymentRequests",
+        "operationId": "listMTOPaymentRequests",
         "parameters": [
           {
             "type": "string",
@@ -1859,8 +1859,8 @@ func init() {
         "tags": [
           "paymentRequests"
         ],
-        "summary": "getMTOPaymentRequests",
-        "operationId": "getMTOPaymentRequests",
+        "summary": "listMTOPaymentRequests",
+        "operationId": "listMTOPaymentRequests",
         "parameters": [
           {
             "type": "string",

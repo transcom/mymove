@@ -14,20 +14,20 @@ import (
 	paymentRequest "github.com/transcom/mymove/pkg/gen/supportclient/payment_requests"
 )
 
-func checkGetMTOPaymentRequestsConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+func checkListMTOPaymentRequestsConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
-		logger.Fatal(errors.New("support-get-mto-payment-request expects a file to be passed in"))
+		logger.Fatal(errors.New("support-list-mto-payment-requests expects a file to be passed in"))
 	}
 
 	return nil
 }
 
-func getMTOPaymentRequests(cmd *cobra.Command, args []string) error {
+func listMTOPaymentRequests(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	//  Create the logger
@@ -40,14 +40,14 @@ func getMTOPaymentRequests(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkGetMTOPaymentRequestsConfig(v, args, logger)
+	err := checkListMTOPaymentRequestsConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	// Decode json from file that was passed in
 	filename := v.GetString(FilenameFlag)
-	var paymentReqParams paymentRequest.GetMTOPaymentRequestsParams
+	var paymentReqParams paymentRequest.ListMTOPaymentRequestsParams
 	err = decodeJSONFileToPayload(filename, containsDash(args), &paymentReqParams)
 	if err != nil {
 		logger.Fatal(err)
@@ -65,7 +65,7 @@ func getMTOPaymentRequests(cmd *cobra.Command, args []string) error {
 	}
 
 	// Make the API Call
-	resp, err := supportGateway.PaymentRequests.GetMTOPaymentRequests(&paymentReqParams)
+	resp, err := supportGateway.PaymentRequests.ListMTOPaymentRequests(&paymentReqParams)
 	if err != nil {
 		return handleGatewayError(err, logger)
 	}

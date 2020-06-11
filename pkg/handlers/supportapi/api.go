@@ -53,7 +53,7 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
 	}
 
-	supportAPI.PaymentRequestsGetMTOPaymentRequestsHandler = GetMTOPaymentRequestsHandler{
+	supportAPI.PaymentRequestsListMTOPaymentRequestsHandler = ListMTOPaymentRequestsHandler{
 		context,
 	}
 

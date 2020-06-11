@@ -14,8 +14,8 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// GetMTOPaymentRequestsURL generates an URL for the get m t o payment requests operation
-type GetMTOPaymentRequestsURL struct {
+// ListMTOPaymentRequestsURL generates an URL for the list m t o payment requests operation
+type ListMTOPaymentRequestsURL struct {
 	MoveTaskOrderID strfmt.UUID
 
 	_basePath string
@@ -26,7 +26,7 @@ type GetMTOPaymentRequestsURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetMTOPaymentRequestsURL) WithBasePath(bp string) *GetMTOPaymentRequestsURL {
+func (o *ListMTOPaymentRequestsURL) WithBasePath(bp string) *ListMTOPaymentRequestsURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -34,12 +34,12 @@ func (o *GetMTOPaymentRequestsURL) WithBasePath(bp string) *GetMTOPaymentRequest
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetMTOPaymentRequestsURL) SetBasePath(bp string) {
+func (o *ListMTOPaymentRequestsURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *GetMTOPaymentRequestsURL) Build() (*url.URL, error) {
+func (o *ListMTOPaymentRequestsURL) Build() (*url.URL, error) {
 	var _result url.URL
 
 	var _path = "/move-task-orders/{moveTaskOrderID}/payment-requests"
@@ -48,7 +48,7 @@ func (o *GetMTOPaymentRequestsURL) Build() (*url.URL, error) {
 	if moveTaskOrderID != "" {
 		_path = strings.Replace(_path, "{moveTaskOrderID}", moveTaskOrderID, -1)
 	} else {
-		return nil, errors.New("moveTaskOrderId is required on GetMTOPaymentRequestsURL")
+		return nil, errors.New("moveTaskOrderId is required on ListMTOPaymentRequestsURL")
 	}
 
 	_basePath := o._basePath
@@ -61,7 +61,7 @@ func (o *GetMTOPaymentRequestsURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *GetMTOPaymentRequestsURL) Must(u *url.URL, err error) *url.URL {
+func (o *ListMTOPaymentRequestsURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -72,17 +72,17 @@ func (o *GetMTOPaymentRequestsURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *GetMTOPaymentRequestsURL) String() string {
+func (o *ListMTOPaymentRequestsURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *GetMTOPaymentRequestsURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *ListMTOPaymentRequestsURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on GetMTOPaymentRequestsURL")
+		return nil, errors.New("scheme is required for a full url on ListMTOPaymentRequestsURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on GetMTOPaymentRequestsURL")
+		return nil, errors.New("host is required for a full url on ListMTOPaymentRequestsURL")
 	}
 
 	base, err := o.Build()
@@ -96,6 +96,6 @@ func (o *GetMTOPaymentRequestsURL) BuildFull(scheme, host string) (*url.URL, err
 }
 
 // StringFull returns the string representation of a complete url
-func (o *GetMTOPaymentRequestsURL) StringFull(scheme, host string) string {
+func (o *ListMTOPaymentRequestsURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }
