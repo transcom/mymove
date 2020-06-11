@@ -84,7 +84,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
 				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
 		default:
-			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError()
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
 	}
 	mtoPayload := payloads.MoveTaskOrder(mto)
