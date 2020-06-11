@@ -218,9 +218,6 @@ function officeUserApprovesMoveAndPPM(moveLocator) {
 
   // Open new moves queue
   cy.patientVisit('/');
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
-  });
 
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);
