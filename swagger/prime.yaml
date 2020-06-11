@@ -648,10 +648,16 @@ definitions:
     type: object
   Error:
     properties:
-      message:
+      title:
         type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
     required:
-      - message
+      - title
+      - detail
     type: object
   MoveOrder:
     required:

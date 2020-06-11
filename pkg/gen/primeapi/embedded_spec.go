@@ -859,10 +859,18 @@ func init() {
     "Error": {
       "type": "object",
       "required": [
-        "message"
+        "title",
+        "detail"
       ],
       "properties": {
-        "message": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
           "type": "string"
         }
       }
@@ -2850,10 +2858,18 @@ func init() {
     "Error": {
       "type": "object",
       "required": [
-        "message"
+        "title",
+        "detail"
       ],
       "properties": {
-        "message": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
           "type": "string"
         }
       }

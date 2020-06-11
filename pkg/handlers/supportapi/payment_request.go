@@ -31,7 +31,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
-		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
+		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 	}
 
 	// Let's fetch the existing payment request using the PaymentRequestFetcher service object
@@ -115,7 +115,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		default:
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
-			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
+			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
 	}
 
