@@ -2485,9 +2485,7 @@ definitions:
           - PPM
       created_at:
         type: string
-        format: datetime
-        example: 2018-04-12T23:20:50.52Z
-        description: when the access code was created
+        format: date-time
       claimed_at:
         type: string
         format: datetime
@@ -2511,14 +2509,10 @@ definitions:
         example: customer
       createdAt:
         type: string
-        format: datetime
-        example: 2018-04-12T23:20:50.52Z
-        description: when the role was created
+        format: date-time
       updatedAt:
         type: string
-        format: datetime
-        example: 2018-04-12T23:20:50.52Z
-        description: when the role was updated
+        format: date-time
     required:
       - id
       - roleType

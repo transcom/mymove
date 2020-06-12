@@ -1188,7 +1188,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         },
         "email": {
           "type": "string",
@@ -1212,7 +1212,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         },
         "userId": {
           "type": "string",
@@ -1300,7 +1300,7 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "title": "Created at"
         },
         "id": {
@@ -1317,7 +1317,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "title": "Updated at"
         }
       }
@@ -1438,7 +1438,7 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         },
         "email": {
           "type": "string"
@@ -1491,7 +1491,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         },
         "email": {
           "type": "string",
@@ -1529,7 +1529,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         }
       }
     },
@@ -1640,7 +1640,7 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "title": "Created at"
         },
         "email": {
@@ -1666,7 +1666,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "title": "Updated at"
         }
       }
@@ -1688,10 +1688,8 @@ func init() {
       ],
       "properties": {
         "createdAt": {
-          "description": "when the role was created",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         },
         "id": {
           "type": "string",
@@ -1707,10 +1705,8 @@ func init() {
           "example": "customer"
         },
         "updatedAt": {
-          "description": "when the role was updated",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         }
       }
     },
@@ -1875,7 +1871,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "title": "Created at"
         },
         "filename": {
@@ -3143,7 +3139,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         },
         "email": {
           "type": "string",
@@ -3167,7 +3163,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         },
         "userId": {
           "type": "string",
@@ -3255,7 +3251,7 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "title": "Created at"
         },
         "id": {
@@ -3272,7 +3268,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "title": "Updated at"
         }
       }
@@ -3394,7 +3390,7 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         },
         "email": {
           "type": "string"
@@ -3447,7 +3443,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         },
         "email": {
           "type": "string",
@@ -3485,7 +3481,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         }
       }
     },
@@ -3596,7 +3592,7 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "title": "Created at"
         },
         "email": {
@@ -3622,7 +3618,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "title": "Updated at"
         }
       }
@@ -3644,10 +3640,8 @@ func init() {
       ],
       "properties": {
         "createdAt": {
-          "description": "when the role was created",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         },
         "id": {
           "type": "string",
@@ -3663,10 +3657,8 @@ func init() {
           "example": "customer"
         },
         "updatedAt": {
-          "description": "when the role was updated",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         }
       }
     },
@@ -3831,7 +3823,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "title": "Created at"
         },
         "filename": {

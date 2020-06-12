@@ -13,7 +13,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookup() {
-	key := "WeightActual"
+	key := models.ServiceItemParamNameWeightActual.String()
 
 	suite.T().Run("actual weight is present on MTO Shipment", func(t *testing.T) {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)

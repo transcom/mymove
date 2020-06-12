@@ -45,7 +45,7 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 			return movetaskorderops.NewMakeMoveTaskOrderAvailablePreconditionFailed().WithPayload(
 				payloads.ClientError(handlers.PreconditionErrMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		default:
-			return movetaskorderops.NewMakeMoveTaskOrderAvailableInternalServerError().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return movetaskorderops.NewMakeMoveTaskOrderAvailableInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
 	}
 
@@ -76,7 +76,7 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 			return movetaskorderops.NewCreateMoveTaskOrderUnprocessableEntity().WithPayload(
 				payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors))
 		default:
-			return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
@@ -109,7 +109,7 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(
 				payloads.ClientError(handlers.SQLErrMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
 		default:
-			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(&supportmessages.Error{Message: handlers.FmtString(err.Error())})
+			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(moveTaskOrder)

@@ -8,7 +8,6 @@ import { get } from 'lodash';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
 import { getMTOShipments, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
 import RequestedShipments from 'components/Office/RequestedShipments';
-import ShipmentDisplay from 'components/Office/ShipmentDisplay';
 import AllowancesTable from 'components/Office/AllowancesTable';
 import {
   getMoveOrder,
@@ -40,21 +39,7 @@ class MoveDetails extends Component {
       <div className="grid-container-desktop-lg" data-cy="too-move-details">
         <h1>Move details</h1>
         <div className="container">
-          <RequestedShipments>
-            {mtoShipments &&
-              mtoShipments.map((shipment) => (
-                <ShipmentDisplay
-                  key={shipment.id}
-                  shipmentType={shipment.shipmentType}
-                  displayInfo={{
-                    heading: shipment.shipmentType,
-                    requestedMoveDate: shipment.requestedPickupDate,
-                    currentAddress: shipment.pickupAddress,
-                    destinationAddress: shipment.destinationAddress,
-                  }}
-                />
-              ))}
-          </RequestedShipments>
+          <RequestedShipments mtoShipments={mtoShipments} />
           <OrdersTable
             ordersInfo={{
               // eslint-disable-next-line react/prop-types
