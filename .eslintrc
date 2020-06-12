@@ -7,11 +7,13 @@
     "prettier/prettier": "error",
     "no-only-tests/no-only-tests": "error",
     "no-debugger": "warn",
-    "jsx-a11y/anchor-is-valid": "off",
-    "react/jsx-no-target-blank": "off",
+    "no-console": "warn",
+    "jsx-a11y/anchor-is-valid": ["warn", { "aspects": ["noHref", "preferButton"] }],
+    "react/button-has-type": "error",
+    "react/jsx-no-target-blank": "error",
     "react/jsx-curly-brace-presence": "error",
-    "react/require-default-props": ["error", { "ignoreFunctionalComponents": true }],
-    "no-unused-vars": "error",
+    "react/require-default-props": "warn",
+    "no-unused-vars": "warn",
     "import/order": [
       "error",
       {
@@ -21,7 +23,7 @@
   },
   "overrides": [
     {
-      "files": ["*.stories.js", "*.stories.jsx"],
+      "files": ["*.stories.js", "*.stories.jsx", "setupTests.js"],
       "rules": {
         "import/no-extraneous-dependencies": "off"
       }
