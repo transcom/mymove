@@ -193,6 +193,6 @@ func main() {
 
 	for _, issue := range issues.Issues {
 		fmt.Printf("%s\n", *issue.Title)
-		fmt.Printf("%s\n", *issue.URL)
+		fmt.Printf("%s\n", *issue.HTMLURL)
 	}
 }
