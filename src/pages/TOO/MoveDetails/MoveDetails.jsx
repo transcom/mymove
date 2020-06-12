@@ -14,6 +14,7 @@ import {
   selectCustomer,
 } from 'shared/Entities/modules/moveTaskOrders';
 import { loadOrders } from 'shared/Entities/modules/orders';
+import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
 import { getMTOShipments as getMTOShipmentsAction, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
 import RequestedShipments from 'components/Office/RequestedShipments';
@@ -43,72 +44,86 @@ export class MoveDetails extends Component {
     const { moveOrder, allowances, customer, mtoShipments } = this.props;
     return (
       <div className={styles.MoveDetails}>
-        <div>Sidebar</div>
-        <GridContainer containerSize="desktop" data-cy="too-move-details">
-          <h1>Move details</h1>
+        <div className={styles.container}>
+          <LeftNav className={styles.sidebar}>
+            <a href="#requested-shipments">Requested Shipments</a>
+            <a href="#orders">Orders</a>
+            <a href="#allowances">Allowances</a>
+            <a href="#customer-info">Customer info</a>
+          </LeftNav>
 
-          <div className={styles.section}>
-            <RequestedShipments mtoShipments={mtoShipments} />
-          </div>
+          <GridContainer className={styles.gridContainer} data-cy="too-move-details">
+            <h1>Move details</h1>
 
-          <div className={styles.section}>
-            <Grid row>
-              <Grid col>
-                <OrdersTable
-                  ordersInfo={{
-                    newDutyStation: moveOrder.destinationDutyStation?.name,
-                    currentDutyStation: moveOrder.originDutyStation?.name,
-                    issuedDate: moveOrder.date_issued,
-                    reportByDate: moveOrder.report_by_date,
-                    departmentIndicator: moveOrder.department_indicator,
-                    ordersNumber: moveOrder.order_number,
-                    ordersType: moveOrder.order_type,
-                    ordersTypeDetail: moveOrder.order_type_detail,
-                    tacMDC: moveOrder.tac,
-                    sacSDN: moveOrder.sacSDN,
-                  }}
-                />
-              </Grid>
-            </Grid>
-          </div>
-          <div className={styles.section}>
-            <Grid row>
-              <Grid col>
-                <AllowancesTable
-                  info={{
-                    branch: customer.agency,
-                    rank: moveOrder.grade,
-                    weightAllowance: allowances.totalWeight,
-                    authorizedWeight: allowances.authorizedWeight,
-                    progear: allowances.proGearWeight,
-                    spouseProgear: allowances.proGearWeightSpouse,
-                    storageInTransit: allowances.storageInTransit,
-                    dependents: allowances.dependentsAuthorized,
-                  }}
-                />
-              </Grid>
-            </Grid>
-          </div>
-          <div className={styles.section}>
-            <Grid row>
-              <Grid col>
-                <CustomerInfoTable
-                  customerInfo={{
-                    name: `${customer.last_name}, ${customer.first_name}`,
-                    dodId: customer.dodID,
-                    phone: `+1 ${customer.phone}`,
-                    email: customer.email,
-                    currentAddress: customer.current_address,
-                    destinationAddress: customer.destination_address,
-                    backupContactName: '',
-                    backupContactPhone: '',
-                    backupContactEmail: '',
-                  }}
-                />
-              </Grid>
-            </Grid>
-          </div>
-        </GridContainer>
+            <div className={styles.section} id="requested-shipments">
+              <RequestedShipments mtoShipments={mtoShipments} />
+            </div>
+
+            <div className={styles.section} id="orders">
+              <GridContainer>
+                <Grid row gap>
+                  <Grid col>
+                    <OrdersTable
+                      ordersInfo={{
+                        newDutyStation: moveOrder.destinationDutyStation?.name,
+                        currentDutyStation: moveOrder.originDutyStation?.name,
+                        issuedDate: moveOrder.date_issued,
+                        reportByDate: moveOrder.report_by_date,
+                        departmentIndicator: moveOrder.department_indicator,
+                        ordersNumber: moveOrder.order_number,
+                        ordersType: moveOrder.order_type,
+                        ordersTypeDetail: moveOrder.order_type_detail,
+                        tacMDC: moveOrder.tac,
+                        sacSDN: moveOrder.sacSDN,
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </GridContainer>
+            </div>
+            <div className={styles.section} id="allowances">
+              <GridContainer>
+                <Grid row gap>
+                  <Grid col>
+                    <AllowancesTable
+                      info={{
+                        branch: customer.agency,
+                        rank: moveOrder.grade,
+                        weightAllowance: allowances.totalWeight,
+                        authorizedWeight: allowances.authorizedWeight,
+                        progear: allowances.proGearWeight,
+                        spouseProgear: allowances.proGearWeightSpouse,
+                        storageInTransit: allowances.storageInTransit,
+                        dependents: allowances.dependentsAuthorized,
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </GridContainer>
+            </div>
+            <div className={styles.section} id="customer-info">
+              <GridContainer>
+                <Grid row gap>
+                  <Grid col>
+                    <CustomerInfoTable
+                      customerInfo={{
+                        name: `${customer.last_name}, ${customer.first_name}`,
+                        dodId: customer.dodID,
+                        phone: `+1 ${customer.phone}`,
+                        email: customer.email,
+                        currentAddress: customer.current_address,
+                        destinationAddress: customer.destination_address,
+                        backupContactName: '',
+                        backupContactPhone: '',
+                        backupContactEmail: '',
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </GridContainer>
+            </div>
+          </GridContainer>
+        </div>
       </div>
     );
   }

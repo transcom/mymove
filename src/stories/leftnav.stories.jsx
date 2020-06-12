@@ -1,6 +1,8 @@
 import React from 'react';
-
+import { Tag } from '@trussworks/react-uswds';
 import { storiesOf } from '@storybook/react';
+
+import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 
 import LeftNav from '../components/LeftNav';
 
@@ -9,12 +11,44 @@ import LeftNav from '../components/LeftNav';
 storiesOf('Components|Left Nav', module)
   .add('component', () => (
     <div id="l-nav" style={{ padding: '20px', background: '#f0f0f0' }}>
-      <LeftNav />
+      <LeftNav>
+        <a href="#" className="active">
+          Requested Shipments
+          <Tag className="usa-tag--alert usa-tag--alert--small">
+            <AlertIcon />
+          </Tag>
+        </a>
+        <a href="#orders-anchor">
+          Orders
+          <Tag className="usa-tag--teal">INTL</Tag>
+        </a>
+        <a>Allowances</a>
+        <a>
+          Customer Info
+          <Tag>3</Tag>
+        </a>
+      </LeftNav>
     </div>
   ))
   .add('layout', () => (
     <div style={{ padding: '20px', background: '#f0f0f0', display: 'flex' }}>
-      <LeftNav />
+      <LeftNav>
+        <a href="#" className="active">
+          Requested Shipments
+          <Tag className="usa-tag--alert usa-tag--alert--small">
+            <AlertIcon />
+          </Tag>
+        </a>
+        <a href="#orders-anchor">
+          Orders
+          <Tag className="usa-tag--teal">INTL</Tag>
+        </a>
+        <a>Allowances</a>
+        <a>
+          Customer Info
+          <Tag>3</Tag>
+        </a>
+      </LeftNav>
       <div
         className="content container container--accent--hhg"
         style={{ position: 'relative', width: '85vw', marginTop: '0' }}
