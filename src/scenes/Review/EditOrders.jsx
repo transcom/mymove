@@ -49,7 +49,6 @@ let EditOrdersForm = (props) => {
   const visibleUploads = reject(existingUploads, (upload) => {
     return includes(deleteQueue, upload.id);
   });
-  console.log('vals in form', initialValues); // Form not rerendering after EditOrders component finishes componentDidMount
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">
@@ -96,6 +95,7 @@ let EditOrdersForm = (props) => {
 
 EditOrdersForm = reduxForm({
   form: editOrdersFormName,
+  enableReinitialize: true,
 })(EditOrdersForm);
 
 class EditOrders extends Component {
@@ -165,9 +165,8 @@ class EditOrders extends Component {
   }
 
   render() {
-    const { initialValues, error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
+    const { error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
     console.log('orders', currentOrders);
-    console.log('initial VALS', initialValues);
     return (
       <div className="usa-grid">
         {error && (
@@ -187,7 +186,7 @@ class EditOrders extends Component {
         {!moveIsApproved && (
           <div className="usa-width-one-whole">
             <EditOrdersForm
-              initialValues={initialValues}
+              initialValues={currentOrders}
               onSubmit={this.updateOrders}
               schema={schema}
               existingUploads={existingUploads}
@@ -214,9 +213,9 @@ function mapStateToProps(state) {
     // currentOrders: state.orders.currentOrders, // in master
     serviceMemberId: serviceMemberId,
     currentOrders,
-    uploads,
+    existingUploads: uploads,
+    // existingUploads: get(state, `orders.currentOrders.uploaded_orders.uploads`, []), // TODO: set THIS to uploads
     error: get(state, 'orders.error'),
-    existingUploads: get(state, `orders.currentOrders.uploaded_orders.uploads`, []),
     formValues: getFormValues(editOrdersFormName)(state),
     hasSubmitError: get(state, 'orders.hasSubmitError'),
     moveIsApproved: moveIsApproved(state),
@@ -225,8 +224,6 @@ function mapStateToProps(state) {
     loadDependenciesHasSuccess: showOrdersRequest.isSuccess,
     loadDependenciesHasError: showOrdersRequest.error,
   };
-  const tempOrders = state.orders.currentOrders; // in master
-  props.initialValues = props.currentOrders ? props.currentOrders : tempOrders;
   return props;
 }
 
