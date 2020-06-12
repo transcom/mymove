@@ -83,7 +83,7 @@ const Home = () => (
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
       <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
-      <Resource name="gex" options={{ label: 'Send to Gex' }} show={GexShow} />
+      <Resource name="gex" options={{ label: 'Post to Gex' }} show={GexShow} />
     </Admin>
   </div>
 );

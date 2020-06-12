@@ -787,22 +787,24 @@ definitions:
   SendGexRequest:
     type: object
     properties:
-      reportName:
+      transaction_name:
         type: string
-        title: transaction name
-        example: report name
-      createdAt:
+        title: Transaction Name
+        example: 858-1.edi
+      transaction_body:
         type: string
-        format: datetime
+        title: Transaction Body
+        format: textarea
     required:
-      - reportName
-      - createdAt
+      - transaction_name
+      - transaction_body
   GexResponse:
     type: object
     properties:
-      gexResponse:
+      gex_response:
         type: string
-        title: HTTP response received from GEX
+        title: The HTTP response body received from GEX
+
 paths:
   /access_codes:
     get:
@@ -1413,7 +1415,7 @@ paths:
           description: not found
         500:
           description: server error
-  /gex/report:
+  /gex/send_request:
     post:
       summary: Sends a request to GEX
       description: Sends a request to GEX
@@ -1422,7 +1424,7 @@ paths:
         - gex
       parameters:
         - in: body
-          name: SendGexRequest
+          name: sendGexRequest
           required: true
           schema:
             $ref: '#/definitions/SendGexRequest'

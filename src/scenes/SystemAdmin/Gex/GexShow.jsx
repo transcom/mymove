@@ -1,27 +1,35 @@
 import React from 'react';
-import { Show, SimpleShowLayout, TextField, BooleanField, DateField } from 'react-admin';
+import { ShowController, ShowView, SimpleShowLayout, TextField, DateField } from 'react-admin';
 
-// const GexShowTitle = ({ record }) => {
-//   return <span>{`${record.firstName} ${record.lastName}`}</span>;
-// };
-
-const GexShow = (props) => {
-  return (
-    // <Show {...props} title={<GexShowTitle />}>
-    <Show {...props}>
-      <h1>look at me... show</h1>
-      <SimpleShowLayout>
-        <TextField source="id" />
-        <TextField source="email" />
-        <TextField source="firstName" />
-        <TextField source="lastName" />
-        <TextField source="organizationId" />
-        <BooleanField source="active" />
-        <DateField source="createdAt" showTime />
-        <DateField source="updatedAt" showTime />
-      </SimpleShowLayout>
-    </Show>
-  );
-};
+const GexShow = (props) => (
+  <ShowController {...props}>
+    {(controllerProps) => (
+      <ShowView {...props} {...controllerProps}>
+        <SimpleShowLayout>
+          {controllerProps.record && controllerProps.record.serviceMemberId
+            ? [
+                <TextField source="serviceMemberId" label="Service Member ID" />,
+                <TextField source="serviceMemberFirstName" label="Service Member First Name" />,
+                <TextField source="serviceMemberLastName" label="Service Member Last Name" />,
+                <TextField source="serviceMemberPhone" label="Service Member Phone" />,
+                <TextField source="serviceMemberEmail" label="Service Member Email" />,
+              ]
+            : [
+                <TextField source="officeUserId" label="Office User ID" />,
+                <TextField source="officeUserFirstName" label="Office User First Name" />,
+                <TextField source="officeUserLastName" label="Office User Last Name" />,
+                <TextField source="officeUserPhone" label="Office User Phone" />,
+                <TextField source="officeUserEmail" label="Office User Email" />,
+              ]}
+          <TextField source="moveLocator" label="Move Locator" />
+          <TextField source="upload.filename" label="Upload Filename" />
+          <TextField source="upload.size" label="Upload Size" />
+          <TextField source="upload.contentType" label="Upload Content Type" />
+          <DateField source="upload.createdAt" showTime label="Created At" />
+        </SimpleShowLayout>
+      </ShowView>
+    )}
+  </ShowController>
+);
 
 export default GexShow;
