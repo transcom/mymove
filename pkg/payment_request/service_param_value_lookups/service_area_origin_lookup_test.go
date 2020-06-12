@@ -24,7 +24,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaOrigin() {
 
 	suite.T().Run("golden path", func(t *testing.T) {
 		mtoServiceItem.MTOShipment.PickupAddress.PostalCode = "35007"
-		suite.MustSave(&mtoServiceItem)
+		suite.MustSave(&mtoServiceItem.MTOShipment)
 
 		fmt.Println("postalCode in test")
 		fmt.Printf("%v", mtoServiceItem.MTOShipment.PickupAddress.PostalCode)
