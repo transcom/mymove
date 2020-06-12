@@ -396,7 +396,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDOFSIT:
 		payload = &primemessages.MTOServiceItemDOFSIT{
-			ReServiceCode:    primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
+			ReServiceCode:    string(mtoServiceItem.ReService.Code),
 			PickupPostalCode: mtoServiceItem.PickupPostalCode,
 			Reason:           mtoServiceItem.Reason,
 		}
@@ -404,7 +404,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		firstContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
 		secondContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
 		payload = &primemessages.MTOServiceItemDDFSIT{
-			ReServiceCode:               primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
+			ReServiceCode:               string(mtoServiceItem.ReService.Code),
 			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
 			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
