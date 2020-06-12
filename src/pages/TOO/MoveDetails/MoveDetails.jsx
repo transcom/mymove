@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { GridContainer, Grid } from '@trussworks/react-uswds';
 
 import 'pages/TOO/too.scss';
 
@@ -21,6 +22,8 @@ import OrdersTable from 'components/Office/OrdersTable';
 import { MoveOrderShape, EntitlementShape, CustomerShape, MTOShipmentShape } from 'types/moveOrder';
 import { MatchShape } from 'types/router';
 
+import styles from './MoveDetails.module.scss';
+
 export class MoveDetails extends Component {
   componentDidMount() {
     // TODO - API flow
@@ -39,50 +42,73 @@ export class MoveDetails extends Component {
   render() {
     const { moveOrder, allowances, customer, mtoShipments } = this.props;
     return (
-      <div className="grid-container-desktop-lg" data-cy="too-move-details">
-        <h1>Move details</h1>
-        <div className="container">
-          <RequestedShipments mtoShipments={mtoShipments} />
-          <OrdersTable
-            ordersInfo={{
-              newDutyStation: moveOrder.destinationDutyStation?.name,
-              currentDutyStation: moveOrder.originDutyStation?.name,
-              issuedDate: moveOrder.date_issued,
-              reportByDate: moveOrder.report_by_date,
-              departmentIndicator: moveOrder.department_indicator,
-              ordersNumber: moveOrder.order_number,
-              ordersType: moveOrder.order_type,
-              ordersTypeDetail: moveOrder.order_type_detail,
-              tacMDC: moveOrder.tac,
-              sacSDN: moveOrder.sacSDN,
-            }}
-          />
-          <AllowancesTable
-            info={{
-              branch: customer.agency,
-              rank: moveOrder.grade,
-              weightAllowance: allowances.totalWeight,
-              authorizedWeight: allowances.authorizedWeight,
-              progear: allowances.proGearWeight,
-              spouseProgear: allowances.proGearWeightSpouse,
-              storageInTransit: allowances.storageInTransit,
-              dependents: allowances.dependentsAuthorized,
-            }}
-          />
-          <CustomerInfoTable
-            customerInfo={{
-              name: `${customer.last_name}, ${customer.first_name}`,
-              dodId: customer.dodID,
-              phone: `+1 ${customer.phone}`,
-              email: customer.email,
-              currentAddress: customer.current_address,
-              destinationAddress: customer.destination_address,
-              backupContactName: '',
-              backupContactPhone: '',
-              backupContactEmail: '',
-            }}
-          />
-        </div>
+      <div className={styles.MoveDetails}>
+        <div>Sidebar</div>
+        <GridContainer containerSize="desktop" data-cy="too-move-details">
+          <h1>Move details</h1>
+
+          <div className={styles.section}>
+            <RequestedShipments mtoShipments={mtoShipments} />
+          </div>
+
+          <div className={styles.section}>
+            <Grid row>
+              <Grid col>
+                <OrdersTable
+                  ordersInfo={{
+                    newDutyStation: moveOrder.destinationDutyStation?.name,
+                    currentDutyStation: moveOrder.originDutyStation?.name,
+                    issuedDate: moveOrder.date_issued,
+                    reportByDate: moveOrder.report_by_date,
+                    departmentIndicator: moveOrder.department_indicator,
+                    ordersNumber: moveOrder.order_number,
+                    ordersType: moveOrder.order_type,
+                    ordersTypeDetail: moveOrder.order_type_detail,
+                    tacMDC: moveOrder.tac,
+                    sacSDN: moveOrder.sacSDN,
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </div>
+          <div className={styles.section}>
+            <Grid row>
+              <Grid col>
+                <AllowancesTable
+                  info={{
+                    branch: customer.agency,
+                    rank: moveOrder.grade,
+                    weightAllowance: allowances.totalWeight,
+                    authorizedWeight: allowances.authorizedWeight,
+                    progear: allowances.proGearWeight,
+                    spouseProgear: allowances.proGearWeightSpouse,
+                    storageInTransit: allowances.storageInTransit,
+                    dependents: allowances.dependentsAuthorized,
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </div>
+          <div className={styles.section}>
+            <Grid row>
+              <Grid col>
+                <CustomerInfoTable
+                  customerInfo={{
+                    name: `${customer.last_name}, ${customer.first_name}`,
+                    dodId: customer.dodID,
+                    phone: `+1 ${customer.phone}`,
+                    email: customer.email,
+                    currentAddress: customer.current_address,
+                    destinationAddress: customer.destination_address,
+                    backupContactName: '',
+                    backupContactPhone: '',
+                    backupContactEmail: '',
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </div>
+        </GridContainer>
       </div>
     );
   }

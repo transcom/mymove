@@ -1,0 +1,17 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.MoveDetails {
+  background: $bg-gray;
+}
+
+.section {
+  background: $bg-white;
+  border-radius: 3px;
+  border: 1px solid #dfe1e2;
+}
+
+.section + .section {
+  @include u-margin-top(4);
+}
