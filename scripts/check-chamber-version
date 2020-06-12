@@ -15,7 +15,7 @@ fi
 
 VERSION="2.8"
 
-CHAMBER_VERSION=$(type -p chamber && chamber version)
+CHAMBER_VERSION=$(type -p chamber && DISABLE_AWS_VAULT_WRAPPER=1 chamber version)
 
 # Knocks off everything after the last decimal
 SHORT_VERSION=${CHAMBER_VERSION%.*}
