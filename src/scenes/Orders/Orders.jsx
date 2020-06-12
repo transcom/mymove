@@ -100,10 +100,10 @@ function mapStateToProps(state) {
 
   return {
     serviceMemberId: serviceMemberId,
-    schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
-    formValues,
     // tempOrders: state.orders.currentOrders, // in master
     currentOrders: selectOrdersFromServiceMemberId(state, serviceMemberId),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
+    formValues,
     currentStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
     newDutyStation: get(formValues, 'new_duty_station', {}),
     loadDependenciesHasSuccess: showOrdersRequest.isSuccess,

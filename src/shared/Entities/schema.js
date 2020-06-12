@@ -50,6 +50,7 @@ export const moves = new schema.Array(move);
 export const orders = new schema.Entity('orders');
 orders.define({
   moves: moves,
+  uploads: uploads, // this should fetch the uploads and store them in the uploads (see move and ppm)
 });
 export const ordersArray = new schema.Array(orders);
 

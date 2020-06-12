@@ -166,7 +166,6 @@ class EditOrders extends Component {
 
   render() {
     const { error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
-    console.log('orders', currentOrders);
     return (
       <div className="usa-grid">
         {error && (
