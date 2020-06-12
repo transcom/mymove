@@ -13,21 +13,21 @@ const (
 	msPriceCents = unit.Cents(12303)
 )
 
-var msAvailiableToPrimeAt = time.Date(testdatagen.TestYear, time.June, 3, 12, 57, 33, 123, time.UTC)
+var msAvailableToPrimeAt = time.Date(testdatagen.TestYear, time.June, 3, 12, 57, 33, 123, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 	suite.setupManagementServicesData()
-	params := suite.setupManagementServicesParams()
+	paymentServiceItem := suite.setupManagementServicesItem()
 	counselingServicesPricer := NewManagementServicesPricer(suite.DB())
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, err := counselingServicesPricer.PriceUsingParams(params)
+		priceCents, err := counselingServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
 
 	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, err := counselingServicesPricer.Price(testdatagen.DefaultContractCode, msAvailiableToPrimeAt)
+		priceCents, err := counselingServicesPricer.Price(testdatagen.DefaultContractCode, msAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
@@ -38,7 +38,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 	})
 
 	suite.T().Run("not finding a rate record", func(t *testing.T) {
-		_, err := counselingServicesPricer.Price("BOGUS", msAvailiableToPrimeAt)
+		_, err := counselingServicesPricer.Price("BOGUS", msAvailableToPrimeAt)
 		suite.Error(err)
 	})
 }
@@ -61,44 +61,20 @@ func (suite *GHCRateEngineServiceSuite) setupManagementServicesData() {
 	suite.MustSave(&taskOrderFee)
 }
 
-func (suite *GHCRateEngineServiceSuite) setupManagementServicesParams() models.PaymentServiceItemParams {
-	var params models.PaymentServiceItemParams
-
-	paramsToCreate := []struct {
-		key     models.ServiceItemParamName
-		keyType models.ServiceItemParamType
-		value   string
-	}{
-		{
-			models.ServiceItemParamNameContractCode,
-			models.ServiceItemParamTypeString,
-			testdatagen.DefaultContractCode,
+func (suite *GHCRateEngineServiceSuite) setupManagementServicesItem() models.PaymentServiceItem {
+	return suite.setupPaymentServiceItemWithParams(
+		models.ReServiceCodeMS,
+		[]createParams{
+			{
+				models.ServiceItemParamNameContractCode,
+				models.ServiceItemParamTypeString,
+				testdatagen.DefaultContractCode,
+			},
+			{
+				models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				models.ServiceItemParamTypeTimestamp,
+				msAvailableToPrimeAt.Format(TimestampParamFormat),
+			},
 		},
-		{
-			models.ServiceItemParamNameMTOAvailableToPrimeAt,
-			models.ServiceItemParamTypeTimestamp,
-			msAvailiableToPrimeAt.Format(TimestampParamFormat),
-		},
-	}
-
-	for _, param := range paramsToCreate {
-		serviceItemParamKey := testdatagen.MakeServiceItemParamKey(suite.DB(),
-			testdatagen.Assertions{
-				ServiceItemParamKey: models.ServiceItemParamKey{
-					Key:  param.key,
-					Type: param.keyType,
-				},
-			})
-
-		serviceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(),
-			testdatagen.Assertions{
-				ServiceItemParamKey: serviceItemParamKey,
-				PaymentServiceItemParam: models.PaymentServiceItemParam{
-					Value: param.value,
-				},
-			})
-		params = append(params, serviceItemParam)
-	}
-
-	return params
+	)
 }

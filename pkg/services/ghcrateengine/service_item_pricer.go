@@ -24,7 +24,7 @@ func NewServiceItemPricer(db *pop.Connection) services.ServiceItemPricer {
 
 // PriceServiceItem returns a price for any PaymentServiceItem
 func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (unit.Cents, error) {
-	pricer, err := p.getPricer(item)
+	pricer, err := p.getPricer(item.MTOServiceItem.ReService.Code)
 	if err != nil {
 		return unit.Cents(0), err
 	}
@@ -32,15 +32,14 @@ func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (uni
 	return pricer.PriceUsingParams(item.PaymentServiceItemParams)
 }
 
-func (p serviceItemPricer) getPricer(item models.PaymentServiceItem) (services.ParamsPricer, error) {
-	serviceCode := item.MTOServiceItem.ReService.Code
-
+func (p serviceItemPricer) getPricer(serviceCode models.ReServiceCode) (services.ParamsPricer, error) {
 	switch serviceCode {
 	case models.ReServiceCodeMS:
 		return NewManagementServicesPricer(p.db), nil
 	case models.ReServiceCodeCS:
 		return NewCounselingServicesPricer(p.db), nil
 	default:
+		// TODO: We may want a different error type here after all pricers have been implemented
 		return nil, services.NewNotImplementedError(fmt.Sprintf("pricer not found for code %s", serviceCode))
 	}
 }

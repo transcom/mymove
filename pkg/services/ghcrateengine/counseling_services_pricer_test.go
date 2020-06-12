@@ -17,11 +17,11 @@ var csAvailableToPrimeAt = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 
 
 func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	suite.setupCounselingServicesData()
-	params := suite.setupCounselingServicesParams()
+	paymentServiceItem := suite.setupCounselingServicesItem()
 	counselingServicesPricer := NewCounselingServicesPricer(suite.DB())
 
 	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
-		priceCents, err := counselingServicesPricer.PriceUsingParams(params)
+		priceCents, err := counselingServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 	})
@@ -61,44 +61,20 @@ func (suite *GHCRateEngineServiceSuite) setupCounselingServicesData() {
 	suite.MustSave(&taskOrderFee)
 }
 
-func (suite *GHCRateEngineServiceSuite) setupCounselingServicesParams() models.PaymentServiceItemParams {
-	var params models.PaymentServiceItemParams
-
-	paramsToCreate := []struct {
-		key     models.ServiceItemParamName
-		keyType models.ServiceItemParamType
-		value   string
-	}{
-		{
-			models.ServiceItemParamNameContractCode,
-			models.ServiceItemParamTypeString,
-			testdatagen.DefaultContractCode,
+func (suite *GHCRateEngineServiceSuite) setupCounselingServicesItem() models.PaymentServiceItem {
+	return suite.setupPaymentServiceItemWithParams(
+		models.ReServiceCodeCS,
+		[]createParams{
+			{
+				models.ServiceItemParamNameContractCode,
+				models.ServiceItemParamTypeString,
+				testdatagen.DefaultContractCode,
+			},
+			{
+				models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				models.ServiceItemParamTypeTimestamp,
+				csAvailableToPrimeAt.Format(TimestampParamFormat),
+			},
 		},
-		{
-			models.ServiceItemParamNameMTOAvailableToPrimeAt,
-			models.ServiceItemParamTypeTimestamp,
-			csAvailableToPrimeAt.Format(TimestampParamFormat),
-		},
-	}
-
-	for _, param := range paramsToCreate {
-		serviceItemParamKey := testdatagen.MakeServiceItemParamKey(suite.DB(),
-			testdatagen.Assertions{
-				ServiceItemParamKey: models.ServiceItemParamKey{
-					Key:  param.key,
-					Type: param.keyType,
-				},
-			})
-
-		serviceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(),
-			testdatagen.Assertions{
-				ServiceItemParamKey: serviceItemParamKey,
-				PaymentServiceItemParam: models.PaymentServiceItemParam{
-					Value: param.value,
-				},
-			})
-		params = append(params, serviceItemParam)
-	}
-
-	return params
+	)
 }

@@ -23,18 +23,9 @@ func NewManagementServicesPricer(db *pop.Connection) services.ManagementServices
 
 // Price determines the price for a management service
 func (p managementServicesPricer) Price(contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, error) {
-	var taskOrderFee models.ReTaskOrderFee
-	err := p.db.Q().
-		Join("re_contract_years cy", "re_task_order_fees.contract_year_id = cy.id").
-		Join("re_contracts c", "cy.contract_id = c.id").
-		Join("re_services s", "re_task_order_fees.service_id = s.id").
-		Where("c.code = $1", contractCode).
-		Where("s.code = $2", models.ReServiceCodeMS).
-		Where("$3 between cy.start_date and cy.end_date", mtoAvailableToPrimeAt).
-		First(&taskOrderFee)
-
+	taskOrderFee, err := fetchTaskOrderFee(p.db, contractCode, models.ReServiceCodeMS, mtoAvailableToPrimeAt)
 	if err != nil {
-		return 0, err
+		return unit.Cents(0), err
 	}
 
 	return taskOrderFee.PriceCents, nil
