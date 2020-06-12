@@ -45,8 +45,9 @@ type MTOServiceItemDDFSIT struct {
 	// Format: date
 	FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
 
-	// re service code
-	ReServiceCode ReServiceCode `json:"reServiceCode,omitempty"`
+	// Service code allowed for this model type.
+	// Enum: [DDFSIT]
+	ReServiceCode string `json:"reServiceCode,omitempty"`
 
 	// time military1
 	// Required: true
@@ -176,8 +177,9 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		// Format: date
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
 
-		// re service code
-		ReServiceCode ReServiceCode `json:"reServiceCode,omitempty"`
+		// Service code allowed for this model type.
+		// Enum: [DDFSIT]
+		ReServiceCode string `json:"reServiceCode,omitempty"`
 
 		// time military1
 		// Required: true
@@ -283,8 +285,9 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		// Format: date
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
 
-		// re service code
-		ReServiceCode ReServiceCode `json:"reServiceCode,omitempty"`
+		// Service code allowed for this model type.
+		// Enum: [DDFSIT]
+		ReServiceCode string `json:"reServiceCode,omitempty"`
 
 		// time military1
 		// Required: true
@@ -508,16 +511,34 @@ func (m *MTOServiceItemDDFSIT) validateFirstAvailableDeliveryDate2(formats strfm
 	return nil
 }
 
+var mTOServiceItemDDFSITTypeReServiceCodePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DDFSIT"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mTOServiceItemDDFSITTypeReServiceCodePropEnum = append(mTOServiceItemDDFSITTypeReServiceCodePropEnum, v)
+	}
+}
+
+// property enum
+func (m *MTOServiceItemDDFSIT) validateReServiceCodeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, mTOServiceItemDDFSITTypeReServiceCodePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (m *MTOServiceItemDDFSIT) validateReServiceCode(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ReServiceCode) { // not required
 		return nil
 	}
 
-	if err := m.ReServiceCode.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("reServiceCode")
-		}
+	// value enum
+	if err := m.validateReServiceCodeEnum("reServiceCode", "body", m.ReServiceCode); err != nil {
 		return err
 	}
 
