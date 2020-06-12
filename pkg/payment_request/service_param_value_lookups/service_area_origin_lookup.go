@@ -2,12 +2,15 @@ package serviceparamvaluelookups
 
 import (
 	"database/sql"
+	"fmt"
+
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// ServiceAreaOrigin does lookup on actual weight billed
+// ServiceAreaOriginLookup does lookup on actual weight billed
 type ServiceAreaOriginLookup struct {
 }
 
@@ -18,7 +21,7 @@ func (r ServiceAreaOriginLookup) lookup(keyData *ServiceItemParamKeyData) (strin
 	// Get the MTOServiceItem and associated MTOShipment
 	mtoServiceItemID := keyData.MTOServiceItemID
 	var mtoServiceItem models.MTOServiceItem
-	err := db.Eager("ReService", "MTOShipment").Find(&mtoServiceItem, mtoServiceItemID)
+	err := db.Eager("ReService", "MTOShipment.PickupAddress").Find(&mtoServiceItem, mtoServiceItemID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -29,22 +32,38 @@ func (r ServiceAreaOriginLookup) lookup(keyData *ServiceItemParamKeyData) (strin
 	}
 
 	// Make sure there's an MTOShipment since that's nullable
-	mtoShipmentID := mtoServiceItem.MTOShipment.PickupAddress.
+	mtoShipmentID := mtoServiceItem.MTOShipmentID
 	if mtoShipmentID == nil {
 		return "", services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
 	}
 
-	// Make sure there's an actual weight since that's nullable
-	zip3 := mtoServiceItem.MTOShipment.PickupAddress.PostalCode[0:3]
+	// Make sure there's a pickup address since those are nullable
+	pickupAddressID := mtoServiceItem.MTOShipment.PickupAddressID
+	if pickupAddressID == nil || *pickupAddressID == uuid.Nil {
+		//check for string of all zeros
+		return "", services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
+	}
 
-	query := `
-	SELECT service_area from re_domestic_service_areas
-	JOIN re_zip3s on re_zip3s.domestic_service_area_id = re_domestic_service_areas.id
-	`
+	// find the service area by querying for the service area associated with the zip3
+	zip := mtoServiceItem.MTOShipment.PickupAddress.PostalCode
+	zip3 := zip[0:3]
 
-	q := db.RawQuery(query).Where("zip3 = ?", zip3)
-	// Select zip3, service_area from re_zip3s
-	// JOIN re_domestic_service_areas rdsa on re_zip3s.domestic_service_area_id = rdsa.id
+	fmt.Println("postalCode in lookup")
+	fmt.Printf("%v", mtoServiceItem.MTOShipment.PickupAddress.PostalCode)
 
-	return q
+	//query := `
+	//SELECT service_area from re_domestic_service_areas
+	//JOIN re_zip3s on re_zip3s.domestic_service_area_id = re_domestic_service_areas.id
+	//WHERE zip3 = ?
+	//`
+
+	var domesticServiceArea models.ReDomesticServiceArea
+
+	query := db.Q().Join("re_zip3s", "re_zip3s.domestic_service_area_id = re_domestic_service_areas.id").
+		Where("zip3 = ?", zip3)
+
+	err = query.First(&domesticServiceArea)
+
+	return domesticServiceArea.ServiceArea, err
+
 }
