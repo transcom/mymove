@@ -2,7 +2,6 @@ package serviceparamvaluelookups
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gofrs/uuid"
 
@@ -47,15 +46,6 @@ func (r ServiceAreaOriginLookup) lookup(keyData *ServiceItemParamKeyData) (strin
 	// find the service area by querying for the service area associated with the zip3
 	zip := mtoServiceItem.MTOShipment.PickupAddress.PostalCode
 	zip3 := zip[0:3]
-
-	fmt.Println("postalCode in lookup")
-	fmt.Printf("%v", mtoServiceItem.MTOShipment.PickupAddress.PostalCode)
-
-	//query := `
-	//SELECT service_area from re_domestic_service_areas
-	//JOIN re_zip3s on re_zip3s.domestic_service_area_id = re_domestic_service_areas.id
-	//WHERE zip3 = ?
-	//`
 
 	var domesticServiceArea models.ReDomesticServiceArea
 
