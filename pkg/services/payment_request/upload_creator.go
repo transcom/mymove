@@ -32,7 +32,7 @@ func (p *paymentRequestUploadCreator) assembleUploadFilePathName(paymentRequestI
 	var paymentRequest models.PaymentRequest
 	err := p.db.Where("id=$1", paymentRequestID).First(&paymentRequest)
 	if err != nil {
-		return "", fmt.Errorf("cannot fetch payment request: %w", err)
+		return "", services.NewNotFoundError(paymentRequestID, "")
 	}
 
 	filename := "timestamp-" + time.Now().String()
@@ -47,17 +47,20 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
 		newUploader, err := uploader.NewPrimeUploader(tx, p.logger, p.fileStorer, p.fileSizeLimit)
 		if err != nil {
-			return fmt.Errorf("cannot create uploader in payment request uploadCreator: %w", err)
+			if err == uploader.ErrFileSizeLimitExceedsMax {
+				return services.NewBadDataError(err.Error())
+			}
+			return err
 		}
 
 		fileName, err := p.assembleUploadFilePathName(paymentRequestID)
 		if err != nil {
-			return fmt.Errorf("could not assemble primeUpload filepath name %w", err)
+			return err
 		}
 
 		aFile, err := newUploader.PrepareFileForUpload(file, fileName)
 		if err != nil {
-			return fmt.Errorf("could not prepare file for uploader: %w", err)
+			return err
 		}
 
 		newUploader.SetUploadStorageKey(fileName)
@@ -65,7 +68,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 		var paymentRequest models.PaymentRequest
 		err = tx.Find(&paymentRequest, paymentRequestID)
 		if err != nil {
-			return fmt.Errorf("could not find PaymentRequestID [%s]: %w", paymentRequestID, err)
+			return services.NewNotFoundError(paymentRequestID, "")
 		}
 		// create proof of service doc
 		proofOfServiceDoc := models.ProofOfServiceDoc{
