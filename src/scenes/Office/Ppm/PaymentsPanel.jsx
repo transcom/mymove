@@ -50,6 +50,20 @@ function getUserDate() {
   return new Date().toISOString().split('T')[0];
 }
 
+// Taken from https://mathiasbynens.github.io/rel-noopener/
+// tl;dr-- opening content in target _blank can leave parent window open to malicious code
+// below is a safer way to open content in a new tab
+function safeOpenInNewTab(url) {
+  if (url) {
+    let win = window.open();
+    // win can be null if a pop-up blocker is used
+    if (win) {
+      win.opener = null;
+      win.location = url;
+    }
+  }
+}
+
 class PaymentsTable extends Component {
   state = {
     showPaperwork: false,
@@ -83,15 +97,7 @@ class PaymentsTable extends Component {
           obj: { url },
         },
       } = response;
-      if (url) {
-        // Taken from https://mathiasbynens.github.io/rel-noopener/
-        let win = window.open();
-        // win can be null if a pop-up blocker is used
-        if (win) {
-          win.opener = null;
-          win.location = url;
-        }
-      }
+      safeOpenInNewTab(url);
       this.setState({ disableDownload: false });
     });
   };
@@ -105,8 +111,7 @@ class PaymentsTable extends Component {
     const { moveId } = this.props;
     const userDate = getUserDate();
 
-    // eslint-disable-next-line
-    window.open(`/internal/moves/${moveId}/shipment_summary_worksheet/?preparationDate=${userDate}`);
+    safeOpenInNewTab(`/internal/moves/${moveId}/shipment_summary_worksheet/?preparationDate=${userDate}`);
   };
 
   renderAdvanceAction = () => {
@@ -218,15 +223,15 @@ class PaymentsTable extends Component {
               <div className="paperwork">
                 <div className="paperwork-step">
                   <div>
-                    <p>Download Shipment Summary Worksheet</p>
-                    <p>Download and complete the worksheet, which is a fill-in PDF form.</p>
+                    <p>Complete the Shipment Summary Worksheet</p>
+                    <p>Open the SSW in a new tab. Download and open the PDF, then fill in any required info.</p>
                   </div>
                   <button
                     className="usa-button"
                     disabled={this.props.disableSSW}
                     onClick={this.downloadShipmentSummary}
                   >
-                    Download Worksheet (PDF)
+                    Open SSW in a New Tab
                   </button>
                 </div>
                 {this.props.disableSSW && (

@@ -6,7 +6,7 @@ DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS = milmove-db-deployed-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
-# https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
+# https://github.com/transcom/transcom-infrasec-com/blob/c32c45078f29ea6fd58b0c246f994dbea91be372/transcom-com-legacy/app-prod/main.tf#L62
 DB_DOCKER_CONTAINER_IMAGE = postgres:12.2
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword

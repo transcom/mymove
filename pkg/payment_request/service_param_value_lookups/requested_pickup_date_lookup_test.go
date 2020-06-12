@@ -34,7 +34,7 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 	suite.T().Run("golden path", func(t *testing.T) {
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
-		expected := fmt.Sprintf("%d-%02d-%02d", testdatagen.TestYear, time.May, 18)
+		expected := requestedPickupDate.Format(DateParamFormat)
 		suite.Equal(expected, valueStr)
 	})
 

@@ -24,6 +24,8 @@ import (
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
+// The following are strings to be used in the title field of errors sent to the client
+
 // SQLErrMessage represents string value to represent generic sql error to avoid leaking implementation details
 const SQLErrMessage string = "Unhandled SQL error encountered"
 
@@ -50,6 +52,9 @@ const MethodNotAllowedErrMessage string = "Method Not Allowed"
 
 // InternalServerErrMessage indicates that there was an internal server error
 const InternalServerErrMessage string = "Internal Server Error"
+
+// InternalServerErrDetail provides a default detail string
+const InternalServerErrDetail string = "An internal server error has occurred"
 
 // NotImplementedErrMessage indicates an endpoint has not been implemented
 const NotImplementedErrMessage string = "Not Implemented"

@@ -73,6 +73,9 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
     * [Linters & Pre-commit Hooks](#linters--pre-commit-hooks)
     * [Yarn install markdown-spell (aka mdspell)](#yarn-install-markdown-spell-aka-mdspell)
+  * [PII Best Practices](#pii-best-practices)
+    * [More about content dispositions](#more-about-content-dispositions)
+    * [More about browser settings](#more-about-browser-settings)
 
 Regenerate with "pre-commit run -a markdown-toc"
 
@@ -132,6 +135,8 @@ To create an account in the sandbox, follow the same instructions, but [in the s
 ## Application Setup
 
 ### Setup: Developer Setup
+
+Note: These instructions are a living document and often fall out-of-date. If you run into anything that needs correcting or updating, please create a PR with those changes to help those coming after you.
 
 There are a number of things you'll need at a minimum to be able to check out, develop and run this project.
 
@@ -298,9 +303,9 @@ Run `make build_tools` to get all the server and tool dependencies built. These 
 
 You will need to setup a local database before you can begin working on the local server / client. Docker will need to be running for any of this to work.
 
-1. `make db_dev_run`: Creates a PostgreSQL docker container if you haven't made one yet
+1. `make db_dev_run` and `make db_test_run`: Creates a PostgreSQL docker container for dev and test, if they don't already exist.
 
-1. `make db_dev_migrate`:  Runs all existing database migrations, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
+1. `make db_dev_migrate` and `make db_test_migrate`:  Runs all existing database migrations for dev and test databases, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
 
 You can validate that your dev database is running by running `psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
 You can validate that your test database is running by running `psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
@@ -326,17 +331,16 @@ After importing _any_ go dependency it's a good practice to run `go mod tidy`, w
 
 The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
 
-If both the server and client are running, you should be able to view the Swagger UI at <http://milmovelocal:3000/api/v1/docs>.  If it does not, try running `make client_build` (this only needs to be run the first time).
+If both the server and client are running, you should be able to view the Swagger UI at <http://milmovelocal:3000/swagger-ui/internal.html>.  If it does not, try running `make client_build` (this only needs to be run the first time).
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 ### Setup: OfficeLocal client
 
-1. Ensure that you have a test account which can log into the office site...
+1. Ensure that you have a test account which can log into the office site:
     * run `generate-test-data --named-scenario e2e_basic` to load test data
+2. Run `make office_client_run`
     * Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
-2. `make office_client_run`
-3. Login with the email used above to access the office
 
 ### Setup: AdminLocal client
 
@@ -355,7 +359,7 @@ Nothing to do.
 
 The API that the Prime will use is authenticated via mutual TSL so there are a few things you need to do to interact with it in a local environment.
 
-1. Make sure that the `primelocal` alias is setup for localhost. See [Setup:Hosts](#setup-hosts)
+1. Make sure that the `primelocal` alias is setup for localhost - this should have been completed in the [Setup:Prerequisites](#Setup-Prerequisites) (check your `/etc/hosts` file for an entry for `primelocal`).
 2. run `make server_run`
 3. Access the Prime API using the devlocal-mtls certs. There is a script that shows you how to do this with curl at `./scripts/prime-api`. For instance to call the `move-task-orders` endpoint, call `./scripts/prime-api move-task-orders`
 
@@ -365,7 +369,7 @@ The API that the Prime will use is authenticated via mutual TSL so there are a f
 
 If you want to develop against AWS services you will need an AWS user account with `engineering` privileges.
 
-AWS credentials are managed via `aws-vault`. See the [the instructions in transcom-ppp](https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#setup) to set things up.
+AWS credentials are managed via `aws-vault`. See the [the instructions in transcom-ppp](https://github.com/transcom/transcom-infrasec-com/blob/master/transcom-ppp/README.md#setup) to set things up.
 
 ## Development
 
@@ -395,15 +399,19 @@ Currently, scenarios have the following numbers:
 
 ### API / Swagger
 
-The public API is defined in a single file: `swagger/api.yaml` and served at `/api/v1/swagger.yaml`. This file is the single source of truth for the public API.
-
-In addition, internal services, i.e. endpoints only intended for use by the React client are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
+Internal services (i.e. endpoints only intended for use by the React client) are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
 
 The Orders Gateway's API is defined in the file `swagger/orders.yaml` and served at `/orders/v0/orders.yaml`.
 
 The Admin API is defined in the file `swagger/admin.yaml` and served at `/admin/v1/swagger.yaml`.
 
-You can view the API's documentation (powered by Swagger UI) at <http://localhost:3000/api/v1/docs> when a local server is running.
+You can view the documentation for the following APIs (powered by Swagger UI) at the following URLS with a local client and server running:
+
+* internal API: <http://milmovelocal:3000/swagger-ui/internal.html>
+
+* admin API: <http://milmovelocal:3000/swagger-ui/admin.html>
+
+* GHC API: <http://milmovelocal:3000/swagger-ui/ghc.html>
 
 ### Testing
 
@@ -612,3 +620,19 @@ cd ~/.config/yarn/global
 yarn cache clean
 yarn global add markdown-spellcheck
 ```
+
+### PII Best Practices
+
+Server side: any downloadable content passed to the client should by default have an inline content disposition (like PDFs).
+
+Client side: before accessing any prod environment, fix your browser settings to display PDFs, not use an external app.
+
+#### More about content dispositions
+
+An inline disposition tells the browser to display a file inline if it can. If you instead set an attachment disposition, the browser will download the file even when it is capable of displaying the data itself. If an engineer downloads PII instead of letting their browser display it, this will cause a security incident. So make sure content like PDFs are passed to the client with inline dispositions. You can read more in [the official Mozilla docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition "MDN: Content-Disposition Headers").
+
+#### More about browser settings
+
+Even if an inline disposition is set, most browsers still allow you to override that behavior and automatically download certain file types.
+
+Before working with the prod environment, ensure you have changed your settings to display PDFs in the browser. In most browsers, you can find the relevant setting by searching "PDF" in the settings menu.

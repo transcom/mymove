@@ -1484,7 +1484,7 @@ definitions:
         format: uuid
         type: string
       createdAt:
-        format: date
+        format: date-time
         type: string
       moveOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -1501,7 +1501,7 @@ definitions:
         type: boolean
         x-nullable: true
       updatedAt:
-        format: date
+        format: date-time
         type: string
       destinationAddress:
         $ref: '#/definitions/Address'
@@ -1547,10 +1547,10 @@ definitions:
         format: uuid
         type: string
       createdAt:
-        format: date
+        format: date-time
         type: string
       updatedAt:
-        format: date
+        format: date-time
         type: string
       firstName:
         type: string
@@ -1646,10 +1646,10 @@ definitions:
         format: uuid
         type: string
       createdAt:
-        format: datetime
+        format: date-time
         type: string
       updatedAt:
-        format: datetime
+        format: date-time
         type: string
       scheduledPickupDate:
         format: date
@@ -1738,7 +1738,7 @@ definitions:
         format: date
         type: string
       createdAt:
-        format: date
+        format: date-time
         type: string
       deletedAt:
         format: date
@@ -1776,7 +1776,7 @@ definitions:
         format: cents
         type: integer
       updatedAt:
-        format: datetime
+        format: date-time
         type: string
       eTag:
         type: string

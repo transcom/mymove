@@ -86,6 +86,10 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemInternalServerError{}, response)
+
+		errResponse := response.(*mtoserviceitemops.CreateMTOServiceItemInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
+
 	})
 
 	suite.T().Run("POST failure - 400", func(t *testing.T) {

@@ -20,14 +20,14 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *supportmessages.MoveTas
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
 	payload := &supportmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
-		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
+		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		ContractorID:       strfmt.UUID(moveTaskOrder.ContractorID.String()),
 		MtoShipments:       *mtoShipments,
-		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
+		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
@@ -172,7 +172,10 @@ func Address(address *models.Address) *supportmessages.Address {
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 	strfmt.MarshalFormat = strfmt.RFC3339Micro
-
+	var primeActualWeight int64
+	if mtoShipment.PrimeActualWeight != nil {
+		primeActualWeight = int64(*mtoShipment.PrimeActualWeight)
+	}
 	payload := &supportmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
@@ -181,6 +184,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
+		PrimeActualWeight:        primeActualWeight,
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
@@ -230,8 +234,8 @@ func MTOAgent(mtoAgent *models.MTOAgent) *supportmessages.MTOAgent {
 	payload := &supportmessages.MTOAgent{
 		ID:            strfmt.UUID(mtoAgent.ID.String()),
 		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
-		CreatedAt:     strfmt.Date(mtoAgent.CreatedAt),
-		UpdatedAt:     strfmt.Date(mtoAgent.UpdatedAt),
+		CreatedAt:     strfmt.DateTime(mtoAgent.CreatedAt),
+		UpdatedAt:     strfmt.DateTime(mtoAgent.UpdatedAt),
 		FirstName:     mtoAgent.FirstName,
 		LastName:      mtoAgent.LastName,
 		AgentType:     string(mtoAgent.MTOAgentType),
@@ -262,6 +266,30 @@ func PaymentRequest(pr *models.PaymentRequest) *supportmessages.PaymentRequest {
 		Status:               supportmessages.PaymentRequestStatus(pr.Status),
 		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
 	}
+}
+
+// PaymentRequests payload
+func PaymentRequests(paymentRequests *models.PaymentRequests) *supportmessages.PaymentRequests {
+	payload := make(supportmessages.PaymentRequests, len(*paymentRequests))
+
+	for i, pr := range *paymentRequests {
+		payload[i] = PaymentRequest(&pr)
+	}
+	return &payload
+}
+
+// InternalServerError describes errors in a standard structure to be returned in the payload.
+// If detail is nil, string defaults to "An internal server error has occurred."
+func InternalServerError(detail *string, traceID uuid.UUID) *supportmessages.Error {
+	payload := supportmessages.Error{
+		Title:    handlers.FmtString(handlers.InternalServerErrMessage),
+		Detail:   handlers.FmtString(handlers.InternalServerErrDetail),
+		Instance: strfmt.UUID(traceID.String()),
+	}
+	if detail != nil {
+		payload.Detail = detail
+	}
+	return &payload
 }
 
 // ValidationError payload describes validation errors from the model or properties

@@ -859,10 +859,18 @@ func init() {
     "Error": {
       "type": "object",
       "required": [
-        "message"
+        "title",
+        "detail"
       ],
       "properties": {
-        "message": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
           "type": "string"
         }
       }
@@ -875,7 +883,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date",
+          "format": "date-time",
           "readOnly": true
         },
         "email": {
@@ -912,7 +920,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date",
+          "format": "date-time",
           "readOnly": true
         }
       }
@@ -1215,7 +1223,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "readOnly": true
         },
         "customerRemarks": {
@@ -1307,7 +1315,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "readOnly": true
         }
       }
@@ -1402,7 +1410,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "eTag": {
           "type": "string"
@@ -1452,7 +1460,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         }
       }
     },
@@ -1725,6 +1733,7 @@ func init() {
         "EIAFuelPrice",
         "MarketDest",
         "MarketOrigin",
+        "MTOAvailableToPrimeAt",
         "NumberDaysSIT",
         "PriceAreaDest",
         "PriceAreaIntlDest",
@@ -1778,7 +1787,9 @@ func init() {
         "STRING",
         "DATE",
         "INTEGER",
-        "DECIMAL"
+        "DECIMAL",
+        "TIMESTAMP",
+        "PaymentServiceItemUUID"
       ]
     },
     "UpdatePaymentRequestStatus": {
@@ -2847,10 +2858,18 @@ func init() {
     "Error": {
       "type": "object",
       "required": [
-        "message"
+        "title",
+        "detail"
       ],
       "properties": {
-        "message": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
           "type": "string"
         }
       }
@@ -2863,7 +2882,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date",
+          "format": "date-time",
           "readOnly": true
         },
         "email": {
@@ -2900,7 +2919,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date",
+          "format": "date-time",
           "readOnly": true
         }
       }
@@ -3203,7 +3222,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "readOnly": true
         },
         "customerRemarks": {
@@ -3295,7 +3314,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "readOnly": true
         }
       }
@@ -3390,7 +3409,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "eTag": {
           "type": "string"
@@ -3440,7 +3459,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         }
       }
     },
@@ -3713,6 +3732,7 @@ func init() {
         "EIAFuelPrice",
         "MarketDest",
         "MarketOrigin",
+        "MTOAvailableToPrimeAt",
         "NumberDaysSIT",
         "PriceAreaDest",
         "PriceAreaIntlDest",
@@ -3766,7 +3786,9 @@ func init() {
         "STRING",
         "DATE",
         "INTEGER",
-        "DECIMAL"
+        "DECIMAL",
+        "TIMESTAMP",
+        "PaymentServiceItemUUID"
       ]
     },
     "UpdatePaymentRequestStatus": {
