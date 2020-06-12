@@ -2,8 +2,9 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import { history, store } from '../../shared/store';
-import MoveDetails from './moveDetails';
+import { history, store } from 'shared/store';
+
+import { MoveDetails } from './MoveDetails';
 
 describe('MoveDetails', () => {
   const wrapper = mount(

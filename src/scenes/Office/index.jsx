@@ -1,12 +1,14 @@
 import React, { Component, lazy, Suspense } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'connected-react-router';
-import { history } from 'shared/store';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import { history } from 'shared/store';
+
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
+import './office.scss';
 
 import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
@@ -17,9 +19,7 @@ import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import QueueHeader from 'shared/Header/Office';
 import FOUOHeader from 'components/FOUOHeader';
-
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import './office.scss';
 import { withContext } from 'shared/AppContext';
 
 // Lazy load these dependencies
@@ -35,7 +35,7 @@ const TIO = lazy(() => import('./TIO/tio'));
 const TOOVerificationInProgress = lazy(() => import('./TOO/tooVerificationInProgress'));
 const PaymentRequestShow = lazy(() => import('./TIO/paymentRequestShow'));
 const PaymentRequestIndex = lazy(() => import('./TIO/paymentRequestIndex'));
-const MoveDetails = lazy(() => import('pages/TOO/moveDetails'));
+const MoveDetails = lazy(() => import('pages/TOO/MoveDetails/MoveDetails'));
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
