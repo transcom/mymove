@@ -77,19 +77,19 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 		}
 		verrs, err := tx.ValidateAndCreate(&proofOfServiceDoc)
 		if err != nil {
-			return fmt.Errorf("failure creating proof of service doc: %w", err)
+			return fmt.Errorf("failure creating proof of service doc: %w", err) // server err
 		}
 		if verrs.HasAny() {
-			return fmt.Errorf("validation error creating proof of service doc: %w", verrs)
+			return services.NewInvalidCreateInputError(verrs, "validation error with creating proof of service doc")
 		}
 
 		posID := &proofOfServiceDoc.ID
 		primeUpload, verrs, err := newUploader.CreatePrimeUploadForDocument(posID, contractorID, uploader.File{File: aFile}, uploader.AllowedTypesPaymentRequest)
 		if verrs.HasAny() {
-			return fmt.Errorf("validation error creating payment request primeUpload: %w", verrs)
+			return services.NewInvalidCreateInputError(verrs, "validation error with creating payment request")
 		}
 		if err != nil {
-			return fmt.Errorf("failure creating payment request primeUpload: %w", err)
+			return fmt.Errorf("failure creating payment request primeUpload: %w", err) // server err
 		}
 		upload = &primeUpload.Upload
 		return nil
