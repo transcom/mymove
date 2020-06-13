@@ -70,17 +70,19 @@ export const serviceMember = new schema.Entity('serviceMembers', {
 });
 
 // Documents
-export const documentModel = new schema.Entity('documents', {
+export const document = new schema.Entity('documents', {
   uploads: uploads,
   service_member: serviceMember,
 });
+export const documents = new schema.Array(document);
+
 orders.define({
-  uploaded_orders: documentModel,
+  uploaded_orders: document,
 });
 
 // MoveDocuments
 export const moveDocument = new schema.Entity('moveDocuments', {
-  document: documentModel,
+  document: document,
 });
 
 export const moveDocuments = new schema.Array(moveDocument);
