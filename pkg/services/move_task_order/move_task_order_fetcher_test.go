@@ -87,4 +87,35 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 		suite.Equal(len(moveTaskOrders), 2)
 	})
+
+	suite.T().Run("filter move task orders with since", func(t *testing.T) {
+
+		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+		now := time.Now()
+		now.Add(-time.Second)
+		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+			MoveTaskOrder: models.MoveTaskOrder{
+				AvailableToPrimeAt: &now,
+			},
+		})
+
+		oldMoveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+			MoveTaskOrder: models.MoveTaskOrder{
+				AvailableToPrimeAt: &now,
+			},
+		})
+
+		// Pop will overwrite UpdatedAt when saving a model, so use SQL to set it in the past
+		suite.NoError(suite.DB().RawQuery("UPDATE move_task_orders SET updated_at=? WHERE id=?",
+			now.Add(-2*time.Second), oldMoveTaskOrder.ID).Exec())
+
+		since := now.Unix()
+		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
+
+		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(true, &since)
+		suite.NoError(err)
+		// NOTE: This also includes data generated from previous test case, that is why this is 3
+		suite.Equal(len(moveTaskOrders), 3)
+	})
 }
