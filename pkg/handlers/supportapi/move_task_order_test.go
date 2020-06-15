@@ -5,14 +5,13 @@ import (
 	"testing"
 	"time"
 
-	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
-
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/services/query"
-	supportMocks "github.com/transcom/mymove/pkg/services/support/mocks"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -115,7 +114,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
+			customer.NewCustomerFetcher(context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -150,7 +149,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
+			customer.NewCustomerFetcher(context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -178,7 +177,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
+			customer.NewCustomerFetcher(context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -199,7 +198,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
+			customer.NewCustomerFetcher(context.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -210,14 +209,16 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
 		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
 
-		mockCreator := supportMocks.InternalMoveTaskOrderCreator{}
+		mockFetcher := mocks.CustomerFetcher{}
 		handler := CreateMoveTaskOrderHandler{context,
-			&mockCreator,
+			&mockFetcher,
 		}
 
 		notFoundError := services.NotFoundError{}
 
-		mockCreator.On("InternalCreateMoveTaskOrder",
+		mockFetcher.On("FetchCustomer",
+			mock.Anything,
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, notFoundError)
@@ -243,7 +244,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 		// make the request
 		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
+			customer.NewCustomerFetcher(context.DB()),
 		}
 		response := handler.Handle(params)
 
