@@ -29,6 +29,7 @@ func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]model
 	return moveTaskOrders, nil
 }
 
+//ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime
 func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, since *int64) (models.MoveTaskOrders, error) {
 	var moveTaskOrders models.MoveTaskOrders
 	var err error
