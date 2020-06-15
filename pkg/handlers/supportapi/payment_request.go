@@ -31,7 +31,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
-		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
+		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 	}
 
 	// Let's fetch the existing payment request using the PaymentRequestFetcher service object
@@ -115,10 +115,41 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		default:
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
-			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
+			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
 	}
 
 	returnPayload := payloads.PaymentRequest(updatedPaymentRequest)
 	return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload)
+}
+
+// ListMTOPaymentRequestsHandler gets all payment requests for a given MTO
+type ListMTOPaymentRequestsHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle getting payment requests for a given MTO
+func (h ListMTOPaymentRequestsHandler) Handle(params paymentrequestop.ListMTOPaymentRequestsParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	mtoID, err := uuid.FromString(params.MoveTaskOrderID.String())
+
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error parsing move task order id: %s", params.MoveTaskOrderID.String()), zap.Error(err))
+		return paymentrequestop.NewListMTOPaymentRequestsInternalServerError()
+	}
+
+	var paymentRequests models.PaymentRequests
+
+	query := h.DB().Where("move_task_order_id = ?", mtoID)
+
+	err = query.All(&paymentRequests)
+
+	if err != nil {
+		logger.Error("Unable to fetch records:", zap.Error(err))
+		return paymentrequestop.NewListMTOPaymentRequestsInternalServerError()
+	}
+
+	payload := payloads.PaymentRequests(&paymentRequests)
+
+	return paymentrequestop.NewListMTOPaymentRequestsOK().WithPayload(*payload)
 }

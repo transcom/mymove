@@ -33,8 +33,8 @@ type MoveTaskOrder struct {
 	ContractorID strfmt.UUID `json:"contractorID,omitempty"`
 
 	// Date the MoveTaskOrder was created on.
-	// Format: date
-	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)
 	//
@@ -83,8 +83,8 @@ type MoveTaskOrder struct {
 	ReferenceID string `json:"referenceId,omitempty"`
 
 	// Date on which this MoveTaskOrder was last updated.
-	// Format: date
-	UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this move task order
@@ -173,7 +173,7 @@ func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -330,7 +330,7 @@ func (m *MoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "date", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

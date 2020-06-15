@@ -648,10 +648,16 @@ definitions:
     type: object
   Error:
     properties:
-      message:
+      title:
         type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
     required:
-      - message
+      - title
+      - detail
     type: object
   MoveOrder:
     required:
@@ -704,7 +710,7 @@ definitions:
         format: uuid
         type: string
       createdAt:
-        format: date
+        format: date-time
         type: string
       moveOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -723,7 +729,7 @@ definitions:
         type: boolean
         x-nullable: true
       updatedAt:
-        format: date
+        format: date-time
         type: string
       paymentRequests:
         $ref: '#/definitions/PaymentRequests'
@@ -763,11 +769,11 @@ definitions:
         type: string
         readOnly: true
       createdAt:
-        format: date
+        format: date-time
         type: string
         readOnly: true
       updatedAt:
-        format: date
+        format: date-time
         type: string
         readOnly: true
       firstName:
@@ -802,11 +808,11 @@ definitions:
         type: string
         readOnly: true
       createdAt:
-        format: datetime
+        format: date-time
         type: string
         readOnly: true
       updatedAt:
-        format: datetime
+        format: date-time
         type: string
         readOnly: true
       approvedDate:
@@ -941,7 +947,13 @@ definitions:
       - APPROVED
       - REJECTED
   MTOServiceItemModelType:
-    description: Describes all model sub-types for a MTOServiceItem model.
+    description: >
+      Describes all model sub-types for a MTOServiceItem model.
+      Prime can only request the following service codes for which they will use the corresponding modelType
+        * DOFSIT - MTOServiceItemDOFSIT
+        * DDFSIT - MTOServiceItemDDFSIT
+        * DOSHUT, DDSHUT - MTOServiceItemShuttle
+        * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
     type: string
     enum:
       - MTOServiceItemBasic
@@ -1008,7 +1020,10 @@ definitions:
       - type: object
         properties:
           reServiceCode:
-            $ref: '#/definitions/ReServiceCode'
+            type: string
+            description: "Service code allowed for this model type."
+            enum:
+              - DOFSIT # Domestic Origin First Day SIT
           reason:
             type: string
             example: Storage items need to be picked up
@@ -1027,7 +1042,10 @@ definitions:
       - type: object
         properties:
           reServiceCode:
-            $ref: '#/definitions/ReServiceCode'
+            type: string
+            description: "Service code allowed for this model type."
+            enum:
+              - DDFSIT # Domestic Destination First Day SIT
           type:
             $ref: '#/definitions/CustomerContactType'
           timeMilitary1:
@@ -1057,6 +1075,7 @@ definitions:
         properties:
           reServiceCode:
             type: string
+            description: "Service codes allowed for this model type."
             enum:
               - DOSHUT # Domestic Origin Shuttle Service
               - DDSHUT # Domestic Destination Shuttle Service
@@ -1078,6 +1097,7 @@ definitions:
         properties:
           reServiceCode:
             type: string
+            description: "Service codes allowed for this model type."
             enum:
               - DCRT # Domestic Crating
               - DCRTSA # Domestic Crating - Standalone
@@ -1238,6 +1258,11 @@ definitions:
     type: object
   ReServiceCode:
     type: string
+    description: |
+      This is the full list of service items that can be found on a shipment. Not all service items
+      may be requested by the Prime, but may be returned in a response.
+
+      Documentation of all the service items will be provided.
     enum:
       - CS
       - DBHF

@@ -22,7 +22,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
-		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
+		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
@@ -30,7 +30,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		PaymentRequests:    *paymentRequests,
 		MtoShipments:       *mtoShipments,
-		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
+		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
@@ -201,8 +201,8 @@ func MTOAgent(mtoAgent *models.MTOAgent) *primemessages.MTOAgent {
 		Email:         mtoAgent.Email,
 		ID:            strfmt.UUID(mtoAgent.ID.String()),
 		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
-		CreatedAt:     strfmt.Date(mtoAgent.CreatedAt),
-		UpdatedAt:     strfmt.Date(mtoAgent.UpdatedAt),
+		CreatedAt:     strfmt.DateTime(mtoAgent.CreatedAt),
+		UpdatedAt:     strfmt.DateTime(mtoAgent.UpdatedAt),
 	}
 }
 
@@ -396,7 +396,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDOFSIT:
 		payload = &primemessages.MTOServiceItemDOFSIT{
-			ReServiceCode:    primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
+			ReServiceCode:    string(mtoServiceItem.ReService.Code),
 			PickupPostalCode: mtoServiceItem.PickupPostalCode,
 			Reason:           mtoServiceItem.Reason,
 		}
@@ -404,7 +404,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		firstContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
 		secondContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
 		payload = &primemessages.MTOServiceItemDDFSIT{
-			ReServiceCode:               primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
+			ReServiceCode:               string(mtoServiceItem.ReService.Code),
 			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
 			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
@@ -467,6 +467,20 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 
 	for _, p := range *mtoServiceItems {
 		payload = append(payload, MTOServiceItem(&p))
+	}
+	return &payload
+}
+
+// InternalServerError describes errors in a standard structure to be returned in the payload.
+// If detail is nil, string defaults to "An internal server error has occurred."
+func InternalServerError(detail *string, traceID uuid.UUID) *primemessages.Error {
+	payload := primemessages.Error{
+		Title:    handlers.FmtString(handlers.InternalServerErrMessage),
+		Detail:   handlers.FmtString(handlers.InternalServerErrDetail),
+		Instance: strfmt.UUID(traceID.String()),
+	}
+	if detail != nil {
+		payload.Detail = detail
 	}
 	return &payload
 }
