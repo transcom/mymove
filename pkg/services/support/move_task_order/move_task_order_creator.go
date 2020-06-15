@@ -33,7 +33,7 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 		// Create or get customer
-		customer, err := createOrGetCustomer(tx, customer.NewCustomerFetcher(f.db), payload.MoveOrder.CustomerID.String(), payload.MoveOrder.Customer, logger)
+		customer, err := createOrGetCustomer(tx, customer.NewCustomerFetcher(tx), payload.MoveOrder.CustomerID.String(), payload.MoveOrder.Customer, logger)
 		if err != nil {
 			return err
 		}
