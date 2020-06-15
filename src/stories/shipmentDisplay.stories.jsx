@@ -2,6 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, object } from '@storybook/addon-knobs';
 
+import { SHIPMENT_TYPE } from 'shared/constants';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay';
 
 const hhgInfo = {

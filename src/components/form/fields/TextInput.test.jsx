@@ -1,8 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { FormGroup, Label, TextInput as UswdsTextInput } from '@trussworks/react-uswds';
-import { ErrorMessage } from '..';
-import { TextInput, TextInputMinimal } from '.';
+
+import { ErrorMessage } from '../index';
+
+import { TextInput, TextInputMinimal } from './index';
 
 const mockOnChange = jest.fn();
 // mock out formik hook as we are not testing formik

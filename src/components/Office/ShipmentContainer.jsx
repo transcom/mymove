@@ -1,8 +1,10 @@
 import React from 'react';
-import { SHIPMENT_TYPE } from 'shared/constants';
 import classNames from 'classnames/bind';
 import * as PropTypes from 'prop-types';
+
 import styles from './shipmentContainer.module.scss';
+
+import { SHIPMENT_TYPE } from 'shared/constants';
 
 const cx = classNames.bind(styles);
 
@@ -20,7 +22,7 @@ const ShipmentContainer = ({ className, children, shipmentType }) => {
 
 ShipmentContainer.propTypes = {
   className: PropTypes.string,
-  children: PropTypes.element,
+  children: PropTypes.element.isRequired,
   /** Describes the type of shipment container. */
   shipmentType: PropTypes.oneOf([
     SHIPMENT_TYPE.HHG,
