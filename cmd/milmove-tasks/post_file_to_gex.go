@@ -66,8 +66,7 @@ func initPostFileToGEXFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-// func sendPaymentReminder(cmd *cobra.Command, args []string) error {
-// go run ./cmd/milmove-tasks post-file-to-gex --edi /Users/lynzt/Downloads/helloworld.json --gex-basic-auth-password 'PWD' --transaction-name abc --gex-url 'https://gexweba.daas.dla.mil:443/msg_data/submit?channel=TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM'
+// go run ./cmd/milmove-tasks post-file-to-gex --edi filepath --transaction-name transactionName --gex-url 'url'
 func postFileToGEX(cmd *cobra.Command, args []string) error {
 	err := cmd.ParseFlags(args)
 	if err != nil {
