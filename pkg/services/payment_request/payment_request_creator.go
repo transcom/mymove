@@ -15,17 +15,21 @@ import (
 	serviceparamlookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
 type paymentRequestCreator struct {
 	db      *pop.Connection
 	planner route.Planner
+	pricer  services.ServiceItemPricer
 }
 
 // NewPaymentRequestCreator returns a new payment request creator
-func NewPaymentRequestCreator(db *pop.Connection, planner route.Planner) services.PaymentRequestCreator {
-	return &paymentRequestCreator{db: db, planner: planner}
+func NewPaymentRequestCreator(db *pop.Connection, planner route.Planner, pricer services.ServiceItemPricer) services.PaymentRequestCreator {
+	return &paymentRequestCreator{
+		db:      db,
+		planner: planner,
+		pricer:  pricer,
+	}
 }
 
 func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, error) {
@@ -58,8 +62,8 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			return fmt.Errorf("failure creating payment request <nil> for %s", mtoMessageString+prMessageString)
 		}
 
-		// Create a pricer
-		pricer := ghcrateengine.NewServiceItemPricer(tx)
+		// Run the pricer within this transactional context
+		txPricer := p.pricer.UsingDB(tx)
 
 		// Create a payment service item for each incoming payment service item in the payment request
 		// These incoming payment service items have not been created in the database yet
@@ -159,7 +163,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			}
 
 			// Price the payment service item
-			err = p.pricePaymentServiceItem(tx, pricer, &paymentServiceItem)
+			err = p.pricePaymentServiceItem(tx, txPricer, &paymentServiceItem)
 			if err != nil {
 				if _, ok := err.(services.InvalidCreateInputError); ok {
 					return err

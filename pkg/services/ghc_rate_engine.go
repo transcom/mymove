@@ -3,6 +3,8 @@ package services
 import (
 	"time"
 
+	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 
@@ -13,6 +15,7 @@ import (
 //go:generate mockery -name ServiceItemPricer
 type ServiceItemPricer interface {
 	PriceServiceItem(item models.PaymentServiceItem) (unit.Cents, error)
+	UsingDB(db *pop.Connection) ServiceItemPricer
 }
 
 // ParamsPricer is an interface that all param-aware pricers implement

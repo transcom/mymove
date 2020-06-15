@@ -1,10 +1,19 @@
 package ghcrateengine
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
+)
+
+// Bridge to expose unexported internals for testing
+var (
+	GetPricer = serviceItemPricer.getPricer
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
@@ -27,6 +36,49 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 
 		_, err := serviceItemPricer.PriceServiceItem(badPaymentServiceItem)
 		suite.Error(err)
+	})
+}
+
+func (suite *GHCRateEngineServiceSuite) TestUsingDB() {
+	originalDB := suite.DB()
+	serviceItemPricerInterface := NewServiceItemPricer(originalDB)
+	serviceItemPricerStruct, _ := serviceItemPricerInterface.(*serviceItemPricer)
+
+	err := originalDB.Rollback(func(tx *pop.Connection) {
+		txServiceItemPricerInterface := serviceItemPricerStruct.UsingDB(tx)
+		txServiceItemPricerStruct, _ := txServiceItemPricerInterface.(serviceItemPricer)
+
+		suite.Same(tx, txServiceItemPricerStruct.db)
+		suite.Same(originalDB, serviceItemPricerStruct.db)
+	})
+
+	suite.Nil(err)
+}
+
+func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
+	serviceItemPricerInterface := NewServiceItemPricer(suite.DB())
+	serviceItemPricer := serviceItemPricerInterface.(*serviceItemPricer)
+
+	testCases := []struct {
+		serviceCode models.ReServiceCode
+		pricer      services.ParamsPricer
+	}{
+		{models.ReServiceCodeMS, &managementServicesPricer{}},
+		{models.ReServiceCodeCS, &counselingServicesPricer{}},
+	}
+
+	for _, testCase := range testCases {
+		suite.T().Run(fmt.Sprintf("testing pricer for service code %s", testCase.serviceCode), func(t *testing.T) {
+			pricer, err := GetPricer(*serviceItemPricer, testCase.serviceCode)
+			suite.NoError(err)
+			suite.IsType(testCase.pricer, pricer)
+		})
+	}
+
+	suite.T().Run("pricer not found", func(t *testing.T) {
+		_, err := GetPricer(*serviceItemPricer, "BOGUS")
+		suite.Error(err)
+		suite.IsType(services.NotImplementedError{}, err)
 	})
 }
 

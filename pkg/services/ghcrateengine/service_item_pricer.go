@@ -32,6 +32,11 @@ func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (uni
 	return pricer.PriceUsingParams(item.PaymentServiceItemParams)
 }
 
+func (p serviceItemPricer) UsingDB(db *pop.Connection) services.ServiceItemPricer {
+	p.db = db
+	return p
+}
+
 func (p serviceItemPricer) getPricer(serviceCode models.ReServiceCode) (services.ParamsPricer, error) {
 	switch serviceCode {
 	case models.ReServiceCodeMS:
