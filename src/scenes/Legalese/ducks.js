@@ -1,5 +1,7 @@
-const SHOW_SUCCESS_BANNER = 'SHOW_SUCCESS_BANNER';
-const REMOVE_SUCCESS_BANNER = 'REMOVE_SUCCESS_BANNER';
+// TODO: remove this after refactor is implemented for creating a flash message
+
+export const SHOW_SUCCESS_BANNER = 'SHOW_SUCCESS_BANNER';
+export const REMOVE_SUCCESS_BANNER = 'REMOVE_SUCCESS_BANNER';
 
 export const showSubmitSuccessBanner = () => {
   return {
@@ -16,7 +18,6 @@ export const removeSubmitSuccessBanner = () => {
 // Reducer
 const initialState = {
   moveSubmitSuccess: false,
-  error: null,
 };
 export function signedCertificationReducer(state = initialState, action) {
   switch (action.type) {
