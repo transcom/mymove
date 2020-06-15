@@ -67,7 +67,6 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 		oldShipment.ActualPickupDate = updatedShipment.ActualPickupDate
 	}
 
-	//scheduledPickupTime := *oldShipment.ScheduledPickupDate
 	if updatedShipment.ScheduledPickupDate != nil {
 		scheduledPickupTime := updatedShipment.ScheduledPickupDate
 		oldShipment.ScheduledPickupDate = scheduledPickupTime

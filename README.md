@@ -41,6 +41,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
   * [Setup: Prerequisites](#setup-prerequisites)
   * [Setup: Pre-Commit](#setup-pre-commit)
+    * [Troubleshooting install issues (process hanging on install hooks)](#troubleshooting-install-issues-process-hanging-on-install-hooks)
   * [Setup: Dependencies](#setup-dependencies)
   * [Setup: Build Tools](#setup-build-tools)
   * [Setup: Database](#setup-database)
@@ -271,7 +272,7 @@ Run `direnv allow` to load up the `.envrc` file. It should complain that you hav
 You can add a `.envrc.local` file. One way to do this is using the [chamber tool](https://github.com/segmentio/chamber) to read secrets from AWS vault.
 Then run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
 
-If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`.
+If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`. **Note also** if you have a very poor internet connection, this method may be problematic to you. We still strongly recommend the `.envrc.chamber` route over the `.envrc.local` one, but if necessary you may follow the `.envrc.local` steps instead.
 
 #### Helpful variables for `.envrc.local`
 
@@ -289,6 +290,10 @@ Run `make prereqs` and install everything it tells you to. Most of the prerequis
 Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than `brew install pre-commit` and must be done so that the hook will check files you are about to commit to the repository.  Next install the pre-commit hook libraries with `pre-commit install-hooks`.
 
 Before running `pre-commit run -a` you will need to install Javascript dependencies and generate some golang code from Swagger files. An easier way to handle this is by running `make pre_commit_tests` or `make server_generate client_deps && pre-commit run -a`. But it's early to do this so you can feel free to skip running the pre-commit checks at this time.
+
+#### Troubleshooting install issues (process hanging on install hooks)
+
+Since pre-commit uses node to hook things up in both your local repo and its cache folder (located at `~/.cache/pre-commit`),it requires a global node install. If you are using nodenv to manage multiple installed nodes, you'll need to set a global version to proceed (eg `nodenv global 12.16.3`). You can find the current supported node version [here (in `.node-version`)](./.node-version).
 
 ### Setup: Dependencies
 
@@ -382,20 +387,20 @@ This background job is built as a separate binary which can be built using `make
 When creating new features, it is helpful to have sample data for the feature to interact with. The TSP Award Queue is an example of that--it matches shipments to TSPs, and it's hard to tell if it's working without some shipments and TSPs in the database!
 
 * `make bin/generate-test-data` will build the fake data generator binary
-* `bin/generate-test-data -named-scenario="e2e_basic"` will populate the database with a handful of users in various stages of progress along the flow. The emails are named accordingly (see [`e2ebasic.go`](https://github.com/transcom/mymove/blob/master/pkg/testdatagen/scenario/e2ebasic.go)). Alternatively, run `make db_dev_e2e_populate` to reset your db and populate it with e2e user flow cases.
-* `bin/generate-test-data` will run binary and create a preconfigured set of test data. To determine the data scenario you'd like to use, check out scenarios in the `testdatagen` package. Each scenario contains a description of what data will be created when the scenario is run. Pass the scenario in as a flag to the generate-test-data function. A sample command: `./bin/generate-test-data -scenario=2`.
+* `bin/generate-test-data --named-scenario="e2e_basic"` will populate the database with a handful of users in various stages of progress along the flow. The emails are named accordingly (see [`e2ebasic.go`](https://github.com/transcom/mymove/blob/master/pkg/testdatagen/scenario/e2ebasic.go)). Alternatively, run `make db_dev_e2e_populate` to reset your db and populate it with e2e user flow cases.
+* `bin/generate-test-data` will run binary and create a preconfigured set of test data. To determine the data scenario you'd like to use, check out scenarios in the `testdatagen` package. Each scenario contains a description of what data will be created when the scenario is run. Pass the scenario in as a flag to the generate-test-data function. A sample command: `./bin/generate-test-data --scenario=2`.
 
 There is also a package (`/pkg/testdatagen`) that can be imported to create arbitrary test data. This could be used in tests, so as not to duplicate functionality.
 
 Currently, scenarios have the following numbers:
 
-* `-scenario=1` for Award Queue Scenario 1
-* `-scenario=2` for Award Queue Scenario 2
-* `-scenario=3` for Duty Station Scenario
-* `-scenario=4` for PPM or PPM SIT Estimate Scenario (can also use Rate Engine Scenarios for Estimates)
-* `-scenario=5` for Rate Engine Scenario 1
-* `-scenario=6` for Rate Engine Scenario 2
-* `-scenario=7` for TSP test data
+* `--scenario=1` for Award Queue Scenario 1
+* `--scenario=2` for Award Queue Scenario 2
+* `--scenario=3` for Duty Station Scenario
+* `--scenario=4` for PPM or PPM SIT Estimate Scenario (can also use Rate Engine Scenarios for Estimates)
+* `--scenario=5` for Rate Engine Scenario 1
+* `--scenario=6` for Rate Engine Scenario 2
+* `--scenario=7` for TSP test data
 
 ### API / Swagger
 
