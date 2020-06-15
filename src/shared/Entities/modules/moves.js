@@ -109,7 +109,6 @@ export function selectActiveMove(state) {
   if (isNull(activeOrders)) {
     return null;
   }
-  console.log('activeOrders', activeOrders);
   const activeMoveId = fetchActive(get(activeOrders, 'moves')).id;
   let activeMove = selectMove(state, activeMoveId);
   if (isEmpty(activeMove)) {

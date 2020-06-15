@@ -1,61 +1,34 @@
-import * as ReduxHelpers from 'shared/ReduxHelpers';
-import moment from 'moment';
+const SHOW_SUCCESS_BANNER = 'SHOW_SUCCESS_BANNER';
+const REMOVE_SUCCESS_BANNER = 'REMOVE_SUCCESS_BANNER';
 
-const signAndSubmitForApprovalType = 'SIGN_AND_SUBMIT_FOR_APPROVAL';
+export const showSubmitSuccessBanner = () => {
+  return {
+    type: SHOW_SUCCESS_BANNER,
+  };
+};
 
-// Actions
-export const CREATE_SIGNED_CERT = ReduxHelpers.generateAsyncActionTypes('CREATE_SIGNED_CERT');
-
-export const GET_LATEST_CERT = ReduxHelpers.generateAsyncActionTypes('GET_LATEST_CERT');
-
-export const GET_CERT_TEXT = ReduxHelpers.generateAsyncActionTypes('GET_CERT_TEXT');
-
-// Action creator
-const SIGN_AND_SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(signAndSubmitForApprovalType);
-
-export function dateToTimestamp(dt) {
-  return moment(dt).format();
-}
+export const removeSubmitSuccessBanner = () => {
+  return {
+    type: REMOVE_SUCCESS_BANNER,
+  };
+};
 
 // Reducer
 const initialState = {
-  hasSubmitError: false,
-  hasSubmitSuccess: false,
-  confirmationText: '',
-  latestSignedCertification: null,
-  certificationText: null,
+  moveSubmitSuccess: false,
   error: null,
 };
 export function signedCertificationReducer(state = initialState, action) {
   switch (action.type) {
-    case GET_CERT_TEXT.success:
+    case SHOW_SUCCESS_BANNER:
       return Object.assign({}, state, {
-        certificationText: action.payload,
+        moveSubmitSuccess: true,
       });
-    case GET_CERT_TEXT.failure:
+    case REMOVE_SUCCESS_BANNER:
       return Object.assign({}, state, {
-        certificationText: '## Error retrieving legalese. Please reload the page.',
-        error: action.error,
+        moveSubmitSuccess: false,
       });
-    case CREATE_SIGNED_CERT.success:
-      return Object.assign({}, state, {
-        hasSubmitSuccess: true,
-        hasSubmitError: false,
-        confirmationText: 'Feedback submitted!',
-      });
-    case CREATE_SIGNED_CERT.failure:
-      return Object.assign({}, state, {
-        hasSubmitSuccess: false,
-        hasSubmitError: true,
-        confirmationText: 'Submission error.',
-      });
-    case SIGN_AND_SUBMIT_FOR_APPROVAL.success:
-      return { ...state, moveSubmitSuccess: true };
-    case SIGN_AND_SUBMIT_FOR_APPROVAL.failure:
-      return { ...state, error: action.error };
     default:
       return state;
   }
 }
-
-// export default feedbackReducer;

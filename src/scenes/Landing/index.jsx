@@ -138,7 +138,6 @@ export class Landing extends Component {
                 resumeMove={this.resumeMove}
                 reviewProfile={this.reviewProfile}
                 requestPaymentSuccess={requestPaymentSuccess}
-                moveSubmitSuccess={moveSubmitSuccess}
                 updateMove={updateMove}
               />
             )}

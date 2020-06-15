@@ -17,6 +17,7 @@ import { createSignedCertification } from 'shared/Entities/modules/signed_certif
 import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
 import { submitMoveForApproval } from 'shared/Entities/modules/moves';
 import { ppmStandardLiability, storageLiability, ppmAdvance, additionalInformation } from './legaleseText';
+import { showSubmitSuccessBanner, removeSubmitSuccessBanner } from './ducks';
 
 const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName);
@@ -62,7 +63,11 @@ export class SignedCertification extends Component {
     if (pendingValues) {
       const moveId = this.props.match.params.moveId;
       Promise.all([this.submitCertificate(), this.props.submitMoveForApproval(moveId, submitDate)])
-        .then(() => this.props.push('/')) // set hasSubmitSuccess to true
+        .then(() => {
+          this.props.showSubmitSuccessBanner();
+          setTimeout(() => this.props.removeSubmitSuccessBanner(), 10000);
+          this.props.push('/');
+        })
         .catch(() => this.setState({ hasMoveSubmitError: true }));
     }
   };
@@ -173,6 +178,8 @@ function mapDispatchToProps(dispatch) {
       createSignedCertification,
       loadPPMs,
       submitMoveForApproval,
+      showSubmitSuccessBanner,
+      removeSubmitSuccessBanner,
       push,
     },
     dispatch,
