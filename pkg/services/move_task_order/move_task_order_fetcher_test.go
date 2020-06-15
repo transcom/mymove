@@ -64,9 +64,10 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		suite.Nil(mto.AvailableToPrimeAt)
 	})
 
-	suite.T().Run("all move task orders that are available to prime", func(t *testing.T) {
+	suite.T().Run("all move task orders that are available to prime and using since", func(t *testing.T) {
 		time1 := time.Now()
 		time2 := time.Now()
+		time3 := time.Now()
 		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 			MoveTaskOrder: models.MoveTaskOrder{
 				AvailableToPrimeAt: &time1,
@@ -77,6 +78,12 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 				AvailableToPrimeAt: &time2,
 			},
 		})
+
+		oldMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+			MoveTaskOrder: models.MoveTaskOrder{
+				AvailableToPrimeAt: &time3,
+			},
+		})
 		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 
@@ -84,38 +91,14 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(true, nil)
 		suite.NoError(err)
-
-		suite.Equal(len(moveTaskOrders), 2)
-	})
-
-	suite.T().Run("filter move task orders with since", func(t *testing.T) {
-
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-		now := time.Now()
-		now.Add(-time.Second)
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: models.MoveTaskOrder{
-				AvailableToPrimeAt: &now,
-			},
-		})
-
-		oldMoveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: models.MoveTaskOrder{
-				AvailableToPrimeAt: &now,
-			},
-		})
-
-		// Pop will overwrite UpdatedAt when saving a model, so use SQL to set it in the past
-		suite.NoError(suite.DB().RawQuery("UPDATE move_task_orders SET updated_at=? WHERE id=?",
-			now.Add(-2*time.Second), oldMoveTaskOrder.ID).Exec())
-
-		since := now.Unix()
-		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
-
-		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(true, &since)
-		suite.NoError(err)
-		// NOTE: This also includes data generated from previous test case, that is why this is 3
 		suite.Equal(len(moveTaskOrders), 3)
+
+		// Put 1 MTOs updatedAt in the past
+		suite.NoError(suite.DB().RawQuery("UPDATE move_task_orders SET updated_at=? WHERE id=?",
+			time3.Add(-2*time.Second), oldMTO.ID).Exec())
+		since := time3.Unix()
+		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(true, &since)
+		suite.NoError(err)
+		suite.Equal(len(mtosWithSince), 2)
 	})
 }
