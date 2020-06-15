@@ -40,12 +40,12 @@ func getParamTime(params models.PaymentServiceItemParams, name models.ServiceIte
 	if paramType == models.ServiceItemParamTypeDate {
 		timeValue, err = time.Parse(DateParamFormat, stringValue)
 		if err != nil {
-			return timeValue, err
+			return timeValue, fmt.Errorf("could not convert %s to date: %w", stringValue, err)
 		}
 	} else if paramType == models.ServiceItemParamTypeTimestamp {
 		timeValue, err = time.Parse(TimestampParamFormat, stringValue)
 		if err != nil {
-			return timeValue, err
+			return timeValue, fmt.Errorf("could not convert %s to timestamp: %w", stringValue, err)
 		}
 	} else {
 		return timeValue, fmt.Errorf("trying to convert %s to a time, but param is of type %s", name, paramType)

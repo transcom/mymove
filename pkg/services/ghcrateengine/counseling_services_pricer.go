@@ -1,6 +1,7 @@
 package ghcrateengine
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -25,7 +26,7 @@ func NewCounselingServicesPricer(db *pop.Connection) services.CounselingServices
 func (p counselingServicesPricer) Price(contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, error) {
 	taskOrderFee, err := fetchTaskOrderFee(p.db, contractCode, models.ReServiceCodeCS, mtoAvailableToPrimeAt)
 	if err != nil {
-		return unit.Cents(0), err
+		return unit.Cents(0), fmt.Errorf("could not fetch task order fee: %w", err)
 	}
 
 	return taskOrderFee.PriceCents, nil

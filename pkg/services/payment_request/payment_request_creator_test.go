@@ -1,6 +1,7 @@
 package paymentrequest
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -252,6 +253,38 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				suite.NotEqual(paymentRequestResult.PaymentServiceItems[1].PaymentServiceItemParams[0].ID, uuid.Nil)
 			}
 		}
+	})
+
+	suite.T().Run("Payment request fails when pricing", func(t *testing.T) {
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID:         mtoServiceItem1.ID,
+					MTOServiceItem:           mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+				{
+					MTOServiceItemID:         mtoServiceItem2.ID,
+					MTOServiceItem:           mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+			},
+		}
+
+		errMsg := "pricing failed"
+		failingServiceItemPricer := &mocks.ServiceItemPricer{}
+		failingServiceItemPricer.
+			On("PriceServiceItem", mock.Anything).Return(unit.Cents(0), errors.New(errMsg)).
+			On("UsingDB", mock.Anything).Return(failingServiceItemPricer)
+
+		failingCreator := NewPaymentRequestCreator(suite.DB(), route.NewTestingPlanner(0), failingServiceItemPricer)
+
+		_, err := failingCreator.CreatePaymentRequest(&paymentRequest)
+		suite.Error(err)
+		wrappedErr := errors.Unwrap(err)
+		suite.Equal(errMsg, wrappedErr.Error())
 	})
 
 	suite.T().Run("Given a non-existent move task order id, the create should fail", func(t *testing.T) {

@@ -165,12 +165,8 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			// Price the payment service item
 			err = p.pricePaymentServiceItem(tx, txPricer, &paymentServiceItem)
 			if err != nil {
-				if _, ok := err.(services.InvalidCreateInputError); ok {
-					return err
-				}
-				// TODO: Other error types to deal with?
-
-				return fmt.Errorf("failure pricing payment service item: %w for %s", err, paymentServiceItem.ID)
+				return fmt.Errorf("failure pricing service %s for MTO service item ID %s: %w",
+					paymentServiceItem.MTOServiceItem.ReService.Code, paymentServiceItem.MTOServiceItemID, err)
 			}
 
 			newPaymentServiceItems = append(newPaymentServiceItems, paymentServiceItem)
@@ -270,12 +266,11 @@ func (p *paymentRequestCreator) pricePaymentServiceItem(tx *pop.Connection, pric
 	price, err := pricer.PriceServiceItem(*paymentServiceItem)
 	if err != nil {
 		// If a pricer isn't implemented yet, just skip saving any pricing for now.
-		// TODO: Once all pricers are implemented, change this to be a real error.
+		// TODO: Once all pricers are implemented, this should be removed.
 		if _, ok := err.(services.NotImplementedError); ok {
 			return nil
 		}
 
-		// TODO: Should we use a different type of error here?
 		return err
 	}
 
@@ -283,11 +278,11 @@ func (p *paymentRequestCreator) pricePaymentServiceItem(tx *pop.Connection, pric
 
 	verrs, err := tx.ValidateAndUpdate(paymentServiceItem)
 	if verrs.HasAny() {
-		// TODO: May need to be a different error type -- or maybe just a generic error since this shouldn't happen
-		return services.NewInvalidCreateInputError(verrs, "validation error updating payment request service item with price in payment request creation")
+		return services.NewInvalidInputError(paymentServiceItem.ID, err, verrs, "")
 	}
 	if err != nil {
-		return fmt.Errorf("failure updating payment service item: %w for Payment Service Item ID <%s>", err, paymentServiceItem.ID.String())
+		return fmt.Errorf("could not update payment service item for MTO service item ID %s: %w",
+			paymentServiceItem.ID, err)
 	}
 
 	return nil
