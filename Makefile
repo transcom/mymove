@@ -24,7 +24,10 @@ ifeq ($(USE_AWS),true)
 endif
 
 # Convenience for LDFLAGS
-WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
+GIT_BRANCH ?= $(shell git branch | grep \* | cut -d ' ' -f2)
+GIT_COMMIT ?= $(shell git rev-list -1 HEAD)
+export GIT_BRANCH GIT_COMMIT
+WEBSERVER_LDFLAGS=-X main.gitBranch=$(GIT_BRANCH) -X main.gitCommit=$(GIT_COMMIT)
 GC_FLAGS=-trimpath=$(GOPATH)
 DB_PORT_DEV=5432
 DB_PORT_TEST=5433
@@ -1098,6 +1101,17 @@ schemaspy: db_test_reset db_test_migrate ## Generates database documentation usi
 		-t pgsql11 -host host.docker.internal -port $(DB_PORT_TEST) -db $(DB_NAME_TEST) -u postgres -p $(PGPASSWORD) \
 		-norows -nopages
 	@echo "Schemaspy output can be found in $(SCHEMASPY_OUTPUT)"
+
+.PHONY: reviewapp_docker
+reviewapp_docker:
+	docker-compose -f docker-compose.reviewapp.yml up
+
+.PHONY: reviewapp_docker_build
+reviewapp_docker_build:
+# remove bin to maybe speed up docker builds by removing it from
+# docker context
+	rm -rf ./bin
+	docker-compose -f docker-compose.reviewapp.yml build
 
 #
 # ----- END RANDOM TARGETS -----

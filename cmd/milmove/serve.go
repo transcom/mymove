@@ -819,7 +819,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		primeMux := goji.SubMux()
 		primeDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.PrimeServername)
 		primeMux.Use(primeDetectionMiddleware)
-		primeMux.Use(clientCertMiddleware)
+		if v.GetBool(cli.DevlocalAuthFlag) {
+			devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(logger, dbConnection)
+			primeMux.Use(devlocalClientCertMiddleware)
+		} else {
+			primeMux.Use(clientCertMiddleware)
+		}
 		primeMux.Use(authentication.PrimeAuthorizationMiddleware(logger))
 		primeMux.Use(middleware.NoCache(logger))
 		primeMux.Use(middleware.RequestLogger(logger))
@@ -973,7 +978,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames))
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames))
 
-		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment}, v.GetString(cli.EnvironmentFlag)) {
+		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")
 			devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
 			devlocalCa, readFileErr := ioutil.ReadFile(filepath.Clean(devlocalCAPath))

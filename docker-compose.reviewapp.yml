@@ -1,0 +1,121 @@
+version: '3.4'
+
+services:
+  database_review:
+    image: postgres:12.4
+    restart: always
+    ports:
+      - '6432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=dev_db
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  redis_review:
+    image: redis:5.0.6
+
+  milmove_migrate_review:
+    depends_on:
+      - database_review
+    build:
+      context: .
+      dockerfile: Dockerfile.reviewapp
+      target: migrate
+      args:
+        GIT_BRANCH: ${GIT_BRANCH:-unknown}
+        GIT_COMMIT: ${GIT_COMMIT:-unknown}
+    links:
+      - database_review
+    environment:
+      - DB_ENV=development
+      - DB_HOST=database_review
+      - DB_NAME=dev_db
+      - DB_PASSWORD=mysecretpassword
+      - DB_PORT=5432
+      - DB_SSL_MODE=disable
+      - DB_USER=postgres
+      - ENVIRONMENT=review
+      - MIGRATION_PATH=file:///migrate/schema;file:///migrate/secure
+      - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
+    entrypoint:
+      - '/bin/milmove'
+      - 'migrate'
+
+  milmove_review:
+    depends_on:
+      - database_review
+      - milmove_migrate_review
+      - redis_review
+    build:
+      context: .
+      dockerfile: Dockerfile.reviewapp
+      args:
+        GIT_BRANCH: ${GIT_BRANCH:-unknown}
+        GIT_COMMIT: ${GIT_COMMIT:-unknown}
+      target: milmove
+    links:
+      - database_review
+    ports:
+      - '4000:4000'
+      - '9443:9443'
+    environment:
+      - CLIENT_AUTH_SECRET_KEY
+      - CSRF_AUTH_KEY
+      - DB_DEBUG=1
+      - DB_ENV=development
+      - DB_HOST=database_review
+      - DB_NAME=dev_db
+      - DB_PASSWORD=mysecretpassword
+      - DB_PORT=5432
+      - DB_REGION=us-west-2
+      - DB_RETRY_INTERVAL=5s
+      - DB_SSL_MODE=disable
+      - DB_USER=postgres
+      - DEVLOCAL_AUTH=1
+      - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
+      - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+      - DPS_AUTH_COOKIE_SECRET_KEY
+      - DPS_COOKIE_EXPIRES_IN_MINUTES
+      - EIA_KEY=db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+      - ENVIRONMENT=review
+      - FEATURE_FLAG_ACCESS_CODE=false
+      - HERE_MAPS_APP_CODE
+      - HERE_MAPS_APP_ID
+      - HERE_MAPS_GEOCODE_ENDPOINT
+      - HERE_MAPS_ROUTING_ENDPOINT
+      - HTTP_ADMIN_SERVER_NAME=admin-review.localhost
+      - HTTP_MY_SERVER_NAME=my-review.localhost
+      - HTTP_OFFICE_SERVER_NAME=office-review.localhost
+      - HTTP_ORDERS_SERVER_NAME=orders-review.localhost
+      - HTTP_PRIME_SERVER_NAME=prime-review.localhost
+      - AWS_CF_DOMAIN=assets.devlocal.move.mil
+      - IWS_RBS_ENABLED=1
+      - IWS_RBS_HOST
+      - LOCAL_STORAGE_ROOT=/tmp
+      - LOCAL_STORAGE_WEB_ROOT=storage
+      - LOGIN_GOV_ADMIN_CLIENT_ID
+      - LOGIN_GOV_CALLBACK_PORT=4000
+      - LOGIN_GOV_CALLBACK_PROTOCOL
+      - LOGIN_GOV_HOSTNAME
+      - LOGIN_GOV_MY_CLIENT_ID
+      - LOGIN_GOV_OFFICE_CLIENT_ID
+      - LOGIN_GOV_SECRET_KEY
+      - MOVE_MIL_DOD_CA_CERT
+      - MOVE_MIL_DOD_TLS_CERT
+      - MOVE_MIL_DOD_TLS_KEY
+      - MUTUAL_TLS_ENABLED=0
+      - NO_TLS_ENABLED=1
+      - NO_TLS_PORT=4000
+      - PGPASSWORD=mysecretpassword
+      - REDIS_HOST=redis_review
+      - REVIEW_BASE_DOMAIN=review.localhost
+      - SERVE_ADMIN=true
+      - SERVE_API_GHC=true
+      - SERVE_API_INTERNAL=true
+      - SERVE_API_PRIME=true
+      - SERVE_SWAGGER_UI=true
+      - STORAGE_BACKEND=local
+      - TLS_ENABLED=1
+      - TZ=UTC
