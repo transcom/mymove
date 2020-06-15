@@ -22,7 +22,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	// create fuel prices in db for last 15 months
 	for month := 0; month < 15; month++ {
 		shipmentDate := currentDate.AddDate(0, -(month - 1), 0)
-		testdatagen.(suite.DB(), shipmentDate)
+		testdatagen.MakeDefaultFuelEIADieselPriceForDate(suite.DB(), shipmentDate)
 	}
 	// remove this month's data
 	thisMonthPrices := []models.FuelEIADieselPrice{}

@@ -8,31 +8,32 @@ import (
 	"net/url"
 )
 
-func BuildEiaApiUrl(eiaUrl string, eiaKey string) (string, error) {
-	var eiaFinalUrl string
+// BuildEiaAPIURL returns the final EIA Open Data API URL to be used to fetch the fuel price data
+func BuildEiaAPIURL(eiaURL string, eiaKey string) (string, error) {
+	var eiaFinalURL string
 
-	parsedURL, err := url.Parse(eiaUrl)
+	parsedURL, err := url.Parse(eiaURL)
 	if err != nil {
-		return eiaFinalUrl, fmt.Errorf("unable to parse EIA Open Data API URL: %w", err)
+		return eiaFinalURL, fmt.Errorf("unable to parse EIA Open Data API URL: %w", err)
 	}
 
 	query := parsedURL.Query()
 	query.Set("api_key", eiaKey)
 	query.Set("series_id", "PET.EMD_EPD2D_PTE_NUS_DPG.W")
 	parsedURL.RawQuery = query.Encode()
-	eiaFinalUrl = parsedURL.String()
+	eiaFinalURL = parsedURL.String()
 
-	return eiaFinalUrl, nil
+	return eiaFinalURL, nil
 }
 
-
-func FetchEiaData(eiaFinalUrl string) (EiaData, error) {
+// FetchEiaData makes a call to the EIA Open Data API and returns the API response
+func FetchEiaData(eiaFinalURL string) (EiaData, error) {
 	var eiaData EiaData
 	client := &http.Client{}
 
 	// TODO: Return an error if EiaFinalUrl is nil
 
-	response, err := client.Get(eiaFinalUrl)
+	response, err := client.Get(eiaFinalURL)
 	if err != nil {
 		return eiaData, fmt.Errorf("GET request to EIA Open Data API failed: %w", err)
 	}
@@ -53,6 +54,7 @@ func FetchEiaData(eiaFinalUrl string) (EiaData, error) {
 	return eiaData, nil
 }
 
+// ExtractDieselFuelPriceData extracts the latest diesel fuel price data from the EIA Open Data API response
 func ExtractDieselFuelPriceData(eiaData EiaData) (DieselFuelPriceData, error) {
 	var dieselFuelPriceData DieselFuelPriceData
 

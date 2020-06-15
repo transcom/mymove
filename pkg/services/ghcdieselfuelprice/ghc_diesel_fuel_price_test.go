@@ -6,8 +6,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type GhcDieselFuelPriceServiceSuite struct {
@@ -31,15 +32,14 @@ func TestGhcDieselFuelPriceServiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-
 func (suite *GhcDieselFuelPriceServiceSuite) helperStubEiaData(url string) (EiaData, error) {
 	var eiaData EiaData
-	re := suite.helperRemoveUrlQuerystring(url)
+	re := suite.helperRemoveURLQuerystring(url)
 
 	if re.MatchString("EIA Open Data API error - invalid or missing api_key") {
 		eiaData.ResponseStatusCode = 200
 		eiaData.RequestData = RequestData{
-			Command: "series",
+			Command:  "series",
 			SeriesID: "pet.emd_epd2d_pte_nus_dpg.ws",
 		}
 		eiaData.ErrorData = ErrorData{
@@ -52,11 +52,11 @@ func (suite *GhcDieselFuelPriceServiceSuite) helperStubEiaData(url string) (EiaD
 
 	if re.MatchString("EIA Open Data API error - invalid series_id") {
 		eiaData.ResponseStatusCode = 200
-		eiaData.RequestData = RequestData {
-			Command: "series",
+		eiaData.RequestData = RequestData{
+			Command:  "series",
 			SeriesID: "pet.emd_epd2d_pte_nus_dpg.ws",
 		}
-		eiaData.ErrorData = ErrorData {
+		eiaData.ErrorData = ErrorData{
 			Error: "invalid series_id. For key registration, documentation, and examples see https://www.eia.gov/developer/",
 		}
 		eiaData.SeriesData = []SeriesData{}
@@ -66,8 +66,8 @@ func (suite *GhcDieselFuelPriceServiceSuite) helperStubEiaData(url string) (EiaD
 
 	if re.MatchString("nil series data") {
 		eiaData.ResponseStatusCode = 200
-		eiaData.RequestData = RequestData {
-			Command: "series",
+		eiaData.RequestData = RequestData{
+			Command:  "series",
 			SeriesID: "pet.emd_epd2d_pte_nus_dpg.ws",
 		}
 		eiaData.ErrorData = ErrorData{}
@@ -78,15 +78,15 @@ func (suite *GhcDieselFuelPriceServiceSuite) helperStubEiaData(url string) (EiaD
 
 	if re.MatchString("extract diesel fuel price data") {
 		eiaData.ResponseStatusCode = 200
-		eiaData.RequestData = RequestData {
-			Command: "series",
+		eiaData.RequestData = RequestData{
+			Command:  "series",
 			SeriesID: "pet.emd_epd2d_pte_nus_dpg.ws",
 		}
 		eiaData.ErrorData = ErrorData{}
-		eiaData.SeriesData = []SeriesData {
+		eiaData.SeriesData = []SeriesData{
 			0: {
 				Updated: "2020-06-08T19:30:09-0400",
-				Data: [][]interface{} {
+				Data: [][]interface{}{
 					0: {0: "20200608", 1: 2.396},
 					1: {0: "20200601", 1: 2.386},
 					2: {0: "20200525", 1: 2.39},
@@ -102,11 +102,11 @@ func (suite *GhcDieselFuelPriceServiceSuite) helperStubEiaData(url string) (EiaD
 	return EiaData{}, nil
 }
 
-func (suite *GhcDieselFuelPriceServiceSuite) helperRemoveUrlQuerystring(url string) *regexp.Regexp {
+func (suite *GhcDieselFuelPriceServiceSuite) helperRemoveURLQuerystring(URL string) *regexp.Regexp {
 	re := regexp.MustCompile(`%20`)
-	url = re.ReplaceAllLiteralString(url, ` `)
-	url = strings.Split(url, "?")[0]
-	re = regexp.MustCompile(`^` + url + `.*`)
+	URL = re.ReplaceAllLiteralString(URL, ` `)
+	URL = strings.Split(URL, "?")[0]
+	re = regexp.MustCompile(`^` + URL + `.*`)
 
 	return re
 }
