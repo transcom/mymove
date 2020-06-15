@@ -24,8 +24,8 @@ type UpdateMTOServiceItemStatus struct {
 	ApprovedAt strfmt.Date `json:"approvedAt,omitempty"`
 
 	// created at
-	// Format: date
-	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// deleted at
 	// Format: date
@@ -88,7 +88,7 @@ type UpdateMTOServiceItemStatus struct {
 	Total int64 `json:"total,omitempty"`
 
 	// updated at
-	// Format: datetime
+	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
@@ -169,7 +169,7 @@ func (m *UpdateMTOServiceItemStatus) validateCreatedAt(formats strfmt.Registry) 
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -334,7 +334,7 @@ func (m *UpdateMTOServiceItemStatus) validateUpdatedAt(formats strfmt.Registry) 
 		return nil
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

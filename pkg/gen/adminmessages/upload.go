@@ -24,7 +24,7 @@ type Upload struct {
 	ContentType string `json:"contentType,omitempty"`
 
 	// Created at
-	// Format: datetime
+	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// filename
@@ -104,7 +104,7 @@ func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 

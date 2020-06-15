@@ -146,6 +146,10 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestInternalServerError{}, response)
+
+		errResponse := response.(*paymentrequestop.CreatePaymentRequestInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong") // check body (body was written before panic)
+
 	})
 
 	suite.T().Run("failed create payment request -- invalid MTO ID format", func(t *testing.T) {

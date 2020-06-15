@@ -54,7 +54,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 			}
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusConflict().WithPayload(payload)
 		default:
-			return mtoserviceitemops.NewUpdateMTOServiceItemStatusInternalServerError()
+			return mtoserviceitemops.NewUpdateMTOServiceItemStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
 	}
 
