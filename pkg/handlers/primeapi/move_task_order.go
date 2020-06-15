@@ -48,7 +48,7 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))
-		return movetaskorderops.NewFetchMTOUpdatesInternalServerError()
+		return movetaskorderops.NewFetchMTOUpdatesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 	}
 
 	payload := payloads.MoveTaskOrders(&mtos)
@@ -84,7 +84,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
 				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
 		default:
-			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError()
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
 	}
 	mtoPayload := payloads.MoveTaskOrder(mto)

@@ -79,7 +79,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		response := handler.Handle(params)
 
-		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), response)
+		suite.IsType(&paymentrequestop.UpdatePaymentRequestStatusInternalServerError{}, response)
+
+		errResponse := response.(*paymentrequestop.UpdatePaymentRequestStatusInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
 
 	})
 
@@ -139,5 +142,52 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed(), response)
 
+	})
+}
+
+func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	suite.T().Run("successful get an MTO with payment requests", func(t *testing.T) {
+		mtoID := paymentRequest.MoveTaskOrderID
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mtoID), nil)
+
+		params := paymentrequestop.ListMTOPaymentRequestsParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: strfmt.UUID(mtoID.String()),
+		}
+
+		handler := ListMTOPaymentRequestsHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		}
+
+		response := handler.Handle(params)
+
+		paymentRequestsResponse := response.(*paymentrequestop.ListMTOPaymentRequestsOK)
+		paymentRequestsPayload := paymentRequestsResponse.Payload
+
+		suite.IsType(paymentrequestop.NewListMTOPaymentRequestsOK(), response)
+		suite.Equal(len(paymentRequestsPayload), 1)
+	})
+
+	suite.T().Run("successful get an MTO with no payment requests", func(t *testing.T) {
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mto.ID), nil)
+
+		params := paymentrequestop.ListMTOPaymentRequestsParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: strfmt.UUID(mto.ID.String()),
+		}
+
+		handler := ListMTOPaymentRequestsHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		}
+
+		response := handler.Handle(params)
+
+		paymentRequestsResponse := response.(*paymentrequestop.ListMTOPaymentRequestsOK)
+		paymentRequestsPayload := paymentRequestsResponse.Payload
+
+		suite.IsType(paymentrequestop.NewListMTOPaymentRequestsOK(), response)
+		suite.Equal(len(paymentRequestsPayload), 0)
 	})
 }

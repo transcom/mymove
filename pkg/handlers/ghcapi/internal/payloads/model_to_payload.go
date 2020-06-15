@@ -35,12 +35,12 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 
 	payload := &ghcmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
-		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
+		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
-		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
+		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 	return payload
@@ -236,8 +236,8 @@ func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
 	payload := &ghcmessages.MTOAgent{
 		ID:            strfmt.UUID(mtoAgent.ID.String()),
 		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
-		CreatedAt:     strfmt.Date(mtoAgent.CreatedAt),
-		UpdatedAt:     strfmt.Date(mtoAgent.UpdatedAt),
+		CreatedAt:     strfmt.DateTime(mtoAgent.CreatedAt),
+		UpdatedAt:     strfmt.DateTime(mtoAgent.UpdatedAt),
 		FirstName:     mtoAgent.FirstName,
 		LastName:      mtoAgent.LastName,
 		AgentType:     string(mtoAgent.MTOAgentType),

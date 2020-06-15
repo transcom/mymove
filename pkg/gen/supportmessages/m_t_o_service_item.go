@@ -24,8 +24,8 @@ type MTOServiceItem struct {
 	ApprovedAt strfmt.Date `json:"approvedAt,omitempty"`
 
 	// created at
-	// Format: date
-	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// deleted at
 	// Format: date
@@ -93,7 +93,7 @@ type MTOServiceItem struct {
 	Total int64 `json:"total,omitempty"`
 
 	// updated at
-	// Format: datetime
+	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
@@ -182,7 +182,7 @@ func (m *MTOServiceItem) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -369,7 +369,7 @@ func (m *MTOServiceItem) validateUpdatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 
