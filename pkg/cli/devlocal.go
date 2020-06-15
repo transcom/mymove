@@ -26,14 +26,18 @@ func CheckDevlocal(v *viper.Viper) error {
 			EnvironmentDevelopment,
 			EnvironmentTest,
 			EnvironmentExperimental,
+			EnvironmentReview,
 		}
 		if environment := v.GetString(EnvironmentFlag); !stringSliceContains(allowedEnvironments, environment) {
 			return errors.Errorf("Devlocal Auth cannot run in the '%s' environment, only in %v", environment, allowedEnvironments)
 		}
 
+		reviewBaseDomain := v.GetString(ReviewBaseDomainFlag)
+
 		// Check against My Server Names
 		allowedMyServerNames := []string{
 			HTTPMyServerNameLocal,
+			fmt.Sprintf("my-%s", reviewBaseDomain),
 			fmt.Sprintf("my.%s.move.mil", EnvironmentExperimental),
 		}
 		if serverName := v.GetString(HTTPMyServerNameFlag); !stringSliceContains(allowedMyServerNames, serverName) {
@@ -43,6 +47,7 @@ func CheckDevlocal(v *viper.Viper) error {
 		// Check against Office Server Names
 		allowedOfficeServerNames := []string{
 			HTTPOfficeServerNameLocal,
+			fmt.Sprintf("office-%s", reviewBaseDomain),
 			fmt.Sprintf("office.%s.move.mil", EnvironmentExperimental),
 		}
 		if serverName := v.GetString(HTTPOfficeServerNameFlag); !stringSliceContains(allowedOfficeServerNames, serverName) {
@@ -52,6 +57,7 @@ func CheckDevlocal(v *viper.Viper) error {
 		// Check against Admin Server Names
 		allowedAdminServerNames := []string{
 			HTTPAdminServerNameLocal,
+			fmt.Sprintf("admin-%s", reviewBaseDomain),
 			fmt.Sprintf("admin.%s.move.mil", EnvironmentExperimental),
 		}
 		if serverName := v.GetString(HTTPAdminServerNameFlag); !stringSliceContains(allowedAdminServerNames, serverName) {

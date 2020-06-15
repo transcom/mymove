@@ -1,0 +1,102 @@
+###########
+# BUILDER #
+###########
+
+FROM milmove/circleci-docker:milmove-app-eaef02734833321cab72652613f07651fc7c99f0 as server_builder
+
+ENV CIRCLECI=docker
+ENV GOPATH=/go
+ENV PATH=/go/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin
+USER root
+WORKDIR /build
+RUN mkdir /go
+
+# go build needs
+## populate go module cache
+COPY go.mod go.sum /build/
+RUN go mod download
+
+# set args after module cache so mod cache isn't invalidated when
+# changing branches
+ARG GIT_BRANCH
+ARG GIT_COMMIT
+
+# copy everything else
+COPY Makefile /build/
+COPY cmd /build/cmd
+COPY swagger /build/swagger
+COPY pkg /build/pkg
+COPY scripts /build/scripts
+
+# fake src dir to silence make
+RUN mkdir /build/src
+
+RUN set -x \
+  && make bin/rds-ca-2019-root.pem \
+  && rm -f pkg/assets/assets.go && make pkg/assets/assets.go \
+  && make server_generate \
+  && rm -f bin/milmove && make bin/milmove
+
+FROM milmove/circleci-docker:milmove-app-eaef02734833321cab72652613f07651fc7c99f0 as client_builder
+
+ENV CIRCLECI=docker
+ENV REACT_APP_NODE_ENV=development
+USER root
+WORKDIR /build
+
+COPY Makefile /build/
+COPY scripts /build/scripts
+
+# js build needs
+COPY .eslintignore .eslintrc .prettierignore .prettierrc .yarnrc \
+  config-overrides.js jsconfig.json package.json terser-rescript.js \
+  yarn.lock wallaby.js /build/
+COPY public /build/public
+COPY src /build/src
+
+RUN set -x \
+  && yarn install \
+  && yarn build
+
+FROM alpine:3.12.3 as migrate
+
+COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
+COPY --from=server_builder /build/bin/milmove /bin/milmove
+
+COPY migrations/app/schema /migrate/schema
+COPY migrations/app/secure /migrate/secure
+COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
+
+# Install tools needed in container
+RUN apk update && apk add ca-certificates --no-cache
+
+WORKDIR /
+
+USER nobody
+
+ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]
+
+#########
+# FINAL #
+#########
+
+FROM gcr.io/distroless/base:latest
+
+COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
+COPY --from=server_builder /build/bin/milmove /bin/milmove
+COPY --from=server_builder /build/swagger /swagger
+
+COPY --from=client_builder /build/build /build
+
+COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+COPY config/tls/dod-sw-ca-54.pem /config/tls/dod-sw-ca-54.pem
+
+# While it's ok to have these certs copied locally, they should never be copied into Dockerfile.
+COPY config/tls/devlocal-ca.key /config/tls/devlocal-ca.key
+COPY config/tls/devlocal-ca.pem /config/tls/devlocal-ca.pem
+
+  ENTRYPOINT ["/bin/milmove"]
+
+CMD ["serve", "--logging-level=debug"]
+
+EXPOSE 8080
