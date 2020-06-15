@@ -32,7 +32,7 @@ func (p *paymentRequestUploadCreator) assembleUploadFilePathName(paymentRequestI
 	var paymentRequest models.PaymentRequest
 	err := p.db.Where("id=$1", paymentRequestID).First(&paymentRequest)
 	if err != nil {
-		return "", fmt.Errorf("cannot fetch payment request: %w", err)
+		return "", services.NewNotFoundError(paymentRequestID, "")
 	}
 
 	filename := "timestamp-" + time.Now().String()
@@ -47,17 +47,20 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
 		newUploader, err := uploader.NewPrimeUploader(tx, p.logger, p.fileStorer, p.fileSizeLimit)
 		if err != nil {
-			return fmt.Errorf("cannot create uploader in payment request uploadCreator: %w", err)
+			if err == uploader.ErrFileSizeLimitExceedsMax {
+				return services.NewBadDataError(err.Error())
+			}
+			return err
 		}
 
 		fileName, err := p.assembleUploadFilePathName(paymentRequestID)
 		if err != nil {
-			return fmt.Errorf("could not assemble primeUpload filepath name %w", err)
+			return err
 		}
 
 		aFile, err := newUploader.PrepareFileForUpload(file, fileName)
 		if err != nil {
-			return fmt.Errorf("could not prepare file for uploader: %w", err)
+			return err
 		}
 
 		newUploader.SetUploadStorageKey(fileName)
@@ -65,7 +68,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 		var paymentRequest models.PaymentRequest
 		err = tx.Find(&paymentRequest, paymentRequestID)
 		if err != nil {
-			return fmt.Errorf("could not find PaymentRequestID [%s]: %w", paymentRequestID, err)
+			return services.NewNotFoundError(paymentRequestID, "")
 		}
 		// create proof of service doc
 		proofOfServiceDoc := models.ProofOfServiceDoc{
@@ -74,19 +77,19 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 		}
 		verrs, err := tx.ValidateAndCreate(&proofOfServiceDoc)
 		if err != nil {
-			return fmt.Errorf("failure creating proof of service doc: %w", err)
+			return fmt.Errorf("failure creating proof of service doc: %w", err) // server err
 		}
 		if verrs.HasAny() {
-			return fmt.Errorf("validation error creating proof of service doc: %w", verrs)
+			return services.NewInvalidCreateInputError(verrs, "validation error with creating proof of service doc")
 		}
 
 		posID := &proofOfServiceDoc.ID
 		primeUpload, verrs, err := newUploader.CreatePrimeUploadForDocument(posID, contractorID, uploader.File{File: aFile}, uploader.AllowedTypesPaymentRequest)
 		if verrs.HasAny() {
-			return fmt.Errorf("validation error creating payment request primeUpload: %w", verrs)
+			return services.NewInvalidCreateInputError(verrs, "validation error with creating payment request")
 		}
 		if err != nil {
-			return fmt.Errorf("failure creating payment request primeUpload: %w", err)
+			return fmt.Errorf("failure creating payment request primeUpload: %w", err) // server err
 		}
 		upload = &primeUpload.Upload
 		return nil
