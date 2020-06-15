@@ -221,6 +221,9 @@ bin/compare-secure-migrations:
 bin/model-vet:
 	go build -ldflags "$(LDFLAGS)" -o bin/model-vet ./cmd/model-vet
 
+bin/generate-deploy-notes:
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-deploy-notes ./cmd/generate-deploy-notes
+
 bin/ecs-deploy:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
@@ -332,6 +335,7 @@ build_tools: bin/gin \
 	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
+	bin/generate-deploy-notes \
 	bin/ecs-deploy \
 	bin/ecs-service-logs \
 	bin/find-guardduty-user \
