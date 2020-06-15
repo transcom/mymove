@@ -268,8 +268,9 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.MoveT
 		ContractorID:       uuid.FromStringOrNil(mtoPayload.ContractorID.String()),
 	}
 
-	if mtoPayload.IsAvailableToPrime != nil {
-		model.IsAvailableToPrime = *mtoPayload.IsAvailableToPrime
+	if mtoPayload.AvailableToPrimeAt != nil {
+		availableToPrimeAt := time.Time(*mtoPayload.AvailableToPrimeAt)
+		model.AvailableToPrimeAt = &availableToPrimeAt
 	}
 
 	if mtoPayload.IsCanceled != nil {
