@@ -34,7 +34,7 @@
     }
 
     &:active,
-    &.active {
+    &:global(.active) {
       @include u-text('bold');
       @include u-text('black');
       @include u-border-left(0.5); //4px
@@ -46,7 +46,7 @@
     }
   }
 
-  .active {
+  :global(.active) {
     @include u-text('bold');
     @include u-text('black');
     @include u-border-left(0.5); //4px

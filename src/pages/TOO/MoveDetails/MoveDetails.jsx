@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
@@ -25,8 +26,28 @@ import { MatchShape } from 'types/router';
 
 import styles from './MoveDetails.module.scss';
 
+const sectionLabels = {
+  'requested-shipments': 'Requested Shipments',
+  orders: 'Orders',
+  allowances: 'Allowances',
+  'customer-info': 'Customer Info',
+};
+
 export class MoveDetails extends Component {
+  constructor(props) {
+    super(props);
+
+    this.sections = ['requested-shipments', 'orders', 'allowances', 'customer-info'];
+
+    this.state = {
+      activeSection: '',
+    };
+  }
+
   componentDidMount() {
+    // attach scroll listener
+    window.addEventListener('scroll', this.handleScroll);
+
     // TODO - API flow
     const { match, getMoveOrder, getCustomer, getAllMoveTaskOrders, getMTOShipments } = this.props;
     const { params } = match;
@@ -40,16 +61,51 @@ export class MoveDetails extends Component {
     });
   }
 
+  componentWillUnmount() {
+    // remove scroll listener
+    window.removeEventListener('scroll', this.handleScroll);
+  }
+
+  setActiveSection = (sectionId) => {
+    this.setState({
+      activeSection: sectionId,
+    });
+  };
+
+  handleScroll = () => {
+    const distanceFromTop = window.scrollY;
+    const { activeSection } = this.state;
+    let newActiveSection;
+
+    this.sections.forEach((section) => {
+      const sectionEl = document.querySelector(`#${section}`);
+      if (sectionEl.offsetTop <= distanceFromTop && sectionEl.offsetTop + sectionEl.offsetHeight > distanceFromTop) {
+        newActiveSection = section;
+      }
+    });
+
+    if (activeSection !== newActiveSection) {
+      this.setActiveSection(newActiveSection);
+    }
+  };
+
   render() {
     const { moveOrder, allowances, customer, mtoShipments } = this.props;
+    const { activeSection } = this.state;
+
     return (
       <div className={styles.MoveDetails}>
         <div className={styles.container}>
           <LeftNav className={styles.sidebar}>
-            <a href="#requested-shipments">Requested Shipments</a>
-            <a href="#orders">Orders</a>
-            <a href="#allowances">Allowances</a>
-            <a href="#customer-info">Customer info</a>
+            {this.sections.map((s) => {
+              const classes = classnames({ active: s === activeSection });
+              return (
+                <a key={`sidenav_${s}`} href={`#${s}`} className={classes}>
+                  {/* eslint-disable-next-line security/detect-object-injection */}
+                  {sectionLabels[s]}
+                </a>
+              );
+            })}
           </LeftNav>
 
           <GridContainer className={styles.gridContainer} data-cy="too-move-details">
