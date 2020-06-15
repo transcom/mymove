@@ -2,6 +2,7 @@ package serviceparamvaluelookups
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gofrs/uuid"
 
@@ -40,7 +41,7 @@ func (r ServiceAreaOriginLookup) lookup(keyData *ServiceItemParamKeyData) (strin
 	pickupAddressID := mtoServiceItem.MTOShipment.PickupAddressID
 	if pickupAddressID == nil || *pickupAddressID == uuid.Nil {
 		//check for string of all zeros
-		return "", services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
+		return "", fmt.Errorf("could not find pickup address for MTOShipment [%s]", mtoShipmentID)
 	}
 
 	// find the service area by querying for the service area associated with the zip3
