@@ -6,7 +6,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/services/support"
 
-	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
 
 	"github.com/go-openapi/runtime/middleware"
