@@ -27,10 +27,10 @@ import { MatchShape } from 'types/router';
 import styles from './MoveDetails.module.scss';
 
 const sectionLabels = {
-  'requested-shipments': 'Requested Shipments',
+  'requested-shipments': 'Requested shipments',
   orders: 'Orders',
   allowances: 'Allowances',
-  'customer-info': 'Customer Info',
+  'customer-info': 'Customer info',
 };
 
 export class MoveDetails extends Component {
