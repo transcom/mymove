@@ -766,21 +766,6 @@ tasks_send_payment_reminder: tasks_build_linux_docker ## Run send-payment-remind
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
 		milmove-tasks send-payment-reminder
-
-tasks_post_file_to_gex: tasks_build_linux_docker ## Run post-file-to-gex from inside docker container
-	@echo "sending payment reminder with docker command..."
-	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
-	docker run \
-		-t \
-		-e DB_HOST="database" \
-		-e DB_NAME \
-		-e DB_PORT \
-		-e DB_USER \
-		-e DB_PASSWORD \
-		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
-		--rm \
-		$(TASKS_DOCKER_CONTAINER):latest \
-		milmove-tasks post-file-to-gex
 #
 # ----- END SCHEDULED TASK TARGETS -----
 #
