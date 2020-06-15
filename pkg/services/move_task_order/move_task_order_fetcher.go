@@ -2,6 +2,7 @@ package movetaskorder
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -26,6 +27,59 @@ func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]model
 		}
 	}
 	return moveTaskOrders, nil
+}
+
+func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, since *int64) (models.MoveTaskOrders, error) {
+	var moveTaskOrders models.MoveTaskOrders
+	var err error
+	if isAvailableToPrime {
+		query := f.db.Where("available_to_prime_at IS NOT NULL").Eager(
+			"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+			"MTOServiceItems.ReService",
+			"MTOServiceItems.Dimensions",
+			"MTOServiceItems.CustomerContacts",
+			"MTOShipments.DestinationAddress",
+			"MTOShipments.PickupAddress",
+			"MTOShipments.SecondaryDeliveryAddress",
+			"MTOShipments.SecondaryPickupAddress",
+			"MTOShipments.MTOAgents",
+			"MoveOrder.Customer",
+			"MoveOrder.Entitlement")
+
+		if since != nil {
+			since := time.Unix(*since, 0)
+			query = query.Where("updated_at > ?", since)
+		}
+
+		err = query.All(&moveTaskOrders)
+	} else {
+		query := f.db.Eager(
+			"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+			"MTOServiceItems.ReService",
+			"MTOServiceItems.Dimensions",
+			"MTOServiceItems.CustomerContacts",
+			"MTOShipments.DestinationAddress",
+			"MTOShipments.PickupAddress",
+			"MTOShipments.SecondaryDeliveryAddress",
+			"MTOShipments.SecondaryPickupAddress",
+			"MTOShipments.MTOAgents",
+			"MoveOrder.Customer",
+			"MoveOrder.Entitlement")
+
+		err = query.All(&moveTaskOrders)
+	}
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return models.MoveTaskOrders{}, services.NotFoundError{}
+		default:
+			return models.MoveTaskOrders{}, err
+		}
+	}
+
+	return moveTaskOrders, nil
+
 }
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
