@@ -1,15 +1,18 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable react/jsx-wrap-multilines */
 import React from 'react';
 import classNames from 'classnames/bind';
 import { SHIPMENT_TYPE } from 'shared/constants';
 import * as PropTypes from 'prop-types';
 import styles from 'components/Office/ShipmentDisplay.module.scss';
 import { formatDate } from 'shared/dates';
+import { Checkbox } from '@trussworks/react-uswds';
 import { ReactComponent as ChevronDown } from '../../shared/icon/chevron-down.svg';
 import ShipmentContainer from './ShipmentContainer';
 
 const cx = classNames.bind(styles);
 
-const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo }) => {
+const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, checked, shipmentId }) => {
   return (
     <div className={`${cx('shipment-display')}`} data-cy="shipment-display">
       <ShipmentContainer className={`${cx('shipment-display__container')}`} shipmentType={shipmentType}>
@@ -17,19 +20,15 @@ const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo }) => {
           <thead>
             <tr>
               <th className={`${cx('shipment-display__header-checkbox')}`}>
-                <div className="usa-checkbox">
-                  <input
-                    id={checkboxId || `shipment-display-checkbox-${shipmentType.toLowerCase()}`}
-                    type="checkbox"
-                    className="usa-checkbox__input"
-                    data-cy="shipment-display-checkbox"
-                  />
-                  {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                  <label
-                    className={checkboxId || `usa-checkbox__label ${cx('shipment-display__checkbox__label')}`}
-                    htmlFor={`shipment-display-checkbox-${shipmentType.toLowerCase()}`}
-                  />
-                </div>
+                <Checkbox
+                  id={`shipment-display-checkbox-${shipmentId}`}
+                  data-cy="shipment-display-checkbox"
+                  onChange={onChange}
+                  checked={checked}
+                  name="shipments"
+                  label=""
+                  value={shipmentId}
+                />
               </th>
               <th>
                 <h3 className={`${cx('shipment-display__heading')}`}>{displayInfo.heading}</h3>
@@ -75,7 +74,9 @@ const ShipmentDisplay = ({ shipmentType, checkboxId, displayInfo }) => {
 };
 
 ShipmentDisplay.propTypes = {
-  checkboxId: PropTypes.string,
+  onChange: PropTypes.func,
+  shipmentId: PropTypes.string.isRequired,
+  checked: PropTypes.bool,
   shipmentType: PropTypes.oneOf([
     SHIPMENT_TYPE.HHG,
     SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC,

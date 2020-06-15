@@ -28,6 +28,9 @@ type PrimeUploader struct {
 func NewPrimeUploader(db *pop.Connection, logger Logger, storer storage.FileStorer, fileSizeLimit ByteSize) (*PrimeUploader, error) {
 	uploader, err := NewUploader(db, logger, storer, fileSizeLimit, models.UploadTypePRIME)
 	if err != nil {
+		if err == ErrFileSizeLimitExceedsMax {
+			return nil, err
+		}
 		return nil, fmt.Errorf("could not create uploader.PrimeUploader for PrimeUpload: %w", err)
 	}
 	return &PrimeUploader{

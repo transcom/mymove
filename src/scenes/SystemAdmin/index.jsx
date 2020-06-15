@@ -7,6 +7,7 @@ import SignIn from 'scenes/SystemAdmin/shared/SignIn';
 import { isDevelopment } from 'shared/constants';
 import { LoginButton } from 'scenes/SystemAdmin/shared/LoginButton';
 import { GetLoggedInUser } from 'shared/User/api.js';
+import FOUOHeader from 'components/FOUOHeader';
 
 class AdminWrapper extends Component {
   constructor(props) {
@@ -30,6 +31,7 @@ class AdminWrapper extends Component {
     if (!this.state.isLoggedIn) {
       return (
         <React.Fragment>
+          <FOUOHeader />
           <LoginButton
             showDevlocalButton={get(this.state, 'isDevelopment', isDevelopment)}
             isLoggedIn={this.state.isLoggedIn}

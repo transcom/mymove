@@ -1,10 +1,8 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, object } from '@storybook/addon-knobs';
-import { SHIPMENT_TYPE } from 'shared/constants';
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay';
-import RequestedShipments from 'components/Office/RequestedShipments';
 
 const hhgInfo = {
   heading: 'HHG',
@@ -42,20 +40,17 @@ const ntsInfo = {
 
 storiesOf('TOO/TIO Components|ShipmentDisplay', module)
   .addDecorator(withKnobs)
-  .add('with one shipment requested', () => {
+  .add('HHG Shipment', () => {
     return (
       <div style={{ padding: '20px' }}>
         <ShipmentDisplay displayInfo={object('displayInfo', hhgInfo)} />
       </div>
     );
   })
-  .add('with two shipment requested', () => {
+  .add('NTS Shipment', () => {
     return (
       <div style={{ padding: '20px' }}>
-        <RequestedShipments>
-          <ShipmentDisplay displayInfo={hhgInfo} />
-          <ShipmentDisplay shipmentType={SHIPMENT_TYPE.NTS} displayInfo={object('displayInfo', ntsInfo)} />
-        </RequestedShipments>
+        <ShipmentDisplay displayInfo={object('displayInfo', ntsInfo)} shipmentType="NTS" />
       </div>
     );
   });

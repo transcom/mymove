@@ -67,10 +67,9 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 		oldShipment.ActualPickupDate = updatedShipment.ActualPickupDate
 	}
 
-	scheduledPickupTime := *oldShipment.ScheduledPickupDate
 	if updatedShipment.ScheduledPickupDate != nil {
-		scheduledPickupTime = *updatedShipment.ScheduledPickupDate
-		oldShipment.ScheduledPickupDate = &scheduledPickupTime
+		scheduledPickupTime := updatedShipment.ScheduledPickupDate
+		oldShipment.ScheduledPickupDate = scheduledPickupTime
 	}
 
 	if updatedShipment.PrimeEstimatedWeight != nil {
@@ -79,7 +78,7 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 		}
 		now := time.Now()
 		if oldShipment.ApprovedDate != nil {
-			err := validatePrimeEstimatedWeightRecordedDate(now, scheduledPickupTime, *oldShipment.ApprovedDate)
+			err := validatePrimeEstimatedWeightRecordedDate(now, *oldShipment.ScheduledPickupDate, *oldShipment.ApprovedDate)
 			if err != nil {
 				verrs.Add("primeEstimatedWeight", "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
 				verrs.Add("primeEstimatedWeight", err.Error())

@@ -106,6 +106,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		response := handler.Handle(badParams)
 
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
+
+		errResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
+
 	})
 
 	suite.T().Run("POST failure - 404 -- not found", func(t *testing.T) {
@@ -269,6 +273,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		response := mockHandler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentInternalServerError{}, response)
+
+		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
+
 	})
 
 	suite.T().Run("PUT failure - 404", func(t *testing.T) {

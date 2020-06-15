@@ -22,7 +22,7 @@ echo "Code goes here"
  have been satisfied.
 * Any new migrations/schema changes:
   * [ ] Follow our guidelines for zero-downtime deploys (see [Zero-Downtime Deploys](https://github.com/transcom/mymove/wiki/migrate-the-database#zero-downtime-migrations))
-  * [ ] Have been communicated to #dp3-engineering
+  * [ ] Have been communicated to #g-database
   * [ ] Secure migrations have been tested following the instructions in our [docs](https://github.com/transcom/mymove/wiki/migrate-the-database#secure-migrations)
 * [ ] There are no aXe warnings for UI.
 * [ ] This works in [Supported Browsers and their phone views](https://github.com/transcom/mymove/tree/master/docs/adr/0016-Browser-Support.md) (Chrome, Firefox, IE, Edge).
