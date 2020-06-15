@@ -2,7 +2,6 @@
   "plugins": ["prettier", "security", "no-only-tests"],
   "extends": ["react-app", "airbnb", "prettier", "prettier/react", "plugin:security/recommended"],
   "root": true,
-  "ignorePatterns": ["src/shared/**/*", "src/scenes/**/*"],
   "rules": {
     "prettier/prettier": "error",
     "no-only-tests/no-only-tests": "error",
