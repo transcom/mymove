@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -30,10 +29,10 @@ func InitGEXFlags(flag *pflag.FlagSet) {
 // CheckGEX validates GEX command line flags
 func CheckGEX(v *viper.Viper) error {
 	gexURL := v.GetString(GEXURLFlag)
-	if len(gexURL) > 0 && strings.HasPrefix(gexURL, "https://gexweba.daas.dla.mil/msg_data/submit") {
-		return fmt.Errorf("invalid gexUrl %s, expecting "+
-			"https://gexweba.daas.dla.mil/msg_data/submit or an empty string", gexURL)
-	}
+	// if len(gexURL) > 0 && strings.HasPrefix(gexURL, "https://gexweba.daas.dla.mil/msg_data/submit") {
+	// 	return fmt.Errorf("invalid gexUrl %s, expecting "+
+	// 		"https://gexweba.daas.dla.mil/msg_data/submit or an empty string", gexURL)
+	// }
 
 	if len(gexURL) > 0 {
 		if len(v.GetString(GEXBasicAuthUsernameFlag)) == 0 {
