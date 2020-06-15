@@ -129,7 +129,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 		tlsConfig,
 		v.GetString("gex-basic-auth-username"),
 		v.GetString("gex-basic-auth-password"),
-	).SendToGex(ediString, v.GetString("transaction-name"))
+	).SendToGex(ediString, "")
 	if resp == nil || err != nil {
 		log.Fatal("Gex Sender had no response", err)
 	}
