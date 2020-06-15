@@ -22,19 +22,41 @@ import (
 	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
+func checkPostFileToGEXConfig(v *viper.Viper, logger logger) error {
+	logger.Debug("checking config")
+
+	err := cli.CheckGEX(v)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckCert(v)
+	if err != nil {
+		return err
+	}
+
+	ediFile := v.GetString("edi")
+	if len(ediFile) == 0 {
+		return errors.Errorf("%s is missing", "edi")
+	}
+
+	trasaction := v.GetString("transaction-name")
+	if len(trasaction) == 0 {
+		return errors.Errorf("%s is missing", "transaction-name")
+	}
+
+	return nil
+}
+
 func initPostFileToGEXFlags(flag *pflag.FlagSet) {
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
-	// EDI Invoice Config
-	flag.String("gex-basic-auth-username", "", "GEX api auth username")
-	flag.String("gex-basic-auth-password", "", "GEX api auth password")
-	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
+	// GEX
+	cli.InitGEXFlags(flag)
 
-	flag.String("dod-ca-package", "", "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
-	flag.String("move-mil-dod-ca-cert", "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
-	flag.String("move-mil-dod-tls-cert", "", "The DoD-signed TLS certificate for various move.mil services.")
-	flag.String("move-mil-dod-tls-key", "", "The private key for the DoD-signed TLS certificate for various move.mil services.")
+	// Certificate
+	cli.InitCertFlags(flag)
 
 	flag.String("edi", "", "The filepath to an edi file to send to GEX")
 	flag.String("transaction-name", "test", "The required name sent in the url of the gex api request")
@@ -45,6 +67,7 @@ func initPostFileToGEXFlags(flag *pflag.FlagSet) {
 }
 
 // func sendPaymentReminder(cmd *cobra.Command, args []string) error {
+// go run ./cmd/milmove-tasks post-file-to-gex --edi /Users/lynzt/Downloads/helloworld.json --gex-basic-auth-password 'PWD' --transaction-name abc --gex-url 'https://gexweba.daas.dla.mil:443/msg_data/submit?channel=TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM'
 func postFileToGEX(cmd *cobra.Command, args []string) error {
 	err := cmd.ParseFlags(args)
 	if err != nil {
@@ -67,10 +90,12 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	}
 	zap.ReplaceGlobals(logger)
 
-	ediFile := v.GetString("edi")
-	if ediFile == "" {
-		log.Fatal("Usage: go run cmd/send_to_gex/main.go  --edi <edi filepath> --transaction-name <name>")
+	err = checkPostFileToGEXConfig(v, logger)
+	if err != nil {
+		logger.Fatal("invalid configuration", zap.Error(err))
 	}
+
+	ediFile := v.GetString("edi")
 
 	file, err := os.Open(ediFile) // #nosec
 	if err != nil {
@@ -96,10 +121,8 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
 	url := v.GetString("gex-url")
 	if len(url) == 0 {
-		log.Fatal("Not sending to GEX because no URL set. Set GEX_URL in your envrc.local.")
+		log.Fatal("Not sending to GEX because no URL set.")
 	}
-	fmt.Println("coffee")
-	fmt.Println(v.GetString("gex-basic-auth-password"))
 
 	resp, err := invoice.NewGexSenderHTTP(
 		url,
