@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// ServiceAreaOriginLookup does lookup on actual weight billed
+// ServiceAreaOriginLookup does lookup on pickup address postal code
 type ServiceAreaOriginLookup struct {
 }
 
