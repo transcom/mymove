@@ -2,7 +2,7 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-function OrdersTable({ ordersInfo }) {
+function OrdersTable({ ordersInfo, handleViewEditOrdersClick }) {
   return (
     <div>
       <div className="stackedtable-header">
@@ -10,7 +10,7 @@ function OrdersTable({ ordersInfo }) {
           <h4>Orders</h4>
         </div>
         <div>
-          <Button secondary>
+          <Button onClick={handleViewEditOrdersClick} secondary>
             <span>View & edit orders</span>
           </Button>
         </div>
@@ -80,6 +80,7 @@ OrdersTable.propTypes = {
     tacMDC: PropTypes.string,
     sacSDN: PropTypes.string,
   }).isRequired,
+  handleViewEditOrdersClick: PropTypes.func,
 };
 
 export default OrdersTable;
