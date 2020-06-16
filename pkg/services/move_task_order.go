@@ -20,6 +20,7 @@ type MoveTaskOrderCreator interface {
 type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error)
 	ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.MoveTaskOrder, error)
+	ListAllMoveTaskOrders(isAvailableToPrime bool, since *int64) (models.MoveTaskOrders, error)
 }
 
 //MoveTaskOrderUpdater is the service object interface for MakeAvailableToPrime
