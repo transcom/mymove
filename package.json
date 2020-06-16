@@ -86,7 +86,8 @@
     "prettier": "prettier --loglevel warn 'src/**/*.{js,jsx}'",
     "lint": "eslint --ext .js --ext .jsx src",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "spellcheck": "mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions"
   },
   "version": "0.1.0",
   "devDependencies": {
@@ -106,6 +107,7 @@
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",
     "loki": "^0.20.3",
+    "markdown-spellcheck": "^1.3.1",
     "mime-types": "^2.1.27",
     "mockdate": "^3.0.2",
     "prettier": "=2.0.5"
