@@ -12645,22 +12645,6 @@ ra-core@^2.9.9:
     redux-saga "~0.16.0"
     reselect "~3.0.0"
 
-ra-core@^3.6.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.6.0.tgz#f264c9cdc4655c99841bd2d5b783e4a3d98009b9"
-  integrity sha512-dMABSXtBDUX8FYIeE/Ac2XKg/mkD3UwAiNBtaMvvWxfzRiyNM8CMBXAHQOj0NTtHvaond7yKSF/Ji4oKPMULCw==
-  dependencies:
-    "@testing-library/react" "^8.0.7"
-    classnames "~2.2.5"
-    date-fns "^1.29.0"
-    eventemitter3 "^3.0.0"
-    inflection "~1.12.0"
-    lodash "~4.17.5"
-    prop-types "^15.6.1"
-    query-string "^5.1.1"
-    recompose "~0.26.0"
-    reselect "~3.0.0"
-
 ra-core@^3.6.1:
   version "3.6.1"
   resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.6.1.tgz#d273e67619711f0de354bf3b5f1e3ea31cc82610"
@@ -12685,25 +12669,18 @@ ra-data-simple-rest@^2.9.9:
     query-string "~5.1.1"
     ra-core "^2.9.9"
 
-ra-i18n-polyglot@^3.6.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.6.0.tgz#352bf93ee37b3c132de4a729ce99fdf19222d545"
-  integrity sha512-RqipBjPFyrmy46GnnGNiJCzXCYla+FUDcbygeYHdwK9tCVknedCzxOVvAyU7DtmDlpA+pxGgcwoOWprsAg61Ww==
+ra-i18n-polyglot@^3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.6.1.tgz#474b5310156185ea9a2f19120ed150bbf3abbc55"
+  integrity sha512-HY8Hq0GFHwq4Th7yHXjsHw9Ff3OAz/xT5wWNN+ckZhGlKfep3/125V2u5VUTMluDhjYs+ThBIZO3vRgky7bXDg==
   dependencies:
     node-polyglot "^2.2.2"
-    ra-core "^3.6.0"
+    ra-core "^3.6.1"
 
 ra-language-english@^2.9.9:
   version "2.9.9"
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-2.9.9.tgz#e8d90d40df8e5e66de8a7b3a72f33dd9de638501"
   integrity sha512-tWybE7ZnCRyiVAWcyN02LA4v5oi030A853lLDmTJUJySUMSwqyy3EpAdiLrOXfe3XKEoyIjRLGQK54iX2cQ/Mw==
-
-ra-language-english@^3.6.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.6.0.tgz#94f8a6c9889674651231aae1881c4d80156bbd07"
-  integrity sha512-a4FnwUTLN+4dWglCiPKIqbOLE5mQTbUMbeVKzhd7liAa0vtBeJGb6JHOArn5+mTaBaxWSF0GOUWXG5uWQqe+pw==
-  dependencies:
-    ra-core "^3.6.0"
 
 ra-language-english@^3.6.1:
   version "3.6.1"
@@ -12712,10 +12689,10 @@ ra-language-english@^3.6.1:
   dependencies:
     ra-core "^3.6.1"
 
-ra-ui-materialui@^3.6.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.6.0.tgz#442b0542fbf4470e9bf45e8856d1248fca4f6b44"
-  integrity sha512-3KwPa077hlNcLuKhGjF0h09MRmnOS90Y4MSZBY5M3fu7rXmpdOGvyISA4eU6oiBIrMQyXbGTSX0s3a1xtcCLlw==
+ra-ui-materialui@^3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.6.1.tgz#5e7847d3605177efc7d11fee7ffe97e3a843558e"
+  integrity sha512-/cCjqGvX5znNe7AHRQQVZVqxsqK6aavGVnT/r95hYoeQsJb6sy6IL0erkCecPY7D9uknbHC6OKbyNDPNOmbrLw==
   dependencies:
     autosuggest-highlight "^3.1.1"
     classnames "~2.2.5"
@@ -12808,10 +12785,10 @@ react-addons-create-fragment@^15.6.2:
     loose-envify "^1.3.1"
     object-assign "^4.1.0"
 
-react-admin@^3.6.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.6.0.tgz#c6ad0eab167fad30495a761f54a8f88754e6a883"
-  integrity sha512-PvH/1FCVWvz5aHO3fP+tx4Cvbfq9BoPgRHfhBc+O3W4SmLhnZt9+aI7A8gysTNIoH3td9hGPTqi49FL6Xt1P2g==
+react-admin@^3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.6.1.tgz#ae4b86fb881e3d3c18a96f10b4d1b1200a85efb2"
+  integrity sha512-co/4A858JZVWdYMaYXaOx+i7TueUTH3HU5W4CqUH9GQQp5CojaPt3V5S+Z8LiMos6UAdvnMzOcZr9nqDmV/qWQ==
   dependencies:
     "@material-ui/core" "^4.3.3"
     "@material-ui/icons" "^4.2.1"
@@ -12819,10 +12796,10 @@ react-admin@^3.6.0:
     connected-react-router "^6.5.2"
     final-form "^4.18.5"
     final-form-arrays "^3.0.1"
-    ra-core "^3.6.0"
-    ra-i18n-polyglot "^3.6.0"
-    ra-language-english "^3.6.0"
-    ra-ui-materialui "^3.6.0"
+    ra-core "^3.6.1"
+    ra-i18n-polyglot "^3.6.1"
+    ra-language-english "^3.6.1"
+    ra-ui-materialui "^3.6.1"
     react-final-form "^6.3.3"
     react-final-form-arrays "^3.1.1"
     react-redux "^7.1.0"
