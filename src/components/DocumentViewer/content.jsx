@@ -6,6 +6,10 @@ import React from 'react';
 // import fakeDoc from 'shared/images/fake-doc.png';
 import styles from './content.module.scss';
 
-const DocViewerContent = () => <div className={`${styles.docViewerContent}`} />;
+const DocViewerContent = () => (
+  <div className={`${styles.docViewerContent}`}>
+    <div className={`${styles.titleBar}`}>test</div>
+  </div>
+);
 
 export default DocViewerContent;
