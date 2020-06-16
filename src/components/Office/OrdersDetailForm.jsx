@@ -20,12 +20,8 @@ export const OrdersDetailForm = ({
 }) => {
   return (
     <Formik
-      onSubmit={(values) => {
-        onSubmit(values);
-      }}
-      onReset={(values) => {
-        onReset(values);
-      }}
+      onSubmit={onSubmit}
+      onReset={onReset}
       initialValues={initialValues}
       validationSchema={Yup.object({
         currentDutyStation: Yup.object().required('Required'),
