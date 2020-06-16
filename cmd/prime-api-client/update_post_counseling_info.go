@@ -14,22 +14,23 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 )
 
 func initUpdatePostCounselingInfoFlags(flag *pflag.FlagSet) {
-	flag.String(FilenameFlag, "", "Name of the file being passed in")
+	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
 
 	flag.SortFlags = false
 }
 
 func checkUpdatePostCounselingInfoConfig(v *viper.Viper, args []string, logger *log.Logger) error {
-	err := CheckRootConfig(v)
+	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
+	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
 		logger.Fatal(errors.New("update-post-counseling-info expects a file to be passed in"))
 	}
 
@@ -43,7 +44,7 @@ func updatePostCounselingInfo(cmd *cobra.Command, args []string) error {
 	//  Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	errParseFlags := ParseFlags(cmd, v, args)
+	errParseFlags := utils.ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
 		return errParseFlags
 	}
@@ -54,7 +55,7 @@ func updatePostCounselingInfo(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
-	primeGateway, cacStore, errCreateClient := CreatePrimeClient(v)
+	primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -65,7 +66,7 @@ func updatePostCounselingInfo(cmd *cobra.Command, args []string) error {
 	}
 
 	// Decode json from file that was passed into MTOShipment
-	filename := v.GetString(FilenameFlag)
+	filename := v.GetString(utils.FilenameFlag)
 	var reader *bufio.Reader
 	if filename != "" {
 		file, fileErr := os.Open(filepath.Clean(filename))
@@ -75,7 +76,7 @@ func updatePostCounselingInfo(cmd *cobra.Command, args []string) error {
 		reader = bufio.NewReader(file)
 	}
 
-	if len(args) > 0 && containsDash(args) {
+	if len(args) > 0 && utils.ContainsDash(args) {
 		reader = bufio.NewReader(os.Stdin)
 	}
 
@@ -89,7 +90,7 @@ func updatePostCounselingInfo(cmd *cobra.Command, args []string) error {
 	params := mto.UpdateMTOPostCounselingInformationParams{
 		MoveTaskOrderID: postCounselingInfo.MoveTaskOrderID,
 		Body:            postCounselingInfo,
-		IfMatch:         v.GetString(ETagFlag),
+		IfMatch:         v.GetString(utils.ETagFlag),
 	}
 	params.SetTimeout(time.Second * 30)
 

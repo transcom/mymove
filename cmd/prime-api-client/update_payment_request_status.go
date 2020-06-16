@@ -12,22 +12,24 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
+
 	paymentRequest "github.com/transcom/mymove/pkg/gen/supportclient/payment_requests"
 )
 
 func initUpdatePaymentRequestStatusFlags(flag *pflag.FlagSet) {
-	flag.String(FilenameFlag, "", "Name of the file being passed in")
+	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
 
 	flag.SortFlags = false
 }
 
 func checkUpdatePaymentRequestStatusConfig(v *viper.Viper, args []string, logger *log.Logger) error {
-	err := CheckRootConfig(v)
+	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
+	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
 		logger.Fatal(errors.New("update-mto-shipment expects a file to be passed in"))
 	}
 
@@ -41,7 +43,7 @@ func updatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
 	//  Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	errParseFlags := ParseFlags(cmd, v, args)
+	errParseFlags := utils.ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
 		return errParseFlags
 	}
@@ -53,16 +55,16 @@ func updatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
 	}
 
 	// Decode json from file that was passed in
-	filename := v.GetString(FilenameFlag)
+	filename := v.GetString(utils.FilenameFlag)
 	var paymentReqParams paymentRequest.UpdatePaymentRequestStatusParams
-	err = decodeJSONFileToPayload(filename, containsDash(args), &paymentReqParams)
+	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &paymentReqParams)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	paymentReqParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
-	supportGateway, cacStore, errCreateClient := CreateSupportClient(v)
+	supportGateway, cacStore, errCreateClient := utils.CreateSupportClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -74,7 +76,7 @@ func updatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
 	// Make the API Call
 	resp, err := supportGateway.PaymentRequests.UpdatePaymentRequestStatus(&paymentReqParams)
 	if err != nil {
-		return handleGatewayError(err, logger)
+		return utils.HandleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()

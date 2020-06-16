@@ -1,14 +1,12 @@
-package main
+package utils
 
 import (
 	"crypto/tls"
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	runtimeClient "github.com/go-openapi/runtime/client"
-	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"pault.ag/go/pksigner"
 
@@ -16,23 +14,6 @@ import (
 	primeClient "github.com/transcom/mymove/pkg/gen/primeclient"
 	supportClient "github.com/transcom/mymove/pkg/gen/supportclient"
 )
-
-// ParseFlags parses the command line flags
-func ParseFlags(cmd *cobra.Command, v *viper.Viper, args []string) error {
-
-	errParseFlags := cmd.ParseFlags(args)
-	if errParseFlags != nil {
-		return fmt.Errorf("Could not parse args: %w", errParseFlags)
-	}
-	flags := cmd.Flags()
-	errBindPFlags := v.BindPFlags(flags)
-	if errBindPFlags != nil {
-		return fmt.Errorf("Could not bind flags: %w", errBindPFlags)
-	}
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-	return nil
-}
 
 // CreatePrimeClient creates the prime api client
 func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, error) {

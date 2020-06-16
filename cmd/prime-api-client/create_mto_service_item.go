@@ -14,6 +14,8 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
+
 	mtoServiceItem "github.com/transcom/mymove/pkg/gen/primeclient/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
@@ -40,19 +42,19 @@ type shuttleParams struct {
 
 // initCreateMTOServiceItemFlags initializes flags.
 func initCreateMTOServiceItemFlags(flag *pflag.FlagSet) {
-	flag.String(FilenameFlag, "", "Name of the file being passed in")
+	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
 
 	flag.SortFlags = false
 }
 
 // checkCreateMTOServiceItemConfig checks the args.
 func checkCreateMTOServiceItemConfig(v *viper.Viper, args []string, logger *log.Logger) error {
-	err := CheckRootConfig(v)
+	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
+	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
 		logger.Fatal(errors.New("create-mto-service-item expects a file to be passed in"))
 	}
 
@@ -69,7 +71,7 @@ func getFileReader(filename string, args []string, logger *log.Logger) *bufio.Re
 		}
 		reader = bufio.NewReader(file)
 	}
-	if len(args) > 0 && containsDash(args) {
+	if len(args) > 0 && utils.ContainsDash(args) {
 		reader = bufio.NewReader(os.Stdin)
 	}
 
@@ -89,7 +91,7 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 	//  Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	errParseFlags := ParseFlags(cmd, v, args)
+	errParseFlags := utils.ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
 		return errParseFlags
 	}
@@ -101,7 +103,7 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 	}
 
 	// cac and api gateway
-	primeGateway, cacStore, errCreateClient := CreatePrimeClient(v)
+	primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -111,7 +113,7 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 	}
 
 	// reading json file so we can unmarshal
-	filename := v.GetString(FilenameFlag)
+	filename := v.GetString(utils.FilenameFlag)
 	reader := getFileReader(filename, args, logger)
 	jsonDecoder := getJSONDecoder(reader)
 	// decode first to determine the model type
@@ -127,19 +129,19 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 	switch gt.Body.ModelType {
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:
 		var params dOFSITParams
-		err = decodeJSONFileToPayload(filename, containsDash(args), &params)
+		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &params)
 		serviceItemParams.SetBody(&params.Body)
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:
 		var params dDFSITParams
-		err = decodeJSONFileToPayload(filename, containsDash(args), &params)
+		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &params)
 		serviceItemParams.SetBody(&params.Body)
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
 		var params domesticCratingParams
-		err = decodeJSONFileToPayload(filename, containsDash(args), &params)
+		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &params)
 		serviceItemParams.SetBody(&params.Body)
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
 		var params shuttleParams
-		err = decodeJSONFileToPayload(filename, containsDash(args), &params)
+		err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &params)
 		serviceItemParams.SetBody(&params.Body)
 	default:
 		err = fmt.Errorf("allowed modelType(): %v", []primemessages.MTOServiceItemModelType{
@@ -158,7 +160,7 @@ func createMTOServiceItem(cmd *cobra.Command, args []string) error {
 	serviceItemParams.SetTimeout(time.Second * 30)
 	resp, err := primeGateway.MtoServiceItem.CreateMTOServiceItem(&serviceItemParams)
 	if err != nil {
-		return handleGatewayError(err, logger)
+		return utils.HandleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()

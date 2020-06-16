@@ -12,21 +12,23 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
+
 	mtoShipment "github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
 )
 
 func initCreateMTOShipmentFlags(flag *pflag.FlagSet) {
-	flag.String(FilenameFlag, "", "Name of the file being passed in")
+	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
 	flag.SortFlags = false
 }
 
 func checkCreateMTOShipmentConfig(v *viper.Viper, args []string, logger *log.Logger) error {
-	err := CheckRootConfig(v)
+	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
+	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
 		logger.Fatal(errors.New("create-mto-shipment expects a file to be passed in"))
 	}
 
@@ -39,7 +41,7 @@ func createMTOShipment(cmd *cobra.Command, args []string) error {
 	// Create the logger - remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	errParseFlags := ParseFlags(cmd, v, args)
+	errParseFlags := utils.ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
 		return errParseFlags
 	}
@@ -51,16 +53,16 @@ func createMTOShipment(cmd *cobra.Command, args []string) error {
 	}
 
 	// Decode json from file that was passed into MTOShipment
-	filename := v.GetString(FilenameFlag)
+	filename := v.GetString(utils.FilenameFlag)
 	var shipmentPayload mtoShipment.CreateMTOShipmentParams
-	err = decodeJSONFileToPayload(filename, containsDash(args), &shipmentPayload)
+	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &shipmentPayload)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	shipmentPayload.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
-	primeGateway, cacStore, errCreateClient := CreatePrimeClient(v)
+	primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -73,7 +75,7 @@ func createMTOShipment(cmd *cobra.Command, args []string) error {
 	// Make the API Call
 	resp, err := primeGateway.MtoShipment.CreateMTOShipment(&shipmentPayload)
 	if err != nil {
-		return handleGatewayError(err, logger)
+		return utils.HandleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()

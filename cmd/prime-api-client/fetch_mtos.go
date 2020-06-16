@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
+
 	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 )
 
@@ -19,7 +21,7 @@ func initFetchMTOsFlags(flag *pflag.FlagSet) {
 }
 
 func checkFetchMTOsConfig(v *viper.Viper, args []string, logger *log.Logger) error {
-	err := CheckRootConfig(v)
+	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -34,7 +36,7 @@ func fetchMTOs(cmd *cobra.Command, args []string) error {
 	//Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	errParseFlags := ParseFlags(cmd, v, args)
+	errParseFlags := utils.ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
 		return errParseFlags
 	}
@@ -45,7 +47,7 @@ func fetchMTOs(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
-	primeGateway, cacStore, errCreateClient := CreatePrimeClient(v)
+	primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -59,7 +61,7 @@ func fetchMTOs(cmd *cobra.Command, args []string) error {
 	params.SetTimeout(time.Second * 30)
 	resp, err := primeGateway.MoveTaskOrder.FetchMTOUpdates(&params)
 	if err != nil {
-		return handleGatewayError(err, logger)
+		return utils.HandleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()
