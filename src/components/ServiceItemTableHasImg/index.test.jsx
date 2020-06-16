@@ -1,5 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+
 import ServiceItemTableHasImg from './index';
 
 describe('ServiceItemTableHasImg', () => {

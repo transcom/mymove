@@ -2,7 +2,8 @@ import React from 'react';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { mount } from 'enzyme';
-import { EditButton, ErrorMessage, Form, StackedTableRowForm } from '.';
+
+import { EditButton, ErrorMessage, Form, StackedTableRowForm } from './index';
 
 describe('StackedTableRowForm', () => {
   const renderStackedTableRowForm = (submit, reset, value = 'value') => {

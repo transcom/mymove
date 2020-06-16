@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from '.';
+
+import App from './index';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
@@ -15,4 +16,4 @@ it('renders without crashing', () => {
   ReactDOM.unmountComponentAtNode(div);
 });
 
-//todo: add tests for routing
+// todo: add tests for routing

@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { useFormikContext } from 'formik';
 import { Form as UswdsForm } from '@trussworks/react-uswds';
 
