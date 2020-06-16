@@ -32,10 +32,6 @@ class MoveDetails extends Component {
     });
   }
 
-  handleViewEditOrdersClick = () => {
-    this.props.history.push(`/moves/${this.props.moveOrder.id}/detail`);
-  };
-
   render() {
     // eslint-disable-next-line react/prop-types
     const { moveOrder, allowances, customer, mtoShipments } = this.props;
@@ -45,7 +41,6 @@ class MoveDetails extends Component {
         <div className="container">
           <RequestedShipments mtoShipments={mtoShipments} />
           <OrdersTable
-            handleViewEditOrdersClick={this.handleViewEditOrdersClick}
             ordersInfo={{
               // eslint-disable-next-line react/prop-types
               newDutyStation: get(moveOrder.destinationDutyStation, 'name'),
