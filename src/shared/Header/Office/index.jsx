@@ -1,9 +1,12 @@
 import React from 'react';
+import { withRouter } from 'react-router';
 import { NavLink } from 'react-router-dom';
+import { Tag } from '@trussworks/react-uswds';
 
 import LoginButton from 'shared/User/LoginButton';
 
 import './index.css';
+import TabNav from 'components/TabNav';
 
 function QueueHeader() {
   return (
@@ -28,4 +31,40 @@ function QueueHeader() {
   );
 }
 
-export default QueueHeader;
+function MoveTabNav(props) {
+  // Should in the future become a move locator
+  const moveOrderId = props.match.params.moveId;
+
+  return (
+    <header className="usa-header nav-header" role="navigation">
+      <div className="grid-container-desktop-lg">
+        <TabNav
+          items={[
+            <NavLink exact activeClassName="usa-current" className="usa-nav__link" to={`/moves/${moveOrderId}/details`}>
+              <span className="tab-title">Move Details</span>
+              <Tag>2</Tag>
+            </NavLink>,
+            <NavLink exact activeClassName="usa-current" className="usa-nav__link" to={`/moves/${moveOrderId}/mto`}>
+              <span className="tab-title">Move Task Order</span>
+            </NavLink>,
+            <NavLink
+              exact
+              activeClassName="usa-current"
+              className="usa-nav__link"
+              to={`/moves/${moveOrderId}/payment-requests`}
+            >
+              <span className="tab-title">Payment requests</span>
+            </NavLink>,
+            <NavLink exact activeClassName="usa-current" className="usa-nav__link" to={`/moves/${moveOrderId}/history`}>
+              <span className="tab-title">History</span>
+            </NavLink>,
+          ]}
+        ></TabNav>
+      </div>
+    </header>
+  );
+}
+
+const MoveTabNavWithRouter = withRouter(MoveTabNav);
+
+export { QueueHeader, MoveTabNavWithRouter };

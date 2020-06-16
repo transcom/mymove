@@ -15,7 +15,7 @@ import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import QueueHeader from 'shared/Header/Office';
+import { QueueHeader } from 'shared/Header/Office';
 import FOUOHeader from 'components/FOUOHeader';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -33,14 +33,14 @@ const TOO = lazy(() => import('./TOO/too'));
 const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
 const TIO = lazy(() => import('./TIO/tio'));
 const TOOVerificationInProgress = lazy(() => import('./TOO/tooVerificationInProgress'));
-const PaymentRequestShow = lazy(() => import('./TIO/paymentRequestShow'));
 const PaymentRequestIndex = lazy(() => import('./TIO/paymentRequestIndex'));
-const MoveDetails = lazy(() => import('pages/TOO/moveDetails'));
+const TXOMoveInfo = lazy(() => import('../../components/Office/TXOMoveInfo'));
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
     const Tag = this.props.tag;
     const Component = this.props.component;
+
     return (
       <>
         <Suspense fallback={<LoadingPlaceholder />}>
@@ -149,6 +149,19 @@ export class OfficeWrapper extends Component {
                     </Suspense>
                   )}
                 />
+                <PrivateRoute
+                  path="/moves/:moveId"
+                  component={(props) => (
+                    <Suspense fallback={<LoadingPlaceholder />}>
+                      <RenderWithOrWithoutHeader
+                        component={TXOMoveInfo}
+                        withHeader={false}
+                        tag={DivOrMainTag}
+                        {...props}
+                      />
+                    </Suspense>
+                  )}
+                />
                 {!isProduction && (
                   <PrivateRoute
                     path="/playground"
@@ -168,7 +181,6 @@ export class OfficeWrapper extends Component {
                   <Switch>
                     {too && <PrivateRoute path="/too/customer-moves" exact component={TOO} />}
                     {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOMoveTaskOrder} />}
-                    {too && <PrivateRoute path="/moves/:moveOrderId" exact component={MoveDetails} />}
                     {/*TODO: remove CustomerDetails route when ready*/}
                     {too && (
                       <PrivateRoute
@@ -178,7 +190,6 @@ export class OfficeWrapper extends Component {
                     )}
                     {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
                     {tio && <PrivateRoute path="/tio/placeholder" component={TIO} />}
-                    {tio && <PrivateRoute path="/payment_requests/:id" component={PaymentRequestShow} />}
                     {tio && <PrivateRoute path="/payment_requests" component={PaymentRequestIndex} />}
                   </Switch>
                 </Suspense>
