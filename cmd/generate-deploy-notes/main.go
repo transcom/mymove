@@ -16,7 +16,8 @@ import (
 
 // Pipelines represents multiple CircleCI pipelines
 type Pipelines struct {
-	Items []Pipeline `json:"items"`
+	Items         []Pipeline `json:"items"`
+	NextPageToken string     `json:"next_page_token"`
 }
 
 // Pipeline represents a single CircleCI pipeline
@@ -26,7 +27,7 @@ type Pipeline struct {
 }
 
 // Fetch gets all pipelines for the mymove project
-func (p *Pipelines) Fetch() {
+func (p *Pipelines) Fetch(pageToken string) {
 	client := http.DefaultClient
 	req, err := http.NewRequest("GET", "https://circleci.com/api/v2/project/github/transcom/mymove/pipeline", nil)
 
@@ -37,7 +38,13 @@ func (p *Pipelines) Fetch() {
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Circle-Token", os.Getenv("CIRCLE_TOKEN"))
 	q := req.URL.Query()
-	q.Add("branch", "master")
+	// include page token if it is there
+	// cannot include both branch and token as the page token encodes the branch
+	if pageToken != "" {
+		q.Add("page-token", pageToken)
+	} else {
+		q.Add("branch", "master")
+	}
 	req.URL.RawQuery = q.Encode()
 	resp, err := client.Do(req)
 
@@ -113,8 +120,13 @@ func main() {
 	var latestOnHoldCommit string
 
 	var pipelines Pipelines
-	pipelines.Fetch()
+	pipelines.Fetch("")
 	items := pipelines.Items
+	// get the next page because last success might be a while ago, like on a Monday
+	var pipelinesPage2 Pipelines
+	pipelinesPage2.Fetch(pipelines.NextPageToken)
+	items = append(items, pipelinesPage2.Items...)
+
 	var workflows Workflows
 	for _, item := range items {
 		pipelineWorkflow := *item.Workflow()
