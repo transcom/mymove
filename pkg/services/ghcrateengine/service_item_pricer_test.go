@@ -39,13 +39,13 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) TestUsingDB() {
+func (suite *GHCRateEngineServiceSuite) TestUsingConnection() {
 	originalDB := suite.DB()
 	serviceItemPricerInterface := NewServiceItemPricer(originalDB)
 	serviceItemPricerStruct, _ := serviceItemPricerInterface.(*serviceItemPricer)
 
 	err := originalDB.Rollback(func(tx *pop.Connection) {
-		txServiceItemPricerInterface := serviceItemPricerStruct.UsingDB(tx)
+		txServiceItemPricerInterface := serviceItemPricerStruct.UsingConnection(tx)
 		txServiceItemPricerStruct, _ := txServiceItemPricerInterface.(serviceItemPricer)
 
 		suite.Same(tx, txServiceItemPricerStruct.db)

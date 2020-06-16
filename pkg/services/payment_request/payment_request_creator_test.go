@@ -91,7 +91,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	serviceItemPricer := &mocks.ServiceItemPricer{}
 	serviceItemPricer.
 		On("PriceServiceItem", mock.Anything).Return(testPrice, nil).
-		On("UsingDB", mock.Anything).Return(serviceItemPricer)
+		On("UsingConnection", mock.Anything).Return(serviceItemPricer)
 
 	creator := NewPaymentRequestCreator(suite.DB(), route.NewTestingPlanner(0), serviceItemPricer)
 
@@ -277,7 +277,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		failingServiceItemPricer := &mocks.ServiceItemPricer{}
 		failingServiceItemPricer.
 			On("PriceServiceItem", mock.Anything).Return(unit.Cents(0), errors.New(errMsg)).
-			On("UsingDB", mock.Anything).Return(failingServiceItemPricer)
+			On("UsingConnection", mock.Anything).Return(failingServiceItemPricer)
 
 		failingCreator := NewPaymentRequestCreator(suite.DB(), route.NewTestingPlanner(0), failingServiceItemPricer)
 

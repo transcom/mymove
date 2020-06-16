@@ -63,7 +63,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 		}
 
 		// Run the pricer within this transactional context
-		txPricer := p.pricer.UsingDB(tx)
+		txPricer := p.pricer.UsingConnection(tx)
 
 		// Create a payment service item for each incoming payment service item in the payment request
 		// These incoming payment service items have not been created in the database yet

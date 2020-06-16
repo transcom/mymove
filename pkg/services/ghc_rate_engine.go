@@ -15,7 +15,7 @@ import (
 //go:generate mockery -name ServiceItemPricer
 type ServiceItemPricer interface {
 	PriceServiceItem(item models.PaymentServiceItem) (unit.Cents, error)
-	UsingDB(db *pop.Connection) ServiceItemPricer
+	UsingConnection(db *pop.Connection) ServiceItemPricer
 }
 
 // ParamsPricer is an interface that all param-aware pricers implement

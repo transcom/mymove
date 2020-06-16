@@ -32,7 +32,7 @@ func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (uni
 	return pricer.PriceUsingParams(item.PaymentServiceItemParams)
 }
 
-func (p serviceItemPricer) UsingDB(db *pop.Connection) services.ServiceItemPricer {
+func (p serviceItemPricer) UsingConnection(db *pop.Connection) services.ServiceItemPricer {
 	p.db = db
 	return p
 }

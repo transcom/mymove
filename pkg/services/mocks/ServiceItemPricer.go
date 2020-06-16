@@ -39,8 +39,8 @@ func (_m *ServiceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (u
 	return r0, r1
 }
 
-// UsingDB provides a mock function with given fields: db
-func (_m *ServiceItemPricer) UsingDB(db *pop.Connection) services.ServiceItemPricer {
+// UsingConnection provides a mock function with given fields: db
+func (_m *ServiceItemPricer) UsingConnection(db *pop.Connection) services.ServiceItemPricer {
 	ret := _m.Called(db)
 
 	var r0 services.ServiceItemPricer
