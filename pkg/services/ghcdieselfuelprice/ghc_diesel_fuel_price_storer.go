@@ -44,6 +44,22 @@ type SeriesData struct {
 	Data    [][]interface{} `json:"data"`
 }
 
+func (e EiaData) lastUpdated() string {
+	return e.SeriesData[0].Updated
+}
+
+func (e EiaData) publicationDate() (string, bool) {
+	publicationDate, ok := e.SeriesData[0].Data[0][0].(string)
+
+	return publicationDate, ok
+}
+
+func (e EiaData) price() (float64, bool) {
+	price, ok := e.SeriesData[0].Data[0][1].(float64)
+
+	return price, ok
+}
+
 // NewDieselFuelPriceStorer creates a new dieselFuelPriceStorer struct and returns a pointer to said struct
 func NewDieselFuelPriceStorer(eiaURL string, eiaKey string, eiaDataFetcherFunction eiaDataFetcherFunction) *DieselFuelPriceStorer {
 	return &DieselFuelPriceStorer{

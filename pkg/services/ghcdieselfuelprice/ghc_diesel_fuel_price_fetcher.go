@@ -70,9 +70,9 @@ func ExtractDieselFuelPriceData(eiaData EiaData) (DieselFuelPriceData, error) {
 		return dieselFuelPriceData, fmt.Errorf("expected eiaData.SeriesData to contain an array of arrays of publication dates and diesel prices, but got %s", seriesData)
 	}
 
-	dieselFuelPriceData.LastUpdated = eiaData.SeriesData[0].Updated
+	dieselFuelPriceData.LastUpdated = eiaData.lastUpdated()
 
-	publicationDate, ok := eiaData.SeriesData[0].Data[0][0].(string)
+	publicationDate, ok := eiaData.publicationDate()
 	if !ok {
 		return dieselFuelPriceData, fmt.Errorf("failed string type assertion for publishedDate data extracted from EiaData struct returned by FetchEiaData function")
 	}
