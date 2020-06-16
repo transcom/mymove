@@ -154,6 +154,7 @@ export class DutyStationSearchBox extends Component {
               {errorMsg ? <strong>{title}</strong> : title}
             </label>
             <AsyncSelect
+              name={this.props.name}
               className={dutyInputClasses}
               cacheOptions
               getOptionLabel={getOptionName}
@@ -184,6 +185,7 @@ DutyStationSearchBox.propTypes = {
   onChange: PropTypes.func,
   existingStation: PropTypes.object,
   title: PropTypes.string,
+  name: PropTypes.string,
 };
 
 export default DutyStationSearchBox;
