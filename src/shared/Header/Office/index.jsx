@@ -7,6 +7,7 @@ import LoginButton from 'shared/User/LoginButton';
 
 import './index.css';
 import TabNav from 'components/TabNav';
+import propTypes from 'prop-types';
 
 function QueueHeader() {
   return (
@@ -41,11 +42,11 @@ function MoveTabNav(props) {
         <TabNav
           items={[
             <NavLink exact activeClassName="usa-current" className="usa-nav__link" to={`/moves/${moveOrderId}/details`}>
-              <span className="tab-title">Move Details</span>
+              <span className="tab-title">Move details</span>
               <Tag>2</Tag>
             </NavLink>,
             <NavLink exact activeClassName="usa-current" className="usa-nav__link" to={`/moves/${moveOrderId}/mto`}>
-              <span className="tab-title">Move Task Order</span>
+              <span className="tab-title">Move task order</span>
             </NavLink>,
             <NavLink
               exact
@@ -64,6 +65,10 @@ function MoveTabNav(props) {
     </header>
   );
 }
+
+MoveTabNav.propTypes = {
+  match: propTypes.object.isRequired,
+};
 
 const MoveTabNavWithRouter = withRouter(MoveTabNav);
 
