@@ -54,6 +54,12 @@ func (o *CreateUploadReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return nil, result
+	case 422:
+		result := NewCreateUploadUnprocessableEntity()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewCreateUploadInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -222,6 +228,39 @@ func (o *CreateUploadNotFound) GetPayload() *primemessages.ClientError {
 func (o *CreateUploadNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCreateUploadUnprocessableEntity creates a CreateUploadUnprocessableEntity with default headers values
+func NewCreateUploadUnprocessableEntity() *CreateUploadUnprocessableEntity {
+	return &CreateUploadUnprocessableEntity{}
+}
+
+/*CreateUploadUnprocessableEntity handles this case with default header values.
+
+The payload was unprocessable.
+*/
+type CreateUploadUnprocessableEntity struct {
+	Payload *primemessages.ValidationError
+}
+
+func (o *CreateUploadUnprocessableEntity) Error() string {
+	return fmt.Sprintf("[POST /payment-requests/{paymentRequestID}/uploads][%d] createUploadUnprocessableEntity  %+v", 422, o.Payload)
+}
+
+func (o *CreateUploadUnprocessableEntity) GetPayload() *primemessages.ValidationError {
+	return o.Payload
+}
+
+func (o *CreateUploadUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ValidationError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

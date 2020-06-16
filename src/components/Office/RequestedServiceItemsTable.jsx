@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import ServiceItemTableHasImg from '../ServiceItemTableHasImg';
 
 const RequestedServiceItemsTable = ({ serviceItems }) => {
   return (
     <>
-      {/* eslint-disable-next-line */}
       <h3>Requested service items ({serviceItems.length})</h3>
       <ServiceItemTableHasImg serviceItems={serviceItems} />
     </>

@@ -151,7 +151,8 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	// And return
 	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
-	return handlers.NewCookieUpdateResponder(params.HTTPRequest, h.CookieSecret(), h.NoSessionTimeout(), logger, responder, h.UseSecureCookie())
+	sessionManager := h.SessionManager(session)
+	return handlers.NewCookieUpdateResponder(params.HTTPRequest, logger, responder, sessionManager, session)
 }
 
 // ShowServiceMemberHandler returns a serviceMember for a user and service member ID

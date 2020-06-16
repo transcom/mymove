@@ -1,6 +1,5 @@
 import React from 'react';
 import moment from 'moment';
-
 import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean, text, date } from '@storybook/addon-knobs';
 

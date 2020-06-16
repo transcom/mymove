@@ -444,6 +444,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
           "500": {
             "$ref": "#/responses/ServerError"
           }
@@ -2450,6 +2453,12 @@ func init() {
             "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {

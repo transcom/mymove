@@ -233,6 +233,50 @@ func (o *CreateUploadNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 	}
 }
 
+// CreateUploadUnprocessableEntityCode is the HTTP code returned for type CreateUploadUnprocessableEntity
+const CreateUploadUnprocessableEntityCode int = 422
+
+/*CreateUploadUnprocessableEntity The payload was unprocessable.
+
+swagger:response createUploadUnprocessableEntity
+*/
+type CreateUploadUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewCreateUploadUnprocessableEntity creates CreateUploadUnprocessableEntity with default headers values
+func NewCreateUploadUnprocessableEntity() *CreateUploadUnprocessableEntity {
+
+	return &CreateUploadUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the create upload unprocessable entity response
+func (o *CreateUploadUnprocessableEntity) WithPayload(payload *primemessages.ValidationError) *CreateUploadUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create upload unprocessable entity response
+func (o *CreateUploadUnprocessableEntity) SetPayload(payload *primemessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateUploadUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreateUploadInternalServerErrorCode is the HTTP code returned for type CreateUploadInternalServerError
 const CreateUploadInternalServerErrorCode int = 500
 

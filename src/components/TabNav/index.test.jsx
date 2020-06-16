@@ -1,8 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { Tag } from '@trussworks/react-uswds';
+
 import TabNavPanel from '../TabNavPanel';
-import TabNav from '.';
+
+import TabNav from './index';
 
 describe('TabNav', () => {
   it('should render the tab navigation', () => {

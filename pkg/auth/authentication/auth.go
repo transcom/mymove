@@ -13,6 +13,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
@@ -96,6 +97,7 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
+
 			// DO NOT CHECK MILMOVE SESSION BECAUSE NEW SERVICE MEMBERS WON'T HAVE AN ID RIGHT AWAY
 			// This must be the right type of user for the application
 			if session.IsOfficeApp() && !session.IsOfficeUser() {
@@ -232,12 +234,27 @@ func (context *Context) GetFeatureFlag(flag string) bool {
 	return false
 }
 
+// sessionManager returns the session manager corresponding to the current app.
+// A user can be signed in at the same time across multiple apps.
+func (context Context) sessionManager(session *auth.Session) *scs.SessionManager {
+	if session.IsMilApp() {
+		return context.sessionManagers[0]
+	} else if session.IsAdminApp() {
+		return context.sessionManagers[1]
+	} else if session.IsOfficeApp() {
+		return context.sessionManagers[2]
+	}
+
+	return nil
+}
+
 // Context is the common handler type for auth handlers
 type Context struct {
 	logger           Logger
 	loginGovProvider LoginGovProvider
 	callbackTemplate string
 	featureFlags     map[string]bool
+	sessionManagers  [3]*scs.SessionManager
 }
 
 // FeatureFlag holds the name of a feature flag and if it is enabled
@@ -247,11 +264,12 @@ type FeatureFlag struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
+func NewAuthContext(logger Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int, sessionManagers [3]*scs.SessionManager) Context {
 	context := Context{
 		logger:           logger,
 		loginGovProvider: loginGovProvider,
 		callbackTemplate: fmt.Sprintf("%s://%%s:%d/", callbackProtocol, callbackPort),
+		sessionManagers:  sessionManagers,
 	}
 	return context
 }
@@ -259,24 +277,19 @@ func NewAuthContext(logger Logger, loginGovProvider LoginGovProvider, callbackPr
 // LogoutHandler handles logging the user out of login.gov
 type LogoutHandler struct {
 	Context
-	clientAuthSecretKey string
-	noSessionTimeout    bool
-	useSecureCookie     bool
 }
 
 // NewLogoutHandler creates a new LogoutHandler
-func NewLogoutHandler(ac Context, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) LogoutHandler {
-	handler := LogoutHandler{
-		Context:             ac,
-		clientAuthSecretKey: clientAuthSecretKey,
-		noSessionTimeout:    noSessionTimeout,
-		useSecureCookie:     useSecureCookie,
+func NewLogoutHandler(ac Context) LogoutHandler {
+	logoutHandler := LogoutHandler{
+		Context: ac,
 	}
-	return handler
+	return logoutHandler
 }
 
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	session := auth.SessionFromRequestContext(r)
+
 	if session != nil {
 		redirectURL := h.landingURL(session)
 		if session.IDToken != "" {
@@ -289,11 +302,9 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			} else {
 				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
 			}
-			// This operation will delete all cookies from the session
-			session.IDToken = ""
-			session.UserID = uuid.Nil
-			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+			h.sessionManager(session).Destroy(r.Context())
 			auth.DeleteCSRFCookies(w)
+
 			fmt.Fprint(w, logoutURL)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
@@ -362,28 +373,22 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // CallbackHandler processes a callback from login.gov
 type CallbackHandler struct {
 	Context
-	db                  *pop.Connection
-	clientAuthSecretKey string
-	noSessionTimeout    bool
-	useSecureCookie     bool
+	db *pop.Connection
 }
 
 // NewCallbackHandler creates a new CallbackHandler
-func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CallbackHandler {
+func NewCallbackHandler(ac Context, db *pop.Connection) CallbackHandler {
 	handler := CallbackHandler{
-		Context:             ac,
-		db:                  db,
-		clientAuthSecretKey: clientAuthSecretKey,
-		noSessionTimeout:    noSessionTimeout,
-		useSecureCookie:     useSecureCookie,
+		Context: ac,
+		db:      db,
 	}
 	return handler
 }
 
 // AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
 func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
 	session := auth.SessionFromRequestContext(r)
+
 	if session == nil {
 		h.logger.Error("Session missing")
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -391,6 +396,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rawLandingURL := h.landingURL(session)
+
 	landingURL, err := url.Parse(rawLandingURL)
 	if err != nil {
 		h.logger.Error("Error parsing landing URL")
@@ -432,12 +438,11 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			zap.String("cookie", hash),
 			zap.String("hash", shaAsString(returnedState)))
 
-		// This operation will delete all cookies from the session
-		session.IDToken = ""
-		session.UserID = uuid.Nil
-		auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 		// Delete lg_state cookie
 		auth.DeleteCookie(w, StateCookieName(session))
+
+		// This operation will delete all cookies from the session
+		h.sessionManager(session).Destroy(r.Context())
 
 		// set error query
 		landingQuery := landingURL.Query()
@@ -474,6 +479,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	session.IDToken = openIDSession.IDToken
 	session.Email = openIDUser.Email
+
 	h.logger.Info("New Login", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("Host", session.Hostname))
 
 	userIdentity, err := models.FetchUserIdentity(h.db, openIDUser.UserID)
@@ -522,7 +528,14 @@ var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, sess
 			return
 		}
 	}
-	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+	err = h.sessionManager(session).RenewToken(r.Context())
+	if err != nil {
+		h.logger.Error("Error renewing session token", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	h.sessionManager(session).Put(r.Context(), "session", session)
+	h.logger.Info("logged in", zap.Any("session", session))
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 	return
 }
@@ -636,9 +649,16 @@ var authorizeKnownUserNew = func(userIdentity *models.UserIdentity, h CallbackHa
 	session.LastName = userIdentity.LastName()
 	session.Middle = userIdentity.Middle()
 
+	error := h.sessionManager(session).RenewToken(r.Context())
+	if error != nil {
+		h.logger.Error("Error renewing session token", zap.Error(error))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	h.sessionManager(session).Put(r.Context(), "session", session)
+
 	h.logger.Info("logged in", zap.Any("session", session))
 
-	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
@@ -744,9 +764,18 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 	session.LastName = userIdentity.LastName()
 	session.Middle = userIdentity.Middle()
 
+	// The session token must be renewed during sign in to prevent
+	// session fixation attacks
+	err := h.sessionManager(session).RenewToken(r.Context())
+	if err != nil {
+		h.logger.Error("Error renewing session token", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	h.sessionManager(session).Put(r.Context(), "session", session)
+
 	h.logger.Info("logged in", zap.Any("session", session))
 
-	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
@@ -815,9 +844,16 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 		return
 	}
 
+	err = h.sessionManager(session).RenewToken(r.Context())
+	if err != nil {
+		h.logger.Error("Error renewing session token", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	h.sessionManager(session).Put(r.Context(), "session", session)
+
 	h.logger.Info("logged in", zap.Any("session", session))
 
-	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 }
 
