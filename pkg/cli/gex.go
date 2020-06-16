@@ -18,6 +18,12 @@ const (
 	GEXURLFlag string = "gex-url"
 )
 
+var allGEXURLs = []string{
+	"", // empty string allowed for backwards compatibility
+	"https://gexweba.daas.dla.mil/msg_data/submit/",
+	"https://gexweba.daas.dla.mil:443/msg_data/submit?channel=TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM",
+}
+
 // InitGEXFlags initializes GEX command line flags
 func InitGEXFlags(flag *pflag.FlagSet) {
 	flag.String(GEXBasicAuthUsernameFlag, "", "GEX api auth username")
@@ -29,9 +35,9 @@ func InitGEXFlags(flag *pflag.FlagSet) {
 // CheckGEX validates GEX command line flags
 func CheckGEX(v *viper.Viper) error {
 	gexURL := v.GetString(GEXURLFlag)
-	if len(gexURL) > 0 && gexURL != "https://gexweba.daas.dla.mil/msg_data/submit/" {
-		return fmt.Errorf("invalid gexUrl %s, expecting "+
-			"https://gexweba.daas.dla.mil/msg_data/submit/ or an empty string", gexURL)
+
+	if !stringSliceContains(allGEXURLs, gexURL) {
+		return fmt.Errorf("invalid gexUrl %s, expecting one of %q", gexURL, allGEXURLs)
 	}
 
 	if len(gexURL) > 0 {
