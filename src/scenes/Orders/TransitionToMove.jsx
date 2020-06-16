@@ -5,13 +5,18 @@ import { get } from 'lodash';
 import { updateMove } from '../Moves/ducks';
 import ordersComplete from 'shared/images/orders-complete-gray-icon.png';
 import moveIcon from 'shared/images/move-icon.png';
+import { selectMoveFromServiceMemberId } from 'shared/Entities/modules/moves';
+import { fetchLatestOrders, getLatestOrdersLabel } from 'shared/Entities/modules/orders';
+import { getRequestStatus } from 'shared/Swagger/selectors';
 
 export class TransitionToMove extends Component {
   componentDidMount() {
-    if (!this.props.selectedMoveType) {
-      // Make sure the move is always set to PPM since we no longer allow HHGs
-      this.props.updateMove(this.props.moveId, 'PPM');
-    }
+    //  TODO fix this - error moveId not string
+    // if (!this.props.selectedMoveType) {
+    //   // Make sure the move is always set to PPM since we no longer allow HHGs
+    //   this.props.updateMove(this.props.moveId, 'PPM');
+    // }
+    this.props.fetchLatestOrders(this.props.serviceMemberId);
   }
 
   render() {
@@ -39,15 +44,22 @@ export class TransitionToMove extends Component {
 }
 
 function mapStateToProps(state) {
-  const move = get(state, 'moves.currentMove');
+  // const move = get(state, 'moves.currentMove');
+  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const showOrdersRequest = getRequestStatus(state, getLatestOrdersLabel);
+  const move = selectMoveFromServiceMemberId(state, serviceMemberId);
+
   const props = {
+    serviceMemberId: serviceMemberId,
     moveId: get(move, 'id'),
     selectedMoveType: get(move, 'selected_move_type'),
+    loadDependenciesHasSuccess: showOrdersRequest.isSuccess,
+    loadDependenciesHasError: showOrdersRequest.error,
   };
   return props;
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateMove }, dispatch);
+  return bindActionCreators({ fetchLatestOrders, updateMove }, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(TransitionToMove);

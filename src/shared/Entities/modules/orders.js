@@ -47,6 +47,7 @@ export function createOrders(orders, label = createOrdersLabel) {
   return swaggerRequest(getClient, swaggerTag, { createOrders: orders }, { label });
 }
 
+// Selectors
 export const selectUpload = (state, id) => {
   return denormalize([id], orders, state.entities)[0];
 };

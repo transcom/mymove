@@ -141,6 +141,7 @@ function ServiceMemberSummary(props) {
                     </tr>
                   )}
                   <tr>
+                    {/* TODO: pass uploads here */}
                     <td> Orders Uploaded: </td>
                     <td>{get(orders, 'uploaded_orders.uploads') && get(orders, 'uploaded_orders.uploads').length}</td>
                   </tr>

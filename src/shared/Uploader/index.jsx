@@ -116,10 +116,10 @@ export class Uploader extends Component {
   }
 
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
-    const { document, isPublic } = this.props;
+    const { document, isPublic, createUpload = CreateUpload } = this.props;
     const self = this;
     const docID = document ? document.id : null;
-    CreateUpload(file, docID, isPublic)
+    createUpload(file, docID, isPublic)
       .then((item) => {
         load(item.id);
         const newFiles = concat(self.state.files, item);

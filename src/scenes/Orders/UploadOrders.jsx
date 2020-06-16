@@ -12,7 +12,8 @@ import {
   selectOrdersFromServiceMemberId,
   selectUploadsForOrders,
 } from 'shared/Entities/modules/orders';
-import { selectDocument } from 'shared/Entities/modules/documents';
+
+import { createUpload, selectDocument } from 'shared/Entities/modules/documents';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
@@ -89,7 +90,12 @@ export class UploadOrders extends Component {
         )}
         {currentOrders && (
           <div className="uploader-box">
-            <Uploader document={document} onChange={this.onChange} options={{ labelIdle: uploaderLabelIdle }} />
+            <Uploader
+              createUpload={this.props.createUpload}
+              document={document}
+              onChange={this.onChange}
+              options={{ labelIdle: uploaderLabelIdle }}
+            />
             <div className="hint">(Each page must be clear and legible.)</div>
           </div>
         )}
@@ -139,7 +145,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ fetchLatestOrders, loadServiceMember, deleteUpload, addUploads }, dispatch);
+  return bindActionCreators({ fetchLatestOrders, createUpload, loadServiceMember, deleteUpload, addUploads }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(UploadOrders);

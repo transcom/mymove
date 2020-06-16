@@ -70,6 +70,7 @@ export function calculateEntitlementsForMove(state, moveId) {
   return selectEntitlements(weightAllotment, hasDependents, spouseHasProGear);
 }
 
+// Selectors
 export function selectMoveDatesSummary(state, moveId, moveDate) {
   if (!moveId || !moveDate) {
     return null;
@@ -86,4 +87,11 @@ export const selectMove = (state, id) => {
 export function selectMoveStatus(state, moveId) {
   const move = selectMove(state, moveId);
   return move.status;
+}
+
+export function selectMoveFromServiceMemberId(state, serviceMemberId) {
+  if (!serviceMemberId) return {};
+  const moves = Object.values(state.entities.moves);
+  filter(moves, (move) => move.service_member_id === serviceMemberId);
+  return moves[0] || {};
 }
