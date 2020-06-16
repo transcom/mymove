@@ -1,4 +1,4 @@
-package main
+package prime
 
 import (
 	"encoding/json"
@@ -13,45 +13,46 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 	"github.com/transcom/mymove/pkg/gen/primeclient/uploads"
 )
 
-// initCreatePaymentRequestUploadFlags initializes flags.
-func initCreatePaymentRequestUploadFlags(flag *pflag.FlagSet) {
-	flag.String(FilenameFlag, "", "Path to the upload file for create-payment-request-upload payload")
-	flag.String(PaymentRequestID, "", "Payment Request ID to upload the proof of service document to")
+// InitCreatePaymentRequestUploadFlags initializes flags.
+func InitCreatePaymentRequestUploadFlags(flag *pflag.FlagSet) {
+	flag.String(utils.FilenameFlag, "", "Path to the upload file for create-payment-request-upload payload")
+	flag.String(utils.PaymentRequestIDFlag, "", "Payment Request ID to upload the proof of service document to")
 
 	flag.SortFlags = false
 }
 
 // checkCreatePaymentRequestUploadConfig checks the args.
 func checkCreatePaymentRequestUploadConfig(v *viper.Viper, args []string, logger *log.Logger) error {
-	err := CheckRootConfig(v)
+	err := utils.CheckRootConfig(v)
 	if err != nil {
 		return err
 	}
 
-	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
+	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
 		return errors.New("create-payment-request-upload expects a file to be passed in")
 	}
 
 	// Get the paymentRequestID to use for the upload file
-	if v.GetString(PaymentRequestID) == "" && (len(args) < 1 || len(args) > 0) {
-		return errors.New("create-payment-request-upload expects a PaymentRequestID to be passed in")
+	if v.GetString(utils.PaymentRequestIDFlag) == "" && (len(args) < 1 || len(args) > 0) {
+		return errors.New("create-payment-request-upload expects a  utils.PaymentRequestID to be passed in")
 	}
 
 	return nil
 }
 
-// createPaymentRequestUpload creates the payment request for an MTO
-func createPaymentRequestUpload(cmd *cobra.Command, args []string) error {
+// CreatePaymentRequestUpload creates the payment request for an MTO
+func CreatePaymentRequestUpload(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	// Create the logger
 	// Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	errParseFlags := ParseFlags(cmd, v, args)
+	errParseFlags := utils.ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
 		return errParseFlags
 	}
@@ -63,7 +64,7 @@ func createPaymentRequestUpload(cmd *cobra.Command, args []string) error {
 	}
 
 	// cac and api gateway
-	primeGateway, cacStore, errCreateClient := CreatePrimeClient(v)
+	primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -74,10 +75,10 @@ func createPaymentRequestUpload(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the filename for the upload file to upload with command create-payment-request-upload
-	filename := v.GetString(FilenameFlag)
+	filename := v.GetString(utils.FilenameFlag)
 
 	// Get the paymentRequestID to use for the upload file
-	paymentRequestID := v.GetString(PaymentRequestID)
+	paymentRequestID := v.GetString(utils.PaymentRequestIDFlag)
 
 	file, fileErr := os.Open(filepath.Clean(filename))
 	defer file.Close()
