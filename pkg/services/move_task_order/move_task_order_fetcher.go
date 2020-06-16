@@ -33,42 +33,30 @@ func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]model
 func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, since *int64) (models.MoveTaskOrders, error) {
 	var moveTaskOrders models.MoveTaskOrders
 	var err error
+	query := f.db.Q().Eager(
+		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+		"MTOServiceItems.ReService",
+		"MTOServiceItems.Dimensions",
+		"MTOServiceItems.CustomerContacts",
+		"MTOShipments.DestinationAddress",
+		"MTOShipments.PickupAddress",
+		"MTOShipments.SecondaryDeliveryAddress",
+		"MTOShipments.SecondaryPickupAddress",
+		"MTOShipments.MTOAgents",
+		"MoveOrder.Customer",
+		"MoveOrder.Entitlement")
+
 	if isAvailableToPrime {
-		query := f.db.Where("available_to_prime_at IS NOT NULL").Eager(
-			"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
-			"MTOServiceItems.ReService",
-			"MTOServiceItems.Dimensions",
-			"MTOServiceItems.CustomerContacts",
-			"MTOShipments.DestinationAddress",
-			"MTOShipments.PickupAddress",
-			"MTOShipments.SecondaryDeliveryAddress",
-			"MTOShipments.SecondaryPickupAddress",
-			"MTOShipments.MTOAgents",
-			"MoveOrder.Customer",
-			"MoveOrder.Entitlement")
+		query = query.Where("available_to_prime_at IS NOT NULL")
 
 		if since != nil {
 			since := time.Unix(*since, 0)
 			query = query.Where("updated_at > ?", since)
 		}
 
-		err = query.All(&moveTaskOrders)
-	} else {
-		query := f.db.Eager(
-			"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
-			"MTOServiceItems.ReService",
-			"MTOServiceItems.Dimensions",
-			"MTOServiceItems.CustomerContacts",
-			"MTOShipments.DestinationAddress",
-			"MTOShipments.PickupAddress",
-			"MTOShipments.SecondaryDeliveryAddress",
-			"MTOShipments.SecondaryPickupAddress",
-			"MTOShipments.MTOAgents",
-			"MoveOrder.Customer",
-			"MoveOrder.Entitlement")
-
-		err = query.All(&moveTaskOrders)
 	}
+
+	err = query.All(&moveTaskOrders)
 
 	if err != nil {
 		switch err {
