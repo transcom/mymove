@@ -55,8 +55,8 @@ const ordersTypeDetailOptions = Object.entries({
   DELAYED_APPROVAL: 'Delayed Approval 20 Weeks or More',
 });
 
-const OrdersDetail = () => (
-  <div>
+storiesOf('TOO/TIO Components|OrdersDetailForm', module).add('with buttons to edit', () => (
+  <div style={{ padding: `20px`, background: `#f0f0f0` }}>
     <OrdersDetailForm
       initialValues={{
         currentDutyStation,
@@ -76,11 +76,5 @@ const OrdersDetail = () => (
       onSubmit={action('Orders Detail Submit')}
       onReset={action('Orders Detail Cancel')}
     />
-  </div>
-);
-
-storiesOf('TOO/TIO Components|OrdersDetailForm', module).add('with buttons to edit', () => (
-  <div style={{ padding: `20px`, background: `#f0f0f0` }}>
-    <OrdersDetail />
   </div>
 ));
