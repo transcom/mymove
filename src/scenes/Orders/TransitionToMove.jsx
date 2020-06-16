@@ -12,10 +12,11 @@ import { getRequestStatus } from 'shared/Swagger/selectors';
 export class TransitionToMove extends Component {
   componentDidMount() {
     //  TODO fix this - error moveId not string
-    // if (!this.props.selectedMoveType) {
-    //   // Make sure the move is always set to PPM since we no longer allow HHGs
-    //   this.props.updateMove(this.props.moveId, 'PPM');
-    // }
+    if (!this.props.selectedMoveType) {
+      console.log('Move id', this.props.moveId);
+      // Make sure the move is always set to PPM since we no longer allow HHGs
+      this.props.updateMove(this.props.moveId, 'PPM');
+    }
     this.props.fetchLatestOrders(this.props.serviceMemberId);
   }
 

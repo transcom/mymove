@@ -1,10 +1,11 @@
-import { reject, pick, cloneDeep, concat, includes, get } from 'lodash';
+// import { reject, pick, cloneDeep, concat, includes, get } from 'lodash';
+import { reject, pick, cloneDeep, concat, includes } from 'lodash';
 import { UpdateOrders, GetOrders } from './api.js';
 // import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
 import { DeleteUploads } from 'shared/api';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
-import { fetchActive } from 'shared/utils';
+// import { fetchActive } from 'shared/utils';
 
 // Types
 const getOrdersType = 'GET_ORDERS';
@@ -108,7 +109,8 @@ export function ordersReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
       return Object.assign({}, state, {
-        currentOrders: reshapeOrders(fetchActive(get(action.payload, 'service_member.orders'))),
+        // currentOrders: reshapeOrders(fetchActive(get(action.payload, 'service_member.orders'))),
+        currentOrders: { foo: 'boo' },
         hasLoadError: false,
         hasLoadSuccess: true,
       });

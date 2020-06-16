@@ -116,6 +116,7 @@ export class Uploader extends Component {
   }
 
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
+    // TODO: use createupload action from entities only, once migration is complete
     const { document, isPublic, createUpload = CreateUpload } = this.props;
     const self = this;
     const docID = document ? document.id : null;

@@ -4,7 +4,8 @@ import { denormalize } from 'normalizr';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { formatDateForSwagger } from 'shared/dates';
 import { getClient } from 'shared/Swagger/api';
-import { get, filter } from 'lodash';
+import { get, filter, isEmpty, isNull } from 'lodash';
+import { fetchActive } from 'shared/utils';
 
 export const STATE_KEY = 'orders';
 export const loadOrdersLabel = 'Orders.loadOrders';
@@ -79,4 +80,17 @@ export function selectOrdersFromServiceMemberId(state, serviceMemberId) {
   const orders = Object.values(state.entities.orders);
   filter(orders, (order) => order.service_member_id === serviceMemberId);
   return orders[0] || {};
+}
+
+export function selectActiveOrders(state) {
+  // temp until full redux refactor: gets active orders from entities if exist. If not, gets from orders.currentOrders.
+  const serviceMember = get(state, 'user.userInfo.service_member', {});
+  if (isNull(serviceMember)) {
+    return null;
+  }
+  let activeOrders = selectOrdersFromServiceMemberId(state, serviceMember.id);
+  if (isEmpty(activeOrders)) {
+    activeOrders = fetchActive(get(state, 'user.userInfo.service_member.orders', {}));
+  }
+  return activeOrders;
 }
