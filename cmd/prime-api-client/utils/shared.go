@@ -23,7 +23,7 @@ const (
 	FilenameFlag string = "filename"
 	// ETagFlag is the etag for the mto shipment being updated
 	ETagFlag string = "etag"
-	// PaymentRequestIDFlag is the ID of payment request to use
+	// PaymentRequestIDFlag is the payment request ID
 	PaymentRequestIDFlag string = "paymentRequestID"
 	// CertPathFlag is the path to the certificate to use for TLS
 	CertPathFlag string = "certpath"

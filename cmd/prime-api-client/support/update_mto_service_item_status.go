@@ -1,4 +1,4 @@
-package main
+package support
 
 import (
 	"encoding/json"
@@ -14,29 +14,31 @@ import (
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 
-	mto "github.com/transcom/mymove/pkg/gen/supportclient/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/gen/supportclient/mto_service_item"
 )
 
-func initGetMTOFlags(flag *pflag.FlagSet) {
+// InitUpdateMTOServiceItemStatusFlags declares which flags are enabled
+func InitUpdateMTOServiceItemStatusFlags(flag *pflag.FlagSet) {
 	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
 
 	flag.SortFlags = false
 }
 
-func checkGetMTOConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+func checkUpdateMTOServiceItemStatusConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
-		logger.Fatal(errors.New("get-mto expects a file to be passed in"))
+		logger.Fatal(errors.New("support-update-mto-service-item-status expects a file to be passed in"))
 	}
 
 	return nil
 }
 
-func getMTO(cmd *cobra.Command, args []string) error {
+// UpdateMTOServiceItemStatus creates a gateway and sends the request to the endpoint
+func UpdateMTOServiceItemStatus(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	//  Create the logger
@@ -49,37 +51,37 @@ func getMTO(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkGetMTOConfig(v, args, logger)
+	err := checkUpdateMTOServiceItemStatusConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	// Decode json from file that was passed in
+	// Decode json from file that was passed into MTO Service item
 	filename := v.GetString(utils.FilenameFlag)
-	var getMTOParams mto.GetMoveTaskOrderParams
-	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &getMTOParams)
+	var updateServiceItemParams mtoserviceitem.UpdateMTOServiceItemStatusParams
+	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &updateServiceItemParams)
 	if err != nil {
 		logger.Fatal(err)
 	}
-	getMTOParams.SetTimeout(time.Second * 30)
+	updateServiceItemParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
 	supportGateway, cacStore, errCreateClient := utils.CreateSupportClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
-
 	// Defer closing the store until after the API call has completed
 	if cacStore != nil {
 		defer cacStore.Close()
 	}
-	getMTOParams.SetTimeout(time.Second * 30)
 
-	resp, err := supportGateway.MoveTaskOrder.GetMoveTaskOrder(&getMTOParams)
+	// Make the API Call
+	resp, err := supportGateway.MtoServiceItem.UpdateMTOServiceItemStatus(&updateServiceItemParams)
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}
 
+	// Get the successful response payload and convert to json for output
 	payload := resp.GetPayload()
 	if payload != nil {
 		payload, errJSONMarshall := json.Marshal(payload)

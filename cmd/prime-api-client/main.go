@@ -147,10 +147,10 @@ func main() {
   	"ifMatch": <eTag>
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         makeMTOAvailable,
+		RunE:         support.MakeMTOAvailable,
 		SilenceUsage: true,
 	}
-	initMakeMTOAvailableFlags(makeAvailableToPrimeCommand.Flags())
+	support.InitMakeMTOAvailableFlags(makeAvailableToPrimeCommand.Flags())
 	root.AddCommand(makeAvailableToPrimeCommand)
 
 	updatePaymentRequestStatusCommand := &cobra.Command{
@@ -170,10 +170,10 @@ func main() {
       "body" : <paymentRequestStatus>
     }
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         updatePaymentRequestStatus,
+		RunE:         support.UpdatePaymentRequestStatus,
 		SilenceUsage: true,
 	}
-	initUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
+	support.InitUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
 	root.AddCommand(updatePaymentRequestStatusCommand)
 
 	getMoveTaskOrder := &cobra.Command{
@@ -191,10 +191,10 @@ func main() {
   	"moveTaskOrderID": <uuid string>,
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         getMTO,
+		RunE:         support.GetMTO,
 		SilenceUsage: true,
 	}
-	initGetMTOFlags(getMoveTaskOrder.Flags())
+	support.InitGetMTOFlags(getMoveTaskOrder.Flags())
 	root.AddCommand(getMoveTaskOrder)
 
 	updateMTOServiceItemStatus := &cobra.Command{
@@ -214,10 +214,10 @@ func main() {
         "status": "APPROVED"
     }
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         updateMTOServiceItemStatus,
+		RunE:         support.UpdateMTOServiceItemStatus,
 		SilenceUsage: true,
 	}
-	initUpdateMTOServiceItemStatusFlags(updateMTOServiceItemStatus.Flags())
+	support.InitUpdateMTOServiceItemStatusFlags(updateMTOServiceItemStatus.Flags())
 	root.AddCommand(updateMTOServiceItemStatus)
 
 	createPaymentRequestCommand := &cobra.Command{
@@ -254,10 +254,10 @@ func main() {
       "moveTaskOrderID": <uuid string>,
     }
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         listMTOPaymentRequests,
+		RunE:         support.ListMTOPaymentRequests,
 		SilenceUsage: true,
 	}
-	initUpdatePaymentRequestStatusFlags(listMTOPaymentRequestsCommand.Flags())
+	support.InitListMTOPaymentRequestsFlags(listMTOPaymentRequestsCommand.Flags())
 	root.AddCommand(listMTOPaymentRequestsCommand)
 
 	createPaymentRequestUploadCommand := &cobra.Command{
@@ -287,10 +287,10 @@ func main() {
       "body": <MtoShipmentRequestStatus>,
     }
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         updateMTOShipmentStatus,
+		RunE:         support.UpdateMTOShipmentStatus,
 		SilenceUsage: true,
 	}
-	initUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
+	support.InitUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
 	root.AddCommand(updateMTOShipmentStatusCommand)
 
 	completionCommand := &cobra.Command{

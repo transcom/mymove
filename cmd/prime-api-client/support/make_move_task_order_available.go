@@ -1,4 +1,4 @@
-package main
+package support
 
 import (
 	"encoding/json"
@@ -14,29 +14,31 @@ import (
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 
-	paymentRequest "github.com/transcom/mymove/pkg/gen/supportclient/payment_requests"
+	mto "github.com/transcom/mymove/pkg/gen/supportclient/move_task_order"
 )
 
-func initUpdatePaymentRequestStatusFlags(flag *pflag.FlagSet) {
+// InitMakeMTOAvailableFlags declares which flags are enabled
+func InitMakeMTOAvailableFlags(flag *pflag.FlagSet) {
 	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
 
 	flag.SortFlags = false
 }
 
-func checkUpdatePaymentRequestStatusConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+func checkMakeMTOAvailableConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
-		logger.Fatal(errors.New("update-mto-shipment expects a file to be passed in"))
+		logger.Fatal(errors.New("make-available-to-prime expects a file to be passed in"))
 	}
 
 	return nil
 }
 
-func updatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
+// MakeMTOAvailable creates a gateway and sends the request to the endpoint
+func MakeMTOAvailable(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	//  Create the logger
@@ -49,32 +51,32 @@ func updatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkUpdatePaymentRequestStatusConfig(v, args, logger)
+	err := checkMakeMTOAvailableConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	// Decode json from file that was passed in
+	// Decode json from file that was passed into MTOShipment
 	filename := v.GetString(utils.FilenameFlag)
-	var paymentReqParams paymentRequest.UpdatePaymentRequestStatusParams
-	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &paymentReqParams)
+	var updateMTOParams mto.MakeMoveTaskOrderAvailableParams
+	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &updateMTOParams)
 	if err != nil {
 		logger.Fatal(err)
 	}
-	paymentReqParams.SetTimeout(time.Second * 30)
+	updateMTOParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
 	supportGateway, cacStore, errCreateClient := utils.CreateSupportClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
+
 	// Defer closing the store until after the API call has completed
 	if cacStore != nil {
 		defer cacStore.Close()
 	}
 
-	// Make the API Call
-	resp, err := supportGateway.PaymentRequests.UpdatePaymentRequestStatus(&paymentReqParams)
+	resp, err := supportGateway.MoveTaskOrder.MakeMoveTaskOrderAvailable(&updateMTOParams)
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}
