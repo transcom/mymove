@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -18,10 +19,13 @@ const (
 	GEXURLFlag string = "gex-url"
 )
 
-var allGEXURLs = []string{
-	"", // empty string allowed for backwards compatibility
-	"https://gexweba.daas.dla.mil/msg_data/submit/",
-	"https://gexweba.daas.dla.mil:443/msg_data/submit?channel=TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM",
+var gexHostnames = []string{
+	"gexweba.daas.dla.mil",
+	"gexwebb.daas.dla.mil",
+}
+
+var gexPaths = []string{
+	"/msg_data/submit",
 }
 
 // InitGEXFlags initializes GEX command line flags
@@ -36,17 +40,33 @@ func InitGEXFlags(flag *pflag.FlagSet) {
 func CheckGEX(v *viper.Viper) error {
 	gexURL := v.GetString(GEXURLFlag)
 
-	if !stringSliceContains(allGEXURLs, gexURL) {
-		return fmt.Errorf("invalid gexUrl %s, expecting one of %q", gexURL, allGEXURLs)
+	if len(gexURL) == 0 {
+		return nil
 	}
 
-	if len(gexURL) > 0 {
-		if len(v.GetString(GEXBasicAuthUsernameFlag)) == 0 {
-			return fmt.Errorf("GEX_BASIC_AUTH_USERNAME is missing")
-		}
-		if len(v.GetString(GEXBasicAuthPasswordFlag)) == 0 {
-			return fmt.Errorf("GEX_BASIC_AUTH_PASSWORD is missing")
-		}
+	// Parse the URL and check it
+	u, parseErr := url.Parse(gexURL)
+	if parseErr != nil {
+		return parseErr
+	}
+
+	if u.Scheme != "https" {
+		return fmt.Errorf("invalid gexURL Scheme %s, expecting https", u.Scheme)
+	}
+
+	if !stringSliceContains(gexHostnames, u.Hostname()) {
+		return fmt.Errorf("invalid gexUrl Hostname %s, expecting one of %q", u.Hostname(), gexHostnames)
+	}
+
+	if !stringSliceContains(gexPaths, u.Path) {
+		return fmt.Errorf("invalid gexUrl Path %s, expecting one of %q", u.Path, gexPaths)
+	}
+
+	if len(v.GetString(GEXBasicAuthUsernameFlag)) == 0 {
+		return fmt.Errorf("GEX_BASIC_AUTH_USERNAME is missing")
+	}
+	if len(v.GetString(GEXBasicAuthPasswordFlag)) == 0 {
+		return fmt.Errorf("GEX_BASIC_AUTH_PASSWORD is missing")
 	}
 
 	return nil
