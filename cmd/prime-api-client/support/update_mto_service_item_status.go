@@ -1,4 +1,4 @@
-package main
+package support
 
 import (
 	"encoding/json"
@@ -12,36 +12,40 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
+
 	mtoserviceitem "github.com/transcom/mymove/pkg/gen/supportclient/mto_service_item"
 )
 
-func initUpdateMTOServiceItemStatusFlags(flag *pflag.FlagSet) {
-	flag.String(FilenameFlag, "", "Name of the file being passed in")
+// InitUpdateMTOServiceItemStatusFlags declares which flags are enabled
+func InitUpdateMTOServiceItemStatusFlags(flag *pflag.FlagSet) {
+	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
 
 	flag.SortFlags = false
 }
 
 func checkUpdateMTOServiceItemStatusConfig(v *viper.Viper, args []string, logger *log.Logger) error {
-	err := CheckRootConfig(v)
+	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
+	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
 		logger.Fatal(errors.New("support-update-mto-service-item-status expects a file to be passed in"))
 	}
 
 	return nil
 }
 
-func updateMTOServiceItemStatus(cmd *cobra.Command, args []string) error {
+// UpdateMTOServiceItemStatus creates a gateway and sends the request to the endpoint
+func UpdateMTOServiceItemStatus(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	//  Create the logger
 	//  Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	errParseFlags := ParseFlags(cmd, v, args)
+	errParseFlags := utils.ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
 		return errParseFlags
 	}
@@ -53,16 +57,16 @@ func updateMTOServiceItemStatus(cmd *cobra.Command, args []string) error {
 	}
 
 	// Decode json from file that was passed into MTO Service item
-	filename := v.GetString(FilenameFlag)
+	filename := v.GetString(utils.FilenameFlag)
 	var updateServiceItemParams mtoserviceitem.UpdateMTOServiceItemStatusParams
-	err = decodeJSONFileToPayload(filename, containsDash(args), &updateServiceItemParams)
+	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &updateServiceItemParams)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	updateServiceItemParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
-	supportGateway, cacStore, errCreateClient := CreateSupportClient(v)
+	supportGateway, cacStore, errCreateClient := utils.CreateSupportClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -74,7 +78,7 @@ func updateMTOServiceItemStatus(cmd *cobra.Command, args []string) error {
 	// Make the API Call
 	resp, err := supportGateway.MtoServiceItem.UpdateMTOServiceItemStatus(&updateServiceItemParams)
 	if err != nil {
-		return handleGatewayError(err, logger)
+		return utils.HandleGatewayError(err, logger)
 	}
 
 	// Get the successful response payload and convert to json for output

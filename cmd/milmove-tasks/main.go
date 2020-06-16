@@ -57,16 +57,6 @@ func main() {
 	initPaymentReminderFlags(sendPaymentReminderCommand.Flags())
 	root.AddCommand(sendPaymentReminderCommand)
 
-	postFileToGEXCommand := &cobra.Command{
-		Use:          "post-file-to-gex",
-		Short:        "posts a file to GEX",
-		Long:         "posts a file to GEX",
-		RunE:         postFileToGEX,
-		SilenceUsage: true,
-	}
-	initPostFileToGEXFlags(postFileToGEXCommand.Flags())
-	root.AddCommand(postFileToGEXCommand)
-
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
