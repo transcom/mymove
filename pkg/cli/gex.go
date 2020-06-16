@@ -28,6 +28,11 @@ var gexPaths = []string{
 	"/msg_data/submit",
 }
 
+var gexChannels = []string{
+	"",
+	"TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM",
+}
+
 // InitGEXFlags initializes GEX command line flags
 func InitGEXFlags(flag *pflag.FlagSet) {
 	flag.String(GEXBasicAuthUsernameFlag, "", "GEX api auth username")
@@ -60,6 +65,11 @@ func CheckGEX(v *viper.Viper) error {
 
 	if !stringSliceContains(gexPaths, u.Path) {
 		return fmt.Errorf("invalid gexUrl Path %s, expecting one of %q", u.Path, gexPaths)
+	}
+
+	channel := u.Query().Get("channel")
+	if !stringSliceContains(gexChannels, channel) {
+		return fmt.Errorf("invalid gexUrl channel query parameter %s, expecting one of %q", channel, gexChannels)
 	}
 
 	if len(v.GetString(GEXBasicAuthUsernameFlag)) == 0 {
