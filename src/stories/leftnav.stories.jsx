@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { storiesOf } from '@storybook/react';
 
 import LeftNav from '../components/LeftNav';
@@ -23,7 +22,11 @@ storiesOf('Components|Left Nav', module)
           <h2>Fixed positioning behavior of the tertiary nav</h2>
           <li>
             Sections of the page are anchored, selecting an item on the tab&nbsp;
-            <a href="https://xc9rwh.axshare.com/#id=gro6ti&p=move_details_dir_a&g=1" target="_blank">
+            <a
+              href="https://xc9rwh.axshare.com/#id=gro6ti&p=move_details_dir_a&g=1"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               will take you to the respective page.
             </a>
           </li>
@@ -48,7 +51,7 @@ storiesOf('Components|Left Nav', module)
             in this example,&nbsp;
             <code>sidebar</code>
             &nbsp;and the rest of the content are being laid out using&nbsp;
-            <a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="blank">
+            <a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" rel="noopener noreferrer" target="blank">
               flexbox
             </a>
             .&nbsp;

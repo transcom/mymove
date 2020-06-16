@@ -444,6 +444,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
           "500": {
             "$ref": "#/responses/ServerError"
           }
@@ -1032,7 +1035,11 @@ func init() {
               "example": "2020-01-20"
             },
             "reServiceCode": {
-              "$ref": "#/definitions/ReServiceCode"
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DDFSIT"
+              ]
             },
             "timeMilitary1": {
               "type": "string",
@@ -1069,7 +1076,11 @@ func init() {
               "example": 90210
             },
             "reServiceCode": {
-              "$ref": "#/definitions/ReServiceCode"
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DOFSIT"
+              ]
             },
             "reason": {
               "type": "string",
@@ -1142,6 +1153,7 @@ func init() {
               "$ref": "#/definitions/MTOServiceItemDimension"
             },
             "reServiceCode": {
+              "description": "Service codes allowed for this model type.",
               "type": "string",
               "enum": [
                 "DCRT",
@@ -1154,7 +1166,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.",
+      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DDFSIT - MTOServiceItemDDFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -1183,6 +1195,7 @@ func init() {
               "example": "Things to be moved to the place by shuttle."
             },
             "reServiceCode": {
+              "description": "Service codes allowed for this model type.",
               "type": "string",
               "enum": [
                 "DOSHUT",
@@ -1637,6 +1650,7 @@ func init() {
       }
     },
     "ReServiceCode": {
+      "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
       "type": "string",
       "enum": [
         "CS",
@@ -2440,6 +2454,12 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred.",
             "schema": {
@@ -3031,7 +3051,11 @@ func init() {
               "example": "2020-01-20"
             },
             "reServiceCode": {
-              "$ref": "#/definitions/ReServiceCode"
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DDFSIT"
+              ]
             },
             "timeMilitary1": {
               "type": "string",
@@ -3068,7 +3092,11 @@ func init() {
               "example": 90210
             },
             "reServiceCode": {
-              "$ref": "#/definitions/ReServiceCode"
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DOFSIT"
+              ]
             },
             "reason": {
               "type": "string",
@@ -3141,6 +3169,7 @@ func init() {
               "$ref": "#/definitions/MTOServiceItemDimension"
             },
             "reServiceCode": {
+              "description": "Service codes allowed for this model type.",
               "type": "string",
               "enum": [
                 "DCRT",
@@ -3153,7 +3182,7 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.",
+      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DDFSIT - MTOServiceItemDDFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
@@ -3182,6 +3211,7 @@ func init() {
               "example": "Things to be moved to the place by shuttle."
             },
             "reServiceCode": {
+              "description": "Service codes allowed for this model type.",
               "type": "string",
               "enum": [
                 "DOSHUT",
@@ -3636,6 +3666,7 @@ func init() {
       }
     },
     "ReServiceCode": {
+      "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
       "type": "string",
       "enum": [
         "CS",

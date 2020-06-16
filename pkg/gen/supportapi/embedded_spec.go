@@ -208,6 +208,52 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/payment-requests": {
+      "get": {
+        "description": "Gets all payment requests for a given move task order\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "listMTOPaymentRequests",
+        "operationId": "listMTOPaymentRequests",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Only return move task orders updated since this time.",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved payment requests associated with a given move task order",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequests"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
         "description": "Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, ` + "`" + `rejectionReason` + "`" + ` should be blank and any value passed through the body will be ignored. If REJECTED, a value in ` + "`" + `rejectionReason` + "`" + ` is required. \u003cbr /\u003e \u003cbr /\u003e This is a support endpoint and will not be available in production.\n",
@@ -1803,6 +1849,67 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/payment-requests": {
+      "get": {
+        "description": "Gets all payment requests for a given move task order\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "listMTOPaymentRequests",
+        "operationId": "listMTOPaymentRequests",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Only return move task orders updated since this time.",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved payment requests associated with a given move task order",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequests"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/mto-shipments/{mtoShipmentID}/status": {
       "patch": {
