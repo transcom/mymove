@@ -1,4 +1,4 @@
-package main
+package prime
 
 import (
 	"bufio"
@@ -18,7 +18,8 @@ import (
 	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 )
 
-func initUpdatePostCounselingInfoFlags(flag *pflag.FlagSet) {
+// InitUpdatePostCounselingInfoFlags declares which flags are enabled
+func InitUpdatePostCounselingInfoFlags(flag *pflag.FlagSet) {
 	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
 
 	flag.SortFlags = false
@@ -37,7 +38,8 @@ func checkUpdatePostCounselingInfoConfig(v *viper.Viper, args []string, logger *
 	return nil
 }
 
-func updatePostCounselingInfo(cmd *cobra.Command, args []string) error {
+// UpdatePostCounselingInfo creates a gateway and sends the request to the endpoint
+func UpdatePostCounselingInfo(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	//  Create the logger

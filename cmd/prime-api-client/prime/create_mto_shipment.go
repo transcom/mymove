@@ -1,4 +1,4 @@
-package main
+package prime
 
 import (
 	"encoding/json"
@@ -17,7 +17,8 @@ import (
 	mtoShipment "github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
 )
 
-func initCreateMTOShipmentFlags(flag *pflag.FlagSet) {
+// InitCreateMTOShipmentFlags declares which flags are enabled
+func InitCreateMTOShipmentFlags(flag *pflag.FlagSet) {
 	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
 	flag.SortFlags = false
 }
@@ -35,7 +36,8 @@ func checkCreateMTOShipmentConfig(v *viper.Viper, args []string, logger *log.Log
 	return nil
 }
 
-func createMTOShipment(cmd *cobra.Command, args []string) error {
+// CreateMTOShipment creates a gateway and sends the request to the endpoint
+func CreateMTOShipment(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	// Create the logger - remove the prefix and any datetime data

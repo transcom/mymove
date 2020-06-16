@@ -1,4 +1,4 @@
-package main
+package prime
 
 import (
 	"encoding/json"
@@ -17,8 +17,8 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primeclient/uploads"
 )
 
-// initCreatePaymentRequestUploadFlags initializes flags.
-func initCreatePaymentRequestUploadFlags(flag *pflag.FlagSet) {
+// InitCreatePaymentRequestUploadFlags initializes flags.
+func InitCreatePaymentRequestUploadFlags(flag *pflag.FlagSet) {
 	flag.String(utils.FilenameFlag, "", "Path to the upload file for create-payment-request-upload payload")
 	flag.String(utils.PaymentRequestIDFlag, "", "Payment Request ID to upload the proof of service document to")
 
@@ -44,8 +44,8 @@ func checkCreatePaymentRequestUploadConfig(v *viper.Viper, args []string, logger
 	return nil
 }
 
-// createPaymentRequestUpload creates the payment request for an MTO
-func createPaymentRequestUpload(cmd *cobra.Command, args []string) error {
+// CreatePaymentRequestUpload creates the payment request for an MTO
+func CreatePaymentRequestUpload(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	// Create the logger

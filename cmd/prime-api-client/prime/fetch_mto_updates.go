@@ -1,4 +1,4 @@
-package main
+package prime
 
 import (
 	"encoding/json"
@@ -16,11 +16,12 @@ import (
 	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 )
 
-func initFetchMTOsFlags(flag *pflag.FlagSet) {
+// InitFetchMTOUpdatesFlags declares which flags are enabled
+func InitFetchMTOUpdatesFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func checkFetchMTOsConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+func checkFetchMTOUpdatesConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
@@ -29,7 +30,8 @@ func checkFetchMTOsConfig(v *viper.Viper, args []string, logger *log.Logger) err
 	return nil
 }
 
-func fetchMTOs(cmd *cobra.Command, args []string) error {
+// FetchMTOUpdates creates a gateway and sends the request to the endpoint
+func FetchMTOUpdates(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	//Create the logger
@@ -42,7 +44,7 @@ func fetchMTOs(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkFetchMTOsConfig(v, args, logger)
+	err := checkFetchMTOUpdatesConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}

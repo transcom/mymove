@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/prime"
 	"github.com/transcom/mymove/cmd/prime-api-client/support"
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 	"github.com/transcom/mymove/pkg/cli"
@@ -35,10 +36,10 @@ func main() {
 		Use:          "fetch-mto-updates",
 		Short:        "Fetch all MTOs available to prime",
 		Long:         "fetch move task orders",
-		RunE:         fetchMTOs,
+		RunE:         prime.FetchMTOUpdates,
 		SilenceUsage: true,
 	}
-	initFetchMTOsFlags(fetchMTOsCommand.Flags())
+	prime.InitFetchMTOUpdatesFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
 
 	createMTOCommand := &cobra.Command{
@@ -73,10 +74,10 @@ func main() {
 			"body": <MTOShipment>,
 		}
 	Please see API documentation for full details on the endpoint definition.`,
-		RunE:         createMTOShipment,
+		RunE:         prime.CreateMTOShipment,
 		SilenceUsage: true,
 	}
-	initCreateMTOShipmentFlags(createMTOShipmentCommand.Flags())
+	prime.InitCreateMTOShipmentFlags(createMTOShipmentCommand.Flags())
 	root.AddCommand(createMTOShipmentCommand)
 
 	updateMTOShipmentCommand := &cobra.Command{
@@ -95,20 +96,20 @@ func main() {
       "body": <MTOShipment>
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         updateMTOShipment,
+		RunE:         prime.UpdateMTOShipment,
 		SilenceUsage: true,
 	}
-	initUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
+	prime.InitUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
 	root.AddCommand(updateMTOShipmentCommand)
 
 	updatePostCounselingInfo := &cobra.Command{
 		Use:          "update-mto-post-counseling-information",
 		Short:        "update post counseling info",
 		Long:         "Update post counseling info such as discovering that customer has a PPM",
-		RunE:         updatePostCounselingInfo,
+		RunE:         prime.UpdatePostCounselingInfo,
 		SilenceUsage: true,
 	}
-	initUpdatePostCounselingInfoFlags(updatePostCounselingInfo.Flags())
+	prime.InitUpdatePostCounselingInfoFlags(updatePostCounselingInfo.Flags())
 	root.AddCommand(updatePostCounselingInfo)
 
 	createMTOServiceItemCommand := &cobra.Command{
@@ -125,10 +126,10 @@ func main() {
   	"body": <MTOServiceItem>
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         createMTOServiceItem,
+		RunE:         prime.CreateMTOServiceItem,
 		SilenceUsage: true,
 	}
-	initCreateMTOServiceItemFlags(createMTOServiceItemCommand.Flags())
+	prime.InitCreateMTOServiceItemFlags(createMTOServiceItemCommand.Flags())
 	root.AddCommand(createMTOServiceItemCommand)
 
 	makeAvailableToPrimeCommand := &cobra.Command{
@@ -233,10 +234,10 @@ func main() {
   	"body": <PaymentRequest>,
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         createPaymentRequest,
+		RunE:         prime.CreatePaymentRequest,
 		SilenceUsage: true,
 	}
-	initCreatePaymentRequestFlags(createPaymentRequestCommand.Flags())
+	prime.InitCreatePaymentRequestFlags(createPaymentRequestCommand.Flags())
 	root.AddCommand(createPaymentRequestCommand)
 
 	listMTOPaymentRequestsCommand := &cobra.Command{
@@ -264,10 +265,10 @@ func main() {
 		Use:          "create-upload",
 		Short:        "Create payment request upload",
 		Long:         "Create payment request upload for a payment request",
-		RunE:         createPaymentRequestUpload,
+		RunE:         prime.CreatePaymentRequestUpload,
 		SilenceUsage: true,
 	}
-	initCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
+	prime.InitCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
 	root.AddCommand(createPaymentRequestUploadCommand)
 
 	updateMTOShipmentStatusCommand := &cobra.Command{

@@ -1,4 +1,4 @@
-package main
+package prime
 
 import (
 	"encoding/json"
@@ -14,31 +14,36 @@ import (
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 
-	mtoShipment "github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/primeclient/payment_requests"
 )
 
-func initUpdateMTOShipmentFlags(flag *pflag.FlagSet) {
-	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
+// InitCreatePaymentRequestFlags initializes flags.
+func InitCreatePaymentRequestFlags(flag *pflag.FlagSet) {
+	flag.String(utils.FilenameFlag, "", "Path to the file with the payment request JSON payload")
+
 	flag.SortFlags = false
 }
 
-func checkUpdateMTOShipmentConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+// checkCreatePaymentRequestConfig checks the args.
+func checkCreatePaymentRequestConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
-		logger.Fatal(errors.New("update-mto-shipment expects a file to be passed in"))
+		return errors.New("create-payment-request expects a file to be passed in")
 	}
 
 	return nil
 }
 
-func updateMTOShipment(cmd *cobra.Command, args []string) error {
+// CreatePaymentRequest creates the payment request for an MTO
+func CreatePaymentRequest(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
-	// Create the logger - remove the prefix and any datetime data
+	// Create the logger
+	// Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
 	errParseFlags := utils.ParseFlags(cmd, v, args)
@@ -47,21 +52,21 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkUpdateMTOShipmentConfig(v, args, logger)
+	err := checkCreatePaymentRequestConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	// Decode json from file that was passed into MTOShipment
+	// Decode json from file that was passed in
 	filename := v.GetString(utils.FilenameFlag)
-	var shipmentPayload mtoShipment.UpdateMTOShipmentParams
-	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &shipmentPayload)
+	var paymentRequestParams payment_requests.CreatePaymentRequestParams
+	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &paymentRequestParams)
 	if err != nil {
 		logger.Fatal(err)
 	}
-	shipmentPayload.SetTimeout(time.Second * 30)
+	paymentRequestParams.SetTimeout(time.Second * 30)
 
-	// Create the client and open the cacStore
+	// cac and api gateway
 	primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
@@ -72,8 +77,7 @@ func updateMTOShipment(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	// Make the API Call
-	resp, err := primeGateway.MtoShipment.UpdateMTOShipment(&shipmentPayload)
+	resp, err := primeGateway.PaymentRequests.CreatePaymentRequest(&paymentRequestParams)
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}
