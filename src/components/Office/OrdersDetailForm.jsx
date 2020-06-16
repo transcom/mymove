@@ -13,6 +13,7 @@ const cx = classNames.bind(styles);
 export const OrdersDetailForm = ({
   initialValues,
   onSubmit,
+  onReset,
   deptIndicatorOptions,
   ordersTypeOptions,
   ordersTypeDetailOptions,
@@ -21,6 +22,9 @@ export const OrdersDetailForm = ({
     <Formik
       onSubmit={(values) => {
         onSubmit(values);
+      }}
+      onReset={(values) => {
+        onReset(values);
       }}
       initialValues={initialValues}
       validationSchema={Yup.object({
@@ -59,10 +63,11 @@ export const OrdersDetailForm = ({
 };
 
 OrdersDetailForm.propTypes = {
-  onSubmit: PropTypes.func,
-  deptIndicatorOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
-  ordersTypeOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
-  ordersTypeDetailOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
+  onReset: PropTypes.func,
+  onSubmit: PropTypes.func.isRequired,
+  deptIndicatorOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
+  ordersTypeOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
+  ordersTypeDetailOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
   initialValues: PropTypes.shape({
     currentDutyStation: PropTypes.shape({
       address: PropTypes.shape({
@@ -102,7 +107,7 @@ OrdersDetailForm.propTypes = {
     ordersTypeDetail: PropTypes.string,
     tac: PropTypes.string,
     sac: PropTypes.string,
-  }),
+  }).isRequired,
 };
 
 export default OrdersDetailForm;
