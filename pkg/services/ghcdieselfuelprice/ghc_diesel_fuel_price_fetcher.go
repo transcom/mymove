@@ -31,7 +31,9 @@ func FetchEiaData(eiaFinalURL string) (EiaData, error) {
 	var eiaData EiaData
 	client := &http.Client{}
 
-	// TODO: Return an error if EiaFinalUrl is nil
+	if eiaFinalURL == "" {
+		return eiaData, fmt.Errorf("expected eiaFinalURL to contain EIA Open Data API request URL, but got empty string")
+	}
 
 	response, err := client.Get(eiaFinalURL)
 	if err != nil {
