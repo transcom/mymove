@@ -2,6 +2,8 @@
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
 
+$menuWidth: 308px;
+
 .docViewerContent {
   @include u-width(100%);
   min-width: 640px;
@@ -13,4 +15,28 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: stretch;
+}
+
+.titleBar {
+  @include u-bg('white');
+  height: 52px;
+  position: fixed;
+  top: 0;
+  left: $menuWidth;
+  @include u-width(100%);
+}
+
+.docArea {
+  max-height: 100%;
+}
+//this calcualtion subtracts the height of the milmove headers, and the titlebar height so tat the content area fills the page without overflowing
+
+.docControls {
+  background: rgba(255, 255, 255, 0.75);
+  @include u-width(100%);
+  height: 50px;
+  position: fixed;
+  left: $menuWidth;
+  bottom: 0;
 }
