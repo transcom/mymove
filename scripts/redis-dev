@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+
+#
+# Convenience script to drop into redis-cli
+#
+
+set -eu -o pipefail
+
+make redis_run
+docker exec -it milmove-redis redis-cli

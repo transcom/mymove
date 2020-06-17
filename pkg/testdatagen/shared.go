@@ -68,6 +68,7 @@ type Assertions struct {
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	Reimbursement                            models.Reimbursement
 	ReService                                models.ReService
+	ReZip3                                   models.ReZip3
 	ServiceItemParamKey                      models.ServiceItemParamKey
 	ServiceParam                             models.ServiceParam
 	SignedCertification                      models.SignedCertification

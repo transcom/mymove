@@ -1,6 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, text } from '@storybook/addon-knobs';
+
 import OrdersTable from '../components/Office/OrdersTable';
 
 storiesOf('TOO/TIO Components|OrdersTable', module)
