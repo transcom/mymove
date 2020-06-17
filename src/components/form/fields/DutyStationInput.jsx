@@ -23,7 +23,7 @@ export const DutyStationInput = (props) => {
 };
 
 DutyStationInput.propTypes = {
-  // label optionally displayed for input
+  // label displayed for input
   label: PropTypes.string.isRequired,
   // duty station value
   value: PropTypes.shape({

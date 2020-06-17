@@ -34,7 +34,7 @@ export const DatePickerInput = (props) => {
 };
 
 DatePickerInput.propTypes = {
-  // label optionally displayed for input
+  // label displayed for input
   label: PropTypes.string.isRequired,
   // name is for the input
   name: PropTypes.string.isRequired,
