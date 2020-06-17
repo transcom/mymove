@@ -1,0 +1,41 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.MoveDetails {
+  background: $bg-gray;
+  scroll-behavior: smooth;
+}
+
+.container {
+  display: flex;
+  position: relative;
+  max-width: calc(230px + 40px + 1024px); // sidebar + 5units margin + desktop container
+  margin-left: auto;
+  margin-right: auto;
+
+  .gridContainer {
+    flex-grow: 1;
+  }
+}
+
+.sidebar {
+  position: sticky;
+  align-self: flex-start;
+  margin-top: 26px;
+  top: 26px;
+}
+
+.section {
+  background: $bg-white;
+  border-radius: 3px;
+  border: 1px solid #dfe1e2;
+}
+
+.section + .section {
+  @include u-margin-top(4);
+}
+
+.section:last-child {
+  margin-bottom: 135px;
+}
