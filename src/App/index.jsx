@@ -11,7 +11,7 @@ import { detectFlags } from 'shared/featureFlags';
 import './index.css';
 
 const Office = Loadable({
-  loader: () => import('scenes/Office'),
+  loader: () => import('pages/Office'),
   loading: () => <LoadingPlaceholder />,
 });
 

@@ -1,3 +1,4 @@
+/* eslint-disable  */
 import React, { Component, lazy, Suspense } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'connected-react-router';
@@ -8,12 +9,12 @@ import { history } from 'shared/store';
 
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
-import './office.scss';
+import 'scenes/Office/office.scss';
 
 import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
-import { detectIE11, no_op } from 'shared/utils';
-import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
+import { detectIE11 } from 'shared/utils';
+import ConnectedLogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -31,34 +32,36 @@ const Queues = lazy(() => import('./Queues'));
 const OrdersInfo = lazy(() => import('./OrdersInfo'));
 const DocumentViewer = lazy(() => import('./DocumentViewer'));
 const ScratchPad = lazy(() => import('shared/ScratchPad'));
-const CustomerDetails = lazy(() => import('./TOO/customerDetails'));
-const TOO = lazy(() => import('./TOO/too'));
+const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
+const TOO = lazy(() => import('scenes/Office/TOO/too'));
 const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
-const TIO = lazy(() => import('./TIO/tio'));
-const TOOVerificationInProgress = lazy(() => import('./TOO/tooVerificationInProgress'));
-const PaymentRequestShow = lazy(() => import('./TIO/paymentRequestShow'));
-const PaymentRequestIndex = lazy(() => import('./TIO/paymentRequestIndex'));
-const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
+const TIO = lazy(() => import('scenes/Office/TIO/tio'));
+const TOOVerificationInProgress = lazy(() => import('scenes/Office/TOO/tooVerificationInProgress'));
+const PaymentRequestShow = lazy(() => import('scenes/Office/TIO/paymentRequestShow'));
+const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
+const MoveDetails = lazy(() => import('pages/TOO/moveDetails'));
 
-export class RenderWithOrWithoutHeader extends Component {
-  render() {
-    const Tag = this.props.tag;
-    const Component = this.props.component;
-    return (
-      <>
-        <Suspense fallback={<LoadingPlaceholder />}>
-          {this.props.withHeader && <QueueHeader />}
-          <Tag role="main" className="site__content">
-            <Component {...this.props} />
-          </Tag>
-        </Suspense>
-      </>
-    );
-  }
-}
+export const RenderWithOrWithoutHeader = (props) => {
+  const Tag = props.tag;
+  const Component = props.component;
+  return (
+    <>
+      <Suspense fallback={<LoadingPlaceholder />}>
+        {props.withHeader && <QueueHeader />}
+        <Tag role="main" className="site__content">
+          <Component {...props} />
+        </Tag>
+      </Suspense>
+    </>
+  );
+};
 
 export class OfficeWrapper extends Component {
-  state = { hasError: false };
+  constructor(props) {
+    super(props);
+
+    this.state = { hasError: false };
+  }
 
   componentDidMount() {
     document.title = 'Transcom PPP: Office';
@@ -93,7 +96,7 @@ export class OfficeWrapper extends Component {
               </DivOrMainTag>
             )}
           >
-            <LogoutOnInactivity />
+            <ConnectedLogoutOnInactivity />
             {this.state.hasError && <SomethingWentWrong error={this.state.error} info={this.state.info} />}
             {!this.state.hasError && (
               <Switch>
@@ -301,8 +304,8 @@ export class OfficeWrapper extends Component {
 }
 
 OfficeWrapper.defaultProps = {
-  loadInternalSchema: no_op,
-  loadPublicSchema: no_op,
+  loadInternalSchema: () => {},
+  loadPublicSchema: () => {},
 };
 
 const mapStateToProps = (state) => {
@@ -315,4 +318,5 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) =>
   bindActionCreators({ loadInternalSchema, loadPublicSchema, getCurrentUserInfo }, dispatch);
+
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(OfficeWrapper));

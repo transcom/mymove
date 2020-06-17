@@ -1,25 +1,27 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { OfficeWrapper, RenderWithOrWithoutHeader } from '.';
-import { Queues } from './Queues';
+
+import { OfficeWrapper, RenderWithOrWithoutHeader } from './index';
+
+import { Queues } from 'scenes/Office/Queues';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 describe('OfficeWrapper tests', () => {
-  let _wrapper;
+  let wrapper;
 
   beforeEach(() => {
-    _wrapper = shallow(<OfficeWrapper getCurrentUserInfo={() => {}} />);
+    wrapper = shallow(<OfficeWrapper getCurrentUserInfo={() => {}} />);
   });
 
   it('renders without crashing or erroring', () => {
-    const officeWrapper = _wrapper.find('div');
+    const officeWrapper = wrapper.find('div');
     expect(officeWrapper).toBeDefined();
-    expect(_wrapper.find(SomethingWentWrong)).toHaveLength(0);
+    expect(wrapper.find(SomethingWentWrong)).toHaveLength(0);
   });
 
   it('renders the fail whale', () => {
-    _wrapper.setState({ hasError: true });
-    expect(_wrapper.find(SomethingWentWrong)).toHaveLength(1);
+    wrapper.setState({ hasError: true });
+    expect(wrapper.find(SomethingWentWrong)).toHaveLength(1);
   });
 });
 
