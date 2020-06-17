@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -29,8 +28,8 @@ func checkPostFileToGEXConfig(v *viper.Viper) error {
 		return err
 	}
 
-	if ediFile := v.GetString("edi"); ediFile == "" {
-		return errors.New("EDI file path must not be empty")
+	if ediFile := v.GetString("gex-helloworld-file"); ediFile == "" {
+		return errors.New("must have file to send")
 	}
 
 	if trasactionName := v.GetString("transaction-name"); trasactionName == "" {
@@ -50,7 +49,7 @@ func initPostFileToGEXFlags(flag *pflag.FlagSet) {
 	// Certificate
 	cli.InitCertFlags(flag)
 
-	flag.String("edi", "", "The filepath to an edi file to send to GEX")
+	flag.String("gex-helloworld-file", "", "GEX file to post")
 	flag.String("transaction-name", "test", "The required name sent in the url of the gex api request")
 	// flag.Parse(os.Args[1:])
 
@@ -97,29 +96,11 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 
 	// dbEnv := v.GetString(cli.DbEnvFlag)
 
-	// err = checkPostFileToGEXConfig(v, logger)
-	// if err != nil {
-	// 	logger.Fatal("invalid configuration", zap.Error(err))
-	// }
-
-	ediFile := v.GetString("edi")
-
-	file, err := os.Open(ediFile) // #nosec
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	edi, err := ioutil.ReadAll(file)
-	if err != nil {
-		log.Fatal(err)
-	}
+	edi := v.GetString("gex-helloworld-file")
 
 	ediString := string(edi[:])
 	// make sure edi ends in new line
 	ediString = strings.TrimSpace(ediString) + "\n"
-
-	logger.Println(ediString)
 
 	certLogger, err := logging.Config("development", true)
 	if err != nil {
