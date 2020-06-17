@@ -5,6 +5,8 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 
+import styles from './MoveDetails.module.scss';
+
 import 'pages/TOO/too.scss';
 
 import {
@@ -23,8 +25,6 @@ import AllowancesTable from 'components/Office/AllowancesTable';
 import OrdersTable from 'components/Office/OrdersTable';
 import { MoveOrderShape, EntitlementShape, CustomerShape, MTOShipmentShape } from 'types/moveOrder';
 import { MatchShape } from 'types/router';
-
-import styles from './MoveDetails.module.scss';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',

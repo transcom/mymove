@@ -1,9 +1,9 @@
 import React from 'react';
 import { Tag } from '@trussworks/react-uswds';
 
-import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
-
 import LeftNav from './index';
+
+import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 
 // Left Nav
 export default {
@@ -47,8 +47,8 @@ export const Layout = () => (
           Orders
           <Tag className="usa-tag--teal">INTL</Tag>
         </a>
-        <a>Allowances</a>
-        <a>
+        <a href="#">Allowances</a>
+        <a href="#">
           Customer Info
           <Tag>3</Tag>
         </a>
@@ -62,7 +62,11 @@ export const Layout = () => (
         <h2>Fixed positioning behavior of the tertiary nav</h2>
         <li>
           Sections of the page are anchored, selecting an item on the tab&nbsp;
-          <a href="https://xc9rwh.axshare.com/#id=gro6ti&p=move_details_dir_a&g=1" target="_blank">
+          <a
+            href="https://xc9rwh.axshare.com/#id=gro6ti&p=move_details_dir_a&g=1"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             will take you to the respective page.
           </a>
         </li>
@@ -82,7 +86,7 @@ export const Layout = () => (
           in this example,&nbsp;
           <code>sidebar</code>
           &nbsp;and the rest of the content are being laid out using&nbsp;
-          <a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="blank">
+          <a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank" rel="noopener noreferrer">
             flexbox
           </a>
           .&nbsp;
