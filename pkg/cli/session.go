@@ -15,7 +15,7 @@ const (
 	SessionLifetimeInHoursFlag string = "session-lifetime-in-hours"
 
 	// SessionIdleTimeoutInMinutes is the default idle timeout in minutes
-	SessionIdleTimeoutInMinutes int = 15
+	SessionIdleTimeoutInMinutes int = 30
 	// SessionLifetimeInHours is the default session lifetime in hours
 	SessionLifetimeInHours int = 24
 )
@@ -41,13 +41,12 @@ func CheckSession(v *viper.Viper) error {
 
 // ValidateSessionTimeout validates session idle timeout
 func ValidateSessionTimeout(v *viper.Viper, flagname string) error {
-	environment := v.GetString(EnvironmentFlag)
 	timeout := v.GetDuration(flagname) * time.Minute
 	var minTimeout time.Duration = 15 * time.Minute
 	var maxTimeout time.Duration = 60 * time.Minute
 
-	if (environment != EnvironmentDevelopment) && (timeout < minTimeout || timeout > maxTimeout) {
-		return errors.Errorf("%s must be an integer between 15 and 60", SessionIdleTimeoutInMinutesFlag)
+	if timeout <= minTimeout || timeout >= maxTimeout {
+		return errors.Errorf("%s must be an integer between 15 and 60, got %s", SessionIdleTimeoutInMinutesFlag, timeout)
 	}
 
 	return nil
@@ -55,17 +54,16 @@ func ValidateSessionTimeout(v *viper.Viper, flagname string) error {
 
 // ValidateSessionLifetime validates session lifetime
 func ValidateSessionLifetime(v *viper.Viper, flagname string) error {
-	environment := v.GetString(EnvironmentFlag)
 	lifetime := v.GetDuration(flagname) * time.Hour
 	var minLifetime time.Duration = 1 * time.Hour
 	var minLifetimeDeployed time.Duration = 12 * time.Hour
 
-	if (environment != EnvironmentDevelopment) && (lifetime < minLifetimeDeployed) {
-		return errors.Errorf("%s must be at least 12 hours in production", SessionLifetimeInHoursFlag)
+	if lifetime < minLifetimeDeployed {
+		return errors.Errorf("%s must be at least 12 hours in production, got %s", SessionLifetimeInHoursFlag, lifetime)
 	}
 
 	if lifetime < minLifetime {
-		return errors.Errorf("%s must be at least 1", SessionLifetimeInHoursFlag)
+		return errors.Errorf("%s must be at least 1, got %s", SessionLifetimeInHoursFlag, lifetime)
 	}
 
 	return nil
