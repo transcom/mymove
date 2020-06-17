@@ -1,4 +1,4 @@
-import { isNull, get, isEmpty } from 'lodash';
+import { isNull, get, isEmpty, head } from 'lodash';
 import { moves } from '../schema';
 import { ADD_ENTITIES } from '../actions';
 import { denormalize } from 'normalizr';
@@ -103,17 +103,22 @@ export function submitMoveForApproval(moveId, ppmSubmitDate, label = submitMoveF
   );
 }
 
-export function selectActiveMove(state) {
-  // temp until full redux refactor: gets active move from entities if it exists.  If not, gets it from currentMove
-  const activeOrders = fetchActive(get(state, 'user.userInfo.service_member.orders', {}));
-  if (isNull(activeOrders)) {
-    return null;
+export function selectActiveOrLatestMove(state) {
+  // temp until full redux refactor: gets active (or latest move) from entities if it exists.  If not, gets it from currentMove
+  const orders = get(state, 'user.userInfo.service_member.orders', {});
+  if (isEmpty(orders)) {
+    return {};
   }
-  const activeMoveId = fetchActive(get(activeOrders, 'moves')).id;
-  let activeMove = selectMove(state, activeMoveId);
-  if (isEmpty(activeMove)) {
-    activeMove = get(state, 'moves.currentMove') || get(state, 'moves.latestMove') || {};
-    return activeMove;
+
+  let activeOrLatestOrders = fetchActive(orders) || head(orders);
+  const moves = get(activeOrLatestOrders, 'moves');
+  const activeOrLatestMove = fetchActive(moves) || head(moves);
+  // get move from entities if it's there
+  let move = selectMove(state, activeOrLatestMove.id);
+  if (isEmpty(move)) {
+    move = get(state, 'moves.currentMove') || get(state, 'moves.latestMove') || {};
+    return move;
   }
-  return activeMove;
+
+  return move;
 }

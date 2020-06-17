@@ -24,7 +24,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
-import { selectActiveMove } from 'shared/Entities/modules/moves';
+import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -158,7 +158,7 @@ const mapStateToProps = (state) => {
     serviceMember: state.serviceMember.currentServiceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: state.orders.currentOrders || {},
-    move: selectActiveMove(state),
+    move: selectActiveOrLatestMove(state),
     ppm: getPPM(state),
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
