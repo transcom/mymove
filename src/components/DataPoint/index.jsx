@@ -17,9 +17,13 @@ const DataPoint = ({ header, body, custClass }) => (
 );
 
 DataPoint.propTypes = {
-  header: propTypes.string,
-  body: propTypes.element,
+  header: propTypes.string.isRequired,
+  body: propTypes.element.isRequired,
   custClass: propTypes.string,
+};
+
+DataPoint.defaultProps = {
+  custClass: '',
 };
 
 export default DataPoint;

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Tag } from '@trussworks/react-uswds';
 import { Tab, Tabs, TabList } from 'react-tabs';
 import classNames from 'classnames/bind';
+
 import styles from './index.module.scss';
 
 const cx = classNames.bind(styles);
@@ -28,6 +29,7 @@ TabNav.propTypes = {
       notice: PropTypes.string,
     }),
   ).isRequired,
+  // eslint-disable-next-line react/require-default-props
   children: (props, propName, componentName) => {
     // eslint-disable-next-line security/detect-object-injection
     const prop = props[propName];
@@ -36,6 +38,7 @@ TabNav.propTypes = {
     if (React.Children.count(prop) === 0) {
       error = new Error(`\`${componentName}\` requires Children.`);
     }
+
     React.Children.forEach(prop, (el) => {
       if (error) return;
       if (el.type.name !== 'TabNavPanel') {

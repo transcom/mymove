@@ -30,6 +30,6 @@ export function formatDate(date, format = defaultDateFormat, locale = 'en') {
 
 export function formatDateForSwagger(dateString) {
   if (dateString) {
-    return formatDate(dateString, swaggerDateFormat); //
+    return formatDate(dateString, swaggerDateFormat);
   }
 }

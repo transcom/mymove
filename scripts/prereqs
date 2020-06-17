@@ -43,7 +43,8 @@ has yarn "brew install yarn"
 has pre-commit "brew install pre-commit"
 has shellcheck "brew install shellcheck"
 has psql "brew install postgresql"
-has node "brew install node@10 && brew link --force node@10"
+has nodenv "brew install nodenv"
+has node "nodenv local 12.16.3"
 
 # not on CircleCI
 if [[ -z ${CIRCLECI-} ]]; then

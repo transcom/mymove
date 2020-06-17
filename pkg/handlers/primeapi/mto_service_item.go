@@ -69,7 +69,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 		case services.InvalidInputError:
 			return mtoserviceitemops.NewCreateMTOServiceItemBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
 		default:
-			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
 	}
 	mtoServiceItemPayload := payloads.MTOServiceItem(mtoServiceItem)

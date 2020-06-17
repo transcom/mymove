@@ -39,7 +39,7 @@ type MTOServiceItemShuttle struct {
 	// Required: true
 	Description *string `json:"description"`
 
-	// re service code
+	// Service codes allowed for this model type.
 	// Required: true
 	// Enum: [DOSHUT DDSHUT]
 	ReServiceCode *string `json:"reServiceCode"`
@@ -153,7 +153,7 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		Description *string `json:"description"`
 
-		// re service code
+		// Service codes allowed for this model type.
 		// Required: true
 		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
@@ -243,7 +243,7 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Description *string `json:"description"`
 
-		// re service code
+		// Service codes allowed for this model type.
 		// Required: true
 		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`

@@ -27,9 +27,9 @@ type AccessCode struct {
 	// Required: true
 	Code *string `json:"code"`
 
-	// when the access code was created
+	// created at
 	// Required: true
-	// Format: datetime
+	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
 	// id
@@ -109,7 +109,7 @@ func (m *AccessCode) validateCreatedAt(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.FormatOf("created_at", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 

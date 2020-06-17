@@ -7,7 +7,7 @@
 # Add language specific code owners if it becomes relevant
 
 # ADRs are architectural decisions records that should all be approved by all teams
-/docs/adr/* @tinyels @chrisrcoles @Ryan-Koch @chrisgilmerproj @jacquelineIO @LeDeep @lynzt
+/docs/adr/* @tinyels @Ryan-Koch @esacteksab @jacquelineIO @LeDeep @lynzt
 
 # Docs about the database should be reviewed by people working on our database guidelines
 /docs/database/* @transcom/truss-db
@@ -17,6 +17,9 @@
 
 # Storybook Stories are stored in this directory and should be reviewed by desgin
 /src/stories/ @transcom/truss-design
+
+# Storybook files that are co-located with component source code should be reviewed by design
+*.stories.jsx @transcom/truss-design
 
 # The reference, ie approved, images for Loki tests of Storybook Stories are stored in this directory and should be reviewed by desgin
 /.loki/reference/ @transcom/truss-design

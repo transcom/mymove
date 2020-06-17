@@ -41,6 +41,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
   * [Setup: Prerequisites](#setup-prerequisites)
   * [Setup: Pre-Commit](#setup-pre-commit)
+    * [Troubleshooting install issues (process hanging on install hooks)](#troubleshooting-install-issues-process-hanging-on-install-hooks)
   * [Setup: Dependencies](#setup-dependencies)
   * [Setup: Build Tools](#setup-build-tools)
   * [Setup: Database](#setup-database)
@@ -73,6 +74,9 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
     * [Linters & Pre-commit Hooks](#linters--pre-commit-hooks)
     * [Yarn install markdown-spell (aka mdspell)](#yarn-install-markdown-spell-aka-mdspell)
+  * [PII Best Practices](#pii-best-practices)
+    * [More about content dispositions](#more-about-content-dispositions)
+    * [More about browser settings](#more-about-browser-settings)
 
 Regenerate with "pre-commit run -a markdown-toc"
 
@@ -132,6 +136,8 @@ To create an account in the sandbox, follow the same instructions, but [in the s
 ## Application Setup
 
 ### Setup: Developer Setup
+
+Note: These instructions are a living document and often fall out-of-date. If you run into anything that needs correcting or updating, please create a PR with those changes to help those coming after you.
 
 There are a number of things you'll need at a minimum to be able to check out, develop and run this project.
 
@@ -266,7 +272,7 @@ Run `direnv allow` to load up the `.envrc` file. It should complain that you hav
 You can add a `.envrc.local` file. One way to do this is using the [chamber tool](https://github.com/segmentio/chamber) to read secrets from AWS vault.
 Then run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
 
-If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`.
+If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`. **Note also** if you have a very poor internet connection, this method may be problematic to you. We still strongly recommend the `.envrc.chamber` route over the `.envrc.local` one, but if necessary you may follow the `.envrc.local` steps instead.
 
 #### Helpful variables for `.envrc.local`
 
@@ -285,6 +291,10 @@ Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-comm
 
 Before running `pre-commit run -a` you will need to install Javascript dependencies and generate some golang code from Swagger files. An easier way to handle this is by running `make pre_commit_tests` or `make server_generate client_deps && pre-commit run -a`. But it's early to do this so you can feel free to skip running the pre-commit checks at this time.
 
+#### Troubleshooting install issues (process hanging on install hooks)
+
+Since pre-commit uses node to hook things up in both your local repo and its cache folder (located at `~/.cache/pre-commit`),it requires a global node install. If you are using nodenv to manage multiple installed nodes, you'll need to set a global version to proceed (eg `nodenv global 12.16.3`). You can find the current supported node version [here (in `.node-version`)](./.node-version).
+
 ### Setup: Dependencies
 
 Run `make deps`. This will check your system for any setup issues. Then it will ensure that you have installed pre-commit
@@ -298,9 +308,9 @@ Run `make build_tools` to get all the server and tool dependencies built. These 
 
 You will need to setup a local database before you can begin working on the local server / client. Docker will need to be running for any of this to work.
 
-1. `make db_dev_run`: Creates a PostgreSQL docker container if you haven't made one yet
+1. `make db_dev_run` and `make db_test_run`: Creates a PostgreSQL docker container for dev and test, if they don't already exist.
 
-1. `make db_dev_migrate`:  Runs all existing database migrations, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
+1. `make db_dev_migrate` and `make db_test_migrate`:  Runs all existing database migrations for dev and test databases, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
 
 You can validate that your dev database is running by running `psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
 You can validate that your test database is running by running `psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
@@ -326,17 +336,16 @@ After importing _any_ go dependency it's a good practice to run `go mod tidy`, w
 
 The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
 
-If both the server and client are running, you should be able to view the Swagger UI at <http://milmovelocal:3000/api/v1/docs>.  If it does not, try running `make client_build` (this only needs to be run the first time).
+If both the server and client are running, you should be able to view the Swagger UI at <http://milmovelocal:3000/swagger-ui/internal.html>.  If it does not, try running `make client_build` (this only needs to be run the first time).
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 ### Setup: OfficeLocal client
 
-1. Ensure that you have a test account which can log into the office site...
+1. Ensure that you have a test account which can log into the office site:
     * run `generate-test-data --named-scenario e2e_basic` to load test data
+2. Run `make office_client_run`
     * Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
-2. `make office_client_run`
-3. Login with the email used above to access the office
 
 ### Setup: AdminLocal client
 
@@ -355,7 +364,7 @@ Nothing to do.
 
 The API that the Prime will use is authenticated via mutual TSL so there are a few things you need to do to interact with it in a local environment.
 
-1. Make sure that the `primelocal` alias is setup for localhost. See [Setup:Hosts](#setup-hosts)
+1. Make sure that the `primelocal` alias is setup for localhost - this should have been completed in the [Setup:Prerequisites](#Setup-Prerequisites) (check your `/etc/hosts` file for an entry for `primelocal`).
 2. run `make server_run`
 3. Access the Prime API using the devlocal-mtls certs. There is a script that shows you how to do this with curl at `./scripts/prime-api`. For instance to call the `move-task-orders` endpoint, call `./scripts/prime-api move-task-orders`
 
@@ -365,7 +374,7 @@ The API that the Prime will use is authenticated via mutual TSL so there are a f
 
 If you want to develop against AWS services you will need an AWS user account with `engineering` privileges.
 
-AWS credentials are managed via `aws-vault`. See the [the instructions in transcom-ppp](https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#setup) to set things up.
+AWS credentials are managed via `aws-vault`. See the [the instructions in transcom-ppp](https://github.com/transcom/transcom-infrasec-com/blob/master/transcom-ppp/README.md#setup) to set things up.
 
 ## Development
 
@@ -378,32 +387,36 @@ This background job is built as a separate binary which can be built using `make
 When creating new features, it is helpful to have sample data for the feature to interact with. The TSP Award Queue is an example of that--it matches shipments to TSPs, and it's hard to tell if it's working without some shipments and TSPs in the database!
 
 * `make bin/generate-test-data` will build the fake data generator binary
-* `bin/generate-test-data -named-scenario="e2e_basic"` will populate the database with a handful of users in various stages of progress along the flow. The emails are named accordingly (see [`e2ebasic.go`](https://github.com/transcom/mymove/blob/master/pkg/testdatagen/scenario/e2ebasic.go)). Alternatively, run `make db_dev_e2e_populate` to reset your db and populate it with e2e user flow cases.
-* `bin/generate-test-data` will run binary and create a preconfigured set of test data. To determine the data scenario you'd like to use, check out scenarios in the `testdatagen` package. Each scenario contains a description of what data will be created when the scenario is run. Pass the scenario in as a flag to the generate-test-data function. A sample command: `./bin/generate-test-data -scenario=2`.
+* `bin/generate-test-data --named-scenario="e2e_basic"` will populate the database with a handful of users in various stages of progress along the flow. The emails are named accordingly (see [`e2ebasic.go`](https://github.com/transcom/mymove/blob/master/pkg/testdatagen/scenario/e2ebasic.go)). Alternatively, run `make db_dev_e2e_populate` to reset your db and populate it with e2e user flow cases.
+* `bin/generate-test-data` will run binary and create a preconfigured set of test data. To determine the data scenario you'd like to use, check out scenarios in the `testdatagen` package. Each scenario contains a description of what data will be created when the scenario is run. Pass the scenario in as a flag to the generate-test-data function. A sample command: `./bin/generate-test-data --scenario=2`.
 
 There is also a package (`/pkg/testdatagen`) that can be imported to create arbitrary test data. This could be used in tests, so as not to duplicate functionality.
 
 Currently, scenarios have the following numbers:
 
-* `-scenario=1` for Award Queue Scenario 1
-* `-scenario=2` for Award Queue Scenario 2
-* `-scenario=3` for Duty Station Scenario
-* `-scenario=4` for PPM or PPM SIT Estimate Scenario (can also use Rate Engine Scenarios for Estimates)
-* `-scenario=5` for Rate Engine Scenario 1
-* `-scenario=6` for Rate Engine Scenario 2
-* `-scenario=7` for TSP test data
+* `--scenario=1` for Award Queue Scenario 1
+* `--scenario=2` for Award Queue Scenario 2
+* `--scenario=3` for Duty Station Scenario
+* `--scenario=4` for PPM or PPM SIT Estimate Scenario (can also use Rate Engine Scenarios for Estimates)
+* `--scenario=5` for Rate Engine Scenario 1
+* `--scenario=6` for Rate Engine Scenario 2
+* `--scenario=7` for TSP test data
 
 ### API / Swagger
 
-The public API is defined in a single file: `swagger/api.yaml` and served at `/api/v1/swagger.yaml`. This file is the single source of truth for the public API.
-
-In addition, internal services, i.e. endpoints only intended for use by the React client are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
+Internal services (i.e. endpoints only intended for use by the React client) are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
 
 The Orders Gateway's API is defined in the file `swagger/orders.yaml` and served at `/orders/v0/orders.yaml`.
 
 The Admin API is defined in the file `swagger/admin.yaml` and served at `/admin/v1/swagger.yaml`.
 
-You can view the API's documentation (powered by Swagger UI) at <http://localhost:3000/api/v1/docs> when a local server is running.
+You can view the documentation for the following APIs (powered by Swagger UI) at the following URLS with a local client and server running:
+
+* internal API: <http://milmovelocal:3000/swagger-ui/internal.html>
+
+* admin API: <http://milmovelocal:3000/swagger-ui/admin.html>
+
+* GHC API: <http://milmovelocal:3000/swagger-ui/ghc.html>
 
 ### Testing
 
@@ -612,3 +625,19 @@ cd ~/.config/yarn/global
 yarn cache clean
 yarn global add markdown-spellcheck
 ```
+
+### PII Best Practices
+
+Server side: any downloadable content passed to the client should by default have an inline content disposition (like PDFs).
+
+Client side: before accessing any prod environment, fix your browser settings to display PDFs, not use an external app.
+
+#### More about content dispositions
+
+An inline disposition tells the browser to display a file inline if it can. If you instead set an attachment disposition, the browser will download the file even when it is capable of displaying the data itself. If an engineer downloads PII instead of letting their browser display it, this will cause a security incident. So make sure content like PDFs are passed to the client with inline dispositions. You can read more in [the official Mozilla docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition "MDN: Content-Disposition Headers").
+
+#### More about browser settings
+
+Even if an inline disposition is set, most browsers still allow you to override that behavior and automatically download certain file types.
+
+Before working with the prod environment, ensure you have changed your settings to display PDFs in the browser. In most browsers, you can find the relevant setting by searching "PDF" in the settings menu.

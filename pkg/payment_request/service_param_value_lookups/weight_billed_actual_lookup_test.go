@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *ServiceParamValueLookupsSuite) setupTest(estimatedWeight unit.Pound, actualWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(estimatedWeight unit.Pound, actualWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
 			ReService: models.ReService{
@@ -40,10 +40,10 @@ func (suite *ServiceParamValueLookupsSuite) setupTest(estimatedWeight unit.Pound
 }
 
 func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
-	key := "WeightBilledActual"
+	key := models.ServiceItemParamNameWeightBilledActual.String()
 
 	suite.T().Run("estimated and actual are the same", func(t *testing.T) {
-		_, _, paramLookup := suite.setupTest(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
 		suite.Equal("1234", valueStr)
@@ -51,7 +51,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 
 	suite.T().Run("estimated is greater than actual", func(t *testing.T) {
 		// Set the actual weight to less than estimated weight
-		_, _, paramLookup := suite.setupTest(unit.Pound(1234), unit.Pound(1024), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1024), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
 		suite.Equal("1024", valueStr)
@@ -59,7 +59,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 
 	suite.T().Run("actual is exactly 110% of estimated weight", func(t *testing.T) {
 		// Set the actual weight to exactly 110% of estimated weight
-		_, _, paramLookup := suite.setupTest(unit.Pound(100), unit.Pound(110), models.ReServiceCodeNSTH, models.MTOShipmentTypeHHG)
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(100), unit.Pound(110), models.ReServiceCodeNSTH, models.MTOShipmentTypeHHG)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -68,7 +68,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 
 	suite.T().Run("actual is 120% of estimated weight", func(t *testing.T) {
 		// Set the actual weight to about 120% of estimated weight
-		_, _, paramLookup := suite.setupTest(unit.Pound(1234), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -77,7 +77,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 
 	suite.T().Run("rounds to the nearest whole pound", func(t *testing.T) {
 		// Set the weights so that a fraction of a pound is returned
-		_, _, paramLookup := suite.setupTest(unit.Pound(1235), unit.Pound(1482), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1235), unit.Pound(1482), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -136,7 +136,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 	for _, data := range serviceCodesWithMinimum {
 		suite.T().Run(fmt.Sprintf("actual below minimum service code %s", data.code), func(t *testing.T) {
 			// Set the actual weight to below minimum
-			_, _, paramLookup := suite.setupTest(unit.Pound(1234), data.actualWeight, data.code, data.shipmentType)
+			_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), data.actualWeight, data.code, data.shipmentType)
 
 			valueStr, err := paramLookup.ServiceParamValue(key)
 			suite.FatalNoError(err)
@@ -146,7 +146,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 
 	suite.T().Run("nil PrimeActualWeight", func(t *testing.T) {
 		// Set the actual weight to nil
-		mtoServiceItem, _, paramLookup := suite.setupTest(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
+		mtoServiceItem, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		mtoShipment := mtoServiceItem.MTOShipment
 		mtoShipment.PrimeActualWeight = nil
 		suite.MustSave(&mtoShipment)
@@ -160,7 +160,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 
 	suite.T().Run("nil PrimeEstimatedWeight", func(t *testing.T) {
 		// Set the estimated weight to nil
-		mtoServiceItem, _, paramLookup := suite.setupTest(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
+		mtoServiceItem, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		mtoShipment := mtoServiceItem.MTOShipment
 		mtoShipment.PrimeEstimatedWeight = nil
 		suite.MustSave(&mtoShipment)
@@ -174,7 +174,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 
 	suite.T().Run("nil MTOShipmentID", func(t *testing.T) {
 		// Set the MTOShipmentID to nil
-		mtoServiceItem, _, paramLookup := suite.setupTest(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
+		mtoServiceItem, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		mtoServiceItem.MTOShipmentID = nil
 		suite.MustSave(&mtoServiceItem)
 
@@ -188,7 +188,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 
 	suite.T().Run("bogus MTOServiceItemID", func(t *testing.T) {
 		// Pass in a non-existent MTOServiceItemID
-		_, paymentRequest, _ := suite.setupTest(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
+		_, paymentRequest, _ := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
 		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
 
