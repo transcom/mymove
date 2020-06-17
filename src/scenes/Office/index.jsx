@@ -35,7 +35,7 @@ const TIO = lazy(() => import('./TIO/tio'));
 const TOOVerificationInProgress = lazy(() => import('./TOO/tooVerificationInProgress'));
 const PaymentRequestShow = lazy(() => import('./TIO/paymentRequestShow'));
 const PaymentRequestIndex = lazy(() => import('./TIO/paymentRequestIndex'));
-const MoveDetails = lazy(() => import('pages/TOO/MoveDetails/MoveDetails'));
+const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
