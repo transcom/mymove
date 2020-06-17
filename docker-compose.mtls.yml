@@ -82,6 +82,7 @@ services:
       - MOVE_MIL_DOD_TLS_KEY
       - MUTUAL_TLS_ENABLED=1
       - PGPASSWORD=mysecretpassword
+      - REDIS_ENABLED=false
       - SERVE_API_PRIME=true
       - STORAGE_BACKEND=local
       - TZ=UTC

@@ -137,7 +137,6 @@ func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, sess
 			return err
 		}
 	}
-	uua.logger.Info("logged in", zap.Any("session", session))
 	return nil
 }
 

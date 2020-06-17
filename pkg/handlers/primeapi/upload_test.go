@@ -6,6 +6,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/go-openapi/strfmt"
 
 	uploadop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/uploads"
@@ -67,6 +69,28 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		}
 		response := handler.Handle(params)
 
-		suite.IsType(&uploadop.CreateUploadBadRequest{}, response)
+		suite.IsType(&uploadop.CreateUploadUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("create upload fail - payment request not found", func(t *testing.T) {
+		badFormatID := strfmt.UUID(uuid.Nil.String())
+
+		handler := CreateUploadHandler{
+			context,
+		}
+		file, err := os.Open("../../testdatagen/testdata/test.pdf")
+		defer file.Close()
+		suite.NoError(err)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
+		req = suite.AuthenticateUserRequest(req, primeUser)
+		params := uploadop.CreateUploadParams{
+			HTTPRequest:      req,
+			File:             file,
+			PaymentRequestID: badFormatID.String(),
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&uploadop.CreateUploadNotFound{}, response)
 	})
 }

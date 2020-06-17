@@ -1,14 +1,8 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-
-import 'pages/TOO/too.scss';
-
 import { get } from 'lodash';
-import CustomerInfoTable from 'components/Office/CustomerInfoTable';
-import { getMTOShipments, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
-import RequestedShipments from 'components/Office/RequestedShipments';
-import AllowancesTable from 'components/Office/AllowancesTable';
+
 import {
   getMoveOrder,
   getCustomer,
@@ -16,9 +10,15 @@ import {
   selectMoveOrder,
   selectCustomer,
 } from '../../shared/Entities/modules/moveTaskOrders';
-
 import { loadOrders } from '../../shared/Entities/modules/orders';
 import OrdersTable from '../../components/Office/OrdersTable';
+
+import 'pages/TOO/too.scss';
+
+import CustomerInfoTable from 'components/Office/CustomerInfoTable';
+import { getMTOShipments, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
+import RequestedShipments from 'components/Office/RequestedShipments';
+import AllowancesTable from 'components/Office/AllowancesTable';
 
 class MoveDetails extends Component {
   componentDidMount() {
