@@ -53,6 +53,7 @@ function ServiceMemberSummary(props) {
     schemaOrdersType,
     moveIsApproved,
     editOrdersPath,
+    uploads,
   } = props;
 
   const rootPath = `/moves/review`;
@@ -141,9 +142,8 @@ function ServiceMemberSummary(props) {
                     </tr>
                   )}
                   <tr>
-                    {/* TODO: pass uploads here */}
                     <td> Orders Uploaded: </td>
-                    <td>{get(orders, 'uploaded_orders.uploads') && get(orders, 'uploaded_orders.uploads').length}</td>
+                    <td>{uploads && uploads.length}</td>
                   </tr>
                 </tbody>
               </table>

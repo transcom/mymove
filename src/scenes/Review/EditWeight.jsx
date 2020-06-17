@@ -17,6 +17,7 @@ import {
   updatePPMEstimate,
   getPpmWeightEstimate,
 } from 'shared/Entities/modules/ppms';
+import { fetchLatestOrders, selectActiveOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
@@ -203,6 +204,7 @@ class EditWeight extends Component {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
     this.props.loadPPMs(this.props.match.params.moveId);
+    this.props.fetchLatestOrders(this.props.serviceMemberId);
     scrollToTop();
   }
 
@@ -329,7 +331,9 @@ class EditWeight extends Component {
 
 function mapStateToProps(state) {
   const moveID = state.moves.currentMove.id;
+  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
   return {
+    serviceMemberId: serviceMemberId,
     currentPPM: selectActivePPMForMove(state, moveID),
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
@@ -338,7 +342,7 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
-    orders: get(state, 'orders.currentOrders', {}),
+    orders: selectActiveOrders(state),
   };
 }
 
@@ -347,6 +351,7 @@ function mapDispatchToProps(dispatch) {
     {
       push,
       loadPPMs,
+      fetchLatestOrders,
       updatePPM,
       getPpmWeightEstimate,
       editBegin,

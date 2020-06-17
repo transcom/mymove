@@ -22,6 +22,7 @@ import {
   selectOrdersFromServiceMemberId,
   selectUploadsForOrders,
 } from 'shared/Entities/modules/orders';
+import { createUpload, selectDocument } from 'shared/Entities/modules/documents';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
@@ -45,7 +46,9 @@ let EditOrdersForm = (props) => {
     initialValues,
     existingUploads,
     deleteQueue,
+    document,
   } = props;
+  console.log('document in edit orders', document);
   const visibleUploads = reject(existingUploads, (upload) => {
     return includes(deleteQueue, upload.id);
   });
@@ -79,7 +82,8 @@ let EditOrdersForm = (props) => {
               <div>
                 <p>{documentSizeLimitMsg}</p>
                 <Uploader
-                  document={initialValues.uploaded_orders}
+                  createUpload={props.createUpload}
+                  document={document}
                   onChange={onUpload}
                   options={{ labelIdle: uploaderLabelIdle }}
                 />
@@ -133,6 +137,7 @@ class EditOrders extends Component {
   updateOrders = (fieldValues) => {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
     fieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
+    console.log('new uploads', this.state.newUploads);
     let addUploads = this.props.addUploads(this.state.newUploads);
     let deleteUploads = this.props.deleteUploads(this.state.deleteQueue);
     if (
@@ -165,7 +170,7 @@ class EditOrders extends Component {
   }
 
   render() {
-    const { error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
+    const { error, schema, currentOrders, document, formValues, existingUploads, moveIsApproved } = this.props;
     return (
       <div className="usa-grid">
         {error && (
@@ -187,6 +192,7 @@ class EditOrders extends Component {
             <EditOrdersForm
               initialValues={currentOrders}
               onSubmit={this.updateOrders}
+              document={document}
               schema={schema}
               existingUploads={existingUploads}
               newUploads={this.state.newUploads}
@@ -206,14 +212,15 @@ function mapStateToProps(state) {
   const showOrdersRequest = getRequestStatus(state, getLatestOrdersLabel);
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
   const currentOrders = selectOrdersFromServiceMemberId(state, serviceMemberId);
+  // const currentOrders = state.orders.currentOrders; // in master
   const uploads = selectUploadsForOrders(state, currentOrders.id);
 
   const props = {
-    // currentOrders: state.orders.currentOrders, // in master
-    serviceMemberId: serviceMemberId,
     currentOrders,
+    serviceMemberId: serviceMemberId,
+    // existingUploads: get(state, `orders.currentOrders.uploaded_orders.uploads`, []),
     existingUploads: uploads,
-    // existingUploads: get(state, `orders.currentOrders.uploaded_orders.uploads`, []), // TODO: set THIS to uploads
+    document: selectDocument(state, currentOrders.uploaded_orders),
     error: get(state, 'orders.error'),
     formValues: getFormValues(editOrdersFormName)(state),
     hasSubmitError: get(state, 'orders.hasSubmitError'),
@@ -231,6 +238,7 @@ function mapDispatchToProps(dispatch) {
     {
       push,
       updateOrders,
+      createUpload,
       fetchLatestOrders,
       addUploads,
       deleteUploads,

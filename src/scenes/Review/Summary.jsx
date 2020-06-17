@@ -9,7 +9,8 @@ import { loadMove, selectMove } from 'shared/Entities/modules/moves';
 import {
   fetchLatestOrders,
   getLatestOrdersLabel,
-  selectOrdersFromServiceMemberId,
+  selectActiveOrders,
+  selectUploadsForOrders,
 } from 'shared/Entities/modules/orders';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 
@@ -53,6 +54,7 @@ export class Summary extends Component {
       serviceMember,
       entitlement,
       match,
+      uploads,
     } = this.props;
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
@@ -90,6 +92,7 @@ export class Summary extends Component {
         {showProfileAndOrders && (
           <ServiceMemberSummary
             orders={currentOrders}
+            uploads={uploads}
             backupContacts={currentBackupContacts}
             serviceMember={serviceMember}
             schemaRank={schemaRank}
@@ -129,7 +132,8 @@ Summary.propTypes = {
 function mapStateToProps(state, ownProps) {
   const moveID = state.moves.currentMove.id;
   const showOrdersRequest = getRequestStatus(state, getLatestOrdersLabel);
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  // const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const currentOrders = selectActiveOrders(state);
 
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
@@ -137,7 +141,8 @@ function mapStateToProps(state, ownProps) {
     currentMove: selectMove(state, ownProps.match.params.moveId),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     // currentOrders: state.orders.currentOrders, // in master
-    currentOrders: selectOrdersFromServiceMemberId(state, serviceMemberId),
+    currentOrders: currentOrders,
+    uploads: selectUploadsForOrders(state, currentOrders.id),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
