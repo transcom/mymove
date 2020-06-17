@@ -42,9 +42,11 @@ func CheckSession(v *viper.Viper) error {
 // ValidateSessionTimeout validates session idle timeout
 func ValidateSessionTimeout(v *viper.Viper, flagname string) error {
 	environment := v.GetString(EnvironmentFlag)
-	timeout := v.GetDuration(flagname)
+	timeout := v.GetDuration(flagname) * time.Minute
+	var minTimeout time.Duration = 15 * time.Minute
+	var maxTimeout time.Duration = 60 * time.Minute
 
-	if environment == EnvironmentProd && (timeout < 15 || timeout > 60) {
+	if (environment != EnvironmentDevelopment) && (timeout < minTimeout || timeout > maxTimeout) {
 		return errors.Errorf("%s must be an integer between 15 and 60", SessionIdleTimeoutInMinutesFlag)
 	}
 
@@ -54,13 +56,15 @@ func ValidateSessionTimeout(v *viper.Viper, flagname string) error {
 // ValidateSessionLifetime validates session lifetime
 func ValidateSessionLifetime(v *viper.Viper, flagname string) error {
 	environment := v.GetString(EnvironmentFlag)
-	lifetime := v.GetDuration(flagname)
+	lifetime := v.GetDuration(flagname) * time.Hour
+	var minLifetime time.Duration = 1 * time.Hour
+	var minLifetimeDeployed time.Duration = 12 * time.Hour
 
-	if environment == EnvironmentProd && lifetime < 12 {
+	if (environment != EnvironmentDevelopment) && (lifetime < minLifetimeDeployed) {
 		return errors.Errorf("%s must be at least 12 hours in production", SessionLifetimeInHoursFlag)
 	}
 
-	if lifetime < 1 {
+	if lifetime < minLifetime {
 		return errors.Errorf("%s must be at least 1", SessionLifetimeInHoursFlag)
 	}
 
