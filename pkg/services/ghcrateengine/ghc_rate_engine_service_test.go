@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type GHCRateEngineServiceSuite struct {
@@ -67,4 +68,22 @@ func (suite *GHCRateEngineServiceSuite) setupPaymentServiceItemWithParams(servic
 	paymentServiceItem.PaymentServiceItemParams = params
 
 	return paymentServiceItem
+}
+
+func (suite *GHCRateEngineServiceSuite) setupTaskOrderFeeData(code models.ReServiceCode, priceCents unit.Cents) {
+	contractYear := testdatagen.MakeDefaultReContractYear(suite.DB())
+
+	counselingService := testdatagen.MakeReService(suite.DB(),
+		testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: code,
+			},
+		})
+
+	taskOrderFee := models.ReTaskOrderFee{
+		ContractYearID: contractYear.ID,
+		ServiceID:      counselingService.ID,
+		PriceCents:     priceCents,
+	}
+	suite.MustSave(&taskOrderFee)
 }

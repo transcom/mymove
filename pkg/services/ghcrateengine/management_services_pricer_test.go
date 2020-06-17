@@ -16,7 +16,7 @@ const (
 var msAvailableToPrimeAt = time.Date(testdatagen.TestYear, time.June, 3, 12, 57, 33, 123, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
-	suite.setupManagementServicesData()
+	suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 	paymentServiceItem := suite.setupManagementServicesItem()
 	counselingServicesPricer := NewManagementServicesPricer(suite.DB())
 
@@ -41,24 +41,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		_, err := counselingServicesPricer.Price("BOGUS", msAvailableToPrimeAt)
 		suite.Error(err)
 	})
-}
-
-func (suite *GHCRateEngineServiceSuite) setupManagementServicesData() {
-	contractYear := testdatagen.MakeDefaultReContractYear(suite.DB())
-
-	counselingService := testdatagen.MakeReService(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeMS,
-			},
-		})
-
-	taskOrderFee := models.ReTaskOrderFee{
-		ContractYearID: contractYear.ID,
-		ServiceID:      counselingService.ID,
-		PriceCents:     msPriceCents,
-	}
-	suite.MustSave(&taskOrderFee)
 }
 
 func (suite *GHCRateEngineServiceSuite) setupManagementServicesItem() models.PaymentServiceItem {
