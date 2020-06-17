@@ -530,8 +530,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	useSecureCookie := !isDevOrTest
 	redisEnabled := v.GetBool(cli.RedisEnabledFlag)
 	sessionStore := redisstore.New(redisPool)
-	idleTimeout := v.GetDuration(cli.SessionIdleTimeoutInMinutesFlag) * time.Minute
-	lifetime := v.GetDuration(cli.SessionLifetimeInHoursFlag) * time.Hour
+	idleTimeout := time.Duration(v.GetInt(cli.SessionIdleTimeoutInMinutesFlag)) * time.Minute
+	lifetime := time.Duration(v.GetInt(cli.SessionLifetimeInHoursFlag)) * time.Hour
 	sessionManagers := auth.SetupSessionManagers(redisEnabled, sessionStore, useSecureCookie, idleTimeout, lifetime)
 	milSession := sessionManagers[0]
 	adminSession := sessionManagers[1]
