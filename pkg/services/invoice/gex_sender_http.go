@@ -49,7 +49,7 @@ func (s *gexSenderHTTP) SendToGex(edi string, transactionName string) (resp *htt
 	}
 
 	if s.isTrueGexURL {
-		parsedURL.Path = parsedURL.Path + transactionName
+		// parsedURL.Path = parsedURL.Path + transactionName
 		URL = parsedURL.String()
 	}
 
