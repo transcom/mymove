@@ -2,12 +2,12 @@ import React, { lazy } from 'react';
 import { Switch } from 'react-router-dom';
 import PrivateRoute from 'shared/User/PrivateRoute';
 
-import { MoveTabNavWithRouter } from 'shared/Header/Office';
+import { MoveTabNavWithRouter } from '../shared/Header/Office';
 
-const MoveDetails = lazy(() => import('pages/TOO/moveDetails'));
-const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
-const PaymentRequestShow = lazy(() => import('../../scenes/Office/TIO/paymentRequestShow'));
-const MoveHistory = lazy(() => import('pages/TIO/moveHistory'));
+const MoveDetails = lazy(() => import('./TOO/moveDetails'));
+const TOOMoveTaskOrder = lazy(() => import('./TOO/moveTaskOrder'));
+const PaymentRequestShow = lazy(() => import('../scenes/Office/TIO/paymentRequestShow'));
+const MoveHistory = lazy(() => import('pages/moveHistory'));
 
 const TXOMoveInfo = () => {
   return (

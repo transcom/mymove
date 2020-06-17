@@ -4,7 +4,7 @@
 
 // overrides default to float the nav in a collapsed menu
 @media only screen and (min-width: $mobile) {
-  nav.tab-nav {
+  nav.tabNav {
     border: none;
     width: auto;
     display: block;
@@ -14,16 +14,14 @@
 }
 
 // conflicts with left nav border style
-nav.tab-nav a {
+nav.tabNav a {
   &:active {
     border: none;
     font-weight: inherit;
   }
 }
 
-.tab-list {
-  //@include u-height('6');
-  //@include u-padding('0'); changed how the spacing was implemented to use an after to do the underline instead of a border-bottom
+.tabList {
   @include u-margin('0');
   @include u-line-height('body', 1);
   @include u-position('relative');
@@ -31,37 +29,33 @@ nav.tab-nav a {
   @include u-padding-left('0');
 }
 
-.tab-item :global .usa-nav__link {
+.tabItem :global .usa-nav__link {
   display: inline-block;
   &:hover {
     text-decoration: none;
   }
 }
 
-.tab-item :global .usa-nav__link .tab-title {
+.tabItem :global .usa-nav__link .tab-title {
   @include u-padding-bottom('1.5');
-  //@include u-text('gray-50');
-  //@include u-margin-right('05');
   @include u-position('relative');
   @include u-font-size('body', 4);
   @include u-text('gray-cool-70');
   font-weight: normal;
   &:hover {
     @include u-text('blue-warm-60v');
-    //@include u-border-bottom('05', 'blue-warm-60v');
     @include underline(0.25rem, 'blue-warm-60v');
   }
 }
-.tab-item :global .usa-nav__link.usa-current .tab-title {
+.tabItem :global .usa-nav__link.usa-current .tab-title {
   @include u-text('gray-cool-70', 'bold');
-  //@include u-border-bottom('05', 'blue-warm-60v');
   @include underline(0.25rem, 'blue-warm-60v');
   &:hover {
     @include u-text('gray-cool-70', 'bold');
   }
 }
 
-.tab-item :global .usa-nav__link .usa-tag {
+.tabItem :global .usa-nav__link .usa-tag {
   @include u-text('gray-cool-70');
   @include u-bg('gold-20v');
   @include u-margin-left('05');
@@ -69,19 +63,17 @@ nav.tab-nav a {
   padding-bottom: 0px;
 }
 
-.tab-list .tab-item {
+.tabList .tabItem {
   border: none;
   @include u-padding('2');
   @include u-display('inline-block');
   &:focus {
     @include u-outline('05', 'blue-40v');
-    //  @include u-padding-top('05'); adjusting padding on focus will make our menu items scoot, we don't want that!!
-    //  @include u-padding-bottom('05');
   }
 }
 
 @media only screen and (min-width: $mobile) {
-  .tab-nav .usa-current::after {
+  .tabNav .usa-current::after {
     background-color: #005ea2;
     border-radius: 99rem;
     content: '';

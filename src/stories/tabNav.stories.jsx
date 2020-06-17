@@ -12,33 +12,35 @@ storiesOf('Components|TabNav', module)
   .add('default', () => (
     <TabNav
       items={[
-        <a href="#" className="usa-current usa-nav__link">
-          <span className="tab-title">Move Details</span>
+        <a href="#" className="usa-current usa-nav__link" role="tab">
+          <span className="tab-title">Move details</span>
         </a>,
-        <a href="#" className="usa-nav__link">
-          <span className="tab-title">Move Task Order</span>
+        <a href="#" className="usa-nav__link" role="tab">
+          <span className="tab-title">Move task order</span>
         </a>,
-        <a href="#" className="usa-nav__link">
+        <a href="#" className="usa-nav__link" role="tab">
           <span className="tab-title">Payment requests</span>
         </a>,
       ]}
+      role="navigation"
     />
   ))
   .add('withTag', () => (
     <TabNav
       items={[
         <>
-          <a href="#" className="usa-nav__link">
-            <span className="tab-title">Move Details</span>
+          <a href="#" className="usa-nav__link" role="tab">
+            <span className="tab-title">Move details</span>
             <Tag>2</Tag>
           </a>
         </>,
-        <a href="#" className="usa-current usa-nav__link">
-          <span className="tab-title">Move Task Order</span>
+        <a href="#" className="usa-current usa-nav__link" role="tab">
+          <span className="tab-title">Move task order</span>
         </a>,
-        <a href="#" className="usa-nav__link">
+        <a href="#" className="usa-nav__link" role="tab">
           <span className="tab-title">Payment requests</span>
         </a>,
       ]}
+      role="navigation"
     />
   ));

@@ -34,7 +34,7 @@ const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
 const TIO = lazy(() => import('./TIO/tio'));
 const TOOVerificationInProgress = lazy(() => import('./TOO/tooVerificationInProgress'));
 const PaymentRequestIndex = lazy(() => import('./TIO/paymentRequestIndex'));
-const TXOMoveInfo = lazy(() => import('../../components/Office/TXOMoveInfo'));
+const TXOMoveInfo = lazy(() => import('../../pages/TXOMoveInfo'));
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {

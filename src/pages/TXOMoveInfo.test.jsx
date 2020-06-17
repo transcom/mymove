@@ -1,23 +1,23 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
+import { MemoryRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
-import { history, store } from '../../shared/store';
+import { store } from '../shared/store';
 import TXOMoveInfo from './TXOMoveInfo';
 
 describe('TXO Move Info Container', () => {
   it('should render the move tab container', () => {
     const wrapper = mount(
       <Provider store={store}>
-        clear
-        <ConnectedRouter history={history}>
+        <MemoryRouter initialEntries={['/moves/10000/details']}>
           <TXOMoveInfo />
-        </ConnectedRouter>
+        </MemoryRouter>
       </Provider>,
     );
+
     expect(wrapper.find('header.nav-header').exists()).toBe(true);
-    expect(wrapper.find('nav.tab-nav').exists()).toBe(true);
-    expect(wrapper.find('li.tab-item').length).toEqual(4);
+    expect(wrapper.find('nav.tabNav').exists()).toBe(true);
+    expect(wrapper.find('li.tabItem').length).toEqual(4);
     expect(wrapper.find('span.tab-title').at(0).text()).toContain('Move details');
     expect(wrapper.find('span.tab-title').at(1).text()).toContain('Move task order');
     expect(wrapper.find('span.tab-title').at(2).text()).toContain('Payment requests');
