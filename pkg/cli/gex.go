@@ -26,6 +26,7 @@ var gexHostnames = []string{
 
 var gexPaths = []string{
 	"/msg_data/submit",
+	"/msg_data/submit/",
 }
 
 var gexChannels = []string{
