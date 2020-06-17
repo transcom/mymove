@@ -475,6 +475,10 @@ redis_reset: redis_destroy redis_run ## Reset Redis
 # ----- START DB_DEV TARGETS -----
 #
 
+.PHONY: db_pull
+db_pull: ## Pull db image
+	docker pull $(DB_DOCKER_CONTAINER_IMAGE)
+
 .PHONY: db_dev_destroy
 db_dev_destroy: ## Destroy Dev DB
 ifndef CIRCLECI
