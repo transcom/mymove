@@ -1,8 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+
+import { DatePickerInput } from './DatePickerInput';
+
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
 import { ErrorMessage } from '..';
-import { DatePickerInput } from './DatePickerInput';
 
 const mockSetValue = jest.fn();
 // mock out formik hook as we are not testing formik

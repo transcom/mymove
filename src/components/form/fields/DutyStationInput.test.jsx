@@ -1,8 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { DutyStationSearchBox } from 'scenes/ServiceMembers/DutyStationSearchBox';
 import AsyncSelect from 'react-select/async';
+
 import { DutyStationInput } from './DutyStationInput';
+
+import { DutyStationSearchBox } from 'scenes/ServiceMembers/DutyStationSearchBox';
 
 const mockOnChange = jest.fn();
 const mockSetValue = jest.fn();
@@ -29,7 +31,7 @@ jest.mock('scenes/ServiceMembers/api', () => {
 
 describe('DutyStationInput', () => {
   describe('with all required props', () => {
-    const wrapper = shallow(<DutyStationInput name="name" />);
+    const wrapper = shallow(<DutyStationInput name="name" label="label" />);
 
     it('renders a Duty Station search input', () => {
       const input = wrapper.find(DutyStationSearchBox);

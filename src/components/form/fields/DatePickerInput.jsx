@@ -1,10 +1,11 @@
 import { useField } from 'formik';
 import { FormGroup, Label } from '@trussworks/react-uswds';
+import React from 'react';
+import PropTypes from 'prop-types';
+
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
 import { formatDate } from 'shared/dates';
-import React from 'react';
-import PropTypes from 'prop-types';
 
 export const DatePickerInput = (props) => {
   const dateFormat = 'DD MMM YYYY';
@@ -34,7 +35,7 @@ export const DatePickerInput = (props) => {
 
 DatePickerInput.propTypes = {
   // label optionally displayed for input
-  label: PropTypes.string,
+  label: PropTypes.string.isRequired,
   // name is for the input
   name: PropTypes.string.isRequired,
 };

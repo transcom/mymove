@@ -1,8 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { Dropdown } from '@trussworks/react-uswds';
-import { ErrorMessage } from '..';
+
 import { DropdownInput } from './DropdownInput';
+
+import { ErrorMessage } from '..';
 
 const mockOnChange = jest.fn();
 // mock out formik hook as we are not testing formik
@@ -21,7 +23,7 @@ jest.mock('formik', () => {
 
 describe('DropdownInput', () => {
   describe('with all required props', () => {
-    const wrapper = shallow(<DropdownInput name="dropdown" options={[['key', 'value']]} />);
+    const wrapper = shallow(<DropdownInput name="dropdown" label="label" options={[['key', 'value']]} />);
 
     it('renders an ErrorMessage', () => {
       const errorMessage = wrapper.find(ErrorMessage);

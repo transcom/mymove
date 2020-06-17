@@ -1,8 +1,9 @@
 import { useField } from 'formik';
 import { Dropdown, FormGroup, Label } from '@trussworks/react-uswds';
-import { ErrorMessage } from 'components/form/ErrorMessage';
 import React from 'react';
 import PropTypes from 'prop-types';
+
+import { ErrorMessage } from 'components/form/ErrorMessage';
 
 export const DropdownInput = (props) => {
   // eslint-disable-next-line react/prop-types
@@ -33,12 +34,12 @@ export const DropdownInput = (props) => {
 
 DropdownInput.propTypes = {
   // label optionally displayed for input
-  label: PropTypes.string,
+  label: PropTypes.string.isRequired,
   // name is for the input
   name: PropTypes.string.isRequired,
   // options for dropdown selection for this input
   // ex: [ [ "key", "value" ] ]
-  options: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
+  options: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
 };
 
 export default DropdownInput;

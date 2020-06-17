@@ -1,7 +1,8 @@
 import { useField } from 'formik';
-import { DutyStationSearchBox } from 'scenes/ServiceMembers/DutyStationSearchBox';
 import React from 'react';
 import PropTypes from 'prop-types';
+
+import { DutyStationSearchBox } from 'scenes/ServiceMembers/DutyStationSearchBox';
 
 // TODO: refactor component when we can to make it more user friendly with Formik
 export const DutyStationInput = (props) => {
@@ -23,7 +24,7 @@ export const DutyStationInput = (props) => {
 
 DutyStationInput.propTypes = {
   // label optionally displayed for input
-  label: PropTypes.string,
+  label: PropTypes.string.isRequired,
   // duty station value
   value: PropTypes.shape({
     address: PropTypes.shape({
@@ -42,6 +43,10 @@ DutyStationInput.propTypes = {
   }),
   // name is for the input
   name: PropTypes.string.isRequired,
+};
+
+DutyStationInput.defaultProps = {
+  value: {},
 };
 
 export default DutyStationInput;

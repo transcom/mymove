@@ -4,9 +4,11 @@ import { Formik } from 'formik';
 import { Button } from '@trussworks/react-uswds';
 import classNames from 'classnames/bind';
 import * as Yup from 'yup';
-import styles from 'components/Office/OrdersDetailForm.module.scss';
+
 import { Form } from '../form/Form';
 import { TextInput, DropdownInput, DatePickerInput, DutyStationInput } from '../form/fields';
+
+import styles from 'components/Office/OrdersDetailForm.module.scss';
 
 const cx = classNames.bind(styles);
 
@@ -42,11 +44,11 @@ export const OrdersDetailForm = ({
         <DatePickerInput name="dateIssued" label="Date issued" />
         <DatePickerInput name="reportByDate" label="Report by date" />
         <DropdownInput name="departmentIndicator" label="Department indicator" options={deptIndicatorOptions} />
-        <TextInput name="ordersNumber" label="Orders number" />
+        <TextInput name="ordersNumber" label="Orders number" id="ordersNumberInput" />
         <DropdownInput name="ordersType" label="Orders type" options={ordersTypeOptions} />
         <DropdownInput name="ordersTypeDetail" label="Orders type detail" options={ordersTypeDetailOptions} />
-        <TextInput name="tac" label="TAC" />
-        <TextInput name="sac" label="SAC" />
+        <TextInput name="tac" label="TAC" id="tacInput" />
+        <TextInput name="sac" label="SAC" id="sacInput" />
         <div className={cx('form-buttons')}>
           <Button type="submit">Submit</Button>
           <Button type="reset" secondary>
@@ -104,6 +106,10 @@ OrdersDetailForm.propTypes = {
     tac: PropTypes.string,
     sac: PropTypes.string,
   }).isRequired,
+};
+
+OrdersDetailForm.defaultProps = {
+  onReset: null,
 };
 
 export default OrdersDetailForm;
