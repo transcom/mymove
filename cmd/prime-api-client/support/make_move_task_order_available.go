@@ -1,4 +1,4 @@
-package main
+package support
 
 import (
 	"encoding/json"
@@ -12,36 +12,40 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
+
 	mto "github.com/transcom/mymove/pkg/gen/supportclient/move_task_order"
 )
 
-func initMakeMTOAvailableFlags(flag *pflag.FlagSet) {
-	flag.String(FilenameFlag, "", "Name of the file being passed in")
+// InitMakeMTOAvailableFlags declares which flags are enabled
+func InitMakeMTOAvailableFlags(flag *pflag.FlagSet) {
+	flag.String(utils.FilenameFlag, "", "Name of the file being passed in")
 
 	flag.SortFlags = false
 }
 
 func checkMakeMTOAvailableConfig(v *viper.Viper, args []string, logger *log.Logger) error {
-	err := CheckRootConfig(v)
+	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
+	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
 		logger.Fatal(errors.New("make-available-to-prime expects a file to be passed in"))
 	}
 
 	return nil
 }
 
-func makeMTOAvailable(cmd *cobra.Command, args []string) error {
+// MakeMTOAvailable creates a gateway and sends the request to the endpoint
+func MakeMTOAvailable(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	//  Create the logger
 	//  Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	errParseFlags := ParseFlags(cmd, v, args)
+	errParseFlags := utils.ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
 		return errParseFlags
 	}
@@ -53,16 +57,16 @@ func makeMTOAvailable(cmd *cobra.Command, args []string) error {
 	}
 
 	// Decode json from file that was passed into MTOShipment
-	filename := v.GetString(FilenameFlag)
+	filename := v.GetString(utils.FilenameFlag)
 	var updateMTOParams mto.MakeMoveTaskOrderAvailableParams
-	err = decodeJSONFileToPayload(filename, containsDash(args), &updateMTOParams)
+	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &updateMTOParams)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	updateMTOParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
-	supportGateway, cacStore, errCreateClient := CreateSupportClient(v)
+	supportGateway, cacStore, errCreateClient := utils.CreateSupportClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -74,7 +78,7 @@ func makeMTOAvailable(cmd *cobra.Command, args []string) error {
 
 	resp, err := supportGateway.MoveTaskOrder.MakeMoveTaskOrderAvailable(&updateMTOParams)
 	if err != nil {
-		return handleGatewayError(err, logger)
+		return utils.HandleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()

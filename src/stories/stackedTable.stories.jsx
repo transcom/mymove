@@ -2,6 +2,7 @@ import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { storiesOf } from '@storybook/react';
 import * as Yup from 'yup';
+
 import { StackedTableRowForm, DocsButton } from '../components/form';
 
 const StackedTableExample = () => (

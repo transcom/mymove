@@ -1,4 +1,4 @@
-package main
+package prime
 
 import (
 	"encoding/json"
@@ -12,39 +12,41 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
+
 	"github.com/transcom/mymove/pkg/gen/primeclient/payment_requests"
 )
 
-// initCreatePaymentRequestFlags initializes flags.
-func initCreatePaymentRequestFlags(flag *pflag.FlagSet) {
-	flag.String(FilenameFlag, "", "Path to the file with the payment request JSON payload")
+// InitCreatePaymentRequestFlags initializes flags.
+func InitCreatePaymentRequestFlags(flag *pflag.FlagSet) {
+	flag.String(utils.FilenameFlag, "", "Path to the file with the payment request JSON payload")
 
 	flag.SortFlags = false
 }
 
 // checkCreatePaymentRequestConfig checks the args.
 func checkCreatePaymentRequestConfig(v *viper.Viper, args []string, logger *log.Logger) error {
-	err := CheckRootConfig(v)
+	err := utils.CheckRootConfig(v)
 	if err != nil {
 		return err
 	}
 
-	if v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !containsDash(args)) {
+	if v.GetString(utils.FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args)) {
 		return errors.New("create-payment-request expects a file to be passed in")
 	}
 
 	return nil
 }
 
-// createPaymentRequest creates the payment request for an MTO
-func createPaymentRequest(cmd *cobra.Command, args []string) error {
+// CreatePaymentRequest creates the payment request for an MTO
+func CreatePaymentRequest(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	// Create the logger
 	// Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	errParseFlags := ParseFlags(cmd, v, args)
+	errParseFlags := utils.ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
 		return errParseFlags
 	}
@@ -56,16 +58,16 @@ func createPaymentRequest(cmd *cobra.Command, args []string) error {
 	}
 
 	// Decode json from file that was passed in
-	filename := v.GetString(FilenameFlag)
+	filename := v.GetString(utils.FilenameFlag)
 	var paymentRequestParams payment_requests.CreatePaymentRequestParams
-	err = decodeJSONFileToPayload(filename, containsDash(args), &paymentRequestParams)
+	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &paymentRequestParams)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	paymentRequestParams.SetTimeout(time.Second * 30)
 
 	// cac and api gateway
-	primeGateway, cacStore, errCreateClient := CreatePrimeClient(v)
+	primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
@@ -77,7 +79,7 @@ func createPaymentRequest(cmd *cobra.Command, args []string) error {
 
 	resp, err := primeGateway.PaymentRequests.CreatePaymentRequest(&paymentRequestParams)
 	if err != nil {
-		return handleGatewayError(err, logger)
+		return utils.HandleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()

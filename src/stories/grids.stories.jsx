@@ -1,6 +1,5 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 
 const exampleStyles = {
