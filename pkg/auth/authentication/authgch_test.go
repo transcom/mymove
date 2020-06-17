@@ -48,18 +48,16 @@ func (suite *AuthSuite) TestCreateTOO() {
 	}
 	req.AddCookie(&cookie)
 	callbackPort := 1234
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	sessionManagers := setupSessionManagers()
+	officeSession := sessionManagers[2]
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		FakeRSAKey,
-		false,
-		false,
 	}
 	rr := httptest.NewRecorder()
 	h.SetFeatureFlag(FeatureFlag{Name: cli.FeatureFlagRoleBasedAuth, Active: true})
-	h.ServeHTTP(rr, req)
-
+	officeSession.LoadAndSave(h).ServeHTTP(rr, req)
 	suite.Equal(rr.Code, 307)
 }
 

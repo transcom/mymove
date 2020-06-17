@@ -1,17 +1,16 @@
 import React from 'react';
-
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-
 import { Button } from '@trussworks/react-uswds';
-import { ReactComponent as ChevronLeft } from 'shared/icon/chevron-left.svg';
-import { ReactComponent as ChevronRight } from 'shared/icon/chevron-right.svg';
 
 import QueueTable from '../components/QueueTable';
 import ServiceItemTable from '../components/ServiceItemTable';
 import ServiceItemTableHasImg from '../components/ServiceItemTableHasImg';
 import DataPoint from '../components/DataPoint';
 import DataPair from '../components/DataPair';
+
+import { ReactComponent as ChevronLeft } from 'shared/icon/chevron-left.svg';
+import { ReactComponent as ChevronRight } from 'shared/icon/chevron-right.svg';
 
 const dataPointBody = (
   <>

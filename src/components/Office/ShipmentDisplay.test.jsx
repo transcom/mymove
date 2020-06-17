@@ -1,5 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+
 import ShipmentDisplay from './ShipmentDisplay';
 
 const info = {
@@ -23,9 +24,5 @@ describe('Shipment Container', () => {
   it('renders the container successfully', () => {
     const wrapper = shallow(<ShipmentDisplay displayInfo={info} />);
     expect(wrapper.find('div[data-cy="shipment-display"]').exists()).toBe(true);
-  });
-  it('renders a checkbox with id passed in', () => {
-    const wrapper = shallow(<ShipmentDisplay checkboxId="TESTING123" displayInfo={info} />);
-    expect(wrapper.find('input[data-cy="shipment-display-checkbox"]').props().id).toBe('TESTING123');
   });
 });

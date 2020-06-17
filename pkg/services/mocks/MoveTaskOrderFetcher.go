@@ -37,6 +37,29 @@ func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*
 	return r0, r1
 }
 
+// ListAllMoveTaskOrders provides a mock function with given fields: isAvailableToPrime, since
+func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, since *int64) (models.MoveTaskOrders, error) {
+	ret := _m.Called(isAvailableToPrime, since)
+
+	var r0 models.MoveTaskOrders
+	if rf, ok := ret.Get(0).(func(bool, *int64) models.MoveTaskOrders); ok {
+		r0 = rf(isAvailableToPrime, since)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(models.MoveTaskOrders)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(bool, *int64) error); ok {
+		r1 = rf(isAvailableToPrime, since)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListMoveTaskOrders provides a mock function with given fields: moveOrderID
 func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.MoveTaskOrder, error) {
 	ret := _m.Called(moveOrderID)

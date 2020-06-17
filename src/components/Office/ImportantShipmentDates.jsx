@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames/bind';
 import * as PropTypes from 'prop-types';
+
 import styles from './importantShipmentDates.module.scss';
 
 const cx = classNames.bind(styles);
