@@ -26,6 +26,8 @@ class TOO extends Component {
               <th>Confirmation #</th>
               <th>Agency</th>
               <th>Origin Duty Station</th>
+              <th>MoveOrderID</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -40,11 +42,19 @@ class TOO extends Component {
                 customerID,
                 moveTaskOrderId,
               }) => (
-                <tr data-cy="too-row" onClick={() => this.handleCustomerInfoClick(moveOrderId)} key={moveOrderId}>
-                  <td>{`${last_name}, ${first_name}`}</td>
-                  <td>{confirmation_number}</td>
-                  <td>{agency}</td>
-                  <td>{originDutyStation && originDutyStation.name}</td>
+                <tr data-cy="too-row" key={moveOrderId}>
+                  <td onClick={() => this.handleCustomerInfoClick(moveOrderId)}>{`${last_name}, ${first_name}`}</td>
+                  <td onClick={() => this.handleCustomerInfoClick(moveOrderId)}>{confirmation_number}</td>
+                  <td onClick={() => this.handleCustomerInfoClick(moveOrderId)}>{agency}</td>
+                  <td onClick={() => this.handleCustomerInfoClick(moveOrderId)}>
+                    {originDutyStation && originDutyStation.name}
+                  </td>
+                  <td onClick={() => this.handleCustomerInfoClick(moveOrderId)}>{moveOrderId}</td>
+                  <td>
+                    <a href={`/too/customer-moves/${moveOrderId}/customer/${customerID}`}>
+                      Customer Details Page Skeleton
+                    </a>
+                  </td>
                 </tr>
               ),
             )}
