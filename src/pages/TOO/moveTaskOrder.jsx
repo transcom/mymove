@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
+
 import ShipmentContainer from '../../components/Office/ShipmentContainer';
 import ShipmentHeading from '../../components/Office/ShipmentHeading';
 import ImportantShipmentDates from '../../components/Office/ImportantShipmentDates';

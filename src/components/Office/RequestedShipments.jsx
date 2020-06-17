@@ -5,8 +5,10 @@ import classNames from 'classnames/bind';
 import { Button, Checkbox, Fieldset, Modal, Overlay, ModalContainer } from '@trussworks/react-uswds';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import ShipmentDisplay from 'components/Office/ShipmentDisplay';
+
 import styles from './requestedShipments.module.scss';
+
+import ShipmentDisplay from 'components/Office/ShipmentDisplay';
 
 const cx = classNames.bind(styles);
 

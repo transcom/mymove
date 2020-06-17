@@ -1,27 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/prime"
+	"github.com/transcom/mymove/cmd/prime-api-client/support"
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 	"github.com/transcom/mymove/pkg/cli"
-)
-
-const (
-	// CertPathFlag is the path to the certificate to use for TLS
-	CertPathFlag string = "certpath"
-	// KeyPathFlag is the path to the key to use for TLS
-	KeyPathFlag string = "keypath"
-	// HostnameFlag is the hostname to connect to
-	HostnameFlag string = "hostname"
-	// PortFlag is the port to connect to
-	PortFlag string = "port"
-	// InsecureFlag indicates that TLS verification and validation can be skipped
-	InsecureFlag string = "insecure"
 )
 
 // initRootFlags initializes flags relating to the prime api
@@ -29,30 +17,11 @@ func initRootFlags(flag *pflag.FlagSet) {
 	cli.InitCACFlags(flag)
 	cli.InitVerboseFlags(flag)
 
-	flag.String(CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
-	flag.String(KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
-	flag.String(HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
-	flag.Int(PortFlag, cli.MutualTLSPort, "The port to connect to")
-	flag.Bool(InsecureFlag, false, "Skip TLS verification and validation")
-}
-
-// CheckRootConfig checks the validity of the prime api flags
-func CheckRootConfig(v *viper.Viper) error {
-	err := cli.CheckCAC(v)
-	if err != nil {
-		return err
-	}
-
-	err = cli.CheckVerbose(v)
-	if err != nil {
-		return err
-	}
-
-	if (v.GetString(CertPathFlag) != "" && v.GetString(KeyPathFlag) == "") || (v.GetString(CertPathFlag) == "" && v.GetString(KeyPathFlag) != "") {
-		return fmt.Errorf("Both TLS certificate and key paths must be provided")
-	}
-
-	return nil
+	flag.String(utils.CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
+	flag.String(utils.KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
+	flag.String(utils.HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
+	flag.Int(utils.PortFlag, cli.MutualTLSPort, "The port to connect to")
+	flag.Bool(utils.InsecureFlag, false, "Skip TLS verification and validation")
 }
 
 func main() {
@@ -67,10 +36,10 @@ func main() {
 		Use:          "fetch-mto-updates",
 		Short:        "Fetch all MTOs available to prime",
 		Long:         "fetch move task orders",
-		RunE:         fetchMTOs,
+		RunE:         prime.FetchMTOUpdates,
 		SilenceUsage: true,
 	}
-	initFetchMTOsFlags(fetchMTOsCommand.Flags())
+	prime.InitFetchMTOUpdatesFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
 
 	createMTOCommand := &cobra.Command{
@@ -86,10 +55,10 @@ func main() {
       "body": <MoveTaskOrder>
     }
   Please see API documentation for full details on the MoveTaskOrder definition.`,
-		RunE:         createMTO,
+		RunE:         support.CreateMTO,
 		SilenceUsage: true,
 	}
-	initCreateMTOFlags(createMTOCommand.Flags())
+	support.InitCreateMTOFlags(createMTOCommand.Flags())
 	root.AddCommand(createMTOCommand)
 
 	createMTOShipmentCommand := &cobra.Command{
@@ -105,10 +74,10 @@ func main() {
 			"body": <MTOShipment>,
 		}
 	Please see API documentation for full details on the endpoint definition.`,
-		RunE:         createMTOShipment,
+		RunE:         prime.CreateMTOShipment,
 		SilenceUsage: true,
 	}
-	initCreateMTOShipmentFlags(createMTOShipmentCommand.Flags())
+	prime.InitCreateMTOShipmentFlags(createMTOShipmentCommand.Flags())
 	root.AddCommand(createMTOShipmentCommand)
 
 	updateMTOShipmentCommand := &cobra.Command{
@@ -127,20 +96,20 @@ func main() {
       "body": <MTOShipment>
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         updateMTOShipment,
+		RunE:         prime.UpdateMTOShipment,
 		SilenceUsage: true,
 	}
-	initUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
+	prime.InitUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
 	root.AddCommand(updateMTOShipmentCommand)
 
 	updatePostCounselingInfo := &cobra.Command{
 		Use:          "update-mto-post-counseling-information",
 		Short:        "update post counseling info",
 		Long:         "Update post counseling info such as discovering that customer has a PPM",
-		RunE:         updatePostCounselingInfo,
+		RunE:         prime.UpdatePostCounselingInfo,
 		SilenceUsage: true,
 	}
-	initUpdatePostCounselingInfoFlags(updatePostCounselingInfo.Flags())
+	prime.InitUpdatePostCounselingInfoFlags(updatePostCounselingInfo.Flags())
 	root.AddCommand(updatePostCounselingInfo)
 
 	createMTOServiceItemCommand := &cobra.Command{
@@ -157,10 +126,10 @@ func main() {
   	"body": <MTOServiceItem>
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         createMTOServiceItem,
+		RunE:         prime.CreateMTOServiceItem,
 		SilenceUsage: true,
 	}
-	initCreateMTOServiceItemFlags(createMTOServiceItemCommand.Flags())
+	prime.InitCreateMTOServiceItemFlags(createMTOServiceItemCommand.Flags())
 	root.AddCommand(createMTOServiceItemCommand)
 
 	makeAvailableToPrimeCommand := &cobra.Command{
@@ -179,10 +148,10 @@ func main() {
   	"ifMatch": <eTag>
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         makeMTOAvailable,
+		RunE:         support.MakeMTOAvailable,
 		SilenceUsage: true,
 	}
-	initMakeMTOAvailableFlags(makeAvailableToPrimeCommand.Flags())
+	support.InitMakeMTOAvailableFlags(makeAvailableToPrimeCommand.Flags())
 	root.AddCommand(makeAvailableToPrimeCommand)
 
 	updatePaymentRequestStatusCommand := &cobra.Command{
@@ -202,10 +171,10 @@ func main() {
       "body" : <paymentRequestStatus>
     }
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         updatePaymentRequestStatus,
+		RunE:         support.UpdatePaymentRequestStatus,
 		SilenceUsage: true,
 	}
-	initUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
+	support.InitUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
 	root.AddCommand(updatePaymentRequestStatusCommand)
 
 	getMoveTaskOrder := &cobra.Command{
@@ -223,10 +192,10 @@ func main() {
   	"moveTaskOrderID": <uuid string>,
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         getMTO,
+		RunE:         support.GetMTO,
 		SilenceUsage: true,
 	}
-	initGetMTOFlags(getMoveTaskOrder.Flags())
+	support.InitGetMTOFlags(getMoveTaskOrder.Flags())
 	root.AddCommand(getMoveTaskOrder)
 
 	updateMTOServiceItemStatus := &cobra.Command{
@@ -246,10 +215,10 @@ func main() {
         "status": "APPROVED"
     }
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         updateMTOServiceItemStatus,
+		RunE:         support.UpdateMTOServiceItemStatus,
 		SilenceUsage: true,
 	}
-	initUpdateMTOServiceItemStatusFlags(updateMTOServiceItemStatus.Flags())
+	support.InitUpdateMTOServiceItemStatusFlags(updateMTOServiceItemStatus.Flags())
 	root.AddCommand(updateMTOServiceItemStatus)
 
 	createPaymentRequestCommand := &cobra.Command{
@@ -265,10 +234,10 @@ func main() {
   	"body": <PaymentRequest>,
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         createPaymentRequest,
+		RunE:         prime.CreatePaymentRequest,
 		SilenceUsage: true,
 	}
-	initCreatePaymentRequestFlags(createPaymentRequestCommand.Flags())
+	prime.InitCreatePaymentRequestFlags(createPaymentRequestCommand.Flags())
 	root.AddCommand(createPaymentRequestCommand)
 
 	listMTOPaymentRequestsCommand := &cobra.Command{
@@ -286,20 +255,20 @@ func main() {
       "moveTaskOrderID": <uuid string>,
     }
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         listMTOPaymentRequests,
+		RunE:         support.ListMTOPaymentRequests,
 		SilenceUsage: true,
 	}
-	initUpdatePaymentRequestStatusFlags(listMTOPaymentRequestsCommand.Flags())
+	support.InitListMTOPaymentRequestsFlags(listMTOPaymentRequestsCommand.Flags())
 	root.AddCommand(listMTOPaymentRequestsCommand)
 
 	createPaymentRequestUploadCommand := &cobra.Command{
 		Use:          "create-upload",
 		Short:        "Create payment request upload",
 		Long:         "Create payment request upload for a payment request",
-		RunE:         createPaymentRequestUpload,
+		RunE:         prime.CreatePaymentRequestUpload,
 		SilenceUsage: true,
 	}
-	initCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
+	prime.InitCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
 	root.AddCommand(createPaymentRequestUploadCommand)
 
 	updateMTOShipmentStatusCommand := &cobra.Command{
@@ -319,10 +288,10 @@ func main() {
       "body": <MtoShipmentRequestStatus>,
     }
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         updateMTOShipmentStatus,
+		RunE:         support.UpdateMTOShipmentStatus,
 		SilenceUsage: true,
 	}
-	initUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
+	support.InitUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
 	root.AddCommand(updateMTOShipmentStatusCommand)
 
 	completionCommand := &cobra.Command{

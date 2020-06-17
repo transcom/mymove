@@ -386,6 +386,19 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(*updatedMTOShipment.MTOAgents[0].FirstName, newFirstName)
 		suite.Equal(*updatedMTOShipment.MTOAgents[1].LastName, newLastName)
 	})
+
+	suite.T().Run("Successful update to a minimal MTO shipment", func(t *testing.T) {
+
+		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{})
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		updatedShipment := models.MTOShipment{
+			ID:                   oldShipment.ID,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+		}
+		_, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
+		suite.NoError(err)
+
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {

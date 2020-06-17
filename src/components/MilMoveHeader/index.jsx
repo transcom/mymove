@@ -1,7 +1,9 @@
 import React from 'react';
 import classNames from 'classnames/bind';
-import styles from './index.module.scss';
+
 import { ReactComponent as MmLogo } from '../../shared/images/milmove-logo.svg';
+
+import styles from './index.module.scss';
 
 const cx = classNames.bind(styles);
 
@@ -10,18 +12,18 @@ const MilMoveHeader = () => (
     <MmLogo />
     <div className={cx('links')}>
       <span>
-        <a>Navigation Link</a>
+        <a href="#">Navigation Link</a>
       </span>
       <span>
-        <a>Navigation Link</a>
+        <a href="#">Navigation Link</a>
       </span>
       <span>
-        <a>Navigation Link</a>
+        <a href="#">Navigation Link</a>
       </span>
       <span className={cx('line-add')}>&nbsp;</span>
       <span>Baker, Riley</span>
       <span>
-        <a>Sign out</a>
+        <a href="#">Sign out</a>
       </span>
     </div>
   </div>

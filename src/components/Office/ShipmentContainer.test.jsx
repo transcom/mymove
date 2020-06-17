@@ -1,5 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+
 import ShipmentHeading from './ShipmentHeading';
 import ShipmentContainer from './ShipmentContainer';
 

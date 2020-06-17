@@ -14,7 +14,12 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemModelType Describes all model sub-types for a MTOServiceItem model.
+// MTOServiceItemModelType Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType
+//   * DOFSIT - MTOServiceItemDOFSIT
+//   * DDFSIT - MTOServiceItemDDFSIT
+//   * DOSHUT, DDSHUT - MTOServiceItemShuttle
+//   * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
+//
 // swagger:model MTOServiceItemModelType
 type MTOServiceItemModelType string
 
