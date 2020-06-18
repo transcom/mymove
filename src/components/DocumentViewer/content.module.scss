@@ -40,11 +40,27 @@ svg path {
   @include icon-hover-state;
 }
 
+.docArrows {
+  position: fixed;
+  top: 50vh;
+  display: flex;
+  justify-content: space-between;
+  width: $contentWidth;
+}
+
 .docArea {
   @include u-padding(5);
   display: flex;
   justify-content: center;
   align-items: center;
+  #arrow-left-1,
+  #arrow-right-1 {
+    fill: $primary;
+  }
+  button {
+    position: absolute;
+    top: 50vh;
+  }
 }
 
 .docControls {

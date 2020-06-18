@@ -20,15 +20,15 @@ const DocViewerContent = () => (
         <ExternalLink />
       </Button>
     </div>
+    <div className={`${styles.docArrows}`}>
+      <Button unstyled>
+        <ArrowLeft />
+      </Button>
+      <Button unstyled>
+        <ArrowRight />
+      </Button>
+    </div>
     <div className={`${styles.docArea}`}>
-      <div className={`${styles.docNav}`}>
-        <Button unstyled>
-          <ArrowLeft />
-        </Button>
-        <Button unstyled>
-          <ArrowRight />
-        </Button>
-      </div>
       <img src={`${fakeDoc}`} alt=" " />
     </div>
     <div className={`${styles.docControls}`}>

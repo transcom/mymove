@@ -43,12 +43,14 @@ $z-index-back: -100;
   button {
     svg {
       @include u-margin-left(1);
-      path {
+      path,
+      polygon {
         fill: $primary;
       }
     }
     &:hover {
-      svg path {
+      svg path,
+      svg polygon {
         fill: $primary-dark;
       }
     }
