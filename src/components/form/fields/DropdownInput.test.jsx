@@ -7,23 +7,29 @@ import { DropdownInput } from './DropdownInput';
 import { ErrorMessage } from '..';
 
 const mockOnChange = jest.fn();
-// mock out formik hook as we are not testing formik
-// needs to be before first describe
-jest.mock('formik', () => {
-  return {
-    ...jest.requireActual('formik'),
-    useField: () => [
-      {
-        onChange: mockOnChange,
-      },
-      { touched: true, error: 'sample error' },
-    ],
-  };
-});
+const formik = require('formik');
+
+const getShallowWrapper = (withError = false) => {
+  const meta = withError ? { touched: true, error: 'sample error' } : { touched: false, error: '' };
+  formik.useField = jest.fn(() => [
+    {
+      onChange: mockOnChange,
+    },
+    meta,
+  ]);
+  return shallow(<DropdownInput name="dropdown" label="label" options={[{ key: 'key', value: 'value' }]} />);
+};
 
 describe('DropdownInput', () => {
   describe('with all required props', () => {
-    const wrapper = shallow(<DropdownInput name="dropdown" label="label" options={[{ key: 'key', value: 'value' }]} />);
+    it('renders no ErrorMessage', () => {
+      const errorMessage = getShallowWrapper().find(ErrorMessage);
+      expect(errorMessage.length).toBe(1);
+      expect(errorMessage.prop('display')).toBe(false);
+      expect(errorMessage.prop('children')).toBe('');
+    });
+
+    const wrapper = getShallowWrapper(true);
 
     it('renders an ErrorMessage', () => {
       const errorMessage = wrapper.find(ErrorMessage);

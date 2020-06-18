@@ -7,18 +7,24 @@ import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
 import { ErrorMessage } from '..';
 
 const mockSetValue = jest.fn();
-// mock out formik hook as we are not testing formik
-// needs to be before first describe
-jest.mock('formik', () => {
-  return {
-    ...jest.requireActual('formik'),
-    useField: () => [{}, { touched: true, error: 'sample error' }, { setValue: mockSetValue }],
-  };
-});
+const formik = require('formik');
+
+const getShallowWrapper = (withError = false) => {
+  const meta = withError ? { touched: true, error: 'sample error' } : { touched: false, error: '' };
+  formik.useField = jest.fn(() => [{}, meta, { setValue: mockSetValue }]);
+  return shallow(<DatePickerInput name="name" label="title" />);
+};
 
 describe('DatePickerInput', () => {
   describe('with all required props', () => {
-    const wrapper = shallow(<DatePickerInput name="name" label="title" />);
+    it('renders no ErrorMessage', () => {
+      const errorMessage = getShallowWrapper().find(ErrorMessage);
+      expect(errorMessage.length).toBe(1);
+      expect(errorMessage.prop('display')).toBe(false);
+      expect(errorMessage.prop('children')).toBe('');
+    });
+
+    const wrapper = getShallowWrapper(true);
 
     it('renders an ErrorMessage', () => {
       const errorMessage = wrapper.find(ErrorMessage);
