@@ -513,4 +513,4 @@
 20200527145249_add_mto_available_timestamp.up.sql
 20200529171253_update_task_order_services_params.up.sql
 20200602144311_remove_is_available_to_prime.up.sql
-20200615192021_import_pricing_data_june_2020.up.sql
+20200618142643_import_fake_pricing_data.up.sql
