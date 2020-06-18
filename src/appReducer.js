@@ -4,6 +4,7 @@ import { connectRouter } from 'connected-react-router';
 import { adminReducer } from 'react-admin';
 import defaultMessages from 'ra-language-english';
 
+import authReducer from 'store/auth/reducer';
 import userReducer from 'shared/Data/users';
 import { swaggerReducerPublic, swaggerReducerInternal } from 'shared/Swagger/ducks';
 import { requestsReducer } from 'shared/Swagger/requestsReducer';
@@ -24,6 +25,7 @@ const locale = 'en';
 const i18nProvider = () => defaultMessages;
 
 const defaultReducers = {
+  auth: authReducer,
   form: formReducer,
   swaggerPublic: swaggerReducerPublic,
   requests: requestsReducer,
