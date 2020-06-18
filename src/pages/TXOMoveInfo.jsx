@@ -5,10 +5,10 @@ import { MoveTabNavWithRouter } from '../shared/Header/Office';
 
 import PrivateRoute from 'shared/User/PrivateRoute';
 
-const MoveDetails = lazy(() => import('./TOO/moveDetails'));
+const MoveDetails = lazy(() => import('./Office/MoveDetails/MoveDetails'));
 const TOOMoveTaskOrder = lazy(() => import('./TOO/moveTaskOrder'));
 const PaymentRequestShow = lazy(() => import('../scenes/Office/TIO/paymentRequestShow'));
-const MoveHistory = lazy(() => import('pages/moveHistory'));
+const MoveHistory = lazy(() => import('./moveHistory'));
 
 const TXOMoveInfo = () => {
   return (
