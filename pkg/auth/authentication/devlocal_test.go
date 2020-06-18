@@ -70,7 +70,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 
 	// Exercise all variables in the office user
 	form := url.Values{}
-	form.Add("userType", "office")
+	form.Add("userType", "PPM office")
 	form.Add("firstName", "Carol")
 	form.Add("lastName", "X")
 	form.Add("telephone", "222-222-2222")
@@ -246,7 +246,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	callbackPort := 1234
 
 	form := url.Values{}
-	form.Add("userType", "office")
+	form.Add("userType", "PPM office")
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.MilServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
@@ -416,7 +416,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	callbackPort := 1234
 
 	form := url.Values{}
-	form.Add("userType", "office")
+	form.Add("userType", "PPM office")
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.AdminServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")

@@ -6,6 +6,8 @@ import LoadingPlaceholder from '../../shared/LoadingPlaceholder';
 
 export class Queues extends Component {
   render() {
+    const queueType = this.props.queueType || this.props.match.params.queueType;
+
     return (
       <div className="usa-grid grid-wide queue-columns">
         <div className="queue-menu-column">
@@ -15,7 +17,7 @@ export class Queues extends Component {
         </div>
         <div className="queue-list-column">
           <Suspense fallback={<LoadingPlaceholder />}>
-            <QueueTable queueType={this.props.match.params.queueType} retrieveMoves={RetrieveMovesForOffice} />
+            <QueueTable queueType={queueType} retrieveMoves={RetrieveMovesForOffice} />
           </Suspense>
         </div>
       </div>
