@@ -15,23 +15,25 @@ const testThumbnail = (
 
 const DocViewerMenu = () => (
   <div className={`${styles.docViewerMenu}`}>
-    <div className={styles.menuHeader}>
-      <h3>Documents</h3>
-      <div className={styles.menuControls}>
-        <Button unstyled className={styles.menuOpen}>
-          <DocMenu />
-        </Button>
-        <Button unstyled className={styles.menuClose}>
-          <XLightIcon />
-        </Button>
+    <div className={styles.fixedContainer}>
+      <div className={styles.menuHeader}>
+        <h3>Documents</h3>
+        <div className={styles.menuControls}>
+          <Button unstyled className={styles.menuOpen}>
+            <DocMenu />
+          </Button>
+          <Button unstyled className={styles.menuClose}>
+            <XLightIcon />
+          </Button>
+        </div>
       </div>
-    </div>
-    <div className={styles.thumbnailContainer}>
-      {testThumbnail}
-      {testThumbnail}
-      {testThumbnail}
-      {testThumbnail}
-      {testThumbnail}
+      <div className={styles.thumbnailContainer}>
+        {testThumbnail}
+        {testThumbnail}
+        {testThumbnail}
+        {testThumbnail}
+        {testThumbnail}
+      </div>
     </div>
   </div>
 );

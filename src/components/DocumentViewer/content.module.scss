@@ -3,9 +3,10 @@
 @import '../../shared/styles/colors';
 
 $menuWidth: 308px;
+$contentWidth: 80%;
 
 .docViewerContent {
-  @include u-width(100%);
+  width: $contentWidth;
   min-width: 640px;
   @include u-height(100%);
   max-height: 100%;
@@ -19,16 +20,39 @@ $menuWidth: 308px;
 }
 
 .titleBar {
-  @include u-bg('white');
+  width: $contentWidth;
+  background: rgba(255, 255, 255, 0.75);
   height: 52px;
   position: fixed;
   top: 0;
   left: $menuWidth;
-  @include u-width(100%);
+  display: flex;
+  justify-content: space-between;
+  @include u-padding-x(4);
+  p {
+    @include u-text('bold');
+    color: $base-darkest;
+  }
+  button {
+    svg {
+      @include u-margin-left(1);
+      path {
+        fill: $primary;
+      }
+    }
+    &:hover {
+      svg path {
+        fill: $primary-dark;
+      }
+    }
+  }
 }
 
 .docArea {
-  max-height: 100%;
+  @include u-padding(5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 //this calcualtion subtracts the height of the milmove headers, and the titlebar height so tat the content area fills the page without overflowing
 

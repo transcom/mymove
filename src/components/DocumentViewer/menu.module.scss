@@ -13,7 +13,17 @@ $content-width: 308px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 308px;
+  max-width: $content-width;
+  min-width: $content-width;
+  width: 20%;
+  position: relative;
+  z-index: $z-index-front;
+  overflow-y: hidden;
+}
+
+.fixedContainer {
+  position: fixed;
+  height: 300vh;
 }
 
 .collapsed {

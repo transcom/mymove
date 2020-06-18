@@ -1,4 +1,7 @@
-//Mixins
+//Mixins & Variables
+
+$z-index-front: 100;
+$z-index-back: -100;
 
 // Function for converting a px based font-size to rem.
 @function calculateRem($size) {
