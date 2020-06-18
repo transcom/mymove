@@ -51,7 +51,7 @@ export class MoveDetails extends Component {
     // TODO - API flow
     const { match, getMoveOrder, getCustomer, getAllMoveTaskOrders, getMTOShipments } = this.props;
     const { params } = match;
-    const { moveOrderId } = params;
+    const { locator: moveOrderId } = params;
 
     getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
       getCustomer(moveOrder.customerID);
@@ -205,7 +205,7 @@ MoveDetails.defaultProps = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const { moveOrderId } = ownProps.match.params;
+  const { locator: moveOrderId } = ownProps.match.params;
   const moveOrder = selectMoveOrder(state, moveOrderId);
   const allowances = moveOrder?.entitlement;
   const customerId = moveOrder.customerID;
