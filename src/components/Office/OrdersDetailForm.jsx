@@ -79,11 +79,12 @@ OrdersDetailForm.propTypes = {
     ordersTypeDetail: PropTypes.string,
     tac: PropTypes.string,
     sac: PropTypes.string,
-  }).isRequired,
+  }),
 };
 
 OrdersDetailForm.defaultProps = {
   onReset: null,
+  initialValues: {},
 };
 
 export default OrdersDetailForm;
