@@ -134,8 +134,9 @@ export class Uploader extends Component {
   };
 
   revertFile = (uploadId, load, error) => {
-    const { onChange, isPublic } = this.props;
-    DeleteUpload(uploadId, isPublic)
+    console.log('delete in uploader, uploadId:', uploadId);
+    const { onChange, isPublic, deleteUpload = DeleteUpload } = this.props;
+    deleteUpload(uploadId, isPublic)
       .then((item) => {
         load(item);
         const newFiles = reject(this.state.files, (upload) => upload.id === uploadId);

@@ -1,7 +1,5 @@
-import { reject, pick, cloneDeep, concat, includes, get } from 'lodash';
-// import { reject, pick, cloneDeep, concat, includes } from 'lodash';
+import { reject, pick, cloneDeep, concat, get, includes } from 'lodash';
 import { UpdateOrders, GetOrders } from './api.js';
-// import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
 import { DeleteUploads } from 'shared/api';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
@@ -33,6 +31,7 @@ export function deleteUpload(uploadId) {
     const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
     const state = getState();
     if (state.orders.currentOrders) {
+      console.log('ducks - DELETE upload hit');
       return DeleteUploads(uploadId)
         .then(() => dispatch(action.success([uploadId])))
         .catch((err) => action.error(err));
@@ -48,6 +47,7 @@ export function deleteUploads(uploadIds) {
     const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
     const state = getState();
     if (state.orders.currentOrders && uploadIds.length) {
+      console.log('ducks - DELETE uploads hit');
       return DeleteUploads(uploadIds)
         .then(() => dispatch(action.success(uploadIds)))
         .catch((err) => action.error(err));
@@ -58,13 +58,15 @@ export function deleteUploads(uploadIds) {
 }
 
 export function addUploads(uploads) {
-  console.log('uploads in orders ducks', uploads);
   return function (dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(addUploadsType);
     const state = getState();
+    console.log('ducks hit add uploads');
     if (state.orders.currentOrders) {
+      console.log('ducks - ADD uploads success hit');
       dispatch(action.success(uploads));
     } else {
+      console.log('ducks - ADD uploads error hit');
       dispatch(action.error(new Error("attempted to add uploads when orders don't exist")));
     }
   };

@@ -6,6 +6,7 @@ import { swaggerRequest } from 'shared/Swagger/request';
 
 export const STATE_KEY = 'documents';
 export const createUploadLabel = 'documents.createUpload';
+export const deleteUploadLabel = 'documents.deleteUpload';
 
 export default function reducer(state = {}, action) {
   switch (action.type) {
@@ -21,8 +22,22 @@ export default function reducer(state = {}, action) {
 }
 
 // Actions
-export function createUpload(fileUpload, documentId, isPublic = false, label = createUploadLabel) {
+export function deleteUpload(uploadId, label = deleteUploadLabel) {
+  console.log('delete in entieies');
+  const swaggerTag = 'uploads.deleteUpload';
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    {
+      uploadId,
+    },
+    { label },
+  );
+}
+
+export function createUpload(fileUpload, documentId, label = createUploadLabel) {
   const swaggerTag = 'uploads.createUpload';
+  console.log('stuff in create upload', fileUpload, documentId);
   return swaggerRequest(
     getClient,
     swaggerTag,

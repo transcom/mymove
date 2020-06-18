@@ -5,7 +5,8 @@ import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
-import { deleteUpload, addUploads } from './ducks';
+// import { no_op } from 'shared/utils';
+import { deleteUpload as tableDelete, addUploads } from './ducks';
 import {
   fetchLatestOrders,
   getLatestOrdersLabel,
@@ -13,7 +14,7 @@ import {
   selectUploadsForOrders,
 } from 'shared/Entities/modules/orders';
 
-import { createUpload, selectDocument } from 'shared/Entities/modules/documents';
+import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
@@ -45,6 +46,7 @@ export class UploadOrders extends Component {
   }
 
   handleSubmit() {
+    // checks if orders in state, then manually adds to orders
     return this.props.addUploads(this.state.newUploads);
   }
 
@@ -58,18 +60,22 @@ export class UploadOrders extends Component {
     });
   }
 
+  // For UploadTable - deletes file and removes from state
   deleteFile(e, uploadId) {
     e.preventDefault();
-    this.props.deleteUpload(uploadId);
+    this.props.tableDelete(uploadId);
   }
 
   render() {
     const { pages, pageKey, error, currentOrders, uploads, document } = this.props;
     const isValid = Boolean(uploads.length || this.state.newUploads.length);
     const isDirty = Boolean(this.state.newUploads.length);
+    console.log('uploadorders rendered, uploads:', uploads);
+    console.log('newuploads', this.state.newUploads);
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
+        // handleSubmit={no_op}
         pageList={pages}
         pageKey={pageKey}
         pageIsValid={isValid}
@@ -92,6 +98,7 @@ export class UploadOrders extends Component {
           <div className="uploader-box">
             <Uploader
               createUpload={this.props.createUpload}
+              // deletedUpload={this.props.deleteUpload}
               document={document}
               onChange={this.onChange}
               options={{ labelIdle: uploaderLabelIdle }}
@@ -145,7 +152,10 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ fetchLatestOrders, createUpload, loadServiceMember, deleteUpload, addUploads }, dispatch);
+  return bindActionCreators(
+    { fetchLatestOrders, createUpload, deleteUpload, loadServiceMember, tableDelete, addUploads },
+    dispatch,
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(UploadOrders);

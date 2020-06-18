@@ -65,7 +65,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 		return
 	}
-	limit := 25
+	limit := 50
 	identities, err := models.FetchAppUserIdentities(h.db, session.ApplicationName, limit)
 	if err != nil {
 		h.logger.Error("Could not load list of users", zap.Error(err))
