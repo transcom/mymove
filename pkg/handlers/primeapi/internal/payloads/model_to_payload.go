@@ -445,14 +445,10 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	}
 
 	// set all relevant fields that apply to all service items
-	var shipmentIDStr string
-	if mtoServiceItem.MTOShipmentID != nil {
-		shipmentIDStr = mtoServiceItem.MTOShipmentID.String()
-	}
 
 	payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
-	payload.SetMoveTaskOrderID(strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()))
-	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
+	payload.SetMoveTaskOrderID(handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID))
+	payload.SetMtoShipmentID(handlers.FmtUUIDPtr(mtoServiceItem.MTOShipmentID))
 	payload.SetReServiceID(strfmt.UUID(mtoServiceItem.ReServiceID.String()))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)
 	payload.SetStatus(primemessages.MTOServiceItemStatus(mtoServiceItem.Status))

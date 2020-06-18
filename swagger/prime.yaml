@@ -1005,6 +1005,8 @@ definitions:
         type: string
     required:
       - modelType
+      - mtoShipmentID
+      - moveTaskOrderID
   MTOServiceItemBasic:
     description: Describes a basic service item subtype of a MTOServiceItem.
     allOf:
