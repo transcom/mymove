@@ -25,22 +25,22 @@ describe('OfficeWrapper tests', () => {
 
 describe('RenderWithOrWithoutHeader', () => {
   it('renders QueueHeader component', () => {
-    const wrapper = shallow(<RenderWithOrWithoutHeader component={Queues} withHeader={true} />);
+    const wrapper = shallow(<RenderWithOrWithoutHeader tag="main" component={Queues} withHeader={true} />);
     expect(wrapper.find('QueueHeader').exists()).toBe(true);
   });
   it('renders the component passed to it', () => {
-    const wrapper = shallow(<RenderWithOrWithoutHeader component={Queues} withHeader={true} />);
+    const wrapper = shallow(<RenderWithOrWithoutHeader tag="main" component={Queues} withHeader={true} />);
     expect(wrapper.find('Queues').exists()).toBe(true);
   });
 });
 
 describe('RenderWithOrWithoutHeader', () => {
   it('does not renders QueueHeader component', () => {
-    const wrapper = shallow(<RenderWithOrWithoutHeader component={Queues} withHeader={false} />);
+    const wrapper = shallow(<RenderWithOrWithoutHeader tag="main" component={Queues} withHeader={false} />);
     expect(wrapper.find('QueueHeader').exists()).toBe(false);
   });
   it('renders the component passed to it', () => {
-    const wrapper = shallow(<RenderWithOrWithoutHeader component={Queues} withHeader={false} />);
+    const wrapper = shallow(<RenderWithOrWithoutHeader tag="main" component={Queues} withHeader={false} />);
     expect(wrapper.find('Queues').exists()).toBe(true);
   });
 });

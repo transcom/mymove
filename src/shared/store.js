@@ -12,14 +12,6 @@ import * as schema from 'shared/Entities/schema';
 
 export const history = createBrowserHistory();
 
-const middlewares = [thunk.withExtraArgument({ schema }), routerMiddleware(history)];
-
-if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
-  middlewares.push(logger);
-}
-
-const composeEnhancers = composeWithDevTools({});
-
 function appSelector() {
   if (isAdminSite) {
     return adminAppReducer(history);
@@ -28,6 +20,19 @@ function appSelector() {
   }
 }
 
-export const store = composeEnhancers(applyMiddleware(...middlewares))(createStore)(appSelector());
+export const configureStore = (initialState = {}) => {
+  const middlewares = [thunk.withExtraArgument({ schema }), routerMiddleware(history)];
+
+  if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
+    middlewares.push(logger);
+  }
+
+  const composeEnhancers = composeWithDevTools({});
+  const rootReducer = appSelector();
+  const store = createStore(rootReducer, initialState, composeEnhancers(applyMiddleware(...middlewares)));
+  return store;
+};
+
+export const store = configureStore();
 
 export default store;

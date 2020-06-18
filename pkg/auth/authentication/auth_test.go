@@ -75,6 +75,14 @@ NeWNl8nWD+2zOcRiBri5uUB8
 -----END RSA PRIVATE KEY-----`
 )
 
+// UserSessionCookieName is the key suffix at which we're storing our token cookie
+const UserSessionCookieName = "session_token"
+
+// SessionCookieName returns the session cookie name
+func SessionCookieName(session *auth.Session) string {
+	return fmt.Sprintf("%s_%s", string(session.ApplicationName), UserSessionCookieName)
+}
+
 // ApplicationTestServername is a collection of the test servernames
 func ApplicationTestServername() auth.ApplicationServername {
 	appnames := auth.ApplicationServername{
@@ -161,15 +169,22 @@ func (suite *AuthSuite) TestGenerateNonce() {
 
 func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	t := suite.T()
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
 
 	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	callbackPort := 1234
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/auth/logout", OfficeTestHost), nil)
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		UserID:          fakeUUID,
+		UserID:          user.ID,
 		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
 	}
@@ -178,7 +193,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	sessionManagers := setupSessionManagers()
 	officeSession := sessionManagers[2]
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
-	handler := officeSession.LoadAndSave(LogoutHandler{authContext})
+	handler := officeSession.LoadAndSave(LogoutHandler{authContext, suite.DB()})
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req.WithContext(ctx))
@@ -215,9 +230,16 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	req := httptest.NewRequest("GET", "/moves", nil)
 
 	// And: the context contains the auth values
-	session := auth.Session{UserID: user.ID, IDToken: "fake Token"}
+	session := auth.Session{UserID: user.ID, IDToken: "fake Token", ApplicationName: "mil"}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
+	cookieName := SessionCookieName(&session)
+	cookie := http.Cookie{
+		Name:  cookieName,
+		Value: "some randomly generated string",
+		Path:  "/",
+	}
+	req.AddCookie(&cookie)
 
 	var handlerSession *auth.Session
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -386,7 +408,17 @@ func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 
 func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	officeUserID := uuid.Must(uuid.NewV4())
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
+
 	userIdentity := models.UserIdentity{
+		ID:           user.ID,
 		Active:       true,
 		OfficeUserID: &officeUserID,
 	}
@@ -394,10 +426,8 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", OfficeTestHost), nil)
 
 	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		UserID:          fakeUUID,
 		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
 	}
@@ -453,7 +483,17 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 
 func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	officeUserID := uuid.Must(uuid.NewV4())
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
+
 	userIdentity := models.UserIdentity{
+		ID:           user.ID,
 		Active:       true,
 		OfficeUserID: &officeUserID,
 	}
@@ -461,10 +501,8 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
 
 	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		UserID:          fakeUUID,
 		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
 	}
@@ -516,8 +554,17 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	adminUserID := uuid.Must(uuid.NewV4())
 	officeUserID := uuid.Must(uuid.NewV4())
 	var adminUserRole models.AdminRole = "SYSTEM_ADMIN"
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
 
 	userIdentity := models.UserIdentity{
+		ID:            user.ID,
 		Active:        true,
 		OfficeUserID:  &officeUserID,
 		AdminUserID:   &adminUserID,
@@ -527,10 +574,8 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", AdminTestHost), nil)
 
 	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	session := auth.Session{
 		ApplicationName: auth.AdminApp,
-		UserID:          fakeUUID,
 		IDToken:         fakeToken,
 		Hostname:        AdminTestHost,
 	}
@@ -551,11 +596,67 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(scsContext), "")
 
 	// admin app, so should only have admin ID information
+	suite.Equal(userIdentity.ID, session.UserID)
 	suite.Equal(adminUserID, session.AdminUserID)
 	suite.Equal(uuid.Nil, session.OfficeUserID)
 	suite.True(session.IsAdminUser())
 	suite.True(session.IsSystemAdmin())
 	suite.False(session.IsProgramAdmin())
+}
+
+func (suite *AuthSuite) TestAuthKnownServiceMember() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	userID := uuid.Must(uuid.NewV4())
+
+	userIdentity := models.UserIdentity{
+		ID:              user.ID,
+		ServiceMemberID: &userID,
+		Active:          true,
+	}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", MilTestHost), nil)
+
+	fakeToken := "some_token"
+	session := auth.Session{
+		ApplicationName: auth.MilApp,
+		IDToken:         fakeToken,
+		Hostname:        MilTestHost,
+	}
+
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	sessionManagers := setupSessionManagers()
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+
+	milSession := sessionManagers[0]
+	scsContext := setupScsSession(ctx, &session, milSession)
+
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+	}
+	rr := httptest.NewRecorder()
+	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(scsContext), "")
+
+	foundUser, _ := models.GetUser(suite.DB(), user.ID)
+
+	suite.NotEqual("", foundUser.CurrentMilSessionID)
+
+	sessionStore := milSession.Store
+	_, existsBefore, _ := sessionStore.Find(foundUser.CurrentMilSessionID)
+	suite.Equal(existsBefore, true)
+
+	concurrentSession := auth.Session{
+		ApplicationName: auth.MilApp,
+		IDToken:         fakeToken,
+		Hostname:        MilTestHost,
+	}
+	concurrentCtx := auth.SetSessionInRequestContext(req, &concurrentSession)
+	concurrentScsContext := setupScsSession(concurrentCtx, &concurrentSession, milSession)
+	authorizeKnownUser(&userIdentity, h, &concurrentSession, rr, req.WithContext(concurrentScsContext), "")
+
+	_, existsAfterConcurrentSession, _ := sessionStore.Find(foundUser.CurrentMilSessionID)
+	suite.Equal(existsAfterConcurrentSession, false)
 }
 
 func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
@@ -705,9 +806,12 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 
 	authorizeUnknownUser(user, h, &session, rr, req.WithContext(scsContext), "")
 
+	foundUser, _ := models.GetUserFromEmail(suite.DB(), officeUser.Email)
+
 	// Office app, so should only have office ID information
 	suite.Equal(officeUser.ID, session.OfficeUserID)
 	suite.Equal(uuid.Nil, session.AdminUserID)
+	suite.NotEqual("", foundUser.CurrentOfficeSessionID)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
@@ -816,9 +920,12 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 
 	authorizeUnknownUser(user, h, &session, rr, req.WithContext(scsContext), "")
 
+	foundUser, _ := models.GetUserFromEmail(suite.DB(), adminUser.Email)
+
 	// Office app, so should only have office ID information
 	suite.Equal(adminUser.ID, session.AdminUserID)
 	suite.Equal(uuid.Nil, session.OfficeUserID)
+	suite.NotEqual("", foundUser.CurrentAdminSessionID)
 }
 
 type MockAPIContext struct{}

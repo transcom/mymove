@@ -65,7 +65,7 @@
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.10.7",
     "swagger-ui-dist": "^3.26.2",
-    "uswds": "2.7.0",
+    "uswds": "2.7.1",
     "yup": "^0.29.1"
   },
   "resolutions": {

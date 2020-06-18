@@ -969,7 +969,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection))
-	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext))
+	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, dbConnection))
 
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")

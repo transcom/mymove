@@ -31,6 +31,8 @@ nav.tabNav a {
 
 .tabItem :global .usa-nav__link {
   display: inline-block;
+  // we don't want the :visited styling to show up here
+  text-decoration: none;
   &:hover {
     text-decoration: none;
   }
