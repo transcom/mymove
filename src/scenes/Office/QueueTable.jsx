@@ -49,7 +49,7 @@ class QueueTable extends Component {
   }
 
   openMove(rowInfo) {
-    this.props.history.push(`new/moves/${rowInfo.original.id}`, {
+    this.props.history.push(`/queues/new/moves/${rowInfo.original.id}`, {
       referrerPathname: this.props.history.location.pathname,
     });
   }

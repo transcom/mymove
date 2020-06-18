@@ -508,7 +508,9 @@
 20200423174512_add-status-to-service-item.up.sql
 20200505194253_import_rates_may_2020.up.sql
 20200511185126_make_service_item_param_key_unique.up.sql
+20200511201318_add_default_office_user_roles.up.sql
 20200513151500_uploader_refactor_zero_down_alter_tables.up.sql
+20200514033059_add_current_session_id_to_users.up.sql
 20200515202122_payment_service_item_nullable_price.up.sql
 20200527145249_add_mto_available_timestamp.up.sql
 20200529171253_update_task_order_services_params.up.sql

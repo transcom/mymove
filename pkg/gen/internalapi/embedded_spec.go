@@ -733,6 +733,13 @@ func init() {
         "parameters": [
           {
             "type": "string",
+            "format": "uuid",
+            "name": "personally_procured_move_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
             "format": "date",
             "name": "original_move_date",
             "in": "query",
@@ -784,6 +791,9 @@ func init() {
           },
           "409": {
             "description": "distance is less than 50 miles (no short haul moves)"
+          },
+          "422": {
+            "description": "the payload was unprocessable"
           },
           "500": {
             "description": "internal server error"
@@ -6942,6 +6952,13 @@ func init() {
         "parameters": [
           {
             "type": "string",
+            "format": "uuid",
+            "name": "personally_procured_move_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
             "format": "date",
             "name": "original_move_date",
             "in": "query",
@@ -6993,6 +7010,9 @@ func init() {
           },
           "409": {
             "description": "distance is less than 50 miles (no short haul moves)"
+          },
+          "422": {
+            "description": "the payload was unprocessable"
           },
           "500": {
             "description": "internal server error"

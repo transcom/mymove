@@ -1,16 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { storiesOf } from '@storybook/react';
-
 import { Tag } from '@trussworks/react-uswds';
-import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 
 import colors from '../shared/styles/colors.scss';
-
 import FOUOHeader from '../components/FOUOHeader';
 import MilMoveHeader from '../components/MilMoveHeader';
 import CustomerHeader from '../components/CustomerHeader';
+
+import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 
 const filterGroup = (filter) => Object.keys(colors).filter((color) => color.indexOf(filter) === 0);
 
@@ -171,9 +169,13 @@ storiesOf('Global|Typography', module)
         USWDS bg-violet-warm-60
       </a>
       <p>a:disabled</p>
-      <a className="disabled">This link is disabled</a>
+      <a href="#" className="disabled">
+        This link is disabled
+      </a>
       <p>a:focus</p>
-      <a className="focus">This link is focused</a>
+      <a href="#" className="focus">
+        This link is focused
+      </a>
       <p>a small</p>
       <small>
         <a href="https://materializecss.com/sass.html">USWDS blue-warm-60v 14/16</a>

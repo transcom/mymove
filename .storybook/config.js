@@ -11,11 +11,6 @@ if (!detectIE11()) {
   import('loki/configure-react');
 }
 
-const req = require.context('../src', true, /\.stories\.jsx?$/);
-
-const loadStories = () => {
-  req.keys().forEach(req);
-};
+configure(require.context('../src', true, /\.stories\.jsx?$/), module);
 
 addDecorator(withInfo);
-configure(loadStories, module);

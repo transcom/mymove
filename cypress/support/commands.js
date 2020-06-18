@@ -5,7 +5,9 @@ import {
   milmoveAppName,
   officeAppName,
   milmoveUserType,
-  officeUserType,
+  PPMOfficeUserType,
+  TOOOfficeUserType,
+  TIOOfficeUserType,
   dpsUserType,
   userTypeToBaseURL,
   longPageLoadTimeout,
@@ -59,8 +61,26 @@ Cypress.Commands.add('signInAsNewMilMoveUser', () => {
 });
 
 Cypress.Commands.add('signInAsNewOfficeUser', () => {
-  cy.signInAsNewUser(officeUserType);
-  cy.url().should('eq', officeBaseURL + '/queues/new');
+  cy.signInAsNewUser(PPMOfficeUserType);
+  cy.contains('New moves');
+  cy.url().should('eq', officeBaseURL + '/');
+});
+
+Cypress.Commands.add('signInAsNewTOOUser', () => {
+  cy.signInAsNewUser(TOOOfficeUserType);
+  cy.contains('All Customer Moves');
+  cy.url().should('eq', officeBaseURL + '/');
+});
+
+Cypress.Commands.add('signInAsNewTIOUser', () => {
+  cy.signInAsNewUser(TIOOfficeUserType);
+  cy.contains('TIO interface');
+  cy.url().should('eq', officeBaseURL + '/');
+});
+
+Cypress.Commands.add('signInAsMultiRoleUser', () => {
+  cy.signInAsUserPostRequest(PPMOfficeUserType, '9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b');
+  cy.waitForLoadingScreen();
 });
 
 Cypress.Commands.add('signInAsNewDPSUser', () => {
@@ -73,9 +93,10 @@ Cypress.Commands.add('signIntoMyMoveAsUser', (userId) => {
 });
 
 Cypress.Commands.add('signIntoOfficeAsUser', (userId) => {
-  cy.signInAsUserPostRequest(officeAppName, userId);
+  cy.signInAsUserPostRequest(PPMOfficeUserType, userId);
   cy.waitForReactTableLoad();
 });
+
 Cypress.Commands.add('signIntoOffice', () => {
   cy.signIntoOfficeAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
 });

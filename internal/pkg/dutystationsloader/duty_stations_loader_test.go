@@ -93,7 +93,7 @@ func (suite *DutyStationsLoaderSuite) TestCreateInsertQuery() {
 	query := builder.createInsertQuery(model, &pop.Model{Value: models.User{}})
 
 	suite.Equal(
-		"INSERT into users (id, created_at, updated_at, login_gov_uuid, login_gov_email, active) VALUES ('cd40c92e-7c8a-4da4-ad58-4480df84b3f0', now(), now(), 'cd40c92e-7c8a-4da4-ad58-4480df84b3f1', 'email@example.com', true);\n",
+		"INSERT into users (id, created_at, updated_at, login_gov_uuid, login_gov_email, active, current_admin_session_id, current_office_session_id, current_mil_session_id) VALUES ('cd40c92e-7c8a-4da4-ad58-4480df84b3f0', now(), now(), 'cd40c92e-7c8a-4da4-ad58-4480df84b3f1', 'email@example.com', true, '', '', '');\n",
 		query)
 }
 

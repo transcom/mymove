@@ -1,8 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { FormGroup, Label, TextInput as UswdsTextInput } from '@trussworks/react-uswds';
-import { ErrorMessage } from '..';
-import { TextInput, TextInputMinimal } from '.';
+
+import { ErrorMessage } from '../index';
+
+import { TextInput, TextInputMinimal } from './index';
 
 const mockOnChange = jest.fn();
 // mock out formik hook as we are not testing formik
@@ -21,7 +23,7 @@ jest.mock('formik', () => {
 
 describe('TextInputMinimal', () => {
   describe('with name prop', () => {
-    const wrapper = shallow(<TextInputMinimal className="sample-class" name="firstName" type="text" />);
+    const wrapper = shallow(<TextInputMinimal className="sample-class" name="firstName" type="text" id="firstName" />);
 
     it('should render an ErrorMessage', () => {
       const errorMessage = wrapper.find(ErrorMessage);
@@ -46,7 +48,7 @@ describe('TextInputMinimal', () => {
   });
 
   describe('with id prop', () => {
-    const wrapper = shallow(<TextInputMinimal className="sample-class" id="lastName" type="text" />);
+    const wrapper = shallow(<TextInputMinimal className="sample-class" id="lastName" type="text" name="lastName" />);
 
     it('should render an ErrorMessage', () => {
       const errorMessage = wrapper.find(ErrorMessage);
@@ -68,7 +70,14 @@ describe('TextInputMinimal', () => {
       shallow(<TextInputMinimal className="sample-class" type="text" />);
 
       expect(spy).toHaveBeenCalledWith(
-        expect.stringMatching(/Warning: Failed prop type: id or name required on 'TextInputMinimal'/),
+        expect.stringMatching(
+          /The prop `id` is marked as required in `TextInputMinimal`, but its value is `undefined`/,
+        ),
+      );
+      expect(spy).toHaveBeenCalledWith(
+        expect.stringMatching(
+          /The prop `name` is marked as required in `TextInputMinimal`, but its value is `undefined`/,
+        ),
       );
     });
   });
@@ -78,7 +87,9 @@ describe('TextInputMinimal', () => {
 
 describe('TextInput', () => {
   describe('with name prop', () => {
-    const wrapper = shallow(<TextInput className="sample-class" name="firstName" label="First Name" type="text" />);
+    const wrapper = shallow(
+      <TextInput className="sample-class" name="firstName" label="First Name" type="text" id="firstName" />,
+    );
 
     it('should render a FormGroup', () => {
       const group = wrapper.find(FormGroup);
@@ -104,7 +115,9 @@ describe('TextInput', () => {
   });
 
   describe('with id prop', () => {
-    const wrapper = shallow(<TextInput className="sample-class" id="lastName" label="Last Name" type="text" />);
+    const wrapper = shallow(
+      <TextInput className="sample-class" id="lastName" label="Last Name" type="text" name="lastName" />,
+    );
 
     it('should render a Label', () => {
       const label = wrapper.find(FormGroup).find(Label);
@@ -125,7 +138,10 @@ describe('TextInput', () => {
       shallow(<TextInput className="sample-class" label="Some Name" type="text" />);
 
       expect(spy).toHaveBeenCalledWith(
-        expect.stringMatching(/Warning: Failed prop type: id or name required on 'TextInput'/),
+        expect.stringMatching(/The prop `id` is marked as required in `TextInput`, but its value is `undefined`/),
+      );
+      expect(spy).toHaveBeenCalledWith(
+        expect.stringMatching(/The prop `name` is marked as required in `TextInput`, but its value is `undefined`/),
       );
     });
   });

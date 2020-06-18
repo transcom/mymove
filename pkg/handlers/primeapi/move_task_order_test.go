@@ -59,7 +59,10 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
-	handler := FetchMTOUpdatesHandler{HandlerContext: context}
+	handler := FetchMTOUpdatesHandler{
+		HandlerContext:       context,
+		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+	}
 
 	suite.T().Run("with mto service item dimensions", func(t *testing.T) {
 		reServiceDomCrating := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
@@ -188,7 +191,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerPaymentRequest() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
-	handler := FetchMTOUpdatesHandler{HandlerContext: context}
+	handler := FetchMTOUpdatesHandler{HandlerContext: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB())}
 
 	response := handler.Handle(params)
 
@@ -228,7 +231,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerMinimal() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
-	handler := FetchMTOUpdatesHandler{HandlerContext: context}
+	handler := FetchMTOUpdatesHandler{HandlerContext: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB())}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -268,7 +271,7 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
-	handler := FetchMTOUpdatesHandler{HandlerContext: context}
+	handler := FetchMTOUpdatesHandler{HandlerContext: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB())}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
