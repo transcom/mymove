@@ -14,7 +14,7 @@ describe('MoveDetails page', () => {
 
   const moveDetailsProps = {
     match: {
-      params: { moveOrderId: '123' },
+      params: { locator: '123' },
       isExact: true,
       path: '',
       url: '',
@@ -28,7 +28,7 @@ describe('MoveDetails page', () => {
   const wrapper = shallow(<MoveDetails {...moveDetailsProps} />);
 
   it('loads data from the API', () => {
-    expect(moveDetailsProps.getMoveOrder).toHaveBeenCalledWith(moveDetailsProps.match.params.moveOrderId);
+    expect(moveDetailsProps.getMoveOrder).toHaveBeenCalledWith(moveDetailsProps.match.params.locator);
     expect(moveDetailsProps.getCustomer).toHaveBeenCalledWith(testMoveOrder.customerID);
     expect(moveDetailsProps.getAllMoveTaskOrders).toHaveBeenCalledWith(testMoveOrder.id);
     expect(moveDetailsProps.getMTOShipments).toHaveBeenCalledWith(testMoveTaskOrders[0].id);
