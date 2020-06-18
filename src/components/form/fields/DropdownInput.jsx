@@ -7,7 +7,6 @@ import { ErrorMessage } from 'components/form/ErrorMessage';
 import { DropdownArrayOf } from 'types/form';
 
 export const DropdownInput = (props) => {
-  // eslint-disable-next-line react/prop-types
   const { label, options } = props;
   const [field, meta] = useField(props);
   const hasError = meta.touched && !!meta.error;
