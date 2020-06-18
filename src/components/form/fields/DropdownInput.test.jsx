@@ -23,7 +23,7 @@ jest.mock('formik', () => {
 
 describe('DropdownInput', () => {
   describe('with all required props', () => {
-    const wrapper = shallow(<DropdownInput name="dropdown" label="label" options={[['key', 'value']]} />);
+    const wrapper = shallow(<DropdownInput name="dropdown" label="label" options={[{ key: 'key', value: 'value' }]} />);
 
     it('renders an ErrorMessage', () => {
       const errorMessage = wrapper.find(ErrorMessage);

@@ -4,6 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { ErrorMessage } from 'components/form/ErrorMessage';
+import { DropdownArrayOf } from 'types/form';
 
 export const DropdownInput = (props) => {
   // eslint-disable-next-line react/prop-types
@@ -21,10 +22,9 @@ export const DropdownInput = (props) => {
       <Dropdown {...field}>
         <option value="">- Select -</option>
         {options &&
-          // eslint-disable-next-line react/prop-types
-          options.map(([optionValue, optionLabel]) => (
-            <option key={optionValue} value={optionValue}>
-              {optionLabel}
+          options.map(({ key, value }) => (
+            <option key={key} value={key}>
+              {value}
             </option>
           ))}
       </Dropdown>
@@ -38,8 +38,8 @@ DropdownInput.propTypes = {
   // name is for the input
   name: PropTypes.string.isRequired,
   // options for dropdown selection for this input
-  // ex: [ [ "key", "value" ] ]
-  options: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
+  // ex: [ { key: 'key', value: 'value' } ]
+  options: DropdownArrayOf.isRequired,
 };
 
 export default DropdownInput;
