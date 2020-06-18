@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/tls"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -51,7 +50,6 @@ func initPostFileToGEXFlags(flag *pflag.FlagSet) {
 
 	flag.String("gex-helloworld-file", "", "GEX file to post")
 	flag.String("transaction-name", "test", "The required name sent in the url of the gex api request")
-	// flag.Parse(os.Args[1:])
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -130,7 +128,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 		log.Fatal("Gex Sender had no response")
 	}
 
-	fmt.Printf("status code: %v, error: %v \n", resp.StatusCode, err)
+	logger.Printf("status code: %v, error: %v \n", resp.StatusCode, err)
 
 	return nil
 }
