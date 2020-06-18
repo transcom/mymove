@@ -5,6 +5,10 @@
 $menuWidth: 308px;
 $contentWidth: 80%;
 
+svg path {
+  fill: $primary;
+}
+
 .docViewerContent {
   width: $contentWidth;
   min-width: 640px;
@@ -33,19 +37,7 @@ $contentWidth: 80%;
     @include u-text('bold');
     color: $base-darkest;
   }
-  button {
-    svg {
-      @include u-margin-left(1);
-      path {
-        fill: $primary;
-      }
-    }
-    &:hover {
-      svg path {
-        fill: $primary-dark;
-      }
-    }
-  }
+  @include icon-hover-state;
 }
 
 .docArea {
@@ -54,13 +46,19 @@ $contentWidth: 80%;
   justify-content: center;
   align-items: center;
 }
-//this calcualtion subtracts the height of the milmove headers, and the titlebar height so tat the content area fills the page without overflowing
 
 .docControls {
   background: rgba(255, 255, 255, 0.75);
-  @include u-width(100%);
+  width: $contentWidth;
   height: 50px;
   position: fixed;
   left: $menuWidth;
   bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  svg {
+    @include u-margin-right(1);
+  }
+  @include icon-hover-state;
 }

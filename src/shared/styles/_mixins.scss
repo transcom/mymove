@@ -38,3 +38,19 @@ $z-index-back: -100;
   outline: 0.26667rem solid #2491ff;
   outline-offset: 0.26667rem;
 }
+
+@mixin icon-hover-state {
+  button {
+    svg {
+      @include u-margin-left(1);
+      path {
+        fill: $primary;
+      }
+    }
+    &:hover {
+      svg path {
+        fill: $primary-dark;
+      }
+    }
+  }
+}
