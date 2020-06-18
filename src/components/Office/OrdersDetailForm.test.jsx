@@ -13,8 +13,8 @@ jest.mock('formik', () => {
   return {
     ...jest.requireActual('formik'),
     useFormikContext: () => ({
-      errors: { sampleField: 'Required' },
-      touched: { sampleField: true },
+      errors: {},
+      touched: {},
       handleReset: mockHandleReset,
       handleSubmit: mockHandleSubmit,
     }),
