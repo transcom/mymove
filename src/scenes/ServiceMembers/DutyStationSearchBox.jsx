@@ -112,7 +112,6 @@ export class DutyStationSearchBox extends Component {
     const title = this.props.title || defaultTitle;
     const uswdsBlack = '#565c65';
     const uswdsBlue = '#2491ff';
-    console.log(...styles['duty-input-box']);
     const customStyles = {
       control: (provided, state) => ({
         ...provided,
