@@ -1,7 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+
+import CustomerRemarksAgentsDetails from './index';
+
 import DataPoint from 'components/DataPoint';
-import CustomerRemarksAgentsDetails from '.';
 
 describe('CustomerRemarksAgentsDetails', () => {
   it('renders empty details', () => {

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { ReactComponent as Check } from '../../shared/icon/check.svg';
 
 const ServiceItemTable = () => (

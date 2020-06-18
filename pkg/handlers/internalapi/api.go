@@ -7,6 +7,7 @@ import (
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
+	"github.com/transcom/mymove/pkg/services/ppmservices"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
@@ -36,10 +37,10 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{context}
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{context}
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{context}
-	internalAPI.PpmUpdatePersonallyProcuredMoveEstimateHandler = UpdatePersonallyProcuredMoveEstimateHandler{context}
+	internalAPI.PpmUpdatePersonallyProcuredMoveEstimateHandler = UpdatePersonallyProcuredMoveEstimateHandler{context, ppmservices.NewEstimateCalculator(context.DB(), context.Planner())}
 	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{context}
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{context}
-	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{context}
+	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{context, ppmservices.NewEstimateCalculator(context.DB(), context.Planner())}
 	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler{context}
 	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler{context}
 	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler{context}

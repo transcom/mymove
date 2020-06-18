@@ -18,5 +18,8 @@
 # Storybook Stories are stored in this directory and should be reviewed by desgin
 /src/stories/ @transcom/truss-design
 
+# Storybook files that are co-located with component source code should be reviewed by design
+*.stories.jsx @transcom/truss-design
+
 # The reference, ie approved, images for Loki tests of Storybook Stories are stored in this directory and should be reviewed by desgin
 /.loki/reference/ @transcom/truss-design

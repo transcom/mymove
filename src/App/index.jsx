@@ -1,13 +1,12 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-
 import Loadable from 'react-loadable';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { isOfficeSite, isAdminSite, isSystemAdminSite } from 'shared/constants.js';
+import { isOfficeSite, isAdminSite, isSystemAdminSite } from 'shared/constants';
 import { store } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
-import { detectFlags } from 'shared/featureFlags.js';
+import { detectFlags } from 'shared/featureFlags';
 
 import './index.css';
 
@@ -32,11 +31,11 @@ const SystemAdmin = Loadable({
   loading: () => <LoadingPlaceholder />,
 });
 
-const flags = detectFlags(process.env['NODE_ENV'], window.location.host, window.location.search);
+const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 
-const officeContext = Object.assign({}, defaultOfficeContext, { flags });
-const myMoveContext = Object.assign({}, defaultMyMoveContext, { flags });
-const adminContext = Object.assign({}, defaultAdminContext, { flags });
+const officeContext = { ...defaultOfficeContext, flags };
+const myMoveContext = { ...defaultMyMoveContext, flags };
+const adminContext = { ...defaultAdminContext, flags };
 
 const App = () => {
   if (isOfficeSite)
@@ -47,13 +46,16 @@ const App = () => {
         </AppContext.Provider>
       </Provider>
     );
-  else if (isSystemAdminSite)
+
+  if (isSystemAdminSite)
     return (
       <AppContext.Provider value={adminContext}>
         <SystemAdmin />
       </AppContext.Provider>
     );
-  else if (isAdminSite) return <SystemAdmin />;
+
+  if (isAdminSite) return <SystemAdmin />;
+
   return (
     <Provider store={store}>
       <AppContext.Provider value={myMoveContext}>

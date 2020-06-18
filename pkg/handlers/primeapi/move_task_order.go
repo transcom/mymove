@@ -1,50 +1,28 @@
 package primeapi
 
 import (
-	"time"
-
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
-	"github.com/transcom/mymove/pkg/models"
-
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 )
 
 // FetchMTOUpdatesHandler lists move task orders with the option to filter since a particular date
 type FetchMTOUpdatesHandler struct {
 	handlers.HandlerContext
+	services.MoveTaskOrderFetcher
 }
 
 // Handle fetches all move task orders with the option to filter since a particular date
 func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	var mtos models.MoveTaskOrders
-
-	query := h.DB().Where("available_to_prime_at IS NOT NULL").Eager(
-		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
-		"MTOServiceItems.ReService",
-		"MTOServiceItems.Dimensions",
-		"MTOServiceItems.CustomerContacts",
-		"MTOShipments.DestinationAddress",
-		"MTOShipments.PickupAddress",
-		"MTOShipments.SecondaryDeliveryAddress",
-		"MTOShipments.SecondaryPickupAddress",
-		"MTOShipments.MTOAgents",
-		"MoveOrder.Customer",
-		"MoveOrder.Entitlement")
-	if params.Since != nil {
-		since := time.Unix(*params.Since, 0)
-		query = query.Where("updated_at > ?", since)
-	}
-
-	err := query.All(&mtos)
+	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(true, params.Since)
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))

@@ -1,8 +1,9 @@
 import React, { lazy } from 'react';
 import { Switch } from 'react-router-dom';
-import PrivateRoute from 'shared/User/PrivateRoute';
 
 import { MoveTabNavWithRouter } from '../shared/Header/Office';
+
+import PrivateRoute from 'shared/User/PrivateRoute';
 
 const MoveDetails = lazy(() => import('./TOO/moveDetails'));
 const TOOMoveTaskOrder = lazy(() => import('./TOO/moveTaskOrder'));

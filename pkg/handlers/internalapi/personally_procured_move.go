@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -13,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -259,6 +260,7 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 // UpdatePersonallyProcuredMoveEstimateHandler Updates a PPMs incentive estimate
 type UpdatePersonallyProcuredMoveEstimateHandler struct {
 	handlers.HandlerContext
+	services.EstimateCalculator
 }
 
 // Handle recalculates the incentive value for a given PPM move
@@ -296,6 +298,31 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdateP
 		return handlers.ResponseForError(logger, err)
 	}
 	return ppmop.NewUpdatePersonallyProcuredMoveEstimateOK().WithPayload(ppmPayload)
+}
+
+func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger, moveID uuid.UUID) error {
+	sitCharge, cost, err := h.CalculateEstimates(ppm, moveID, logger)
+	if err != nil {
+		return fmt.Errorf("error getting cost estimates: %w", err)
+	}
+
+	// Update SIT estimate
+	if ppm.HasSit != nil && *ppm.HasSit {
+		p := message.NewPrinter(language.English)
+		reimbursementString := p.Sprintf("$%.2f", float64(sitCharge)/100)
+		ppm.EstimatedStorageReimbursement = &reimbursementString
+	}
+
+	mileage := int64(cost.LinehaulCostComputation.Mileage)
+	ppm.Mileage = &mileage
+	ppm.PlannedSITMax = &cost.SITFee
+	ppm.SITMax = &cost.SITMax
+	min := cost.GCC.MultiplyFloat64(0.95)
+	max := cost.GCC.MultiplyFloat64(1.05)
+	ppm.IncentiveEstimateMin = &min
+	ppm.IncentiveEstimateMax = &max
+
+	return nil
 }
 
 // PatchPersonallyProcuredMoveHandler Patches a PPM
@@ -375,73 +402,6 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 	}
 
 	return ppmop.NewSubmitPersonallyProcuredMoveOK().WithPayload(ppmPayload)
-}
-
-func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger, moveID uuid.UUID) error {
-	move, err := models.FetchMoveByMoveID(h.DB(), moveID)
-	if err != nil {
-		return err
-	}
-
-	re := rateengine.NewRateEngine(h.DB(), logger, move)
-	daysInSIT := 0
-	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
-		daysInSIT = int(*ppm.DaysInStorage)
-	}
-
-	originDutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
-	destinationDutyStationZip := ppm.Move.Orders.NewDutyStation.Address.PostalCode
-
-	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, destinationDutyStationZip)
-	if err != nil {
-		return err
-	}
-
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(originDutyStationZip, destinationDutyStationZip)
-	if err != nil {
-		return err
-	}
-
-	costDetails, err := re.ComputePPMMoveCosts(
-		unit.Pound(*ppm.WeightEstimate),
-		*ppm.PickupPostalCode,
-		originDutyStationZip,
-		destinationDutyStationZip,
-		distanceMilesFromOriginPickupZip,
-		distanceMilesFromOriginDutyStationZip,
-		time.Time(*ppm.OriginalMoveDate),
-		daysInSIT,
-	)
-	if err != nil {
-		return err
-	}
-
-	cost := rateengine.GetWinningCostMove(costDetails)
-
-	// Update SIT estimate
-	if ppm.HasSit != nil && *ppm.HasSit {
-		cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
-		sitZip3 := rateengine.Zip5ToZip3(destinationDutyStationZip)
-		sitComputation, sitChargeErr := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
-		if sitChargeErr != nil {
-			return sitChargeErr
-		}
-		sitCharge := float64(sitComputation.ApplyDiscount(cost.LHDiscount, cost.SITDiscount))
-		p := message.NewPrinter(language.English)
-		reimbursementString := p.Sprintf("$%.2f", sitCharge/100)
-		ppm.EstimatedStorageReimbursement = &reimbursementString
-	}
-
-	mileage := int64(cost.LinehaulCostComputation.Mileage)
-	ppm.Mileage = &mileage
-	ppm.PlannedSITMax = &cost.SITFee
-	ppm.SITMax = &cost.SITMax
-	min := cost.GCC.MultiplyFloat64(0.95)
-	max := cost.GCC.MultiplyFloat64(1.05)
-	ppm.IncentiveEstimateMin = &min
-	ppm.IncentiveEstimateMax = &max
-
-	return nil
 }
 
 // RequestPPMPaymentHandler requests a payment for a PPM

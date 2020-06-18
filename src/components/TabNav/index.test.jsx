@@ -1,6 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { Tag } from '@trussworks/react-uswds';
+
 import TabNav from '.';
 
 describe('TabNav', () => {

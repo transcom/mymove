@@ -85,7 +85,6 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 		CreateServiceMemberPayload: &newServiceMemberPayload,
 		HTTPRequest:                req,
 	}
-
 	handler := CreateServiceMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames/bind';
+
 import styles from './index.module.scss';
 
 const cx = classNames.bind(styles);
@@ -22,6 +23,10 @@ const TabNav = ({ items, role }) => (
 TabNav.propTypes = {
   items: PropTypes.arrayOf(PropTypes.node).isRequired,
   role: PropTypes.string,
+};
+
+TabNav.defaultProps = {
+  role: null,
 };
 
 export default TabNav;
