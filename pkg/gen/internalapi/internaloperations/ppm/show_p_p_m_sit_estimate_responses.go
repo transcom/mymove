@@ -153,6 +153,30 @@ func (o *ShowPPMSitEstimateConflict) WriteResponse(rw http.ResponseWriter, produ
 	rw.WriteHeader(409)
 }
 
+// ShowPPMSitEstimateUnprocessableEntityCode is the HTTP code returned for type ShowPPMSitEstimateUnprocessableEntity
+const ShowPPMSitEstimateUnprocessableEntityCode int = 422
+
+/*ShowPPMSitEstimateUnprocessableEntity the payload was unprocessable
+
+swagger:response showPPMSitEstimateUnprocessableEntity
+*/
+type ShowPPMSitEstimateUnprocessableEntity struct {
+}
+
+// NewShowPPMSitEstimateUnprocessableEntity creates ShowPPMSitEstimateUnprocessableEntity with default headers values
+func NewShowPPMSitEstimateUnprocessableEntity() *ShowPPMSitEstimateUnprocessableEntity {
+
+	return &ShowPPMSitEstimateUnprocessableEntity{}
+}
+
+// WriteResponse to the client
+func (o *ShowPPMSitEstimateUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(422)
+}
+
 // ShowPPMSitEstimateInternalServerErrorCode is the HTTP code returned for type ShowPPMSitEstimateInternalServerError
 const ShowPPMSitEstimateInternalServerErrorCode int = 500
 

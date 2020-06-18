@@ -139,9 +139,9 @@ class EditDateAndLocation extends Component {
     }
   };
 
-  getSitEstimate = (moveDate, sitDays, pickupZip, ordersID, weight) => {
+  getSitEstimate = (ppmId, moveDate, sitDays, pickupZip, ordersID, weight) => {
     if (sitDays <= 90 && pickupZip.length === 5) {
-      this.props.getPPMSitEstimate(moveDate, sitDays, pickupZip, ordersID, weight);
+      this.props.getPPMSitEstimate(ppmId, moveDate, sitDays, pickupZip, ordersID, weight);
     }
   };
 
@@ -153,6 +153,7 @@ class EditDateAndLocation extends Component {
     // eslint-disable-next-line
     estimateValues[field] = value;
     this.debouncedSitEstimate(
+      currentPPM.id,
       estimateValues.original_move_date,
       estimateValues.days_in_storage,
       estimateValues.pickup_postal_code,
@@ -172,6 +173,7 @@ class EditDateAndLocation extends Component {
     if (prevProps.currentPPM !== this.props.currentPPM && prevProps.currentOrders !== this.props.currentOrders) {
       const currentPPM = this.props.currentPPM;
       this.props.getPPMSitEstimate(
+        currentPPM.id,
         currentPPM.original_move_date,
         currentPPM.days_in_storage,
         currentPPM.pickup_postal_code,
