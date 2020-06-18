@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { DutyStationSearchBox } from 'scenes/ServiceMembers/DutyStationSearchBox';
+import { DutyStationShape } from 'types/dutyStation';
 
 // TODO: refactor component when we can to make it more user friendly with Formik
 export const DutyStationInput = (props) => {
@@ -26,21 +27,8 @@ DutyStationInput.propTypes = {
   // label displayed for input
   label: PropTypes.string.isRequired,
   // duty station value
-  value: PropTypes.shape({
-    address: PropTypes.shape({
-      city: PropTypes.string,
-      id: PropTypes.string,
-      postal_code: PropTypes.string,
-      state: PropTypes.string,
-      street_address_1: PropTypes.string,
-    }),
-    address_id: PropTypes.string,
-    affiliation: PropTypes.string,
-    created_at: PropTypes.string,
-    id: PropTypes.string,
-    name: PropTypes.string,
-    updated_at: PropTypes.string,
-  }),
+  // eslint-disable-next-line react/no-unused-prop-types
+  value: DutyStationShape,
   // name is for the input
   name: PropTypes.string.isRequired,
 };
