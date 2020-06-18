@@ -30,8 +30,8 @@ export const OrdersDetailForm = ({
       validationSchema={Yup.object({
         currentDutyStation: Yup.object().required('Required'),
         newDutyStation: Yup.object().required('Required'),
-        dateIssued: Yup.date().required('Required'),
-        reportByDate: Yup.date().required('Required'),
+        dateIssued: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
+        reportByDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
         departmentIndicator: Yup.string().required('Required'),
         ordersNumber: Yup.string().required('Required'),
         ordersType: Yup.string().required('Required'),
