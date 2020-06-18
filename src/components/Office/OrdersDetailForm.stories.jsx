@@ -56,26 +56,39 @@ const ordersTypeDetailOptions = [
   createKeyValueObj('DELAYED_APPROVAL', 'Delayed Approval 20 Weeks or More'),
 ];
 
-storiesOf('TOO/TIO Components|OrdersDetailForm', module).add('with buttons', () => (
-  <div style={{ padding: `20px`, background: `#f0f0f0` }}>
-    <OrdersDetailForm
-      initialValues={{
-        currentDutyStation,
-        newDutyStation,
-        dateIssued: '08 Mar 2020',
-        reportByDate: '01 Apr 2020',
-        departmentIndicator: 'NAVY_AND_MARINES',
-        ordersNumber: '999999999',
-        ordersType: 'PERMANENT_CHANGE_OF_STATION',
-        ordersTypeDetail: 'HHG_PERMITTED',
-        tac: 'Tac',
-        sac: 'Sac',
-      }}
-      deptIndicatorOptions={deptIndicatorOptions}
-      ordersTypeOptions={ordersTypeOptions}
-      ordersTypeDetailOptions={ordersTypeDetailOptions}
-      onSubmit={action('Orders Detail Submit')}
-      onReset={action('Orders Detail Cancel')}
-    />
-  </div>
-));
+storiesOf('TOO/TIO Components|OrdersDetailForm', module)
+  .add('with empty values', () => (
+    <div style={{ padding: `20px`, background: `#f0f0f0` }}>
+      <OrdersDetailForm
+        initialValues={{}}
+        deptIndicatorOptions={deptIndicatorOptions}
+        ordersTypeOptions={ordersTypeOptions}
+        ordersTypeDetailOptions={ordersTypeDetailOptions}
+        onSubmit={action('Orders Detail Submit')}
+        onReset={action('Orders Detail Cancel')}
+      />
+    </div>
+  ))
+  .add('with initial values', () => (
+    <div style={{ padding: `20px`, background: `#f0f0f0` }}>
+      <OrdersDetailForm
+        initialValues={{
+          currentDutyStation,
+          newDutyStation,
+          dateIssued: '08 Mar 2020',
+          reportByDate: '01 Apr 2020',
+          departmentIndicator: 'NAVY_AND_MARINES',
+          ordersNumber: '999999999',
+          ordersType: 'PERMANENT_CHANGE_OF_STATION',
+          ordersTypeDetail: 'HHG_PERMITTED',
+          tac: 'Tac',
+          sac: 'Sac',
+        }}
+        deptIndicatorOptions={deptIndicatorOptions}
+        ordersTypeOptions={ordersTypeOptions}
+        ordersTypeDetailOptions={ordersTypeDetailOptions}
+        onSubmit={action('Orders Detail Submit')}
+        onReset={action('Orders Detail Cancel')}
+      />
+    </div>
+  ));
