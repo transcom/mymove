@@ -67,7 +67,7 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 	estimatedPPM.DaysInStorage = &params.DaysInStorage
 	estimatedPPM.WeightEstimate = &weightEstimate
 
-	sitCharge, _, err := h.EstimateCalculator.CalculateEstimates(&estimatedPPM, move.ID, logger)
+	sitCharge, _, err := h.CalculateEstimates(&estimatedPPM, move.ID, logger)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

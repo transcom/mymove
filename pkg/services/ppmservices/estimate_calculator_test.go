@@ -22,23 +22,19 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	pickupZip := "94540"
 	originDutyStationZip := "94540"
 	destDutyStationZip := "95632"
 	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, destDutyStationZip)
-	moveDate := time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)
 	weightEstimate := unit.Pound(7500)
-	daysInStorage := int64(30)
-	hasSit := true
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			MoveID:           moveID,
 			Move:             move,
-			PickupPostalCode: &pickupZip,
-			OriginalMoveDate: &moveDate,
+			PickupPostalCode: swag.String("94540"),
+			OriginalMoveDate: swag.Time(time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)),
 			WeightEstimate:   &weightEstimate,
-			HasSit:           &hasSit,
-			DaysInStorage:    &daysInStorage,
+			HasSit:           swag.Bool(true),
+			DaysInStorage:    swag.Int64(int64(30)),
 		},
 	})
 
@@ -47,7 +43,35 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 	sitCharge, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
 	suite.NoError(err)
 	suite.Equal(int64(171401), sitCharge)
-	//TODO: check the values of cost?
+}
+
+func (suite *PPMServiceSuite) TestCalculateEstimateNoSITSuccess() {
+	moveID := uuid.FromStringOrNil("02856e5d-cdd1-4403-ad54-60e52e249d0d")
+	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
+		suite.FailNow("failed to run scenario 2: %+v", err)
+	}
+
+	originDutyStationZip := "94540"
+	destDutyStationZip := "95632"
+	move := suite.setupCalculateEstimateTest(moveID, originDutyStationZip, destDutyStationZip)
+	weightEstimate := unit.Pound(7500)
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			MoveID:           moveID,
+			Move:             move,
+			PickupPostalCode: swag.String("94540"),
+			OriginalMoveDate: swag.Time(time.Date(testdatagen.TestYear, time.October, 15, 0, 0, 0, 0, time.UTC)),
+			WeightEstimate:   &weightEstimate,
+			HasSit:           swag.Bool(false),
+			DaysInStorage:    swag.Int64(int64(30)),
+		},
+	})
+
+	planner := route.NewTestingPlanner(3200)
+	calculator := NewEstimateCalculator(suite.DB(), planner)
+	sitCharge, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
+	suite.NoError(err)
+	suite.Equal(int64(0), sitCharge)
 }
 
 func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {

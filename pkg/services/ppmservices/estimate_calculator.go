@@ -2,7 +2,6 @@ package ppmservices
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -58,13 +57,13 @@ func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMo
 	}
 
 	costDetails, err := re.ComputePPMMoveCosts(
-		unit.Pound(*ppm.WeightEstimate),
+		*ppm.WeightEstimate,
 		*ppm.PickupPostalCode,
 		originDutyStationZip,
 		destinationDutyStationZip,
 		distanceMilesFromOriginPickupZip,
 		distanceMilesFromOriginDutyStationZip,
-		time.Time(*ppm.OriginalMoveDate),
+		*ppm.OriginalMoveDate,
 		daysInSIT,
 	)
 	if err != nil {
@@ -75,6 +74,9 @@ func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMo
 	cost = rateengine.GetWinningCostMove(costDetails)
 	cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
 	sitZip3 := rateengine.Zip5ToZip3(destinationDutyStationZip)
+	if *ppm.HasSit == false {
+		return sitCharge, cost, nil
+	}
 	sitComputation, sitChargeErr := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
 	if sitChargeErr != nil {
 		return sitCharge, cost, sitChargeErr

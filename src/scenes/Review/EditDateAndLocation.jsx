@@ -141,7 +141,7 @@ class EditDateAndLocation extends Component {
 
   getSitEstimate = (ppmId, moveDate, sitDays, pickupZip, ordersID, weight) => {
     if (sitDays <= 90 && pickupZip.length === 5) {
-      this.props.getPPMSitEstimate(this.props.currentPPM.id, moveDate, sitDays, pickupZip, ordersID, weight);
+      this.props.getPPMSitEstimate(ppmId, moveDate, sitDays, pickupZip, ordersID, weight);
     }
   };
 
