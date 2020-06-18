@@ -1,7 +1,6 @@
 import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch } from 'react-router-dom';
-import { ConnectedRouter } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -9,7 +8,6 @@ import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
-import { history } from 'shared/store';
 // API / Redux actions
 import { getCurrentUserInfo as getCurrentUserInfoAction, selectCurrentUser } from 'shared/Data/users';
 import {
@@ -29,6 +27,7 @@ import { withContext } from 'shared/AppContext';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const ConnectedOfficeHome = lazy(() => import('pages/OfficeHome'));
+// import ConnectedOfficeHome from 'pages/OfficeHome/index';
 const MoveInfo = lazy(() => import('scenes/Office/MoveInfo'));
 const Queues = lazy(() => import('scenes/Office/Queues'));
 const OrdersInfo = lazy(() => import('scenes/Office/OrdersInfo'));
@@ -79,85 +78,78 @@ export class OfficeWrapper extends Component {
     // TODO - test login page?
 
     return (
-      <ConnectedRouter history={history}>
-        <div className="site">
-          <FOUOHeader />
-          <QueueHeader />
-          <main role="main" className="site__content">
-            <ConnectedLogoutOnInactivity />
+      <div className="site">
+        <FOUOHeader />
+        <QueueHeader />
+        <main role="main" className="site__content">
+          <ConnectedLogoutOnInactivity />
 
-            {hasError && <SomethingWentWrong error={error} info={info} />}
+          {hasError && <SomethingWentWrong error={error} info={info} />}
 
-            <Suspense fallback={<LoadingPlaceholder />}>
-              {!hasError && (
-                <Switch>
-                  {/* ROOT */}
-                  <PrivateRoute exact path="/" component={ConnectedOfficeHome} />
-                  <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
+          <Suspense fallback={<LoadingPlaceholder />}>
+            {!hasError && (
+              <Switch>
+                {/* ROOT */}
+                <PrivateRoute exact path="/" component={ConnectedOfficeHome} />
+                <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
 
-                  {/* PPM routes */}
+                {/* PPM routes */}
+                <PrivateRoute
+                  path="/queues/:queueType/moves/:moveId"
+                  component={MoveInfo}
+                  requiredRoles={[roleTypes.PPM]}
+                />
+                <PrivateRoute path="/queues/:queueType" component={Queues} requiredRoles={[roleTypes.PPM]} />
+                {/* NO HEADER */}
+                <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} requiredRoles={[roleTypes.PPM]} />
+                {/* NO HEADER */}
+                <PrivateRoute
+                  path="/moves/:moveId/documents/:moveDocumentId?"
+                  component={DocumentViewer}
+                  requiredRoles={[roleTypes.PPM]}
+                />
+
+                {/* TXO routes, depend on too/tio feature flags */}
+                {too && <PrivateRoute path="/moves/queue" exact component={TOO} requiredRoles={[roleTypes.TOO]} />}
+                {too && (
                   <PrivateRoute
-                    path="/queues/:queueType/moves/:moveId"
-                    component={MoveInfo}
-                    requiredRoles={[roleTypes.PPM]}
+                    path="/move/mto/:moveTaskOrderId"
+                    exact
+                    component={TOOMoveTaskOrder}
+                    requiredRoles={[roleTypes.TOO]}
                   />
-                  <PrivateRoute path="/queues/:queueType" component={Queues} requiredRoles={[roleTypes.PPM]} />
-                  {/* NO HEADER */}
-                  <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} requiredRoles={[roleTypes.PPM]} />
-                  {/* NO HEADER */}
+                )}
+                {too && (
+                  <PrivateRoute path="/moves/:locator" exact component={MoveDetails} requiredRoles={[roleTypes.TOO]} />
+                )}
+                {too && (
                   <PrivateRoute
-                    path="/moves/:moveId/documents/:moveDocumentId?"
-                    component={DocumentViewer}
-                    requiredRoles={[roleTypes.PPM]}
+                    path="/moves/:moveOrderId/customer/:customerId"
+                    component={CustomerDetails}
+                    requiredRoles={[roleTypes.TOO]}
                   />
-
-                  {/* TXO routes, depend on too/tio feature flags */}
-                  {too && <PrivateRoute path="/moves/queue" exact component={TOO} requiredRoles={[roleTypes.TOO]} />}
-                  {too && (
-                    <PrivateRoute
-                      path="/move/mto/:moveTaskOrderId"
-                      exact
-                      component={TOOMoveTaskOrder}
-                      requiredRoles={[roleTypes.TOO]}
-                    />
-                  )}
-                  {too && (
-                    <PrivateRoute
-                      path="/moves/:locator"
-                      exact
-                      component={MoveDetails}
-                      requiredRoles={[roleTypes.TOO]}
-                    />
-                  )}
-                  {too && (
-                    <PrivateRoute
-                      path="/moves/:moveOrderId/customer/:customerId"
-                      component={CustomerDetails}
-                      requiredRoles={[roleTypes.TOO]}
-                    />
-                  )}
-                  {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
-                  {tio && <PrivateRoute path="/invoicing/queue" component={TIO} requiredRoles={[roleTypes.TIO]} />}
-                  {tio && (
-                    <PrivateRoute
-                      path="/payment_requests/:id"
-                      component={PaymentRequestShow}
-                      requiredRoles={[roleTypes.TIO]}
-                    />
-                  )}
-                  {tio && (
-                    <PrivateRoute
-                      path="/payment_requests"
-                      component={PaymentRequestIndex}
-                      requiredRoles={[roleTypes.TIO]}
-                    />
-                  )}
-                </Switch>
-              )}
-            </Suspense>
-          </main>
-        </div>
-      </ConnectedRouter>
+                )}
+                {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
+                {tio && <PrivateRoute path="/invoicing/queue" component={TIO} requiredRoles={[roleTypes.TIO]} />}
+                {tio && (
+                  <PrivateRoute
+                    path="/payment_requests/:id"
+                    component={PaymentRequestShow}
+                    requiredRoles={[roleTypes.TIO]}
+                  />
+                )}
+                {tio && (
+                  <PrivateRoute
+                    path="/payment_requests"
+                    component={PaymentRequestIndex}
+                    requiredRoles={[roleTypes.TIO]}
+                  />
+                )}
+              </Switch>
+            )}
+          </Suspense>
+        </main>
+      </div>
     );
   }
 }

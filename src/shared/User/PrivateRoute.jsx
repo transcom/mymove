@@ -36,10 +36,10 @@ const PrivateRouteContainer = (props) => {
     return displaySelectApplication ? (
       <>
         <Link to="/select-application">Change user role</Link>
-        <Route {...routeProps} />
+        <Route path={path} {...routeProps} />
       </>
     ) : (
-      <Route {...routeProps} />
+      <Route path={path} {...routeProps} />
     );
   } else if (userIsLoggedIn)
     // User is logged in but not authorized to view the requested URL, redirect home

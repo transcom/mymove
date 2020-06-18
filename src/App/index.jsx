@@ -1,10 +1,11 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import Loadable from 'react-loadable';
+import { ConnectedRouter } from 'connected-react-router';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isOfficeSite, isAdminSite, isSystemAdminSite } from 'shared/constants';
-import { store } from 'shared/store';
+import { store, history } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
 import { detectFlags } from 'shared/featureFlags';
 
@@ -42,7 +43,9 @@ const App = () => {
     return (
       <Provider store={store}>
         <AppContext.Provider value={officeContext}>
-          <Office />
+          <ConnectedRouter history={history}>
+            <Office />
+          </ConnectedRouter>
         </AppContext.Provider>
       </Provider>
     );
