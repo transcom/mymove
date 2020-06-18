@@ -31,9 +31,13 @@ OfficeHome.propTypes = {
   activeRole: PropTypes.string,
   userRoles: PropTypes.arrayOf(
     PropTypes.shape({
-      roleType: PropTypes.string,
+      roleType: PropTypes.string.isRequired,
     }),
-  ),
+  ).isRequired,
+};
+
+OfficeHome.defaultProps = {
+  activeRole: null,
 };
 
 export default OfficeHome;

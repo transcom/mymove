@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import { Button, GridContainer } from '@trussworks/react-uswds';
 
 import { selectCurrentUser } from 'shared/Data/users';
-
 import { setActiveRole as setActiveRoleAction } from 'store/auth/actions';
 import { roleTypes } from 'constants/userRoles';
 
@@ -47,9 +46,13 @@ SelectApplication.propTypes = {
   setActiveRole: PropTypes.func.isRequired,
   userRoles: PropTypes.arrayOf(
     PropTypes.shape({
-      roleType: PropTypes.string,
+      roleType: PropTypes.string.isRequired,
     }),
-  ),
+  ).isRequired,
+};
+
+SelectApplication.defaultProps = {
+  activeRole: null,
 };
 
 const mapStateToProps = (state) => {

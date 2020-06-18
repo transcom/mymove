@@ -2,9 +2,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { roleTypes } from 'constants/userRoles';
-
 import SelectApplication from './SelectApplication';
+
+import { roleTypes } from 'constants/userRoles';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
 
-import { selectCurrentUser } from 'shared/Data/users';
-
 import OfficeHome from './OfficeHome';
+
+import { selectCurrentUser } from 'shared/Data/users';
 
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
