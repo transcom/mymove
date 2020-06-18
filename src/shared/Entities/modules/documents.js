@@ -23,7 +23,6 @@ export default function reducer(state = {}, action) {
 
 // Actions
 export function deleteUpload(uploadId, label = deleteUploadLabel) {
-  console.log('delete in entieies');
   const swaggerTag = 'uploads.deleteUpload';
   return swaggerRequest(
     getClient,
@@ -37,7 +36,6 @@ export function deleteUpload(uploadId, label = deleteUploadLabel) {
 
 export function createUpload(fileUpload, documentId, label = createUploadLabel) {
   const swaggerTag = 'uploads.createUpload';
-  console.log('stuff in create upload', fileUpload, documentId);
   return swaggerRequest(
     getClient,
     swaggerTag,

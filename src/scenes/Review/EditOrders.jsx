@@ -48,7 +48,6 @@ let EditOrdersForm = (props) => {
     deleteQueue,
     document,
   } = props;
-  console.log('document in edit orders', document);
   const visibleUploads = reject(existingUploads, (upload) => {
     return includes(deleteQueue, upload.id);
   });
@@ -137,7 +136,6 @@ class EditOrders extends Component {
   updateOrders = (fieldValues) => {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
     fieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
-    console.log('new uploads', this.state.newUploads);
     let addUploads = this.props.addUploads(this.state.newUploads);
     let deleteUploads = this.props.deleteUploads(this.state.deleteQueue);
     if (

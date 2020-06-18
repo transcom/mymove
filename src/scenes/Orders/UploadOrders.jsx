@@ -70,8 +70,6 @@ export class UploadOrders extends Component {
     const { pages, pageKey, error, currentOrders, uploads, document } = this.props;
     const isValid = Boolean(uploads.length || this.state.newUploads.length);
     const isDirty = Boolean(this.state.newUploads.length);
-    console.log('uploadorders rendered, uploads:', uploads);
-    console.log('newuploads', this.state.newUploads);
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}

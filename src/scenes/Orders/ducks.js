@@ -31,7 +31,6 @@ export function deleteUpload(uploadId) {
     const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
     const state = getState();
     if (state.orders.currentOrders) {
-      console.log('ducks - DELETE upload hit');
       return DeleteUploads(uploadId)
         .then(() => dispatch(action.success([uploadId])))
         .catch((err) => action.error(err));
@@ -47,7 +46,6 @@ export function deleteUploads(uploadIds) {
     const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
     const state = getState();
     if (state.orders.currentOrders && uploadIds.length) {
-      console.log('ducks - DELETE uploads hit');
       return DeleteUploads(uploadIds)
         .then(() => dispatch(action.success(uploadIds)))
         .catch((err) => action.error(err));
@@ -61,12 +59,9 @@ export function addUploads(uploads) {
   return function (dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(addUploadsType);
     const state = getState();
-    console.log('ducks hit add uploads');
     if (state.orders.currentOrders) {
-      console.log('ducks - ADD uploads success hit');
       dispatch(action.success(uploads));
     } else {
-      console.log('ducks - ADD uploads error hit');
       dispatch(action.error(new Error("attempted to add uploads when orders don't exist")));
     }
   };
@@ -113,14 +108,12 @@ export function ordersReducer(state = initialState, action) {
     case GET_LOGGED_IN_USER.success:
       return Object.assign({}, state, {
         currentOrders: reshapeOrders(fetchActive(get(action.payload, 'service_member.orders'))),
-        // currentOrders: { foo: 'boo' },
         hasLoadError: false,
         hasLoadSuccess: true,
       });
     case CREATE_OR_UPDATE_ORDERS.success:
       return Object.assign({}, state, {
-        // currentOrders: reshapeOrders(action.payload),
-        currentOrders: { foo: 'boo' },
+        currentOrders: reshapeOrders(action.payload),
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
@@ -134,8 +127,7 @@ export function ordersReducer(state = initialState, action) {
       });
     case GET_ORDERS.success:
       return Object.assign({}, state, {
-        currentOrders: { foo: 'boo' },
-        // currentOrders: reshapeOrders(action.payload),
+        currentOrders: reshapeOrders(action.payload),
         hasLoadSuccess: true,
         hasLoadError: false,
         error: null,
@@ -154,8 +146,7 @@ export function ordersReducer(state = initialState, action) {
       });
     case SHOW_CURRENT_ORDERS.success:
       return Object.assign({}, state, {
-        currentOrders: { foo: 'boo' },
-        // currentOrders: reshapeOrders(action.payload),
+        currentOrders: reshapeOrders(action.payload),
         showCurrentOrdersSuccess: true,
         showCurrentOrdersError: false,
       });
