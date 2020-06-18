@@ -22,9 +22,9 @@ jest.mock('formik', () => {
 });
 
 describe('OrdersDetailForm', () => {
-  const deptOptions = [['key', 'value']];
-  const ordersTypeOptions = [['key', 'value']];
-  const ordersTypeDetailOptions = [['key', 'value']];
+  const deptOptions = [{ key: 'key', value: 'value' }];
+  const ordersTypeOptions = [{ key: 'key', value: 'value' }];
+  const ordersTypeDetailOptions = [{ key: 'key', value: 'value' }];
   const dutyStation = {
     address: {
       city: 'Scott Air Force Base',

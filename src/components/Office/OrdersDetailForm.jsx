@@ -8,6 +8,8 @@ import * as Yup from 'yup';
 import { Form } from '../form/Form';
 import { TextInput, DropdownInput, DatePickerInput, DutyStationInput } from '../form/fields';
 
+import { DutyStationShape } from 'types/dutyStation';
+import { DropdownArrayOf } from 'types/form';
 import styles from 'components/Office/OrdersDetailForm.module.scss';
 
 const cx = classNames.bind(styles);
@@ -63,40 +65,12 @@ export const OrdersDetailForm = ({
 OrdersDetailForm.propTypes = {
   onReset: PropTypes.func,
   onSubmit: PropTypes.func.isRequired,
-  deptIndicatorOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
-  ordersTypeOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
-  ordersTypeDetailOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
+  deptIndicatorOptions: DropdownArrayOf.isRequired,
+  ordersTypeOptions: DropdownArrayOf.isRequired,
+  ordersTypeDetailOptions: DropdownArrayOf.isRequired,
   initialValues: PropTypes.shape({
-    currentDutyStation: PropTypes.shape({
-      address: PropTypes.shape({
-        city: PropTypes.string,
-        id: PropTypes.string,
-        postal_code: PropTypes.string,
-        state: PropTypes.string,
-        street_address_1: PropTypes.string,
-      }),
-      address_id: PropTypes.string,
-      affiliation: PropTypes.string,
-      created_at: PropTypes.string,
-      id: PropTypes.string,
-      name: PropTypes.string,
-      updated_at: PropTypes.string,
-    }),
-    newDutyStation: PropTypes.shape({
-      address: PropTypes.shape({
-        city: PropTypes.string,
-        id: PropTypes.string,
-        postal_code: PropTypes.string,
-        state: PropTypes.string,
-        street_address_1: PropTypes.string,
-      }),
-      address_id: PropTypes.string,
-      affiliation: PropTypes.string,
-      created_at: PropTypes.string,
-      id: PropTypes.string,
-      name: PropTypes.string,
-      updated_at: PropTypes.string,
-    }),
+    currentDutyStation: DutyStationShape,
+    newDutyStation: DutyStationShape,
     dateIssued: PropTypes.string,
     reportByDate: PropTypes.string,
     departmentIndicator: PropTypes.string,
