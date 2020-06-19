@@ -7,7 +7,7 @@ $content-width: 308px;
 .docViewerMenu {
   @include u-bg('white');
   @include u-shadow(2);
-  @include u-padding-y(3);
+  @include u-padding-bottom(3);
   @include u-padding-x(0);
   @include u-height(100vh);
   display: flex;
