@@ -1,17 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames/bind';
+import classNames from 'classnames';
 
 import styles from './index.module.scss';
 
-const cx = classNames.bind(styles);
-
 const TabNav = ({ items, role }) => (
-  <nav className={cx('usa-nav', 'tabNav')} role={role}>
-    <div className="usa-nav__inner">
-      <ul className={cx('usa-nav__primary', 'tabList')} role="tablist">
+  <nav className={classNames(styles.tabNav)} role={role}>
+    <div>
+      <ul className={classNames(styles.tabList)} role="tablist">
         {items.map((item, index) => (
-          <li key={index.toString()} className={cx('usa-nav__primary-item', 'tabItem')}>
+          <li key={index.toString()} className={classNames(styles.tabItem)}>
             {item}
           </li>
         ))}

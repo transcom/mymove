@@ -1,13 +1,9 @@
 import React from 'react';
-import { withRouter, matchPath } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import { Tag } from '@trussworks/react-uswds';
 
 import LoginButton from 'shared/User/LoginButton';
 
 import './index.css';
-import TabNav from 'components/TabNav';
-import propTypes from 'prop-types';
 
 function QueueHeader() {
   return (
@@ -32,82 +28,4 @@ function QueueHeader() {
   );
 }
 
-function MoveTabNav(props) {
-  // Should in the future become a move locator
-  const { moveOrderId } = props.match.params;
-
-  let matchDetails, matchMTO, matchPaymentRequests, matchHistory;
-  matchDetails = matchPaymentRequests = matchMTO = matchHistory = false;
-
-  // Used to set aria-expanded attribute to selected tab
-  if (matchPath(props.location.pathname, { path: '/moves/:id/details', exact: true, strict: false })) {
-    matchDetails = true;
-  } else if (matchPath(props.location.pathname, { path: '/moves/:id/payment-requests', exact: true })) {
-    matchPaymentRequests = true;
-  } else if (matchPath(props.location.pathname, { path: '/moves/:id/mto', exact: true })) {
-    matchMTO = true;
-  } else if (matchPath(props.location.pathname, { path: '/moves/:id/history', exact: true })) {
-    matchHistory = true;
-  }
-
-  return (
-    <header className="usa-header nav-header">
-      <div className="grid-container-desktop-lg">
-        <TabNav
-          items={[
-            <NavLink
-              exact
-              activeClassName="usa-current"
-              className="usa-nav__link"
-              to={`/moves/${moveOrderId}/details`}
-              role="tab"
-              aria-expanded={matchDetails}
-            >
-              <span className="tab-title">Move details</span>
-              <Tag>2</Tag>
-            </NavLink>,
-            <NavLink
-              exact
-              activeClassName="usa-current"
-              className="usa-nav__link"
-              to={`/moves/${moveOrderId}/mto`}
-              role="tab"
-              aria-expanded={matchMTO}
-            >
-              <span className="tab-title">Move task order</span>
-            </NavLink>,
-            <NavLink
-              exact
-              activeClassName="usa-current"
-              className="usa-nav__link"
-              to={`/moves/${moveOrderId}/payment-requests`}
-              role="tab"
-              aria-expanded={matchPaymentRequests}
-            >
-              <span className="tab-title">Payment requests</span>
-            </NavLink>,
-            <NavLink
-              exact
-              activeClassName="usa-current"
-              className="usa-nav__link"
-              to={`/moves/${moveOrderId}/history`}
-              role="tab"
-              aria-expanded={matchHistory}
-            >
-              <span className="tab-title">History</span>
-            </NavLink>,
-          ]}
-        ></TabNav>
-      </div>
-    </header>
-  );
-}
-
-MoveTabNav.propTypes = {
-  location: propTypes.object.isRequired,
-  match: propTypes.object.isRequired,
-};
-
-const MoveTabNavWithRouter = withRouter(MoveTabNav);
-
-export { QueueHeader, MoveTabNavWithRouter };
+export { QueueHeader };

@@ -2,17 +2,6 @@
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/variables';
 
-// overrides default to float the nav in a collapsed menu
-@media only screen and (min-width: $mobile) {
-  nav.tabNav {
-    border: none;
-    width: auto;
-    display: block;
-    float: none;
-    position: relative;
-  }
-}
-
 // conflicts with left nav border style
 nav.tabNav a {
   &:active {
@@ -29,7 +18,7 @@ nav.tabNav a {
   @include u-padding-left('0');
 }
 
-.tabItem :global .usa-nav__link {
+.tabItem a {
   display: inline-block;
   // we don't want the :visited styling to show up here
   text-decoration: none;
@@ -38,7 +27,7 @@ nav.tabNav a {
   }
 }
 
-.tabItem :global .usa-nav__link .tab-title {
+.tabItem :global a .tab-title {
   @include u-padding-bottom('1.5');
   @include u-position('relative');
   @include u-font-size('body', 4);
@@ -49,15 +38,16 @@ nav.tabNav a {
     @include underline(0.25rem, 'blue-warm-60v');
   }
 }
-.tabItem :global .usa-nav__link.usa-current .tab-title {
+.tabItem :global .usa-current .tab-title {
   @include u-text('gray-cool-70', 'bold');
   @include underline(0.25rem, 'blue-warm-60v');
+  @include u-position('relative');
   &:hover {
     @include u-text('gray-cool-70', 'bold');
   }
 }
 
-.tabItem :global .usa-nav__link .usa-tag {
+.tabItem a :global .usa-tag {
   @include u-text('gray-cool-70');
   @include u-bg('gold-20v');
   @include u-margin-left('05');
@@ -71,26 +61,5 @@ nav.tabNav a {
   @include u-display('inline-block');
   &:focus {
     @include u-outline('05', 'blue-40v');
-  }
-}
-
-@media only screen and (min-width: $mobile) {
-  .tabNav .usa-current::after {
-    background-color: #005ea2;
-    border-radius: 99rem;
-    content: '';
-    display: block;
-    position: absolute;
-    bottom: 0.26667rem;
-    top: 0.26667rem;
-    width: 0.26667rem;
-    left: 0.26667rem;
-  }
-}
-
-// hides left border when it believes it's a vertical menu (would show in storybook)
-@media all and (max-width: 1023px) and (min-width: 640px) {
-  .usa-nav__primary .usa-current::after {
-    display: none;
   }
 }
