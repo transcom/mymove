@@ -47,3 +47,8 @@ a {
     @include u-outline('05', 'blue-40v');
   }
 }
+
+ul {
+  @include u-line-height('body', 4);
+  color: $base-darkest;
+}
