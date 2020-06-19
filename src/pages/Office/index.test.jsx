@@ -66,7 +66,7 @@ describe('OfficeWrapper', () => {
     it('handles the root URL', () => {
       const app = mount(
         <MockProviders initialState={loggedInState} initialEntries={['/']}>
-          <OfficeWrapper {...mockOfficeProps} />
+          <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/' }} />
         </MockProviders>,
       );
 
@@ -78,7 +78,7 @@ describe('OfficeWrapper', () => {
     it('handles the Select Application URL', () => {
       const app = mount(
         <MockProviders initialState={loggedInState} initialEntries={['/select-application']}>
-          <OfficeWrapper {...mockOfficeProps} />
+          <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/select-application' }} />
         </MockProviders>,
       );
 
@@ -104,7 +104,7 @@ describe('OfficeWrapper', () => {
       it('handles a MoveInfo URL', () => {
         const app = mount(
           <MockProviders initialState={loggedInPPMState} initialEntries={['/queues/new/moves/123']}>
-            <OfficeWrapper {...mockOfficeProps} />
+            <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/queues/new/moves/123' }} />
           </MockProviders>,
         );
 
@@ -116,7 +116,7 @@ describe('OfficeWrapper', () => {
       it('handles a Queues URL', () => {
         const app = mount(
           <MockProviders initialState={loggedInPPMState} initialEntries={['/queues/new']}>
-            <OfficeWrapper {...mockOfficeProps} />
+            <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/queues/new' }} />
           </MockProviders>,
         );
 
@@ -128,25 +128,31 @@ describe('OfficeWrapper', () => {
       it('handles a OrdersInfo URL', () => {
         const app = mount(
           <MockProviders initialState={loggedInPPMState} initialEntries={['/moves/123/orders']}>
-            <OfficeWrapper {...mockOfficeProps} />
+            <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/moves/123/orders' }} />
           </MockProviders>,
         );
 
         const renderedRoute = app.find('Route');
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/moves/:moveId/orders');
+
+        // OrdersInfo does NOT render the header
+        expect(app.find('QueueHeader')).toHaveLength(0);
       });
 
       it('handles a DocumentViewer URL', () => {
         const app = mount(
           <MockProviders initialState={loggedInPPMState} initialEntries={['/moves/123/documents/abc']}>
-            <OfficeWrapper {...mockOfficeProps} />
+            <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/moves/123/documents/abc' }} />
           </MockProviders>,
         );
 
         const renderedRoute = app.find('Route');
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/moves/:moveId/documents/:moveDocumentId?');
+
+        // DocumentViewer does NOT render the header
+        expect(app.find('QueueHeader')).toHaveLength(0);
       });
     });
 
@@ -169,7 +175,7 @@ describe('OfficeWrapper', () => {
         it('does not handle the moves queue URL', () => {
           const app = mount(
             <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/queue']}>
-              <OfficeWrapper {...mockOfficeProps} />
+              <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/moves/queue' }} />
             </MockProviders>,
           );
 
@@ -182,7 +188,11 @@ describe('OfficeWrapper', () => {
         it('handles the moves queue URL', () => {
           const app = mount(
             <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/queue']}>
-              <OfficeWrapper context={{ flags: { too: true } }} {...mockOfficeProps} />
+              <OfficeWrapper
+                context={{ flags: { too: true } }}
+                {...mockOfficeProps}
+                location={{ pathname: '/moves/queue' }}
+              />
             </MockProviders>,
           );
 
@@ -193,21 +203,28 @@ describe('OfficeWrapper', () => {
 
         it('handles the TOO move task order URL', () => {
           const app = mount(
-            <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/queue']}>
-              <OfficeWrapper context={{ flags: { too: true } }} {...mockOfficeProps} />
+            <MockProviders initialState={loggedInTOOState} initialEntries={['/move/mto/678']}>
+              <OfficeWrapper
+                context={{ flags: { too: true } }}
+                {...mockOfficeProps}
+                location={{ pathname: '/move/mto/678' }}
+              />
             </MockProviders>,
           );
 
           const renderedRoute = app.find('Route');
           expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual('/moves/queue');
+          expect(renderedRoute.prop('path')).toEqual('/move/mto/:moveTaskOrderId');
         });
 
-        it.skip('handles the MoveDetails URL', () => {
-          // TODO - fixed in skeleton PR
+        it('handles the MoveDetails URL', () => {
           const app = mount(
             <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/123']}>
-              <OfficeWrapper context={{ flags: { too: true } }} {...mockOfficeProps} />
+              <OfficeWrapper
+                context={{ flags: { too: true } }}
+                {...mockOfficeProps}
+                location={{ pathname: '/moves/123' }}
+              />
             </MockProviders>,
           );
 
@@ -219,7 +236,11 @@ describe('OfficeWrapper', () => {
         it('handles the CustomerDetails URL', () => {
           const app = mount(
             <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/123/customer/abc']}>
-              <OfficeWrapper context={{ flags: { too: true } }} {...mockOfficeProps} />
+              <OfficeWrapper
+                context={{ flags: { too: true } }}
+                {...mockOfficeProps}
+                location={{ pathname: '/moves/123/customer/abc' }}
+              />
             </MockProviders>,
           );
 
@@ -231,7 +252,11 @@ describe('OfficeWrapper', () => {
         it('handles the Verification URL', () => {
           const app = mount(
             <MockProviders initialState={loggedInTOOState} initialEntries={['/verification-in-progress']}>
-              <OfficeWrapper context={{ flags: { too: true } }} {...mockOfficeProps} />
+              <OfficeWrapper
+                context={{ flags: { too: true } }}
+                {...mockOfficeProps}
+                location={{ pathname: '/verification-in-progress' }}
+              />
             </MockProviders>,
           );
 
@@ -261,7 +286,7 @@ describe('OfficeWrapper', () => {
         it('does not handle the invoicing queue URL', () => {
           const app = mount(
             <MockProviders initialState={loggedInTIOState} initialEntries={['/invoicing/queue']}>
-              <OfficeWrapper {...mockOfficeProps} />
+              <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/invoicing/queue' }} />
             </MockProviders>,
           );
 
@@ -274,7 +299,11 @@ describe('OfficeWrapper', () => {
         it('handles the invoicing queue URL', () => {
           const app = mount(
             <MockProviders initialState={loggedInTIOState} initialEntries={['/invoicing/queue']}>
-              <OfficeWrapper context={{ flags: { tio: true } }} {...mockOfficeProps} />
+              <OfficeWrapper
+                context={{ flags: { tio: true } }}
+                {...mockOfficeProps}
+                location={{ pathname: '/invoicing/queue' }}
+              />
             </MockProviders>,
           );
 
@@ -286,7 +315,11 @@ describe('OfficeWrapper', () => {
         it('handles the PaymentRequestShow URL', () => {
           const app = mount(
             <MockProviders initialState={loggedInTIOState} initialEntries={['/payment_requests/234']}>
-              <OfficeWrapper context={{ flags: { tio: true } }} {...mockOfficeProps} />
+              <OfficeWrapper
+                context={{ flags: { tio: true } }}
+                {...mockOfficeProps}
+                location={{ pathname: '/payment_requests/234' }}
+              />
             </MockProviders>,
           );
 
@@ -298,7 +331,11 @@ describe('OfficeWrapper', () => {
         it('handles the PaymentRequestIndex URL', () => {
           const app = mount(
             <MockProviders initialState={loggedInTIOState} initialEntries={['/payment_requests']}>
-              <OfficeWrapper context={{ flags: { tio: true } }} {...mockOfficeProps} />
+              <OfficeWrapper
+                context={{ flags: { tio: true } }}
+                {...mockOfficeProps}
+                location={{ pathname: '/payment_requests' }}
+              />
             </MockProviders>,
           );
 

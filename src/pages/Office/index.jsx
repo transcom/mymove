@@ -1,6 +1,6 @@
 import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, withRouter, matchPath } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -35,7 +35,7 @@ const DocumentViewer = lazy(() => import('scenes/Office/DocumentViewer'));
 // TOO pages (TODO move into src/pages)
 const TOO = lazy(() => import('scenes/Office/TOO/too'));
 const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
-const MoveDetails = lazy(() => import('pages/TOO/moveDetails'));
+const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
 const TOOVerificationInProgress = lazy(() => import('scenes/Office/TOO/tooVerificationInProgress'));
 // TIO pages (TODO move into src/pages)
@@ -74,15 +74,32 @@ export class OfficeWrapper extends Component {
 
   render() {
     const { hasError, error, info } = this.state;
-    const { context: { flags: { too, tio } } = { flags: { too: false, tio: false } } } = this.props;
+    const {
+      context: {
+        flags: { too, tio },
+      },
+      location: { pathname },
+    } = this.props;
 
     // TODO - doesn't seem like any of these routes are accessible if not logged in, suggest refactor PrivateRoute into HOC required by this entrypoint
     // TODO - test login page?
 
+    // TODO - I don't love this solution but it will work for now. Ideally we can abstract the page layout into a separate file where each route can use it or not
+    // Don't show Header on OrdersInfo or DocumentViewer pages
+    const hideHeader =
+      matchPath(pathname, {
+        path: '/moves/:moveId/documents/:moveDocumentId?',
+        exact: true,
+      }) ||
+      matchPath(pathname, {
+        path: '/moves/:moveId/orders',
+        exact: true,
+      });
+
     return (
       <div className="site">
         <FOUOHeader />
-        <QueueHeader />
+        {!hideHeader && <QueueHeader />}
         <main role="main" className="site__content">
           <ConnectedLogoutOnInactivity />
 
@@ -102,9 +119,7 @@ export class OfficeWrapper extends Component {
                   requiredRoles={[roleTypes.PPM]}
                 />
                 <PrivateRoute path="/queues/:queueType" component={Queues} requiredRoles={[roleTypes.PPM]} />
-                {/* NO HEADER */}
                 <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} requiredRoles={[roleTypes.PPM]} />
-                {/* NO HEADER */}
                 <PrivateRoute
                   path="/moves/:moveId/documents/:moveDocumentId?"
                   component={DocumentViewer}
@@ -166,6 +181,9 @@ OfficeWrapper.propTypes = {
       tio: PropTypes.bool,
     }),
   }),
+  location: PropTypes.shape({
+    pathname: PropTypes.string,
+  }),
 };
 
 OfficeWrapper.defaultProps = {
@@ -175,6 +193,7 @@ OfficeWrapper.defaultProps = {
       tio: false,
     },
   },
+  location: { pathname: '' },
 };
 
 const mapStateToProps = (state) => {
@@ -195,4 +214,4 @@ const mapDispatchToProps = (dispatch) =>
     dispatch,
   );
 
-export default withContext(connect(mapStateToProps, mapDispatchToProps)(OfficeWrapper));
+export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(OfficeWrapper)));
