@@ -27,19 +27,21 @@ import { withContext } from 'shared/AppContext';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const ConnectedOfficeHome = lazy(() => import('pages/OfficeHome'));
-// import ConnectedOfficeHome from 'pages/OfficeHome/index';
+// PPM pages (TODO move into src/pages)
 const MoveInfo = lazy(() => import('scenes/Office/MoveInfo'));
 const Queues = lazy(() => import('scenes/Office/Queues'));
 const OrdersInfo = lazy(() => import('scenes/Office/OrdersInfo'));
 const DocumentViewer = lazy(() => import('scenes/Office/DocumentViewer'));
-const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
+// TOO pages (TODO move into src/pages)
 const TOO = lazy(() => import('scenes/Office/TOO/too'));
 const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
-const TIO = lazy(() => import('scenes/Office/TIO/tio'));
+const MoveDetails = lazy(() => import('pages/TOO/moveDetails'));
+const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
 const TOOVerificationInProgress = lazy(() => import('scenes/Office/TOO/tooVerificationInProgress'));
+// TIO pages (TODO move into src/pages)
+const TIO = lazy(() => import('scenes/Office/TIO/tio'));
 const PaymentRequestShow = lazy(() => import('scenes/Office/TIO/paymentRequestShow'));
 const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
-const MoveDetails = lazy(() => import('pages/TOO/moveDetails'));
 
 export class OfficeWrapper extends Component {
   constructor(props) {
