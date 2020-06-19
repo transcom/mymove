@@ -34,7 +34,7 @@ function QueueHeader() {
 
 function MoveTabNav(props) {
   // Should in the future become a move locator
-  const moveOrderId = props.match.params.moveId;
+  const moveOrderId = props.match.params.locator;
 
   let matchDetails, matchMTO, matchPaymentRequests, matchHistory;
   matchDetails = matchPaymentRequests = matchMTO = matchHistory = false;

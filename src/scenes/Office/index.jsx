@@ -186,7 +186,7 @@ export class OfficeWrapper extends Component {
                 )}
                 {(too || tio) && (
                   <PrivateRoute
-                    path="/moves/:moveId"
+                    path="/moves/:locator"
                     component={(props) => (
                       <Suspense fallback={<LoadingPlaceholder />}>
                         <RenderWithOrWithoutHeader

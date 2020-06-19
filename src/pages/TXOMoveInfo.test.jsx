@@ -12,7 +12,7 @@ describe('TXO Move Info Container', () => {
     const wrapper = mount(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/moves/10000/details']}>
-          <TXOMoveInfo />
+          <TXOMoveInfo too tag="main" />
         </MemoryRouter>
       </Provider>,
     );

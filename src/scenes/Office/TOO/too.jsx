@@ -51,9 +51,7 @@ class TOO extends Component {
                   </td>
                   <td onClick={() => this.handleCustomerInfoClick(moveOrderId)}>{moveOrderId}</td>
                   <td>
-                    <a href={`/too/customer-moves/${moveOrderId}/customer/${customerID}`}>
-                      Customer Details Page Skeleton
-                    </a>
+                    <a href={`/moves/${moveOrderId}/customer/${customerID}`}>Customer Details Page Skeleton</a>
                   </td>
                 </tr>
               ),
