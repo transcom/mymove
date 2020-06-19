@@ -948,7 +948,6 @@ func init() {
       "type": "object",
       "required": [
         "modelType",
-        "mtoShipmentID",
         "moveTaskOrderID"
       ],
       "properties": {
@@ -2966,7 +2965,6 @@ func init() {
       "type": "object",
       "required": [
         "modelType",
-        "mtoShipmentID",
         "moveTaskOrderID"
       ],
       "properties": {

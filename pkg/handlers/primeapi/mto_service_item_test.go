@@ -3,11 +3,13 @@ package primeapi
 import (
 	"errors"
 	"net/http/httptest"
-	"testing"
-	"time"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
+	"testing"
+	"time"
+
+	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate"
 
 	"github.com/stretchr/testify/mock"
@@ -135,7 +137,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 		body := payloads.MTOServiceItem(&mtoServiceItem)
 		body.SetMoveTaskOrderID(handlers.FmtUUID(mtoShipment.MoveTaskOrderID))
-		body.SetMtoShipmentID(handlers.FmtUUID(mtoShipment2.ID))
+		body.SetMtoShipmentID(strfmt.UUID(mtoShipment2.ID.String()))
 
 		newParams := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
