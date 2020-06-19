@@ -1,13 +1,13 @@
 import React from 'react';
+import { Button } from '@trussworks/react-uswds';
+
+import styles from './menu.module.scss';
 
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { ReactComponent as DocMenu } from 'shared/icon/doc-menu.svg';
-import { Button } from '@trussworks/react-uswds';
-// import fakeDoc from 'shared/images/fake-doc.png';
-import styles from './menu.module.scss';
 
 const testThumbnail = (
-  <a className={styles.thumbnailItem}>
+  <a className={styles.thumbnailItem} href="#">
     <p>ASamplePrettyLongDocumentTitle.png</p>
     <div className={styles.thumbnailImage} />
   </a>
