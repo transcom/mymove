@@ -154,6 +154,13 @@ storiesOf('Global|Typography', module)
           porttitor lacus luctus accumsan.
         </small>
       </p>
+      <p>
+        Bulleted list
+        <ul>
+          <li>Public Sans 15px / 22px</li>
+          <li>USWDS bg-base-darkest</li>
+        </ul>
+      </p>
     </div>
   ))
   .add('Links', () => (
