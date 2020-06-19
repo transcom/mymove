@@ -7,14 +7,7 @@ import { getFormValues } from 'redux-form';
 
 import { Field } from 'redux-form';
 
-import {
-  createOrders,
-  updateOrders,
-  fetchLatestOrders,
-  getLatestOrdersLabel,
-  selectOrdersFromServiceMemberId,
-} from 'shared/Entities/modules/orders';
-import { getRequestStatus } from 'shared/Swagger/selectors';
+import { createOrders, updateOrders, fetchLatestOrders, selectActiveOrders } from 'shared/Entities/modules/orders';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { withContext } from 'shared/AppContext';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -95,19 +88,16 @@ Orders.propTypes = {
 
 function mapStateToProps(state) {
   const formValues = getFormValues(formName)(state);
-  const showOrdersRequest = getRequestStatus(state, getLatestOrdersLabel);
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
 
   return {
     serviceMemberId: serviceMemberId,
-    // tempOrders: state.orders.currentOrders, // in master
-    currentOrders: selectOrdersFromServiceMemberId(state, serviceMemberId),
+    // currentOrders: state.orders.currentOrders, // in master
+    currentOrders: selectActiveOrders(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
     formValues,
     currentStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
     newDutyStation: get(formValues, 'new_duty_station', {}),
-    loadDependenciesHasSuccess: showOrdersRequest.isSuccess,
-    loadDependenciesHasError: showOrdersRequest.error,
   };
 }
 

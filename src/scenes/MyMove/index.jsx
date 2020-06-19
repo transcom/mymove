@@ -169,7 +169,7 @@ const mapStateToProps = (state) => {
     currentServiceMemberId: serviceMemberId,
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),
-    // TODO: Set to entities move if exists, or this
+    // TODO: update to func in master - moves can be in entities or moves.currentMove
     moveId: get(state, 'moves.currentMove.id') || selectMoveFromServiceMemberId(state, serviceMemberId).id,
     selectedMoveType: selectedMoveType(state),
     swaggerError: state.swaggerInternal.hasErrored,

@@ -18,12 +18,10 @@ import { deleteUploads, addUploads } from 'scenes/Orders/ducks';
 import {
   updateOrders,
   fetchLatestOrders,
-  getLatestOrdersLabel,
-  selectOrdersFromServiceMemberId,
+  selectActiveOrders,
   selectUploadsForOrders,
 } from 'shared/Entities/modules/orders';
 import { createUpload, selectDocument } from 'shared/Entities/modules/documents';
-import { getRequestStatus } from 'shared/Swagger/selectors';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
@@ -207,9 +205,8 @@ class EditOrders extends Component {
 }
 
 function mapStateToProps(state) {
-  const showOrdersRequest = getRequestStatus(state, getLatestOrdersLabel);
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
-  const currentOrders = selectOrdersFromServiceMemberId(state, serviceMemberId);
+  const currentOrders = selectActiveOrders(state);
   // const currentOrders = state.orders.currentOrders; // in master
   const uploads = selectUploadsForOrders(state, currentOrders.id);
 
@@ -225,8 +222,6 @@ function mapStateToProps(state) {
     moveIsApproved: moveIsApproved(state),
     isPpm: isPpm(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
-    loadDependenciesHasSuccess: showOrdersRequest.isSuccess,
-    loadDependenciesHasError: showOrdersRequest.error,
   };
   return props;
 }

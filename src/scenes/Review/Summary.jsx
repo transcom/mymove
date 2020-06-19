@@ -6,15 +6,8 @@ import PropTypes from 'prop-types';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import {
-  fetchLatestOrders,
-  getLatestOrdersLabel,
-  selectActiveOrders,
-  selectUploadsForOrders,
-} from 'shared/Entities/modules/orders';
-import { getRequestStatus } from 'shared/Swagger/selectors';
+import { fetchLatestOrders, selectActiveOrders, selectUploadsForOrders } from 'shared/Entities/modules/orders';
 
-// import { getPPM } from 'scenes/Moves/Ppm/ducks.js';
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
@@ -29,7 +22,6 @@ import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
 
 export class Summary extends Component {
   componentDidMount() {
-    // this.props.fetchLatestOrders(this.props.serviceMember.id);
     if (this.props.onDidMount) {
       this.props.onDidMount(this.props.serviceMember.id);
     }
@@ -131,8 +123,6 @@ Summary.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const moveID = state.moves.currentMove.id;
-  const showOrdersRequest = getRequestStatus(state, getLatestOrdersLabel);
-  // const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
   const currentOrders = selectActiveOrders(state);
 
   return {
@@ -150,8 +140,6 @@ function mapStateToProps(state, ownProps) {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
-    loadDependenciesHasSuccess: showOrdersRequest.isSuccess,
-    loadDependenciesHasError: showOrdersRequest.error,
   };
 }
 function mapDispatchToProps(dispatch, ownProps) {

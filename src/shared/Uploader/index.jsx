@@ -123,6 +123,9 @@ export class Uploader extends Component {
     createUpload(file, docID, isPublic)
       .then((item) => {
         load(item.id);
+        // swaggerRequest returns a response that contains entities with added uploads
+        // but this func expects a single upload as an item.
+        // It could be filtered here, but will that break other uses of the Uploader?
         const newFiles = concat(self.state.files, item);
         self.setState({
           files: newFiles,
@@ -134,8 +137,9 @@ export class Uploader extends Component {
   };
 
   revertFile = (uploadId, load, error) => {
-    console.log('delete in uploader, uploadId:', uploadId);
     const { onChange, isPublic, deleteUpload = DeleteUpload } = this.props;
+    // TODO: use deleteUpload action from entities only, once migration complete.
+    // also, this is broken
     deleteUpload(uploadId, isPublic)
       .then((item) => {
         load(item);

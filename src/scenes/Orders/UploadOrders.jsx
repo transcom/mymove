@@ -5,17 +5,14 @@ import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
-// import { no_op } from 'shared/utils';
 import { deleteUpload as tableDelete, addUploads } from './ducks';
 import {
   fetchLatestOrders,
-  getLatestOrdersLabel,
   selectOrdersFromServiceMemberId,
   selectUploadsForOrders,
 } from 'shared/Entities/modules/orders';
 
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
-import { getRequestStatus } from 'shared/Swagger/selectors';
 import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import WizardPage from 'shared/WizardPage';
@@ -46,7 +43,6 @@ export class UploadOrders extends Component {
   }
 
   handleSubmit() {
-    // checks if orders in state, then manually adds to orders
     return this.props.addUploads(this.state.newUploads);
   }
 
@@ -60,7 +56,6 @@ export class UploadOrders extends Component {
     });
   }
 
-  // For UploadTable - deletes file and removes from state
   deleteFile(e, uploadId) {
     e.preventDefault();
     this.props.tableDelete(uploadId);
@@ -73,7 +68,6 @@ export class UploadOrders extends Component {
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
-        // handleSubmit={no_op}
         pageList={pages}
         pageKey={pageKey}
         pageIsValid={isValid}
@@ -96,7 +90,7 @@ export class UploadOrders extends Component {
           <div className="uploader-box">
             <Uploader
               createUpload={this.props.createUpload}
-              // deletedUpload={this.props.deleteUpload}
+              // deletedUpload={this.props.deleteUpload} // Not working
               document={document}
               onChange={this.onChange}
               options={{ labelIdle: uploaderLabelIdle }}
@@ -132,7 +126,6 @@ UploadOrders.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const showOrdersRequest = getRequestStatus(state, getLatestOrdersLabel);
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
   const currentOrders = selectOrdersFromServiceMemberId(state, serviceMemberId);
 
@@ -143,8 +136,6 @@ function mapStateToProps(state) {
     // uploads: get(state, 'orders.currentOrders.uploaded_orders.uploads', []),
     document: selectDocument(state, currentOrders.uploaded_orders),
     // ...state.orders,
-    loadDependenciesHasSuccess: showOrdersRequest.isSuccess,
-    loadDependenciesHasError: showOrdersRequest.error,
   };
   return props;
 }
