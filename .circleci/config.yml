@@ -1006,7 +1006,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: nb-MB-2799-import-fake-data
 
       - integration_tests_mtls:
           requires:
@@ -1018,7 +1018,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: nb-MB-2799-import-fake-data
 
       - client_test:
           requires:
@@ -1026,7 +1026,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: nb-MB-2799-import-fake-data
 
       - server_test:
           requires:
@@ -1034,7 +1034,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: nb-MB-2799-import-fake-data
 
       - build_app:
           requires:
@@ -1069,28 +1069,28 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: nb-MB-2799-import-fake-data
 
       - deploy_experimental_tasks:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: nb-MB-2799-import-fake-data
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: nb-MB-2799-import-fake-data
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: nb-MB-2799-import-fake-data
 
       - check_circle_against_staging_sha:
           requires:
