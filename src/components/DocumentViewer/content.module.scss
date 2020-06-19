@@ -29,7 +29,7 @@ svg path {
   height: 52px;
   position: fixed;
   top: 0;
-  left: $menuWidth;
+  //  left: $menuWidth;
   display: flex;
   justify-content: space-between;
   @include u-padding-x(4);
@@ -70,7 +70,7 @@ svg path {
   width: $contentWidth;
   height: 50px;
   position: fixed;
-  left: $menuWidth;
+  //  left: $menuWidth;
   bottom: 0;
   display: flex;
   align-items: center;
