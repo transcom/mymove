@@ -7,3 +7,5 @@ services:
     image: milmove_storybook_local
   storybook_tests:
     image: milmove_storybook_local
+    environment:
+      - CHROME_CONCURRENCY=4
