@@ -84,6 +84,7 @@ services:
       - PGPASSWORD=mysecretpassword
       - REDIS_ENABLED=false
       - SERVE_API_PRIME=true
+      - SERVE_API_SUPPORT=true
       - STORAGE_BACKEND=local
       - TZ=UTC
     extra_hosts:
