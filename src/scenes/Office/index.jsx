@@ -79,7 +79,7 @@ export class OfficeWrapper extends Component {
     const { context: { flags: { too, tio } } = { flags: { too: null } } } = this.props;
     const DivOrMainTag = detectIE11() ? 'div' : 'main';
     const { userIsLoggedIn } = this.props;
-    console.log(this.props);
+
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
