@@ -106,6 +106,7 @@ services:
       - SERVE_API_GHC=false
       - SERVE_API_INTERNAL=true
       - SERVE_API_PRIME=false
+      - SERVE_API_SUPPORT=false
       - STORAGE_BACKEND=local
       - TLS_ENABLED=1
       - TZ=UTC
