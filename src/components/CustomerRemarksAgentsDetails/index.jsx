@@ -59,19 +59,19 @@ const CustomerRemarksAgentsDetails = ({ customerRemarks, releasingAgent, receivi
 };
 
 CustomerRemarksAgentsDetails.propTypes = {
-  customerRemarks: propTypes.string,
+  customerRemarks: propTypes.string.isRequired,
   releasingAgent: propTypes.shape({
     firstName: propTypes.string,
     lastName: propTypes.string,
     phone: propTypes.string,
     email: propTypes.string,
-  }),
+  }).isRequired,
   receivingAgent: propTypes.shape({
     firstName: propTypes.string,
     lastName: propTypes.string,
     phone: propTypes.string,
     email: propTypes.string,
-  }),
+  }).isRequired,
 };
 
 export default CustomerRemarksAgentsDetails;

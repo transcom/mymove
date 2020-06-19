@@ -5,7 +5,7 @@ import 'jest-canvas-mock';
 // Set up enzyme's React adapter for use in other test files
 Enzyme.configure({ adapter: new Adapter() });
 global.performance = {
-  now: function () {
+  now: () => {
     return Date.now();
   },
 };

@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { Formik } from 'formik';
 import { Button } from '@trussworks/react-uswds';
 import classNames from 'classnames/bind';
+
 import { EditButton } from './IconButtons';
 import { Form } from './Form';
 import { ErrorMessage } from './ErrorMessage';
@@ -70,13 +70,17 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
 StackedTableRowForm.propTypes = {
   name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
-  onSubmit: PropTypes.func,
+  onSubmit: PropTypes.func.isRequired,
   onReset: PropTypes.func,
   // following are passed directly to formik
   // eslint-disable-next-line react/forbid-prop-types
   validationSchema: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   initialValues: PropTypes.object.isRequired,
+};
+
+StackedTableRowForm.defaultProps = {
+  onReset: () => {},
 };
 
 export default StackedTableRowForm;

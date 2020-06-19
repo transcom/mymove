@@ -733,6 +733,13 @@ func init() {
         "parameters": [
           {
             "type": "string",
+            "format": "uuid",
+            "name": "personally_procured_move_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
             "format": "date",
             "name": "original_move_date",
             "in": "query",
@@ -784,6 +791,9 @@ func init() {
           },
           "409": {
             "description": "distance is less than 50 miles (no short haul moves)"
+          },
+          "422": {
+            "description": "the payload was unprocessable"
           },
           "500": {
             "description": "internal server error"
@@ -3106,10 +3116,8 @@ func init() {
           "example": "CODE456"
         },
         "created_at": {
-          "description": "when the access code was created",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         },
         "id": {
           "type": "string",
@@ -5498,10 +5506,8 @@ func init() {
       ],
       "properties": {
         "createdAt": {
-          "description": "when the role was created",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         },
         "id": {
           "type": "string",
@@ -5513,10 +5519,8 @@ func init() {
           "example": "customer"
         },
         "updatedAt": {
-          "description": "when the role was updated",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         }
       }
     },
@@ -6948,6 +6952,13 @@ func init() {
         "parameters": [
           {
             "type": "string",
+            "format": "uuid",
+            "name": "personally_procured_move_id",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
             "format": "date",
             "name": "original_move_date",
             "in": "query",
@@ -6999,6 +7010,9 @@ func init() {
           },
           "409": {
             "description": "distance is less than 50 miles (no short haul moves)"
+          },
+          "422": {
+            "description": "the payload was unprocessable"
           },
           "500": {
             "description": "internal server error"
@@ -9321,10 +9335,8 @@ func init() {
           "example": "CODE456"
         },
         "created_at": {
-          "description": "when the access code was created",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         },
         "id": {
           "type": "string",
@@ -11723,10 +11735,8 @@ func init() {
       ],
       "properties": {
         "createdAt": {
-          "description": "when the role was created",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         },
         "id": {
           "type": "string",
@@ -11738,10 +11748,8 @@ func init() {
           "example": "customer"
         },
         "updatedAt": {
-          "description": "when the role was updated",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         }
       }
     },

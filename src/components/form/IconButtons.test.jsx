@@ -1,7 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { Button } from '@trussworks/react-uswds';
-import { DocsButton, EditButton } from '.';
+
+import { DocsButton, EditButton } from './index';
 
 describe('DocsButton', () => {
   it('should render the button', () => {

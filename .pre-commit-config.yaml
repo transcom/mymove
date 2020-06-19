@@ -57,9 +57,16 @@ repos:
     hooks:
       - id: eslint
         name: eslint
-        entry: node_modules/.bin/eslint --ext .js --ext .jsx --max-warnings=0
+        entry: node_modules/.bin/eslint --ext .js,.jsx --max-warnings=0
         language: node
         files: \.(js|jsx)$
+        exclude: >
+          (?x)^(
+            cypress/|
+            .storybook/|
+            wallaby.js|
+            config-overrides.js
+          )
 
   - repo: local
     hooks:
@@ -83,7 +90,7 @@ repos:
     rev: v0.0.3
     hooks:
       - id: gen-docs
-        args: ["docs/adr"]
+        args: ['docs/adr']
       - id: circleci-validate
       - id: markdown-toc
       - id: mdspell
@@ -97,20 +104,20 @@ repos:
   - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
     rev: v0.1.0
     hooks:
-    - id: dockerfilelint
+      - id: dockerfilelint
 
   - repo: local
     hooks:
-    - id: migrations-manifest
-      name: migrations manifest
-      entry: scripts/update-migrations-manifest
-      language: script
-      pass_filenames: false
+      - id: migrations-manifest
+        name: migrations manifest
+        entry: scripts/update-migrations-manifest
+        language: script
+        pass_filenames: false
 
   - repo: local
     hooks:
-    - id: scripts-docs
-      name: scripts are documented
-      entry: scripts/find-scripts-missing-in-readme
-      language: script
-      pass_filenames: false
+      - id: scripts-docs
+        name: scripts are documented
+        entry: scripts/find-scripts-missing-in-readme
+        language: script
+        pass_filenames: false

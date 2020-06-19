@@ -17,9 +17,9 @@ import (
 // swagger:model Role
 type Role struct {
 
-	// when the role was created
+	// created at
 	// Required: true
-	// Format: datetime
+	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// id
@@ -35,9 +35,9 @@ type Role struct {
 	// Required: true
 	RoleType *string `json:"roleType"`
 
-	// when the role was updated
+	// updated at
 	// Required: true
-	// Format: datetime
+	// Format: date-time
 	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
 }
 
@@ -77,7 +77,7 @@ func (m *Role) validateCreatedAt(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -121,7 +121,7 @@ func (m *Role) validateUpdatedAt(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

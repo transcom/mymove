@@ -38,12 +38,20 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	/*
 	 * Basic user with office access
 	 */
+	ppmOfficeRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&ppmOfficeRole)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	email := "officeuser1@example.com"
+	userID := uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b"))
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b")),
+			ID:            userID,
 			LoginGovEmail: email,
 			Active:        true,
+			Roles:         []roles.Role{ppmOfficeRole},
 		},
 		OfficeUser: models.OfficeUser{
 			ID:     uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
@@ -990,7 +998,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	/* A user with Roles */
 	smRole := roles.Role{}
-	err := db.Where("role_type = $1", roles.RoleTypeCustomer).First(&smRole)
+	err = db.Where("role_type = $1", roles.RoleTypeCustomer).First(&smRole)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -1054,6 +1062,26 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			Email:  email,
 			Active: true,
 			UserID: &tioUUID,
+		},
+	})
+
+	/* A user with both too and tio roles */
+	email = "too_tio_role@office.mil"
+	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tooTioUUID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tooRole, tioRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
+			Email:  email,
+			Active: true,
+			UserID: &tooTioUUID,
 		},
 	})
 
@@ -1143,6 +1171,33 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		MTOShipment:   mtoShipment3,
 		ReService: models.ReService{
 			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
+		},
+	})
+
+	mtoWithTaskOrderServices := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
+			AvailableToPrimeAt: swag.Time(time.Now()),
+		},
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("76055c99-0990-410c-a7c9-69373b0b53eb"),
+		},
+		MoveTaskOrder: mtoWithTaskOrderServices,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS
+		},
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("05fbfad0-731f-4342-87e9-abe55566bb63"),
+		},
+		MoveTaskOrder: mtoWithTaskOrderServices,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS
 		},
 	})
 }

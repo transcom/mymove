@@ -1,11 +1,10 @@
 import React from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-
 import { Modal, Button } from '@trussworks/react-uswds';
+
 import { Form } from '../components/form';
 import { TextInput } from '../components/form/fields';
 

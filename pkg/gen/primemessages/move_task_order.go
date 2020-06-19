@@ -28,8 +28,8 @@ type MoveTaskOrder struct {
 	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
 	// created at
-	// Format: date
-	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
@@ -69,8 +69,8 @@ type MoveTaskOrder struct {
 	ReferenceID string `json:"referenceId,omitempty"`
 
 	// updated at
-	// Format: date
-	UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // MtoServiceItems gets the mto service items of this base type
@@ -88,7 +88,7 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
-		CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
 
@@ -112,7 +112,7 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
-		UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
+		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -183,7 +183,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
-		CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
 
@@ -205,7 +205,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
-		UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
+		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 	}{
 
 		AvailableToPrimeAt: m.AvailableToPrimeAt,
@@ -321,7 +321,7 @@ func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -473,7 +473,7 @@ func (m *MoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "date", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

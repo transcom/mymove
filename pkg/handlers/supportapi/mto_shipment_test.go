@@ -75,6 +75,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		response := mockHandler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusInternalServerError{}, response)
+
+		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
+
 	})
 
 	suite.T().Run("Patch failure - 404", func(t *testing.T) {

@@ -48,7 +48,7 @@ func (h UpdateMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.UpdateM
 		case mtoshipment.ConflictStatusError:
 			return mtoshipmentops.NewUpdateMTOShipmentStatusConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
 		default:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError()
+			return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
 	}
 

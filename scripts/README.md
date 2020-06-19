@@ -153,6 +153,7 @@ These scripts are primarily used for working with the database
 | `psql-schema` | Convenience script to dump the schema from the postgres DB |
 | `psql-test` | Convenience script to drop into testing postgres DB |
 | `psql-wrapper` | A wrapper around `psql` that sets correct values |
+| `redis-dev` | Convenience script to drop into redis-cli |
 | `update-migrations-manifest` | Update manifest for migrations |
 | `wait-for-db` |  waits for an available database connection, or until a timeout is reached |
 | `wait-for-db-docker` |  waits for an available database connection, or until a timeout is reached using docker |
@@ -204,3 +205,12 @@ These scripts are primarily used for working with the Prime API
 | Script Name | Description |
 | --- | --- |
 | `run-prime-docker` | Runs a docker container allowing access to the Prime API |
+
+
+### Pricing & Rate Engine Scripts
+
+These scripts are primarily for working with the pricing and rate engine
+
+| Script Name | Description |
+| --- | --- |
+| `pricing-import` | Creates secure migration to move pricing data into production |
