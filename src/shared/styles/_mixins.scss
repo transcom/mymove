@@ -42,7 +42,6 @@ $z-index-back: -100;
 @mixin icon-hover-state {
   button {
     svg {
-      @include u-margin-left(1);
       path,
       polygon {
         fill: $primary;

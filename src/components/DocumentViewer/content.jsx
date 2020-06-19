@@ -21,10 +21,10 @@ const DocViewerContent = () => (
       </Button>
     </div>
     <div className={`${styles.docArrows}`}>
-      <Button unstyled>
+      <Button unstyled className={`${styles.arrowButton}`}>
         <ArrowLeft />
       </Button>
-      <Button unstyled>
+      <Button unstyled className={`${styles.arrowButton}`}>
         <ArrowRight />
       </Button>
     </div>

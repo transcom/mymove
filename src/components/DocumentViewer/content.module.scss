@@ -37,7 +37,9 @@ svg path {
     @include u-text('bold');
     color: $base-darkest;
   }
-  @include icon-hover-state;
+  svg {
+    @include u-margin-left(1);
+  }
 }
 
 .docArrows {
@@ -46,6 +48,14 @@ svg path {
   display: flex;
   justify-content: space-between;
   width: $contentWidth;
+  @include icon-hover-state;
+  .arrowButton {
+    @include u-padding(1.5);
+    @include u-margin(1);
+    background: white;
+    @include u-radius('pill');
+    @include u-shadow(2);
+  }
 }
 
 .docArea {
@@ -53,14 +63,6 @@ svg path {
   display: flex;
   justify-content: center;
   align-items: center;
-  #arrow-left-1,
-  #arrow-right-1 {
-    fill: $primary;
-  }
-  button {
-    position: absolute;
-    top: 50vh;
-  }
 }
 
 .docControls {
