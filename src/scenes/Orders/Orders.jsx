@@ -60,7 +60,7 @@ export class Orders extends Component {
         serverError={error}
       >
         <h1 className="sm-heading">Tell us about your move orders</h1>
-        <SwaggerField data-cy="orders_type" fieldName="orders_type" swagger={this.props.schema} required />
+        <SwaggerField fieldName="orders_type" swagger={this.props.schema} required />
         <SwaggerField fieldName="issue_date" swagger={this.props.schema} required />
         <div style={{ marginTop: '0.25rem' }}>
           <span className="usa-hint">Date your orders were issued.</span>
