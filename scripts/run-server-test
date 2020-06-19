@@ -39,7 +39,7 @@ fi
 if [[ "${DRY_RUN:-}" == "1" ]]; then
   echo "Compiling tests only, not running"
   # shellcheck disable=SC2086
-	go test -run=nope -parallel ${parallel} -count 1 ${package_list}
+	go test -v -run=nope -parallel ${parallel} -count 1 ${package_list}
   exit 0
 fi
 
