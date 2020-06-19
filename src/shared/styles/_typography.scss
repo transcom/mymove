@@ -51,4 +51,5 @@ a {
 ul {
   @include u-line-height('body', 4);
   color: $base-darkest;
+  @include u-padding-left(1.5);
 }
