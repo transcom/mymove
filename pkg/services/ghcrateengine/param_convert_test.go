@@ -67,6 +67,7 @@ func (suite *GHCRateEngineServiceSuite) Test_getParamString() {
 	suite.T().Run("param not found", func(t *testing.T) {
 		_, err := getParamString(params, models.ServiceItemParamNameWeightEstimated)
 		suite.Error(err)
+		suite.Equal("could not find param with key WeightEstimated", err.Error())
 	})
 
 	suite.T().Run("unexpected type", func(t *testing.T) {
@@ -75,6 +76,7 @@ func (suite *GHCRateEngineServiceSuite) Test_getParamString() {
 		}
 		_, err := getParamString(badParams, models.ServiceItemParamNameContractCode)
 		suite.Error(err)
+		suite.Equal("trying to convert ContractCode to a string, but param is of type TIMESTAMP", err.Error())
 	})
 }
 
@@ -104,6 +106,7 @@ func (suite *GHCRateEngineServiceSuite) Test_getParamTime() {
 	suite.T().Run("param not found", func(t *testing.T) {
 		_, err := getParamTime(params, models.ServiceItemParamNameWeightEstimated)
 		suite.Error(err)
+		suite.Equal("could not find param with key WeightEstimated", err.Error())
 	})
 
 	suite.T().Run("unexpected type", func(t *testing.T) {
@@ -112,6 +115,7 @@ func (suite *GHCRateEngineServiceSuite) Test_getParamTime() {
 		}
 		_, err := getParamTime(badParams, models.ServiceItemParamNameMTOAvailableToPrimeAt)
 		suite.Error(err)
+		suite.Equal("trying to convert MTOAvailableToPrimeAt to a time, but param is of type STRING", err.Error())
 	})
 }
 
