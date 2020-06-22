@@ -5,6 +5,8 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 
+import { getMTOAgentList, selectMTOAgents } from '../../../shared/Entities/modules/mtoAgents';
+
 import styles from './MoveDetails.module.scss';
 
 import 'pages/TOO/too.scss';
@@ -23,7 +25,7 @@ import { getMTOShipments as getMTOShipmentsAction, selectMTOShipments } from 'sh
 import RequestedShipments from 'components/Office/RequestedShipments';
 import AllowancesTable from 'components/Office/AllowancesTable';
 import OrdersTable from 'components/Office/OrdersTable';
-import { MoveOrderShape, EntitlementShape, CustomerShape, MTOShipmentShape } from 'types/moveOrder';
+import { MoveOrderShape, EntitlementShape, CustomerShape, MTOShipmentShape, MTOAgentShape } from 'types/moveOrder';
 import { MatchShape } from 'types/router';
 
 const sectionLabels = {
@@ -56,7 +58,11 @@ export class MoveDetails extends Component {
     getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
       getCustomer(moveOrder.customerID);
       getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
-        moveTaskOrder.forEach((item) => getMTOShipments(item.id));
+        moveTaskOrder.forEach((item) =>
+          getMTOShipments(item.id).then(({ response: { body: mtoShipments } }) => {
+            mtoShipments.forEach((shipment) => getMTOAgentList(shipment.moveTaskOrderID, shipment.id));
+          }),
+        );
       });
     });
   }
@@ -90,8 +96,42 @@ export class MoveDetails extends Component {
   };
 
   render() {
-    const { moveOrder, allowances, customer, mtoShipments } = this.props;
+    const { moveOrder, allowances, customer, mtoShipments, mtoAgents } = this.props;
     const { activeSection } = this.state;
+
+    const ordersInfo = {
+      newDutyStation: moveOrder.destinationDutyStation?.name,
+      currentDutyStation: moveOrder.originDutyStation?.name,
+      issuedDate: moveOrder.date_issued,
+      reportByDate: moveOrder.report_by_date,
+      departmentIndicator: moveOrder.department_indicator,
+      ordersNumber: moveOrder.order_number,
+      ordersType: moveOrder.order_type,
+      ordersTypeDetail: moveOrder.order_type_detail,
+      tacMDC: moveOrder.tac,
+      sacSDN: moveOrder.sacSDN,
+    };
+    const allowancesInfo = {
+      branch: customer.agency,
+      rank: moveOrder.grade,
+      weightAllowance: allowances.totalWeight,
+      authorizedWeight: allowances.authorizedWeight,
+      progear: allowances.proGearWeight,
+      spouseProgear: allowances.proGearWeightSpouse,
+      storageInTransit: allowances.storageInTransit,
+      dependents: allowances.dependentsAuthorized,
+    };
+    const customerInfo = {
+      name: `${customer.last_name}, ${customer.first_name}`,
+      dodId: customer.dodID,
+      phone: `+1 ${customer.phone}`,
+      email: customer.email,
+      currentAddress: customer.current_address,
+      destinationAddress: customer.destination_address,
+      backupContactName: '',
+      backupContactPhone: '',
+      backupContactEmail: '',
+    };
 
     return (
       <div className={styles.MoveDetails}>
@@ -112,27 +152,19 @@ export class MoveDetails extends Component {
             <h1>Move details</h1>
 
             <div className={styles.section} id="requested-shipments">
-              <RequestedShipments mtoShipments={mtoShipments} />
+              <RequestedShipments
+                mtoShipments={mtoShipments}
+                allowancesInfo={allowancesInfo}
+                customerInfo={customerInfo}
+                mtoAgents={mtoAgents}
+              />
             </div>
 
             <div className={styles.section} id="orders">
               <GridContainer>
                 <Grid row gap>
                   <Grid col>
-                    <OrdersTable
-                      ordersInfo={{
-                        newDutyStation: moveOrder.destinationDutyStation?.name,
-                        currentDutyStation: moveOrder.originDutyStation?.name,
-                        issuedDate: moveOrder.date_issued,
-                        reportByDate: moveOrder.report_by_date,
-                        departmentIndicator: moveOrder.department_indicator,
-                        ordersNumber: moveOrder.order_number,
-                        ordersType: moveOrder.order_type,
-                        ordersTypeDetail: moveOrder.order_type_detail,
-                        tacMDC: moveOrder.tac,
-                        sacSDN: moveOrder.sacSDN,
-                      }}
-                    />
+                    <OrdersTable ordersInfo={ordersInfo} />
                   </Grid>
                 </Grid>
               </GridContainer>
@@ -141,18 +173,7 @@ export class MoveDetails extends Component {
               <GridContainer>
                 <Grid row gap>
                   <Grid col>
-                    <AllowancesTable
-                      info={{
-                        branch: customer.agency,
-                        rank: moveOrder.grade,
-                        weightAllowance: allowances.totalWeight,
-                        authorizedWeight: allowances.authorizedWeight,
-                        progear: allowances.proGearWeight,
-                        spouseProgear: allowances.proGearWeightSpouse,
-                        storageInTransit: allowances.storageInTransit,
-                        dependents: allowances.dependentsAuthorized,
-                      }}
-                    />
+                    <AllowancesTable info={allowancesInfo} />
                   </Grid>
                 </Grid>
               </GridContainer>
@@ -161,19 +182,7 @@ export class MoveDetails extends Component {
               <GridContainer>
                 <Grid row gap>
                   <Grid col>
-                    <CustomerInfoTable
-                      customerInfo={{
-                        name: `${customer.last_name}, ${customer.first_name}`,
-                        dodId: customer.dodID,
-                        phone: `+1 ${customer.phone}`,
-                        email: customer.email,
-                        currentAddress: customer.current_address,
-                        destinationAddress: customer.destination_address,
-                        backupContactName: '',
-                        backupContactPhone: '',
-                        backupContactEmail: '',
-                      }}
-                    />
+                    <CustomerInfoTable customerInfo={customerInfo} />
                   </Grid>
                 </Grid>
               </GridContainer>
@@ -195,6 +204,7 @@ MoveDetails.propTypes = {
   allowances: EntitlementShape,
   customer: CustomerShape,
   mtoShipments: PropTypes.arrayOf(MTOShipmentShape),
+  mtoAgents: PropTypes.arrayOf(MTOAgentShape),
 };
 
 MoveDetails.defaultProps = {
@@ -202,6 +212,7 @@ MoveDetails.defaultProps = {
   allowances: {},
   customer: {},
   mtoShipments: [],
+  mtoAgents: [],
 };
 
 const mapStateToProps = (state, ownProps) => {
@@ -215,6 +226,7 @@ const mapStateToProps = (state, ownProps) => {
     allowances,
     customer: selectCustomer(state, customerId),
     mtoShipments: selectMTOShipments(state, moveOrderId),
+    mtoAgents: selectMTOAgents(state),
   };
 };
 
@@ -224,6 +236,7 @@ const mapDispatchToProps = {
   getCustomer: getCustomerAction,
   getAllMoveTaskOrders: getAllMoveTaskOrdersAction,
   getMTOShipments: getMTOShipmentsAction,
+  getMTOAgentList,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MoveDetails));

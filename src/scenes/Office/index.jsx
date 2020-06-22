@@ -209,7 +209,7 @@ export class OfficeWrapper extends Component {
                     )}
                     {too && (
                       <PrivateRoute
-                        path="/moves/:locator"
+                        path="/moves/:moveOrderId"
                         exact
                         component={(props) => (
                           <Suspense fallback={<LoadingPlaceholder />}>

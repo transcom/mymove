@@ -79,7 +79,7 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, checked, shipmen
 ShipmentDisplay.propTypes = {
   onChange: PropTypes.func.isRequired,
   shipmentId: PropTypes.string.isRequired,
-  checked: PropTypes.bool.isRequired,
+  checked: PropTypes.bool,
   shipmentType: PropTypes.oneOf([
     SHIPMENT_TYPE.HHG,
     SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC,
@@ -106,6 +106,7 @@ ShipmentDisplay.propTypes = {
 
 ShipmentDisplay.defaultProps = {
   shipmentType: SHIPMENT_TYPE.HHG,
+  checked: false,
 };
 
 export default ShipmentDisplay;

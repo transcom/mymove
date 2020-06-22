@@ -1,7 +1,7 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { mount } from 'enzyme';
 
-import RequestedShipments from './RequestedShipments';
+import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 
 const shipments = [
   {
@@ -20,7 +20,7 @@ const shipments = [
       street_address_3: 'c/o Some Person',
     },
     eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
-    id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+    id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
     moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
     pickupAddress: {
       city: 'Beverly Hills',
@@ -116,11 +116,22 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG',
+    shipmentType: 'NTS',
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
   },
 ];
+
+const allowancesInfo = {
+  branch: 'Navy',
+  rank: 'E-6',
+  weightAllowance: '11,000 lbs',
+  authorizedWeight: '11,000 lbs',
+  progear: 2000,
+  spouseProgear: 500,
+  storageInTransit: '90 days',
+  dependents: 'Authorized',
+};
 
 const customerInfo = {
   name: 'Smith, Kerry',
@@ -161,66 +172,34 @@ const agents = [
   },
 ];
 
-const allowancesInfo = {
-  branch: 'Navy',
-  rank: 'E-6',
-  weightAllowance: '11,000 lbs',
-  authorizedWeight: '11,000 lbs',
-  progear: 2000,
-  spouseProgear: 500,
-  storageInTransit: '90 days',
-  dependents: 'Authorized',
-};
-
-describe('RequestedShipments', () => {
-  it('renders the container successfully', () => {
-    const wrapper = shallow(
-      <RequestedShipments
-        allowancesInfo={allowancesInfo}
-        mtoAgents={agents}
-        customerInfo={customerInfo}
-        mtoShipments={shipments}
-      />,
-    );
-    expect(wrapper.find('div[data-cy="requested-shipments"]').exists()).toBe(true);
-  });
-
-  it('renders a shipment passed to it', () => {
+describe('Shipment preview modal', () => {
+  it('renders the modal successfully', () => {
     const wrapper = mount(
-      <RequestedShipments
-        mtoShipments={shipments}
-        mtoAgents={agents}
-        allowancesInfo={allowancesInfo}
+      <ShipmentApprovalPreview
         customerInfo={customerInfo}
+        mtoShipments={shipments}
+        setIsModalVisible={() => {
+          return true;
+        }}
+        allowancesInfo={allowancesInfo}
       />,
     );
-    expect(wrapper.find('div[data-cy="requested-shipments"]').text()).toContain('HHG');
+    expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
+    expect(wrapper.find('.table--stacked').length).toBe(4);
   });
-
-  it('renders the button', () => {
+  it('renders the modal successfully with mtoAgents provided', () => {
     const wrapper = mount(
-      <RequestedShipments
-        mtoShipments={shipments}
-        mtoAgents={agents}
-        allowancesInfo={allowancesInfo}
+      <ShipmentApprovalPreview
         customerInfo={customerInfo}
+        mtoShipments={shipments}
+        setIsModalVisible={() => {
+          return true;
+        }}
+        allowancesInfo={allowancesInfo}
+        mtoAgents={agents}
       />,
     );
-    expect(wrapper.find('button[data-testid="button"]').exists()).toBe(true);
-    expect(wrapper.find('button[data-testid="button"]').text()).toContain('Approve selected shipments');
-    expect(wrapper.find('button[data-testid="button"]').html()).toContain('disabled=""');
-  });
-
-  it('renders the checkboxes', () => {
-    const wrapper = mount(
-      <RequestedShipments
-        mtoShipments={shipments}
-        mtoAgents={agents}
-        allowancesInfo={allowancesInfo}
-        customerInfo={customerInfo}
-      />,
-    );
-    expect(wrapper.find('div[data-testid="checkbox"]').exists()).toBe(true);
-    expect(wrapper.find('div[data-testid="checkbox"]').length).toEqual(4);
+    expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
+    expect(wrapper.find('.table--stacked').length).toBe(4);
   });
 });

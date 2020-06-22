@@ -1,6 +1,5 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { withKnobs } from '@storybook/addon-knobs';
 
 import RequestedShipments from 'components/Office/RequestedShipments';
 
@@ -123,19 +122,80 @@ const shipments = [
   },
 ];
 
+const allowancesInfo = {
+  branch: 'Navy',
+  rank: 'E-6',
+  weightAllowance: '11,000 lbs',
+  authorizedWeight: '11,000 lbs',
+  progear: '2,000 lbs',
+  spouseProgear: '500 lbs',
+  storageInTransit: '90 days',
+  dependents: 'Authorized',
+};
+
+const customerInfo = {
+  name: 'Smith, Kerry',
+  dodId: '9999999999',
+  phone: '+1 999-999-9999',
+  email: 'ksmith@email.com',
+  currentAddress: {
+    street_address_1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postal_code: '78234',
+  },
+  destinationAddress: {
+    street_address_1: '441 SW Rio de la Plata Drive',
+    city: 'Tacoma',
+    state: 'WA',
+    postal_code: '98421',
+  },
+  backupContactName: 'Quinn Ocampo',
+  backupContactPhone: '+1 999-999-9999',
+  backupContactEmail: 'quinnocampo@myemail.com',
+};
+
+const agents = [
+  {
+    type: 'RELEASING_AGENT',
+    firstName: 'Dorothy',
+    lastName: 'Lagomarsino',
+    email: 'dorothyl@email.com',
+    phone: '+1 999-999-9999',
+    shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
+  },
+  {
+    type: 'RECEIVING_AGENT',
+    firstName: 'Dorothy Lagomarsino',
+    lastName: 'Lagomarsino',
+    email: 'dorothyl@email.com',
+    phone: '+1 999-999-9999',
+    shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
+  },
+];
+
 storiesOf('TOO/TIO Components|RequestedShipments', module)
-  .addDecorator(withKnobs)
   .add('with one shipment', () => {
     return (
       <div style={{ padding: '20px' }}>
-        <RequestedShipments mtoShipments={[shipments[0]]} />
+        <RequestedShipments
+          mtoShipments={[shipments[0]]}
+          allowancesInfo={allowancesInfo}
+          customerInfo={customerInfo}
+          mtoAgents={agents}
+        />
       </div>
     );
   })
   .add('with two shipments', () => {
     return (
       <div style={{ position: 'relative', padding: '20px' }}>
-        <RequestedShipments mtoShipments={shipments} />
+        <RequestedShipments
+          mtoShipments={shipments}
+          allowancesInfo={allowancesInfo}
+          customerInfo={customerInfo}
+          mtoAgents={agents}
+        />
       </div>
     );
   });
