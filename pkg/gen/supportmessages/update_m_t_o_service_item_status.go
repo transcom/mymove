@@ -19,21 +19,6 @@ import (
 // swagger:model UpdateMTOServiceItemStatus
 type UpdateMTOServiceItemStatus struct {
 
-	// approved at
-	// Read Only: true
-	// Format: date
-	ApprovedAt strfmt.Date `json:"approvedAt,omitempty"`
-
-	// created at
-	// Read Only: true
-	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
-
-	// deleted at
-	// Read Only: true
-	// Format: date
-	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`
-
 	// description
 	// Read Only: true
 	Description string `json:"description,omitempty"`
@@ -83,11 +68,6 @@ type UpdateMTOServiceItemStatus struct {
 	// Read Only: true
 	ReServiceName string `json:"reServiceName,omitempty"`
 
-	// rejected at
-	// Read Only: true
-	// Format: date
-	RejectedAt strfmt.Date `json:"rejectedAt,omitempty"`
-
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
@@ -95,36 +75,14 @@ type UpdateMTOServiceItemStatus struct {
 	// Required: true
 	Status MTOServiceItemStatus `json:"status"`
 
-	// submitted at
-	// Read Only: true
-	// Format: date
-	SubmittedAt strfmt.Date `json:"submittedAt,omitempty"`
-
 	// total
 	// Read Only: true
 	Total int64 `json:"total,omitempty"`
-
-	// updated at
-	// Read Only: true
-	// Format: date-time
-	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this update m t o service item status
 func (m *UpdateMTOServiceItemStatus) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateApprovedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDeletedAt(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateFeeType(formats); err != nil {
 		res = append(res, err)
@@ -146,64 +104,13 @@ func (m *UpdateMTOServiceItemStatus) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateRejectedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSubmittedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *UpdateMTOServiceItemStatus) validateApprovedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ApprovedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("approvedAt", "body", "date", m.ApprovedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOServiceItemStatus) validateCreatedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.CreatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOServiceItemStatus) validateDeletedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.DeletedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("deletedAt", "body", "date", m.DeletedAt.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -308,51 +215,12 @@ func (m *UpdateMTOServiceItemStatus) validateReServiceID(formats strfmt.Registry
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatus) validateRejectedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.RejectedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("rejectedAt", "body", "date", m.RejectedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *UpdateMTOServiceItemStatus) validateStatus(formats strfmt.Registry) error {
 
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOServiceItemStatus) validateSubmittedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.SubmittedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("submittedAt", "body", "date", m.SubmittedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOServiceItemStatus) validateUpdatedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.UpdatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

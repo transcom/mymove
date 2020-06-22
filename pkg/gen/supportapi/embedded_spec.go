@@ -915,18 +915,6 @@ func init() {
         "mtoShipmentID"
       ],
       "properties": {
-        "approvedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "description": {
           "type": "string"
         },
@@ -974,10 +962,6 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
-        "rejectedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -986,17 +970,9 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
-        "submittedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "total": {
           "type": "integer",
           "format": "cents"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
         }
       }
     },
@@ -1350,21 +1326,6 @@ func init() {
         "status"
       ],
       "properties": {
-        "approvedAt": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
         "description": {
           "type": "string",
           "readOnly": true
@@ -1423,11 +1384,6 @@ func init() {
           "type": "string",
           "readOnly": true
         },
-        "rejectedAt": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -1436,19 +1392,9 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
-        "submittedAt": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
         "total": {
           "type": "integer",
           "format": "cents",
-          "readOnly": true
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
           "readOnly": true
         }
       }
@@ -2659,18 +2605,6 @@ func init() {
         "mtoShipmentID"
       ],
       "properties": {
-        "approvedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "description": {
           "type": "string"
         },
@@ -2718,10 +2652,6 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
-        "rejectedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -2730,17 +2660,9 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
-        "submittedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "total": {
           "type": "integer",
           "format": "cents"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
         }
       }
     },
@@ -3094,21 +3016,6 @@ func init() {
         "status"
       ],
       "properties": {
-        "approvedAt": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
         "description": {
           "type": "string",
           "readOnly": true
@@ -3167,11 +3074,6 @@ func init() {
           "type": "string",
           "readOnly": true
         },
-        "rejectedAt": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -3180,19 +3082,9 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
-        "submittedAt": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
         "total": {
           "type": "integer",
           "format": "cents",
-          "readOnly": true
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
           "readOnly": true
         }
       }
