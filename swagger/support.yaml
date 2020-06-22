@@ -1026,7 +1026,14 @@ definitions:
         example: MTO Shipment not good enough
         x-nullable: true
   MTOServiceItem:
+    description: MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+    type: object
+    discriminator: modelType
     properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
       moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
@@ -1039,10 +1046,10 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      reServiceCode:
-        type: string
       reServiceName:
         type: string
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
       description:
         type: string
       feeType:
@@ -1064,32 +1071,33 @@ definitions:
         example: item was too heavy
         type: string
         x-nullable: true
-      status:
-        $ref: '#/definitions/MTOServiceItemStatus'
-      total:
-        format: cents
-        type: integer
+      modelType: # Base type and sub-types of MTOServiceItem
+        $ref: '#/definitions/MTOServiceItemModelType'
       eTag:
         type: string
     required:
-      - id
+      - modelType
       - moveTaskOrderID
-      - reServiceID
-      - reServiceCode
-      - reServiceName
-      - mtoShipmentID
-    type: object
-  MTOServiceItems:
-    type: array
-    items:
-      $ref: '#/definitions/MTOServiceItem'
   MTOServiceItemStatus:
-    description: Describes all statuses for a MTOServiceItem
+    description: Describes all statuses for a MTOServiceItem.
     type: string
     enum:
       - SUBMITTED
       - APPROVED
       - REJECTED
+  MTOServiceItemModelType:
+    description: >
+      Describes all model sub-types for a MTOServiceItem model.
+      Prime can only request the following service codes for which they will use the corresponding modelType
+        * DOFSIT - MTOServiceItemDOFSIT
+        * DOSHUT, DDSHUT - MTOServiceItemShuttle
+        * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
+    type: string
+    enum:
+      - MTOServiceItemBasic
+      - MTOServiceItemDOFSIT
+      - MTOServiceItemShuttle
+      - MTOServiceItemDomesticCrating
   UpdatePaymentRequest:
     properties:
       proofOfServicePackage:

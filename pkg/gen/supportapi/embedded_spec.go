@@ -948,14 +948,11 @@ func init() {
       }
     },
     "MTOServiceItem": {
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
       "required": [
-        "id",
-        "moveTaskOrderID",
-        "reServiceID",
-        "reServiceCode",
-        "reServiceName",
-        "mtoShipmentID"
+        "modelType",
+        "moveTaskOrderID"
       ],
       "properties": {
         "description": {
@@ -964,19 +961,13 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "feeType": {
-          "type": "string",
-          "enum": [
-            "COUNSELING",
-            "CRATING",
-            "TRUCKING",
-            "SHUTTLE"
-          ]
-        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "modelType": {
+          "$ref": "#/definitions/MTOServiceItemModelType"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -987,15 +978,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "quantity": {
-          "type": "integer"
-        },
-        "rate": {
-          "type": "integer"
-        },
-        "reServiceCode": {
-          "type": "string"
         },
         "reServiceID": {
           "type": "string",
@@ -1017,22 +999,27 @@ func init() {
           "type": "integer",
           "format": "cents"
         }
-      }
+      },
+      "discriminator": "modelType"
+    },
+    "MTOServiceItemModelType": {
+      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
+      "type": "string",
+      "enum": [
+        "MTOServiceItemBasic",
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticCrating"
+      ]
     },
     "MTOServiceItemStatus": {
-      "description": "Describes all statuses for a MTOServiceItem",
+      "description": "Describes all statuses for a MTOServiceItem.",
       "type": "string",
       "enum": [
         "SUBMITTED",
         "APPROVED",
         "REJECTED"
       ]
-    },
-    "MTOServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOServiceItem"
-      }
     },
     "MTOShipment": {
       "properties": {
@@ -2696,14 +2683,11 @@ func init() {
       }
     },
     "MTOServiceItem": {
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
       "required": [
-        "id",
-        "moveTaskOrderID",
-        "reServiceID",
-        "reServiceCode",
-        "reServiceName",
-        "mtoShipmentID"
+        "modelType",
+        "moveTaskOrderID"
       ],
       "properties": {
         "description": {
@@ -2712,19 +2696,13 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "feeType": {
-          "type": "string",
-          "enum": [
-            "COUNSELING",
-            "CRATING",
-            "TRUCKING",
-            "SHUTTLE"
-          ]
-        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "modelType": {
+          "$ref": "#/definitions/MTOServiceItemModelType"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -2735,15 +2713,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "quantity": {
-          "type": "integer"
-        },
-        "rate": {
-          "type": "integer"
-        },
-        "reServiceCode": {
-          "type": "string"
         },
         "reServiceID": {
           "type": "string",
@@ -2765,22 +2734,27 @@ func init() {
           "type": "integer",
           "format": "cents"
         }
-      }
+      },
+      "discriminator": "modelType"
+    },
+    "MTOServiceItemModelType": {
+      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
+      "type": "string",
+      "enum": [
+        "MTOServiceItemBasic",
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticCrating"
+      ]
     },
     "MTOServiceItemStatus": {
-      "description": "Describes all statuses for a MTOServiceItem",
+      "description": "Describes all statuses for a MTOServiceItem.",
       "type": "string",
       "enum": [
         "SUBMITTED",
         "APPROVED",
         "REJECTED"
       ]
-    },
-    "MTOServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOServiceItem"
-      }
     },
     "MTOShipment": {
       "properties": {
