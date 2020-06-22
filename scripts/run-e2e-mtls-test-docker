@@ -132,17 +132,18 @@ function prime_api_client () {
     "$@"
 }
 
-#Integration test for Prime API
+
+#Integration test/health check for Prime API
 #Return mtos from the fetch-mto endpoint where is_available_for_prime is true
 mtos=$(prime_api_client fetch-mto-updates)
 #Returns mtoShipments from the fetch-mto response, needed to return etag below
 mtoShipments=$(echo "$mtos" | jq '.[0] | .mtoShipments')
 echo "$mtoShipments"
 
-#TODO Decide what the goal of this test is. If it is simply to check that the
-#     Prime API is up and running, the above functions as a health check
-#     Adding more API calls makes this test more fragile without checking the
-#     output anyway.
+#Integration test/health check for Support API
+#Return all mtos regardless of whether or not they are available to prime
+list_mtos=$(prime_api_client support-list-mtos)
+echo "$list_mtos"
 
 #Get etag for the first mtoShipment, needed to run update-mto-shipment below
 #etag=$(echo "$mtoShipments" | jq '.[0] | .eTag' |  tr -d '"')
