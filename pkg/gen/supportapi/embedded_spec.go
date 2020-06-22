@@ -37,6 +37,49 @@ func init() {
   "basePath": "/support/v1",
   "paths": {
     "/move-task-orders": {
+      "get": {
+        "description": "Gets all move task orders. Provides all move task orders that are have both been made available to prime and not made available to prime.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "listMTOs",
+        "operationId": "listMTOs",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "timestamp",
+            "description": "Only return move task orders updated since this time.",
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all move task orders.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrders"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "post": {
         "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
@@ -1589,6 +1632,64 @@ func init() {
   "basePath": "/support/v1",
   "paths": {
     "/move-task-orders": {
+      "get": {
+        "description": "Gets all move task orders. Provides all move task orders that are have both been made available to prime and not made available to prime.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "listMTOs",
+        "operationId": "listMTOs",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "timestamp",
+            "description": "Only return move task orders updated since this time.",
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all move task orders.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrders"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "post": {
         "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [

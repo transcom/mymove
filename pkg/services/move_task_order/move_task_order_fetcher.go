@@ -48,12 +48,11 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, sin
 
 	if isAvailableToPrime {
 		query = query.Where("available_to_prime_at IS NOT NULL")
+	}
 
-		if since != nil {
-			since := time.Unix(*since, 0)
-			query = query.Where("updated_at > ?", since)
-		}
-
+	if since != nil {
+		since := time.Unix(*since, 0)
+		query = query.Where("updated_at > ?", since)
 	}
 
 	err = query.All(&moveTaskOrders)

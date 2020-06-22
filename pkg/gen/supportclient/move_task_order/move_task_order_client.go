@@ -114,6 +114,43 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 }
 
 /*
+ListMTOs lists m t os
+
+Gets all move task orders. Provides all move task orders that are have both been made available to prime and not made available to prime.
+
+*/
+func (a *Client) ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListMTOsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "listMTOs",
+		Method:             "GET",
+		PathPattern:        "/move-task-orders",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &ListMTOsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListMTOsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for listMTOs: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
 MakeMoveTaskOrderAvailable makes move task order available
 
 Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
