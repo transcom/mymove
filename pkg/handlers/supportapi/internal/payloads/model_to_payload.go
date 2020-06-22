@@ -1,8 +1,6 @@
 package payloads
 
 import (
-	"time"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate"
@@ -216,11 +214,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.Upda
 		MtoShipmentID:   strfmt.UUID(mtoServiceItem.MTOShipmentID.String()),
 		Status:          supportmessages.MTOServiceItemStatus(mtoServiceItem.Status),
 		RejectionReason: mtoServiceItem.Reason,
-	}
-
-	if mtoServiceItem.Status == "REJECTED" {
-		currentTime := time.Now()
-		payload.RejectedAt = strfmt.Date(currentTime)
 	}
 
 	return payload
