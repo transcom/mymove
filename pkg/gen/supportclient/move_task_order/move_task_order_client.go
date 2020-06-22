@@ -116,7 +116,7 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 /*
 ListMTOs lists m t os
 
-Gets all move task orders. Provides all move task orders that are have both been made available to prime and not made available to prime.
+Gets all move task orders. Provides all move task orders regardless of whether or not they have been made available to prime.
 
 */
 func (a *Client) ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error) {

@@ -22,7 +22,7 @@ paths:
       summary: listMTOs
       description: >
         Gets all move task orders.
-        Provides all move task orders that are have both been made available to prime and not made available to prime.
+        Provides all move task orders regardless of whether or not they have been made available to prime.
       operationId: listMTOs
       tags:
         - moveTaskOrder
@@ -804,8 +804,7 @@ definitions:
       isCanceled:
         type: boolean
         x-nullable: true
-        description:
-          Indicated this MoveTaskOrder has been canceled.
+        description: Indicated this MoveTaskOrder has been canceled.
       contractorID:
         type: string
         format: uuid
@@ -823,7 +822,7 @@ definitions:
         description: Array of MTOServiceItems associated with this MoveTaskOrder.
         type: array
         items:
-          $ref: "#/definitions/MTOServiceItem"
+          $ref: '#/definitions/MTOServiceItem'
       mtoShipments:
         description: array of MTOShipments associated with the MoveTaskOrder.
         $ref: '#/definitions/MTOShipments'

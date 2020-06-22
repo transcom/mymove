@@ -38,7 +38,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move task orders. Provides all move task orders that are have both been made available to prime and not made available to prime.\n",
+        "description": "Gets all move task orders. Provides all move task orders regardless of whether or not they have been made available to prime.\n",
         "produces": [
           "application/json"
         ],
@@ -1633,7 +1633,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move task orders. Provides all move task orders that are have both been made available to prime and not made available to prime.\n",
+        "description": "Gets all move task orders. Provides all move task orders regardless of whether or not they have been made available to prime.\n",
         "produces": [
           "application/json"
         ],
