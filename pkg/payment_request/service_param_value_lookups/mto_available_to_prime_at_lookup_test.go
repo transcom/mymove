@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -34,7 +35,7 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 	suite.T().Run("golden path", func(t *testing.T) {
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
-		expected := availableToPrimeAt.Format(TimestampParamFormat)
+		expected := availableToPrimeAt.Format(ghcrateengine.TimestampParamFormat)
 		suite.Equal(expected, valueStr)
 	})
 

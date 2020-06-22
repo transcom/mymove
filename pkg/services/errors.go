@@ -176,3 +176,19 @@ func NewConflictError(id uuid.UUID, message string) ConflictError {
 		message: message,
 	}
 }
+
+// NotImplementedError is returned when some functionality is not yet implemented
+type NotImplementedError struct {
+	message string
+}
+
+func (e NotImplementedError) Error() string {
+	return fmt.Sprintf("NotImplementedError: %s", e.message)
+}
+
+// NewNotImplementedError creates an error for some unimplemented functionality
+func NewNotImplementedError(message string) NotImplementedError {
+	return NotImplementedError{
+		message: message,
+	}
+}

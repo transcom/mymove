@@ -1321,6 +1321,7 @@ definitions:
     type: string
     enum:
       - CanStandAlone
+      - ContractCode
       - CubicFeetBilled
       - CubicFeetCrating
       - DistanceZip3
