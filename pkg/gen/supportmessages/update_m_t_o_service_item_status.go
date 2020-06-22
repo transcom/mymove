@@ -20,56 +20,71 @@ import (
 type UpdateMTOServiceItemStatus struct {
 
 	// approved at
+	// Read Only: true
 	// Format: date
 	ApprovedAt strfmt.Date `json:"approvedAt,omitempty"`
 
 	// created at
+	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// deleted at
+	// Read Only: true
 	// Format: date
 	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`
 
 	// description
+	// Read Only: true
 	Description string `json:"description,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// fee type
+	// Read Only: true
 	// Enum: [COUNSELING CRATING TRUCKING SHUTTLE]
 	FeeType string `json:"feeType,omitempty"`
 
 	// id
+	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// move task order ID
+	// Read Only: true
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 	// mto shipment ID
+	// Read Only: true
 	// Format: uuid
 	MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
 	// quantity
+	// Read Only: true
 	Quantity int64 `json:"quantity,omitempty"`
 
 	// rate
+	// Read Only: true
 	Rate int64 `json:"rate,omitempty"`
 
 	// re service code
+	// Read Only: true
 	ReServiceCode string `json:"reServiceCode,omitempty"`
 
 	// re service ID
+	// Read Only: true
 	// Format: uuid
 	ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 	// re service name
+	// Read Only: true
 	ReServiceName string `json:"reServiceName,omitempty"`
 
 	// rejected at
+	// Read Only: true
 	// Format: date
 	RejectedAt strfmt.Date `json:"rejectedAt,omitempty"`
 
@@ -81,13 +96,16 @@ type UpdateMTOServiceItemStatus struct {
 	Status MTOServiceItemStatus `json:"status"`
 
 	// submitted at
+	// Read Only: true
 	// Format: date
 	SubmittedAt strfmt.Date `json:"submittedAt,omitempty"`
 
 	// total
+	// Read Only: true
 	Total int64 `json:"total,omitempty"`
 
 	// updated at
+	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }

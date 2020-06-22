@@ -1352,21 +1352,26 @@ func init() {
       "properties": {
         "approvedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "deletedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "feeType": {
           "type": "string",
@@ -1375,43 +1380,53 @@ func init() {
             "CRATING",
             "TRUCKING",
             "SHUTTLE"
-          ]
+          ],
+          "readOnly": true
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "quantity": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "rate": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "reServiceCode": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "rejectedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "rejectionReason": {
           "type": "string",
@@ -1423,15 +1438,18 @@ func init() {
         },
         "submittedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "total": {
           "type": "integer",
-          "format": "cents"
+          "format": "cents",
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -3078,21 +3096,26 @@ func init() {
       "properties": {
         "approvedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "deletedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "description": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "feeType": {
           "type": "string",
@@ -3101,43 +3124,53 @@ func init() {
             "CRATING",
             "TRUCKING",
             "SHUTTLE"
-          ]
+          ],
+          "readOnly": true
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "quantity": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "rate": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "reServiceCode": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "rejectedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "rejectionReason": {
           "type": "string",
@@ -3149,15 +3182,18 @@ func init() {
         },
         "submittedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "total": {
           "type": "integer",
-          "format": "cents"
+          "format": "cents",
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
