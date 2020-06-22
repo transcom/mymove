@@ -58,6 +58,11 @@ type ShowPPMSitEstimateParams struct {
 	  Required: true
 	  In: query
 	*/
+	PersonallyProcuredMoveID strfmt.UUID
+	/*
+	  Required: true
+	  In: query
+	*/
 	WeightEstimate int64
 }
 
@@ -89,6 +94,11 @@ func (o *ShowPPMSitEstimateParams) BindRequest(r *http.Request, route *middlewar
 
 	qOriginalMoveDate, qhkOriginalMoveDate, _ := qs.GetOK("original_move_date")
 	if err := o.bindOriginalMoveDate(qOriginalMoveDate, qhkOriginalMoveDate, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPersonallyProcuredMoveID, qhkPersonallyProcuredMoveID, _ := qs.GetOK("personally_procured_move_id")
+	if err := o.bindPersonallyProcuredMoveID(qPersonallyProcuredMoveID, qhkPersonallyProcuredMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -236,6 +246,45 @@ func (o *ShowPPMSitEstimateParams) bindOriginalMoveDate(rawData []string, hasKey
 func (o *ShowPPMSitEstimateParams) validateOriginalMoveDate(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("original_move_date", "query", "date", o.OriginalMoveDate.String(), formats); err != nil {
+		return err
+	}
+	return nil
+}
+
+// bindPersonallyProcuredMoveID binds and validates parameter PersonallyProcuredMoveID from query.
+func (o *ShowPPMSitEstimateParams) bindPersonallyProcuredMoveID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("personally_procured_move_id", "query")
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// AllowEmptyValue: false
+	if err := validate.RequiredString("personally_procured_move_id", "query", raw); err != nil {
+		return err
+	}
+
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("personally_procured_move_id", "query", "strfmt.UUID", raw)
+	}
+	o.PersonallyProcuredMoveID = *(value.(*strfmt.UUID))
+
+	if err := o.validatePersonallyProcuredMoveID(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validatePersonallyProcuredMoveID carries on validations for parameter PersonallyProcuredMoveID
+func (o *ShowPPMSitEstimateParams) validatePersonallyProcuredMoveID(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("personally_procured_move_id", "query", "uuid", o.PersonallyProcuredMoveID.String(), formats); err != nil {
 		return err
 	}
 	return nil

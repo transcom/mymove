@@ -1,12 +1,14 @@
 import React, { Component, lazy, Suspense } from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'connected-react-router';
-import { history } from 'shared/store';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import { history } from 'shared/store';
+
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
+import './office.scss';
 
 import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
@@ -17,12 +19,13 @@ import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import QueueHeader from 'shared/Header/Office';
 import FOUOHeader from 'components/FOUOHeader';
-
+import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
+import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import './office.scss';
 import { withContext } from 'shared/AppContext';
 
 // Lazy load these dependencies
+const ConnectedOfficeHome = lazy(() => import('pages/OfficeHome'));
 const MoveInfo = lazy(() => import('./MoveInfo'));
 const Queues = lazy(() => import('./Queues'));
 const OrdersInfo = lazy(() => import('./OrdersInfo'));
@@ -35,7 +38,7 @@ const TIO = lazy(() => import('./TIO/tio'));
 const TOOVerificationInProgress = lazy(() => import('./TOO/tooVerificationInProgress'));
 const PaymentRequestShow = lazy(() => import('./TIO/paymentRequestShow'));
 const PaymentRequestIndex = lazy(() => import('./TIO/paymentRequestIndex'));
-const MoveDetails = lazy(() => import('pages/TOO/moveDetails'));
+const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
@@ -94,19 +97,19 @@ export class OfficeWrapper extends Component {
             {this.state.hasError && <SomethingWentWrong error={this.state.error} info={this.state.info} />}
             {!this.state.hasError && (
               <Switch>
-                <Route
+                <PrivateRoute
                   exact
                   path="/"
-                  component={({ location }) => (
-                    <Redirect
-                      from="/"
-                      to={{
-                        ...location,
-                        pathname: '/queues/new',
-                      }}
-                    />
+                  render={(props) => (
+                    <Suspense fallback={<LoadingPlaceholder />}>
+                      <QueueHeader />
+                      <main role="main" className="site__content">
+                        <ConnectedOfficeHome {...props} />
+                      </main>
+                    </Suspense>
                   )}
                 />
+                <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
                   component={(props) => (
@@ -114,6 +117,7 @@ export class OfficeWrapper extends Component {
                       <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
                   )}
+                  requiredRoles={[roleTypes.PPM]}
                 />
                 <PrivateRoute
                   path="/queues/:queueType"
@@ -122,6 +126,7 @@ export class OfficeWrapper extends Component {
                       <RenderWithOrWithoutHeader component={Queues} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
                   )}
+                  requiredRoles={[roleTypes.PPM]}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/orders"
@@ -135,6 +140,7 @@ export class OfficeWrapper extends Component {
                       />
                     </Suspense>
                   )}
+                  requiredRoles={[roleTypes.PPM]}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/documents/:moveDocumentId?"
@@ -148,6 +154,7 @@ export class OfficeWrapper extends Component {
                       />
                     </Suspense>
                   )}
+                  requiredRoles={[roleTypes.PPM]}
                 />
                 {!isProduction && (
                   <PrivateRoute
@@ -166,20 +173,122 @@ export class OfficeWrapper extends Component {
                 )}
                 <Suspense fallback={<LoadingPlaceholder />}>
                   <Switch>
-                    {too && <PrivateRoute path="/too/customer-moves" exact component={TOO} />}
-                    {too && <PrivateRoute path="/move/mto/:moveTaskOrderId" exact component={TOOMoveTaskOrder} />}
-                    {too && <PrivateRoute path="/moves/:moveOrderId" exact component={MoveDetails} />}
-                    {/*TODO: remove CustomerDetails route when ready*/}
                     {too && (
                       <PrivateRoute
-                        path="/too/customer-moves/:moveOrderId/customer/:customerId"
-                        component={CustomerDetails}
+                        path="/moves/queue"
+                        exact
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={TOO}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
+                        requiredRoles={[roleTypes.TOO]}
+                      />
+                    )}
+                    {too && (
+                      <PrivateRoute
+                        path="/move/mto/:moveTaskOrderId"
+                        exact
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={TOOMoveTaskOrder}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
+                        requiredRoles={[roleTypes.TOO]}
+                      />
+                    )}
+                    {too && (
+                      <PrivateRoute
+                        path="/moves/:moveOrderId"
+                        exact
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={MoveDetails}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
+                        requiredRoles={[roleTypes.TOO]}
+                      />
+                    )}
+                    {too && (
+                      <PrivateRoute
+                        path="/too/:moveOrderId/customer/:customerId"
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={CustomerDetails}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
+                        requiredRoles={[roleTypes.TOO]}
                       />
                     )}
                     {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
-                    {tio && <PrivateRoute path="/tio/placeholder" component={TIO} />}
-                    {tio && <PrivateRoute path="/payment_requests/:id" component={PaymentRequestShow} />}
-                    {tio && <PrivateRoute path="/payment_requests" component={PaymentRequestIndex} />}
+                    {tio && (
+                      <PrivateRoute
+                        path="/invoicing/queue"
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={TIO}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
+                        requiredRoles={[roleTypes.TIO]}
+                      />
+                    )}
+                    {tio && (
+                      <PrivateRoute
+                        path="/payment_requests/:id"
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={PaymentRequestShow}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
+                        requiredRoles={[roleTypes.TIO]}
+                      />
+                    )}
+                    {tio && (
+                      <PrivateRoute
+                        path="/payment_requests"
+                        component={(props) => (
+                          <Suspense fallback={<LoadingPlaceholder />}>
+                            <RenderWithOrWithoutHeader
+                              component={PaymentRequestIndex}
+                              withHeader={true}
+                              tag={DivOrMainTag}
+                              {...props}
+                            />
+                          </Suspense>
+                        )}
+                        requiredRoles={[roleTypes.TIO]}
+                      />
+                    )}
                   </Switch>
                 </Suspense>
               </Switch>

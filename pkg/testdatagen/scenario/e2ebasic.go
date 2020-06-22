@@ -38,12 +38,20 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	/*
 	 * Basic user with office access
 	 */
+	ppmOfficeRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&ppmOfficeRole)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	email := "officeuser1@example.com"
+	userID := uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b"))
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b")),
+			ID:            userID,
 			LoginGovEmail: email,
 			Active:        true,
+			Roles:         []roles.Role{ppmOfficeRole},
 		},
 		OfficeUser: models.OfficeUser{
 			ID:     uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
@@ -990,7 +998,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	/* A user with Roles */
 	smRole := roles.Role{}
-	err := db.Where("role_type = $1", roles.RoleTypeCustomer).First(&smRole)
+	err = db.Where("role_type = $1", roles.RoleTypeCustomer).First(&smRole)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -1054,6 +1062,26 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			Email:  email,
 			Active: true,
 			UserID: &tioUUID,
+		},
+	})
+
+	/* A user with both too and tio roles */
+	email = "too_tio_role@office.mil"
+	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tooTioUUID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tooRole, tioRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
+			Email:  email,
+			Active: true,
+			UserID: &tooTioUUID,
 		},
 	})
 

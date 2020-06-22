@@ -16,13 +16,18 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 const (
 	// MilMoveUserType is the type of user for a Service Member
 	MilMoveUserType string = "milmove"
-	// OfficeUserType is the type of user for an Office user
-	OfficeUserType string = "office"
+	// PPMOfficeUserType is the type of user for an Office user
+	PPMOfficeUserType string = "PPM office"
+	// TOOOfficeUserType is the type of user for an Office user
+	TOOOfficeUserType string = "TOO office"
+	// TIOOfficeUserType is the type of user for an Office user
+	TIOOfficeUserType string = "TIO office"
 	// DpsUserType is the type of user for a DPS user
 	DpsUserType string = "dps"
 	// AdminUserType is the type of user for an admin user
@@ -68,27 +73,31 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type TemplateData struct {
-		Identities      []models.UserIdentity
-		IsMilApp        bool
-		MilMoveUserType string
-		IsOfficeApp     bool
-		OfficeUserType  string
-		DpsUserType     string
-		IsAdminApp      bool
-		AdminUserType   string
-		CsrfToken       string
-		QueryLimit      int
+		Identities        []models.UserIdentity
+		IsMilApp          bool
+		MilMoveUserType   string
+		IsOfficeApp       bool
+		PPMOfficeUserType string
+		TOOOfficeUserType string
+		TIOOfficeUserType string
+		DpsUserType       string
+		IsAdminApp        bool
+		AdminUserType     string
+		CsrfToken         string
+		QueryLimit        int
 	}
 
 	templateData := TemplateData{
-		Identities:      identities,
-		IsMilApp:        auth.MilApp == session.ApplicationName,
-		MilMoveUserType: MilMoveUserType,
-		IsOfficeApp:     auth.OfficeApp == session.ApplicationName,
-		OfficeUserType:  OfficeUserType,
-		DpsUserType:     DpsUserType,
-		IsAdminApp:      auth.AdminApp == session.ApplicationName,
-		AdminUserType:   AdminUserType,
+		Identities:        identities,
+		IsMilApp:          auth.MilApp == session.ApplicationName,
+		MilMoveUserType:   MilMoveUserType,
+		IsOfficeApp:       auth.OfficeApp == session.ApplicationName,
+		PPMOfficeUserType: PPMOfficeUserType,
+		TOOOfficeUserType: TOOOfficeUserType,
+		TIOOfficeUserType: TIOOfficeUserType,
+		DpsUserType:       DpsUserType,
+		IsAdminApp:        auth.AdminApp == session.ApplicationName,
+		AdminUserType:     AdminUserType,
 		// Build CSRF token instead of grabbing from middleware. Otherwise throws errors when accessed directly.
 		CsrfToken:  csrf.Token(r),
 		QueryLimit: limit,
@@ -108,7 +117,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				<form method="post" action="/devlocal-auth/login">
 					<p>
 						<input type="hidden" name="gorilla.csrf.Token" value="{{$.CsrfToken}}">
-						<input type="hidden" name="userType" value="{{if $.IsOfficeApp}}{{$.OfficeUserType}}{{else}}{{$.MilMoveUserType}}{{end}}">
+						<input type="hidden" name="userType" value="{{if $.IsOfficeApp}}{{$.PPMOfficeUserType}}{{else}}{{$.MilMoveUserType}}{{end}}">
 						<label for="email">User Email</label>
 						<input type="text" name="email" size="60">
 						<button type="submit" data-hook="existing-user-login">Login</button>
@@ -127,8 +136,8 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						  ({{$.DpsUserType}})
 						  <input type="hidden" name="userType" value="{{$.DpsUserType}}">
 						{{else if .OfficeUserID}}
-						  ({{$.OfficeUserType}})
-						  <input type="hidden" name="userType" value="{{$.OfficeUserType}}">
+						  ({{$.PPMOfficeUserType}})
+						  <input type="hidden" name="userType" value="{{$.PPMOfficeUserType}}">
 						{{else}}
 						  ({{$.MilMoveUserType}})
 						  <input type="hidden" name="userType" value="{{$.MilMoveUserType}}">
@@ -171,8 +180,24 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			  <form method="post" action="/devlocal-auth/new">
 				<p>
 				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-				  <input type="hidden" name="userType" value="{{.OfficeUserType}}">
-				  <button type="submit" data-hook="new-user-login-{{.OfficeUserType}}">Create a New {{.OfficeUserType}} User</button>
+				  <input type="hidden" name="userType" value="{{.PPMOfficeUserType}}">
+				  <button type="submit" data-hook="new-user-login-{{.PPMOfficeUserType}}">Create a New {{.PPMOfficeUserType}} User</button>
+				</p>
+			  </form>
+
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.TOOOfficeUserType}}">
+				  <button type="submit" data-hook="new-user-login-{{.TOOOfficeUserType}}">Create a New {{.TOOOfficeUserType}} User</button>
+				</p>
+			  </form>
+
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.TIOOfficeUserType}}">
+				  <button type="submit" data-hook="new-user-login-{{.TIOOfficeUserType}}">Create a New {{.TIOOfficeUserType}} User</button>
 				</p>
 			  </form>
 			  {{end}}
@@ -358,7 +383,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	}
 
 	switch userType {
-	case OfficeUserType:
+	case PPMOfficeUserType:
 		// Now create the Truss JPPSO
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
@@ -373,6 +398,158 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 		if verrs.HasAny() {
 			h.logger.Error("validation errors creating address", zap.Stringer("errors", verrs))
+		}
+
+		role := roles.Role{}
+		h.db.Where("role_type = $1", "ppm_office_users").First(&role)
+
+		usersRole := models.UsersRoles{
+			UserID: user.ID,
+			RoleID: role.ID,
+		}
+
+		verrs, err = h.db.ValidateAndSave(&usersRole)
+		if err != nil {
+			h.logger.Error("could not create user role", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating user role", zap.Stringer("errors", verrs))
+		}
+
+		office := models.TransportationOffice{
+			Name:      "Truss",
+			AddressID: address.ID,
+			Latitude:  37.7678355,
+			Longitude: -122.4199298,
+			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+		}
+
+		verrs, err = h.db.ValidateAndSave(&office)
+		if err != nil {
+			h.logger.Error("could not create office", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating office", zap.Stringer("errors", verrs))
+		}
+
+		officeUser := models.OfficeUser{
+			FirstName:              firstName,
+			LastName:               lastName,
+			Telephone:              telephone,
+			TransportationOfficeID: office.ID,
+			Email:                  email,
+			Active:                 true,
+		}
+		if user.ID != uuid.Nil {
+			officeUser.UserID = &user.ID
+		}
+
+		verrs, err = h.db.ValidateAndSave(&officeUser)
+		if err != nil {
+			h.logger.Error("could not create office user", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating office user", zap.Stringer("errors", verrs))
+		}
+	case TOOOfficeUserType:
+		// Now create the Truss JPPSO
+		address := models.Address{
+			StreetAddress1: "1333 Minna St",
+			City:           "San Francisco",
+			State:          "CA",
+			PostalCode:     "94115",
+		}
+
+		verrs, err := h.db.ValidateAndSave(&address)
+		if err != nil {
+			h.logger.Error("could not create address", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating address", zap.Stringer("errors", verrs))
+		}
+
+		role := roles.Role{}
+		h.db.Where("role_type = $1", "transportation_ordering_officer").First(&role)
+
+		usersRole := models.UsersRoles{
+			UserID: user.ID,
+			RoleID: role.ID,
+		}
+
+		verrs, err = h.db.ValidateAndSave(&usersRole)
+		if err != nil {
+			h.logger.Error("could not create user role", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating user role", zap.Stringer("errors", verrs))
+		}
+
+		office := models.TransportationOffice{
+			Name:      "Truss",
+			AddressID: address.ID,
+			Latitude:  37.7678355,
+			Longitude: -122.4199298,
+			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+		}
+
+		verrs, err = h.db.ValidateAndSave(&office)
+		if err != nil {
+			h.logger.Error("could not create office", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating office", zap.Stringer("errors", verrs))
+		}
+
+		officeUser := models.OfficeUser{
+			FirstName:              firstName,
+			LastName:               lastName,
+			Telephone:              telephone,
+			TransportationOfficeID: office.ID,
+			Email:                  email,
+			Active:                 true,
+		}
+		if user.ID != uuid.Nil {
+			officeUser.UserID = &user.ID
+		}
+
+		verrs, err = h.db.ValidateAndSave(&officeUser)
+		if err != nil {
+			h.logger.Error("could not create office user", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating office user", zap.Stringer("errors", verrs))
+		}
+	case TIOOfficeUserType:
+		// Now create the Truss JPPSO
+		address := models.Address{
+			StreetAddress1: "1333 Minna St",
+			City:           "San Francisco",
+			State:          "CA",
+			PostalCode:     "94115",
+		}
+
+		verrs, err := h.db.ValidateAndSave(&address)
+		if err != nil {
+			h.logger.Error("could not create address", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating address", zap.Stringer("errors", verrs))
+		}
+
+		role := roles.Role{}
+		h.db.Where("role_type = $1", "transportation_invoicing_officer").First(&role)
+
+		usersRole := models.UsersRoles{
+			UserID: user.ID,
+			RoleID: role.ID,
+		}
+
+		verrs, err = h.db.ValidateAndSave(&usersRole)
+		if err != nil {
+			h.logger.Error("could not create user role", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating user role", zap.Stringer("errors", verrs))
 		}
 
 		office := models.TransportationOffice{
@@ -475,7 +652,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 
 	// Keep the logic for redirection separate from setting the session user ids
 	switch userType {
-	case OfficeUserType:
+	case PPMOfficeUserType, TOOOfficeUserType, TIOOfficeUserType:
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.appnames.OfficeServername
 		active = userIdentity.Active || (userIdentity.OfficeActive != nil && *userIdentity.OfficeActive)
@@ -503,7 +680,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
-	if userIdentity.OfficeUserID != nil && (session.IsOfficeApp() || userType == OfficeUserType) {
+	if userIdentity.OfficeUserID != nil && (session.IsOfficeApp() || userType == PPMOfficeUserType || userType == TOOOfficeUserType || userType == TIOOfficeUserType) {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
 	}
 

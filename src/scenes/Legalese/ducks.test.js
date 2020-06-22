@@ -1,46 +1,27 @@
-import { CREATE_SIGNED_CERT, dateToTimestamp, signedCertificationReducer } from './ducks';
+import { REMOVE_SUCCESS_BANNER, SHOW_SUCCESS_BANNER, signedCertificationReducer } from './ducks';
 
 describe('Feedback Reducer', () => {
-  it('Should handle CREATE_CERTIFICATION_SUCCESS', () => {
-    const initialState = { pendingValue: '', confirmationText: '' };
+  it('Should handle REMOVE_SUCCESS_BANNER', () => {
+    const initialState = { moveSubmitSuccess: true };
 
     const newState = signedCertificationReducer(initialState, {
-      type: CREATE_SIGNED_CERT.success,
-      item: 'Successful item!',
+      type: REMOVE_SUCCESS_BANNER,
     });
 
     expect(newState).toEqual({
-      pendingValue: '',
-      confirmationText: 'Feedback submitted!',
-      hasSubmitError: false,
-      hasSubmitSuccess: true,
+      moveSubmitSuccess: false,
     });
   });
 
-  it('Should handle CREATE_CERTIFICATION_FAILURE', () => {
-    const initialState = { pendingValue: '', confirmationText: '' };
+  it('Should handle SHOW_SUCCESS_BANNER', () => {
+    const initialState = { moveSubmitSuccess: false };
 
     const newState = signedCertificationReducer(initialState, {
-      type: CREATE_SIGNED_CERT.failure,
-      error: 'No bueno.',
+      type: SHOW_SUCCESS_BANNER,
     });
 
     expect(newState).toEqual({
-      pendingValue: '',
-      confirmationText: 'Submission error.',
-      hasSubmitError: true,
-      hasSubmitSuccess: false,
-    });
-  });
-  describe('format to swagger date-time in users timezone', () => {
-    it('adds timestamp to date', () => {
-      const dt = dateToTimestamp('2017-07-21');
-      expect(dt).toBe('2017-07-21T00:00:00+00:00');
-    });
-    it('does nothing if passed a timestamp', () => {
-      const ts = '2017-07-21T00:00:00+00:00';
-      const dt = dateToTimestamp(ts);
-      expect(dt).toBe('2017-07-21T00:00:00+00:00');
+      moveSubmitSuccess: true,
     });
   });
 });

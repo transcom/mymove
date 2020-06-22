@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -60,5 +61,5 @@ func PPMDiscountFetch(db *pop.Connection, logger Logger, move Move, originZip st
 		zap.Time("move_date", moveDate),
 		zap.Error(err),
 	)
-	return 0, 0, err
+	return 0, 0, fmt.Errorf("could not find discount: %w", err)
 }

@@ -530,8 +530,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	useSecureCookie := !isDevOrTest
 	redisEnabled := v.GetBool(cli.RedisEnabledFlag)
 	sessionStore := redisstore.New(redisPool)
-	idleTimeout := v.GetDuration(cli.SessionIdleTimeoutInMinutesFlag) * time.Minute
-	lifetime := v.GetDuration(cli.SessionLifetimeInHoursFlag) * time.Hour
+	idleTimeout := time.Duration(v.GetInt(cli.SessionIdleTimeoutInMinutesFlag)) * time.Minute
+	lifetime := time.Duration(v.GetInt(cli.SessionLifetimeInHoursFlag)) * time.Hour
 	sessionManagers := auth.SetupSessionManagers(redisEnabled, sessionStore, useSecureCookie, idleTimeout, lifetime)
 	milSession := sessionManagers[0]
 	adminSession := sessionManagers[1]
@@ -619,9 +619,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	)
 	handlerContext.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagConvertPPMsToGHC, Active: v.GetBool(cli.FeatureFlagConvertPPMsToGHC)},
-	)
-	handlerContext.SetFeatureFlag(
-		handlers.FeatureFlag{Name: cli.FeatureFlagSupportEndpoints, Active: v.GetBool(cli.FeatureFlagSupportEndpoints)},
 	)
 
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
@@ -835,7 +832,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		site.Handle(pat.New("/prime/v1/*"), primeMux)
 	}
 
-	if v.GetBool(cli.ServeSupportFlag) && handlerContext.GetFeatureFlag(cli.FeatureFlagSupportEndpoints) {
+	if v.GetBool(cli.ServeSupportFlag) {
 		supportMux := goji.SubMux()
 		supportDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.PrimeServername)
 		supportMux.Use(supportDetectionMiddleware)
@@ -969,7 +966,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection))
-	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext))
+	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, dbConnection))
 
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
