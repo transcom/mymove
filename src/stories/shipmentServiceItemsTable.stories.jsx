@@ -1,9 +1,12 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
-import { withKnobs } from '@storybook/addon-knobs';
 
 import ShipmentServiceItemsTable from '../components/Office/ShipmentServiceItemsTable';
 
-storiesOf('TOO/TIO Components|ShipmentServiceItemsTable', module)
-  .addDecorator(withKnobs)
-  .add('Shipment Service Items Table', () => <ShipmentServiceItemsTable shipmentType="hhg" />);
+export default {
+  title: 'TOO/TIO Components|Shipment Service Items Table',
+  component: ShipmentServiceItemsTable,
+};
+
+export const HHGServiceItems = () => <ShipmentServiceItemsTable shipmentType="hhg" />;
+
+export const NTSServiceItems = () => <ShipmentServiceItemsTable shipmentType="nts" />;

@@ -40,7 +40,7 @@ const ShipmentServiceItemsTable = ({ shipmentType }) => {
         <caption>
           <div className="stackedtable-header">
             <h4>
-              Service items for this shipment<span>{shipmentServiceItems.length} items</span>
+              Service items for this shipment <span>{shipmentServiceItems.length} items</span>
             </h4>
           </div>
         </caption>
