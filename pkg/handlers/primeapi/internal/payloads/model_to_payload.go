@@ -451,7 +451,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	}
 
 	payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
-	payload.SetMoveTaskOrderID(strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()))
+	payload.SetMoveTaskOrderID(handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID))
 	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
 	payload.SetReServiceID(strfmt.UUID(mtoServiceItem.ReServiceID.String()))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)

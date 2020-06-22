@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -34,7 +35,7 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 	suite.T().Run("golden path", func(t *testing.T) {
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
-		expected := requestedPickupDate.Format(DateParamFormat)
+		expected := requestedPickupDate.Format(ghcrateengine.DateParamFormat)
 		suite.Equal(expected, valueStr)
 	})
 

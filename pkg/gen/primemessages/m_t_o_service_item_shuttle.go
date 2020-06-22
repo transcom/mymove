@@ -23,7 +23,7 @@ type MTOServiceItemShuttle struct {
 
 	idField strfmt.UUID
 
-	moveTaskOrderIdField strfmt.UUID
+	moveTaskOrderIdField *strfmt.UUID
 
 	mtoShipmentIdField strfmt.UUID
 
@@ -80,12 +80,12 @@ func (m *MTOServiceItemShuttle) SetModelType(val MTOServiceItemModelType) {
 }
 
 // MoveTaskOrderID gets the move task order ID of this subtype
-func (m *MTOServiceItemShuttle) MoveTaskOrderID() strfmt.UUID {
+func (m *MTOServiceItemShuttle) MoveTaskOrderID() *strfmt.UUID {
 	return m.moveTaskOrderIdField
 }
 
 // SetMoveTaskOrderID sets the move task order ID of this subtype
-func (m *MTOServiceItemShuttle) SetMoveTaskOrderID(val strfmt.UUID) {
+func (m *MTOServiceItemShuttle) SetMoveTaskOrderID(val *strfmt.UUID) {
 	m.moveTaskOrderIdField = val
 }
 
@@ -179,7 +179,7 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 
 		ModelType MTOServiceItemModelType `json:"modelType"`
 
-		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
@@ -270,7 +270,7 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 
 		ModelType MTOServiceItemModelType `json:"modelType"`
 
-		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
@@ -366,8 +366,8 @@ func (m *MTOServiceItemShuttle) validateID(formats strfmt.Registry) error {
 
 func (m *MTOServiceItemShuttle) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MoveTaskOrderID()) { // not required
-		return nil
+	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID()); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID().String(), formats); err != nil {

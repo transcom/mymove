@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
 // RequestedPickupDateLookup does lookup on requested pickup date
@@ -43,5 +44,5 @@ func (r RequestedPickupDateLookup) lookup(keyData *ServiceItemParamKeyData) (str
 		return "", fmt.Errorf("could not find a requested pickup date for MTOShipmentID [%s]", mtoShipmentID)
 	}
 
-	return requestedPickupDate.Format(DateParamFormat), nil
+	return requestedPickupDate.Format(ghcrateengine.DateParamFormat), nil
 }
