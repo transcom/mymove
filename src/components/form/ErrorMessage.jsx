@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { ErrorMessage as UswdsErrorMessage } from '@trussworks/react-uswds';
 
 export const ErrorMessage = ({ display, children, ...props }) => {

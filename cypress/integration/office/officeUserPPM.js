@@ -3,7 +3,7 @@ import { userCancelsStorageDetails, userSavesStorageDetails } from '../../suppor
 
 describe('office user finds the move', function () {
   beforeEach(() => {
-    cy.signIntoOffice();
+    cy.signInAsNewOfficeUser();
   });
 
   it('office user views moves in queue new moves', function () {
@@ -88,9 +88,7 @@ describe('office user finds the move', function () {
 
 function officeUserViewsMoves() {
   // Open new moves queue
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
-  });
+  cy.location('pathname').should('eq', '/');
 
   // Find move and open it
   cy.selectQueueItemMoveLocator('VGHEIS');
@@ -102,9 +100,7 @@ function officeUserViewsMoves() {
 
 function officeUserVerifiesOrders(moveLocator) {
   // Open new moves queue
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
-  });
+  cy.location('pathname').should('eq', '/');
 
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);
@@ -161,9 +157,7 @@ function officeUserVerifiesOrders(moveLocator) {
 
 function officeUserVerifiesAccounting() {
   // Open new moves queue
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
-  });
+  cy.location('pathname').should('eq', '/');
 
   // Find move and open it
   cy.selectQueueItemMoveLocator('VGHEIS');
@@ -202,9 +196,7 @@ function officeUserVerifiesAccounting() {
 
 function officeUserApprovesMoveAndPPM(moveLocator) {
   // Open new moves queue
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
-  });
+  cy.location('pathname').should('eq', '/');
 
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);
@@ -226,9 +218,6 @@ function officeUserApprovesMoveAndPPM(moveLocator) {
 
   // Open new moves queue
   cy.patientVisit('/');
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
-  });
 
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);

@@ -14,7 +14,9 @@ describe('orders entry', function () {
       expect(loc.pathname).to.eq('/orders/');
     });
 
-    cy.get('select[name="orders_type"]').select('Permanent Change Of Station');
+    cy.get('select[name="orders_type"]').select('Separation');
+    cy.get('select[name="orders_type"]').select('Retirement');
+    cy.get('select[name="orders_type"]').select('Permanent Change Of Station (PCS)');
 
     cy.get('input[name="issue_date"]').first().click();
 

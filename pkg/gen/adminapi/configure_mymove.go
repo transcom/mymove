@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/admin.yaml --api-package adminoperations --model-package adminmessages --server-package adminapi --exclude-main
@@ -78,6 +79,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation upload.GetUpload has not yet been implemented")
 		})
 	}
+	if api.UsersGetUserHandler == nil {
+		api.UsersGetUserHandler = users.GetUserHandlerFunc(func(params users.GetUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.GetUser has not yet been implemented")
+		})
+	}
 	if api.AccessCodesIndexAccessCodesHandler == nil {
 		api.AccessCodesIndexAccessCodesHandler = access_codes.IndexAccessCodesHandlerFunc(func(params access_codes.IndexAccessCodesParams) middleware.Responder {
 			return middleware.NotImplemented("operation access_codes.IndexAccessCodes has not yet been implemented")
@@ -121,6 +127,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
 		api.TransportationServiceProviderPerformancesIndexTSPPsHandler = transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_service_provider_performances.IndexTSPPs has not yet been implemented")
+		})
+	}
+	if api.UsersRevokeUserSessionHandler == nil {
+		api.UsersRevokeUserSessionHandler = users.RevokeUserSessionHandlerFunc(func(params users.RevokeUserSessionParams) middleware.Responder {
+			return middleware.NotImplemented("operation users.RevokeUserSession has not yet been implemented")
 		})
 	}
 	if api.AdminUsersUpdateAdminUserHandler == nil {

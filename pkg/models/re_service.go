@@ -9,9 +9,6 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// ReServiceName is a type of service name
-type ReServiceName string
-
 // ReServiceCode is the code of service
 type ReServiceCode string
 

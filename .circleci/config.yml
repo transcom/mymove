@@ -119,6 +119,11 @@ commands:
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
+      - deploy:
+          name: Deploy post to GEX service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container post-file-to-gex "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          no_output_timeout: 20m
+      - announce_failure
   deploy_app_steps:
     parameters:
       compare_host:
@@ -323,8 +328,8 @@ commands:
             LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
             LOGIN_GOV_ADMIN_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:adminmovemillocal
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
-            HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.cit.api.here.com/6.2/geocode.json
-            HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
+            HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.api.here.com/6.2/geocode.json
+            HERE_MAPS_ROUTING_ENDPOINT: https://route.api.here.com/routing/7.2/calculateroute.json
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
 
   e2e_tests_mtls:
