@@ -15,9 +15,42 @@ const (
 	dlhTestWeight      = unit.Pound(4000)
 )
 
+
+var dlhRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
+
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	suite.setupDomesticLinehaulData()
-	domesticLinehaulPricer := NewDomesticLinehaulPricer(suite.DB(), suite.logger, testdatagen.DefaultContractCode)
+	paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
+	linehaulServicePricer := NewDomesticLinehaulPricer(suite.DB())
+
+	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
+		priceCents, err := linehaulServicePricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		suite.NoError(err)
+		suite.Equal(csPriceCents, priceCents)
+	})
+
+	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
+		priceCents, err := linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, int(dlhTestDistance), int(dlhTestWeight), dlhTestServiceArea)
+		//contractCode, requestedPickupDate, isPeakPeriod, distanceZip3, weightBilledActual, serviceAreaOrigin
+		suite.NoError(err)
+		suite.Equal(csPriceCents, priceCents)
+	})
+
+	suite.T().Run("sending PaymentServiceItemParams without expected param", func(t *testing.T) {
+		_, err := linehaulServicePricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		suite.Error(err)
+	})
+
+	suite.T().Run("not finding a rate record", func(t *testing.T) {
+		_, err := linehaulServicePricer.Price("BOGUS",  dlhRequestedPickupDate, true, int(dlhTestDistance), int(dlhTestWeight), dlhTestServiceArea)
+		suite.Error(err)
+	})
+}
+
+/*
+func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaulDELETE() {
+	suite.setupDomesticLinehaulData()
+	domesticLinehaulPricer := NewDomesticLinehaulPricer(suite.DB())
 
 	suite.T().Run("success within peak period", func(t *testing.T) {
 		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(
@@ -80,7 +113,24 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	})
 }
 
+ */
+
 func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulData() {
+
+	contractYear := testdatagen.MakeDefaultReContractYear(suite.DB())
+
+	linehaulServiceItem := testdatagen.MakeReService(suite.DB(),
+		testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDLH,
+			},
+		})
+
+	taskOrderFee := models.ReDomesticLinehaulPrice{
+
+	}
+	suite.MustSave(&taskOrderFee)
+
 	contractYear := testdatagen.MakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
@@ -115,4 +165,53 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulData() {
 	linehaulPriceNonPeak.IsPeakPeriod = false
 	linehaulPriceNonPeak.PriceMillicents = 4500 // 0.045
 	suite.MustSave(&linehaulPriceNonPeak)
+}
+
+
+func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() models.PaymentServiceItem {
+	return suite.setupPaymentServiceItemWithParams(
+		models.ReServiceCodeDLH,
+		[]createParams{
+			{
+				models.ServiceItemParamNameContractCode,
+				models.ServiceItemParamTypeString,
+				testdatagen.DefaultContractCode,
+			},
+			{
+				models.ServiceItemParamNameRequestedPickupDate,
+				models.ServiceItemParamTypeTimestamp,
+				dlhRequestedPickupDate.Format(TimestampParamFormat),
+			},
+			{
+				models.ServiceItemParamNameDistanceZip3,
+				models.ServiceItemParamTypeInteger,
+				"1700",
+			},
+			{
+				models.ServiceItemParamNameZipPickupAddress,
+				models.ServiceItemParamTypeString,
+				"90210",
+			},
+			{
+				models.ServiceItemParamNameZipDestAddress,
+				models.ServiceItemParamTypeString,
+				"94535",
+			},
+			{
+				models.ServiceItemParamNameWeightBilledActual,
+				models.ServiceItemParamTypeInteger,
+				"1400",
+			},
+			{
+				models.ServiceItemParamNameWeightActual,
+				models.ServiceItemParamTypeInteger,
+				"1400",
+			},
+			{
+				models.ServiceItemParamNameWeightEstimated,
+				models.ServiceItemParamTypeInteger,
+				"1400",
+			},
+		},
+	)
 }
