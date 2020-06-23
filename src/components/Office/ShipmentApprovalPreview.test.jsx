@@ -2,6 +2,9 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
+import ShipmentContainer from './ShipmentContainer';
+import AllowancesTable from './AllowancesTable';
+import CustomerInfoTable from './CustomerInfoTable';
 
 const shipments = [
   {
@@ -185,7 +188,7 @@ describe('Shipment preview modal', () => {
       />,
     );
     expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
-    expect(wrapper.find('.table--stacked').length).toBe(4);
+    expect(wrapper.find('.table--stacked').length).toBe(5);
   });
   it('renders the modal successfully with mtoAgents provided', () => {
     const wrapper = mount(
@@ -200,6 +203,8 @@ describe('Shipment preview modal', () => {
       />,
     );
     expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
-    expect(wrapper.find('.table--stacked').length).toBe(4);
+    expect(wrapper.find(ShipmentContainer).exists()).toBe(true);
+    expect(wrapper.find(AllowancesTable).exists()).toBe(true);
+    expect(wrapper.find(CustomerInfoTable).exists()).toBe(true);
   });
 });
