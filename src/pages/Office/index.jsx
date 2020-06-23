@@ -24,6 +24,7 @@ import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplic
 import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
+import { LocationShape } from 'types/router';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const ConnectedOfficeHome = lazy(() => import('pages/OfficeHome'));
@@ -74,6 +75,7 @@ export class OfficeWrapper extends Component {
   render() {
     const { hasError, error, info } = this.state;
     const {
+      userIsLoggedIn,
       context: {
         flags: { too, tio },
       },
@@ -86,14 +88,15 @@ export class OfficeWrapper extends Component {
     // TODO - I don't love this solution but it will work for now. Ideally we can abstract the page layout into a separate file where each route can use it or not
     // Don't show Header on OrdersInfo or DocumentViewer pages
     const hideHeader =
-      matchPath(pathname, {
+      userIsLoggedIn &&
+      (matchPath(pathname, {
         path: '/moves/:moveId/documents/:moveDocumentId?',
         exact: true,
       }) ||
-      matchPath(pathname, {
-        path: '/moves/:moveId/orders',
-        exact: true,
-      });
+        matchPath(pathname, {
+          path: '/moves/:moveId/orders',
+          exact: true,
+        }));
 
     return (
       <div className="site">
@@ -169,9 +172,8 @@ OfficeWrapper.propTypes = {
       tio: PropTypes.bool,
     }),
   }),
-  location: PropTypes.shape({
-    pathname: PropTypes.string,
-  }),
+  location: LocationShape,
+  userIsLoggedIn: PropTypes.bool,
 };
 
 OfficeWrapper.defaultProps = {
@@ -182,6 +184,7 @@ OfficeWrapper.defaultProps = {
     },
   },
   location: { pathname: '' },
+  userIsLoggedIn: false,
 };
 
 const mapStateToProps = (state) => {
