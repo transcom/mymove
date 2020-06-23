@@ -6,25 +6,24 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/testingsuite"
+	"go.uber.org/zap"
 )
 
-type GhcDieselFuelPriceServiceSuite struct {
+type GHCDieselFuelPriceServiceSuite struct {
 	testingsuite.PopTestSuite
 	logger *zap.Logger
 }
 
-func (suite *GhcDieselFuelPriceServiceSuite) SetupTest() {
+func (suite *GHCDieselFuelPriceServiceSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestGhcDieselFuelPriceServiceSuite(t *testing.T) {
+func TestGHCDieselFuelPriceServiceSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
-	ts := &GhcDieselFuelPriceServiceSuite{
+	ts := &GHCDieselFuelPriceServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
@@ -32,61 +31,61 @@ func TestGhcDieselFuelPriceServiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-func (suite *GhcDieselFuelPriceServiceSuite) helperStubEiaData(url string) (EiaData, error) {
-	var eiaData EiaData
+func (suite *GHCDieselFuelPriceServiceSuite) helperStubEIAData(url string) (eiaData, error) {
+	var eiaData eiaData
 	re := suite.helperRemoveURLQuerystring(url)
 
 	if re.MatchString("EIA Open Data API error - invalid or missing api_key") {
-		eiaData.ResponseStatusCode = 200
-		eiaData.RequestData = RequestData{
+		eiaData.responseStatusCode = 200
+		eiaData.RequestData = requestData {
 			Command:  "series",
 			SeriesID: "pet.emd_epd2d_pte_nus_dpg.ws",
 		}
-		eiaData.ErrorData = ErrorData{
+		eiaData.ErrorData = errorData {
 			Error: "invalid or missing api_key. For key registration, documentation, and examples see https://www.eia.gov/developer/",
 		}
-		eiaData.SeriesData = []SeriesData{}
+		eiaData.SeriesData = []seriesData{}
 
 		return eiaData, nil
 	}
 
 	if re.MatchString("EIA Open Data API error - invalid series_id") {
-		eiaData.ResponseStatusCode = 200
-		eiaData.RequestData = RequestData{
+		eiaData.responseStatusCode = 200
+		eiaData.RequestData = requestData {
 			Command:  "series",
 			SeriesID: "pet.emd_epd2d_pte_nus_dpg.ws",
 		}
-		eiaData.ErrorData = ErrorData{
+		eiaData.ErrorData = errorData {
 			Error: "invalid series_id. For key registration, documentation, and examples see https://www.eia.gov/developer/",
 		}
-		eiaData.SeriesData = []SeriesData{}
+		eiaData.SeriesData = []seriesData{}
 
 		return eiaData, nil
 	}
 
 	if re.MatchString("nil series data") {
-		eiaData.ResponseStatusCode = 200
-		eiaData.RequestData = RequestData{
+		eiaData.responseStatusCode = 200
+		eiaData.RequestData = requestData {
 			Command:  "series",
 			SeriesID: "pet.emd_epd2d_pte_nus_dpg.ws",
 		}
-		eiaData.ErrorData = ErrorData{}
-		eiaData.SeriesData = []SeriesData{}
+		eiaData.ErrorData = errorData{}
+		eiaData.SeriesData = []seriesData{}
 
 		return eiaData, nil
 	}
 
 	if re.MatchString("extract diesel fuel price data") {
-		eiaData.ResponseStatusCode = 200
-		eiaData.RequestData = RequestData{
+		eiaData.responseStatusCode = 200
+		eiaData.RequestData = requestData {
 			Command:  "series",
 			SeriesID: "pet.emd_epd2d_pte_nus_dpg.ws",
 		}
-		eiaData.ErrorData = ErrorData{}
-		eiaData.SeriesData = []SeriesData{
+		eiaData.ErrorData = errorData{}
+		eiaData.SeriesData = []seriesData {
 			0: {
 				Updated: "2020-06-08T19:30:09-0400",
-				Data: [][]interface{}{
+				Data: [][]interface{} {
 					0: {0: "20200608", 1: 2.396},
 					1: {0: "20200601", 1: 2.386},
 					2: {0: "20200525", 1: 2.39},
@@ -99,14 +98,14 @@ func (suite *GhcDieselFuelPriceServiceSuite) helperStubEiaData(url string) (EiaD
 		return eiaData, nil
 	}
 
-	return EiaData{}, nil
+	return eiaData, nil
 }
 
-func (suite *GhcDieselFuelPriceServiceSuite) helperRemoveURLQuerystring(URL string) *regexp.Regexp {
+func (suite *GHCDieselFuelPriceServiceSuite) helperRemoveURLQuerystring(url string) *regexp.Regexp {
 	re := regexp.MustCompile(`%20`)
-	URL = re.ReplaceAllLiteralString(URL, ` `)
-	URL = strings.Split(URL, "?")[0]
-	re = regexp.MustCompile(`^` + URL + `.*`)
+	url = re.ReplaceAllLiteralString(url, ` `)
+	url = strings.Split(url, "?")[0]
+	re = regexp.MustCompile(`^` + url + `.*`)
 
 	return re
 }

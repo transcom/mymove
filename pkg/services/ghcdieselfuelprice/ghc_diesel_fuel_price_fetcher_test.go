@@ -4,59 +4,53 @@ import (
 	"testing"
 )
 
-func (suite *GhcDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceFetcher() {
+func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceFetcher() {
 	suite.T().Run("build correct EIA Open Data API URL", func(t *testing.T) {
-		dieselFuelPriceStorer := NewDieselFuelPriceStorer("https://api.eia.gov/series/", "pUW34B2q8tLooWEVQpU7s9Joq672q2rP", suite.helperStubEiaData) // eiaKey: "pUW34B2q8tLooWEVQpU7s9Joq672q2rP" is a fake key
+		newDieselFuelPriceInfo := newDieselFuelPriceInfo("https://api.eia.gov/series/", "pUW34B2q8tLooWEVQpU7s9Joq672q2rP", suite.logger, suite.helperStubEIAData)  // eiaKey: "pUW34B2q8tLooWEVQpU7s9Joq672q2rP" is a fake key
 
-		eiaFinalURL, err := BuildEiaAPIURL(dieselFuelPriceStorer.eiaURL, dieselFuelPriceStorer.eiaKey)
+		finalEIAAPIURL, err := buildFinalEIAAPIURL(newDieselFuelPriceInfo.eiaURL, newDieselFuelPriceInfo.eiaKey)
 		suite.NoError(err)
-		dieselFuelPriceStorer.eiaFinalURL = eiaFinalURL
 
-		suite.Equal("https://api.eia.gov/series/?api_key=pUW34B2q8tLooWEVQpU7s9Joq672q2rP&series_id=PET.EMD_EPD2D_PTE_NUS_DPG.W", dieselFuelPriceStorer.eiaFinalURL)
+		suite.Equal("https://api.eia.gov/series/?api_key=pUW34B2q8tLooWEVQpU7s9Joq672q2rP&series_id=PET.EMD_EPD2D_PTE_NUS_DPG.W", finalEIAAPIURL)
 	})
 
 	suite.T().Run("EIA Open Data API error - invalid or missing api_key", func(t *testing.T) {
-		dieselFuelPriceStorer := NewDieselFuelPriceStorer("EIA Open Data API error - invalid or missing api_key", "", suite.helperStubEiaData)
+		newDieselFuelPriceInfo := newDieselFuelPriceInfo("EIA Open Data API error - invalid or missing api_key", "", suite.logger, suite.helperStubEIAData)
 
-		eiaData, err := dieselFuelPriceStorer.eiaDataFetcherFunction(dieselFuelPriceStorer.eiaURL)
+		eiaData, err := newDieselFuelPriceInfo.eiaDataFetcherFunction(newDieselFuelPriceInfo.eiaURL)
 		suite.NoError(err)
-		dieselFuelPriceStorer.eiaData = eiaData
 
-		_, err = ExtractDieselFuelPriceData(dieselFuelPriceStorer.eiaData)
+		_, err = extractDieselFuelPriceData(eiaData)
 		suite.Error(err)
-
 	})
 
 	suite.T().Run("EIA Open Data API error - invalid series_id", func(t *testing.T) {
-		dieselFuelPriceStorer := NewDieselFuelPriceStorer("EIA Open Data API error - invalid series_id", "", suite.helperStubEiaData)
+		newDieselFuelPriceInfo := newDieselFuelPriceInfo("EIA Open Data API error - invalid series_id", "", suite.logger, suite.helperStubEIAData)
 
-		eiaData, err := dieselFuelPriceStorer.eiaDataFetcherFunction(dieselFuelPriceStorer.eiaURL)
+		eiaData, err := newDieselFuelPriceInfo.eiaDataFetcherFunction(newDieselFuelPriceInfo.eiaURL)
 		suite.NoError(err)
-		dieselFuelPriceStorer.eiaData = eiaData
 
-		_, err = ExtractDieselFuelPriceData(dieselFuelPriceStorer.eiaData)
+		_, err = extractDieselFuelPriceData(eiaData)
 		suite.Error(err)
 	})
 
 	suite.T().Run("nil series data", func(t *testing.T) {
-		dieselFuelPriceStorer := NewDieselFuelPriceStorer("nil series data", "", suite.helperStubEiaData)
+		newDieselFuelPriceInfo := newDieselFuelPriceInfo("nil series data", "", suite.logger, suite.helperStubEIAData)
 
-		eiaData, err := dieselFuelPriceStorer.eiaDataFetcherFunction(dieselFuelPriceStorer.eiaURL)
+		eiaData, err := newDieselFuelPriceInfo.eiaDataFetcherFunction(newDieselFuelPriceInfo.eiaURL)
 		suite.NoError(err)
-		dieselFuelPriceStorer.eiaData = eiaData
 
-		_, err = ExtractDieselFuelPriceData(dieselFuelPriceStorer.eiaData)
+		_, err = extractDieselFuelPriceData(eiaData)
 		suite.Error(err)
 	})
 
 	suite.T().Run("extract diesel fuel price data", func(t *testing.T) {
-		dieselFuelPriceStorer := NewDieselFuelPriceStorer("extract diesel fuel price data", "", suite.helperStubEiaData)
+		newDieselFuelPriceInfo := newDieselFuelPriceInfo("extract diesel fuel price data", "", suite.logger, suite.helperStubEIAData)
 
-		eiaData, err := dieselFuelPriceStorer.eiaDataFetcherFunction(dieselFuelPriceStorer.eiaURL)
+		eiaData, err := newDieselFuelPriceInfo.eiaDataFetcherFunction(newDieselFuelPriceInfo.eiaURL)
 		suite.NoError(err)
-		dieselFuelPriceStorer.eiaData = eiaData
 
-		_, err = ExtractDieselFuelPriceData(dieselFuelPriceStorer.eiaData)
+		_, err = extractDieselFuelPriceData(eiaData)
 		suite.NoError(err)
 	})
 }
