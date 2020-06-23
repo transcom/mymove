@@ -1,49 +1,65 @@
 @import '../../shared/styles/basics';
 @import '../../shared/styles/mixins';
+@import '../../shared/styles/variables';
 
-.tab-nav {
-  //@include u-height('6');
-  //@include u-padding('0'); changed how the spacing was implemented to use an after to do the underline instead of a border-bottom
+// conflicts with left nav border style
+nav.tabNav a {
+  &:active {
+    border: none;
+    font-weight: inherit;
+  }
+}
+
+.tabList {
   @include u-margin('0');
-  @include u-border-bottom('1px', 'gray-cool-10');
   @include u-line-height('body', 1);
   @include u-position('relative');
   @include u-bg('white');
+  @include u-padding-left('0');
 }
 
-.tab-title {
+.tabItem a {
+  display: inline-block;
+  // we don't want the :visited styling to show up here
+  text-decoration: none;
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.tabItem :global a .tab-title {
   @include u-padding-bottom('1.5');
-  //@include u-text('gray-50');
-  //@include u-margin-right('05');
   @include u-position('relative');
   @include u-font-size('body', 4);
   @include u-text('gray-cool-70');
+  font-weight: normal;
   &:hover {
     @include u-text('blue-warm-60v');
-    //@include u-border-bottom('05', 'blue-warm-60v');
-    @include underline(.25rem, 'blue-warm-60v');
+    @include underline(0.25rem, 'blue-warm-60v');
   }
 }
-.tab-active .tab-title {
+.tabItem :global .usa-current .tab-title {
   @include u-text('gray-cool-70', 'bold');
-  //@include u-border-bottom('05', 'blue-warm-60v');
-  @include underline(.25rem, 'blue-warm-60v');
+  @include underline(0.25rem, 'blue-warm-60v');
+  @include u-position('relative');
   &:hover {
     @include u-text('gray-cool-70', 'bold');
   }
 }
-.tab-item {
-  @include u-padding('2');
-  @include u-display('inline-block');
-  &:focus {
-    @include u-outline('05', 'blue-40v');
-  //  @include u-padding-top('05'); adjusting padding on focus will make our menu items scoot, we don't want that!!
-  //  @include u-padding-bottom('05');
-  }
-}
-.tab-item :global .usa-tag {
+
+.tabItem a :global .usa-tag {
   @include u-text('gray-cool-70');
   @include u-bg('gold-20v');
   @include u-margin-left('05');
   @include u-margin-right('0');
+  padding-bottom: 0px;
+}
+
+.tabList .tabItem {
+  border: none;
+  @include u-padding('2');
+  @include u-display('inline-block');
+  &:focus {
+    @include u-outline('05', 'blue-40v');
+  }
 }
