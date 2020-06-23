@@ -78,7 +78,18 @@ func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
 //FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
 func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
 	mto := &models.MoveTaskOrder{}
-	if err := f.db.Eager().Find(mto, moveTaskOrderID); err != nil {
+	if err := f.db.Eager("PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+		"MTOServiceItems.ReService",
+		"MTOServiceItems.Dimensions",
+		"MTOServiceItems.CustomerContacts",
+		"MTOShipments.DestinationAddress",
+		"MTOShipments.PickupAddress",
+		"MTOShipments.SecondaryDeliveryAddress",
+		"MTOShipments.SecondaryPickupAddress",
+		"MTOShipments.MTOAgents",
+		"MoveOrder.Customer",
+		"MoveOrder.Entitlement").Find(mto, moveTaskOrderID); err != nil {
+
 		switch err {
 		case sql.ErrNoRows:
 			return &models.MoveTaskOrder{}, services.NewNotFoundError(moveTaskOrderID, "")
