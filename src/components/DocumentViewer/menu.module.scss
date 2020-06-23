@@ -125,4 +125,5 @@ $content-width: 308px;
   @include u-height(6);
   @include u-margin-y(1.5);
   @include u-margin-left(1.5);
+  overflow: hidden;
 }
