@@ -39,6 +39,7 @@ export class Uploader extends Component {
     if (this.props.onRef) {
       this.props.onRef(this);
     }
+    console.log('props in component did mount', this.props);
   }
 
   componentWillUnmount() {
@@ -81,9 +82,10 @@ export class Uploader extends Component {
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
     const isIdle = every(existingFiles, (f) => {
+      console.log('isidle', isIdle);
       return includes(idleStatuses, f.status);
     });
-
+    console.log('idisle func', isIdle);
     return isIdle;
   }
 
@@ -99,6 +101,7 @@ export class Uploader extends Component {
       if (this.props.onChange) {
         this.props.onChange(this.state.files, this.isIdle());
       }
+      console.log('process file props change', this.props);
     });
 
     this.pond._pond.on('addfilestart', (e) => {
@@ -130,6 +133,7 @@ export class Uploader extends Component {
         self.setState({
           files: newFiles,
         });
+        console.log('process file func state:', this.state.files);
       })
       .catch(error);
 
