@@ -34,7 +34,8 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	payload := params.Body
 	if payload == nil {
 		logger.Error("Invalid mto shipment: params Body is nil")
-		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
+		return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
@@ -43,7 +44,8 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	if verrs != nil && verrs.HasAny() {
 		logger.Error("Error validating mto service item list: ", zap.Error(verrs))
 
-		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity()
+		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+			"The MTO service item list is invalid.", h.GetTraceID(), nil))
 	}
 
 	//mtoShipment.MTOServiceItems = *mtoServiceItemsList
@@ -52,7 +54,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		switch err.(type) {
 		case services.NotFoundError:
 			logger.Error("move task order not found", zap.Error(err))
-			return mtoshipmentops.NewCreateMTOShipmentNotFound()
+			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		}
 		logger.Error("Error creating mto shipment: ", zap.Error(err))
 		return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
