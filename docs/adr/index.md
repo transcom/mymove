@@ -53,6 +53,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0046](0046-use-nodenv.md) - Use [nodenv](https://github.com/nodenv/nodenv) to manage Node versions in development
 - [ADR-0047](0047-build-only-pull-requests-in-circleci.md) - Use CircleCI to build only Pull Requests and master
 - [ADR-0048](0048-frontend-file-org.md) - Use a consistent file structure for front-end code
+- [ADR-0049](0049-etag-for-child-updates.md) - Do not update child records using parent's E-tag
 
 <!-- adrlogstop -->
 
