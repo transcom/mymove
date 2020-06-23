@@ -90,8 +90,22 @@ const ShipmentApprovalPreview = ({ mtoShipments, allowancesInfo, customerInfo, m
                 </ShipmentContainer>
               ))}
           </div>
-          <AllowancesTable info={allowancesInfo} />
-          <CustomerInfoTable customerInfo={customerInfo} />
+          <div className="container">
+            <h2>Basic move details</h2>
+            <h4>Approved service items for this move</h4>
+            <table className="table--stacked">
+              <tbody>
+                <tr>
+                  <td>Shipment management fee</td>
+                </tr>
+                <tr>
+                  <td>Counseling fee</td>
+                </tr>
+              </tbody>
+            </table>
+            <AllowancesTable info={allowancesInfo} />
+            <CustomerInfoTable customerInfo={customerInfo} />
+          </div>
         </Modal>
       </ModalContainer>
     </div>

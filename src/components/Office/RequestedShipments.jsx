@@ -32,11 +32,15 @@ const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAge
   const isButtonEnabled =
     formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
 
+  const filteredShipments = () => {
+    return mtoShipments.filter(({ id }) => formik.values.shipments.includes(id));
+  };
+
   return (
     <div className={`${cx('requested-shipments')} container`} data-cy="requested-shipments">
       <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>
         <ShipmentApprovalPreview
-          mtoShipments={mtoShipments}
+          mtoShipments={filteredShipments()}
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           setIsModalVisible={setIsModalVisible}
