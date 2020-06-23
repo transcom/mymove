@@ -8,6 +8,8 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # as possible.
 # https://github.com/transcom/transcom-infrasec-com/blob/c32c45078f29ea6fd58b0c246f994dbea91be372/transcom-com-legacy/app-prod/main.tf#L62
 DB_DOCKER_CONTAINER_IMAGE = postgres:12.2
+REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
+REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
@@ -34,6 +36,8 @@ DB_PORT_DEV=5432
 DB_PORT_TEST=5433
 DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
+REDIS_PORT=6379
+REDIS_PORT_DOCKER=6379
 ifdef CIRCLECI
 	DB_PORT_DEV=5432
 	DB_PORT_TEST=5432
@@ -118,7 +122,7 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit client_deps redis_pull bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -302,7 +306,7 @@ server_build: bin/milmove ## Build the server
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
-server_run_standalone: check_log_dir server_build client_build db_dev_run
+server_run_standalone: check_log_dir server_build client_build db_dev_run redis_run
 	DEBUG_LOGGING=true ./bin/milmove serve 2>&1 | tee -a log/dev.log
 
 # This command will rebuild the swagger go code and rerun server on any changes
@@ -311,7 +315,7 @@ server_run:
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run redis_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
@@ -324,7 +328,7 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		2>&1 | tee -a log/dev.log
 
 .PHONY: server_run_debug
-server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## Debug the server
+server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run redis_run ## Debug the server
 	scripts/kill-process-on-port 8080
 	scripts/kill-process-on-port 9443
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
@@ -396,7 +400,7 @@ mocks_generate: bin/mockery ## Generate mockery mocks for tests
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test
-server_test: db_test_reset db_test_migrate server_test_standalone ## Run server unit tests
+server_test: db_test_reset db_test_migrate redis_reset server_test_standalone ## Run server unit tests
 
 .PHONY: server_test_standalone
 server_test_standalone: ## Run server unit tests with no deps
@@ -407,12 +411,12 @@ server_test_build:
 	NO_DB=1 DRY_RUN=1 scripts/run-server-test
 
 .PHONY: server_test_all
-server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
+server_test_all: db_dev_reset db_dev_migrate redis_reset ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
 	LONG_TEST=1 scripts/run-server-test
 
 .PHONY: server_test_coverage_generate
-server_test_coverage_generate: db_test_reset db_test_migrate server_test_coverage_generate_standalone ## Run server unit test coverage
+server_test_coverage_generate: db_test_reset db_test_migrate redis_reset server_test_coverage_generate_standalone ## Run server unit test coverage
 
 .PHONY: server_test_coverage_generate_standalone
 server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
@@ -420,7 +424,7 @@ server_test_coverage_generate_standalone: ## Run server unit tests with coverage
 	NO_DB=1 COVERAGE=1 scripts/run-server-test
 
 .PHONY: server_test_coverage
-server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
+server_test_coverage: db_test_reset db_test_migrate redis_reset server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
 
 .PHONY: server_test_docker
@@ -436,8 +440,44 @@ server_test_docker_down:
 #
 
 #
+# ----- START REDIS TARGETS -----
+#
+
+.PHONY: redis_pull
+redis_pull: ## Pull redis image
+	docker pull $(REDIS_DOCKER_CONTAINER_IMAGE)
+
+.PHONY: redis_destroy
+redis_destroy: ## Destroy Redis
+	@echo "Destroying the ${REDIS_DOCKER_CONTAINER} docker redis container..."
+	docker rm -f $(REDIS_DOCKER_CONTAINER) || echo "No Redis container"
+
+.PHONY: redis_run
+redis_run: ## Run Redis
+ifndef CIRCLECI
+		@echo "Stopping the Redis brew service in case it's running..."
+		brew services stop redis 2> /dev/null || true
+endif
+	@echo "Starting the ${REDIS_DOCKER_CONTAINER} docker redis container..."
+	docker start $(REDIS_DOCKER_CONTAINER) || \
+		docker run -d --name $(REDIS_DOCKER_CONTAINER) \
+			-p $(REDIS_PORT):$(REDIS_PORT_DOCKER) \
+			$(REDIS_DOCKER_CONTAINER_IMAGE)
+
+.PHONY: redis_reset
+redis_reset: redis_destroy redis_run ## Reset Redis
+
+#
+# ----- END REDIS TARGETS -----
+#
+
+#
 # ----- START DB_DEV TARGETS -----
 #
+
+.PHONY: db_pull
+db_pull: ## Pull db image
+	docker pull $(DB_DOCKER_CONTAINER_IMAGE)
 
 .PHONY: db_dev_destroy
 db_dev_destroy: ## Destroy Dev DB
@@ -667,7 +707,7 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 
 .PHONY: db_e2e_init
-db_e2e_init: db_test_reset db_test_migrate db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
+db_e2e_init: db_test_reset db_test_migrate redis_reset db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: db_dev_reset db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
@@ -677,7 +717,7 @@ db_dev_e2e_populate: db_dev_reset db_dev_migrate ## Populate Dev DB with generat
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="development"
 
 .PHONY: db_test_e2e_populate
-db_test_e2e_populate: db_test_reset db_test_migrate build_tools db_e2e_up ## Populate Test DB with generated e2e (end-to-end) data
+db_test_e2e_populate: db_test_reset db_test_migrate redis_reset build_tools db_e2e_up ## Populate Test DB with generated e2e (end-to-end) data
 
 .PHONY: db_test_e2e_backup
 db_test_e2e_backup: ## Backup Test DB as 'e2e_test'
@@ -766,6 +806,21 @@ tasks_send_payment_reminder: tasks_build_linux_docker ## Run send-payment-remind
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
 		milmove-tasks send-payment-reminder
+
+tasks_post_file_to_gex: tasks_build_linux_docker ## Run post-file-to-gex from inside docker container
+	@echo "sending payment reminder with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		milmove-tasks post-file-to-gex
 #
 # ----- END SCHEDULED TASK TARGETS -----
 #

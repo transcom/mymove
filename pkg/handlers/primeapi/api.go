@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/loads"
 
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -34,6 +35,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	primeAPI.MoveTaskOrderFetchMTOUpdatesHandler = FetchMTOUpdatesHandler{
 		context,
+		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
 	}
 
 	primeAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
@@ -48,7 +50,11 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{
 		context,
-		paymentrequest.NewPaymentRequestCreator(context.DB(), context.Planner()),
+		paymentrequest.NewPaymentRequestCreator(
+			context.DB(),
+			context.Planner(),
+			ghcrateengine.NewServiceItemPricer(context.DB()),
+		),
 	}
 
 	primeAPI.UploadsCreateUploadHandler = CreateUploadHandler{

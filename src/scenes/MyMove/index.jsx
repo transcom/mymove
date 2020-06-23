@@ -30,7 +30,6 @@ import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
 import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
-import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
@@ -47,7 +46,7 @@ import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import { withContext } from 'shared/AppContext';
-import { selectMoveFromServiceMemberId } from 'shared/Entities/modules/moves';
+import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -120,7 +119,6 @@ export class AppWrapper extends Component {
                     component={EditDateAndLocation}
                   />
                   <ValidatedPrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
-                  <ValidatedPrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
                   <ValidatedPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
                   <ValidatedPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
                   <ValidatedPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
@@ -170,7 +168,7 @@ const mapStateToProps = (state) => {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),
     // TODO: update to func in master - moves can be in entities or moves.currentMove
-    moveId: get(state, 'moves.currentMove.id') || selectMoveFromServiceMemberId(state, serviceMemberId).id,
+    moveId: get(state, 'moves.currentMove.id') || selectActiveOrLatestMove(state, serviceMemberId).id,
     selectedMoveType: selectedMoveType(state),
     swaggerError: state.swaggerInternal.hasErrored,
   };

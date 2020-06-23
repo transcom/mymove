@@ -25,6 +25,7 @@ import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders, selectActiveOrders } from 'shared/Entities/modules/orders';
+import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -141,7 +142,6 @@ export class Landing extends Component {
                 resumeMove={this.resumeMove}
                 reviewProfile={this.reviewProfile}
                 requestPaymentSuccess={requestPaymentSuccess}
-                moveSubmitSuccess={moveSubmitSuccess}
                 updateMove={updateMove}
               />
             )}
@@ -165,7 +165,7 @@ const mapStateToProps = (state) => {
     backupContacts: state.serviceMember.currentBackupContacts || [],
     // orders: state.orders.currentOrders || {},
     orders: selectActiveOrders(state),
-    move: state.moves.currentMove || state.moves.latestMove || {},
+    move: selectActiveOrLatestMove(state),
     ppm: getPPM(state),
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),

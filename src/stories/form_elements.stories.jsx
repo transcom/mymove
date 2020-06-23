@@ -1,9 +1,7 @@
 import React from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-
 import { Fieldset, Checkbox, Radio } from '@trussworks/react-uswds';
-
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 

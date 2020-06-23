@@ -2,13 +2,16 @@
 /* eslint-disable react/jsx-wrap-multilines */
 import React from 'react';
 import classNames from 'classnames/bind';
-import { SHIPMENT_TYPE } from 'shared/constants';
 import * as PropTypes from 'prop-types';
+import { Checkbox } from '@trussworks/react-uswds';
+
+import { ReactComponent as ChevronDown } from '../../shared/icon/chevron-down.svg';
+
+import ShipmentContainer from './ShipmentContainer';
+
+import { SHIPMENT_TYPE } from 'shared/constants';
 import styles from 'components/Office/ShipmentDisplay.module.scss';
 import { formatDate } from 'shared/dates';
-import { Checkbox } from '@trussworks/react-uswds';
-import { ReactComponent as ChevronDown } from '../../shared/icon/chevron-down.svg';
-import ShipmentContainer from './ShipmentContainer';
 
 const cx = classNames.bind(styles);
 
@@ -74,9 +77,9 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, checked, shipmen
 };
 
 ShipmentDisplay.propTypes = {
-  onChange: PropTypes.func,
+  onChange: PropTypes.func.isRequired,
   shipmentId: PropTypes.string.isRequired,
-  checked: PropTypes.bool,
+  checked: PropTypes.bool.isRequired,
   shipmentType: PropTypes.oneOf([
     SHIPMENT_TYPE.HHG,
     SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC,

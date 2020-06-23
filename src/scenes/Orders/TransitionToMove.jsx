@@ -5,7 +5,7 @@ import { get } from 'lodash';
 import { updateMove } from '../Moves/ducks';
 import ordersComplete from 'shared/images/orders-complete-gray-icon.png';
 import moveIcon from 'shared/images/move-icon.png';
-import { selectMoveFromServiceMemberId } from 'shared/Entities/modules/moves';
+import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 
 export class TransitionToMove extends Component {
@@ -44,7 +44,7 @@ export class TransitionToMove extends Component {
 function mapStateToProps(state) {
   // const move = get(state, 'moves.currentMove');
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
-  const move = selectMoveFromServiceMemberId(state, serviceMemberId);
+  const move = selectActiveOrLatestMove(state);
 
   const props = {
     serviceMemberId: serviceMemberId,

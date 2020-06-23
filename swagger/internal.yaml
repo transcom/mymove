@@ -2054,8 +2054,12 @@ definitions:
     title: Orders type
     enum:
       - PERMANENT_CHANGE_OF_STATION
+      - RETIREMENT
+      - SEPARATION
     x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
+      RETIREMENT: Retirement
+      SEPARATION: Separation
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -2587,6 +2591,11 @@ paths:
         - ppm
       parameters:
         - in: query
+          name: personally_procured_move_id
+          type: string
+          format: uuid
+          required: true
+        - in: query
           name: original_move_date
           type: string
           format: date
@@ -2623,6 +2632,8 @@ paths:
           description: user is not authorized
         409:
           description: distance is less than 50 miles (no short haul moves)
+        422:
+          description: the payload was unprocessable
         500:
           description: internal server error
   /users/logged_in:
