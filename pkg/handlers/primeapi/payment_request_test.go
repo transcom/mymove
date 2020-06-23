@@ -63,25 +63,9 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(serviceItemID1),
-						//Params: []*primemessages.ServiceItemParamsItems0{
-						//	{
-						//		Key:   "weight",
-						//		Value: "1234",
-						//	},
-						//	{
-						//		Key:   "pickup",
-						//		Value: "2019-12-16",
-						//	},
-						//},
 					},
 					{
 						ID: *handlers.FmtUUID(serviceItemID2),
-						//Params: []*primemessages.ServiceItemParamsItems0{
-						//	{
-						//		Key:   "weight",
-						//		Value: "5678",
-						//	},
-						//},
 					},
 				},
 				PointOfContact: "user@prime.com",
@@ -203,12 +187,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: badFormatID,
-						//Params: []*primemessages.ServiceItemParamsItems0{
-						//	{
-						//		Key:   "weight",
-						//		Value: "5678",
-						//	},
-						//},
 					},
 				},
 			},
@@ -248,25 +226,9 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(serviceItemID1),
-						//Params: []*primemessages.ServiceItemParamsItems0{
-						//	{
-						//		Key:   "weight",
-						//		Value: "1234",
-						//	},
-						//	{
-						//		Key:   "pickup",
-						//		Value: "2019-12-16",
-						//	},
-						//},
 					},
 					{
 						ID: *handlers.FmtUUID(serviceItemID2),
-						//Params: []*primemessages.ServiceItemParamsItems0{
-						//	{
-						//		Key:   "weight",
-						//		Value: "5678",
-						//	},
-						//},
 					},
 				},
 				PointOfContact: "user@prime.com",
@@ -330,16 +292,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(serviceItemID1),
-						//Params: []*primemessages.ServiceItemParamsItems0{
-						//	{
-						//		Key:   "weight",
-						//		Value: "1234",
-						//	},
-						//	{
-						//		Key:   "pickup",
-						//		Value: "2019-12-16",
-						//	},
-						//},
 					},
 					{
 						ID: *handlers.FmtUUID(serviceItemID2),
