@@ -8,7 +8,7 @@ import (
 type dieselFuelPriceInfo struct {
 	eiaURL                 string
 	eiaKey                 string
-	logger				   *zap.Logger
+	logger                 *zap.Logger
 	eiaData                eiaData
 	dieselFuelPriceData    dieselFuelPriceData
 	eiaDataFetcherFunction eiaDataFetcherFunction
@@ -65,8 +65,8 @@ func (e eiaData) price() (float64, bool) {
 	return price, ok
 }
 
-// NewDieselFuelPriceStorer creates a new dieselFuelPriceStorer struct and returns a pointer to said struct
-func newDieselFuelPriceInfo(eiaURL string, eiaKey string, logger *zap.Logger, eiaDataFetcherFunction eiaDataFetcherFunction) *dieselFuelPriceInfo {
+// NewDieselFuelPriceInfo creates a new dieselFuelPriceInfo struct and returns a pointer to said struct
+func NewDieselFuelPriceInfo(eiaURL string, eiaKey string, logger *zap.Logger, eiaDataFetcherFunction eiaDataFetcherFunction) *dieselFuelPriceInfo {
 	return &dieselFuelPriceInfo{
 		eiaURL:                 eiaURL,
 		eiaKey:                 eiaKey,

@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"go.uber.org/zap"
 )
 
 func buildFinalEIAAPIURL(eiaURL string, eiaKey string) (string, error) {
@@ -25,7 +27,8 @@ func buildFinalEIAAPIURL(eiaURL string, eiaKey string) (string, error) {
 	return finalEIAAPIURL, nil
 }
 
-func fetchEIAData(finalEIAAPIURL string) (eiaData, error) {
+// FetchEiaData makes a call to the EIA Open Data API and returns the API response
+func FetchEIAData(finalEIAAPIURL string) (eiaData, error) {
 	var eiaData eiaData
 	client := &http.Client{}
 
@@ -53,7 +56,6 @@ func fetchEIAData(finalEIAAPIURL string) (eiaData, error) {
 	return eiaData, nil
 }
 
-// ExtractDieselFuelPriceData extracts the latest diesel fuel price data from the EIA Open Data API response
 func extractDieselFuelPriceData(eiaData eiaData) (dieselFuelPriceData, error) {
 	var dieselFuelPriceData dieselFuelPriceData
 
@@ -84,20 +86,35 @@ func extractDieselFuelPriceData(eiaData eiaData) (dieselFuelPriceData, error) {
 	return dieselFuelPriceData, nil
 }
 
-func (d *dieselFuelPriceInfo) RunFetcher() (dieselFuelPriceData, error) {
+// RunFetcher creates the final EIA Open Data API URL, makes a call to the API, and fetches and returns the most recent diesel fuel price data
+func (d *dieselFuelPriceInfo) RunFetcher() error {
 	var dieselFuelPriceData dieselFuelPriceData
 
 	finalEIAAPIURL, err := buildFinalEIAAPIURL(d.eiaURL, d.eiaKey)
 	if err != nil {
-		return dieselFuelPriceData, err
+		return err
 	}
-
-	d.logger.Sugar("No new fuel prices to add to the database %s", d.eiaData.responseStatusCode)
 
 	eiaData, err := d.eiaDataFetcherFunction(finalEIAAPIURL)
 	if err != nil {
-		return dieselFuelPriceData, err
+		return err
 	}
 
+	d.eiaData = eiaData
+	d.logger.Info("response status from RunFetcher function in ghcdieselfuelprice service", zap.Int("code", d.eiaData.responseStatusCode))
 
+	dieselFuelPriceData, err = extractDieselFuelPriceData(eiaData)
+	if err != nil {
+		return err
+	}
+
+	d.dieselFuelPriceData = dieselFuelPriceData
+	d.logger.Info(
+		"most recent diesel fuel price data",
+		zap.String("last updated", d.dieselFuelPriceData.lastUpdated),
+		zap.String("publication date", d.dieselFuelPriceData.publicationDate),
+		zap.Float64("price", d.dieselFuelPriceData.price),
+	)
+
+	return nil
 }

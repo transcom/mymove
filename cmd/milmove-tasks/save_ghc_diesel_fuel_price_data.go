@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -47,12 +46,12 @@ func saveGHCDieselFuelPriceData(cmd *cobra.Command, args []string) error {
 
 	eiaURL := v.GetString(cli.EIAURLFlag)
 	eiaKey := v.GetString(cli.EIAKeyFlag)
-	dieselFuelPriceStorer := ghcdieselfuelprice.NewDieselFuelPriceStorer(eiaURL, eiaKey, ghcdieselfuelprice.FetchEIAData)
+	newDieselFuelPriceInfo := ghcdieselfuelprice.NewDieselFuelPriceInfo(eiaURL, eiaKey, logger, ghcdieselfuelprice.FetchEIAData)
 
-	dieselFuelPriceStorer.Run()
-
-	fmt.Println(dieselFuelPriceStorer.EIAURL)
-
+	err = newDieselFuelPriceInfo.RunFetcher()
+	if err != nil {
+		logger.Fatal("error returned by RunFetcher function in ghcdieselfuelprice service", zap.Error(err))
+	}
 	return nil
 }
 
