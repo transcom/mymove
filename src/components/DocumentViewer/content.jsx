@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@trussworks/react-uswds';
 
-import styles from './content.module.scss';
+import styles from './Content.module.scss';
 
 import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 import { ReactComponent as ZoomIn } from 'shared/icon/zoom-in.svg';
