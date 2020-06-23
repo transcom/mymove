@@ -20,11 +20,16 @@ import (
 type paymentRequestCreator struct {
 	db      *pop.Connection
 	planner route.Planner
+	pricer  services.ServiceItemPricer
 }
 
 // NewPaymentRequestCreator returns a new payment request creator
-func NewPaymentRequestCreator(db *pop.Connection, planner route.Planner) services.PaymentRequestCreator {
-	return &paymentRequestCreator{db: db, planner: planner}
+func NewPaymentRequestCreator(db *pop.Connection, planner route.Planner, pricer services.ServiceItemPricer) services.PaymentRequestCreator {
+	return &paymentRequestCreator{
+		db:      db,
+		planner: planner,
+		pricer:  pricer,
+	}
 }
 
 func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, error) {
@@ -56,6 +61,9 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 		if paymentRequestArg == nil {
 			return fmt.Errorf("failure creating payment request <nil> for %s", mtoMessageString+prMessageString)
 		}
+
+		// Run the pricer within this transactional context
+		txPricer := p.pricer.UsingConnection(tx)
 
 		// Create a payment service item for each incoming payment service item in the payment request
 		// These incoming payment service items have not been created in the database yet
@@ -144,8 +152,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 			paymentServiceItem.PaymentServiceItemParams = newPaymentServiceItemParams
 
-			newPaymentServiceItems = append(newPaymentServiceItems, paymentServiceItem)
-
 			//
 			// Validate that all params are available to prices the service item that is in
 			// the payment request
@@ -155,7 +161,17 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 				errMessage := "service item param list is not valid (will not be able to price the item) " + validateMessage + " for " + errMessageString
 				return fmt.Errorf("%s err: %w", errMessage, err)
 			}
+
+			// Price the payment service item
+			err = p.pricePaymentServiceItem(tx, txPricer, &paymentServiceItem)
+			if err != nil {
+				return fmt.Errorf("failure pricing service %s for MTO service item ID %s: %w",
+					paymentServiceItem.MTOServiceItem.ReService.Code, paymentServiceItem.MTOServiceItemID, err)
+			}
+
+			newPaymentServiceItems = append(newPaymentServiceItems, paymentServiceItem)
 		}
+
 		paymentRequestArg.PaymentServiceItems = newPaymentServiceItems
 
 		return nil
@@ -231,7 +247,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	paymentServiceItem.PaymentRequestID = paymentRequest.ID
 	paymentServiceItem.PaymentRequest = *paymentRequest
 	paymentServiceItem.Status = models.PaymentServiceItemStatusRequested
-	// TODO: No pricing yet, so skipping the PriceCents field.
+	// No pricing at this point, so skipping the PriceCents field.
 	paymentServiceItem.RequestedAt = requestedAt
 
 	verrs, err := tx.ValidateAndCreate(paymentServiceItem)
@@ -244,6 +260,32 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	}
 
 	return *paymentServiceItem, mtoServiceItem, nil
+}
+
+func (p *paymentRequestCreator) pricePaymentServiceItem(tx *pop.Connection, pricer services.ServiceItemPricer, paymentServiceItem *models.PaymentServiceItem) error {
+	price, err := pricer.PriceServiceItem(*paymentServiceItem)
+	if err != nil {
+		// If a pricer isn't implemented yet, just skip saving any pricing for now.
+		// TODO: Once all pricers are implemented, this should be removed.
+		if _, ok := err.(services.NotImplementedError); ok {
+			return nil
+		}
+
+		return err
+	}
+
+	paymentServiceItem.PriceCents = &price
+
+	verrs, err := tx.ValidateAndUpdate(paymentServiceItem)
+	if verrs.HasAny() {
+		return services.NewInvalidInputError(paymentServiceItem.ID, err, verrs, "")
+	}
+	if err != nil {
+		return fmt.Errorf("could not update payment service item for MTO service item ID %s: %w",
+			paymentServiceItem.ID, err)
+	}
+
+	return nil
 }
 
 func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection, paymentServiceItemParam *models.PaymentServiceItemParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, *string, *string, error) {
