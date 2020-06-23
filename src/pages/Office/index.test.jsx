@@ -201,23 +201,7 @@ describe('OfficeWrapper', () => {
           expect(renderedRoute.prop('path')).toEqual('/moves/queue');
         });
 
-        it('handles the TOO move task order URL', () => {
-          const app = mount(
-            <MockProviders initialState={loggedInTOOState} initialEntries={['/move/mto/678']}>
-              <OfficeWrapper
-                context={{ flags: { too: true } }}
-                {...mockOfficeProps}
-                location={{ pathname: '/move/mto/678' }}
-              />
-            </MockProviders>,
-          );
-
-          const renderedRoute = app.find('Route');
-          expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual('/move/mto/:moveTaskOrderId');
-        });
-
-        it('handles the MoveDetails URL', () => {
+        it('handles the TXOMoveInfo URL', () => {
           const app = mount(
             <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/123']}>
               <OfficeWrapper
@@ -230,23 +214,23 @@ describe('OfficeWrapper', () => {
 
           const renderedRoute = app.find('Route');
           expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual('/moves/:locator');
+          expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId');
         });
 
         it('handles the CustomerDetails URL', () => {
           const app = mount(
-            <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/123/customer/abc']}>
+            <MockProviders initialState={loggedInTOOState} initialEntries={['/too/123/customer/abc']}>
               <OfficeWrapper
                 context={{ flags: { too: true } }}
                 {...mockOfficeProps}
-                location={{ pathname: '/moves/123/customer/abc' }}
+                location={{ pathname: '/too/123/customer/abc' }}
               />
             </MockProviders>,
           );
 
           const renderedRoute = app.find('Route');
           expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/customer/:customerId');
+          expect(renderedRoute.prop('path')).toEqual('/too/:moveOrderId/customer/:customerId');
         });
 
         it('handles the Verification URL', () => {
@@ -312,20 +296,20 @@ describe('OfficeWrapper', () => {
           expect(renderedRoute.prop('path')).toEqual('/invoicing/queue');
         });
 
-        it('handles the PaymentRequestShow URL', () => {
+        it('handles the TXOMoveInfo URL', () => {
           const app = mount(
-            <MockProviders initialState={loggedInTIOState} initialEntries={['/payment_requests/234']}>
+            <MockProviders initialState={loggedInTIOState} initialEntries={['/moves/123']}>
               <OfficeWrapper
-                context={{ flags: { tio: true } }}
+                context={{ flags: { too: true } }}
                 {...mockOfficeProps}
-                location={{ pathname: '/payment_requests/234' }}
+                location={{ pathname: '/moves/123' }}
               />
             </MockProviders>,
           );
 
           const renderedRoute = app.find('Route');
           expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual('/payment_requests/:id');
+          expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId');
         });
 
         it('handles the PaymentRequestIndex URL', () => {
