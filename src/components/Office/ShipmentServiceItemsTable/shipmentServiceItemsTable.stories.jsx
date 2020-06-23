@@ -1,6 +1,6 @@
 import React from 'react';
 
-import ShipmentServiceItemsTable from '../components/Office/ShipmentServiceItemsTable';
+import ShipmentServiceItemsTable from './ShipmentServiceItemsTable';
 
 export default {
   title: 'TOO/TIO Components|Shipment Service Items Table',
