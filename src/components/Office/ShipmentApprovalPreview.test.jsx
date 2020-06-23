@@ -188,7 +188,10 @@ describe('Shipment preview modal', () => {
       />,
     );
     expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
-    expect(wrapper.find('.table--stacked').length).toBe(5);
+    expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
+    expect(wrapper.find(ShipmentContainer).exists()).toBe(true);
+    expect(wrapper.find(AllowancesTable).exists()).toBe(true);
+    expect(wrapper.find(CustomerInfoTable).exists()).toBe(true);
   });
   it('renders the modal successfully with mtoAgents provided', () => {
     const wrapper = mount(
