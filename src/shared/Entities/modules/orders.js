@@ -86,11 +86,11 @@ export function selectActiveOrders(state) {
   // temp until full redux refactor: gets active orders from entities if exist. If not, gets from orders.currentOrders.
   const serviceMember = get(state, 'user.userInfo.service_member', {});
   if (isNull(serviceMember)) {
-    return null;
+    return {};
   }
   let activeOrders = selectOrdersFromServiceMemberId(state, serviceMember.id);
   if (isEmpty(activeOrders)) {
     activeOrders = fetchActive(get(state, 'user.userInfo.service_member.orders', {}));
   }
-  return activeOrders;
+  return activeOrders || {};
 }
