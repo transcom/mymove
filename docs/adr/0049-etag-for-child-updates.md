@@ -6,7 +6,7 @@ When we have an endpoint that updates a record in the db, it's sometimes desirab
 
 Generally, to update a record, the caller must provide an E-tag, passed in the header `If-Match` that matches that of the record in the db.
 
-However the parent and child have two different E-tags, and the E-tag is passed in a sole parameter in the header.
+However the parent and child have two different E-tags, and only the parent's E-tag is passed in a sole parameter in the header.
 
 Therefore, it's not possible to pass in the child and parent E-tag cleanly.
 
