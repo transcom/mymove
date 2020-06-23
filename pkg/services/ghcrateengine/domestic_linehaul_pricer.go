@@ -2,7 +2,6 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"math"
 	"time"
 
 	"go.uber.org/zap/zapcore"
@@ -39,9 +38,10 @@ func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate t
 	baseTotalPrice := weightPounds.ToCWTFloat64() * distanceMiles.Float64() * priceAndEscalation.PriceMillicents.Float64()
 	escalatedTotalPrice := priceAndEscalation.EscalationCompounded * baseTotalPrice
 
-	totalCost := unit.Cents(math.Round(escalatedTotalPrice))
+	totalPriceMillicents := unit.Millicents(escalatedTotalPrice)
+	totalPriceCents := totalPriceMillicents.ToCents()
 
-	return totalCost, nil
+	return totalPriceCents, nil
 
 }
 

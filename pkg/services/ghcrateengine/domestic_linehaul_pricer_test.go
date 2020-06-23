@@ -14,7 +14,7 @@ const (
 	dlhTestServiceArea = "004"
 	dlhTestDistance    = unit.Miles(1200)
 	dlhTestWeight      = unit.Pound(4000)
-	dlhPriceCents      = unit.Cents(249770400)
+	dlhPriceCents      = unit.Cents(249770)
 )
 
 var dlhRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
