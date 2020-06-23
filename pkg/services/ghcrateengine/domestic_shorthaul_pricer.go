@@ -1,6 +1,7 @@
 package ghcrateengine
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -46,33 +47,34 @@ func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate 
 		return 0, errors.New("ServiceArea is required")
 	}
 
-	pe := centPriceAndEscalation{}
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
 	// look up rate for shorthaul
 	shorthaulServiceCode := "DSH"
-	query := `
-		 select price_cents, escalation_compounded from re_domestic_service_area_prices dsap
-		 inner join re_domestic_service_areas sa on dsap.domestic_service_area_id = sa.id
-		 inner join re_services on dsap.service_id = re_services.id
-		 inner join re_contracts on re_contracts.id = dsap.contract_id
-		 inner join re_contract_years on re_contracts.id = re_contract_years.contract_id
-		 where sa.service_area = $1
-		 and re_services.code = $2
-		 and re_contracts.code = $3
-		 and dsap.is_peak_period = $4
-		 and $5 between re_contract_years.start_date and re_contract_years.end_date;
-	 `
-	err = p.db.RawQuery(
-		query, serviceArea, shorthaulServiceCode, contractCode, isPeakPeriod, requestedPickupDate).First(
-		&pe)
+	var contractYear models.ReContractYear
+	var domServiceAreaPrice models.ReDomesticServiceAreaPrice
+	err = p.db.Q().
+		Join("re_domestic_service_areas sa", "domestic_service_area_id = sa.id").
+		Join("re_services", "service_id = re_services.id").
+		Join("re_contracts", "re_contracts.id = re_domestic_service_area_prices.contract_id").
+		Join("re_contract_years", "re_contracts.id = re_contract_years.contract_id").
+		Where("sa.service_area = $1", serviceArea).
+		Where("re_services.code = $2", shorthaulServiceCode).
+		Where("re_contracts.code = $3", contractCode).
+		Where("is_peak_period = $4", isPeakPeriod).
+		Where("$5 between re_contract_years.start_date and re_contract_years.end_date", requestedPickupDate).
+		First(&domServiceAreaPrice)
+	if err != nil {
+		return 0, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
+	}
+	err = p.db.Where("contract_id = $1", domServiceAreaPrice.ContractID).First(&contractYear)
 
 	effectiveWeight := weight
 	if weight <= minDomesticWeight {
 		effectiveWeight = minDomesticWeight
 	}
 
-	basePrice := pe.PriceCents.Float64() * distance.Float64() * effectiveWeight.ToCWTFloat64()
-	escalatedPrice := basePrice * pe.EscalationCompounded
+	basePrice := domServiceAreaPrice.PriceCents.Float64() * distance.Float64() * effectiveWeight.ToCWTFloat64()
+	escalatedPrice := basePrice * contractYear.EscalationCompounded
 	totalCost = unit.Cents(math.Round(escalatedPrice))
 
 	// To be fixed under this story: https://dp3.atlassian.net/browse/MB-2352
@@ -86,7 +88,8 @@ func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate 
 	//zap.Int("weight (lb):", weight.Int()),
 	//zap.Int("effectiveWeight (lb):", effectiveWeight.Int()),
 	//zap.Bool("isPeakPeriod: ", isPeakPeriod),
-	//zap.Object("centPriceAndEscalation:", pe),
+	//zap.Int("Dom. Service Area PriceCents: ", domServiceAreaPrice.PriceCents),
+	//zap.Int("Contract Year Escalation: ", contractYear.EscalationCompounded),
 	//zap.Float64("baseCost (cents):", basePrice),
 	//zap.Float64("escalatedCost (cents):", escalatedPrice),
 	//zap.Int("totalCost (cents):", totalCost.Int()),

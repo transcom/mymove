@@ -52,7 +52,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 
 	pricer := NewDomesticShorthaulPricer(suite.DB())
 
-	suite.T().Run("Failure during pricing bubbles up", func(t *testing.T) {
+	suite.T().Run("failure during pricing bubbles up", func(t *testing.T) {
 		_, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
 		suite.Equal("Weight must be greater than 0", err.Error())
@@ -136,7 +136,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		suite.Equal(expectedCost, cost)
 	})
 
-	suite.T().Run("Failure if move date is outside of contract year", func(t *testing.T) {
+	suite.T().Run("failure if move date is outside of contract year", func(t *testing.T) {
 		_, err := pricer.Price(
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear+1, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
@@ -146,7 +146,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		)
 
 		suite.Error(err)
-		suite.Equal("sql: no rows in result set", err.Error())
+		suite.Equal("Could not lookup Domestic Service Area Price: sql: no rows in result set", err.Error())
 	})
 
 	suite.T().Run("weight below minimum", func(t *testing.T) {
