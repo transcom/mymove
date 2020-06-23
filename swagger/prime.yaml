@@ -1244,19 +1244,6 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      params:
-        type: array
-        items:
-          properties:
-            key:
-              type: string
-              example: Service Item Parameter Name
-            value:
-              type: string
-              example: Service Item Parameter Value
-          type: object
-      eTag:
-        type: string
     type: object
   ReServiceCode:
     type: string

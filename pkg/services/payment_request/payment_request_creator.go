@@ -84,7 +84,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 			// store param Key:Value pairs coming from the create payment request payload, sent by the user when requesting payment
 			incomingMTOServiceItemParams := make(map[string]string)
-
 			// Create a payment service item parameter for each of the incoming payment service item params
 			var newPaymentServiceItemParams models.PaymentServiceItemParams
 			for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
@@ -114,6 +113,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 			// Retrieve all of the params needed to price this service item
 			paymentHelper := paymentrequesthelper.RequestPaymentHelper{DB: tx}
+
 			reServiceParams, err := paymentHelper.FetchServiceParamList(paymentServiceItem.MTOServiceItemID)
 			if err != nil {
 				errMessage := "Failed to retrieve service item param list for " + errMessageString

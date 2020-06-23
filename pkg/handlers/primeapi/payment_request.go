@@ -132,26 +132,8 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 			MTOServiceItemID: mtoServiceItemID,
 		}
 
-		paymentServiceItem.PaymentServiceItemParams = h.buildPaymentServiceItemParams(payloadServiceItem)
-
 		paymentServiceItems = append(paymentServiceItems, paymentServiceItem)
 	}
 
 	return paymentServiceItems, verrs, nil
-}
-
-func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem) models.PaymentServiceItemParams {
-	var paymentServiceItemParams models.PaymentServiceItemParams
-
-	for _, payloadServiceItemParam := range payloadMTOServiceItem.Params {
-		paymentServiceItemParam := models.PaymentServiceItemParam{
-			// ID and PaymentServiceItemID to be filled in when payment request is created
-			IncomingKey: payloadServiceItemParam.Key,
-			Value:       payloadServiceItemParam.Value,
-		}
-
-		paymentServiceItemParams = append(paymentServiceItemParams, paymentServiceItemParam)
-	}
-
-	return paymentServiceItemParams
 }
