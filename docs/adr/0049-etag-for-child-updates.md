@@ -18,7 +18,7 @@ Therefore, it's not possible to pass in the child and parent E-tag cleanly.
 
 ## Decision Outcome
 
-We will make a new endpoint for child updates so they can be updated separated with the correct E-tag.
+We will make a new endpoint for child updates so they can be updated separately with the correct E-tag.
 
 Currently this is just true for address and agent updates.
 
