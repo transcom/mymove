@@ -128,7 +128,7 @@ describe('OfficeWrapper', () => {
       it('handles a OrdersInfo URL', () => {
         const app = mount(
           <MockProviders initialState={loggedInPPMState} initialEntries={['/moves/123/orders']}>
-            <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/moves/123/orders' }} />
+            <OfficeWrapper {...mockOfficeProps} userIsLoggedIn location={{ pathname: '/moves/123/orders' }} />
           </MockProviders>,
         );
 
@@ -143,7 +143,7 @@ describe('OfficeWrapper', () => {
       it('handles a DocumentViewer URL', () => {
         const app = mount(
           <MockProviders initialState={loggedInPPMState} initialEntries={['/moves/123/documents/abc']}>
-            <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/moves/123/documents/abc' }} />
+            <OfficeWrapper {...mockOfficeProps} userIsLoggedIn location={{ pathname: '/moves/123/documents/abc' }} />
           </MockProviders>,
         );
 
