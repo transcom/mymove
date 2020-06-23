@@ -5,9 +5,6 @@
 $menuWidth: 308px;
 $contentWidth: 80%;
 
-svg path {
-  fill: $primary;
-}
 
 .docViewerContent {
   width: $contentWidth;
@@ -21,6 +18,10 @@ svg path {
   flex-direction: column;
   justify-content: space-between;
   align-items: stretch;
+}
+
+svg path { //fills all icons on the page in blue
+  fill: $primary;
 }
 
 .titleBar {
