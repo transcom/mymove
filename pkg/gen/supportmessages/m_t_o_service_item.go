@@ -25,11 +25,17 @@ type MTOServiceItem interface {
 	runtime.Validatable
 
 	// description
-	Description string `json:"description,omitempty"`
+	Description() string
+	SetDescription(string)
 
 	// e tag
 	ETag() string
 	SetETag(string)
+
+	// fee type
+	// Enum: [COUNSELING CRATING TRUCKING SHUTTLE]
+	FeeType() string
+	SetFeeType(string)
 
 	// id
 	// Format: uuid
@@ -52,6 +58,14 @@ type MTOServiceItem interface {
 	MtoShipmentID() strfmt.UUID
 	SetMtoShipmentID(strfmt.UUID)
 
+	// quantity
+	Quantity() int64
+	SetQuantity(int64)
+
+	// rate
+	Rate() int64
+	SetRate(int64)
+
 	// re service ID
 	// Format: uuid
 	ReServiceID() strfmt.UUID
@@ -66,18 +80,28 @@ type MTOServiceItem interface {
 	SetRejectionReason(*string)
 
 	// status
-	Status MTOServiceItemStatus `json:"status,omitempty"`
-
-	// total
-	Total int64 `json:"total,omitempty"`
+	Status() MTOServiceItemStatus
+	SetStatus(MTOServiceItemStatus)
 }
 
 type mTOServiceItem struct {
+	descriptionField string
+
 	eTagField string
 
-	if err := m.validateFeeType(formats); err != nil {
-		res = append(res, err)
-	}
+	feeTypeField string
+
+	idField strfmt.UUID
+
+	modelTypeField MTOServiceItemModelType
+
+	moveTaskOrderIdField *strfmt.UUID
+
+	mtoShipmentIdField strfmt.UUID
+
+	quantityField int64
+
+	rateField int64
 
 	reServiceIdField strfmt.UUID
 
@@ -86,6 +110,16 @@ type mTOServiceItem struct {
 	rejectionReasonField *string
 
 	statusField MTOServiceItemStatus
+}
+
+// Description gets the description of this polymorphic type
+func (m *mTOServiceItem) Description() string {
+	return m.descriptionField
+}
+
+// SetDescription sets the description of this polymorphic type
+func (m *mTOServiceItem) SetDescription(val string) {
+	m.descriptionField = val
 }
 
 // ETag gets the e tag of this polymorphic type
@@ -98,17 +132,122 @@ func (m *mTOServiceItem) SetETag(val string) {
 	m.eTagField = val
 }
 
-	if err := m.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
+// FeeType gets the fee type of this polymorphic type
+func (m *mTOServiceItem) FeeType() string {
+	return m.feeTypeField
 }
 
-var mTOServiceItemTypeFeeTypePropEnum []interface{}
+// SetFeeType sets the fee type of this polymorphic type
+func (m *mTOServiceItem) SetFeeType(val string) {
+	m.feeTypeField = val
+}
+
+// ID gets the id of this polymorphic type
+func (m *mTOServiceItem) ID() strfmt.UUID {
+	return m.idField
+}
+
+// SetID sets the id of this polymorphic type
+func (m *mTOServiceItem) SetID(val strfmt.UUID) {
+	m.idField = val
+}
+
+// ModelType gets the model type of this polymorphic type
+func (m *mTOServiceItem) ModelType() MTOServiceItemModelType {
+	return "MTOServiceItem"
+}
+
+// SetModelType sets the model type of this polymorphic type
+func (m *mTOServiceItem) SetModelType(val MTOServiceItemModelType) {
+
+}
+
+// MoveTaskOrderID gets the move task order ID of this polymorphic type
+func (m *mTOServiceItem) MoveTaskOrderID() *strfmt.UUID {
+	return m.moveTaskOrderIdField
+}
+
+// SetMoveTaskOrderID sets the move task order ID of this polymorphic type
+func (m *mTOServiceItem) SetMoveTaskOrderID(val *strfmt.UUID) {
+	m.moveTaskOrderIdField = val
+}
+
+// MtoShipmentID gets the mto shipment ID of this polymorphic type
+func (m *mTOServiceItem) MtoShipmentID() strfmt.UUID {
+	return m.mtoShipmentIdField
+}
+
+// SetMtoShipmentID sets the mto shipment ID of this polymorphic type
+func (m *mTOServiceItem) SetMtoShipmentID(val strfmt.UUID) {
+	m.mtoShipmentIdField = val
+}
+
+// Quantity gets the quantity of this polymorphic type
+func (m *mTOServiceItem) Quantity() int64 {
+	return m.quantityField
+}
+
+// SetQuantity sets the quantity of this polymorphic type
+func (m *mTOServiceItem) SetQuantity(val int64) {
+	m.quantityField = val
+}
+
+// Rate gets the rate of this polymorphic type
+func (m *mTOServiceItem) Rate() int64 {
+	return m.rateField
+}
+
+// SetRate sets the rate of this polymorphic type
+func (m *mTOServiceItem) SetRate(val int64) {
+	m.rateField = val
+}
+
+// ReServiceID gets the re service ID of this polymorphic type
+func (m *mTOServiceItem) ReServiceID() strfmt.UUID {
+	return m.reServiceIdField
+}
+
+// SetReServiceID sets the re service ID of this polymorphic type
+func (m *mTOServiceItem) SetReServiceID(val strfmt.UUID) {
+	m.reServiceIdField = val
+}
+
+// ReServiceName gets the re service name of this polymorphic type
+func (m *mTOServiceItem) ReServiceName() string {
+	return m.reServiceNameField
+}
+
+// SetReServiceName sets the re service name of this polymorphic type
+func (m *mTOServiceItem) SetReServiceName(val string) {
+	m.reServiceNameField = val
+}
+
+// RejectionReason gets the rejection reason of this polymorphic type
+func (m *mTOServiceItem) RejectionReason() *string {
+	return m.rejectionReasonField
+}
+
+// SetRejectionReason sets the rejection reason of this polymorphic type
+func (m *mTOServiceItem) SetRejectionReason(val *string) {
+	m.rejectionReasonField = val
+}
+
+// Status gets the status of this polymorphic type
+func (m *mTOServiceItem) Status() MTOServiceItemStatus {
+	return m.statusField
+}
+
+// SetStatus sets the status of this polymorphic type
+func (m *mTOServiceItem) SetStatus(val MTOServiceItemStatus) {
+	m.statusField = val
+}
+
+// UnmarshalMTOServiceItemSlice unmarshals polymorphic slices of MTOServiceItem
+func UnmarshalMTOServiceItemSlice(reader io.Reader, consumer runtime.Consumer) ([]MTOServiceItem, error) {
+	var elements []json.RawMessage
+	if err := consumer.Consume(reader, &elements); err != nil {
+		return nil, err
+	}
 
 	var result []MTOServiceItem
 	for _, element := range elements {
@@ -165,6 +304,10 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateFeeType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -191,6 +334,55 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+var mTOServiceItemTypeFeeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["COUNSELING","CRATING","TRUCKING","SHUTTLE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mTOServiceItemTypeFeeTypePropEnum = append(mTOServiceItemTypeFeeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// MTOServiceItemFeeTypeCOUNSELING captures enum value "COUNSELING"
+	MTOServiceItemFeeTypeCOUNSELING string = "COUNSELING"
+
+	// MTOServiceItemFeeTypeCRATING captures enum value "CRATING"
+	MTOServiceItemFeeTypeCRATING string = "CRATING"
+
+	// MTOServiceItemFeeTypeTRUCKING captures enum value "TRUCKING"
+	MTOServiceItemFeeTypeTRUCKING string = "TRUCKING"
+
+	// MTOServiceItemFeeTypeSHUTTLE captures enum value "SHUTTLE"
+	MTOServiceItemFeeTypeSHUTTLE string = "SHUTTLE"
+)
+
+// prop value enum
+func (m *mTOServiceItem) validateFeeTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, mTOServiceItemTypeFeeTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *mTOServiceItem) validateFeeType(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.FeeType()) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateFeeTypeEnum("feeType", "body", m.FeeType()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *mTOServiceItem) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID()) { // not required
@@ -210,10 +402,14 @@ func (m *mTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error 
 		return err
 	}
 
+	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID().String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (m *MTOServiceItem) validateStatus(formats strfmt.Registry) error {
+func (m *mTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MtoShipmentID()) { // not required
 		return nil
@@ -226,20 +422,31 @@ func (m *MTOServiceItem) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
-// MarshalBinary interface implementation
-func (m *MTOServiceItem) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
+func (m *mTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
 
-// UnmarshalBinary interface implementation
-func (m *MTOServiceItem) UnmarshalBinary(b []byte) error {
-	var res MTOServiceItem
-	if err := swag.ReadJSON(b, &res); err != nil {
+	if swag.IsZero(m.ReServiceID()) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
 		return err
 	}
-	*m = res
+
+	return nil
+}
+
+func (m *mTOServiceItem) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
+	if err := m.Status().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
 	return nil
 }

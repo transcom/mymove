@@ -961,6 +961,15 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "feeType": {
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CRATING",
+            "TRUCKING",
+            "SHUTTLE"
+          ]
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -979,6 +988,12 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "quantity": {
+          "type": "integer"
+        },
+        "rate": {
+          "type": "integer"
+        },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
@@ -994,10 +1009,6 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
-        },
-        "total": {
-          "type": "integer",
-          "format": "cents"
         }
       },
       "discriminator": "modelType"
@@ -2696,6 +2707,15 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "feeType": {
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CRATING",
+            "TRUCKING",
+            "SHUTTLE"
+          ]
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2714,6 +2734,12 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "quantity": {
+          "type": "integer"
+        },
+        "rate": {
+          "type": "integer"
+        },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
@@ -2729,10 +2755,6 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
-        },
-        "total": {
-          "type": "integer",
-          "format": "cents"
         }
       },
       "discriminator": "modelType"
