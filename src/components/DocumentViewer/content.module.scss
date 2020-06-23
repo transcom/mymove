@@ -18,11 +18,12 @@ $contentWidth: 80%;
   flex-direction: column;
   justify-content: space-between;
   align-items: stretch;
+  svg path {
+    fill: $primary;
+  }
 }
 
-svg path { //fills all icons on the page in blue
-  fill: $primary;
-}
+
 
 .titleBar {
   width: $contentWidth;
