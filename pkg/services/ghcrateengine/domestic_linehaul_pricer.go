@@ -26,11 +26,11 @@ func NewDomesticLinehaulPricer(db *pop.Connection) services.DomesticLinehaulPric
 	}
 }
 
-// Price determines the price for a counseling service
+// Price determines the price for a domestic linehaul
 func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance int, weightBilledActual int, serviceArea string) (unit.Cents, error) {
 	priceAndEscalation, err := fetchDomesticLinehaulPrice(p.db, contractCode, requestedPickupDate, isPeakPeriod, distance, weightBilledActual, serviceArea)
 	if err != nil {
-		return unit.Cents(0), fmt.Errorf("could not fetch domestic linehaul fee: %w", err)
+		return unit.Cents(0), fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
 	}
 
 	weightPounds := unit.Pound(weightBilledActual)
