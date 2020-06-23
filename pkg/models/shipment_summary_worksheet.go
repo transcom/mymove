@@ -350,7 +350,7 @@ func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, 
 }
 
 const (
-	forOfficialUseOnlyText = "FOR OFFICIAL USE ONLY"
+	forOfficialUseOnlyText = "UNCLASSIFIED // FOR OFFICIAL USE ONLY"
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
