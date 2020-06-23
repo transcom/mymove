@@ -1013,15 +1013,6 @@ definitions:
         type: string
       reServiceName:
         type: string
-      approvedAt:
-        format: date
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      deletedAt:
-        format: date
-        type: string
       description:
         type: string
       feeType:
@@ -1043,20 +1034,11 @@ definitions:
         example: item was too heavy
         type: string
         x-nullable: true
-      rejectedAt:
-        format: date
-        type: string
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
-      submittedAt:
-        format: date
-        type: string
       total:
         format: cents
         type: integer
-      updatedAt:
-        format: date-time
-        type: string
       eTag:
         type: string
     required:
@@ -1097,29 +1079,26 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       mtoShipmentID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       reServiceID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       reServiceCode:
         type: string
+        readOnly: true
       reServiceName:
         type: string
-      approvedAt:
-        format: date
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      deletedAt:
-        format: date
-        type: string
+        readOnly: true
       description:
         type: string
+        readOnly: true
       feeType:
         enum:
           - COUNSELING
@@ -1127,34 +1106,31 @@ definitions:
           - TRUCKING
           - SHUTTLE
         type: string
+        readOnly: true
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
       quantity:
         type: integer
+        readOnly: true
       rate:
         type: integer
+        readOnly: true
       rejectionReason:
         example: item was too heavy
         type: string
         x-nullable: true
-      rejectedAt:
-        format: date
-        type: string
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
-      submittedAt:
-        format: date
-        type: string
       total:
         format: cents
         type: integer
-      updatedAt:
-        format: date-time
-        type: string
+        readOnly: true
       eTag:
         type: string
+        readOnly: true
     required:
       - status
     type: object

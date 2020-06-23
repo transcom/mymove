@@ -11,7 +11,7 @@ class TOO extends Component {
   }
 
   handleCustomerInfoClick = (moveOrderId) => {
-    this.props.history.push(`/moves/${moveOrderId}`);
+    this.props.history.push(`/moves/${moveOrderId}/details`);
   };
 
   render() {
