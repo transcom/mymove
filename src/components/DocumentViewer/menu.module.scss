@@ -101,7 +101,8 @@ $content-width: 308px;
       @include u-text('primary-vivid');
     }
     .thumbnailImage {
-      @include border-inset(2px, $link);
+      @include u-border(2px);
+      @include u-border('primary-vivid');
     }
   }
   &:active,
