@@ -33,7 +33,7 @@ const Queues = lazy(() => import('scenes/Office/Queues'));
 const OrdersInfo = lazy(() => import('scenes/Office/OrdersInfo'));
 const DocumentViewer = lazy(() => import('scenes/Office/DocumentViewer'));
 // TXO
-const TXOMoveInfo = lazy(() => import('pages/TXOMoveInfo'));
+const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
 // TOO pages (TODO move into src/pages)
 const TOO = lazy(() => import('scenes/Office/TOO/too'));
 const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
