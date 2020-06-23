@@ -19,7 +19,7 @@ export function userIsAuthorized(userRoles, requiredRoles) {
 }
 
 const PrivateRouteContainer = (props) => {
-  const { loginIsLoading, userIsLoggedIn, path, requiredRoles, userRoles, ...routeProps } = props;
+  const { loginIsLoading, userIsLoggedIn, path, requiredRoles, userRoles, hideSwitcher, ...routeProps } = props;
 
   if (
     userIsLoggedIn &&
@@ -32,7 +32,8 @@ const PrivateRouteContainer = (props) => {
     // If user has multiple roles, add a link to let them select which role they are using
     // TODO improve this UI
 
-    const displaySelectApplication = userRoles?.length > 1 && routeProps.location?.pathname !== '/select-application';
+    const displaySelectApplication =
+      !hideSwitcher && userRoles?.length > 1 && routeProps.location?.pathname !== '/select-application';
     return displaySelectApplication ? (
       <>
         <Link to="/select-application">Change user role</Link>

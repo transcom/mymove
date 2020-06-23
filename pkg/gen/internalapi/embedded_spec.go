@@ -4875,10 +4875,14 @@ func init() {
       "type": "string",
       "title": "Orders type",
       "enum": [
-        "PERMANENT_CHANGE_OF_STATION"
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION"
       ],
       "x-display-value": {
-        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station"
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
       }
     },
     "OrdersTypeDetail": {
@@ -11100,10 +11104,14 @@ func init() {
       "type": "string",
       "title": "Orders type",
       "enum": [
-        "PERMANENT_CHANGE_OF_STATION"
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION"
       ],
       "x-display-value": {
-        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station"
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
       }
     },
     "OrdersTypeDetail": {

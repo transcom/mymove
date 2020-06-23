@@ -47,3 +47,4 @@ readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/ap
 scripts/ecs-deploy-task-container save-fuel-price-data "${image}" "${APP_ENVIRONMENT}"
 scripts/ecs-deploy-task-container send-post-move-survey "${image}" "${APP_ENVIRONMENT}"
 scripts/ecs-deploy-task-container send-payment-reminder "${image}" "${APP_ENVIRONMENT}"
+scripts/ecs-deploy-task-container post-file-to-gex "${image}" "${APP_ENVIRONMENT}"

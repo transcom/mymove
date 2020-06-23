@@ -4,6 +4,8 @@ services:
   storybook:
     build:
       dockerfile: Dockerfile.storybook_local
+    image: milmove_storybook_local
   storybook_tests:
-    build:
-      dockerfile: Dockerfile.storybook_local
+    image: milmove_storybook_local
+    environment:
+      - CHROME_CONCURRENCY=4

@@ -18,7 +18,7 @@ import {
 import ConnectedLogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import QueueHeader from 'shared/Header/Office';
+import { QueueHeader } from 'shared/Header/Office';
 import FOUOHeader from 'components/FOUOHeader';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
 import { roleTypes } from 'constants/userRoles';
@@ -32,15 +32,14 @@ const MoveInfo = lazy(() => import('scenes/Office/MoveInfo'));
 const Queues = lazy(() => import('scenes/Office/Queues'));
 const OrdersInfo = lazy(() => import('scenes/Office/OrdersInfo'));
 const DocumentViewer = lazy(() => import('scenes/Office/DocumentViewer'));
+// TXO
+const TXOMoveInfo = lazy(() => import('pages/TXOMoveInfo'));
 // TOO pages (TODO move into src/pages)
 const TOO = lazy(() => import('scenes/Office/TOO/too'));
-const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
-const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
 const TOOVerificationInProgress = lazy(() => import('scenes/Office/TOO/tooVerificationInProgress'));
 // TIO pages (TODO move into src/pages)
 const TIO = lazy(() => import('scenes/Office/TIO/tio'));
-const PaymentRequestShow = lazy(() => import('scenes/Office/TIO/paymentRequestShow'));
 const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
 
 export class OfficeWrapper extends Component {
@@ -127,34 +126,23 @@ export class OfficeWrapper extends Component {
                 />
 
                 {/* TXO routes, depend on too/tio feature flags */}
-                {too && <PrivateRoute path="/moves/queue" exact component={TOO} requiredRoles={[roleTypes.TOO]} />}
                 {too && (
                   <PrivateRoute
-                    path="/move/mto/:moveTaskOrderId"
-                    exact
-                    component={TOOMoveTaskOrder}
-                    requiredRoles={[roleTypes.TOO]}
-                  />
-                )}
-                {too && (
-                  <PrivateRoute path="/moves/:locator" exact component={MoveDetails} requiredRoles={[roleTypes.TOO]} />
-                )}
-                {too && (
-                  <PrivateRoute
-                    path="/moves/:moveOrderId/customer/:customerId"
+                    path="/too/:moveOrderId/customer/:customerId"
                     component={CustomerDetails}
                     requiredRoles={[roleTypes.TOO]}
                   />
                 )}
-                {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
-                {tio && <PrivateRoute path="/invoicing/queue" component={TIO} requiredRoles={[roleTypes.TIO]} />}
-                {tio && (
+                {too && <PrivateRoute path="/moves/queue" exact component={TOO} requiredRoles={[roleTypes.TOO]} />}
+                {(too || tio) && (
                   <PrivateRoute
-                    path="/payment_requests/:id"
-                    component={PaymentRequestShow}
-                    requiredRoles={[roleTypes.TIO]}
+                    path="/moves/:moveOrderId"
+                    component={TXOMoveInfo}
+                    requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
                   />
                 )}
+                {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
+                {tio && <PrivateRoute path="/invoicing/queue" component={TIO} requiredRoles={[roleTypes.TIO]} />}
                 {tio && (
                   <PrivateRoute
                     path="/payment_requests"
