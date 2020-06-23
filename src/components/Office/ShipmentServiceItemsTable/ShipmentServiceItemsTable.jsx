@@ -32,7 +32,7 @@ const shipmentTypes = {
 };
 
 const ShipmentServiceItemsTable = ({ shipmentType }) => {
-  const shipmentServiceItems = shipmentTypes[shipmentType.toString()];
+  const shipmentServiceItems = shipmentTypes[`${shipmentType}`];
 
   return (
     <div className="container container--gray">
