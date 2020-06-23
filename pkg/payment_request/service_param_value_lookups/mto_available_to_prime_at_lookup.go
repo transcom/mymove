@@ -5,6 +5,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
 // MTOAvailableToPrimeAtLookup does lookup on the MTOAvailableToPrime timestamp
@@ -32,5 +33,5 @@ func (m MTOAvailableToPrimeAtLookup) lookup(keyData *ServiceItemParamKeyData) (s
 		return "", services.NewBadDataError("This move task order is not available to prime")
 	}
 
-	return (*availableToPrimeAt).Format(TimestampParamFormat), nil
+	return (*availableToPrimeAt).Format(ghcrateengine.TimestampParamFormat), nil
 }

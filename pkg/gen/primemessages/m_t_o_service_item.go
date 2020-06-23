@@ -39,9 +39,10 @@ type MTOServiceItem interface {
 	SetModelType(MTOServiceItemModelType)
 
 	// move task order ID
+	// Required: true
 	// Format: uuid
-	MoveTaskOrderID() strfmt.UUID
-	SetMoveTaskOrderID(strfmt.UUID)
+	MoveTaskOrderID() *strfmt.UUID
+	SetMoveTaskOrderID(*strfmt.UUID)
 
 	// mto shipment ID
 	// Format: uuid
@@ -73,7 +74,7 @@ type mTOServiceItem struct {
 
 	modelTypeField MTOServiceItemModelType
 
-	moveTaskOrderIdField strfmt.UUID
+	moveTaskOrderIdField *strfmt.UUID
 
 	mtoShipmentIdField strfmt.UUID
 
@@ -117,12 +118,12 @@ func (m *mTOServiceItem) SetModelType(val MTOServiceItemModelType) {
 }
 
 // MoveTaskOrderID gets the move task order ID of this polymorphic type
-func (m *mTOServiceItem) MoveTaskOrderID() strfmt.UUID {
+func (m *mTOServiceItem) MoveTaskOrderID() *strfmt.UUID {
 	return m.moveTaskOrderIdField
 }
 
 // SetMoveTaskOrderID sets the move task order ID of this polymorphic type
-func (m *mTOServiceItem) SetMoveTaskOrderID(val strfmt.UUID) {
+func (m *mTOServiceItem) SetMoveTaskOrderID(val *strfmt.UUID) {
 	m.moveTaskOrderIdField = val
 }
 
@@ -314,8 +315,8 @@ func (m *mTOServiceItem) validateID(formats strfmt.Registry) error {
 
 func (m *mTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MoveTaskOrderID()) { // not required
-		return nil
+	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID()); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID().String(), formats); err != nil {
