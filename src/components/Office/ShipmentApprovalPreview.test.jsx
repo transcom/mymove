@@ -188,7 +188,6 @@ describe('Shipment preview modal', () => {
       />,
     );
     expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
-    expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
     expect(wrapper.find(ShipmentContainer).exists()).toBe(true);
     expect(wrapper.find(AllowancesTable).exists()).toBe(true);
     expect(wrapper.find(CustomerInfoTable).exists()).toBe(true);
