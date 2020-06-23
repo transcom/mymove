@@ -1,0 +1,30 @@
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/mixins';
+@import '../../../shared/styles/colors';
+@import '../../../shared/styles/custom';
+
+.serviceItemsTable {
+  @include u-width(100%);
+  thead th {
+    @include u-bg('transparent');
+    @include u-padding-left(1.5);
+    border-top: none;
+  }
+  td {
+    @include u-bg('transparent');
+  }
+
+  caption {
+    text-align: left;
+
+    h4 {
+      @include u-margin(0);
+      @include u-margin-bottom(2);
+      span {
+        @include u-margin-top(1);
+        display: block;
+        font-weight: normal;
+      }
+    }
+  }
+}

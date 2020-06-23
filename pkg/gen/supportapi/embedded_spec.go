@@ -915,18 +915,6 @@ func init() {
         "mtoShipmentID"
       ],
       "properties": {
-        "approvedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "description": {
           "type": "string"
         },
@@ -974,10 +962,6 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
-        "rejectedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -986,17 +970,9 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
-        "submittedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "total": {
           "type": "integer",
           "format": "cents"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
         }
       }
     },
@@ -1350,23 +1326,13 @@ func init() {
         "status"
       ],
       "properties": {
-        "approvedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "description": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "feeType": {
           "type": "string",
@@ -1375,43 +1341,48 @@ func init() {
             "CRATING",
             "TRUCKING",
             "SHUTTLE"
-          ]
+          ],
+          "readOnly": true
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "quantity": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "rate": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "reServiceCode": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
-          "type": "string"
-        },
-        "rejectedAt": {
           "type": "string",
-          "format": "date"
+          "readOnly": true
         },
         "rejectionReason": {
           "type": "string",
@@ -1421,17 +1392,10 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
-        "submittedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "total": {
           "type": "integer",
-          "format": "cents"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
+          "format": "cents",
+          "readOnly": true
         }
       }
     },
@@ -2641,18 +2605,6 @@ func init() {
         "mtoShipmentID"
       ],
       "properties": {
-        "approvedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "description": {
           "type": "string"
         },
@@ -2700,10 +2652,6 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
-        "rejectedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -2712,17 +2660,9 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
-        "submittedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "total": {
           "type": "integer",
           "format": "cents"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
         }
       }
     },
@@ -3076,23 +3016,13 @@ func init() {
         "status"
       ],
       "properties": {
-        "approvedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "description": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "feeType": {
           "type": "string",
@@ -3101,43 +3031,48 @@ func init() {
             "CRATING",
             "TRUCKING",
             "SHUTTLE"
-          ]
+          ],
+          "readOnly": true
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "quantity": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "rate": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "reServiceCode": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
-          "type": "string"
-        },
-        "rejectedAt": {
           "type": "string",
-          "format": "date"
+          "readOnly": true
         },
         "rejectionReason": {
           "type": "string",
@@ -3147,17 +3082,10 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
-        "submittedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "total": {
           "type": "integer",
-          "format": "cents"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
+          "format": "cents",
+          "readOnly": true
         }
       }
     },
