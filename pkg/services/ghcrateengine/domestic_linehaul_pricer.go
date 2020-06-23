@@ -2,17 +2,19 @@ package ghcrateengine
 
 import (
 	"fmt"
+	"math"
 	"time"
 
-	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
-
 
 type domesticLinehaulPricer struct {
 	db *pop.Connection
@@ -26,10 +28,10 @@ func NewDomesticLinehaulPricer(db *pop.Connection) services.DomesticLinehaulPric
 }
 
 // Price determines the price for a counseling service
-func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance int,  weightBilledActual int, serviceArea string) (unit.Cents, error) {
+func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance int, weightBilledActual int, serviceArea string) (unit.Cents, error) {
 	priceAndEscalation, err := fetchDomesticLinehaulPrice(p.db, contractCode, requestedPickupDate, isPeakPeriod, distance, weightBilledActual, serviceArea)
 	if err != nil {
-		return unit.Cents(0), fmt.Errorf("could not fetch task order fee: %w", err)
+		return unit.Cents(0), fmt.Errorf("could not fetch domestic linehaul fee: %w", err)
 	}
 
 	weightPounds := unit.Pound(weightBilledActual)
@@ -37,11 +39,9 @@ func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate t
 	baseTotalPrice := weightPounds.ToCWTFloat64() * distanceMiles.Float64() * priceAndEscalation.PriceMillicents.Float64()
 	escalatedTotalPrice := priceAndEscalation.EscalationCompounded * baseTotalPrice
 
-	// TODO: Round or truncate?
-	totalPriceMillicents := unit.Millicents(escalatedTotalPrice)
-	totalPriceCents := totalPriceMillicents.ToCents()
+	totalCost := unit.Cents(math.Round(escalatedTotalPrice))
 
-	return totalPriceCents, nil
+	return totalCost, nil
 
 }
 
@@ -77,7 +77,7 @@ func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceIte
 	return p.Price(contractCode, requestedPickupDate, isPeakPeriod, distanceZip3, weightBilledActual, serviceAreaOrigin)
 }
 
-func fetchDomesticLinehaulPrice(db *pop.Connection, contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance int,  weight int, serviceArea string) (milliCentPriceAndEscalation, error) {
+func fetchDomesticLinehaulPrice(db *pop.Connection, contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance int, weight int, serviceArea string) (milliCentPriceAndEscalation, error) {
 	// Validate parameters
 	if requestedPickupDate.IsZero() {
 		return milliCentPriceAndEscalation{}, errors.New("MoveDate is required")
@@ -132,4 +132,3 @@ func (p milliCentPriceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEnco
 	encoder.AddFloat64("EscalationCompounded", p.EscalationCompounded)
 	return nil
 }
-

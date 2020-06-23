@@ -58,7 +58,6 @@ func IsPeakPeriod(date time.Time) bool {
 	return false
 }
 
-
 // priceAndEscalation is used to hold data returned by the database query
 type centPriceAndEscalation struct {
 	PriceCents           unit.Cents `db:"price_cents"`
