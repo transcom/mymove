@@ -37,6 +37,49 @@ func init() {
   "basePath": "/support/v1",
   "paths": {
     "/move-task-orders": {
+      "get": {
+        "description": "Gets all move task orders. Provides all move task orders regardless of whether or not they have been made available to prime.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "listMTOs",
+        "operationId": "listMTOs",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "timestamp",
+            "description": "Only return move task orders updated since this time.",
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all move task orders.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrders"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "post": {
         "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
@@ -905,14 +948,11 @@ func init() {
       }
     },
     "MTOServiceItem": {
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
       "required": [
-        "id",
-        "moveTaskOrderID",
-        "reServiceID",
-        "reServiceCode",
-        "reServiceName",
-        "mtoShipmentID"
+        "modelType",
+        "moveTaskOrderID"
       ],
       "properties": {
         "description": {
@@ -935,6 +975,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "modelType": {
+          "$ref": "#/definitions/MTOServiceItemModelType"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -951,9 +994,6 @@ func init() {
         "rate": {
           "type": "integer"
         },
-        "reServiceCode": {
-          "type": "string"
-        },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
@@ -969,27 +1009,28 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
-        },
-        "total": {
-          "type": "integer",
-          "format": "cents"
         }
-      }
+      },
+      "discriminator": "modelType"
+    },
+    "MTOServiceItemModelType": {
+      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
+      "type": "string",
+      "enum": [
+        "MTOServiceItemBasic",
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticCrating"
+      ]
     },
     "MTOServiceItemStatus": {
-      "description": "Describes all statuses for a MTOServiceItem",
+      "description": "Describes all statuses for a MTOServiceItem.",
       "type": "string",
       "enum": [
         "SUBMITTED",
         "APPROVED",
         "REJECTED"
       ]
-    },
-    "MTOServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOServiceItem"
-      }
     },
     "MTOShipment": {
       "properties": {
@@ -1589,6 +1630,64 @@ func init() {
   "basePath": "/support/v1",
   "paths": {
     "/move-task-orders": {
+      "get": {
+        "description": "Gets all move task orders. Provides all move task orders regardless of whether or not they have been made available to prime.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "listMTOs",
+        "operationId": "listMTOs",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "timestamp",
+            "description": "Only return move task orders updated since this time.",
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all move task orders.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrders"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "post": {
         "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
@@ -2595,14 +2694,11 @@ func init() {
       }
     },
     "MTOServiceItem": {
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
       "required": [
-        "id",
-        "moveTaskOrderID",
-        "reServiceID",
-        "reServiceCode",
-        "reServiceName",
-        "mtoShipmentID"
+        "modelType",
+        "moveTaskOrderID"
       ],
       "properties": {
         "description": {
@@ -2625,6 +2721,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "modelType": {
+          "$ref": "#/definitions/MTOServiceItemModelType"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -2641,9 +2740,6 @@ func init() {
         "rate": {
           "type": "integer"
         },
-        "reServiceCode": {
-          "type": "string"
-        },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
@@ -2659,27 +2755,28 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
-        },
-        "total": {
-          "type": "integer",
-          "format": "cents"
         }
-      }
+      },
+      "discriminator": "modelType"
+    },
+    "MTOServiceItemModelType": {
+      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
+      "type": "string",
+      "enum": [
+        "MTOServiceItemBasic",
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticCrating"
+      ]
     },
     "MTOServiceItemStatus": {
-      "description": "Describes all statuses for a MTOServiceItem",
+      "description": "Describes all statuses for a MTOServiceItem.",
       "type": "string",
       "enum": [
         "SUBMITTED",
         "APPROVED",
         "REJECTED"
       ]
-    },
-    "MTOServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOServiceItem"
-      }
     },
     "MTOShipment": {
       "properties": {
