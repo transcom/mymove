@@ -8,3 +8,11 @@ export const MatchShape = PropTypes.shape({
   path: PropTypes.string,
   url: PropTypes.string,
 });
+
+export const LocationShape = PropTypes.shape({
+  key: PropTypes.string,
+  pathname: PropTypes.string,
+  search: PropTypes.string,
+  hash: PropTypes.string,
+  state: PropTypes.object,
+});

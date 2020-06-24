@@ -12,6 +12,16 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// MoveTaskOrders payload
+func MoveTaskOrders(moveTaskOrders *models.MoveTaskOrders) []*supportmessages.MoveTaskOrder {
+	payload := make(supportmessages.MoveTaskOrders, len(*moveTaskOrders))
+
+	for i, m := range *moveTaskOrders {
+		payload[i] = MoveTaskOrder(&m)
+	}
+	return payload
+}
+
 // MoveTaskOrder payload
 func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *supportmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
