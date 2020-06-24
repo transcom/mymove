@@ -13,7 +13,7 @@ import {
 } from 'shared/Entities/modules/orders';
 
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
-import Uploader from 'shared/Uploader';
+import OrdersUploader from 'shared/Uploader/OrdersUploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import WizardPage from 'shared/WizardPage';
 import { documentSizeLimitMsg } from 'shared/constants';
@@ -90,9 +90,8 @@ export class UploadOrders extends Component {
         )}
         {currentOrders && (
           <div className="uploader-box">
-            <Uploader
+            <OrdersUploader
               createUpload={this.props.createUpload}
-              // deletedUpload={this.props.deleteUpload} // Not working
               document={document}
               onChange={this.onChange}
               options={{ labelIdle: uploaderLabelIdle }}
