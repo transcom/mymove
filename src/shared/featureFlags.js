@@ -17,16 +17,17 @@ const defaultFlags = {
   too: false,
   tio: false,
   allOrdersTypes: false,
+  hhgFlow: false,
 };
 
 const environmentFlags = {
-  development: Object.assign({}, defaultFlags, { tio: true, too: true, allOrdersTypes: true }),
+  development: Object.assign({}, defaultFlags, { tio: true, too: true, allOrdersTypes: true, hhgFlow: true }),
 
   test: Object.assign({}, defaultFlags),
 
-  experimental: Object.assign({}, defaultFlags, { tio: true, too: true, allOrdersTypes: true }),
+  experimental: Object.assign({}, defaultFlags, { tio: true, too: true, allOrdersTypes: true, hhgFlow: true }),
 
-  staging: Object.assign({}, defaultFlags, { tio: true, too: true, allOrdersTypes: true }),
+  staging: Object.assign({}, defaultFlags, { tio: true, too: true, allOrdersTypes: true, hhgFlow: true }),
 
   production: Object.assign({}, defaultFlags, {
     sitPanel: false,
