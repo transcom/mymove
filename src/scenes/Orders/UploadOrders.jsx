@@ -58,7 +58,9 @@ export class UploadOrders extends Component {
 
   deleteFile(e, uploadId) {
     e.preventDefault();
-    this.props.tableDelete(uploadId);
+    if (this.props.currentOrders) {
+      this.props.deleteUpload(uploadId);
+    }
   }
 
   render() {
@@ -90,6 +92,7 @@ export class UploadOrders extends Component {
           <div className="uploader-box">
             <OrdersUploader
               createUpload={this.props.createUpload}
+              deleteUpload={this.props.deleteUpload}
               document={document}
               onChange={this.onChange}
               options={{ labelIdle: uploaderLabelIdle }}

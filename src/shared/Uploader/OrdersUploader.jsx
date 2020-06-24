@@ -6,7 +6,6 @@ import { FilePond, registerPlugin } from 'react-filepond';
 import { FileStatus } from 'filepond';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { DeleteUpload } from 'shared/api.js';
 import isMobile from 'is-mobile';
 import { get, concat, reject, every, includes } from 'lodash';
 
@@ -115,14 +114,13 @@ export class OrdersUploader extends Component {
   }
 
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
-    // TODO: use createupload action from entities only, once migration is complete
-    const { document, isPublic, createUpload } = this.props;
+    const { document, createUpload } = this.props;
     const self = this;
     const docID = document ? document.id : null;
-    createUpload(file, docID, isPublic)
+    createUpload(file, docID)
       .then((item) => {
-        load(item.id);
         const createdFile = get(item, 'response.body', {});
+        load(createdFile.id);
         const newFiles = concat(self.state.files, createdFile);
         self.setState({
           files: newFiles,
@@ -134,10 +132,8 @@ export class OrdersUploader extends Component {
   };
 
   revertFile = (uploadId, load, error) => {
-    const { onChange, isPublic, deleteUpload = DeleteUpload } = this.props;
-    // TODO: use deleteUpload action from entities only, once migration complete.
-    // also, this is broken
-    deleteUpload(uploadId, isPublic)
+    const { onChange, deleteUpload } = this.props;
+    deleteUpload(uploadId)
       .then((item) => {
         load(item);
         const newFiles = reject(this.state.files, (upload) => upload.id === uploadId);
