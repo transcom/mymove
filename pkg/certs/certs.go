@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"io/ioutil"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -12,7 +11,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/server"
 )
 
 // InitDoDCertificates initializes the DoD Certificates
@@ -48,21 +46,26 @@ func InitDoDCertificates(v *viper.Viper, logger Logger) ([]tls.Certificate, *x50
 
 	logger.Info("DOD keypair", zap.Any("certificates", len(keyPair.Certificate)))
 
-	pathToPackage := v.GetString(cli.DoDCAPackageFlag)
-	pkcs7Package, err := ioutil.ReadFile(pathToPackage) // #nosec
-	if err != nil {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(err, fmt.Sprintf("%s is invalid", cli.DoDCAPackageFlag))
+	entrustL1KCertString := v.GetString("entrust-l1k-cert")
+	entrustL1KCert := cli.ParseCertificates(entrustL1KCertString)
+	if len(entrustL1KCert) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing entrust L1K cert", cli.EntrustL1KCertFlag)
 	}
 
-	if len(pkcs7Package) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(&cli.ErrInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is an empty file", cli.DoDCAPackageFlag))
+	entrustG2CertString := v.GetString("entrust-g2-cert")
+	entrustG2Cert := cli.ParseCertificates(entrustG2CertString)
+	if len(entrustG2Cert) == 0 {
+		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing entrust G2 cert", cli.EntrustG2CertFlag)
 	}
 
-	dodCACertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
-	if err != nil {
-		return make([]tls.Certificate, 0), dodCACertPool, errors.Wrap(err, "Failed to parse DoD CA certificate package")
+	entrustCerts := strings.Join(append(append(make([]string, 0), entrustL1KCert...), entrustG2Cert...), "\n")
+
+	certPool := x509.NewCertPool()
+	ok := certPool.AppendCertsFromPEM([]byte(entrustCerts))
+	if !ok {
+		panic("failed to parse root certificate")
 	}
 
-	return []tls.Certificate{keyPair}, dodCACertPool, nil
+	return []tls.Certificate{keyPair}, certPool, nil
 
 }

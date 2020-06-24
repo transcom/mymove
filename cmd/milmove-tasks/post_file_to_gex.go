@@ -27,6 +27,10 @@ func checkPostFileToGEXConfig(v *viper.Viper) error {
 		return err
 	}
 
+	if err := cli.CheckEntrustCert(v); err != nil {
+		return err
+	}
+
 	if ediFile := v.GetString("gex-helloworld-file"); ediFile == "" {
 		return errors.New("must have file to send")
 	}
@@ -47,6 +51,9 @@ func initPostFileToGEXFlags(flag *pflag.FlagSet) {
 
 	// Certificate
 	cli.InitCertFlags(flag)
+
+	// Entrust Certificates
+	cli.InitEntrustCertFlags(flag)
 
 	flag.String("gex-helloworld-file", "", "GEX file to post")
 	flag.String("transaction-name", "test", "The required name sent in the url of the gex api request")
