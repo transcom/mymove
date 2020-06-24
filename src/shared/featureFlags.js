@@ -16,16 +16,17 @@ const defaultFlags = {
   ppmPaymentRequest: true,
   too: false,
   tio: false,
+  hhgFlow: false,
 };
 
 const environmentFlags = {
-  development: Object.assign({}, defaultFlags, { tio: true, too: true }),
+  development: Object.assign({}, defaultFlags, { tio: true, too: true, hhgFlow: true }),
 
   test: Object.assign({}, defaultFlags),
 
-  experimental: Object.assign({}, defaultFlags, { tio: true, too: true }),
+  experimental: Object.assign({}, defaultFlags, { tio: true, too: true, hhgFlow: true }),
 
-  staging: Object.assign({}, defaultFlags, { tio: true, too: true }),
+  staging: Object.assign({}, defaultFlags, { tio: true, too: true, hhgFlow: true }),
 
   production: Object.assign({}, defaultFlags, {
     sitPanel: false,
