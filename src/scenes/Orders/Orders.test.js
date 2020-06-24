@@ -9,7 +9,9 @@ describe('Orders page', () => {
   it('renders', () => {});
   const initialState = {
     swaggerInternal: {
-      spec: { definitions: { CreateUpdateOrders: { properties: { orders_type: { enum: [] } } } } },
+      spec: {
+        definitions: { CreateUpdateOrders: { properties: { orders_type: { enum: [], 'x-display-value': [] } } } },
+      },
     },
   };
   const wrapper = mount(
