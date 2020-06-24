@@ -1,5 +1,6 @@
 import { isFinite } from 'lodash';
 import moment from 'moment';
+import { SHIPMENT_TYPE } from 'shared/constants';
 
 export function formatNumber(num) {
   if (!isFinite(num)) {
@@ -256,4 +257,20 @@ export const formatToOrdinal = (n) => {
   const v = n % 100;
   // eslint-disable-next-line security/detect-object-injection
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
+// Map shipment types to friendly display names for mto shipments
+export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
+  switch (shipmentType) {
+    case SHIPMENT_TYPE.HHG:
+      return 'Household goods';
+    case SHIPMENT_TYPE.NTS:
+      return 'NTS release';
+    case SHIPMENT_TYPE.HHG_LONGHAUL_DOMESTIC:
+      return 'Household goods longhaul domestic';
+    case SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC:
+      return 'Household goods shorthaul domestic';
+    default:
+      return shipmentType;
+  }
 };

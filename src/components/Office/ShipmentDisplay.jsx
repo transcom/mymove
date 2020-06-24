@@ -15,7 +15,7 @@ import { formatDate } from 'shared/dates';
 
 const cx = classNames.bind(styles);
 
-const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, checked, shipmentId }) => {
+const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId }) => {
   return (
     <div className={`${cx('shipment-display')}`} data-cy="shipment-display">
       <ShipmentContainer className={`${cx('shipment-display__container')}`} shipmentType={shipmentType}>
@@ -27,7 +27,6 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, checked, shipmen
                   id={`shipment-display-checkbox-${shipmentId}`}
                   data-cy="shipment-display-checkbox"
                   onChange={onChange}
-                  checked={checked}
                   name="shipments"
                   label=""
                   value={shipmentId}
@@ -79,7 +78,6 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, checked, shipmen
 ShipmentDisplay.propTypes = {
   onChange: PropTypes.func.isRequired,
   shipmentId: PropTypes.string.isRequired,
-  checked: PropTypes.bool.isRequired,
   shipmentType: PropTypes.oneOf([
     SHIPMENT_TYPE.HHG,
     SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC,
