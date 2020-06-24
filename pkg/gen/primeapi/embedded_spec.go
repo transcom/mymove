@@ -1708,10 +1708,30 @@ func init() {
     "ServiceItem": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "example": "Service Item Parameter Name"
+              },
+              "value": {
+                "type": "string",
+                "example": "Service Item Parameter Value"
+              }
+            }
+          },
+          "readOnly": true
         }
       }
     },
@@ -3705,10 +3725,30 @@ func init() {
     "ServiceItem": {
       "type": "object",
       "properties": {
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "example": "Service Item Parameter Name"
+              },
+              "value": {
+                "type": "string",
+                "example": "Service Item Parameter Value"
+              }
+            }
+          },
+          "readOnly": true
         }
       }
     },
