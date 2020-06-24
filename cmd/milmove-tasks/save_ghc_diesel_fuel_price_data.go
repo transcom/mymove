@@ -15,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcdieselfuelprice"
 )
 
-// Command: go run github.com/transcom/mymove/cmd/save_ghc_diesel_fuel_price_data
 func saveGHCDieselFuelPriceData(cmd *cobra.Command, args []string) error {
 
 	err := cmd.ParseFlags(args)
@@ -46,7 +45,7 @@ func saveGHCDieselFuelPriceData(cmd *cobra.Command, args []string) error {
 
 	eiaURL := v.GetString(cli.EIAURLFlag)
 	eiaKey := v.GetString(cli.EIAKeyFlag)
-	newDieselFuelPriceInfo := ghcdieselfuelprice.NewDieselFuelPriceInfo(eiaURL, eiaKey, logger, ghcdieselfuelprice.FetchEIAData)
+	newDieselFuelPriceInfo := ghcdieselfuelprice.NewDieselFuelPriceInfo(eiaURL, eiaKey, ghcdieselfuelprice.FetchEIAData, logger)
 
 	err = newDieselFuelPriceInfo.RunFetcher()
 	if err != nil {

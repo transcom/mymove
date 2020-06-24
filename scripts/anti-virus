@@ -18,40 +18,8 @@ set -eu -o pipefail
 # - AV_MOUNT_DIR: The directory in the container used to mount files for scanning (default: /project)
 #
 
-<<<<<<< Updated upstream
 IGNORE_DIR="${AV_IGNORE_DIR:-}"
 readonly IGNORE_DIR
-=======
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
-readonly DIR
-SLEEP=15
-readonly SLEEP
-DOCKER_IMAGE=mk0x/docker-clamav:alpine
-readonly DOCKER_IMAGE
-CONTAINER_NAME=anti_virus
-readonly CONTAINER_NAME
-MOUNT_DIR=/transcom/mymove
-readonly MOUNT_DIR
-IGNORE_FILES=pkg/testdatagen/testdata/orders.pdf
-readonly IGNORE_FILES
-WHITELIST=whitelist_files.fp
-readonly WHITELIST
-
-if [ -n "${CIRCLECI+x}" ]; then
-  echo "RUNNING IN CIRCLECI"
-fi
-
-# Remove any existing containers
-echo
-echo "Cleaning up existing containers and files:"
-docker rm -f "${CONTAINER_NAME}" || true
-rm -f "${WHITELIST}"
-
-# Start the clamd service and update with freshclam (takes several minutes to be running)
-# Mount the project directory inside for scanning later
-docker pull "${DOCKER_IMAGE}"
-docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
->>>>>>> Stashed changes
 
 if [[ -n "${IGNORE_DIR}" && ! -d "${IGNORE_DIR}" ]]; then
   echo "The AV_IGNORE_DIR environment variable must be a directory that exists on the filesystem."

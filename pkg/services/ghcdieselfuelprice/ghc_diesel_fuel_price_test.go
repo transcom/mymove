@@ -32,8 +32,8 @@ func TestGHCDieselFuelPriceServiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-func (suite *GHCDieselFuelPriceServiceSuite) helperStubEIAData(url string) (eiaData, error) {
-	var eiaData eiaData
+func (suite *GHCDieselFuelPriceServiceSuite) helperStubEIAData(url string) (EIAData, error) {
+	var eiaData EIAData
 	re := suite.helperRemoveURLQuerystring(url)
 
 	if re.MatchString("EIA Open Data API error - invalid or missing api_key") {

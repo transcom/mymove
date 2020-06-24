@@ -27,9 +27,9 @@ func buildFinalEIAAPIURL(eiaURL string, eiaKey string) (string, error) {
 	return finalEIAAPIURL, nil
 }
 
-// FetchEiaData makes a call to the EIA Open Data API and returns the API response
-func FetchEIAData(finalEIAAPIURL string) (eiaData, error) {
-	var eiaData eiaData
+// FetchEIAData makes a call to the EIA Open Data API and returns the API response
+func FetchEIAData(finalEIAAPIURL string) (EIAData, error) {
+	eiaData := EIAData{}
 	client := &http.Client{}
 
 	if finalEIAAPIURL == "" {
@@ -56,40 +56,36 @@ func FetchEIAData(finalEIAAPIURL string) (eiaData, error) {
 	return eiaData, nil
 }
 
-func extractDieselFuelPriceData(eiaData eiaData) (dieselFuelPriceData, error) {
-	var dieselFuelPriceData dieselFuelPriceData
+func extractDieselFuelPriceData(eiaData EIAData) (dieselFuelPriceData, error) {
+	extractedDieselFuelPriceData := dieselFuelPriceData{}
 
-	errorData := eiaData.ErrorData
-	if len(errorData.Error) != 0 {
-		return dieselFuelPriceData, fmt.Errorf("received an error from the EIA Open Data API: %s", errorData.Error)
+	if len(eiaData.ErrorData.Error) != 0 {
+		return extractedDieselFuelPriceData, fmt.Errorf("received an error from the EIA Open Data API: %s", eiaData.ErrorData.Error)
 	}
 
-	seriesData := eiaData.SeriesData
-	if len(seriesData) == 0 {
-		return dieselFuelPriceData, fmt.Errorf("expected eiaData.SeriesData to contain an array of arrays of publication dates and diesel prices, but got %s", seriesData)
+	if len(eiaData.SeriesData) == 0 {
+		return extractedDieselFuelPriceData, fmt.Errorf("expected eiaData.SeriesData to contain an array of arrays of publication dates and diesel prices, but got %s", eiaData.SeriesData)
 	}
 
-	dieselFuelPriceData.lastUpdated = eiaData.lastUpdated()
+	extractedDieselFuelPriceData.lastUpdated = eiaData.lastUpdated()
 
 	publicationDate, ok := eiaData.publicationDate()
 	if !ok {
-		return dieselFuelPriceData, fmt.Errorf("failed string type assertion for publishedDate data extracted from EiaData struct returned by FetchEiaData function")
+		return extractedDieselFuelPriceData, fmt.Errorf("failed string type assertion for publishedDate data extracted from EiaData struct returned by FetchEiaData function")
 	}
-	dieselFuelPriceData.publicationDate = publicationDate
+	extractedDieselFuelPriceData.publicationDate = publicationDate
 
 	price, ok := eiaData.SeriesData[0].Data[0][1].(float64)
 	if !ok {
-		return dieselFuelPriceData, fmt.Errorf("failed float64 type assertion for price data extracted from eiaData")
+		return extractedDieselFuelPriceData, fmt.Errorf("failed float64 type assertion for price data extracted from eiaData")
 	}
-	dieselFuelPriceData.price = price
+	extractedDieselFuelPriceData.price = price
 
-	return dieselFuelPriceData, nil
+	return extractedDieselFuelPriceData, nil
 }
 
 // RunFetcher creates the final EIA Open Data API URL, makes a call to the API, and fetches and returns the most recent diesel fuel price data
-func (d *dieselFuelPriceInfo) RunFetcher() error {
-	var dieselFuelPriceData dieselFuelPriceData
-
+func (d *DieselFuelPriceInfo) RunFetcher() error {
 	finalEIAAPIURL, err := buildFinalEIAAPIURL(d.eiaURL, d.eiaKey)
 	if err != nil {
 		return err
@@ -103,7 +99,7 @@ func (d *dieselFuelPriceInfo) RunFetcher() error {
 	d.eiaData = eiaData
 	d.logger.Info("response status from RunFetcher function in ghcdieselfuelprice service", zap.Int("code", d.eiaData.responseStatusCode))
 
-	dieselFuelPriceData, err = extractDieselFuelPriceData(eiaData)
+	dieselFuelPriceData, err := extractDieselFuelPriceData(eiaData)
 	if err != nil {
 		return err
 	}
