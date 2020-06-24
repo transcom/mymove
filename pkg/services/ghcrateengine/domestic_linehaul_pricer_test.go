@@ -51,22 +51,22 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		// No move date
 		_, err := linehaulServicePricer.Price("BOGUS", time.Time{}, true, int(dlhTestDistance), int(dlhTestWeight), dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul fee: MoveDate is required", err.Error())
+		suite.Equal("could not fetch domestic linehaul rate: MoveDate is required", err.Error())
 
 		// No distance
 		_, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, 0, int(dlhTestWeight), dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul fee: Distance must be greater than 0", err.Error())
+		suite.Equal("could not fetch domestic linehaul rate: Distance must be greater than 0", err.Error())
 
 		// No weight
 		_, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, int(dlhTestDistance), 0, dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul fee: Weight must be greater than 0", err.Error())
+		suite.Equal("could not fetch domestic linehaul rate: Weight must be greater than 0", err.Error())
 
 		// No service area
 		_, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, int(dlhTestDistance), int(dlhTestWeight), "")
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul fee: ServiceArea is required", err.Error())
+		suite.Equal("could not fetch domestic linehaul rate: ServiceArea is required", err.Error())
 	})
 }
 
