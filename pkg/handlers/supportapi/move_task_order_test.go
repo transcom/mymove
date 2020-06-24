@@ -26,6 +26,44 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+func (suite *HandlerSuite) TestListMTOsHandler() {
+	// unavailable MTO
+	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			AvailableToPrimeAt: swag.Time(time.Now()),
+		},
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder,
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder,
+	})
+
+	request := httptest.NewRequest("GET", "/move-task-orders", nil)
+
+	params := movetaskorderops.ListMTOsParams{HTTPRequest: request}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	handler := ListMTOsHandler{
+		HandlerContext:       context,
+		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+	}
+
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	listMTOsResponse := response.(*movetaskorderops.ListMTOsOK)
+	listMTOsPayload := listMTOsResponse.Payload
+
+	suite.Equal(2, len(listMTOsPayload))
+
+}
+
 func (suite *HandlerSuite) TestMakeMoveTaskOrderAvailableHandlerIntegrationSuccess() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/available-to-prime", nil)

@@ -34,6 +34,11 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	supportAPI.ServeError = handlers.ServeCustomError
 
+	supportAPI.MoveTaskOrderListMTOsHandler = ListMTOsHandler{
+		context,
+		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
+	}
+
 	supportAPI.MoveTaskOrderMakeMoveTaskOrderAvailableHandler = MakeMoveTaskOrderAvailableHandlerFunc{
 		context,
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),

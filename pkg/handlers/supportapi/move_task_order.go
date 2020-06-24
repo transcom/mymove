@@ -15,6 +15,28 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// ListMTOsHandler lists move task orders with the option to filter since a particular date
+type ListMTOsHandler struct {
+	handlers.HandlerContext
+	services.MoveTaskOrderFetcher
+}
+
+// Handle fetches all move task orders with the option to filter since a particular date
+func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(false, params.Since)
+
+	if err != nil {
+		logger.Error("Unable to fetch records:", zap.Error(err))
+		return movetaskorderops.NewListMTOsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+	}
+
+	payload := payloads.MoveTaskOrders(&mtos)
+
+	return movetaskorderops.NewListMTOsOK().WithPayload(payload)
+}
+
 // MakeMoveTaskOrderAvailableHandlerFunc updates the status of a Move Task Order
 type MakeMoveTaskOrderAvailableHandlerFunc struct {
 	handlers.HandlerContext
