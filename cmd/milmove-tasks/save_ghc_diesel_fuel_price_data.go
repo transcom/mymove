@@ -15,6 +15,39 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcdieselfuelprice"
 )
 
+func checkSaveGHCDieselFuelPriceConfig(v *viper.Viper, logger logger) error {
+
+	logger.Debug("checking config")
+
+	err := cli.CheckEIA(v)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckDatabase(v, logger)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func initSaveGHCDieselFuelPriceFlags(flag *pflag.FlagSet) {
+
+	//DB Config
+	cli.InitDatabaseFlags(flag)
+
+	// EIA Open Data API
+	cli.InitEIAFlags(flag)
+
+	// Verbose
+	cli.InitVerboseFlags(flag)
+
+	// Don't sort flags
+	flag.SortFlags = false
+}
+
+// Command: go run github.com/transcom/mymove/cmd/save_ghc_diesel_fuel_price_data
 func saveGHCDieselFuelPriceData(cmd *cobra.Command, args []string) error {
 
 	err := cmd.ParseFlags(args)
@@ -52,36 +85,4 @@ func saveGHCDieselFuelPriceData(cmd *cobra.Command, args []string) error {
 		logger.Fatal("error returned by RunFetcher function in ghcdieselfuelprice service", zap.Error(err))
 	}
 	return nil
-}
-
-func checkSaveGHCDieselFuelPriceConfig(v *viper.Viper, logger logger) error {
-
-	logger.Debug("checking config")
-
-	err := cli.CheckEIA(v)
-	if err != nil {
-		return err
-	}
-
-	err = cli.CheckDatabase(v, logger)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func initSaveGHCDieselFuelPriceFlags(flag *pflag.FlagSet) {
-
-	//DB Config
-	cli.InitDatabaseFlags(flag)
-
-	// EIA Open Data API
-	cli.InitEIAFlags(flag)
-
-	// Verbose
-	cli.InitVerboseFlags(flag)
-
-	// Don't sort flags
-	flag.SortFlags = false
 }
