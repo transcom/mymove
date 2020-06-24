@@ -43,7 +43,6 @@ export class UploadOrders extends Component {
   }
 
   handleSubmit() {
-    console.log('hit submit');
     return this.props.addUploads(this.state.newUploads);
   }
 
@@ -55,7 +54,6 @@ export class UploadOrders extends Component {
     this.setState({
       newUploads: files,
     });
-    console.log('state in uploadorders', this.state.newUploads);
   }
 
   deleteFile(e, uploadId) {

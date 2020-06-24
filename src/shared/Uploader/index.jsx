@@ -39,7 +39,6 @@ export class Uploader extends Component {
     if (this.props.onRef) {
       this.props.onRef(this);
     }
-    console.log('props in component did mount', this.props);
   }
 
   componentWillUnmount() {
@@ -82,10 +81,8 @@ export class Uploader extends Component {
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
     const isIdle = every(existingFiles, (f) => {
-      console.log('isidle', isIdle);
       return includes(idleStatuses, f.status);
     });
-    console.log('idisle func', isIdle);
     return isIdle;
   }
 
@@ -101,7 +98,6 @@ export class Uploader extends Component {
       if (this.props.onChange) {
         this.props.onChange(this.state.files, this.isIdle());
       }
-      console.log('process file props change', this.props);
     });
 
     this.pond._pond.on('addfilestart', (e) => {
@@ -120,20 +116,16 @@ export class Uploader extends Component {
 
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
     // TODO: use createupload action from entities only, once migration is complete
-    const { document, isPublic, createUpload = CreateUpload } = this.props;
+    const { document, isPublic } = this.props;
     const self = this;
     const docID = document ? document.id : null;
-    createUpload(file, docID, isPublic)
+    CreateUpload(file, docID, isPublic)
       .then((item) => {
         load(item.id);
-        // swaggerRequest returns a response that contains entities with added uploads
-        // but this func expects a single upload as an item.
-        // It could be filtered here, but will that break other uses of the Uploader?
         const newFiles = concat(self.state.files, item);
         self.setState({
           files: newFiles,
         });
-        console.log('process file func state:', this.state.files);
       })
       .catch(error);
 

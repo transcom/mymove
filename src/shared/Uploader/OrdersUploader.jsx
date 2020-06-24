@@ -8,7 +8,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { DeleteUpload } from 'shared/api.js';
 import isMobile from 'is-mobile';
-import { get, find, concat, reject, every, includes } from 'lodash';
+import { get, concat, reject, every, includes } from 'lodash';
 
 import 'filepond/dist/filepond.min.css';
 import './index.css';
@@ -118,21 +118,15 @@ export class OrdersUploader extends Component {
     // TODO: use createupload action from entities only, once migration is complete
     const { document, isPublic, createUpload } = this.props;
     const self = this;
-    console.log('new func', createUpload);
     const docID = document ? document.id : null;
-    const creatUPloadPromise = createUpload(file, docID, isPublic);
-
-    creatUPloadPromise
+    createUpload(file, docID, isPublic)
       .then((item) => {
         load(item.id);
-        console.log('item returned', item);
         const createdFile = get(item, 'response.body', {});
-        console.log('created file', createdFile);
         const newFiles = concat(self.state.files, createdFile);
         self.setState({
           files: newFiles,
         });
-        console.log('process file func state:', this.state.files);
       })
       .catch(error);
 
