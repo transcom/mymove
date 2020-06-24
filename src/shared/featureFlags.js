@@ -98,8 +98,9 @@ export const createModifiedSchemaForOrdersTypesFlag = (schema) => {
   const ordersTypeSchema = Object.assign({}, schema.properties.orders_type, {
     enum: [schema.properties.orders_type.enum[0]],
   });
+  const properties = Object.assign({}, schema.properties, { orders_type: ordersTypeSchema });
   const modifiedSchema = Object.assign({}, schema, {
-    properties: { orders_type: ordersTypeSchema },
+    properties: properties,
   });
 
   return modifiedSchema;

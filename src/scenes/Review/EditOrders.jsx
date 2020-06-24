@@ -44,7 +44,6 @@ let EditOrdersForm = (props) => {
     return includes(deleteQueue, upload.id);
   });
   const showAllOrdersTypes = props.context.flags.allOrdersTypes;
-
   const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
 
   return (
