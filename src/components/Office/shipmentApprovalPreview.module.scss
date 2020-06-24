@@ -52,13 +52,12 @@
       @include u-margin-bottom(2);
     }
   }
+  :global .table--stacked {
+    width: 100%;
+  }
   :global .stackedtable-header {
     h4 {
       @include u-margin-bottom(2);
     }
   }
-}
-
-:global .table--stacked {
-  width: 100%;
 }
