@@ -1,4 +1,4 @@
-import store from 'shared/store';
+import { configureStore } from 'shared/store';
 import Orders from '../Orders/Orders';
 import React from 'react';
 import { Provider } from 'react-redux';
@@ -7,8 +7,13 @@ import { mount } from 'enzyme';
 
 describe('Orders page', () => {
   it('renders', () => {});
+  const initialState = {
+    swaggerInternal: {
+      spec: { definitions: { CreateUpdateOrders: { properties: { orders_type: { enum: [] } } } } },
+    },
+  };
   const wrapper = mount(
-    <Provider store={store}>
+    <Provider store={configureStore(initialState)}>
       <Router push={jest.fn()}>
         <Orders pages={[]} pageKey="" updateOrders={jest.fn()} />
       </Router>
