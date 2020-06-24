@@ -3,7 +3,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 import React from 'react';
 import * as PropTypes from 'prop-types';
-import classNames from 'classnames/bind';
+import classNames from 'classnames';
 
 import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
 
@@ -11,8 +11,6 @@ import styles from './shipmentApprovalPreview.module.scss';
 import AllowancesTable from './AllowancesTable';
 import CustomerInfoTable from './CustomerInfoTable';
 import ShipmentContainer from './ShipmentContainer';
-
-const cx = classNames.bind(styles);
 
 const ShipmentApprovalPreview = ({ mtoShipments, allowancesInfo, customerInfo, mtoAgents, setIsModalVisible }) => {
   const getAgents = (shipment) => {
@@ -26,23 +24,28 @@ const ShipmentApprovalPreview = ({ mtoShipments, allowancesInfo, customerInfo, m
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className="padding-4 overflow-y-auto maxh-viewport">
-          <div className={`${cx('approval-close')}`}>
+        <Modal className={classNames(styles.approvalPreviewModal, 'padding-4 overflow-y-auto maxh-viewport')}>
+          <div className={classNames('approval-close')}>
             <FontAwesomeIcon
               aria-hidden
               icon={faTimes}
               title="Close shipment approval modal"
               onClick={() => setIsModalVisible(false)}
-              className={`${cx('approval-close')} icon`}
+              className={classNames(styles['approval-close'], 'icon')}
             />
           </div>
-          <h3 className="text-bold">Preview and post move task order</h3>
-          <h2 className="text-normal">{customerInfo.name}</h2>
-          <div className="container">
+          <h2 className="text-bold">Preview and post move task order</h2>
+          <hr className={styles.sectionBorder} />
+          <h1 className={classNames(styles.customerName, 'text-normal')}>{customerInfo.name}</h1>
+          <div className={classNames(styles.previewContainer, 'container')}>
             <h2>Requested Shipments</h2>
             {shipmentsWithAgents &&
               shipmentsWithAgents.map((shipment) => (
-                <ShipmentContainer key={shipment.id} shipmentType={shipment.shipmentType}>
+                <ShipmentContainer
+                  key={shipment.id}
+                  shipmentType={shipment.shipmentType}
+                  className={classNames(styles.previewShipments)}
+                >
                   <div>
                     <h4 className="text-normal">{mtoShipmentTypeToFriendlyDisplay(shipment.shipmentType)}</h4>
                     <table className="table--stacked">
@@ -90,9 +93,9 @@ const ShipmentApprovalPreview = ({ mtoShipments, allowancesInfo, customerInfo, m
                 </ShipmentContainer>
               ))}
           </div>
-          <div className="container">
+          <div className={classNames(styles.previewContainer, 'container')}>
             <h2>Basic move details</h2>
-            <h4>Approved service items for this move</h4>
+            <h4 className={classNames(styles.tableH4)}>Approved service items for this move</h4>
             <table className="table--stacked">
               <tbody>
                 <tr>
