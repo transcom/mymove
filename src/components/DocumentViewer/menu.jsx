@@ -33,7 +33,12 @@ const DocViewerMenu = () => (
       <div className={styles.thumbnailContainer}>
         {testThumbnail}
         {testThumbnail}
-        {testThumbnail}
+        <a className={styles.thumbnailItem} href="#">
+          <p>ASamplePrettyLongDocumentTitle.png</p>
+          <div className={styles.thumbnailImage}>
+            <img src={`${fakeDoc}`} alt=" " />
+          </div>
+        </a>
         {testThumbnail}
         {testThumbnail}
       </div>
