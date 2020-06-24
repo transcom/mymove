@@ -111,7 +111,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-	certificates, rootCAs, err := certs.InitDoDCertificates(v, certLogger)
+	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
 	if certificates == nil || rootCAs == nil || err != nil {
 		log.Fatal("Error in getting tls certs", err)
 	}
