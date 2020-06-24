@@ -35,11 +35,11 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	err := p.builder.FetchOne(&mtoServiceItem, queryFilters)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(mtoServiceItem.ID, "MTOServiceItemID")
+		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
 	}
 
 	if mtoServiceItem.Status != models.MTOServiceItemStatusSubmitted || (status != models.MTOServiceItemStatusApproved && status != models.MTOServiceItemStatusRejected) {
-		return nil, services.NewConflictError(mtoServiceItem.ID, "MTOServiceItemID")
+		return nil, services.NewConflictError(mtoServiceItemID, "MTOServiceItemID")
 	}
 
 	mtoServiceItem.Status = status
@@ -47,7 +47,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 
 	if status == models.MTOServiceItemStatusRejected {
 		if reason == nil {
-			return nil, services.NewConflictError(mtoServiceItem.ID, "Rejecting an MTO Service item requires a rejection reason")
+			return nil, services.NewConflictError(mtoServiceItemID, "Rejecting an MTO Service item requires a rejection reason")
 		}
 		mtoServiceItem.Reason = reason
 	} else if status == models.MTOServiceItemStatusApproved {
