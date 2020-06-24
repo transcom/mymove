@@ -42,6 +42,16 @@ func main() {
 	prime.InitFetchMTOUpdatesFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
 
+	listMTOsCommand := &cobra.Command{
+		Use:          "support-list-mtos",
+		Short:        "Fetch all MTOs",
+		Long:         "fetch all move task orders",
+		RunE:         prime.FetchMTOUpdates,
+		SilenceUsage: true,
+	}
+	support.InitListMTOsFlags(listMTOsCommand.Flags())
+	root.AddCommand(listMTOsCommand)
+
 	createMTOCommand := &cobra.Command{
 		Use:   "support-create-move-task-order",
 		Short: "Create a MoveTaskOrder",
