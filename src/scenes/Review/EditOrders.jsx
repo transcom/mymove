@@ -19,9 +19,11 @@ import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { documentSizeLimitMsg } from 'shared/constants';
+import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
 
 import './Review.css';
 import profileImage from './images/profile.png';
+import PropTypes from 'prop-types';
 
 const editOrdersFormName = 'edit_orders';
 const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
@@ -41,6 +43,9 @@ let EditOrdersForm = (props) => {
   const visibleUploads = reject(existingUploads, (upload) => {
     return includes(deleteQueue, upload.id);
   });
+  const showAllOrdersTypes = props.context.flags.allOrdersTypes;
+  const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
+
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">
@@ -59,7 +64,11 @@ let EditOrdersForm = (props) => {
             </h1>
             <hr />
             <h3 className="sm-heading">Edit Orders:</h3>
-            <SwaggerField fieldName="orders_type" swagger={schema} required />
+            <SwaggerField
+              fieldName="orders_type"
+              swagger={showAllOrdersTypes ? schema : modifiedSchemaForOrdersTypesFlag}
+              required
+            />
             <SwaggerField fieldName="issue_date" swagger={schema} required />
             <SwaggerField fieldName="report_by_date" swagger={schema} required />
             <SwaggerField fieldName="has_dependents" swagger={schema} component={YesNoBoolean} />
@@ -85,9 +94,18 @@ let EditOrdersForm = (props) => {
   );
 };
 
-EditOrdersForm = reduxForm({
-  form: editOrdersFormName,
-})(EditOrdersForm);
+EditOrdersForm.propTypes = {
+  context: PropTypes.shape({
+    flags: PropTypes.shape({
+      allOrdersTypes: PropTypes.bool,
+    }).isRequired,
+  }).isRequired,
+};
+EditOrdersForm = withContext(
+  reduxForm({
+    form: editOrdersFormName,
+  })(EditOrdersForm),
+);
 
 class EditOrders extends Component {
   constructor(props) {

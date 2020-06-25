@@ -14,6 +14,7 @@ import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
+import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
 
 const validateOrdersForm = validateAdditionalFields(['new_duty_station']);
 
@@ -48,6 +49,9 @@ export class Orders extends Component {
       newDutyStation.name === currentStation.name
         ? 'You entered the same duty station for your origin and destination. Please change one of them.'
         : '';
+    const showAllOrdersTypes = this.props.context.flags.allOrdersTypes;
+    const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(this.props.schema);
+
     return (
       <OrdersWizardForm
         additionalParams={{ serviceMemberId }}
@@ -60,7 +64,11 @@ export class Orders extends Component {
         serverError={error}
       >
         <h1 className="sm-heading">Tell us about your move orders</h1>
-        <SwaggerField fieldName="orders_type" swagger={this.props.schema} required />
+        <SwaggerField
+          fieldName="orders_type"
+          swagger={showAllOrdersTypes ? this.props.schema : modifiedSchemaForOrdersTypesFlag}
+          required
+        />
         <SwaggerField fieldName="issue_date" swagger={this.props.schema} required />
         <div style={{ marginTop: '0.25rem' }}>
           <span className="usa-hint">Date your orders were issued.</span>
@@ -82,6 +90,11 @@ Orders.propTypes = {
   updateOrders: PropTypes.func.isRequired,
   currentOrders: PropTypes.object,
   error: PropTypes.object,
+  context: PropTypes.shape({
+    flags: PropTypes.shape({
+      allOrdersTypes: PropTypes.bool,
+    }).isRequired,
+  }).isRequired,
 };
 
 function mapStateToProps(state) {
