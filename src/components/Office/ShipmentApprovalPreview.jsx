@@ -60,11 +60,15 @@ const ShipmentApprovalPreview = ({
                     <table className="table--stacked">
                       <tbody>
                         <tr>
-                          <td>Requested Move Date</td>
+                          <th className="text-bold" scope="row">
+                            Requested Move Date
+                          </th>
                           <td>{shipment.requestedPickupDate}</td>
                         </tr>
                         <tr>
-                          <td>Current Address</td>
+                          <th className="text-bold" scope="row">
+                            Current Address
+                          </th>
                           <td>
                             {shipment.pickupAddress.street_address_1}
                             <br />
@@ -73,7 +77,9 @@ const ShipmentApprovalPreview = ({
                           </td>
                         </tr>
                         <tr>
-                          <td>Destination Address</td>
+                          <th className="text-bold" scope="row">
+                            Destination Address
+                          </th>
                           <td>
                             {shipment.destinationAddress.street_address_1}
                             <br />
@@ -82,7 +88,9 @@ const ShipmentApprovalPreview = ({
                           </td>
                         </tr>
                         <tr>
-                          <td>Customer Remarks</td>
+                          <th className="text-bold" scope="row">
+                            Customer Remarks
+                          </th>
                           <td>{shipment.customerRemarks}</td>
                         </tr>
                         {mtoAgents &&

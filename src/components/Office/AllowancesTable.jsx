@@ -16,31 +16,45 @@ const AllowancesTable = ({ info }) => {
         </colgroup>
         <tbody>
           <tr>
-            <th scope="row">Branch, rank</th>
+            <th scope="row" className="text-bold">
+              Branch, rank
+            </th>
             <td data-cy="branchRank">{`${info.branch}, ${info.rank}`}</td>
           </tr>
           <tr>
-            <th scope="row">Weight allowance</th>
+            <th scope="row" className="text-bold">
+              Weight allowance
+            </th>
             <td data-cy="weightAllowance">{`${info.weightAllowance} lbs`}</td>
           </tr>
           <tr>
-            <th scope="row">Authorized weight</th>
+            <th scope="row" className="text-bold">
+              Authorized weight
+            </th>
             <td data-cy="authorizedWeight">{`${info.authorizedWeight} lbs`}</td>
           </tr>
           <tr>
-            <th scope="row">Pro-gear</th>
+            <th scope="row" className="text-bold">
+              Pro-gear
+            </th>
             <td data-cy="progear">{`${info.progear} lbs`}</td>
           </tr>
           <tr>
-            <th scope="row">Spouse pro-gear</th>
+            <th scope="row" className="text-bold">
+              Spouse pro-gear
+            </th>
             <td data-cy="spouseProgear">{`${info.spouseProgear} lbs`}</td>
           </tr>
           <tr>
-            <th scope="row">Storage in transit</th>
+            <th scope="row" className="text-bold">
+              Storage in transit
+            </th>
             <td data-cy="storageInTransit">{`${info.storageInTransit} days`}</td>
           </tr>
           <tr>
-            <th scope="row">Dependents</th>
+            <th scope="row" className="text-bold">
+              Dependents
+            </th>
             <td data-cy="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</td>
           </tr>
         </tbody>
