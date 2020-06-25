@@ -1,0 +1,66 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+.DocumentViewer {
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+  @include u-bg('base-lighter');
+
+  .titleBar {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.75);
+    display: flex;
+    justify-content: space-between;
+    @include icon-hover-state;
+    @include u-padding-x(4);
+    p {
+      @include u-text('bold');
+      color: $base-darkest;
+    }
+    svg {
+      @include u-margin-left(1);
+    }
+  }
+
+  :global {
+    .pdf-viewer-container {
+      height: 100%;
+    }
+
+    .pdf-viewer {
+      height: 100%;
+    }
+
+    .pdf-controlls-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.75);
+      height: 50px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .pdf-canvas {
+      text-align: center;
+    }
+
+    .view-control + .view-control {
+      margin-left: 10px;
+    }
+
+    .zoom-in,
+    .zoom-reset,
+    .zoom-out {
+      width: 50px;
+      height: 50px;
+      background: yellow;
+      display: block;
+    }
+  }
+}
