@@ -134,30 +134,16 @@ function prime_api_client () {
 
 
 #Integration test/health check for Prime API
-#Return mtos from the fetch-mto endpoint where is_available_for_prime is true
+#Return mtos from the fetch-mto-updates endpoint where available_to_prime_at is NOT NULL
 mtos=$(prime_api_client fetch-mto-updates)
-#Returns mtoShipments from the fetch-mto response, needed to return etag below
+#Returns mtoShipments from the fetch-mto-updates response, needed to return etag below
 mtoShipments=$(echo "$mtos" | jq '.[0] | .mtoShipments')
 echo "$mtoShipments"
 
 #Integration test/health check for Support API
-#Return all mtos regardless of whether or not they are available to prime
+#Return all mtos regardless of whether or not they have been made available to prime at some point
 list_mtos=$(prime_api_client support-list-mtos)
 echo "$list_mtos"
-
-#Get etag for the first mtoShipment, needed to run update-mto-shipment below
-#etag=$(echo "$mtoShipments" | jq '.[0] | .eTag' |  tr -d '"')
-#Get ids from the received data
-#mto_id=$(echo "$mtos" | jq '.[0] | .id' |  tr -d '"')
-#mto_shipment_id=$(echo "$mtoShipments" | jq '.[0] | .id' |  tr -d '"')
-
-#Get body for update-mto-shipment request
-#params=$(cat ./pkg/testdatagen/testdata/update_mto_shipment.json)
-#Add ids and etag to the params
-#params=$(echo $params | jq \
-#  --arg etag $etag --arg mto_id $mto_id --arg mto_shipment_id $mto_shipment_id \
-#  '. + {ifMatch: $etag} + {mtoShipmentID: $mto_shipment_id} + {moveTaskOrderID: $mto_id}')
-
 
 #
 # INTEGRATION TESTS END
