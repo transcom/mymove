@@ -7,21 +7,23 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // GHCDieselFuelPrice represents the weekly national average diesel fuel price
 type GHCDieselFuelPrice struct {
-	ID                    uuid.UUID `json:"id" db:"id"`
-	CreatedAt             time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt             time.Time `json:"updated_at" db:"updated_at"`
-	FuelPriceInMillicents int       `json:"fuel_price_in_millicents" db:"fuel_price_in_millicents"`
-	PublicationDate       time.Time `json:"publication_date" db:"publication_date"`
+	ID                    uuid.UUID       `json:"id" db:"id"`
+	CreatedAt             time.Time       `json:"created_at" db:"created_at"`
+	UpdatedAt             time.Time       `json:"updated_at" db:"updated_at"`
+	FuelPriceInMillicents unit.Millicents `json:"fuel_price_in_millicents" db:"fuel_price_in_millicents"`
+	PublicationDate       time.Time       `json:"publication_date" db:"publication_date"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (g *GHCDieselFuelPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.IntIsPresent{Field: g.FuelPriceInMillicents, Name: "FuelPriceInMillicents"},
+		&validators.IntIsPresent{Field: g.FuelPriceInMillicents.Int(), Name: "FuelPriceInMillicents"},
 		&validators.TimeIsPresent{Field: g.PublicationDate, Name: "PublicationDate"},
 	), nil
 }
