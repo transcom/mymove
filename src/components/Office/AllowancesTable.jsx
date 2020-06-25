@@ -2,6 +2,25 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 
 const AllowancesTable = ({ info }) => {
+  const titleCase = (input) => {
+    if (input && input.length > 0) {
+      const friendlyInput = input.toLowerCase().replace('_', ' ').split(' ');
+      return friendlyInput
+        .map((word) => {
+          return word.replace(word[0], word[0].toUpperCase());
+        })
+        .join(' ');
+    }
+    return input;
+  };
+  const friendlyRankDisplay = (rank) => {
+    if (rank) {
+      const friendlyRank = rank.split('_');
+      return `${friendlyRank[0]}-${friendlyRank[1]} ${titleCase(friendlyRank.slice(2).join(' '))}`;
+    }
+    return rank;
+  };
+
   return (
     <div>
       <table className="table--stacked">
@@ -19,7 +38,7 @@ const AllowancesTable = ({ info }) => {
             <th scope="row" className="text-bold">
               Branch, rank
             </th>
-            <td data-cy="branchRank">{`${info.branch}, ${info.rank}`}</td>
+            <td data-cy="branchRank">{`${titleCase(info.branch)}, ${friendlyRankDisplay(info.rank)}`}</td>
           </tr>
           <tr>
             <th scope="row" className="text-bold">
