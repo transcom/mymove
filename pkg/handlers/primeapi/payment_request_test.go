@@ -125,7 +125,9 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			},
 		}
 		response := handler.Handle(params)
+		typedResponse := response.(*paymentrequestop.CreatePaymentRequestCreated)
 
+		suite.Equal(len(typedResponse.Payload.PaymentServiceItems), 0)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
 	})
 
