@@ -12,8 +12,7 @@
 }
 
 .previewShipments {
-  @include u-margin-left(0);
-  @include u-margin-right(0);
+  @include u-margin-x(0);
 }
 
 .customerName {
