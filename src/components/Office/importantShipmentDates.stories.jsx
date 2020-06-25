@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import ImportantShipmentDates from '../components/Office/ImportantShipmentDates';
+import ImportantShipmentDates from './ImportantShipmentDates';
 
 storiesOf('TOO/TIO Components|ImportantShipmentDates', module).add('default', () => {
   return (
