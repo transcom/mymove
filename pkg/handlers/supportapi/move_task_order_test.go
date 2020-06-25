@@ -168,7 +168,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 	suite.T().Run("successful create movetaskorder request -- with customer creation", func(t *testing.T) {
 
-		newCustomer := models.Customer{
+		newCustomer := models.ServiceMember{
 			FirstName: swag.String("Grace"),
 			LastName:  swag.String("Griffin"),
 		}

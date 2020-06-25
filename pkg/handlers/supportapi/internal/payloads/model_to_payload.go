@@ -53,22 +53,21 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *supportmessages.MoveTas
 }
 
 // Customer payload
-func Customer(customer *models.Customer) *supportmessages.Customer {
+func Customer(customer *models.ServiceMember) *supportmessages.Customer {
 	if customer == nil {
 		return nil
 	}
 	payload := supportmessages.Customer{
-		Agency:             swag.StringValue(customer.Agency),
-		CurrentAddress:     Address(&customer.CurrentAddress),
-		DestinationAddress: Address(&customer.DestinationAddress),
-		DodID:              swag.StringValue(customer.DODID),
-		Email:              customer.Email,
-		FirstName:          swag.StringValue(customer.FirstName),
-		ID:                 strfmt.UUID(customer.ID.String()),
-		LastName:           swag.StringValue(customer.LastName),
-		Phone:              customer.PhoneNumber,
-		UserID:             strfmt.UUID(customer.UserID.String()),
-		ETag:               etag.GenerateEtag(customer.UpdatedAt),
+		Agency:         swag.StringValue((*string)(customer.Affiliation)),
+		CurrentAddress: Address(customer.ResidentialAddress),
+		DodID:          swag.StringValue(customer.Edipi),
+		Email:          customer.PersonalEmail,
+		FirstName:      swag.StringValue(customer.FirstName),
+		ID:             strfmt.UUID(customer.ID.String()),
+		LastName:       swag.StringValue(customer.LastName),
+		Phone:          customer.Telephone,
+		UserID:         strfmt.UUID(customer.UserID.String()),
+		ETag:           etag.GenerateEtag(customer.UpdatedAt),
 	}
 	return &payload
 }

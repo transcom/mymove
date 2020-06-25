@@ -132,6 +132,7 @@ func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, sess
 		}
 	}
 	if session.IsMilApp() {
+		// TODO: Needs to be removed when we delete customer model/table
 		err = uua.CreateAndAssociateCustomer(user.ID)
 		if err != nil {
 			return err
