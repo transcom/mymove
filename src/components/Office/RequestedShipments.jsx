@@ -32,8 +32,8 @@ const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAge
       shipments: [],
     },
     onSubmit: () => {
-      handleApprovalClick();
       setFilteredShipments(filterShipments(formik.values.shipments));
+      handleApprovalClick();
     },
   });
 
