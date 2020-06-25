@@ -289,27 +289,26 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(ctx context.Con
 	return validate.NewErrors(), nil
 }
 
-// ShowServiceMemberOrdersHandler returns latest orders for a serviceMember
+// ShowServiceMemberOrdersHandler returns latest orders for a logged in serviceMember
 type ShowServiceMemberOrdersHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle retrieves orders for a service member
+// Handle retrieves orders for a logged in service member
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
 
 	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromContext(ctx)
 
-	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, session.ServiceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return servicememberop.NewShowServiceMemberOrdersNotFound()
 	}
 
-	order, err := serviceMember.FetchLatestOrder(ctx, h.DB())
+	order, err := serviceMember.FetchLatestOrder(session, h.DB())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return servicememberop.NewShowServiceMemberOrdersNotFound()
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)

@@ -23,14 +23,16 @@ export default function reducer(state = {}, action) {
 
 // Actions
 export function deleteUpload(uploadId, label = deleteUploadLabel) {
+  const schemaKey = 'uploads';
   const swaggerTag = 'uploads.deleteUpload';
+  const deleteId = uploadId;
   return swaggerRequest(
     getClient,
     swaggerTag,
     {
       uploadId,
     },
-    { label },
+    { label, schemaKey, deleteId },
   );
 }
 

@@ -320,24 +320,36 @@ func (s *ServiceMember) IsProfileComplete() bool {
 }
 
 // FetchLatestOrder gets the latest order for a service member
-func (s ServiceMember) FetchLatestOrder(ctx context.Context, db *pop.Connection) (Order, error) {
+func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) {
 
 	var order Order
-	query := db.Where("orders.service_member_id = $1 and u.deleted_at is null", s.ID).Order("created_at desc")
+	query := db.Where("orders.service_member_id = $1", s.ID).Order("created_at desc")
 	err := query.Eager("ServiceMember.User",
 		"NewDutyStation.Address",
 		"UploadedOrders.UserUploads.Upload",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications").
-		Join("documents as d", "orders.uploaded_orders_id = d.id").
-		LeftJoin("user_uploads as uu", "d.id = uu.document_id").
-		LeftJoin("uploads as u", "uu.upload_id = u.id").
 		First(&order)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		return Order{}, err
+	}
+
+	// Only return user uploads that haven't been deleted
+	userUploads := order.UploadedOrders.UserUploads
+	relevantUploads := make([]UserUpload, 0, len(userUploads))
+	for _, userUpload := range userUploads {
+		if userUpload.DeletedAt == nil {
+			relevantUploads = append(relevantUploads, userUpload)
+		}
+	}
+	order.UploadedOrders.UserUploads = relevantUploads
+
+	// User must be logged in service member
+	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
+		return Order{}, ErrFetchForbidden
 	}
 	return order, nil
 }

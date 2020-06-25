@@ -53,7 +53,11 @@ export class Landing extends Component {
     if (prevProps.move && prevProps.move.id !== this.props.move.id) {
       this.props.loadPPMs(this.props.move.id);
     }
-    if (prevProps.serviceMember && prevProps.serviceMember.id !== this.props.serviceMember.id) {
+    if (
+      prevProps.serviceMember &&
+      prevProps.serviceMember.id !== this.props.serviceMember.id &&
+      !isEmpty(this.props.orders)
+    ) {
       this.props.fetchLatestOrders(this.props.serviceMember.id);
     }
   }

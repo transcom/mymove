@@ -23,7 +23,9 @@ const OrdersWizardForm = reduxifyWizardForm(formName, validateOrdersForm);
 export class Orders extends Component {
   componentDidMount() {
     const { serviceMemberId } = this.props;
-    this.props.fetchLatestOrders(serviceMemberId);
+    if (!isEmpty(this.props.orders)) {
+      this.props.fetchLatestOrders(serviceMemberId);
+    }
   }
 
   handleSubmit = () => {

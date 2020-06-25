@@ -70,7 +70,15 @@ export function selectUploadsForOrders(state, ordersId) {
   const orders = selectOrders(state, ordersId);
   const uploadedOrders = get(state, `entities.documents.${orders.uploaded_orders}`);
   if (uploadedOrders) {
-    return uploadedOrders.uploads.map((uploadId) => get(state, `entities.uploads.${uploadId}`));
+    return uploadedOrders.uploads
+      .map((uploadId) => get(state, `entities.uploads.${uploadId}`))
+      .filter((upload) => {
+        if (upload === undefined) {
+          console.warn('Upload not found in entities uploads');
+          return false;
+        }
+        return true;
+      });
   } else {
     return [];
   }

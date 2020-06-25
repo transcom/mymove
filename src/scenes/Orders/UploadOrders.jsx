@@ -5,12 +5,8 @@ import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
-import { deleteUpload as tableDelete, addUploads } from './ducks';
-import {
-  fetchLatestOrders,
-  selectOrdersFromServiceMemberId,
-  selectUploadsForOrders,
-} from 'shared/Entities/modules/orders';
+// import { deleteUpload as tableDelete, addUploads } from './ducks';
+import { fetchLatestOrders, selectActiveOrders, selectUploadsForOrders } from 'shared/Entities/modules/orders';
 
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import OrdersUploader from 'shared/Uploader/OrdersUploader';
@@ -19,6 +15,7 @@ import WizardPage from 'shared/WizardPage';
 import { documentSizeLimitMsg } from 'shared/constants';
 
 import './UploadOrders.css';
+import { no_op } from 'shared/utils';
 
 const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
@@ -33,17 +30,12 @@ export class UploadOrders extends Component {
 
     this.onChange = this.onChange.bind(this);
     this.deleteFile = this.deleteFile.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
     this.setShowAmendedOrders = this.setShowAmendedOrders.bind(this);
   }
 
   componentDidMount() {
     const { serviceMemberId } = this.props;
     this.props.fetchLatestOrders(serviceMemberId);
-  }
-
-  handleSubmit() {
-    return this.props.addUploads(this.state.newUploads);
   }
 
   setShowAmendedOrders(show) {
@@ -69,7 +61,7 @@ export class UploadOrders extends Component {
     const isDirty = Boolean(this.state.newUploads.length);
     return (
       <WizardPage
-        handleSubmit={this.handleSubmit}
+        handleSubmit={no_op}
         pageList={pages}
         pageKey={pageKey}
         pageIsValid={isValid}
@@ -129,7 +121,7 @@ UploadOrders.propTypes = {
 
 function mapStateToProps(state) {
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
-  const currentOrders = selectOrdersFromServiceMemberId(state, serviceMemberId);
+  const currentOrders = selectActiveOrders(state);
 
   const props = {
     serviceMemberId: serviceMemberId,
@@ -143,10 +135,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { fetchLatestOrders, createUpload, deleteUpload, loadServiceMember, tableDelete, addUploads },
-    dispatch,
-  );
+  return bindActionCreators({ fetchLatestOrders, createUpload, deleteUpload, loadServiceMember }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(UploadOrders);
