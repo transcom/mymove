@@ -1,71 +1,44 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { withKnobs, text } from '@storybook/addon-knobs';
+import { withKnobs } from '@storybook/addon-knobs';
+import { Tag } from '@trussworks/react-uswds';
 
 import TabNav from '../components/TabNav';
-import TabNavPanel from '../components/TabNavPanel';
 
 storiesOf('Components|TabNav', module)
   .addDecorator(withKnobs)
   .add('default', () => (
     <TabNav
-      options={[
-        {
-          title: text('Option1.title', 'Option 1', 'First Tab'),
-          notice: text('Option1.notice', null, 'First Tab'),
-        },
-        {
-          title: text('Option2.title', 'Option 2', 'Second Tab'),
-          notice: text('Option2.notice', null, 'Second Tab'),
-        },
-        {
-          title: text('Option3.title', 'Option 3', 'Third Tab'),
-          notice: text('Option3.notice', null, 'Third Tab'),
-        },
+      items={[
+        <a href="#" className="usa-current usa-nav__link" role="tab">
+          <span className="tab-title">Move details</span>
+        </a>,
+        <a href="#" className="usa-nav__link" role="tab">
+          <span className="tab-title">Move task order</span>
+        </a>,
+        <a href="#" className="usa-nav__link" role="tab">
+          <span className="tab-title">Payment requests</span>
+        </a>,
       ]}
-    >
-      <TabNavPanel>
-        Body Of Tab
-        {text('Option1.title', 'Option 1', 'First Tab')}
-      </TabNavPanel>
-      <TabNavPanel>
-        Body Of Tab
-        {text('Option2.title', 'Option 2', 'Second Tab')}
-      </TabNavPanel>
-      <TabNavPanel>
-        Body Of Tab
-        {text('Option3.title', 'Option 3', 'Third Tab')}
-      </TabNavPanel>
-    </TabNav>
+      role="navigation"
+    />
   ))
   .add('withTag', () => (
     <TabNav
-      options={[
-        {
-          title: text('Option1.title', 'Option 1', 'First Tab'),
-          notice: text('Option1.notice', '2', 'First Tab'),
-        },
-        {
-          title: text('Option2.title', 'Option 2', 'Second Tab'),
-          notice: text('Option2.notice', null, 'Second Tab'),
-        },
-        {
-          title: text('Option3.title', 'Option 3', 'Third Tab'),
-          notice: text('Option3.notice', null, 'Third Tab'),
-        },
+      items={[
+        <>
+          <a href="#" className="usa-nav__link" role="tab">
+            <span className="tab-title">Move details</span>
+            <Tag>2</Tag>
+          </a>
+        </>,
+        <a href="#" className="usa-current usa-nav__link" role="tab">
+          <span className="tab-title">Move task order</span>
+        </a>,
+        <a href="#" className="usa-nav__link" role="tab">
+          <span className="tab-title">Payment requests</span>
+        </a>,
       ]}
-    >
-      <TabNavPanel>
-        Body Of Tab
-        {text('Option1.title', 'Option 1', 'First Tab')}
-      </TabNavPanel>
-      <TabNavPanel>
-        Body Of Tab
-        {text('Option2.title', 'Option 2', 'Second Tab')}
-      </TabNavPanel>
-      <TabNavPanel>
-        Body Of Tab
-        {text('Option3.title', 'Option 3', 'Third Tab')}
-      </TabNavPanel>
-    </TabNav>
+      role="navigation"
+    />
   ));

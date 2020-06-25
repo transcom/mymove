@@ -37,6 +37,49 @@ func init() {
   "basePath": "/support/v1",
   "paths": {
     "/move-task-orders": {
+      "get": {
+        "description": "Gets all move task orders. Provides all move task orders regardless of whether or not they have been made available to prime.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "listMTOs",
+        "operationId": "listMTOs",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "timestamp",
+            "description": "Only return move task orders updated since this time.",
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all move task orders.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrders"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
       "post": {
         "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
@@ -905,28 +948,13 @@ func init() {
       }
     },
     "MTOServiceItem": {
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
       "required": [
-        "id",
-        "moveTaskOrderID",
-        "reServiceID",
-        "reServiceCode",
-        "reServiceName",
-        "mtoShipmentID"
+        "modelType",
+        "moveTaskOrderID"
       ],
       "properties": {
-        "approvedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "description": {
           "type": "string"
         },
@@ -947,6 +975,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "modelType": {
+          "$ref": "#/definitions/MTOServiceItemModelType"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -963,9 +994,6 @@ func init() {
         "rate": {
           "type": "integer"
         },
-        "reServiceCode": {
-          "type": "string"
-        },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
@@ -974,10 +1002,6 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
-        "rejectedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -985,35 +1009,28 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
-        },
-        "submittedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "total": {
-          "type": "integer",
-          "format": "cents"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
         }
-      }
+      },
+      "discriminator": "modelType"
+    },
+    "MTOServiceItemModelType": {
+      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
+      "type": "string",
+      "enum": [
+        "MTOServiceItemBasic",
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticCrating"
+      ]
     },
     "MTOServiceItemStatus": {
-      "description": "Describes all statuses for a MTOServiceItem",
+      "description": "Describes all statuses for a MTOServiceItem.",
       "type": "string",
       "enum": [
         "SUBMITTED",
         "APPROVED",
         "REJECTED"
       ]
-    },
-    "MTOServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOServiceItem"
-      }
     },
     "MTOShipment": {
       "properties": {
@@ -1350,23 +1367,13 @@ func init() {
         "status"
       ],
       "properties": {
-        "approvedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "description": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "feeType": {
           "type": "string",
@@ -1375,43 +1382,48 @@ func init() {
             "CRATING",
             "TRUCKING",
             "SHUTTLE"
-          ]
+          ],
+          "readOnly": true
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "quantity": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "rate": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "reServiceCode": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
-          "type": "string"
-        },
-        "rejectedAt": {
           "type": "string",
-          "format": "date"
+          "readOnly": true
         },
         "rejectionReason": {
           "type": "string",
@@ -1421,17 +1433,10 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
-        "submittedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "total": {
           "type": "integer",
-          "format": "cents"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
+          "format": "cents",
+          "readOnly": true
         }
       }
     },
@@ -1625,6 +1630,64 @@ func init() {
   "basePath": "/support/v1",
   "paths": {
     "/move-task-orders": {
+      "get": {
+        "description": "Gets all move task orders. Provides all move task orders regardless of whether or not they have been made available to prime.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "listMTOs",
+        "operationId": "listMTOs",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "timestamp",
+            "description": "Only return move task orders updated since this time.",
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all move task orders.",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrders"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
       "post": {
         "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
@@ -2631,28 +2694,13 @@ func init() {
       }
     },
     "MTOServiceItem": {
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
       "type": "object",
       "required": [
-        "id",
-        "moveTaskOrderID",
-        "reServiceID",
-        "reServiceCode",
-        "reServiceName",
-        "mtoShipmentID"
+        "modelType",
+        "moveTaskOrderID"
       ],
       "properties": {
-        "approvedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "description": {
           "type": "string"
         },
@@ -2673,6 +2721,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "modelType": {
+          "$ref": "#/definitions/MTOServiceItemModelType"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -2689,9 +2740,6 @@ func init() {
         "rate": {
           "type": "integer"
         },
-        "reServiceCode": {
-          "type": "string"
-        },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
@@ -2700,10 +2748,6 @@ func init() {
         "reServiceName": {
           "type": "string"
         },
-        "rejectedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -2711,35 +2755,28 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
-        },
-        "submittedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "total": {
-          "type": "integer",
-          "format": "cents"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
         }
-      }
+      },
+      "discriminator": "modelType"
+    },
+    "MTOServiceItemModelType": {
+      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
+      "type": "string",
+      "enum": [
+        "MTOServiceItemBasic",
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticCrating"
+      ]
     },
     "MTOServiceItemStatus": {
-      "description": "Describes all statuses for a MTOServiceItem",
+      "description": "Describes all statuses for a MTOServiceItem.",
       "type": "string",
       "enum": [
         "SUBMITTED",
         "APPROVED",
         "REJECTED"
       ]
-    },
-    "MTOServiceItems": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOServiceItem"
-      }
     },
     "MTOShipment": {
       "properties": {
@@ -3076,23 +3113,13 @@ func init() {
         "status"
       ],
       "properties": {
-        "approvedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "description": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "feeType": {
           "type": "string",
@@ -3101,43 +3128,48 @@ func init() {
             "CRATING",
             "TRUCKING",
             "SHUTTLE"
-          ]
+          ],
+          "readOnly": true
         },
         "id": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "quantity": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "rate": {
-          "type": "integer"
+          "type": "integer",
+          "readOnly": true
         },
         "reServiceCode": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "reServiceID": {
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
-          "type": "string"
-        },
-        "rejectedAt": {
           "type": "string",
-          "format": "date"
+          "readOnly": true
         },
         "rejectionReason": {
           "type": "string",
@@ -3147,17 +3179,10 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
-        "submittedAt": {
-          "type": "string",
-          "format": "date"
-        },
         "total": {
           "type": "integer",
-          "format": "cents"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
+          "format": "cents",
+          "readOnly": true
         }
       }
     },
