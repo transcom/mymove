@@ -15,6 +15,7 @@ import {
   getMoveOrder as getMoveOrderAction,
   getCustomer as getCustomerAction,
   getAllMoveTaskOrders as getAllMoveTaskOrdersAction,
+  selectMoveTaskOrders,
   selectMoveOrder,
   selectCustomer,
 } from 'shared/Entities/modules/moveTaskOrders';
@@ -220,6 +221,8 @@ const mapStateToProps = (state, ownProps) => {
   const moveOrder = selectMoveOrder(state, moveOrderId);
   const allowances = moveOrder?.entitlement;
   const customerId = moveOrder.customerID;
+  const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
+  const moveTaskOrder = moveTaskOrders[0];
 
   return {
     moveOrder,
@@ -227,6 +230,7 @@ const mapStateToProps = (state, ownProps) => {
     customer: selectCustomer(state, customerId),
     mtoShipments: selectMTOShipments(state, moveOrderId),
     mtoAgents: selectMTOAgents(state),
+    moveTaskOrder,
   };
 };
 

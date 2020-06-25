@@ -1,4 +1,4 @@
-import { Modal, ModalContainer, Overlay } from '@trussworks/react-uswds';
+import { Button, Modal, ModalContainer, Overlay } from '@trussworks/react-uswds';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 import React from 'react';
@@ -25,16 +25,25 @@ const ShipmentApprovalPreview = ({ mtoShipments, allowancesInfo, customerInfo, m
       <Overlay />
       <ModalContainer>
         <Modal className={classNames(styles.approvalPreviewModal, 'padding-4 overflow-y-auto maxh-viewport')}>
-          <div className={classNames('approval-close')}>
-            <FontAwesomeIcon
-              aria-hidden
-              icon={faTimes}
-              title="Close shipment approval modal"
-              onClick={() => setIsModalVisible(false)}
-              className={classNames(styles['approval-close'], 'icon')}
-            />
+          <div className={classNames(styles.containerTop)}>
+            <div className={classNames('approval-close')}>
+              <FontAwesomeIcon
+                aria-hidden
+                icon={faTimes}
+                title="Close shipment approval modal"
+                onClick={() => setIsModalVisible(false)}
+                className={classNames(styles['approval-close'], 'icon')}
+              />
+            </div>
+            <h2 className="text-bold">Preview and post move task order</h2>
+            <p>Is all the information shown correct and ready to send to Global Relocation Services?</p>
+            <div className="display-flex">
+              <Button type="submit">Approve and send</Button>
+              <Button type="reset" secondary onClick={() => setIsModalVisible(false)}>
+                Back
+              </Button>
+            </div>
           </div>
-          <h2 className="text-bold">Preview and post move task order</h2>
           <hr className={styles.sectionBorder} />
           <h1 className={classNames(styles.customerName, 'text-normal')}>{customerInfo.name}</h1>
           <div className={classNames(styles.previewContainer, 'container')}>

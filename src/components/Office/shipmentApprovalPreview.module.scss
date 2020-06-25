@@ -3,12 +3,16 @@
 @import '../../shared/styles/colors';
 
 .approval-close {
-   @include u-float('right');
-   color: $color-icon-gray;
- }
+  @include u-float('right');
+  color: $color-icon-gray;
+}
 
 .approvalPreviewModal {
   min-width: 80rem;
+
+  button[type='submit'] {
+    @include u-margin-left(0);
+  }
 }
 
 .previewShipments {
@@ -19,6 +23,9 @@
   @include u-margin-bottom(0);
 }
 
+.containerTop {
+  @include u-margin-bottom(2);
+}
 .sectionBorder {
   min-width: 80rem;
   margin-left: -2.1rem;
@@ -33,7 +40,7 @@
   border-radius: 3px;
   border: 1px solid #dfe1e2;
 
-  .tableH4{
+  .tableH4 {
     @include u-margin-top(2);
     @include u-margin-bottom(2);
   }
