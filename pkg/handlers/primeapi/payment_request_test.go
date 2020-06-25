@@ -7,22 +7,22 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gobuffalo/validate"
-
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/gofrs/uuid"
+	"github.com/gobuffalo/validate"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/audit"
+
+	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
+
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -84,12 +84,18 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	})
 
 	suite.T().Run("create payment request without adding service item params passed into payload", func(t *testing.T) {
+		serviceItemID1, _ := uuid.FromString("1b7b134a-7c44-45f2-9114-bb0831cc5db3")
 		returnedPaymentRequest := models.PaymentRequest{
 			ID:                   paymentRequestID,
 			MoveTaskOrderID:      moveTaskOrderID,
 			PaymentRequestNumber: "1234-5678-1",
 			CreatedAt:            time.Now(),
 			UpdatedAt:            time.Now(),
+			PaymentServiceItems: []models.PaymentServiceItem{
+				{
+					ID: serviceItemID1,
+				},
+			},
 		}
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
@@ -104,7 +110,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
-		serviceItemID1, _ := uuid.FromString("1b7b134a-7c44-45f2-9114-bb0831cc5db3")
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
@@ -127,7 +132,9 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		response := handler.Handle(params)
 		typedResponse := response.(*paymentrequestop.CreatePaymentRequestCreated)
 
-		suite.Equal(len(typedResponse.Payload.PaymentServiceItems), 0)
+		paymentServiceItemParams := typedResponse.Payload.PaymentServiceItems[0].PaymentServiceItemParams
+
+		suite.Equal(len(paymentServiceItemParams), 0)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
 	})
 

@@ -67,6 +67,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	// in from the API. These paymentRequest.PaymentServiceItems will be used as a temp holder to process the incoming API data
 	verrs := validate.NewErrors()
 	paymentRequest.PaymentServiceItems, verrs, err = h.buildPaymentServiceItems(payload)
+
 	if err != nil || verrs.HasAny() {
 
 		logger.Error("could not build service items", zap.Error(err))
@@ -114,6 +115,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 }
 
 func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemessages.CreatePaymentRequestPayload) (models.PaymentServiceItems, *validate.Errors, error) {
+
 	var paymentServiceItems models.PaymentServiceItems
 	verrs := validate.NewErrors()
 	for _, payloadServiceItem := range payload.ServiceItems {
