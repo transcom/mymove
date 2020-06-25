@@ -31,7 +31,7 @@
     "prop-types": "^15.7.2",
     "query-string": "6",
     "ra-data-simple-rest": "^2.9.9",
-    "ra-language-english": "^3.6.1",
+    "ra-language-english": "^3.6.2",
     "react": "^16.13.1",
     "react-admin": "^3.6.1",
     "react-app-polyfill": "^1.0.6",

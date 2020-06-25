@@ -12778,10 +12778,10 @@ ra-core@^2.9.9:
     redux-saga "~0.16.0"
     reselect "~3.0.0"
 
-ra-core@^3.6.1:
-  version "3.6.1"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.6.1.tgz#d273e67619711f0de354bf3b5f1e3ea31cc82610"
-  integrity sha512-9JikbyJwdyFksi3Pd4joFPWNTgCTZv/8easN0NEMejgANeOXyez8dXvpYFUlm8QLr/NFRmUfm8qUtZEHKzosxA==
+ra-core@^3.6.1, ra-core@^3.6.2:
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.6.2.tgz#fd3a8803ac01a45f85ffc5e24b464f3b35395a23"
+  integrity sha512-t+5SY9skFDZf9HhufJ1TuSOGc+bLhEhuKYgonxEcACNRysH/dIx2jENixrqVuATgna2bFxaGhj++NL7rK1BqOw==
   dependencies:
     "@testing-library/react" "^8.0.7"
     classnames "~2.2.5"
@@ -12815,12 +12815,12 @@ ra-language-english@^2.9.9:
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-2.9.9.tgz#e8d90d40df8e5e66de8a7b3a72f33dd9de638501"
   integrity sha512-tWybE7ZnCRyiVAWcyN02LA4v5oi030A853lLDmTJUJySUMSwqyy3EpAdiLrOXfe3XKEoyIjRLGQK54iX2cQ/Mw==
 
-ra-language-english@^3.6.1:
-  version "3.6.1"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.6.1.tgz#a5489891eb1a4de5b19159b5c87b96d85d0275ca"
-  integrity sha512-eT7ZqnxP6X6QC7yL8cZhdr50LAzmZNk5xMOO5gBXHoQiW9uCOp/U2ipAvCvdWkEn4SjfDKgpjUx0T6X7q5sVqw==
+ra-language-english@^3.6.1, ra-language-english@^3.6.2:
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.6.2.tgz#0657858def2cefff72b8c82eb6336d3764a7f930"
+  integrity sha512-xcbUcpJZsWHAwiow8x7rDwQJ5DnQSHBzX9lxKwwluLtsz4hhyvoDsvvVLBX6Lnp2NHGZMQIlwFxqhZEEKx3R7w==
   dependencies:
-    ra-core "^3.6.1"
+    ra-core "^3.6.2"
 
 ra-ui-materialui@^3.6.1:
   version "3.6.1"
