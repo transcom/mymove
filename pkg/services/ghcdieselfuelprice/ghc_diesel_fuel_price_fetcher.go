@@ -75,7 +75,7 @@ func extractDieselFuelPriceData(eiaData EIAData) (dieselFuelPriceData, error) {
 	}
 	extractedDieselFuelPriceData.publicationDate = publicationDate
 
-	price, ok := eiaData.SeriesData[0].Data[0][1].(float64)
+	price, ok := eiaData.price()
 	if !ok {
 		return extractedDieselFuelPriceData, fmt.Errorf("failed float64 type assertion for price data extracted from eiaData")
 	}
