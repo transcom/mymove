@@ -181,9 +181,7 @@ describe('Shipment preview modal', () => {
       <ShipmentApprovalPreview
         customerInfo={customerInfo}
         mtoShipments={shipments}
-        setIsModalVisible={() => {
-          return true;
-        }}
+        setIsModalVisible={jest.fn()}
         allowancesInfo={allowancesInfo}
       />,
     );

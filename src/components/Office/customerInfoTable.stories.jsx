@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, object } from '@storybook/addon-knobs';
 
-import CustomerInfoTable from '../components/Office/CustomerInfoTable';
+import CustomerInfoTable from './CustomerInfoTable';
 
 const info = {
   name: 'Smith, Kerry',
