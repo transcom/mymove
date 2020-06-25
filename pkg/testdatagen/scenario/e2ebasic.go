@@ -1183,7 +1183,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("76055c99-0990-410c-a7c9-69373b0b53eb"),
+			ID:     uuid.FromStringOrNil("76055c99-0990-410c-a7c9-69373b0b53eb"),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		MoveTaskOrder: mtoWithTaskOrderServices,
 		ReService: models.ReService{
@@ -1193,11 +1194,33 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("05fbfad0-731f-4342-87e9-abe55566bb63"),
+			ID:     uuid.FromStringOrNil("05fbfad0-731f-4342-87e9-abe55566bb63"),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		MoveTaskOrder: mtoWithTaskOrderServices,
 		ReService: models.ReService{
 			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS
+		},
+	})
+
+	mtoShipment4 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                  uuid.FromStringOrNil("c3a9e368-188b-4828-a64a-204da9b988c2"),
+			RequestedPickupDate: swag.Time(time.Now()),
+			ScheduledPickupDate: swag.Time(time.Now().AddDate(0, 0, -1)),
+		},
+		MoveTaskOrder: mtoWithTaskOrderServices,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("eee4b555-2475-4e67-a5b8-102f28d950f8"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		MoveTaskOrder: mtoWithTaskOrderServices,
+		MTOShipment:   mtoShipment4,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
 		},
 	})
 }
