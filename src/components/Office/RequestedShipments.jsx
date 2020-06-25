@@ -4,6 +4,8 @@ import * as PropTypes from 'prop-types';
 import classNames from 'classnames/bind';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 
+import { MTOAgentShape, MTOShipmentShape } from '../../types/moveOrder';
+
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 import styles from './requestedShipments.module.scss';
 
@@ -13,9 +15,14 @@ const cx = classNames.bind(styles);
 
 const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAgents }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [filteredShipments, setFilteredShipments] = useState([]);
 
   const handleApprovalClick = () => {
     setIsModalVisible(true);
+  };
+
+  const filterShipments = (formikShipmentIds) => {
+    return mtoShipments.filter(({ id }) => formikShipmentIds.includes(id));
   };
 
   const formik = useFormik({
@@ -26,25 +33,24 @@ const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAge
     },
     onSubmit: () => {
       handleApprovalClick();
+      setFilteredShipments(filterShipments(formik.values.shipments));
     },
   });
 
   const isButtonEnabled =
     formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
 
-  const filteredShipments = () => {
-    return mtoShipments.filter(({ id }) => formik.values.shipments.includes(id));
-  };
-
   return (
     <div className={`${cx('requested-shipments')} container`} data-cy="requested-shipments">
       <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>
         <ShipmentApprovalPreview
-          mtoShipments={filteredShipments()}
+          mtoShipments={filteredShipments}
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           setIsModalVisible={setIsModalVisible}
           mtoAgents={mtoAgents}
+          counselingFee={formik.values.counselingFee}
+          shipmentManagementFee={formik.values.shipmentManagementFee}
         />
       </div>
       <h4>Requested shipments</h4>
@@ -95,10 +101,8 @@ const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAge
 };
 
 RequestedShipments.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  mtoShipments: PropTypes.array.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  mtoAgents: PropTypes.array,
+  mtoShipments: PropTypes.arrayOf(MTOShipmentShape).isRequired,
+  mtoAgents: PropTypes.arrayOf(MTOAgentShape),
   allowancesInfo: PropTypes.shape({
     branch: PropTypes.string,
     rank: PropTypes.string,

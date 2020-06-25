@@ -6,18 +6,27 @@ import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
+import { MTOAgentShape, MTOShipmentShape } from '../../types/moveOrder';
 
 import styles from './shipmentApprovalPreview.module.scss';
 import AllowancesTable from './AllowancesTable';
 import CustomerInfoTable from './CustomerInfoTable';
 import ShipmentContainer from './ShipmentContainer';
 
-const ShipmentApprovalPreview = ({ mtoShipments, allowancesInfo, customerInfo, mtoAgents, setIsModalVisible }) => {
+const ShipmentApprovalPreview = ({
+  mtoShipments,
+  allowancesInfo,
+  customerInfo,
+  mtoAgents,
+  setIsModalVisible,
+  counselingFee,
+  shipmentManagementFee,
+}) => {
   const getAgents = (shipment) => {
     return mtoAgents.filter((agent) => agent.shipmentId === shipment.id);
   };
   const shipmentsWithAgents = mtoAgents
-    ? mtoShipments.slice().map((shipment) => ({ ...shipment, agents: getAgents(shipment) }))
+    ? mtoShipments.map((shipment) => ({ ...shipment, agents: getAgents(shipment) }))
     : mtoShipments;
 
   return (
@@ -34,7 +43,7 @@ const ShipmentApprovalPreview = ({ mtoShipments, allowancesInfo, customerInfo, m
               className={classNames(styles['approval-close'], 'icon')}
             />
           </div>
-          <h2 className="text-bold">Preview and post move task order</h2>
+          <h2>Preview and post move task order</h2>
           <hr className={styles.sectionBorder} />
           <h1 className={classNames(styles.customerName, 'text-normal')}>{customerInfo.name}</h1>
           <div className={classNames(styles.previewContainer, 'container')}>
@@ -98,12 +107,16 @@ const ShipmentApprovalPreview = ({ mtoShipments, allowancesInfo, customerInfo, m
             <h4 className={classNames(styles.tableH4)}>Approved service items for this move</h4>
             <table className="table--stacked">
               <tbody>
-                <tr>
-                  <td>Shipment management fee</td>
-                </tr>
-                <tr>
-                  <td>Counseling fee</td>
-                </tr>
+                {shipmentManagementFee && (
+                  <tr>
+                    <td>Shipment management fee</td>
+                  </tr>
+                )}
+                {counselingFee && (
+                  <tr>
+                    <td>Counseling fee</td>
+                  </tr>
+                )}
               </tbody>
             </table>
             <AllowancesTable info={allowancesInfo} />
@@ -116,10 +129,10 @@ const ShipmentApprovalPreview = ({ mtoShipments, allowancesInfo, customerInfo, m
 };
 
 ShipmentApprovalPreview.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  mtoShipments: PropTypes.array.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  mtoAgents: PropTypes.array,
+  mtoShipments: PropTypes.arrayOf(MTOShipmentShape).isRequired,
+  mtoAgents: PropTypes.arrayOf(MTOAgentShape),
+  counselingFee: PropTypes.bool.isRequired,
+  shipmentManagementFee: PropTypes.bool.isRequired,
   allowancesInfo: PropTypes.shape({
     branch: PropTypes.string,
     rank: PropTypes.string,
