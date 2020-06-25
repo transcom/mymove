@@ -12,7 +12,6 @@ func (suite *ModelSuite) TestGHCDieselFuelPriceInstantiation() {
 	expectedErrors := map[string][]string{
 		"fuel_price_in_millicents": {"FuelPriceInMillicents can not be blank."},
 		"publication_date":         {"PublicationDate can not be blank."},
-		"last_updated":             {"LastUpdated can not be blank."},
 	}
 
 	suite.verifyValidationErrors(ghcDieselFuelPrice, expectedErrors)
@@ -23,7 +22,6 @@ func (suite *ModelSuite) TestGHCDieselFuelPriceUniqueness() {
 	ghcDieselFuelPrice := &GHCDieselFuelPrice{
 		FuelPriceInMillicents: 500000,
 		PublicationDate:       time.Now(),
-		LastUpdated:           time.Now(),
 	}
 
 	if verrs, err := suite.DB().ValidateAndCreate(ghcDieselFuelPrice); err != nil || verrs.HasAny() {
@@ -33,7 +31,6 @@ func (suite *ModelSuite) TestGHCDieselFuelPriceUniqueness() {
 	anotherGHCDieselFuelPrice := &GHCDieselFuelPrice{
 		FuelPriceInMillicents: 100,
 		PublicationDate:       time.Now(),
-		LastUpdated:           time.Now(),
 	}
 
 	_, err := suite.DB().ValidateAndCreate(anotherGHCDieselFuelPrice)
