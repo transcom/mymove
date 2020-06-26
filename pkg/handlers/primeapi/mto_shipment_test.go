@@ -91,7 +91,30 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.T().Run("POST failure - 500", func(t *testing.T) {
+		mockCreator := mocks.MTOShipmentCreator{}
 
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockCreator,
+		}
+
+		err := errors.New("ServerError")
+
+		mockCreator.On("CreateMTOShipment",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, err)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
+
+		errResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
+
+	})
+
+	suite.T().Run("POST failure - 400 - invalid input, missing pickup address", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 
@@ -105,11 +128,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		response := handler.Handle(badParams)
 
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
-
-		errResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
-		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
-
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
 	})
 
 	suite.T().Run("POST failure - 404 -- not found", func(t *testing.T) {

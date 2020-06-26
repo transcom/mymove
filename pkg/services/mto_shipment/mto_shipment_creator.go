@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -57,7 +57,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 	// check if MTO exists
 	err = f.builder.FetchOne(&moveTaskOrder, queryFilters)
 	if err != nil {
-		return nil, services.NewNotFoundError(moveTaskOrderID, fmt.Sprintf("MoveTaskOrderID: %s", err))
+		return nil, services.NewNotFoundError(moveTaskOrderID, "")
 	}
 
 	err = f.db.Transaction(func(tx *pop.Connection) error {
@@ -71,7 +71,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
 		} else {
-			return errors.New("pickup address missing")
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "pickup address is required to create MTO shipment")
 		}
 
 		if shipment.DestinationAddress != nil {
@@ -81,7 +81,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
 			}
 		} else {
-			return errors.New("destination address missing")
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "destination address is required to create MTO shipment")
 		}
 
 		// assign addresses to shipment
@@ -90,10 +90,10 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 
 		// check that required items to create shipment are present
 		if shipment.RequestedPickupDate == nil {
-			return errors.New("requested pickup date missing")
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "requested pickup date is required to create MTO shipment")
 		}
 		if shipment.ShipmentType == "" {
-			return errors.New("shipment type missing")
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "shipment type is required to create MTO shipment")
 		}
 		//assign status to shipment submitted
 		shipment.Status = models.MTOShipmentStatusSubmitted
