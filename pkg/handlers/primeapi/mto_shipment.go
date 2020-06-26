@@ -55,9 +55,13 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		case services.NotFoundError:
 			logger.Error("move task order not found", zap.Error(err))
 			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		case services.InvalidInputError:
+			logger.Error("invalid input for creating mto shipment", zap.Error(err))
+			return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
+		default:
+			logger.Error("Error creating mto shipment: ", zap.Error(err))
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
-		logger.Error("Error creating mto shipment: ", zap.Error(err))
-		return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 	}
 
 	returnPayload := payloads.MTOShipment(mtoShipment)
