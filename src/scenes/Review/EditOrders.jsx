@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, concat, includes, map, reject } from 'lodash';
+import { get, concat, includes, reject } from 'lodash';
 
 import { push } from 'react-router-redux';
 import { getFormValues, reduxForm, Field } from 'redux-form';
@@ -11,17 +11,17 @@ import { withContext } from 'shared/AppContext';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import Uploader from 'shared/Uploader';
+import OrdersUploader from 'shared/Uploader/OrdersUploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
-import { deleteUploads, addUploads } from 'scenes/Orders/ducks';
+// import { deleteUploads, addUploads } from 'scenes/Orders/ducks';
 import {
   updateOrders,
   fetchLatestOrders,
   selectActiveOrders,
   selectUploadsForOrders,
 } from 'shared/Entities/modules/orders';
-import { createUpload, selectDocument } from 'shared/Entities/modules/documents';
+import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
@@ -78,8 +78,9 @@ let EditOrdersForm = (props) => {
             {Boolean(get(initialValues, 'uploaded_orders')) && (
               <div>
                 <p>{documentSizeLimitMsg}</p>
-                <Uploader
+                <OrdersUploader
                   createUpload={props.createUpload}
+                  deleteUpload={props.deleteUpload}
                   document={document}
                   onChange={onUpload}
                   options={{ labelIdle: uploaderLabelIdle }}
@@ -108,19 +109,19 @@ class EditOrders extends Component {
       deleteQueue: [],
     };
 
-    this.cancelChanges = this.cancelChanges.bind(this);
+    // this.cancelChanges = this.cancelChanges.bind(this);
   }
 
-  cancelChanges = () => {
-    const newUploadIds = map(this.state.newUploads, 'id');
-    this.props.deleteUploads(newUploadIds).then(() => {
-      if (!this.props.hasSubmitError) {
-        this.returnToReview();
-      } else {
-        scrollToTop();
-      }
-    });
-  };
+  // cancelChanges = () => {
+  //   const newUploadIds = map(this.state.newUploads, 'id');
+  //   this.props.deleteUploads(newUploadIds).then(() => {
+  //     if (!this.props.hasSubmitError) {
+  //       this.returnToReview();
+  //     } else {
+  //       scrollToTop();
+  //     }
+  //   });
+  // };
 
   handleDelete = (e, uploadId) => {
     e.preventDefault();
@@ -134,7 +135,7 @@ class EditOrders extends Component {
   updateOrders = (fieldValues) => {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
     fieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
-    let addUploads = this.props.addUploads(this.state.newUploads);
+    // let addUploads = this.props.addUploads(this.state.newUploads);
     let deleteUploads = this.props.deleteUploads(this.state.deleteQueue);
     if (
       fieldValues.has_dependents !== this.props.currentOrders.has_dependents ||
@@ -142,7 +143,7 @@ class EditOrders extends Component {
     ) {
       this.props.entitlementChanged();
     }
-    return Promise.all([addUploads, deleteUploads])
+    return Promise.all([deleteUploads])
       .then(() => this.props.updateOrders(fieldValues.id, fieldValues))
       .then(() => {
         // This promise resolves regardless of error.
@@ -190,6 +191,8 @@ class EditOrders extends Component {
               onSubmit={this.updateOrders}
               document={document}
               schema={schema}
+              createUpload={this.props.createUpload}
+              deleteUpload={this.props.deleteUpload}
               existingUploads={existingUploads}
               newUploads={this.state.newUploads}
               deleteQueue={this.state.deleteQueue}
@@ -232,9 +235,8 @@ function mapDispatchToProps(dispatch) {
       push,
       updateOrders,
       createUpload,
+      deleteUpload,
       fetchLatestOrders,
-      addUploads,
-      deleteUploads,
       editBegin,
       entitlementChangeBegin,
       editSuccessful,

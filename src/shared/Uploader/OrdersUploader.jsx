@@ -119,9 +119,9 @@ export class OrdersUploader extends Component {
     const docID = document ? document.id : null;
     createUpload(file, docID)
       .then((item) => {
-        const createdFile = get(item, 'response.body', {});
-        load(createdFile.id);
-        const newFiles = concat(self.state.files, createdFile);
+        const response = get(item, 'response.body', {});
+        load(response.id);
+        const newFiles = concat(self.state.files, response);
         self.setState({
           files: newFiles,
         });
@@ -135,7 +135,8 @@ export class OrdersUploader extends Component {
     const { onChange, deleteUpload } = this.props;
     deleteUpload(uploadId)
       .then((item) => {
-        load(item);
+        const response = get(item, 'response', {});
+        load(response);
         const newFiles = reject(this.state.files, (upload) => upload.id === uploadId);
         this.setState({
           files: newFiles,
