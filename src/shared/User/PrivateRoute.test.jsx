@@ -1,11 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router';
 
+import { MockProviders } from 'testUtils';
 import PrivateRoute, { userIsAuthorized } from './PrivateRoute';
 import { roleTypes } from 'constants/userRoles';
-import { configureStore } from 'shared/store';
 
 describe('userIsAuthorized function', () => {
   it('returns true if no roles are required', () => {
@@ -35,17 +33,16 @@ describe('PrivateRouteContainer', () => {
   describe('if the user is still loading', () => {
     it('renders the loading placeholder', () => {
       const wrapper = mount(
-        <Provider
-          store={configureStore({
+        <MockProviders
+          initialState={{
             user: {
               isLoading: true,
             },
-          })}
+          }}
+          initialEntries={['/']}
         >
-          <MemoryRouter>
-            <PrivateRoute />
-          </MemoryRouter>
-        </Provider>,
+          <PrivateRoute />
+        </MockProviders>,
       );
       expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(1);
     });
@@ -54,20 +51,19 @@ describe('PrivateRouteContainer', () => {
   describe('if the user has loaded', () => {
     describe('and is not logged in', () => {
       const wrapper = mount(
-        <Provider
-          store={configureStore({
+        <MockProviders
+          initialState={{
             user: {
               isLoading: false,
               userInfo: {
                 isLoggedIn: false,
               },
             },
-          })}
+          }}
+          initialEntries={['/']}
         >
-          <MemoryRouter>
-            <PrivateRoute render={() => <div>My page</div>} requiredRoles={[roleTypes.TOO]} />
-          </MemoryRouter>
-        </Provider>,
+          <PrivateRoute render={() => <div>My page</div>} requiredRoles={[roleTypes.TOO]} />
+        </MockProviders>,
       );
 
       it('does not render the loading placeholder', () => {
@@ -84,8 +80,8 @@ describe('PrivateRouteContainer', () => {
     describe('and is logged in', () => {
       describe('and is not authorized to view the given route', () => {
         const wrapper = mount(
-          <Provider
-            store={configureStore({
+          <MockProviders
+            initialState={{
               user: {
                 isLoading: false,
                 userInfo: {
@@ -97,12 +93,11 @@ describe('PrivateRouteContainer', () => {
                   ],
                 },
               },
-            })}
+            }}
+            initialEntries={['/']}
           >
-            <MemoryRouter>
-              <PrivateRoute render={() => <div>My page</div>} requiredRoles={[roleTypes.TOO]} />
-            </MemoryRouter>
-          </Provider>,
+            <PrivateRoute render={() => <div>My page</div>} requiredRoles={[roleTypes.TOO]} />
+          </MockProviders>,
         );
 
         it('does not render the loading placeholder', () => {
@@ -120,8 +115,8 @@ describe('PrivateRouteContainer', () => {
 
       describe('and is authorized to view the given route', () => {
         const wrapper = mount(
-          <Provider
-            store={configureStore({
+          <MockProviders
+            initialState={{
               user: {
                 isLoading: false,
                 userInfo: {
@@ -133,12 +128,11 @@ describe('PrivateRouteContainer', () => {
                   ],
                 },
               },
-            })}
+            }}
+            initialEntries={['/']}
           >
-            <MemoryRouter>
-              <PrivateRoute render={() => <div>My page</div>} requiredRoles={[roleTypes.PPM]} />
-            </MemoryRouter>
-          </Provider>,
+            <PrivateRoute render={() => <div>My page</div>} requiredRoles={[roleTypes.PPM]} />
+          </MockProviders>,
         );
         it('does not render the loading placeholder', () => {
           expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(0);
@@ -151,8 +145,8 @@ describe('PrivateRouteContainer', () => {
       describe('and is authorized with multiple roles', () => {
         describe('on a page that isn’t the Select Application page', () => {
           const wrapper = mount(
-            <Provider
-              store={configureStore({
+            <MockProviders
+              initialState={{
                 user: {
                   isLoading: false,
                   userInfo: {
@@ -167,17 +161,16 @@ describe('PrivateRouteContainer', () => {
                     ],
                   },
                 },
-              })}
+              }}
+              initialEntries={['/']}
             >
-              <MemoryRouter>
-                <PrivateRoute
-                  render={() => <div>My page</div>}
-                  requiredRoles={[roleTypes.TOO]}
-                  path="/my-page"
-                  location={{ pathname: '/my-page' }}
-                />
-              </MemoryRouter>
-            </Provider>,
+              <PrivateRoute
+                render={() => <div>My page</div>}
+                requiredRoles={[roleTypes.TOO]}
+                path="/my-page"
+                location={{ pathname: '/my-page' }}
+              />
+            </MockProviders>,
           );
 
           it('does not render the loading placeholder', () => {
@@ -193,8 +186,8 @@ describe('PrivateRouteContainer', () => {
 
         describe('on the Select Application page', () => {
           const wrapper = mount(
-            <Provider
-              store={configureStore({
+            <MockProviders
+              initialState={{
                 user: {
                   isLoading: false,
                   userInfo: {
@@ -209,17 +202,16 @@ describe('PrivateRouteContainer', () => {
                     ],
                   },
                 },
-              })}
+              }}
+              initialEntries={['/select-application']}
             >
-              <MemoryRouter initialEntries={['/select-application']}>
-                <PrivateRoute
-                  render={() => <div>My page</div>}
-                  requiredRoles={[roleTypes.TOO]}
-                  path="/select-application"
-                  location={{ pathname: '/select-application' }}
-                />
-              </MemoryRouter>
-            </Provider>,
+              <PrivateRoute
+                render={() => <div>My page</div>}
+                requiredRoles={[roleTypes.TOO]}
+                path="/select-application"
+                location={{ pathname: '/select-application' }}
+              />
+            </MockProviders>,
           );
           it('does not render the loading placeholder', () => {
             expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(0);
