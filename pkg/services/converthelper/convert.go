@@ -126,5 +126,34 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 		return uuid.Nil, fmt.Errorf("Could not save hhg shipment, %w", err)
 	}
 
+	// Domestic Shorthaul is less than 50 miles
+	// Hard coding the shipment to meet that requirment
+	var miramar models.DutyStation
+	var sanDiego models.DutyStation
+
+	if err := db.Where("name = ?", "USMC Miramar").First(&miramar); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not find miramar, %w", err)
+	}
+
+	if err := db.Where("name = ?", "USMC San Diego").First(&sanDiego); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not find san diego, %w", err)
+	}
+
+	hhgDomShortHaul := models.MTOShipment{
+		MoveTaskOrderID:      mto.ID,
+		RequestedPickupDate:  &requestedPickupDate,
+		ScheduledPickupDate:  &scheduledPickupDate,
+		PickupAddressID:      &sanDiego.AddressID,
+		DestinationAddressID: &miramar.AddressID,
+		ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+		Status:               models.MTOShipmentStatusSubmitted,
+		CreatedAt:            time.Now(),
+		UpdatedAt:            time.Now(),
+	}
+
+	if err := db.Save(&hhgDomShortHaul); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not save hhg domestic shorthaul shipment, %w", err)
+	}
+
 	return mo.ID, nil
 }
