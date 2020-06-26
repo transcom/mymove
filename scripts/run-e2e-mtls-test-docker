@@ -136,14 +136,16 @@ function prime_api_client () {
 #Integration test/health check for Prime API
 #Return mtos from the fetch-mto-updates endpoint where available_to_prime_at is NOT NULL
 mtos=$(prime_api_client fetch-mto-updates)
-#Returns mtoShipments from the fetch-mto-updates response, needed to return etag below
+#Returns mtoShipments from the fetch-mto-updates response (this would fail if API returns 500/400)
 mtoShipments=$(echo "$mtos" | jq '.[0] | .mtoShipments')
 echo "$mtoShipments"
 
 #Integration test/health check for Support API
 #Return all mtos regardless of whether or not they have been made available to prime at some point
 list_mtos=$(prime_api_client support-list-mtos)
-echo "$list_mtos"
+#Returns mtoShipments from the fetch-mto-updates response (this would fail if API returns 500/400)
+supportMtoShipments=$(echo "$list_mtos" | jq '.[0] | .mtoShipments')
+echo "$supportMtoShipments"
 
 #
 # INTEGRATION TESTS END
