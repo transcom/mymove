@@ -26,7 +26,9 @@ const AllowancesTable = ({ info }) => {
       <table className="table--stacked">
         <caption>
           <div className="stackedtable-header">
-            <h4>Allowances</h4>
+            <div>
+              <h4>Allowances</h4>
+            </div>
           </div>
         </caption>
         <colgroup>
