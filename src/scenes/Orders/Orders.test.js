@@ -1,9 +1,9 @@
-import { configureStore } from 'shared/store';
-import Orders from '../Orders/Orders';
 import React from 'react';
-import { Provider } from 'react-redux';
-import { HashRouter as Router } from 'react-router-dom';
 import { mount } from 'enzyme';
+
+import Orders from '../Orders/Orders';
+
+import { MockProviders } from 'testUtils';
 
 describe('Orders page', () => {
   it('renders', () => {});
@@ -15,11 +15,9 @@ describe('Orders page', () => {
     },
   };
   const wrapper = mount(
-    <Provider store={configureStore(initialState)}>
-      <Router push={jest.fn()}>
-        <Orders pages={[]} pageKey="" updateOrders={jest.fn()} />
-      </Router>
-    </Provider>,
+    <MockProviders initialState={initialState} initialEntries={['/']}>
+      <Orders pages={[]} pageKey="" updateOrders={jest.fn()} />
+    </MockProviders>,
   );
   expect(wrapper.length).toEqual(1);
 });
