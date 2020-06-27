@@ -214,6 +214,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
           },
@@ -1883,6 +1886,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {
@@ -2159,6 +2168,12 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -3901,6 +3916,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {

@@ -164,7 +164,13 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 	mtoAvailableToPrime, err := h.mtoShipmentUpdater.MTOAvailableToPrime(mtoShipmentID)
 	if err != nil {
-		return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		logger.Error("primeapi.UpdateMTOShipmentHandler error - MTO is not available to prime", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceID()))
+		default:
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		}
 	}
 
 	if mtoAvailableToPrime {
