@@ -21,7 +21,7 @@ import {
   selectActiveOrders,
   selectUploadsForOrders,
 } from 'shared/Entities/modules/orders';
-import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
+import { createUpload, deleteUpload, selectDocument, deleteUploads } from 'shared/Entities/modules/documents';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
@@ -126,20 +126,7 @@ class EditOrders extends Component {
       newUploads: [],
       deleteQueue: [],
     };
-
-    // this.cancelChanges = this.cancelChanges.bind(this);
   }
-
-  // cancelChanges = () => {
-  //   const newUploadIds = map(this.state.newUploads, 'id');
-  //   this.props.deleteUploads(newUploadIds).then(() => {
-  //     if (!this.props.hasSubmitError) {
-  //       this.returnToReview();
-  //     } else {
-  //       scrollToTop();
-  //     }
-  //   });
-  // };
 
   handleDelete = (e, uploadId) => {
     e.preventDefault();
@@ -154,27 +141,27 @@ class EditOrders extends Component {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
     fieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
     // let addUploads = this.props.addUploads(this.state.newUploads);
-    let deleteUploads = this.props.deleteUploads(this.state.deleteQueue);
     if (
       fieldValues.has_dependents !== this.props.currentOrders.has_dependents ||
       fieldValues.spouse_has_pro_gear !== this.props.spouse_has_pro_gear
     ) {
       this.props.entitlementChanged();
     }
-    return Promise.all([deleteUploads])
-      .then(() => this.props.updateOrders(fieldValues.id, fieldValues))
-      .then(() => {
-        // This promise resolves regardless of error.
-        if (!this.props.hasSubmitError) {
-          this.props.editSuccessful();
-          this.props.history.goBack();
-          if (this.props.isPpm) {
-            this.props.checkEntitlement(this.props.match.params.moveId);
-          }
-        } else {
-          scrollToTop();
+    if (this.props.currentOrders && this.state.deleteQueue) {
+      this.props.deleteUploads(this.state.deleteQueue);
+    }
+    return Promise.all([this.props.updateOrders(fieldValues.id, fieldValues)]).then(() => {
+      // This promise resolves regardless of error.
+      if (!this.props.hasSubmitError) {
+        this.props.editSuccessful();
+        this.props.history.goBack();
+        if (this.props.isPpm) {
+          this.props.checkEntitlement(this.props.match.params.moveId);
         }
-      });
+      } else {
+        scrollToTop();
+      }
+    });
   };
 
   componentDidMount() {
@@ -228,13 +215,11 @@ class EditOrders extends Component {
 function mapStateToProps(state) {
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
   const currentOrders = selectActiveOrders(state);
-  // const currentOrders = state.orders.currentOrders; // in master
   const uploads = selectUploadsForOrders(state, currentOrders.id);
 
   const props = {
     currentOrders,
     serviceMemberId: serviceMemberId,
-    // existingUploads: get(state, `orders.currentOrders.uploaded_orders.uploads`, []),
     existingUploads: uploads,
     document: selectDocument(state, currentOrders.uploaded_orders),
     error: get(state, 'orders.error'),
@@ -254,6 +239,7 @@ function mapDispatchToProps(dispatch) {
       updateOrders,
       createUpload,
       deleteUpload,
+      deleteUploads,
       fetchLatestOrders,
       editBegin,
       entitlementChangeBegin,

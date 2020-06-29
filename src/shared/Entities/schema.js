@@ -50,7 +50,6 @@ export const moves = new schema.Array(move);
 export const orders = new schema.Entity('orders');
 orders.define({
   moves: moves,
-  uploads: uploads, // this should populate entities.uploads if present on orders (I think)
 });
 export const ordersArray = new schema.Array(orders);
 

@@ -36,6 +36,20 @@ export function deleteUpload(uploadId, label = deleteUploadLabel) {
   );
 }
 
+export function deleteUploads(uploadIds, label = deleteUploadLabel) {
+  const schemaKey = 'uploads';
+  const swaggerTag = 'uploads.deleteUploads';
+  const deleteIds = uploadIds;
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    {
+      uploadIds,
+    },
+    { label, schemaKey, deleteIds },
+  );
+}
+
 export function createUpload(fileUpload, documentId, label = createUploadLabel) {
   const swaggerTag = 'uploads.createUpload';
   return swaggerRequest(

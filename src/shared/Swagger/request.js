@@ -135,6 +135,9 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           // eslint-disable-next-line security/detect-object-injection
           var oldEntity = state.entities[schemaKey][options.deleteId];
           action.entities = normalizePayload([oldEntity], payloadSchema).entities;
+        } else if (options.deleteIds) {
+          var oldEntities = state.entities[toString(schemaKey)];
+          action.entities = normalizePayload(oldEntities, payloadSchema).entities;
         } else {
           action.entities = normalizePayload(response.body, payloadSchema).entities;
         }
