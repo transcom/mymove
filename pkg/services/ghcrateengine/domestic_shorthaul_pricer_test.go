@@ -55,7 +55,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 	suite.T().Run("failure during pricing bubbles up", func(t *testing.T) {
 		_, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
-		suite.Equal("Weight must be greater than 0", err.Error())
+		suite.Equal("Weight must be a minimum of 500", err.Error())
 	})
 }
 
@@ -170,9 +170,9 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 			unit.Pound(499),
 			dshTestServiceArea,
 		)
-		expectedCost := unit.Cents(911653)
-		suite.NoError(err)
-		suite.Equal(expectedCost, cost)
+		suite.Equal(unit.Cents(0), cost)
+		suite.Error(err)
+		suite.Equal("Weight must be a minimum of 500", err.Error())
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
@@ -196,7 +196,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		// No weight
 		_, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, 0, dshTestServiceArea)
 		suite.Error(err)
-		suite.Equal("Weight must be greater than 0", err.Error())
+		suite.Equal("Weight must be a minimum of 500", err.Error())
 
 		// No service area
 		_, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, dshTestMileage, dshTestWeight, "")

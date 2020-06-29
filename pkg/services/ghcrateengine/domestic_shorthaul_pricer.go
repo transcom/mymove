@@ -37,8 +37,8 @@ func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate 
 	if requestedPickupDate.IsZero() {
 		return 0, errors.New("RequestedPickupDate is required")
 	}
-	if weight <= 0 {
-		return 0, errors.New("Weight must be greater than 0")
+	if weight < minDomesticWeight {
+		return 0, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
 	if distance <= 0 {
 		return 0, errors.New("Distance must be greater than 0")
@@ -71,12 +71,7 @@ func (p domesticShorthaulPricer) Price(contractCode string, requestedPickupDate 
 		return 0, fmt.Errorf("Could not lookup contract year: %w", err)
 	}
 
-	effectiveWeight := weight
-	if weight <= minDomesticWeight {
-		effectiveWeight = minDomesticWeight
-	}
-
-	basePrice := domServiceAreaPrice.PriceCents.Float64() * distance.Float64() * effectiveWeight.ToCWTFloat64()
+	basePrice := domServiceAreaPrice.PriceCents.Float64() * distance.Float64() * weight.ToCWTFloat64()
 	escalatedPrice := basePrice * contractYear.EscalationCompounded
 	totalCost = unit.Cents(math.Round(escalatedPrice))
 
