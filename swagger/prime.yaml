@@ -482,6 +482,7 @@ definitions:
         default: USA
       eTag:
         type: string
+        readOnly: true
     required:
       - streetAddress1
       - city
@@ -552,6 +553,9 @@ definitions:
           $ref: '#/definitions/MTOServiceItem'
     required:
       - moveTaskOrderID
+      - pickupAddress
+      - destinationAddress
+      - shipmentType
   Customer:
     type: object
     properties:

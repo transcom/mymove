@@ -480,7 +480,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -674,7 +675,10 @@ func init() {
     "CreateShipmentPayload": {
       "type": "object",
       "required": [
-        "moveTaskOrderID"
+        "moveTaskOrderID",
+        "pickupAddress",
+        "destinationAddress",
+        "shipmentType"
       ],
       "properties": {
         "agents": {
@@ -2510,7 +2514,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2704,7 +2709,10 @@ func init() {
     "CreateShipmentPayload": {
       "type": "object",
       "required": [
-        "moveTaskOrderID"
+        "moveTaskOrderID",
+        "pickupAddress",
+        "destinationAddress",
+        "shipmentType"
       ],
       "properties": {
         "agents": {
