@@ -22,43 +22,63 @@ function OrdersTable({ ordersInfo }) {
         </colgroup>
         <tbody>
           <tr>
-            <th scope="row">Current duty Station</th>
+            <th scope="row" className="text-bold">
+              Current duty Station
+            </th>
             <td data-cy="currentDutyStation">{ordersInfo.currentDutyStation}</td>
           </tr>
           <tr>
-            <th scope="row">New duty station</th>
+            <th scope="row" className="text-bold">
+              New duty station
+            </th>
             <td data-cy="newDutyStation">{ordersInfo.newDutyStation}</td>
           </tr>
           <tr>
-            <th scope="row">Date issued</th>
+            <th scope="row" className="text-bold">
+              Date issued
+            </th>
             <td data-cy="issuedDate">{ordersInfo.issuedDate}</td>
           </tr>
           <tr>
-            <th scope="row">Report by date</th>
+            <th scope="row" className="text-bold">
+              Report by date
+            </th>
             <td data-cy="reportByDate">{ordersInfo.reportByDate}</td>
           </tr>
           <tr>
-            <th scope="row">Department indicator</th>
+            <th scope="row" className="text-bold">
+              Department indicator
+            </th>
             <td data-cy="departmentIndicator">{ordersInfo.departmentIndicator}</td>
           </tr>
           <tr>
-            <th scope="row">Orders number</th>
+            <th scope="row" className="text-bold">
+              Orders number
+            </th>
             <td data-cy="ordersNumber">{ordersInfo.ordersNumber}</td>
           </tr>
           <tr>
-            <th scope="row">Orders type</th>
+            <th scope="row" className="text-bold">
+              Orders type
+            </th>
             <td data-cy="ordersType">{ordersInfo.ordersType}</td>
           </tr>
           <tr>
-            <th scope="row">Orders type detail</th>
+            <th scope="row" className="text-bold">
+              Orders type detail
+            </th>
             <td data-cy="ordersTypeDetail">{ordersInfo.ordersTypeDetail}</td>
           </tr>
           <tr>
-            <th scope="row">TAC / MDC</th>
+            <th scope="row" className="text-bold">
+              TAC / MDC
+            </th>
             <td data-cy="tacMDC">{ordersInfo.tacMDC}</td>
           </tr>
           <tr>
-            <th scope="row">SAC / SDN</th>
+            <th scope="row" className="text-bold">
+              SAC / SDN
+            </th>
             <td data-cy="sacSDN">{ordersInfo.sacSDN}</td>
           </tr>
         </tbody>
