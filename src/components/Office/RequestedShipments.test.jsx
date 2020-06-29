@@ -1,4 +1,5 @@
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import { mount, shallow } from 'enzyme';
 
 import RequestedShipments from './RequestedShipments';
@@ -233,11 +234,12 @@ describe('RequestedShipments', () => {
   it('calls approveMTO onSubmit', async () => {
     const approveMTO = jest.fn((id, eTag) => {
       return new Promise((resolve) => {
+        // eslint-disable-next-line
+        console.log(`id: ${id} eTag:${eTag}`);
         return resolve({ response: { status: 200, body: { id, eTag } } });
       });
     });
 
-    // eslint-disable-next-line
     const wrapper = mount(
       <RequestedShipments
         mtoShipments={shipments}
@@ -248,5 +250,20 @@ describe('RequestedShipments', () => {
         approveMTO={approveMTO}
       />,
     );
+
+    act(() => {
+      /* try submitting the form directly
+        wrapper.find('form').simulate('submit');
+      */
+
+      wrapper.find('input[name="shipments"]').at(0).simulate('click');
+      wrapper.find('input[name="shipmentManagementFee"]').simulate('click');
+      wrapper.find('input[name="counselingFee"]').simulate('click');
+
+      wrapper.find('button[type="button"]').simulate('click');
+      wrapper.find('button[type="submit"]').simulate('click');
+    });
+
+    expect(approveMTO).toHaveBeenCalled();
   });
 });
