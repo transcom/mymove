@@ -62,6 +62,7 @@
   :global .stackedtable-header {
     h4 {
       @include u-margin-bottom(2);
+      max-width: 100%;
     }
   }
 }
