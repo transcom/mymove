@@ -90,8 +90,8 @@ func fetchDomesticLinehaulPrice(db *pop.Connection, contractCode string, request
 	if distance <= dlhPricerMinimumDistance {
 		return milliCentPriceAndEscalation{}, fmt.Errorf("distance must be greater than %d", dlhPricerMinimumDistance)
 	}
-	if weight <= dlhPricerMinimumWeight {
-		return milliCentPriceAndEscalation{}, fmt.Errorf("weight must be greater than %d", dlhPricerMinimumWeight)
+	if weight < dlhPricerMinimumWeight {
+		return milliCentPriceAndEscalation{}, fmt.Errorf("weight must be at least %d", dlhPricerMinimumWeight)
 	}
 	if len(serviceArea) == 0 {
 		return milliCentPriceAndEscalation{}, errors.New("ServiceArea is required")
