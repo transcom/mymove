@@ -15,6 +15,11 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+const (
+	dlhPricerMinimumWeight   = 500
+	dlhPricerMinimumDistance = 0
+)
+
 type domesticLinehaulPricer struct {
 	db *pop.Connection
 }
@@ -82,11 +87,11 @@ func fetchDomesticLinehaulPrice(db *pop.Connection, contractCode string, request
 	if requestedPickupDate.IsZero() {
 		return milliCentPriceAndEscalation{}, errors.New("MoveDate is required")
 	}
-	if distance <= 0 {
-		return milliCentPriceAndEscalation{}, errors.New("Distance must be greater than 0")
+	if distance <= dlhPricerMinimumDistance {
+		return milliCentPriceAndEscalation{}, fmt.Errorf("distance must be greater than %d", dlhPricerMinimumDistance)
 	}
-	if weight <= 0 {
-		return milliCentPriceAndEscalation{}, errors.New("Weight must be greater than 0")
+	if weight <= dlhPricerMinimumWeight {
+		return milliCentPriceAndEscalation{}, fmt.Errorf("weight must be greater than %d", dlhPricerMinimumWeight)
 	}
 	if len(serviceArea) == 0 {
 		return milliCentPriceAndEscalation{}, errors.New("ServiceArea is required")

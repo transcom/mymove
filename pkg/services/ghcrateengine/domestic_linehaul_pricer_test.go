@@ -42,6 +42,18 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.Error(err)
 	})
 
+	paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
+	weightBilledActualIndex := 5
+	if paramsWithBelowMinimumWeight[weightBilledActualIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilledActual {
+		suite.T().Fatalf("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilledActual, paramsWithBelowMinimumWeight[5].ServiceItemParamKey.Key)
+	}
+	paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
+	suite.T().Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilledActual", func(t *testing.T) {
+		priceCents, err := linehaulServicePricer.PriceUsingParams(paramsWithBelowMinimumWeight)
+		suite.Equal("could not fetch domestic linehaul rate: weight must be greater than 500", err.Error())
+		suite.Equal(unit.Cents(0), priceCents)
+	})
+
 	suite.T().Run("not finding a rate record", func(t *testing.T) {
 		_, err := linehaulServicePricer.Price("BOGUS", dlhRequestedPickupDate, true, int(dlhTestDistance), int(dlhTestWeight), dlhTestServiceArea)
 		suite.Error(err)
@@ -56,12 +68,12 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		// No distance
 		_, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, 0, int(dlhTestWeight), dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul rate: Distance must be greater than 0", err.Error())
+		suite.Equal("could not fetch domestic linehaul rate: distance must be greater than 0", err.Error())
 
 		// No weight
 		_, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, int(dlhTestDistance), 0, dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul rate: Weight must be greater than 0", err.Error())
+		suite.Equal("could not fetch domestic linehaul rate: weight must be greater than 500", err.Error())
 
 		// No service area
 		_, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, int(dlhTestDistance), int(dlhTestWeight), "")
