@@ -4,7 +4,7 @@ import * as PropTypes from 'prop-types';
 import classNames from 'classnames/bind';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 
-import { MTOAgentShape, MTOShipmentShape } from '../../types/moveOrder';
+import { MTOAgentShape, MTOShipmentShape, MoveTaskOrderShape } from '../../types/moveOrder';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 import styles from './requestedShipments.module.scss';
@@ -13,13 +13,9 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay';
 
 const cx = classNames.bind(styles);
 
-const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAgents }) => {
+const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAgents, moveTaskOrder, approveMTO }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
-
-  const handleApprovalClick = () => {
-    setIsModalVisible(true);
-  };
 
   const filterShipments = (formikShipmentIds) => {
     return mtoShipments.filter(({ id }) => formikShipmentIds.includes(id));
@@ -31,11 +27,28 @@ const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAge
       counselingFee: false,
       shipments: [],
     },
-    onSubmit: () => {
-      setFilteredShipments(filterShipments(formik.values.shipments));
-      handleApprovalClick();
+    onSubmit: (values, { setSubmitting }) => {
+      approveMTO(moveTaskOrder.id, moveTaskOrder.eTag)
+        .then(({ response }) => {
+          // eslint-disable-next-line
+          console.log('inside resolved');
+          if (response.status === 200) {
+            setIsModalVisible(false);
+          }
+          setSubmitting(false);
+        })
+        .catch((err) => {
+          // eslint-disable-next-line
+          console.log(err);
+          setSubmitting(false);
+        });
     },
   });
+
+  const handleReviewClick = () => {
+    setFilteredShipments(filterShipments(formik.values.shipments));
+    setIsModalVisible(true);
+  };
 
   const isButtonEnabled =
     formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
@@ -48,6 +61,7 @@ const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAge
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           setIsModalVisible={setIsModalVisible}
+          onSubmit={formik.handleSubmit}
           mtoAgents={mtoAgents}
           counselingFee={formik.values.counselingFee}
           shipmentManagementFee={formik.values.shipmentManagementFee}
@@ -75,7 +89,6 @@ const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAge
         </div>
         <div>
           <h3>Add service items to this move</h3>
-          <span>{isModalVisible}</span>
           <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
             <Checkbox
               id="shipmentManagementFee"
@@ -88,8 +101,8 @@ const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAge
           <Button
             id="shipmentApproveButton"
             className={`${cx('usa-button--small')} usa-button--icon`}
-            onClick={formik.handleSubmit}
-            type="submit"
+            onClick={handleReviewClick}
+            type="button"
             disabled={!isButtonEnabled}
           >
             <span>Approve selected shipments</span>
@@ -134,10 +147,13 @@ RequestedShipments.propTypes = {
     backupContactPhone: PropTypes.string,
     backupContactEmail: PropTypes.string,
   }).isRequired,
+  approveMTO: PropTypes.func.isRequired,
+  moveTaskOrder: MoveTaskOrderShape,
 };
 
 RequestedShipments.defaultProps = {
   mtoAgents: [],
+  moveTaskOrder: {},
 };
 
 export default RequestedShipments;

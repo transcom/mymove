@@ -182,6 +182,7 @@ describe('Shipment preview modal', () => {
         customerInfo={customerInfo}
         mtoShipments={shipments}
         setIsModalVisible={jest.fn()}
+        onSubmit={jest.fn()}
         allowancesInfo={allowancesInfo}
       />,
     );
@@ -198,6 +199,7 @@ describe('Shipment preview modal', () => {
         setIsModalVisible={() => {
           return true;
         }}
+        onSubmit={jest.fn()}
         allowancesInfo={allowancesInfo}
         mtoAgents={agents}
       />,
@@ -206,5 +208,55 @@ describe('Shipment preview modal', () => {
     expect(wrapper.find(ShipmentContainer).exists()).toBe(true);
     expect(wrapper.find(AllowancesTable).exists()).toBe(true);
     expect(wrapper.find(CustomerInfoTable).exists()).toBe(true);
+  });
+
+  it('renders the buttons successfully', () => {
+    const wrapper = mount(
+      <ShipmentApprovalPreview
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        setIsModalVisible={jest.fn()}
+        onSubmit={jest.fn()}
+        allowancesInfo={allowancesInfo}
+        mtoAgents={agents}
+      />,
+    );
+    expect(wrapper.find("button[type='submit']").exists()).toBe(true);
+    expect(wrapper.find("button[type='reset']").exists()).toBe(true);
+  });
+
+  it('renders the buttons successfully', () => {
+    const wrapper = mount(
+      <ShipmentApprovalPreview
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        setIsModalVisible={jest.fn()}
+        onSubmit={jest.fn()}
+        allowancesInfo={allowancesInfo}
+        mtoAgents={agents}
+      />,
+    );
+    expect(wrapper.find("button[type='submit']").exists()).toBe(true);
+    expect(wrapper.find("button[type='reset']").exists()).toBe(true);
+  });
+
+  it('attaches onClick listeners', () => {
+    const cancelClicked = jest.fn();
+    const submitClicked = jest.fn();
+    const wrapper = mount(
+      <ShipmentApprovalPreview
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        setIsModalVisible={cancelClicked}
+        onSubmit={submitClicked}
+        allowancesInfo={allowancesInfo}
+        mtoAgents={agents}
+      />,
+    );
+    wrapper.find('button[type="submit"]').simulate('click');
+    expect(submitClicked).toHaveBeenCalled();
+
+    wrapper.find('button[type="reset"]').simulate('click');
+    expect(cancelClicked).toHaveBeenCalled();
   });
 });

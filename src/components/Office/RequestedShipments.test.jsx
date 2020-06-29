@@ -162,14 +162,19 @@ const agents = [
 ];
 
 const allowancesInfo = {
-  branch: 'Navy',
-  rank: 'E-6',
-  weightAllowance: '11,000 lbs',
-  authorizedWeight: '11,000 lbs',
+  branch: 'NAVY',
+  rank: 'E_6',
+  weightAllowance: 11000,
+  authorizedWeight: 11000,
   progear: 2000,
   spouseProgear: 500,
-  storageInTransit: '90 days',
+  storageInTransit: 90,
   dependents: 'Authorized',
+};
+
+const moveTaskOrder = {
+  eTag: 'MjAyMC0wNi0yNlQyMDoyMjo0MS43Mjc4NTNa',
+  id: '6e8c5ca4-774c-4170-934a-59d22259e480',
 };
 
 describe('RequestedShipments', () => {
@@ -206,9 +211,10 @@ describe('RequestedShipments', () => {
         customerInfo={customerInfo}
       />,
     );
-    expect(wrapper.find('button[data-testid="button"]').exists()).toBe(true);
-    expect(wrapper.find('button[data-testid="button"]').text()).toContain('Approve selected shipments');
-    expect(wrapper.find('button[data-testid="button"]').html()).toContain('disabled=""');
+    const approveButton = wrapper.find('#shipmentApproveButton');
+    expect(approveButton.exists()).toBe(true);
+    expect(approveButton.text()).toContain('Approve selected shipments');
+    expect(approveButton.html()).toContain('disabled=""');
   });
 
   it('renders the checkboxes', () => {
@@ -222,5 +228,25 @@ describe('RequestedShipments', () => {
     );
     expect(wrapper.find('div[data-testid="checkbox"]').exists()).toBe(true);
     expect(wrapper.find('div[data-testid="checkbox"]').length).toEqual(4);
+  });
+
+  it('calls approveMTO onSubmit', async () => {
+    const approveMTO = jest.fn((id, eTag) => {
+      return new Promise((resolve) => {
+        return resolve({ response: { status: 200, body: { id, eTag } } });
+      });
+    });
+
+    // eslint-disable-next-line
+    const wrapper = mount(
+      <RequestedShipments
+        mtoShipments={shipments}
+        mtoAgents={agents}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        moveTaskOrder={moveTaskOrder}
+        approveMTO={approveMTO}
+      />,
+    );
   });
 });

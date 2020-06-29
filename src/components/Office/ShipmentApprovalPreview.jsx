@@ -19,6 +19,7 @@ const ShipmentApprovalPreview = ({
   customerInfo,
   mtoAgents,
   setIsModalVisible,
+  onSubmit,
   counselingFee,
   shipmentManagementFee,
 }) => {
@@ -35,7 +36,7 @@ const ShipmentApprovalPreview = ({
       <ModalContainer>
         <Modal className={classNames(styles.approvalPreviewModal, 'padding-4 overflow-y-auto maxh-viewport')}>
           <div className={classNames(styles.containerTop)}>
-            <div className={classNames('approval-close')}>
+            <div>
               <FontAwesomeIcon
                 aria-hidden
                 icon={faTimes}
@@ -47,12 +48,15 @@ const ShipmentApprovalPreview = ({
             <h2>Preview and post move task order</h2>
             <p>Is all the information shown correct and ready to send to Global Relocation Services?</p>
             <div className="display-flex">
-              <Button type="submit">Approve and send</Button>
+              <Button type="submit" onClick={onSubmit}>
+                Approve and send
+              </Button>
               <Button type="reset" secondary onClick={() => setIsModalVisible(false)}>
                 Back
               </Button>
             </div>
           </div>
+
           <hr className={styles.sectionBorder} />
           <h1 className={classNames(styles.customerName, 'text-normal')}>{customerInfo.name}</h1>
           <div className={classNames(styles.previewContainer, 'container')}>
@@ -182,6 +186,7 @@ ShipmentApprovalPreview.propTypes = {
     backupContactEmail: PropTypes.string,
   }).isRequired,
   setIsModalVisible: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
 
 ShipmentApprovalPreview.defaultProps = {
