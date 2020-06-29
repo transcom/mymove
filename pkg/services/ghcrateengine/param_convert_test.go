@@ -26,19 +26,19 @@ func (suite *GHCRateEngineServiceSuite) Test_getPaymentServiceItemParam() {
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) Test_getParamInteger() {
+func (suite *GHCRateEngineServiceSuite) Test_getParamInt() {
 	params := models.PaymentServiceItemParams{
 		setupParamConvertParam(models.ServiceItemParamNameDistanceZip5, models.ServiceItemParamTypeInteger, "1234"),
 	}
 
 	suite.T().Run("finding expected param value", func(t *testing.T) {
-		value, err := getParamInteger(params, models.ServiceItemParamNameDistanceZip5)
+		value, err := getParamInt(params, models.ServiceItemParamNameDistanceZip5)
 		suite.NoError(err)
 		suite.Equal(1234, value)
 	})
 
 	suite.T().Run("param not found", func(t *testing.T) {
-		_, err := getParamInteger(params, models.ServiceItemParamNameWeightEstimated)
+		_, err := getParamInt(params, models.ServiceItemParamNameWeightEstimated)
 		suite.Error(err)
 		suite.Equal("could not find param with key WeightEstimated", err.Error())
 	})
@@ -47,9 +47,9 @@ func (suite *GHCRateEngineServiceSuite) Test_getParamInteger() {
 		badParams := models.PaymentServiceItemParams{
 			setupParamConvertParam(models.ServiceItemParamNameContractCode, models.ServiceItemParamTypeTimestamp, testdatagen.DefaultContractCode),
 		}
-		_, err := getParamInteger(badParams, models.ServiceItemParamNameContractCode)
+		_, err := getParamInt(badParams, models.ServiceItemParamNameContractCode)
 		suite.Error(err)
-		suite.Equal("trying to convert ContractCode to an integer, but param is of type TIMESTAMP", err.Error())
+		suite.Equal("trying to convert ContractCode to an int, but param is of type TIMESTAMP", err.Error())
 	})
 }
 

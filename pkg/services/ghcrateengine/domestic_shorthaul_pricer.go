@@ -106,12 +106,12 @@ func (p domesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceIt
 		return unit.Cents(0), err
 	}
 
-	distanceZip5, err := getParamInteger(params, models.ServiceItemParamNameDistanceZip5)
+	distanceZip5, err := getParamInt(params, models.ServiceItemParamNameDistanceZip5)
 	if err != nil {
 		return unit.Cents(0), err
 	}
 
-	weightBilledActual, err := getParamInteger(params, models.ServiceItemParamNameWeightBilledActual)
+	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
 		return unit.Cents(0), err
 	}

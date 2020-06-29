@@ -103,6 +103,8 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+	logger = logger.With(zap.String("moveLocator", move.Locator))
+
 	// Fetch orders for authorized user
 	orders, err := models.FetchOrderForUser(h.DB(), session, move.OrdersID)
 	if err != nil {
@@ -124,6 +126,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+
 	return moveop.NewPatchMoveCreated().WithPayload(movePayload)
 }
 
@@ -145,6 +148,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+	logger = logger.With(zap.String("moveLocator", move.Locator))
 
 	submitDate := time.Time(*params.SubmitMoveForApprovalPayload.PpmSubmitDate)
 	err = move.Submit(submitDate)
@@ -194,6 +198,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+	logger = logger.With(zap.String("moveLocator", move.Locator))
 
 	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(h.DB(), logger, *move))
 
@@ -292,10 +297,13 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	_, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+
+	// Attach move locator to logger
+	logger.With(zap.String("moveLocator", move.Locator))
 
 	summary, err := calculateMoveDatesFromMove(h.DB(), h.Planner(), moveID, moveDate)
 	if err != nil {

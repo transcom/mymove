@@ -14,7 +14,7 @@ const (
 	TimestampParamFormat = time.RFC3339
 )
 
-func getParamInteger(params models.PaymentServiceItemParams, name models.ServiceItemParamName) (int, error) {
+func getParamInt(params models.PaymentServiceItemParams, name models.ServiceItemParamName) (int, error) {
 	paymentServiceItemParam := getPaymentServiceItemParam(params, name)
 	if paymentServiceItemParam == nil {
 		return 0, fmt.Errorf("could not find param with key %s", name)
@@ -22,14 +22,15 @@ func getParamInteger(params models.PaymentServiceItemParams, name models.Service
 
 	paramType := paymentServiceItemParam.ServiceItemParamKey.Type
 	if paramType != models.ServiceItemParamTypeInteger {
-		return 0, fmt.Errorf("trying to convert %s to an integer, but param is of type %s", name, paramType)
+		return 0, fmt.Errorf("trying to convert %s to an int, but param is of type %s", name, paramType)
 	}
 
-	integer, err := strconv.Atoi(paymentServiceItemParam.Value)
+	value, err := strconv.Atoi(paymentServiceItemParam.Value)
 	if err != nil {
-		return 0, fmt.Errorf("could not parse string %s to int: %w", paymentServiceItemParam.Value, err)
+		return 0, fmt.Errorf("could not convert value %s to an int: %w", paymentServiceItemParam.Value, err)
 	}
-	return integer, nil
+
+	return value, nil
 }
 
 func getParamString(params models.PaymentServiceItemParams, name models.ServiceItemParamName) (string, error) {

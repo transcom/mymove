@@ -37,6 +37,13 @@ type CounselingServicesPricer interface {
 	ParamsPricer
 }
 
+// DomesticLinehaulPricer prices domestic linehaul for a GHC move
+//go:generate mockery -name DomesticLinehaulPricer
+type DomesticLinehaulPricer interface {
+	Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance int, weightBilledActual int, serviceArea string) (unit.Cents, error)
+	ParamsPricer
+}
+
 // DomesticShorthaulPricer prices the domestic shorthaul for a GHC Move
 //go:generate mockery -name DomesticShorthaulPricer
 type DomesticShorthaulPricer interface {
@@ -45,12 +52,6 @@ type DomesticShorthaulPricer interface {
 }
 
 // Older pricers below (pre-dates payment requests)
-
-// DomesticLinehaulPricer prices domestic linehaul for a GHC move
-//go:generate mockery -name DomesticLinehaulPricer
-type DomesticLinehaulPricer interface {
-	PriceDomesticLinehaul(moveDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error)
-}
 
 // DomesticServiceAreaPricer domestic prices: origin and destination service area, SIT day 1, SIT Addt'l days
 //go:generate mockery -name DomesticServiceAreaPricer

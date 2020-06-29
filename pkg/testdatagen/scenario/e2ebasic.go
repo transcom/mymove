@@ -949,8 +949,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		MTOShipment:   models.MTOShipment{ID: uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff9b5")},
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff9b5"),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+		},
 		MoveTaskOrder: mto,
 	})
 

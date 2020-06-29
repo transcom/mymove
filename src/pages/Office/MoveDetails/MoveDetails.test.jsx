@@ -12,6 +12,8 @@ describe('MoveDetails page', () => {
 
   const testMoveTaskOrders = [{ id: '1a' }, { id: '2b' }];
 
+  const testMTOShipments = [{ id: '1a' }, { id: '2b' }];
+
   const moveDetailsProps = {
     match: {
       params: { moveOrderId: '123' },
@@ -22,7 +24,7 @@ describe('MoveDetails page', () => {
     getMoveOrder: jest.fn(() => new Promise((res) => res({ response: { body: testMoveOrder } }))),
     getCustomer: jest.fn(),
     getAllMoveTaskOrders: jest.fn(() => new Promise((res) => res({ response: { body: testMoveTaskOrders } }))),
-    getMTOShipments: jest.fn(),
+    getMTOShipments: jest.fn(() => new Promise((res) => res({ response: { body: testMTOShipments } }))),
   };
 
   const wrapper = shallow(<MoveDetails {...moveDetailsProps} />);

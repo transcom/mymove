@@ -690,7 +690,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 		// Always show DB unless key set to "false"
 		if !ok || (ok && showDB[0] != "false") {
-			logger.Info("connecting to the DB for health check")
+			logger.Info("Health check connecting to the DB")
 			dbErr := dbConnection.RawQuery("SELECT 1;").Exec()
 			if dbErr != nil {
 				logger.Error("Failed database health check", zap.Error(dbErr))
