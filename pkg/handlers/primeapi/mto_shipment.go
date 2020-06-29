@@ -51,15 +51,19 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	//mtoShipment.MTOServiceItems = *mtoServiceItemsList
 	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
 	if err != nil {
-		switch err.(type) {
+		logger.Error("primeapi.CreateMTOShipmentHandler", zap.Error(err))
+		switch e := err.(type) {
 		case services.NotFoundError:
-			logger.Error("move task order not found", zap.Error(err))
 			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		case services.InvalidInputError:
-			logger.Error("invalid input for creating mto shipment", zap.Error(err))
-			return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
+			}
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		default:
-			logger.Error("Error creating mto shipment: ", zap.Error(err))
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
 	}
