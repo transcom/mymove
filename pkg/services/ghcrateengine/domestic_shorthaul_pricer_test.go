@@ -136,6 +136,19 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		suite.Equal(expectedCost, cost)
 	})
 
+	suite.T().Run("failure if contract code bogus", func(t *testing.T) {
+		_, err := pricer.Price(
+			"bogus_code",
+			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
+			dshTestMileage,
+			dshTestWeight,
+			dshTestServiceArea,
+		)
+
+		suite.Error(err)
+		suite.Equal("Could not lookup Domestic Service Area Price: sql: no rows in result set", err.Error())
+	})
+
 	suite.T().Run("failure if move date is outside of contract year", func(t *testing.T) {
 		_, err := pricer.Price(
 			testdatagen.DefaultContractCode,
@@ -146,7 +159,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		)
 
 		suite.Error(err)
-		suite.Equal("Could not lookup Domestic Service Area Price: sql: no rows in result set", err.Error())
+		suite.Equal("Could not lookup contract year: sql: no rows in result set", err.Error())
 	})
 
 	suite.T().Run("weight below minimum", func(t *testing.T) {
