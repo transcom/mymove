@@ -31,11 +31,11 @@ const shipmentTypes = {
   ],
 };
 
-const ShipmentServiceItemsTable = ({ shipmentType }) => {
+const ShipmentServiceItemsTable = ({ shipmentType, className }) => {
   const shipmentServiceItems = shipmentTypes[`${shipmentType}`];
 
   return (
-    <div className="container container--gray">
+    <div className={classNames('container', 'container--gray', className)}>
       <table className={classNames('table--stacked', styles.serviceItemsTable)}>
         <caption>
           <div className="stackedtable-header">
@@ -63,6 +63,11 @@ const ShipmentServiceItemsTable = ({ shipmentType }) => {
 
 ShipmentServiceItemsTable.propTypes = {
   shipmentType: propTypes.string.isRequired,
+  className: propTypes.string,
+};
+
+ShipmentServiceItemsTable.defaultProps = {
+  className: '',
 };
 
 export default ShipmentServiceItemsTable;

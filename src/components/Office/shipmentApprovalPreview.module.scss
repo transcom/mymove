@@ -12,6 +12,9 @@
 
 .previewShipments {
   @include u-margin-x(0);
+  .innerWrapper {
+    @include u-margin-left(2);
+  }
 }
 
 .customerName {
@@ -35,6 +38,17 @@
   height: 1px;
   border: 0;
   background-color: #dfe1e2;
+}
+
+.shipmentInfo {
+  width: 60%;
+}
+
+.shipmentServiceItems {
+  @include u-margin-right(2);
+  @include u-margin-top(0);
+  @include u-margin-left(4);
+  flex: 1 1 0;
 }
 
 .previewContainer {
@@ -64,9 +78,7 @@
       @include u-margin-bottom(2);
     }
   }
-  :global .table--stacked {
-    width: 100%;
-  }
+
   :global .stackedtable-header {
     h4 {
       @include u-margin-bottom(2);

@@ -12,6 +12,9 @@ import styles from './shipmentApprovalPreview.module.scss';
 import AllowancesTable from './AllowancesTable';
 import CustomerInfoTable from './CustomerInfoTable';
 import ShipmentContainer from './ShipmentContainer';
+import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
+
+import { SHIPMENT_TYPE } from 'shared/constants';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
@@ -68,57 +71,63 @@ const ShipmentApprovalPreview = ({
                   shipmentType={shipment.shipmentType}
                   className={classNames(styles.previewShipments)}
                 >
-                  <div>
+                  <div className={styles.innerWrapper}>
                     <h4 className="text-normal">{mtoShipmentTypeToFriendlyDisplay(shipment.shipmentType)}</h4>
-                    <table className="table--stacked">
-                      <tbody>
-                        <tr>
-                          <th className="text-bold" scope="row">
-                            Requested Move Date
-                          </th>
-                          <td>{shipment.requestedPickupDate}</td>
-                        </tr>
-                        <tr>
-                          <th className="text-bold" scope="row">
-                            Current Address
-                          </th>
-                          <td>
-                            {shipment.pickupAddress.street_address_1}
-                            <br />
-                            {shipment.pickupAddress.city}, {shipment.pickupAddress.state}{' '}
-                            {shipment.pickupAddress.postal_code}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th className="text-bold" scope="row">
-                            Destination Address
-                          </th>
-                          <td>
-                            {shipment.destinationAddress.street_address_1}
-                            <br />
-                            {shipment.destinationAddress.city}, {shipment.destinationAddress.state}{' '}
-                            {shipment.destinationAddress.postal_code}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th className="text-bold" scope="row">
-                            Customer Remarks
-                          </th>
-                          <td>{shipment.customerRemarks}</td>
-                        </tr>
-                        {mtoAgents &&
-                          mtoAgents.map((agent) => (
-                            <tr>
-                              <td>{agent.type === 'RELEASING_AGENT' ? 'Releasing Agent' : 'Receiving Agent'}</td>
-                              <td>
-                                {agent.firstName} {agent.lastName}
-                                <br />
-                                {agent.phone} <br /> {agent.email}
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
+                    <div className="display-flex">
+                      <table className={classNames('table--stacked', styles.shipmentInfo)}>
+                        <tbody>
+                          <tr>
+                            <th className="text-bold" scope="row">
+                              Requested Move Date
+                            </th>
+                            <td>{shipment.requestedPickupDate}</td>
+                          </tr>
+                          <tr>
+                            <th className="text-bold" scope="row">
+                              Current Address
+                            </th>
+                            <td>
+                              {shipment.pickupAddress.street_address_1}
+                              <br />
+                              {shipment.pickupAddress.city}, {shipment.pickupAddress.state}{' '}
+                              {shipment.pickupAddress.postal_code}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th className="text-bold" scope="row">
+                              Destination Address
+                            </th>
+                            <td>
+                              {shipment.destinationAddress.street_address_1}
+                              <br />
+                              {shipment.destinationAddress.city}, {shipment.destinationAddress.state}{' '}
+                              {shipment.destinationAddress.postal_code}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th className="text-bold" scope="row">
+                              Customer Remarks
+                            </th>
+                            <td>{shipment.customerRemarks}</td>
+                          </tr>
+                          {mtoAgents &&
+                            mtoAgents.map((agent) => (
+                              <tr>
+                                <td>{agent.type === 'RELEASING_AGENT' ? 'Releasing Agent' : 'Receiving Agent'}</td>
+                                <td>
+                                  {agent.firstName} {agent.lastName}
+                                  <br />
+                                  {agent.phone} <br /> {agent.email}
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                      <ShipmentServiceItemsTable
+                        className={classNames(styles.shipmentServiceItems)}
+                        shipmentType={shipment.shipmentType === SHIPMENT_TYPE.NTS ? 'nts' : 'hhg'}
+                      />
+                    </div>
                   </div>
                 </ShipmentContainer>
               ))}
