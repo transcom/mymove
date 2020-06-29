@@ -1,6 +1,6 @@
 import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
-import { Route, Switch, withRouter, matchPath } from 'react-router-dom';
+import { Route, Switch, withRouter, matchPath, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -27,6 +27,7 @@ import { withContext } from 'shared/AppContext';
 import { LocationShape } from 'types/router';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
+const SignIn = lazy(() => import('shared/User/SignIn'));
 const ConnectedOfficeHome = lazy(() => import('pages/OfficeHome'));
 // PPM pages (TODO move into src/pages)
 const MoveInfo = lazy(() => import('scenes/Office/MoveInfo'));
@@ -76,6 +77,7 @@ export class OfficeWrapper extends Component {
     const { hasError, error, info } = this.state;
     const {
       userIsLoggedIn,
+      userRoles,
       context: {
         flags: { too, tio },
       },
@@ -98,9 +100,18 @@ export class OfficeWrapper extends Component {
           exact: true,
         }));
 
+    const displayChangeRole =
+      userIsLoggedIn &&
+      userRoles?.length > 1 &&
+      !matchPath(pathname, {
+        path: '/select-application',
+        exact: true,
+      });
+
     return (
       <div className="site">
         <FOUOHeader />
+        {displayChangeRole && <Link to="/select-application">Change user role</Link>}
         {!hideHeader && <QueueHeader />}
         <main role="main" className="site__content">
           <ConnectedLogoutOnInactivity />
@@ -110,6 +121,9 @@ export class OfficeWrapper extends Component {
           <Suspense fallback={<LoadingPlaceholder />}>
             {!hasError && (
               <Switch>
+                {/* no auth */}
+                <Route path="/sign-in" component={SignIn} />
+
                 {/* ROOT */}
                 <PrivateRoute exact path="/" component={ConnectedOfficeHome} />
                 <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
@@ -174,6 +188,11 @@ OfficeWrapper.propTypes = {
   }),
   location: LocationShape,
   userIsLoggedIn: PropTypes.bool,
+  userRoles: PropTypes.arrayOf(
+    PropTypes.shape({
+      roleType: PropTypes.string,
+    }),
+  ),
 };
 
 OfficeWrapper.defaultProps = {
@@ -185,6 +204,7 @@ OfficeWrapper.defaultProps = {
   },
   location: { pathname: '' },
   userIsLoggedIn: false,
+  userRoles: [],
 };
 
 const mapStateToProps = (state) => {
@@ -192,6 +212,7 @@ const mapStateToProps = (state) => {
   return {
     swaggerError: state.swaggerInternal.hasErrored,
     userIsLoggedIn: user.isLoggedIn,
+    userRoles: user.roles,
   };
 };
 

@@ -2,12 +2,12 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
 
-import { OfficeWrapper } from './index';
+import ConnectedOffice, { OfficeWrapper } from './index';
 
 import { MockProviders } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
 
-describe('OfficeWrapper', () => {
+describe('ConnectedOffice', () => {
   const mockOfficeProps = {
     getCurrentUserInfo: jest.fn(),
     loadInternalSchema: jest.fn(),
@@ -43,6 +43,49 @@ describe('OfficeWrapper', () => {
         expect(wrapper.find('SomethingWentWrong')).toHaveLength(1);
       });
     });
+
+    describe('if the user is logged in with multiple roles', () => {
+      const multiRoleState = {
+        user: {
+          isLoading: false,
+          userInfo: {
+            isLoggedIn: true,
+            roles: [
+              {
+                roleType: roleTypes.TOO,
+              },
+              {
+                roleType: roleTypes.TIO,
+              },
+            ],
+          },
+        },
+      };
+
+      describe('on a page that isn’t the Select Application page', () => {
+        it('renders the Select Application link', () => {
+          const app = mount(
+            <MockProviders initialState={multiRoleState} initialEntries={['/']}>
+              <ConnectedOffice {...mockOfficeProps} location={{ pathname: '/' }} />
+            </MockProviders>,
+          );
+
+          expect(app.containsMatchingElement(<a href="/select-application">Change user role</a>)).toEqual(true);
+        });
+      });
+
+      describe('on the Select Application page', () => {
+        it('does not render the Select Application link', () => {
+          const app = mount(
+            <MockProviders initialState={multiRoleState} initialEntries={['/select-application']}>
+              <ConnectedOffice {...mockOfficeProps} location={{ pathname: '/select-application' }} />
+            </MockProviders>,
+          );
+
+          expect(app.containsMatchingElement(<a href="/select-application">Change user role</a>)).toEqual(false);
+        });
+      });
+    });
   });
 
   describe('routing', () => {
@@ -63,14 +106,35 @@ describe('OfficeWrapper', () => {
       },
     };
 
-    it('handles the root URL', () => {
+    const loggedOutState = {
+      user: {
+        isLoading: false,
+        userInfo: {
+          isLoggedIn: false,
+        },
+      },
+    };
+
+    it('handles the SignIn URL', () => {
       const app = mount(
-        <MockProviders initialState={loggedInState} initialEntries={['/']}>
-          <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/' }} />
+        <MockProviders initialState={loggedOutState} initialEntries={['/sign-in']}>
+          <OfficeWrapper {...mockOfficeProps} />
         </MockProviders>,
       );
 
       const renderedRoute = app.find('Route');
+      expect(renderedRoute).toHaveLength(1);
+      expect(renderedRoute.prop('path')).toEqual('/sign-in');
+    });
+
+    it('handles the root URL', () => {
+      const app = mount(
+        <MockProviders initialState={loggedInState} initialEntries={['/']}>
+          <OfficeWrapper {...mockOfficeProps} />
+        </MockProviders>,
+      );
+
+      const renderedRoute = app.find('PrivateRoute');
       expect(renderedRoute).toHaveLength(1);
       expect(renderedRoute.prop('path')).toEqual('/');
     });
@@ -78,12 +142,13 @@ describe('OfficeWrapper', () => {
     it('handles the Select Application URL', () => {
       const app = mount(
         <MockProviders initialState={loggedInState} initialEntries={['/select-application']}>
-          <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/select-application' }} />
+          <OfficeWrapper {...mockOfficeProps} />
         </MockProviders>,
       );
 
-      const renderedRoute = app.find('SelectApplication');
+      const renderedRoute = app.find('PrivateRoute');
       expect(renderedRoute).toHaveLength(1);
+      expect(renderedRoute.prop('path')).toEqual('/select-application');
     });
 
     describe('PPM routes', () => {
@@ -108,7 +173,7 @@ describe('OfficeWrapper', () => {
           </MockProviders>,
         );
 
-        const renderedRoute = app.find('Route');
+        const renderedRoute = app.find('PrivateRoute');
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/queues/:queueType/moves/:moveId');
       });
@@ -120,7 +185,7 @@ describe('OfficeWrapper', () => {
           </MockProviders>,
         );
 
-        const renderedRoute = app.find('Route');
+        const renderedRoute = app.find('PrivateRoute');
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/queues/:queueType');
       });
@@ -132,7 +197,7 @@ describe('OfficeWrapper', () => {
           </MockProviders>,
         );
 
-        const renderedRoute = app.find('Route');
+        const renderedRoute = app.find('PrivateRoute');
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/moves/:moveId/orders');
 
@@ -147,7 +212,7 @@ describe('OfficeWrapper', () => {
           </MockProviders>,
         );
 
-        const renderedRoute = app.find('Route');
+        const renderedRoute = app.find('PrivateRoute');
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/moves/:moveId/documents/:moveDocumentId?');
 
@@ -179,7 +244,7 @@ describe('OfficeWrapper', () => {
             </MockProviders>,
           );
 
-          const renderedRoute = app.find('Route');
+          const renderedRoute = app.find('PrivateRoute');
           expect(renderedRoute).toHaveLength(0);
         });
       });
@@ -196,7 +261,7 @@ describe('OfficeWrapper', () => {
             </MockProviders>,
           );
 
-          const renderedRoute = app.find('Route');
+          const renderedRoute = app.find('PrivateRoute');
           expect(renderedRoute).toHaveLength(1);
           expect(renderedRoute.prop('path')).toEqual('/moves/queue');
         });
@@ -212,7 +277,7 @@ describe('OfficeWrapper', () => {
             </MockProviders>,
           );
 
-          const renderedRoute = app.find('Route');
+          const renderedRoute = app.find('PrivateRoute');
           expect(renderedRoute).toHaveLength(1);
           expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId');
         });
@@ -228,7 +293,7 @@ describe('OfficeWrapper', () => {
             </MockProviders>,
           );
 
-          const renderedRoute = app.find('Route');
+          const renderedRoute = app.find('PrivateRoute');
           expect(renderedRoute).toHaveLength(1);
           expect(renderedRoute.prop('path')).toEqual('/too/:moveOrderId/customer/:customerId');
         });
@@ -274,7 +339,7 @@ describe('OfficeWrapper', () => {
             </MockProviders>,
           );
 
-          const renderedRoute = app.find('Route');
+          const renderedRoute = app.find('PrivateRoute');
           expect(renderedRoute).toHaveLength(0);
         });
       });
@@ -291,7 +356,7 @@ describe('OfficeWrapper', () => {
             </MockProviders>,
           );
 
-          const renderedRoute = app.find('Route');
+          const renderedRoute = app.find('PrivateRoute');
           expect(renderedRoute).toHaveLength(1);
           expect(renderedRoute.prop('path')).toEqual('/invoicing/queue');
         });
@@ -307,7 +372,7 @@ describe('OfficeWrapper', () => {
             </MockProviders>,
           );
 
-          const renderedRoute = app.find('Route');
+          const renderedRoute = app.find('PrivateRoute');
           expect(renderedRoute).toHaveLength(1);
           expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId');
         });
@@ -323,7 +388,7 @@ describe('OfficeWrapper', () => {
             </MockProviders>,
           );
 
-          const renderedRoute = app.find('Route');
+          const renderedRoute = app.find('PrivateRoute');
           expect(renderedRoute).toHaveLength(1);
           expect(renderedRoute.prop('path')).toEqual('/payment_requests');
         });
