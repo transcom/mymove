@@ -1,20 +1,16 @@
 import React from 'react';
-import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
 
-import { store } from '../shared/store';
-
 import TXOMoveInfo from './TXOMoveInfo';
+
+import { MockProviders } from 'testUtils';
 
 describe('TXO Move Info Container', () => {
   it('should render the move tab container', () => {
     const wrapper = mount(
-      <Provider store={store}>
-        <MemoryRouter initialEntries={['/moves/10000/details']}>
-          <TXOMoveInfo too tag="main" />
-        </MemoryRouter>
-      </Provider>,
+      <MockProviders initialEntries={['/moves/10000/details']}>
+        <TXOMoveInfo too tag="main" />
+      </MockProviders>,
     );
 
     expect(wrapper.find('header.nav-header').exists()).toBe(true);

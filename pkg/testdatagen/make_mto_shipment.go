@@ -34,8 +34,8 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	actualWeight := unit.Pound(980)
 
 	// mock dates
-	scheduledPickupDate := time.Date(TestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
-	requestedPickupDate := time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+	scheduledPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
+	requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
 	MTOShipment := models.MTOShipment{
 		MoveTaskOrder:            moveTaskOrder,
@@ -56,12 +56,12 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
-		approvedDate := time.Date(TestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
+		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
 		MTOShipment.ApprovedDate = &approvedDate
 	}
 
 	if assertions.MTOShipment.ScheduledPickupDate != nil {
-		requiredDeliveryDate := time.Date(TestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
+		requiredDeliveryDate := time.Date(GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
 		MTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
@@ -85,7 +85,7 @@ func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MT
 	shipmentType := models.MTOShipmentTypeHHG
 
 	// mock dates
-	requestedPickupDate := time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+	requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
 	MTOShipment := models.MTOShipment{
 		MoveTaskOrder:        moveTaskOrder,
@@ -100,7 +100,7 @@ func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MT
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
-		approvedDate := time.Date(TestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
+		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
 		MTOShipment.ApprovedDate = &approvedDate
 	}
 

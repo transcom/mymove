@@ -5,7 +5,10 @@
 .requested-shipments {
   .__content {
     @include u-display('flex');
-    @include u-flex('wrap');
+
+    :only-child {
+      @include u-width(100%)
+    }
 
     :first-child {
       @include u-margin-left(0);
@@ -34,9 +37,4 @@
 
 .usa-form {
   @include u-maxw(full);
-}
-
-.approval-close {
-  @include u-float('right');
-  color: $color-icon-gray;
 }

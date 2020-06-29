@@ -6,12 +6,15 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"strconv"
 
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
@@ -59,8 +62,7 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
 
-	// Array of MTOServiceItems associated with this MoveTaskOrder.
-	MtoServiceItems []*MTOServiceItem `json:"mtoServiceItems"`
+	mtoServiceItemsField []MTOServiceItem
 
 	// array of MTOShipments associated with the MoveTaskOrder.
 	MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
@@ -85,6 +87,198 @@ type MoveTaskOrder struct {
 	// Date on which this MoveTaskOrder was last updated.
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+}
+
+// MtoServiceItems gets the mto service items of this base type
+func (m *MoveTaskOrder) MtoServiceItems() []MTOServiceItem {
+	return m.mtoServiceItemsField
+}
+
+// SetMtoServiceItems sets the mto service items of this base type
+func (m *MoveTaskOrder) SetMtoServiceItems(val []MTOServiceItem) {
+	m.mtoServiceItemsField = val
+}
+
+// UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
+func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
+	var data struct {
+		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
+
+		ContractorID strfmt.UUID `json:"contractorID,omitempty"`
+
+		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
+		ETag string `json:"eTag,omitempty"`
+
+		ID strfmt.UUID `json:"id,omitempty"`
+
+		IsCanceled *bool `json:"isCanceled,omitempty"`
+
+		MoveOrder *MoveOrder `json:"moveOrder"`
+
+		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
+
+		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
+
+		MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
+
+		PaymentRequests PaymentRequests `json:"paymentRequests,omitempty"`
+
+		PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
+
+		PpmType string `json:"ppmType,omitempty"`
+
+		ReferenceID string `json:"referenceId,omitempty"`
+
+		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+	}
+	buf := bytes.NewBuffer(raw)
+	dec := json.NewDecoder(buf)
+	dec.UseNumber()
+
+	if err := dec.Decode(&data); err != nil {
+		return err
+	}
+
+	var propMtoServiceItems []MTOServiceItem
+	if string(data.MtoServiceItems) != "null" {
+		mtoServiceItems, err := UnmarshalMTOServiceItemSlice(bytes.NewBuffer(data.MtoServiceItems), runtime.JSONConsumer())
+		if err != nil && err != io.EOF {
+			return err
+		}
+		propMtoServiceItems = mtoServiceItems
+	}
+
+	var result MoveTaskOrder
+
+	// availableToPrimeAt
+	result.AvailableToPrimeAt = data.AvailableToPrimeAt
+
+	// contractorID
+	result.ContractorID = data.ContractorID
+
+	// createdAt
+	result.CreatedAt = data.CreatedAt
+
+	// eTag
+	result.ETag = data.ETag
+
+	// id
+	result.ID = data.ID
+
+	// isCanceled
+	result.IsCanceled = data.IsCanceled
+
+	// moveOrder
+	result.MoveOrder = data.MoveOrder
+
+	// moveOrderID
+	result.MoveOrderID = data.MoveOrderID
+
+	// mtoServiceItems
+	result.mtoServiceItemsField = propMtoServiceItems
+
+	// mtoShipments
+	result.MtoShipments = data.MtoShipments
+
+	// paymentRequests
+	result.PaymentRequests = data.PaymentRequests
+
+	// ppmEstimatedWeight
+	result.PpmEstimatedWeight = data.PpmEstimatedWeight
+
+	// ppmType
+	result.PpmType = data.PpmType
+
+	// referenceId
+	result.ReferenceID = data.ReferenceID
+
+	// updatedAt
+	result.UpdatedAt = data.UpdatedAt
+
+	*m = result
+
+	return nil
+}
+
+// MarshalJSON marshals this object with a polymorphic type to a JSON structure
+func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
+	var b1, b2, b3 []byte
+	var err error
+	b1, err = json.Marshal(struct {
+		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
+
+		ContractorID strfmt.UUID `json:"contractorID,omitempty"`
+
+		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
+		ETag string `json:"eTag,omitempty"`
+
+		ID strfmt.UUID `json:"id,omitempty"`
+
+		IsCanceled *bool `json:"isCanceled,omitempty"`
+
+		MoveOrder *MoveOrder `json:"moveOrder"`
+
+		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
+
+		MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
+
+		PaymentRequests PaymentRequests `json:"paymentRequests,omitempty"`
+
+		PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
+
+		PpmType string `json:"ppmType,omitempty"`
+
+		ReferenceID string `json:"referenceId,omitempty"`
+
+		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+	}{
+
+		AvailableToPrimeAt: m.AvailableToPrimeAt,
+
+		ContractorID: m.ContractorID,
+
+		CreatedAt: m.CreatedAt,
+
+		ETag: m.ETag,
+
+		ID: m.ID,
+
+		IsCanceled: m.IsCanceled,
+
+		MoveOrder: m.MoveOrder,
+
+		MoveOrderID: m.MoveOrderID,
+
+		MtoShipments: m.MtoShipments,
+
+		PaymentRequests: m.PaymentRequests,
+
+		PpmEstimatedWeight: m.PpmEstimatedWeight,
+
+		PpmType: m.PpmType,
+
+		ReferenceID: m.ReferenceID,
+
+		UpdatedAt: m.UpdatedAt,
+	},
+	)
+	if err != nil {
+		return nil, err
+	}
+	b2, err = json.Marshal(struct {
+		MtoServiceItems []MTOServiceItem `json:"mtoServiceItems"`
+	}{
+
+		MtoServiceItems: m.mtoServiceItemsField,
+	},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return swag.ConcatJSON(b1, b2, b3), nil
 }
 
 // Validate validates this move task order
@@ -226,22 +420,17 @@ func (m *MoveTaskOrder) validateMoveOrderID(formats strfmt.Registry) error {
 
 func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MtoServiceItems) { // not required
+	if swag.IsZero(m.MtoServiceItems()) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(m.MtoServiceItems); i++ {
-		if swag.IsZero(m.MtoServiceItems[i]) { // not required
-			continue
-		}
+	for i := 0; i < len(m.MtoServiceItems()); i++ {
 
-		if m.MtoServiceItems[i] != nil {
-			if err := m.MtoServiceItems[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
-				}
-				return err
+		if err := m.mtoServiceItemsField[i].Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
 			}
+			return err
 		}
 
 	}
