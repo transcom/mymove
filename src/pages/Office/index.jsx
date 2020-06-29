@@ -16,7 +16,7 @@ import {
 } from 'shared/Swagger/ducks';
 // Shared layout components
 import ConnectedLogoutOnInactivity from 'shared/User/LogoutOnInactivity';
-import PrivateRoute from 'shared/User/PrivateRoute';
+import PrivateRoute from 'containers/PrivateRoute';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { QueueHeader } from 'shared/Header/Office';
 import FOUOHeader from 'components/FOUOHeader';

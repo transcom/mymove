@@ -1,9 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { selectCurrentUser, selectGetCurrentUserIsLoading } from 'shared/Data/users';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { UserRolesShape } from 'types/user';
 
 export function userIsAuthorized(userRoles, requiredRoles) {
   // Return true if no roles are required
@@ -17,7 +19,7 @@ export function userIsAuthorized(userRoles, requiredRoles) {
 }
 
 const PrivateRoute = (props) => {
-  const { loginIsLoading, userIsLoggedIn, requiredRoles, userRoles, hideSwitcher, ...routeProps } = props;
+  const { loginIsLoading, userIsLoggedIn, requiredRoles, userRoles, ...routeProps } = props;
 
   if (loginIsLoading) return <LoadingPlaceholder />;
 
@@ -30,10 +32,23 @@ const PrivateRoute = (props) => {
   )
     return <Redirect to="/" />;
 
+  // eslint-disable-next-line react/jsx-props-no-spreading
   return <Route {...routeProps} />;
 };
 
 PrivateRoute.displayName = 'PrivateRoute';
+
+PrivateRoute.propTypes = {
+  loginIsLoading: PropTypes.bool.isRequired,
+  userIsLoggedIn: PropTypes.bool.isRequired,
+  requiredRoles: PropTypes.arrayOf(PropTypes.string),
+  userRoles: UserRolesShape,
+};
+
+PrivateRoute.defaultProps = {
+  requiredRoles: [],
+  userRoles: [],
+};
 
 const mapStateToProps = (state) => ({
   loginIsLoading: selectGetCurrentUserIsLoading(state),

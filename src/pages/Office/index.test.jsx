@@ -91,6 +91,7 @@ describe('ConnectedOffice', () => {
   describe('routing', () => {
     // TODO - expects should look for actual component content instead of the route path
     // Might have to add testing-library for this because something about enzyme + Suspense + routes are not rendering content
+    // I FIGURED OUT HOW - need to mock the getCurrentUserInfo (this sets loading back to true and prevents content from rendering)
 
     const loggedInState = {
       user: {

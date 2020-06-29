@@ -1,8 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { MockProviders } from 'testUtils';
 import PrivateRoute, { userIsAuthorized } from './PrivateRoute';
+
+import { MockProviders } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
 
 describe('userIsAuthorized function', () => {
