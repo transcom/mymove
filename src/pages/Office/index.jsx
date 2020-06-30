@@ -4,8 +4,7 @@ import { Route, Switch, withRouter, matchPath } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import 'uswds';
-import '../../../node_modules/uswds/dist/css/uswds.css';
+import 'ghc_index.scss';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions

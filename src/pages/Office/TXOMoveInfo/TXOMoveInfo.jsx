@@ -15,6 +15,7 @@ const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
 const PaymentRequestShow = lazy(() => import('scenes/Office/TIO/paymentRequestShow'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
+const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
 
 const TXOMoveInfo = ({
   context: {
@@ -67,6 +68,7 @@ const TXOMoveInfo = ({
               hideSwitcher
             />
           )}
+          <PrivateRoute path="/moves/:id/neworders" component={MoveOrders} /> {/* TODO fix this URL */}
           {tio && (
             <PrivateRoute
               path="/moves/:id/payment-requests"
