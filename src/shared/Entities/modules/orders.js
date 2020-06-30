@@ -96,7 +96,7 @@ export function selectActiveOrders(state) {
   if (isNull(serviceMember)) {
     return {};
   }
-  let activeOrders = selectOrdersFromServiceMemberId(state, serviceMember.id);
+  let activeOrders = fetchActive(selectOrdersFromServiceMemberId(state, serviceMember.id));
   if (isEmpty(activeOrders)) {
     activeOrders = fetchActive(get(state, 'user.userInfo.service_member.orders', {}));
   }

@@ -9,6 +9,7 @@ import { selectOrdersForMove, selectActiveOrders } from 'shared/Entities/modules
 import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
 import { getGHCClient } from 'shared/Swagger/api';
 import { filter } from 'lodash';
+import { fetchActive } from 'shared/utils';
 
 export const STATE_KEY = 'moves';
 const approveBasicsLabel = 'Moves.ApproveBasics';
@@ -85,10 +86,10 @@ export function selectMoveByLocator(state, locator) {
   return moves[0];
 }
 
-export function selectMoveByOrdersId(state, ordersId) {
+export function selectActiveMoveByOrdersId(state, ordersId) {
   let emptymove = {};
-  const moves = filter(state.entities.moves, (move) => move.orders_id === ordersId);
-  return moves[0] || emptymove;
+  const move = fetchActive(filter(state.entities.moves, (move) => move.orders_id === ordersId));
+  return move || emptymove;
 }
 
 export function selectMoveStatus(state, moveId) {
@@ -117,7 +118,7 @@ export function selectActiveOrLatestMove(state) {
   }
 
   // get move from entities if it's there
-  let move = selectMoveByOrdersId(state, activeOrLatestOrders.id);
+  let move = selectActiveMoveByOrdersId(state, activeOrLatestOrders.id);
   if (isEmpty(move)) {
     move = get(state, 'moves.currentMove') || get(state, 'moves.latestMove') || {};
     return move;
