@@ -8,7 +8,7 @@ export default {
 };
 
 export const PDFViewer = () => (
-  <div style={{ height: '100vh' }}>
+  <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
     <DocumentViewer filename="Test File.pdf" fileType="pdf" filePath={pdf} />
   </div>
 );
