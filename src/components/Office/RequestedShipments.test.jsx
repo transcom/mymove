@@ -237,10 +237,8 @@ describe('RequestedShipments', () => {
     expect(wrapper.find('div[data-testid="checkbox"]').length).toEqual(4);
   });
 
-  it('calls approveMTO onSubmit', async () => {
-    const mockApproveMTO = jest
-      .fn()
-      .mockResolvedValue({ response: { status: 200, body: { id: moveTaskOrder.id, eTag: moveTaskOrder.eTag } } });
+  it('enables the modal button when a shipment and service item are checked', async () => {
+    const mockOnSubmit = jest.fn();
 
     const wrapper = mount(
       <RequestedShipments
@@ -249,38 +247,91 @@ describe('RequestedShipments', () => {
         allowancesInfo={allowancesInfo}
         customerInfo={customerInfo}
         moveTaskOrder={moveTaskOrder}
-        approveMTO={mockApproveMTO}
-        initialValues={{
-          shipmentManagementFee: true,
-          counselingFee: true,
-          shipments: ['ce01a5b8-9b44-4511-8a8d-edb60f2a4aee', 'c2f68d97-b960-4c86-a418-c70a0aeba04e'],
-        }}
+        approveMTO={mockOnSubmit}
       />,
     );
 
-    act(() => {
-      // try submitting the form directly
-      wrapper.find('form').simulate('submit');
-
-      /*
+    await act(async () => {
       wrapper
         .find('input[name="shipments"]')
         .at(0)
-        .simulate('change', { target: { checked: true, name: 'shipments' } });
+        .simulate('change', {
+          target: {
+            name: 'shipments',
+            value: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+          },
+        });
+    });
+    wrapper.update();
+
+    expect(wrapper.find('button[type="button"]').prop('disabled')).toEqual(true);
+    expect(wrapper.find('#approvalConfirmationModal').prop('style')).toHaveProperty('display', 'none');
+
+    await act(async () => {
+      wrapper
+        .find('input[name="shipmentManagementFee"]')
+        .simulate('change', { target: { name: 'shipmentManagementFee', value: true } });
+    });
+    wrapper.update();
+
+    expect(wrapper.find('button[type="button"]').prop('disabled')).toBe(false);
+
+    await act(async () => {
+      wrapper.find('button[type="button"]').simulate('click');
+    });
+    wrapper.update();
+
+    expect(wrapper.find('#approvalConfirmationModal').prop('style')).toHaveProperty('display', 'block');
+  });
+
+  it('calls approveMTO onSubmit', async () => {
+    const mockOnSubmit = jest.fn((id, eTag) => {
+      return new Promise((resolve) => {
+        resolve({ response: { status: 200, body: { id, eTag } } });
+      });
+    });
+
+    const wrapper = mount(
+      <RequestedShipments
+        mtoShipments={shipments}
+        mtoAgents={agents}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        moveTaskOrder={moveTaskOrder}
+        approveMTO={mockOnSubmit}
+      />,
+    );
+
+    // You could take the shortcut and call submit directly as well if providing initial values
+    //  wrapper.find('form').simulate('submit');
+
+    // When simulating change events you must pass the target with the id and
+    // name for formik to know which value to update
+    await act(async () => {
+      wrapper
+        .find('input[name="shipments"]')
+        .at(0)
+        .simulate('change', {
+          target: {
+            name: 'shipments',
+            value: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+          },
+        });
 
       wrapper
         .find('input[name="shipmentManagementFee"]')
-        .simulate('change', { target: { checked: true, name: 'shipmentManagementFee' } });
+        .simulate('change', { target: { name: 'shipmentManagementFee', value: true } });
 
       wrapper
         .find('input[name="counselingFee"]')
-        .simulate('change', { target: { checked: true, name: 'counselingFee' } });
+        .simulate('change', { target: { name: 'counselingFee', value: true } });
 
       wrapper.find('button[type="button"]').simulate('click');
+
       wrapper.find('button[type="submit"]').simulate('click');
-      */
     });
 
-    await expect(approveMTO).toHaveBeenCalled();
+    expect(mockOnSubmit).toHaveBeenCalled();
+    expect(mockOnSubmit.mock.calls[0]).toEqual([moveTaskOrder.id, moveTaskOrder.eTag]);
   });
 });

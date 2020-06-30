@@ -231,23 +231,6 @@ describe('Shipment preview modal', () => {
     expect(wrapper.find("button[type='reset']").exists()).toBe(true);
   });
 
-  it('renders the buttons successfully', () => {
-    const wrapper = mount(
-      <ShipmentApprovalPreview
-        customerInfo={customerInfo}
-        mtoShipments={shipments}
-        setIsModalVisible={jest.fn()}
-        onSubmit={jest.fn()}
-        allowancesInfo={allowancesInfo}
-        mtoAgents={agents}
-        counselingFee
-        shipmentManagementFee
-      />,
-    );
-    expect(wrapper.find("button[type='submit']").exists()).toBe(true);
-    expect(wrapper.find("button[type='reset']").exists()).toBe(true);
-  });
-
   it('attaches onClick listeners', () => {
     const cancelClicked = jest.fn();
     const submitClicked = jest.fn();

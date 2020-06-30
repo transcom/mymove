@@ -1,7 +1,7 @@
 import { Button, Modal, ModalContainer, Overlay } from '@trussworks/react-uswds';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
-import React from 'react';
+import React, { Fragment } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -112,16 +112,18 @@ const ShipmentApprovalPreview = ({
                           </tr>
                           {mtoAgents &&
                             mtoAgents.map((agent) => (
-                              <tr>
-                                <th className="text-bold" scope="row">
-                                  {agent.type === 'RELEASING_AGENT' ? 'Releasing Agent' : 'Receiving Agent'}
-                                </th>
-                                <td>
-                                  {agent.firstName} {agent.lastName}
-                                  <br />
-                                  {agent.phone} <br /> {agent.email}
-                                </td>
-                              </tr>
+                              <Fragment key={`${agent.type}-${agent.email}`}>
+                                <tr>
+                                  <th className="text-bold" scope="row">
+                                    {agent.type === 'RELEASING_AGENT' ? 'Releasing Agent' : 'Receiving Agent'}
+                                  </th>
+                                  <td>
+                                    {agent.firstName} {agent.lastName}
+                                    <br />
+                                    {agent.phone} <br /> {agent.email}
+                                  </td>
+                                </tr>
+                              </Fragment>
                             ))}
                         </tbody>
                       </table>
