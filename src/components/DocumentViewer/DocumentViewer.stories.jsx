@@ -7,4 +7,8 @@ export default {
   title: 'Components|Document Viewer',
 };
 
-export const PDFViewer = () => <DocumentViewer filename="Test File.pdf" fileType="pdf" filePath={pdf} />;
+export const PDFViewer = () => (
+  <div style={{ height: '100vh' }}>
+    <DocumentViewer filename="Test File.pdf" fileType="pdf" filePath={pdf} />
+  </div>
+);

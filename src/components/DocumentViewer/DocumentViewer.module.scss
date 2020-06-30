@@ -4,7 +4,6 @@
 
 .DocumentViewer {
   height: 100%;
-  overflow-y: auto;
   position: relative;
   @include u-bg('base-lighter');
 
@@ -17,6 +16,8 @@
     justify-content: space-between;
     @include icon-hover-state;
     @include u-padding-x(4);
+    z-index: 1;
+
     p {
       @include u-text('bold');
       color: $base-darkest;
@@ -33,9 +34,10 @@
 
     .pdf-viewer {
       height: 100%;
+      overflow-y: scroll;
     }
 
-    .pdf-controlls-container {
+    .pdf-controls-container {
       position: absolute;
       bottom: 0;
       left: 0;
@@ -44,23 +46,26 @@
       height: 50px;
       display: flex;
       justify-content: center;
+      align-items: center;
+      svg {
+        @include u-margin-right(1);
+      }
+      @include icon-hover-state;
+
+      button {
+        display: flex;
+      }
     }
 
     .pdf-canvas {
       text-align: center;
+      // spacing for controls/title bar
+      padding-top: 50px;
+      padding-bottom: 50px;
     }
 
     .view-control + .view-control {
       margin-left: 10px;
-    }
-
-    .zoom-in,
-    .zoom-reset,
-    .zoom-out {
-      width: 50px;
-      height: 50px;
-      background: yellow;
-      display: block;
     }
   }
 }
