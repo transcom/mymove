@@ -123,8 +123,8 @@ const shipments = [
 ];
 
 const allowancesInfo = {
-  branch: 'Navy',
-  rank: 'E-6',
+  branch: 'NAVY',
+  rank: 'E_6',
   weightAllowance: '11,000 lbs',
   authorizedWeight: '11,000 lbs',
   progear: '2,000 lbs',

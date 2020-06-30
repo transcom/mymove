@@ -257,6 +257,7 @@ The following commands will get mymove running on your machine for the first tim
 1. `make prereqs`
 1. `make ensure_pre_commit`
 1. `make deps`
+1. `make build_tools`
 1. `make db_dev_run`
 1. `make db_dev_migrate`
 1. `make server_run`
@@ -269,7 +270,8 @@ For managing local environment variables, we're using [direnv](https://direnv.ne
 
 Run `direnv allow` to load up the `.envrc` file. It should complain that you have missing variables which you will rectify in one of the following ways.
 
-You can add a `.envrc.local` file. One way to do this is using the [chamber tool](https://github.com/segmentio/chamber) to read secrets from AWS vault.
+You can add a `.envrc.local` file. One way to do this is using the [chamber tool](https://github.com/segmentio/chamber) to read secrets from AWS vault. To use the AWS vault you will need to follow the [instructions to set up AWS first](#setup-aws-services-optional).
+
 Then run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
 
 If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`. **Note also** if you have a very poor internet connection, this method may be problematic to you. We still strongly recommend the `.envrc.chamber` route over the `.envrc.local` one, but if necessary you may follow the `.envrc.local` steps instead.
@@ -372,9 +374,9 @@ The API that the Prime will use is authenticated via mutual TSL so there are a f
 
 ### Setup: AWS Services (Optional)
 
-If you want to develop against AWS services you will need an AWS user account with `engineering` privileges.
+If you want to develop against AWS services you will need an AWS user account with `engineering` privileges. You will also need to follow these steps when using Chamber and AWS vault to [set up direnv](#setup-direnv).
 
-AWS credentials are managed via `aws-vault`. See the [the instructions in transcom-ppp](https://github.com/transcom/transcom-infrasec-com/blob/master/transcom-ppp/README.md#setup) to set things up.
+AWS credentials are managed via `aws-vault`. Once you have received AWS credentials (which are provided by the infrastructure team), you can follow these instructions to [finish setting up AWS](https://github.com/transcom/transcom-infrasec-com/blob/master/docs/runbook/0003-creating-new-iam-user.md).
 
 ## Development
 

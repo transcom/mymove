@@ -152,6 +152,7 @@ func FetchFuelPriceData(url string) (resultData EiaData, err error) {
 	}
 
 	return resultData, err
+
 }
 
 // getMissingRecordsPrices gets the data for each month that doesn't have data in the db and adds the data to struct

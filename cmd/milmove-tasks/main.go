@@ -37,6 +37,16 @@ func main() {
 	initSaveFuelPriceFlags(saveFuelPriceDataCommand.Flags())
 	root.AddCommand(saveFuelPriceDataCommand)
 
+	saveGHCDieselFuelPriceDataCommand := &cobra.Command{
+		Use:          "save-ghc-diesel-fuel-price-data",
+		Short:        "saves GHC diesel fuel price data",
+		Long:         "saves the national weekly average GHC diesel fuel price data from the EIA Open Data API",
+		RunE:         saveGHCDieselFuelPriceData,
+		SilenceUsage: true,
+	}
+	initSaveGHCDieselFuelPriceFlags(saveGHCDieselFuelPriceDataCommand.Flags())
+	root.AddCommand(saveGHCDieselFuelPriceDataCommand)
+
 	sendPostMoveSurveyCommand := &cobra.Command{
 		Use:          "send-post-move-survey",
 		Short:        "sends post move survey email",

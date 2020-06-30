@@ -74,6 +74,7 @@
     @include u-margin-bottom(4);
   }
   table {
+    margin-bottom: 1.5rem;
     h4 {
       @include u-margin-bottom(2);
     }
@@ -82,6 +83,7 @@
   :global .stackedtable-header {
     h4 {
       @include u-margin-bottom(2);
+      max-width: 100%;
     }
   }
 }

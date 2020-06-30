@@ -2,6 +2,7 @@ package ghcrateengine
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -12,6 +13,25 @@ const (
 	DateParamFormat      = "2006-01-02"
 	TimestampParamFormat = time.RFC3339
 )
+
+func getParamInt(params models.PaymentServiceItemParams, name models.ServiceItemParamName) (int, error) {
+	paymentServiceItemParam := getPaymentServiceItemParam(params, name)
+	if paymentServiceItemParam == nil {
+		return 0, fmt.Errorf("could not find param with key %s", name)
+	}
+
+	paramType := paymentServiceItemParam.ServiceItemParamKey.Type
+	if paramType != models.ServiceItemParamTypeInteger {
+		return 0, fmt.Errorf("trying to convert %s to a int, but param is of type %s", name, paramType)
+	}
+
+	value, err := strconv.Atoi(paymentServiceItemParam.Value)
+	if err != nil {
+		return 0, fmt.Errorf("could not convert value %s to a int: %w", paymentServiceItemParam.Value, err)
+	}
+
+	return value, nil
+}
 
 func getParamString(params models.PaymentServiceItemParams, name models.ServiceItemParamName) (string, error) {
 	paymentServiceItemParam := getPaymentServiceItemParam(params, name)
