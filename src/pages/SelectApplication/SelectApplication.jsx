@@ -8,6 +8,7 @@ import { Button, GridContainer } from '@trussworks/react-uswds';
 import { selectCurrentUser } from 'shared/Data/users';
 import { setActiveRole as setActiveRoleAction } from 'store/auth/actions';
 import { roleTypes } from 'constants/userRoles';
+import { UserRolesShape } from 'types/index';
 
 const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
   const history = useHistory();
@@ -44,11 +45,7 @@ const SelectApplication = ({ userRoles, setActiveRole, activeRole }) => {
 SelectApplication.propTypes = {
   activeRole: PropTypes.string,
   setActiveRole: PropTypes.func.isRequired,
-  userRoles: PropTypes.arrayOf(
-    PropTypes.shape({
-      roleType: PropTypes.string.isRequired,
-    }),
-  ).isRequired,
+  userRoles: UserRolesShape.isRequired,
 };
 
 SelectApplication.defaultProps = {

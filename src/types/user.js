@@ -2,7 +2,7 @@
 import PropTypes from 'prop-types';
 
 export const UserRoleShape = PropTypes.shape({
-  roleType: PropTypes.string,
+  roleType: PropTypes.string.isRequired,
 });
 
 export const UserRolesShape = PropTypes.arrayOf(UserRoleShape);

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import { selectCurrentUser, selectGetCurrentUserIsLoading } from 'shared/Data/users';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { UserRolesShape } from 'types/user';
+import { UserRolesShape } from 'types/index';
 
 export function userIsAuthorized(userRoles, requiredRoles) {
   // Return true if no roles are required
@@ -39,13 +39,15 @@ const PrivateRoute = (props) => {
 PrivateRoute.displayName = 'PrivateRoute';
 
 PrivateRoute.propTypes = {
-  loginIsLoading: PropTypes.bool.isRequired,
-  userIsLoggedIn: PropTypes.bool.isRequired,
+  loginIsLoading: PropTypes.bool,
+  userIsLoggedIn: PropTypes.bool,
   requiredRoles: PropTypes.arrayOf(PropTypes.string),
   userRoles: UserRolesShape,
 };
 
 PrivateRoute.defaultProps = {
+  loginIsLoading: true,
+  userIsLoggedIn: false,
   requiredRoles: [],
   userRoles: [],
 };
