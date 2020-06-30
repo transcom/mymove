@@ -63,6 +63,7 @@
     "regenerator-runtime": "^0.13.5",
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
+    "storybook-addons-abstract": "^5.0.6",
     "swagger-client": "^3.10.9",
     "swagger-ui-dist": "^3.28.0",
     "uswds": "2.7.1",
