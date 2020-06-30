@@ -43,11 +43,11 @@ Code formatting conventions are defined in the `.editorconfig` file which uses t
 
 ## Legalese
 
-Before submitting a pull request to this repository for the first time, you'll need to sign a [Developer Certificate of Origin](https://developercertificate.org) (DCO). To read and agree to the DCO, you'll add your name and email address to [CONTRIBUTORS.md](https://github.com/transcom/mymove/blob/master/CONTRIBUTORS.md). At a high level, this tells us that you have the right to submit the work you're contributing in your pull request and says that you consent to us treating the contribution in a way consistent with the license associated with this software (as described in [LICENSE.md](https://github.com/transcom/mymove/blob/master/LICENSE.md)) and its documentation ("Project").
+Before submitting a pull request to this repository for the first time, you'll need to sign a [Developer Certificate of Origin](https://developercertificate.org) (DCO). To read and agree to the DCO, you'll add your name and email address to [CONTRIBUTORS.md](https://github.com/transcom/mymove/blob/master/CONTRIBUTORS.md). At a high level, this tells us that you have the right to submit the work you're contributing in your pull request and says that you consent to us treating the contribution in a way consistent with the license associated with this software (as described in [LICENSE.txt](https://github.com/transcom/mymove/blob/master/LICENSE.txt)) and its documentation ("Project").
 
 You may submit contributions anonymously or under a pseudonym if you'd like, but we need to be able to reach you at the email address you provide when agreeing to the DCO. Contributions you make to this public Department of Defense repository are completely voluntary. When you submit a pull request, you're offering your contribution without expectation of payment and you expressly waive any future pay claims against the U.S. Federal Government related to your contribution.
 
 [contributors]: https://github.com/transcom/move.mil/blob/master/CONTRIBUTORS.md
 [issues]: https://github.com/transcom/move.mil/issues
-[license]: https://github.com/transcom/move.mil/blob/master/LICENSE.md
+[license]: https://github.com/transcom/move.mil/blob/master/LICENSE.txt
 [pulls]: https://github.com/transcom/move.mil/pulls

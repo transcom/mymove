@@ -10,7 +10,7 @@ The public API for my.move.mil. This is a work in-progress, and is not a final p
     Host: localhost
     BasePath: /api/v1
     Version: 0.0.1
-    License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.md
+    License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.txt
 
     Consumes:
     - application/json

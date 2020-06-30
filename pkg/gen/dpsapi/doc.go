@@ -10,7 +10,7 @@ MyMove API for DPS
     Host: localhost
     BasePath: /dps/v0
     Version: 0.1.0
-    License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.md
+    License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.txt
 
     Consumes:
     - application/json

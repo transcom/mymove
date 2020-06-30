@@ -30,7 +30,7 @@ func init() {
     "title": "MyMove DPS API",
     "license": {
       "name": "MIT",
-      "url": "https://github.com/transcom/mymove/blob/master/LICENSE.md"
+      "url": "https://github.com/transcom/mymove/blob/master/LICENSE.txt"
     },
     "version": "0.1.0"
   },
@@ -157,7 +157,7 @@ func init() {
     "title": "MyMove DPS API",
     "license": {
       "name": "MIT",
-      "url": "https://github.com/transcom/mymove/blob/master/LICENSE.md"
+      "url": "https://github.com/transcom/mymove/blob/master/LICENSE.txt"
     },
     "version": "0.1.0"
   },
