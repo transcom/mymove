@@ -1,6 +1,6 @@
 # Contributors
 
-**By adding your name, email address, and copyright date below, you understand and agree to the terms of the [Developer's Certificate of Origin](https://developercertificate.org) (DCO) version 1.1, and you are submitting all contributions you make to this Project pursuant to the terms described in [LICENSE.md][license].**
+**By adding your name, email address, and copyright date below, you understand and agree to the terms of the [Developer's Certificate of Origin](https://developercertificate.org) (DCO) version 1.1, and you are submitting all contributions you make to this Project pursuant to the terms described in [LICENSE.txt][license].**
 
 ## Signed-off-by
 
