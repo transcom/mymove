@@ -204,7 +204,6 @@ function mapStateToProps(state) {
     serviceMemberId: serviceMemberId,
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     currentPPM: selectActivePPMForMove(state, moveID),
-    // currentOrders: state.orders.currentOrders,
     currentOrders: selectActiveOrders(state),
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),

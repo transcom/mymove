@@ -42,7 +42,6 @@ export class TransitionToMove extends Component {
 }
 
 function mapStateToProps(state) {
-  // const move = get(state, 'moves.currentMove');
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
   const move = selectActiveOrLatestMove(state);
 

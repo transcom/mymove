@@ -107,7 +107,6 @@ function mapStateToProps(state) {
 
   return {
     serviceMemberId: serviceMemberId,
-    // currentOrders: state.orders.currentOrders, // in master
     currentOrders: selectActiveOrders(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
     formValues,

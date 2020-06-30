@@ -14,7 +14,7 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import OrdersUploader from 'shared/Uploader/OrdersUploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
-// import { deleteUploads, addUploads } from 'scenes/Orders/ducks';
+
 import {
   updateOrders,
   fetchLatestOrders,
@@ -114,7 +114,6 @@ EditOrdersForm.propTypes = {
 EditOrdersForm = withContext(
   reduxForm({
     form: editOrdersFormName,
-    // enableReinitialize: true,
   })(EditOrdersForm),
 );
 
@@ -140,7 +139,6 @@ class EditOrders extends Component {
   updateOrders = (fieldValues) => {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
     fieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
-    // let addUploads = this.props.addUploads(this.state.newUploads);
     if (
       fieldValues.has_dependents !== this.props.currentOrders.has_dependents ||
       fieldValues.spouse_has_pro_gear !== this.props.spouse_has_pro_gear

@@ -426,7 +426,6 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
     originDutyStationZip,
-    // orders: get(state, 'orders.currentOrders', {}),
     orders: selectActiveOrders(state),
     // TODO this is a work around till we refactor more SM data...
     tempCurrentPPM: get(state, 'ppm.currentPpm'),

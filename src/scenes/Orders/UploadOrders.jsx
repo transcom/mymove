@@ -127,9 +127,7 @@ function mapStateToProps(state) {
     serviceMemberId: serviceMemberId,
     currentOrders,
     uploads: selectUploadsForOrders(state, currentOrders.id),
-    // uploads: get(state, 'orders.currentOrders.uploaded_orders.uploads', []),
     document: selectDocument(state, currentOrders.uploaded_orders),
-    // ...state.orders,
   };
   return props;
 }

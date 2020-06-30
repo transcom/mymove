@@ -56,7 +56,7 @@ export class Landing extends Component {
     if (
       prevProps.serviceMember &&
       prevProps.serviceMember.id !== this.props.serviceMember.id &&
-      !isEmpty(this.props.orders)
+      this.props.lastMoveIsCanceled
     ) {
       this.props.fetchLatestOrders(this.props.serviceMember.id);
     }
@@ -167,7 +167,6 @@ const mapStateToProps = (state) => {
     isProfileComplete: isProfileComplete(state),
     serviceMember: serviceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
-    // orders: state.orders.currentOrders || {},
     orders: selectActiveOrders(state),
     move: selectActiveOrLatestMove(state),
     ppm: getPPM(state),

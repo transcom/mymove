@@ -130,7 +130,6 @@ function mapStateToProps(state, ownProps) {
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, ownProps.match.params.moveId),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
-    // currentOrders: state.orders.currentOrders, // in master
     currentOrders: currentOrders,
     uploads: selectUploadsForOrders(state, currentOrders.id),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),

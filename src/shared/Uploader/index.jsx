@@ -115,7 +115,6 @@ export class Uploader extends Component {
   }
 
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
-    // TODO: use createupload action from entities only, once migration is complete
     const { document, isPublic } = this.props;
     const self = this;
     const docID = document ? document.id : null;
@@ -133,10 +132,8 @@ export class Uploader extends Component {
   };
 
   revertFile = (uploadId, load, error) => {
-    const { onChange, isPublic, deleteUpload = DeleteUpload } = this.props;
-    // TODO: use deleteUpload action from entities only, once migration complete.
-    // also, this is broken
-    deleteUpload(uploadId, isPublic)
+    const { onChange, isPublic } = this.props;
+    DeleteUpload(uploadId, isPublic)
       .then((item) => {
         load(item);
         const newFiles = reject(this.state.files, (upload) => upload.id === uploadId);
