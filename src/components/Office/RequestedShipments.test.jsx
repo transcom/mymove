@@ -122,26 +122,104 @@ const shipments = [
   },
 ];
 
+const customerInfo = {
+  name: 'Smith, Kerry',
+  dodId: '9999999999',
+  phone: '+1 999-999-9999',
+  email: 'ksmith@email.com',
+  currentAddress: {
+    street_address_1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postal_code: '78234',
+  },
+  destinationAddress: {
+    street_address_1: '441 SW Rio de la Plata Drive',
+    city: 'Tacoma',
+    state: 'WA',
+    postal_code: '98421',
+  },
+  backupContactName: 'Quinn Ocampo',
+  backupContactPhone: '+1 999-999-9999',
+  backupContactEmail: 'quinnocampo@myemail.com',
+};
+
+const agents = [
+  {
+    type: 'RELEASING_AGENT',
+    name: 'Dorothy Lagomarsino',
+    email: 'dorothyl@email.com',
+    phone: '+1 999-999-9999',
+    shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
+  },
+  {
+    type: 'RECEIVING_AGENT',
+    name: 'Dorothy Lagomarsino',
+    email: 'dorothyl@email.com',
+    phone: '+1 999-999-9999',
+    shipmentId: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aea',
+  },
+];
+
+const allowancesInfo = {
+  branch: 'Navy',
+  rank: 'E-6',
+  weightAllowance: '11,000 lbs',
+  authorizedWeight: '11,000 lbs',
+  progear: 2000,
+  spouseProgear: 500,
+  storageInTransit: '90 days',
+  dependents: 'Authorized',
+};
+
 describe('RequestedShipments', () => {
   it('renders the container successfully', () => {
-    const wrapper = shallow(<RequestedShipments />);
+    const wrapper = shallow(
+      <RequestedShipments
+        allowancesInfo={allowancesInfo}
+        mtoAgents={agents}
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+      />,
+    );
     expect(wrapper.find('div[data-cy="requested-shipments"]').exists()).toBe(true);
   });
 
   it('renders a shipment passed to it', () => {
-    const wrapper = mount(<RequestedShipments mtoShipments={shipments} />);
+    const wrapper = mount(
+      <RequestedShipments
+        mtoShipments={shipments}
+        mtoAgents={agents}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+      />,
+    );
     expect(wrapper.find('div[data-cy="requested-shipments"]').text()).toContain('HHG');
   });
 
   it('renders the button', () => {
-    const wrapper = mount(<RequestedShipments mtoShipments={shipments} />);
+    const wrapper = mount(
+      <RequestedShipments
+        mtoShipments={shipments}
+        mtoAgents={agents}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+      />,
+    );
     expect(wrapper.find('button[data-testid="button"]').exists()).toBe(true);
     expect(wrapper.find('button[data-testid="button"]').text()).toContain('Approve selected shipments');
     expect(wrapper.find('button[data-testid="button"]').html()).toContain('disabled=""');
   });
 
   it('renders the checkboxes', () => {
-    const wrapper = mount(<RequestedShipments mtoShipments={shipments} />);
+    const wrapper = mount(
+      <RequestedShipments
+        mtoShipments={shipments}
+        mtoAgents={agents}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+      />,
+    );
     expect(wrapper.find('div[data-testid="checkbox"]').exists()).toBe(true);
     expect(wrapper.find('div[data-testid="checkbox"]').length).toEqual(4);
   });

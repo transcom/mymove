@@ -55,3 +55,12 @@ export const MTOShipmentShape = PropTypes.shape({
   pickupAddress: AddressShape,
   destinationAddress: AddressShape,
 });
+
+export const MTOAgentShape = PropTypes.shape({
+  id: PropTypes.string,
+  firstName: PropTypes.string,
+  lastName: PropTypes.string,
+  agentType: PropTypes.string,
+  email: PropTypes.string,
+  phone: PropTypes.string,
+});

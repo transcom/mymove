@@ -17,23 +17,33 @@ const CustomerInfoTable = ({ customerInfo }) => {
         </colgroup>
         <tbody>
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row" className="text-bold">
+              Name
+            </th>
             <td data-cy="name">{customerInfo.name}</td>
           </tr>
           <tr>
-            <th scope="row">DoD ID</th>
+            <th scope="row" className="text-bold">
+              DoD ID
+            </th>
             <td data-cy="dodId">{customerInfo.dodId}</td>
           </tr>
           <tr>
-            <th scope="row">Phone</th>
+            <th scope="row" className="text-bold">
+              Phone
+            </th>
             <td data-cy="phone">{customerInfo.phone}</td>
           </tr>
           <tr>
-            <th scope="row">Email</th>
+            <th scope="row" className="text-bold">
+              Email
+            </th>
             <td data-cy="email">{customerInfo.email}</td>
           </tr>
           <tr>
-            <th scope="row">Current address</th>
+            <th scope="row" className="text-bold">
+              Current address
+            </th>
             <td data-cy="currentAddress">
               {`${get(customerInfo, 'currentAddress.street_address_1')}, ${get(
                 customerInfo,
@@ -42,7 +52,9 @@ const CustomerInfoTable = ({ customerInfo }) => {
             </td>
           </tr>
           <tr>
-            <th scope="row">Destination address</th>
+            <th scope="row" className="text-bold">
+              Destination address
+            </th>
             <td data-cy="destinationAddress">
               {`${get(customerInfo, 'destinationAddress.street_address_1')}, ${get(
                 customerInfo,
@@ -54,15 +66,21 @@ const CustomerInfoTable = ({ customerInfo }) => {
             </td>
           </tr>
           <tr>
-            <th scope="row">Backup contact name</th>
+            <th scope="row" className="text-bold">
+              Backup contact name
+            </th>
             <td data-cy="backupContactName">{customerInfo.backupContactName}</td>
           </tr>
           <tr>
-            <th scope="row">Backup contact phone</th>
+            <th scope="row" className="text-bold">
+              Backup contact phone
+            </th>
             <td data-cy="backupContactPhone">{customerInfo.backupContactPhone}</td>
           </tr>
           <tr>
-            <th scope="row">Backup contact email</th>
+            <th scope="row" className="text-bold">
+              Backup contact email
+            </th>
             <td data-cy="backupContactEmail">{customerInfo.backupContactEmail}</td>
           </tr>
         </tbody>
