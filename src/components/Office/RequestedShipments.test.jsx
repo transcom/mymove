@@ -170,13 +170,15 @@ const allowancesInfo = {
   progear: 2000,
   spouseProgear: 500,
   storageInTransit: 90,
-  dependents: 'Authorized',
+  dependents: true,
 };
 
 const moveTaskOrder = {
   eTag: 'MjAyMC0wNi0yNlQyMDoyMjo0MS43Mjc4NTNa',
   id: '6e8c5ca4-774c-4170-934a-59d22259e480',
 };
+
+const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
 
 describe('RequestedShipments', () => {
   it('renders the container successfully', () => {
@@ -186,6 +188,7 @@ describe('RequestedShipments', () => {
         mtoAgents={agents}
         customerInfo={customerInfo}
         mtoShipments={shipments}
+        approveMTO={approveMTO}
       />,
     );
     expect(wrapper.find('div[data-cy="requested-shipments"]').exists()).toBe(true);
@@ -198,6 +201,7 @@ describe('RequestedShipments', () => {
         mtoAgents={agents}
         allowancesInfo={allowancesInfo}
         customerInfo={customerInfo}
+        approveMTO={approveMTO}
       />,
     );
     expect(wrapper.find('div[data-cy="requested-shipments"]').text()).toContain('HHG');
@@ -210,6 +214,7 @@ describe('RequestedShipments', () => {
         mtoAgents={agents}
         allowancesInfo={allowancesInfo}
         customerInfo={customerInfo}
+        approveMTO={approveMTO}
       />,
     );
     const approveButton = wrapper.find('#shipmentApproveButton');
@@ -225,6 +230,7 @@ describe('RequestedShipments', () => {
         mtoAgents={agents}
         allowancesInfo={allowancesInfo}
         customerInfo={customerInfo}
+        approveMTO={approveMTO}
       />,
     );
     expect(wrapper.find('div[data-testid="checkbox"]').exists()).toBe(true);
@@ -232,13 +238,9 @@ describe('RequestedShipments', () => {
   });
 
   it('calls approveMTO onSubmit', async () => {
-    const approveMTO = jest.fn((id, eTag) => {
-      return new Promise((resolve) => {
-        // eslint-disable-next-line
-        console.log(`id: ${id} eTag:${eTag}`);
-        return resolve({ response: { status: 200, body: { id, eTag } } });
-      });
-    });
+    const mockApproveMTO = jest
+      .fn()
+      .mockResolvedValue({ response: { status: 200, body: { id: moveTaskOrder.id, eTag: moveTaskOrder.eTag } } });
 
     const wrapper = mount(
       <RequestedShipments
@@ -247,23 +249,38 @@ describe('RequestedShipments', () => {
         allowancesInfo={allowancesInfo}
         customerInfo={customerInfo}
         moveTaskOrder={moveTaskOrder}
-        approveMTO={approveMTO}
+        approveMTO={mockApproveMTO}
+        initialValues={{
+          shipmentManagementFee: true,
+          counselingFee: true,
+          shipments: ['ce01a5b8-9b44-4511-8a8d-edb60f2a4aee', 'c2f68d97-b960-4c86-a418-c70a0aeba04e'],
+        }}
       />,
     );
 
     act(() => {
-      /* try submitting the form directly
-        wrapper.find('form').simulate('submit');
-      */
+      // try submitting the form directly
+      wrapper.find('form').simulate('submit');
 
-      wrapper.find('input[name="shipments"]').at(0).simulate('click');
-      wrapper.find('input[name="shipmentManagementFee"]').simulate('click');
-      wrapper.find('input[name="counselingFee"]').simulate('click');
+      /*
+      wrapper
+        .find('input[name="shipments"]')
+        .at(0)
+        .simulate('change', { target: { checked: true, name: 'shipments' } });
+
+      wrapper
+        .find('input[name="shipmentManagementFee"]')
+        .simulate('change', { target: { checked: true, name: 'shipmentManagementFee' } });
+
+      wrapper
+        .find('input[name="counselingFee"]')
+        .simulate('change', { target: { checked: true, name: 'counselingFee' } });
 
       wrapper.find('button[type="button"]').simulate('click');
       wrapper.find('button[type="submit"]').simulate('click');
+      */
     });
 
-    expect(approveMTO).toHaveBeenCalled();
+    await expect(approveMTO).toHaveBeenCalled();
   });
 });

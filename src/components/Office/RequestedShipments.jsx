@@ -13,7 +13,15 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay';
 
 const cx = classNames.bind(styles);
 
-const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAgents, moveTaskOrder, approveMTO }) => {
+const RequestedShipments = ({
+  mtoShipments,
+  allowancesInfo,
+  customerInfo,
+  mtoAgents,
+  moveTaskOrder,
+  approveMTO,
+  initialValues,
+}) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
 
@@ -22,24 +30,16 @@ const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAge
   };
 
   const formik = useFormik({
-    initialValues: {
-      shipmentManagementFee: false,
-      counselingFee: false,
-      shipments: [],
-    },
+    initialValues,
     onSubmit: (values, { setSubmitting }) => {
       approveMTO(moveTaskOrder.id, moveTaskOrder.eTag)
         .then(({ response }) => {
-          // eslint-disable-next-line
-          console.log('inside resolved');
           if (response.status === 200) {
             setIsModalVisible(false);
           }
           setSubmitting(false);
         })
-        .catch((err) => {
-          // eslint-disable-next-line
-          console.log(err);
+        .catch(() => {
           setSubmitting(false);
         });
     },
@@ -149,11 +149,21 @@ RequestedShipments.propTypes = {
   }).isRequired,
   approveMTO: PropTypes.func.isRequired,
   moveTaskOrder: MoveTaskOrderShape,
+  initialValues: PropTypes.shape({
+    shipmentManagementFee: PropTypes.bool,
+    counselingFee: PropTypes.bool,
+    shipments: PropTypes.arrayOf(PropTypes.string),
+  }),
 };
 
 RequestedShipments.defaultProps = {
   mtoAgents: [],
   moveTaskOrder: {},
+  initialValues: {
+    shipmentManagementFee: false,
+    counselingFee: false,
+    shipments: [],
+  },
 };
 
 export default RequestedShipments;

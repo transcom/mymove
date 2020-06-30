@@ -128,12 +128,12 @@ const shipments = [
 const allowancesInfo = {
   branch: 'Navy',
   rank: 'E-6',
-  weightAllowance: '11,000 lbs',
-  authorizedWeight: '11,000 lbs',
+  weightAllowance: 11000,
+  authorizedWeight: 11000,
   progear: 2000,
   spouseProgear: 500,
-  storageInTransit: '90 days',
-  dependents: 'Authorized',
+  storageInTransit: 90,
+  dependents: true,
 };
 
 const customerInfo = {
@@ -184,6 +184,8 @@ describe('Shipment preview modal', () => {
         setIsModalVisible={jest.fn()}
         onSubmit={jest.fn()}
         allowancesInfo={allowancesInfo}
+        counselingFee
+        shipmentManagementFee
       />,
     );
     expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
@@ -202,6 +204,8 @@ describe('Shipment preview modal', () => {
         onSubmit={jest.fn()}
         allowancesInfo={allowancesInfo}
         mtoAgents={agents}
+        counselingFee
+        shipmentManagementFee
       />,
     );
     expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
@@ -219,6 +223,8 @@ describe('Shipment preview modal', () => {
         onSubmit={jest.fn()}
         allowancesInfo={allowancesInfo}
         mtoAgents={agents}
+        counselingFee
+        shipmentManagementFee
       />,
     );
     expect(wrapper.find("button[type='submit']").exists()).toBe(true);
@@ -234,6 +240,8 @@ describe('Shipment preview modal', () => {
         onSubmit={jest.fn()}
         allowancesInfo={allowancesInfo}
         mtoAgents={agents}
+        counselingFee
+        shipmentManagementFee
       />,
     );
     expect(wrapper.find("button[type='submit']").exists()).toBe(true);
@@ -251,6 +259,8 @@ describe('Shipment preview modal', () => {
         onSubmit={submitClicked}
         allowancesInfo={allowancesInfo}
         mtoAgents={agents}
+        counselingFee
+        shipmentManagementFee
       />,
     );
     wrapper.find('button[type="submit"]').simulate('click');

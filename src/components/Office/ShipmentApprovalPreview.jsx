@@ -113,7 +113,9 @@ const ShipmentApprovalPreview = ({
                           {mtoAgents &&
                             mtoAgents.map((agent) => (
                               <tr>
-                                <td>{agent.type === 'RELEASING_AGENT' ? 'Releasing Agent' : 'Receiving Agent'}</td>
+                                <th className="text-bold" scope="row">
+                                  {agent.type === 'RELEASING_AGENT' ? 'Releasing Agent' : 'Receiving Agent'}
+                                </th>
                                 <td>
                                   {agent.firstName} {agent.lastName}
                                   <br />
