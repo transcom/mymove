@@ -15,7 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcdieselfuelprice"
 )
 
-func checkSaveGHCDieselFuelPriceConfig(v *viper.Viper, logger logger) error {
+func checkSaveGHCFuelPriceConfig(v *viper.Viper, logger logger) error {
 
 	logger.Debug("checking config")
 
@@ -32,7 +32,7 @@ func checkSaveGHCDieselFuelPriceConfig(v *viper.Viper, logger logger) error {
 	return nil
 }
 
-func initSaveGHCDieselFuelPriceFlags(flag *pflag.FlagSet) {
+func initSaveGHCFuelPriceFlags(flag *pflag.FlagSet) {
 
 	//DB Config
 	cli.InitDatabaseFlags(flag)
@@ -48,7 +48,7 @@ func initSaveGHCDieselFuelPriceFlags(flag *pflag.FlagSet) {
 }
 
 // Command: go run github.com/transcom/mymove/cmd/save_ghc_diesel_fuel_price_data
-func saveGHCDieselFuelPriceData(cmd *cobra.Command, args []string) error {
+func saveGHCFuelPriceData(cmd *cobra.Command, args []string) error {
 
 	err := cmd.ParseFlags(args)
 	if err != nil {
@@ -71,7 +71,7 @@ func saveGHCDieselFuelPriceData(cmd *cobra.Command, args []string) error {
 	}
 	zap.ReplaceGlobals(logger)
 
-	err = checkSaveGHCDieselFuelPriceConfig(v, logger)
+	err = checkSaveGHCFuelPriceConfig(v, logger)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
