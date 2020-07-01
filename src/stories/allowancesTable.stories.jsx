@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { withKnobs, object } from '@storybook/addon-knobs';
 
 import AllowancesTable from '../components/Office/AllowancesTable';
@@ -15,6 +14,9 @@ const info = {
   dependents: 'Authorized',
 };
 
-storiesOf('TOO/TIO Components|AllowancesTable', module)
-  .addDecorator(withKnobs)
-  .add('Allowances Table', () => <AllowancesTable info={object('info', info)} />);
+export default {
+  title: 'TOO&#47;TIO Components|AllowancesTable',
+  decorator: withKnobs,
+};
+
+export const Default = () => <AllowancesTable info={object('info', info)} />;
