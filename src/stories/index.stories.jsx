@@ -4,9 +4,6 @@ import { storiesOf } from '@storybook/react';
 import { Tag } from '@trussworks/react-uswds';
 
 import colors from '../shared/styles/colors.scss';
-import FOUOHeader from '../components/FOUOHeader';
-import MilMoveHeader from '../components/MilMoveHeader';
-import CustomerHeader from '../components/CustomerHeader';
 
 import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 
@@ -189,14 +186,6 @@ storiesOf('Global|Typography', module)
       </small>
     </div>
   ));
-
-storiesOf('Components|Headers', module).add('all', () => (
-  <div>
-    <FOUOHeader />
-    <MilMoveHeader />
-    <CustomerHeader />
-  </div>
-));
 
 // Tags
 
