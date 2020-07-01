@@ -77,9 +77,6 @@ func zip3TransitDistanceHelper(planner Planner, source string, destination strin
 	if err != nil {
 		return 0, err
 	}
-	if distance < 50 {
-		err = NewShortHaulError(sLL, dLL, distance)
-	}
 	return distance, err
 }
 
