@@ -1,10 +1,9 @@
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/colors';
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/mixins';
+@import '../../../shared/styles/colors';
 
 $menuWidth: 308px;
 $contentWidth: 80%;
-
 
 .docViewerContent {
   width: $contentWidth;
@@ -22,8 +21,6 @@ $contentWidth: 80%;
     fill: $primary;
   }
 }
-
-
 
 .titleBar {
   width: $contentWidth;
