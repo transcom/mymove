@@ -2,6 +2,8 @@ import React from 'react';
 
 import DocumentViewer from './DocumentViewer';
 import pdf from './sample.pdf';
+import pdf2 from './sample2.pdf';
+import pdf3 from './sample3.pdf';
 
 export default {
   title: 'Components|Document Viewer',
@@ -16,12 +18,12 @@ const testFiles = [
   {
     filename: 'Test File 2.pdf',
     fileType: 'pdf',
-    filePath: pdf,
+    filePath: pdf2,
   },
   {
     filename: 'Test File 3.pdf',
     fileType: 'pdf',
-    filePath: pdf,
+    filePath: pdf3,
   },
 ];
 
