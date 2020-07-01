@@ -3,7 +3,7 @@ import React from 'react';
 import RequestedServiceItemsTable from '../components/Office/RequestedServiceItemsTable';
 
 export default {
-  title: 'TOO&#47;TIO Components|RequestedServiceItemsTable',
+  title: 'TOO/TIO Components|RequestedServiceItemsTable',
 };
 
 const serviceItems = [

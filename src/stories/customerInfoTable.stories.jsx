@@ -26,7 +26,7 @@ const info = {
 };
 
 export default {
-  title: 'TOO&#47;TIO Components|CustomerInfoTable',
+  title: 'TOO/TIO Components|CustomerInfoTable',
   decorator: withKnobs,
 };
 
