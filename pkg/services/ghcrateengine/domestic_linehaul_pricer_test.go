@@ -50,7 +50,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
 	suite.T().Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilledActual", func(t *testing.T) {
 		priceCents, err := linehaulServicePricer.PriceUsingParams(paramsWithBelowMinimumWeight)
-		suite.Equal("could not fetch domestic linehaul rate: weight must be greater than 500", err.Error())
+		suite.Equal("could not fetch domestic linehaul rate: weight must be at least 500", err.Error())
 		suite.Equal(unit.Cents(0), priceCents)
 	})
 
@@ -73,7 +73,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		// No weight
 		_, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, int(dlhTestDistance), 0, dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("could not fetch domestic linehaul rate: weight must be greater than 500", err.Error())
+		suite.Equal("could not fetch domestic linehaul rate: weight must be at least 500", err.Error())
 
 		// No service area
 		_, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, int(dlhTestDistance), int(dlhTestWeight), "")

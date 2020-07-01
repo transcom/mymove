@@ -44,13 +44,14 @@ type DomesticLinehaulPricer interface {
 	ParamsPricer
 }
 
-// Older pricers below (pre-dates payment requests)
-
 // DomesticShorthaulPricer prices the domestic shorthaul for a GHC Move
 //go:generate mockery -name DomesticShorthaulPricer
 type DomesticShorthaulPricer interface {
-	PriceDomesticShorthaul(moveDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error)
+	Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error)
+	ParamsPricer
 }
+
+// Older pricers below (pre-dates payment requests)
 
 // DomesticServiceAreaPricer domestic prices: origin and destination service area, SIT day 1, SIT Addt'l days
 //go:generate mockery -name DomesticServiceAreaPricer
