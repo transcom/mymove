@@ -21,6 +21,8 @@ import DutyStation from 'scenes/ServiceMembers/DutyStation';
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
+import SelectMoveType from 'scenes/Moves/Hhg/SelectMoveType';
+
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import Review from 'scenes/Review/Review';
@@ -153,6 +155,15 @@ const pages = {
         </WizardPage>
       );
     },
+  },
+  '/moves/:moveId/select-type': {
+    isInFlow: myFirstRodeo,
+    isComplete: always,
+    render: (key, pages) => ({ match }) => (
+      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+        <SelectMoveType />
+      </WizardPage>
+    ),
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: (state) => state.selectedMoveType === 'PPM',
