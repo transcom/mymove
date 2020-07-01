@@ -13,15 +13,7 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay';
 
 const cx = classNames.bind(styles);
 
-const RequestedShipments = ({
-  mtoShipments,
-  allowancesInfo,
-  customerInfo,
-  mtoAgents,
-  moveTaskOrder,
-  approveMTO,
-  initialValues,
-}) => {
+const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAgents, moveTaskOrder, approveMTO }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
 
@@ -30,7 +22,11 @@ const RequestedShipments = ({
   };
 
   const formik = useFormik({
-    initialValues,
+    initialValues: {
+      shipmentManagementFee: false,
+      counselingFee: false,
+      shipments: [],
+    },
     onSubmit: (values, { setSubmitting }) => {
       approveMTO(moveTaskOrder.id, moveTaskOrder.eTag)
         .then(({ response }) => {
@@ -40,6 +36,7 @@ const RequestedShipments = ({
           setSubmitting(false);
         })
         .catch(() => {
+          // TODO: Decided if we wnat to display an error notice, log error event, or retry
           setSubmitting(false);
         });
     },
@@ -149,21 +146,11 @@ RequestedShipments.propTypes = {
   }).isRequired,
   approveMTO: PropTypes.func.isRequired,
   moveTaskOrder: MoveTaskOrderShape,
-  initialValues: PropTypes.shape({
-    shipmentManagementFee: PropTypes.bool,
-    counselingFee: PropTypes.bool,
-    shipments: PropTypes.arrayOf(PropTypes.string),
-  }),
 };
 
 RequestedShipments.defaultProps = {
   mtoAgents: [],
   moveTaskOrder: {},
-  initialValues: {
-    shipmentManagementFee: false,
-    counselingFee: false,
-    shipments: [],
-  },
 };
 
 export default RequestedShipments;

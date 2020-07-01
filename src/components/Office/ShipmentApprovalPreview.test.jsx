@@ -252,7 +252,7 @@ describe('Shipment preview modal', () => {
     wrapper.find('button[type="reset"]').simulate('click');
     expect(cancelClicked).toHaveBeenCalledTimes(1);
 
-    wrapper.find('button[type="button"]').simulate('click');
+    wrapper.find('[data-testid="closeShipmentApproval"]').simulate('click');
     expect(cancelClicked).toHaveBeenCalledTimes(2);
   });
 });

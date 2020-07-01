@@ -13,7 +13,6 @@ import ShipmentContainer from './ShipmentContainer';
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
 
 import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
-import { SHIPMENT_TYPE } from 'shared/constants';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
@@ -32,16 +31,6 @@ const ShipmentApprovalPreview = ({
     ? mtoShipments.map((shipment) => ({ ...shipment, agents: getAgents(shipment) }))
     : mtoShipments;
 
-  /*
-
-              <FontAwesomeIcon
-                aria-hidden
-                icon={faTimes}
-                title="Close shipment approval modal"
-                onClick={() => setIsModalVisible(false)}
-                className={classNames(styles['approval-close'], 'icon')}
-              />
-  */
   return (
     <div>
       <Overlay />
@@ -54,6 +43,7 @@ const ShipmentApprovalPreview = ({
                 title="Close shipment approval modal"
                 onClick={() => setIsModalVisible(false)}
                 className={classNames(styles.approvalClose, 'usa-button--unstyled')}
+                data-testid="closeShipmentApproval"
               >
                 <XHeavyIcon />
               </button>
@@ -139,7 +129,7 @@ const ShipmentApprovalPreview = ({
                       </table>
                       <ShipmentServiceItemsTable
                         className={classNames(styles.shipmentServiceItems)}
-                        shipmentType={shipment.shipmentType === SHIPMENT_TYPE.NTS ? 'nts' : 'hhg'}
+                        shipmentType={shipment.shipmentType}
                       />
                     </div>
                   </div>
