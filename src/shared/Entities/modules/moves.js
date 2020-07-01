@@ -5,7 +5,7 @@ import { denormalize } from 'normalizr';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 import { selectEntitlements } from 'shared/entitlements.js';
-import { selectOrdersForMove, selectActiveOrders } from 'shared/Entities/modules/orders';
+import { selectOrdersForMove, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
 import { getGHCClient } from 'shared/Swagger/api';
 import { filter } from 'lodash';
@@ -112,7 +112,7 @@ export function submitMoveForApproval(moveId, ppmSubmitDate, label = submitMoveF
 
 export function selectActiveOrLatestMove(state) {
   // temp until full redux refactor: gets active (or latest move) from entities if it exists.  If not, gets it from currentMove
-  let activeOrLatestOrders = selectActiveOrders(state);
+  let activeOrLatestOrders = selectActiveOrLatestOrders(state);
   if (isEmpty(activeOrLatestOrders)) {
     return {};
   }

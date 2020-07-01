@@ -4,7 +4,7 @@ import { denormalize } from 'normalizr';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { formatDateForSwagger } from 'shared/dates';
 import { getClient } from 'shared/Swagger/api';
-import { get, filter, isEmpty, isNull } from 'lodash';
+import { get, filter, isEmpty, isNull, head } from 'lodash';
 import { fetchActive } from 'shared/utils';
 
 export const STATE_KEY = 'orders';
@@ -96,10 +96,24 @@ export function selectActiveOrders(state) {
   if (isNull(serviceMember)) {
     return {};
   }
-  // let activeOrders = fetchActive(selectOrdersFromServiceMemberId(state, serviceMember.id));
   let activeOrders = fetchActive(selectOrdersForServiceMemberId(state, serviceMember.id));
   if (isEmpty(activeOrders)) {
     activeOrders = fetchActive(get(state, 'user.userInfo.service_member.orders', {}));
   }
   return activeOrders || {};
+}
+
+export function selectActiveOrLatestOrders(state) {
+  // temp until full redux refactor: gets active or latest orders from entities if exist. If not, gets from orders.currentOrders.
+  const serviceMember = get(state, 'user.userInfo.service_member', {});
+  if (isNull(serviceMember)) {
+    return {};
+  }
+  const orders = selectOrdersForServiceMemberId(state, serviceMember.id);
+  let activeOrLatestOrders = fetchActive(orders) || head(orders);
+  if (isEmpty(activeOrLatestOrders)) {
+    const orders = get(state, 'user.userInfo.service_member.orders', {});
+    activeOrLatestOrders = fetchActive(orders) || head(orders);
+  }
+  return activeOrLatestOrders || {};
 }

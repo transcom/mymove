@@ -24,7 +24,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
-import { fetchLatestOrders, selectActiveOrders } from 'shared/Entities/modules/orders';
+import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 export class Landing extends Component {
@@ -52,13 +52,6 @@ export class Landing extends Component {
     }
     if (prevProps.move && prevProps.move.id !== this.props.move.id) {
       this.props.loadPPMs(this.props.move.id);
-    }
-    if (
-      prevProps.serviceMember &&
-      prevProps.serviceMember.id !== this.props.serviceMember.id &&
-      this.props.lastMoveIsCanceled
-    ) {
-      this.props.fetchLatestOrders(this.props.serviceMember.id);
     }
   }
   startMove = (values) => {
@@ -167,7 +160,7 @@ const mapStateToProps = (state) => {
     isProfileComplete: isProfileComplete(state),
     serviceMember: serviceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
-    orders: selectActiveOrders(state),
+    orders: selectActiveOrLatestOrders(state),
     move: selectActiveOrLatestMove(state),
     ppm: getPPM(state),
     loggedInUser: user,
@@ -186,7 +179,7 @@ const mapStateToProps = (state) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, createServiceMember, updateMove, loadPPMs, fetchLatestOrders }, dispatch);
+  return bindActionCreators({ push, createServiceMember, updateMove, loadPPMs }, dispatch);
 }
 
 export default withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing));
