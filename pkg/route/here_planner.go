@@ -212,12 +212,7 @@ func (p *herePlanner) Zip5TransitDistance(source string, destination string) (in
 func (p *herePlanner) Zip3TransitDistance(source string, destination string) (int, error) {
 	distance, err := zip3TransitDistanceHelper(p, source, destination)
 	if err != nil {
-		var msg string
-		if err.(Error).Code() == ShortHaulError {
-			msg = "Unsupported short haul move distance"
-		} else {
-			msg = "Failed to calculate HERE route between ZIPs"
-		}
+		msg := "Failed to calculate HERE route between ZIPs"
 		p.logger.Error(msg, zap.String("source", source), zap.String("destination", destination), zap.Int("distance", distance))
 	}
 	return distance, err
