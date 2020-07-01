@@ -17,11 +17,17 @@ func priceInMillicents(price float64) unit.Millicents {
 	return priceInMillicents
 }
 
+func publicationDateInTime(publicationDate string) (time.Time, error) {
+	publicationDateInTime, err := time.Parse("20060102", publicationDate)
+
+	return publicationDateInTime, err
+}
+
 // RunStorer stores the final EIA weekly average diesel fuel price data in the ghc_diesel_fuel_price table
 func (d *DieselFuelPriceInfo) RunStorer(dbTx *pop.Connection) error {
 	priceInMillicents := priceInMillicents(d.dieselFuelPriceData.price)
 
-	publicationDate, err := time.Parse("20060102", d.dieselFuelPriceData.publicationDate)
+	publicationDate, err := publicationDateInTime(d.dieselFuelPriceData.publicationDate)
 	if err != nil {
 		return err
 	}
