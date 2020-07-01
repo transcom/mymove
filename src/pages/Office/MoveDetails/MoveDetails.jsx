@@ -116,9 +116,6 @@ export class MoveDetails extends Component {
     } = this.props;
     const { activeSection } = this.state;
 
-    // eslint-disable-next-line
-    console.log(moveTaskOrder);
-
     const ordersInfo = {
       newDutyStation: moveOrder.destinationDutyStation?.name,
       currentDutyStation: moveOrder.originDutyStation?.name,

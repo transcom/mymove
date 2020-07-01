@@ -264,7 +264,7 @@ describe('RequestedShipments', () => {
     });
     wrapper.update();
 
-    expect(wrapper.find('button[type="button"]').prop('disabled')).toEqual(true);
+    expect(wrapper.find('form button[type="button"]').prop('disabled')).toEqual(true);
     expect(wrapper.find('#approvalConfirmationModal').prop('style')).toHaveProperty('display', 'none');
 
     await act(async () => {
@@ -274,10 +274,10 @@ describe('RequestedShipments', () => {
     });
     wrapper.update();
 
-    expect(wrapper.find('button[type="button"]').prop('disabled')).toBe(false);
+    expect(wrapper.find('form button[type="button"]').prop('disabled')).toBe(false);
 
     await act(async () => {
-      wrapper.find('button[type="button"]').simulate('click');
+      wrapper.find('form button[type="button"]').simulate('click');
     });
     wrapper.update();
 
@@ -326,7 +326,7 @@ describe('RequestedShipments', () => {
         .find('input[name="counselingFee"]')
         .simulate('change', { target: { name: 'counselingFee', value: true } });
 
-      wrapper.find('button[type="button"]').simulate('click');
+      wrapper.find('form button[type="button"]').simulate('click');
 
       wrapper.find('button[type="submit"]').simulate('click');
     });

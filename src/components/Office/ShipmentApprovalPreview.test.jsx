@@ -250,6 +250,9 @@ describe('Shipment preview modal', () => {
     expect(submitClicked).toHaveBeenCalled();
 
     wrapper.find('button[type="reset"]').simulate('click');
-    expect(cancelClicked).toHaveBeenCalled();
+    expect(cancelClicked).toHaveBeenCalledTimes(1);
+
+    wrapper.find('button[type="button"]').simulate('click');
+    expect(cancelClicked).toHaveBeenCalledTimes(2);
   });
 });

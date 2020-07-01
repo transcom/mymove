@@ -4,6 +4,9 @@
 
 .approvalPreviewModal {
   min-width: 80rem;
+  @include u-margin-top(10);
+  @include u-border('base-light');
+  @include u-border('05');
 
   button[type='submit'] {
     @include u-margin-left(0);
@@ -23,12 +26,15 @@
 
 .containerTop {
   @include u-margin-bottom(2);
-  .approval-close {
+  .approvalClose {
     @include u-float('right');
-    color: $color-icon-gray;
+    @include u-padding-right(0);
     cursor: pointer;
-    height: 15px;
-    width: 21px;
+    svg {
+      height: 15px;
+      width: 15px;
+      fill: $base;
+    }
   }
 }
 .sectionBorder {

@@ -1,6 +1,4 @@
 import { Button, Modal, ModalContainer, Overlay } from '@trussworks/react-uswds';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 import React, { Fragment } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -14,6 +12,7 @@ import CustomerInfoTable from './CustomerInfoTable';
 import ShipmentContainer from './ShipmentContainer';
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
 
+import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
 import { SHIPMENT_TYPE } from 'shared/constants';
 
 const ShipmentApprovalPreview = ({
@@ -33,13 +32,8 @@ const ShipmentApprovalPreview = ({
     ? mtoShipments.map((shipment) => ({ ...shipment, agents: getAgents(shipment) }))
     : mtoShipments;
 
-  return (
-    <div>
-      <Overlay />
-      <ModalContainer>
-        <Modal className={classNames(styles.approvalPreviewModal, 'padding-4 overflow-y-auto maxh-viewport')}>
-          <div className={classNames(styles.containerTop)}>
-            <div>
+  /*
+
               <FontAwesomeIcon
                 aria-hidden
                 icon={faTimes}
@@ -47,6 +41,22 @@ const ShipmentApprovalPreview = ({
                 onClick={() => setIsModalVisible(false)}
                 className={classNames(styles['approval-close'], 'icon')}
               />
+  */
+  return (
+    <div>
+      <Overlay />
+      <ModalContainer>
+        <Modal className={classNames(styles.approvalPreviewModal, 'padding-4 overflow-y-auto maxh-viewport')}>
+          <div className={classNames(styles.containerTop)}>
+            <div>
+              <button
+                type="button"
+                title="Close shipment approval modal"
+                onClick={() => setIsModalVisible(false)}
+                className={classNames(styles.approvalClose, 'usa-button--unstyled')}
+              >
+                <XHeavyIcon />
+              </button>
             </div>
             <h2>Preview and post move task order</h2>
             <p>Is all the information shown correct and ready to send to Global Relocation Services?</p>
