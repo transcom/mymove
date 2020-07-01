@@ -134,8 +134,30 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 			MTOServiceItemID: mtoServiceItemID,
 		}
 
+		paymentServiceItem.PaymentServiceItemParams = h.buildPaymentServiceItemParams(payloadServiceItem)
+
 		paymentServiceItems = append(paymentServiceItems, paymentServiceItem)
 	}
 
 	return paymentServiceItems, verrs, nil
+}
+
+
+func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem) models.PaymentServiceItemParams {
+	var paymentServiceItemParams models.PaymentServiceItemParams
+
+	/************
+	   ServiceItem.params is set to readOnly = true currently in prime.yaml. Therefore we are only checking if
+	   there were params sent. If there were params in via the create payment request then we will error out.
+
+	   Currently not expecting the prime to provide any params. This might change we continue adding service items
+	   for billing and will have to adjust which service items allow incoming params at that time.
+	 ***********/
+
+	if len(payloadMTOServiceItem.Params) > 0 {
+		// TODO return error
+		// if not in this function it can also be done up top
+
+	}
+
 }
