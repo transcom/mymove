@@ -1,9 +1,11 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 // Containers
+export default {
+  title: 'Components|Containers',
+};
 
-storiesOf('Components|Containers', module).add('all', () => (
+export const all = () => (
   <div id="containers" style={{ padding: '20px' }}>
     <div className="container">
       <code>
@@ -76,4 +78,4 @@ storiesOf('Components|Containers', module).add('all', () => (
       </code>
     </div>
   </div>
-));
+);
