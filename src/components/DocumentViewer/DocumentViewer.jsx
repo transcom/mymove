@@ -31,6 +31,9 @@ const DocumentViewer = ({ files }) => {
     selectFile(index);
     closeMenu();
   };
+  const openInNewWindow = () => {
+    // TODO - do we need to stream the file or can we just open the URL?
+  };
 
   return (
     <div className={styles.DocumentViewer}>
@@ -41,12 +44,13 @@ const DocumentViewer = ({ files }) => {
 
         <p>{selectedFile.filename}</p>
         {/* TODO */}
-        <Button unstyled>
+        <Button type="button" unstyled onClick={openInNewWindow}>
           <span>Open in a new window</span>
           <ExternalLink />
         </Button>
       </div>
       <Content fileType={selectedFile.fileType} filePath={selectedFile.filePath} />
+      {menuIsOpen && <div className={styles.overlay} />}
       <Menu
         isOpen={menuIsOpen}
         files={files}

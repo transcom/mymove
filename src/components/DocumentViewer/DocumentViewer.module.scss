@@ -15,7 +15,7 @@
     justify-content: flex-start;
     @include icon-hover-state;
     @include u-padding-x(4);
-    z-index: $z-index-front;
+    z-index: 98;
 
     p {
       @include u-text('bold');
@@ -27,4 +27,14 @@
       @include u-margin-left(1);
     }
   }
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99;
+  background-color: rgba($base-darkest, 0.7);
 }

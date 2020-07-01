@@ -5,7 +5,6 @@ import { Button } from '@trussworks/react-uswds';
 
 import styles from './Content.module.scss';
 
-// import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 import { ReactComponent as ZoomIn } from 'shared/icon/zoom-in.svg';
 import { ReactComponent as ZoomOut } from 'shared/icon/zoom-out.svg';
 // TODO
@@ -19,6 +18,7 @@ import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
 const DocViewerContent = ({ fileType, filePath }) => (
   <div className={styles.DocViewerContent}>
     <FileViewer
+      key={`fileViewer_${filePath}`}
       fileType={fileType}
       filePath={filePath}
       renderControls={({ handleZoomIn, handleZoomOut }) => {
@@ -50,7 +50,6 @@ export default DocViewerContent;
  * TODO
  *
  * - add className prop to file viewer
- * - Move TitleBar into render prop
  * - add rotate left/right:
  *  <Button unstyled>
         <RotateLeft />
