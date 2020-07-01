@@ -3,10 +3,6 @@
 @import '../../shared/styles/colors';
 
 .DocumentViewer {
-  height: 100%;
-  position: relative;
-  @include u-bg('base-lighter');
-
   .titleBar {
     position: absolute;
     top: 0;
@@ -24,48 +20,6 @@
     }
     svg {
       @include u-margin-left(1);
-    }
-  }
-
-  :global {
-    .pdf-viewer-container {
-      height: 100%;
-    }
-
-    .pdf-viewer {
-      height: 100%;
-      overflow-y: scroll;
-    }
-
-    .pdf-controls-container {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: rgba(255, 255, 255, 0.75);
-      height: 50px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      svg {
-        @include u-margin-right(1);
-      }
-      @include icon-hover-state;
-
-      button {
-        display: flex;
-      }
-    }
-
-    .pdf-canvas {
-      text-align: center;
-      // spacing for controls/title bar
-      padding-top: 50px;
-      padding-bottom: 50px;
-    }
-
-    .view-control + .view-control {
-      margin-left: 10px;
     }
   }
 }

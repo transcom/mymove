@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import FileViewer from '@trussworks/react-file-viewer';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './DocumentViewer.module.scss';
+import Content from './Content';
 
 import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
-import { ReactComponent as ZoomIn } from 'shared/icon/zoom-in.svg';
-import { ReactComponent as ZoomOut } from 'shared/icon/zoom-out.svg';
 
 /**
  * TODO
@@ -21,10 +19,6 @@ import { ReactComponent as ZoomOut } from 'shared/icon/zoom-out.svg';
  */
 
 const DocumentViewer = ({ filename, fileType, filePath }) => {
-  const onError = () => {
-    // console.log('file viewer error', e);
-  };
-
   return (
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
@@ -35,25 +29,7 @@ const DocumentViewer = ({ filename, fileType, filePath }) => {
           <ExternalLink />
         </Button>
       </div>
-      <FileViewer
-        fileType={fileType}
-        filePath={filePath}
-        onError={onError}
-        renderControls={({ handleZoomIn, handleZoomOut }) => {
-          return (
-            <div className="pdf-controls-container">
-              <Button type="button" unstyled onClick={handleZoomOut}>
-                <ZoomOut />
-                Zoom out
-              </Button>
-              <Button type="button" unstyled onClick={handleZoomIn}>
-                <ZoomIn />
-                Zoom in
-              </Button>
-            </div>
-          );
-        }}
-      />
+      <Content fileType={fileType} filePath={filePath} />
     </div>
   );
 };
