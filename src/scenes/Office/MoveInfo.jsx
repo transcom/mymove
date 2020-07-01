@@ -16,7 +16,7 @@ import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import moment from 'moment';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import PrivateRoute from 'shared/User/PrivateRoute';
+import PrivateRoute from 'containers/PrivateRoute';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import ToolTip from 'shared/ToolTip';
 import ComboButton from 'shared/ComboButton';
