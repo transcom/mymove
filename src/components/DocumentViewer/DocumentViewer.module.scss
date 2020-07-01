@@ -3,22 +3,27 @@
 @import '../../shared/styles/colors';
 
 .DocumentViewer {
+  position: relative;
+  height: 100%;
+
   .titleBar {
     position: absolute;
     top: 0;
     width: 100%;
     background: rgba(255, 255, 255, 0.75);
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     @include icon-hover-state;
     @include u-padding-x(4);
-    z-index: 1;
+    z-index: $z-index-front;
 
     p {
       @include u-text('bold');
       color: $base-darkest;
+      flex-grow: 1;
     }
-    svg {
+
+    button svg:not(:only-child) {
       @include u-margin-left(1);
     }
   }

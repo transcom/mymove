@@ -1,11 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
 
+import { FilesShape } from './types';
 import styles from './DocumentViewer.module.scss';
 import Content from './Content';
+import Menu from './Menu';
 
 import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
+import { ReactComponent as DocMenu } from 'shared/icon/doc-menu.svg';
 
 /**
  * TODO
@@ -18,26 +20,52 @@ import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
  * - handle fetch doc errors
  */
 
-const DocumentViewer = ({ filename, fileType, filePath }) => {
+const DocumentViewer = ({ files }) => {
+  // TODO - show msg if there are no files
+  const [selectedFileIndex, selectFile] = useState(0);
+  const [menuIsOpen, setMenuOpen] = useState(false);
+
+  const selectedFile = files[parseInt(selectedFileIndex, 10)];
+
+  const openMenu = () => setMenuOpen(true);
+  const closeMenu = () => setMenuOpen(false);
+  const handleSelectFile = (index) => {
+    selectFile(index);
+    closeMenu();
+  };
+
   return (
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
-        <p>{filename}</p>
+        <Button type="button" onClick={openMenu} unstyled>
+          <DocMenu />
+        </Button>
+
+        <p>{selectedFile.filename}</p>
         {/* TODO */}
         <Button unstyled>
-          Open in a new window
+          <span>Open in a new window</span>
           <ExternalLink />
         </Button>
       </div>
-      <Content fileType={fileType} filePath={filePath} />
+      <Content fileType={selectedFile.fileType} filePath={selectedFile.filePath} />
+      <Menu
+        isOpen={menuIsOpen}
+        files={files}
+        handleClose={closeMenu}
+        selectedFileIndex={selectedFileIndex}
+        handleSelectFile={handleSelectFile}
+      />
     </div>
   );
 };
 
 DocumentViewer.propTypes = {
-  filename: PropTypes.node.isRequired,
-  filePath: PropTypes.string.isRequired,
-  fileType: PropTypes.string.isRequired,
+  files: FilesShape,
+};
+
+DocumentViewer.defaultProps = {
+  files: [],
 };
 
 export default DocumentViewer;
