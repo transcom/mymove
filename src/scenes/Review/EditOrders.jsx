@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, concat, includes, reject } from 'lodash';
+import { get, isEmpty, concat, includes, reject } from 'lodash';
 
 import { push } from 'react-router-redux';
 import { getFormValues, reduxForm, Field } from 'redux-form';
@@ -145,7 +145,7 @@ class EditOrders extends Component {
     ) {
       this.props.entitlementChanged();
     }
-    if (this.props.currentOrders && this.state.deleteQueue) {
+    if (this.props.currentOrders && !isEmpty(this.state.deleteQueue)) {
       this.props.deleteUploads(this.state.deleteQueue);
     }
     return Promise.all([this.props.updateOrders(fieldValues.id, fieldValues)]).then(() => {

@@ -134,12 +134,19 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         if (options.deleteId) {
           // eslint-disable-next-line security/detect-object-injection
           var oldEntity = state.entities[schemaKey][options.deleteId];
-          action.entities = normalizePayload([oldEntity], payloadSchema).entities;
+          action.entities = normalize([oldEntity], payloadSchema).entities;
         } else if (options.deleteIds) {
-          var oldEntities = state.entities[toString(schemaKey)];
-          action.entities = normalizePayload(oldEntities, payloadSchema).entities;
+          var oldEntities = state.entities[String(schemaKey)];
+          var toRemove = [];
+          for (var i = 0; i < options.deleteIds.length; i++) {
+            var entity = oldEntities[options.deleteIds[parseInt(i)]];
+            if (entity) {
+              toRemove.push(entity);
+            }
+          }
+          action.entities = normalize(toRemove, payloadSchema).entities;
         } else {
-          action.entities = normalizePayload(response.body, payloadSchema).entities;
+          action.entities = normalize(response.body, payloadSchema).entities;
         }
         dispatch(action);
         return action;
@@ -162,10 +169,6 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         return Promise.reject(action);
       });
   };
-}
-
-function normalizePayload(body, schema) {
-  return normalize(body, schema);
 }
 
 export function resetRequests() {

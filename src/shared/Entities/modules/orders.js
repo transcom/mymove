@@ -84,10 +84,10 @@ export function selectUploadsForOrders(state, ordersId) {
   }
 }
 
-export function selectOrdersFromServiceMemberId(state, serviceMemberId) {
+export function selectOrdersForServiceMemberId(state, serviceMemberId) {
   const orders = Object.values(state.entities.orders);
   filter(orders, (order) => order.service_member_id === serviceMemberId);
-  return orders[0] || {};
+  return orders || [];
 }
 
 export function selectActiveOrders(state) {
@@ -96,7 +96,8 @@ export function selectActiveOrders(state) {
   if (isNull(serviceMember)) {
     return {};
   }
-  let activeOrders = fetchActive(selectOrdersFromServiceMemberId(state, serviceMember.id));
+  // let activeOrders = fetchActive(selectOrdersFromServiceMemberId(state, serviceMember.id));
+  let activeOrders = fetchActive(selectOrdersForServiceMemberId(state, serviceMember.id));
   if (isEmpty(activeOrders)) {
     activeOrders = fetchActive(get(state, 'user.userInfo.service_member.orders', {}));
   }
