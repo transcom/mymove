@@ -200,19 +200,26 @@ storiesOf('Components|Headers', module).add('all', () => (
 
 // Tags
 
-storiesOf('Components|Tags', module).add('all', () => (
-  <div id="tags" style={{ padding: '20px' }}>
-    <hr />
-    <h3>Tags</h3>
-    <Tag>New</Tag>
-    <Tag className="usa-tag--green">Authorized</Tag>
-    <Tag className="usa-tag--red">Rejected</Tag>
-    <Tag className="usa-tag--yellow">Pending</Tag>
-    <Tag className="usa-tag--alert">
-      <AlertIcon />
-    </Tag>
-    <Tag className="usa-tag--teal">INTL</Tag>
-    <Tag>3</Tag>
-    <Tag className="usa-tag--cyan usa-tag--large">#ABC123K</Tag>
-  </div>
-));
+storiesOf('Components|Tags', module)
+  .addParameters({
+    abstract: {
+      // Copy a collection or layer share url from Abstract
+      url: 'https://share.goabstract.com/9d0ba84d-933d-429c-9aa4-95dd7c6fe888?mode=design',
+    },
+  })
+  .add('all', () => (
+    <div id="tags" style={{ padding: '20px' }}>
+      <hr />
+      <h3>Tags</h3>
+      <Tag>New</Tag>
+      <Tag className="usa-tag--green">Authorized</Tag>
+      <Tag className="usa-tag--red">Rejected</Tag>
+      <Tag className="usa-tag--yellow">Pending</Tag>
+      <Tag className="usa-tag--alert">
+        <AlertIcon />
+      </Tag>
+      <Tag className="usa-tag--teal">INTL</Tag>
+      <Tag>3</Tag>
+      <Tag className="usa-tag--cyan usa-tag--large">#ABC123K</Tag>
+    </div>
+  ));

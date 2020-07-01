@@ -45,6 +45,8 @@ func (p serviceItemPricer) getPricer(serviceCode models.ReServiceCode) (services
 		return NewCounselingServicesPricer(p.db), nil
 	case models.ReServiceCodeDLH:
 		return NewDomesticLinehaulPricer(p.db), nil
+	case models.ReServiceCodeDSH:
+		return NewDomesticShorthaulPricer(p.db), nil
 	default:
 		// TODO: We may want a different error type here after all pricers have been implemented
 		return nil, services.NewNotImplementedError(fmt.Sprintf("pricer not found for code %s", serviceCode))

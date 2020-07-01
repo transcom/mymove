@@ -63,6 +63,7 @@
     "regenerator-runtime": "^0.13.5",
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
+    "storybook-addons-abstract": "^5.0.6",
     "swagger-client": "^3.10.9",
     "swagger-ui-dist": "^3.28.0",
     "uswds": "2.7.1",
@@ -88,7 +89,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.10.3",
+    "@babel/core": "~7.10.4",
     "@dump247/storybook-state": "^1.6.1",
     "@rescripts/cli": "^0.0.14",
     "@rescripts/rescript-env": "^0.0.12",
