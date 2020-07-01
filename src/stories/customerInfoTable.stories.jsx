@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { withKnobs, object } from '@storybook/addon-knobs';
 
 import CustomerInfoTable from '../components/Office/CustomerInfoTable';
@@ -26,6 +25,9 @@ const info = {
   backupContactEmail: 'quinnocampo@myemail.com',
 };
 
-storiesOf('TOO/TIO Components|CustomerInfoTable', module)
-  .addDecorator(withKnobs)
-  .add('Customer Info Table', () => <CustomerInfoTable customerInfo={object('customerInfo', info)} />);
+export default {
+  title: 'TOO&#47;TIO Components|CustomerInfoTable',
+  decorator: withKnobs,
+};
+
+export const Default = () => <CustomerInfoTable customerInfo={object('customerInfo', info)} />;
