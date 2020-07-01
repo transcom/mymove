@@ -5,15 +5,14 @@ import { milmoveAppName } from '../../support/constants';
 describe('orders entry', function () {
   it('will accept orders information', function () {
     cy.signInAsUserPostRequest(milmoveAppName, 'feac0e92-66ec-4cab-ad29-538129bf918e');
-    // cy.contains('New move (from Yuma AFB)');
-    // cy.contains('No details');
-    // cy.contains('No documents');
-    // cy.contains('Continue Move Setup').click();
+    cy.contains('New move (from Yuma AFB)');
+    cy.contains('No details');
+    cy.contains('No documents');
+    cy.contains('Continue Move Setup').click();
 
-    // cy.location().should((loc) => {
-    //   expect(loc.pathname).to.eq('/orders/');
-    // });
-    cy.patientVisit('/orders/');
+    cy.location().should((loc) => {
+      expect(loc.pathname).to.eq('/orders/');
+    });
 
     cy.get('select[name="orders_type"]').select('Separation');
     cy.get('select[name="orders_type"]').select('Retirement');
@@ -47,8 +46,5 @@ describe('orders entry', function () {
     cy.location().should((loc) => {
       expect(loc.pathname).to.eq('/orders/upload');
     });
-
-    // TODOANDREA: Test the uploader can create and delete, from uploader and uploadtable
-    cy.contains('Upload your orders');
   });
 });

@@ -29,7 +29,5 @@ describe('office user finds the move', () => {
     cy.nextPage();
 
     cy.get('h1').contains('Tell us about your move orders');
-
-    // TODOANDREA: Test that the user can continue to input orders and create new move
   });
 });
