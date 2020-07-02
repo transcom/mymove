@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+
 )
 
 // ServiceAreaOriginLookup does lookup on pickup address postal code
@@ -29,7 +30,7 @@ func (r ServiceAreaOriginLookup) lookup(keyData *ServiceItemParamKeyData) (strin
 		default:
 			return "", err
 		}
-	}
+	} 
 
 	// Make sure there's an MTOShipment since that's nullable
 	mtoShipmentID := mtoServiceItem.MTOShipmentID
@@ -51,7 +52,9 @@ func (r ServiceAreaOriginLookup) lookup(keyData *ServiceItemParamKeyData) (strin
 	var domesticServiceArea models.ReDomesticServiceArea
 
 	query := db.Q().Join("re_zip3s", "re_zip3s.domestic_service_area_id = re_domestic_service_areas.id").
-		Where("zip3 = ?", zip3)
+		Join("re_contracts", "re_contracts.id = re_domestic_service_areas.contract_id").
+		Where("re_zip3s.zip3 = ?", zip3).
+		Where("re_contracts.code = ?", "TRUSS_TEST")
 
 	err = query.First(&domesticServiceArea)
 
