@@ -54,6 +54,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0047](0047-build-only-pull-requests-in-circleci.md) - Use CircleCI to build only Pull Requests and master
 - [ADR-0048](0048-frontend-file-org.md) - Use a consistent file structure for front-end code
 - [ADR-0049](0049-etag-for-child-updates.md) - Do not update child records using parent's E-tag
+- [ADR-0050](0050-doc-viewer-fork.md) - Fork & maintain react-file-viewer under @trussworks
 
 <!-- adrlogstop -->
 

@@ -5,7 +5,7 @@ import { NavLink, Switch } from 'react-router-dom';
 import { Tag } from '@trussworks/react-uswds';
 
 import 'styles/office.scss';
-import PrivateRoute from 'shared/User/PrivateRoute';
+import PrivateRoute from 'containers/PrivateRoute';
 import { roleTypes } from 'constants/userRoles';
 import TabNav from 'components/TabNav';
 import { MatchShape } from 'types/router';
@@ -57,7 +57,6 @@ const TXOMoveInfo = ({
               exact
               component={MoveDetails}
               requiredRoles={[roleTypes.TOO]}
-              hideSwitcher
             />
           )}
           {too && (
@@ -66,7 +65,6 @@ const TXOMoveInfo = ({
               exact
               component={TOOMoveTaskOrder}
               requiredRoles={[roleTypes.TOO]}
-              hideSwitcher
             />
           )}
           <PrivateRoute path="/moves/:id/neworders" component={MoveOrders} /> {/* TODO fix this URL */}
@@ -76,7 +74,6 @@ const TXOMoveInfo = ({
               exact
               component={PaymentRequestShow}
               requiredRoles={[roleTypes.TIO]}
-              hideSwitcher
             />
           )}
           {tio && (
@@ -85,7 +82,6 @@ const TXOMoveInfo = ({
               exact
               component={MoveHistory}
               requiredRoles={[roleTypes.TIO]}
-              hideSwitcher
             />
           )}
         </Switch>
