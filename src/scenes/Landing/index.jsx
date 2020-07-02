@@ -3,7 +3,9 @@ import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 import { withLastLocation } from 'react-router-last-location';
+import { withContext } from 'shared/AppContext';
 
 import { MoveSummary } from './MoveSummary';
 import PpmAlert from './PpmAlert';
@@ -102,6 +104,7 @@ export class Landing extends Component {
       requestPaymentSuccess,
       updateMove,
     } = this.props;
+    console.log('props ', this.props);
     return (
       <div className="grid-container usa-prose">
         {loggedInUserIsLoading && <LoadingPlaceholder />}
@@ -148,6 +151,14 @@ export class Landing extends Component {
   }
 }
 
+Landing.propTypes = {
+  context: PropTypes.shape({
+    flags: PropTypes.shape({
+      isHhgFlow: PropTypes.bool,
+    }).isRequired,
+  }).isRequired,
+};
+
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const props = {
@@ -179,4 +190,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push, createServiceMember, updateMove, loadPPMs }, dispatch);
 }
 
-export default withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing));
+export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing)));
