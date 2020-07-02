@@ -16,7 +16,7 @@ import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
 */
 
 const DocViewerContent = ({ fileType, filePath }) => (
-  <div className={styles.DocViewerContent}>
+  <div data-testid="DocViewerContent" className={styles.DocViewerContent}>
     <FileViewer
       key={`fileViewer_${filePath}`}
       fileType={fileType}

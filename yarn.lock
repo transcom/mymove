@@ -2629,7 +2629,7 @@
 
 "@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer#sr-custom-controls":
   version "1.2.1"
-  resolved "https://github.com/trussworks/react-file-viewer#7660a39fad3c0f803aa445abfa6d6905234a3231"
+  resolved "https://github.com/trussworks/react-file-viewer#11b48090a0bae241facab36a91b7398c385f3960"
   dependencies:
     comma-separated-values "^3.6.4"
     mammoth "1.4.9"

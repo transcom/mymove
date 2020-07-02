@@ -9,11 +9,11 @@ import { FilesShape } from './types';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 
 const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSelectFile }) => (
-  <div className={classnames(styles.docViewerMenu, { [styles.collapsed]: !isOpen })}>
+  <div data-testid="DocViewerMenu" className={classnames(styles.docViewerMenu, { [styles.collapsed]: !isOpen })}>
     <div className={styles.menuHeader}>
       <h3>Documents</h3>
       <div className={styles.menuControls}>
-        <Button type="button" onClick={handleClose} unstyled className={styles.menuClose}>
+        <Button data-testid="closeMenu" type="button" onClick={handleClose} unstyled className={styles.menuClose}>
           <XLightIcon />
         </Button>
       </div>

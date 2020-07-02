@@ -25,8 +25,13 @@ const DocumentViewer = ({ files }) => {
 
   const selectedFile = files[parseInt(selectedFileIndex, 10)];
 
-  const openMenu = () => setMenuOpen(true);
-  const closeMenu = () => setMenuOpen(false);
+  const openMenu = () => {
+    setMenuOpen(true);
+  };
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
+
   const handleSelectFile = (index) => {
     selectFile(index);
     closeMenu();
@@ -38,7 +43,7 @@ const DocumentViewer = ({ files }) => {
   return (
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
-        <Button type="button" onClick={openMenu} unstyled>
+        <Button data-testid="openMenu" type="button" onClick={openMenu} unstyled>
           <DocMenu />
         </Button>
 
