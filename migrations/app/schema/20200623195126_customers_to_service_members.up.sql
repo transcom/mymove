@@ -3,8 +3,9 @@
 --  need more thought if we want to try to make these changes without any downtime in
 --  any environment.
 
--- Lock the customers table so we don't have any customer changes while doing this
-LOCK TABLE customers IN SHARE MODE;
+-- Lock the customers and service_members tables so we don't have changes while
+-- doing this migration
+LOCK TABLE customers, service_members IN SHARE MODE;
 
 -- Temporary field to hold the customer_id for a row that will be excluded on
 -- conflict. See the insertion below for more details.
@@ -52,10 +53,6 @@ WHERE
 -- plan to eventually rename the service_members table to customers.
 ALTER TABLE move_orders
     ADD CONSTRAINT move_orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES service_members (id);
-
--- Now that all customers have been copied over to service_members, we can drop
--- the customers table.
-DROP TABLE customers;
 
 -- Drop the field that we temporarily created for this migration.
 ALTER TABLE service_members DROP COLUMN old_customer_id;
