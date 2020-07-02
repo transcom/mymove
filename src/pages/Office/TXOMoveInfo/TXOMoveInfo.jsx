@@ -4,6 +4,7 @@ import { withRouter } from 'react-router';
 import { NavLink, Switch } from 'react-router-dom';
 import { Tag } from '@trussworks/react-uswds';
 
+import 'styles/office.scss';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { roleTypes } from 'constants/userRoles';
 import TabNav from 'components/TabNav';
