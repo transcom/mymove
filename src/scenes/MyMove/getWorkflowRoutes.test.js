@@ -1,11 +1,11 @@
 import 'raf/polyfill';
 import { getPagesInFlow, getNextIncompletePage } from './getWorkflowRoutes';
-import { NULL_UUID, MOVE_TYPES } from 'shared/constants';
+import { NULL_UUID, SHIPMENT_TYPE } from 'shared/constants';
 describe('when getting the routes for the current workflow', () => {
   describe('given a complete service member', () => {
     describe('given a PPM', () => {
       const props = {
-        selectedMoveType: MOVE_TYPES.PPM,
+        selectedMoveType: SHIPMENT_TYPE.PPM,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
@@ -29,7 +29,7 @@ describe('when getting the routes for the current workflow', () => {
       });
     });
     describe('given a canceled PPM', () => {
-      const props = { lastMoveIsCanceled: true, selectedMoveType: MOVE_TYPES.PPM };
+      const props = { lastMoveIsCanceled: true, selectedMoveType: SHIPMENT_TYPE.PPM };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns profile review, the order and move pages', () => {
         expect(pages).toEqual([
@@ -71,7 +71,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given a PPM', () => {
       const props = {
-        selectedMoveType: MOVE_TYPES.PPM,
+        selectedMoveType: SHIPMENT_TYPE.PPM,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and PPM-specific move pages', () => {
@@ -142,7 +142,7 @@ describe('when getting the next incomplete page', () => {
     describe('when contact-info is complete', () => {
       it('returns the next page of the user profile', () => {
         const result = getNextIncompletePage({
-          selectedMoveType: MOVE_TYPES.PPM,
+          selectedMoveType: SHIPMENT_TYPE.PPM,
           serviceMember: {
             ...serviceMember,
             is_profile_complete: false,
@@ -355,7 +355,7 @@ describe('when getting the next incomplete page', () => {
     describe('when ppm date is complete', () => {
       it('returns the next page', () => {
         const result = getNextIncompletePage({
-          selectedMoveType: MOVE_TYPES.PPM,
+          selectedMoveType: SHIPMENT_TYPE.PPM,
           serviceMember: {
             ...serviceMember,
             is_profile_complete: true,
@@ -371,7 +371,7 @@ describe('when getting the next incomplete page', () => {
           },
           move: {
             id: 'bar',
-            selected_move_type: MOVE_TYPES.PPM,
+            selected_move_type: SHIPMENT_TYPE.PPM,
           },
           ppm: {
             id: 'baz',
@@ -386,7 +386,7 @@ describe('when getting the next incomplete page', () => {
     describe('when ppm incentive is complete', () => {
       it('returns the next page', () => {
         const result = getNextIncompletePage({
-          selectedMoveType: MOVE_TYPES.PPM,
+          selectedMoveType: SHIPMENT_TYPE.PPM,
           serviceMember: {
             ...serviceMember,
             is_profile_complete: true,
@@ -402,7 +402,7 @@ describe('when getting the next incomplete page', () => {
           },
           move: {
             id: 'bar',
-            selected_move_type: MOVE_TYPES.PPM,
+            selected_move_type: SHIPMENT_TYPE.PPM,
           },
           ppm: {
             id: 'baz',

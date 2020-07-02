@@ -5,13 +5,13 @@ import { get } from 'lodash';
 import { updateMove } from '../Moves/ducks';
 import ordersComplete from 'shared/images/orders-complete-gray-icon.png';
 import moveIcon from 'shared/images/move-icon.png';
-import { MOVE_TYPES } from 'shared/constants';
+import { SHIPMENT_TYPE } from 'shared/constants';
 
 export class TransitionToMove extends Component {
   componentDidMount() {
     if (!this.props.selectedMoveType) {
       // Make sure the move is always set to PPM since we no longer allow HHGs
-      this.props.updateMove(this.props.moveId, MOVE_TYPES.PPM);
+      this.props.updateMove(this.props.moveId, SHIPMENT_TYPE.PPM);
     }
   }
 

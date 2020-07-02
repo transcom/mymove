@@ -19,11 +19,6 @@ export const titleCase = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-export const MOVE_TYPES = {
-  PPM: 'PPM',
-  HHG: 'HHG',
-};
-
 export const MOVE_DOC_TYPE = {
   WEIGHT_TICKET_SET: 'WEIGHT_TICKET_SET',
   EXPENSE: 'EXPENSE',
@@ -52,6 +47,7 @@ export const UPLOAD_SCAN_STATUS = {
 
 export const SHIPMENT_TYPE = {
   HHG: 'HHG',
+  PPM: 'PPM',
   HHG_SHORTHAUL_DOMESTIC: 'HHG_SHORTHAUL_DOMESTIC',
   HHG_LONGHAUL_DOMESTIC: 'HHG_LONGHAUL_DOMESTIC',
   NTS: 'NTS',

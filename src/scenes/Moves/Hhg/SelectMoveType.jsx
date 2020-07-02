@@ -4,14 +4,14 @@ import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 import RadioButton from 'shared/RadioButton';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
-import { MOVE_TYPES } from 'shared/constants';
+import { SHIPMENT_TYPE } from 'shared/constants';
 
 export class SelectMoveType extends Component {
   state = { ...this.initialState };
 
   get initialState() {
     return {
-      moveType: MOVE_TYPES.PPM,
+      moveType: SHIPMENT_TYPE.PPM,
     };
   }
 
@@ -32,9 +32,9 @@ export class SelectMoveType extends Component {
                 inputClassName="inline_radio"
                 labelClassName="inline_radio"
                 label="Arrange it all yourself"
-                value={MOVE_TYPES.PPM}
+                value={SHIPMENT_TYPE.PPM}
                 name="moveType"
-                checked={this.state.moveType === MOVE_TYPES.PPM}
+                checked={this.state.moveType === SHIPMENT_TYPE.PPM}
                 onChange={this.handleRadioChange}
               />
             </div>
@@ -45,9 +45,9 @@ export class SelectMoveType extends Component {
                 inputClassName="inline_radio"
                 labelClassName="inline_radio"
                 label="Have professionals pack and move it all"
-                value={MOVE_TYPES.HHG}
+                value={SHIPMENT_TYPE.HHG}
                 name="moveType"
-                checked={this.state.moveType === MOVE_TYPES.HHG}
+                checked={this.state.moveType === SHIPMENT_TYPE.HHG}
                 onChange={this.handleRadioChange}
               />
             </div>
