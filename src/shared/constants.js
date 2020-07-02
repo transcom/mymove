@@ -19,6 +19,11 @@ export const titleCase = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+export const MOVE_TYPES = {
+  PPM: 'PPM',
+  HHG: 'HHG',
+};
+
 export const MOVE_DOC_TYPE = {
   WEIGHT_TICKET_SET: 'WEIGHT_TICKET_SET',
   EXPENSE: 'EXPENSE',

@@ -5,7 +5,7 @@ import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
-import { NULL_UUID } from 'shared/constants';
+import { NULL_UUID, MOVE_TYPES } from 'shared/constants';
 import DodInfo from 'scenes/ServiceMembers/DodInfo';
 import SMName from 'scenes/ServiceMembers/Name';
 import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
@@ -64,7 +64,7 @@ const always = () => true;
 // Todo: update this when moves can be completed
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
-const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'PPM';
+const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === MOVE_TYPES.PPM;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
@@ -159,14 +159,10 @@ const pages = {
   '/moves/:moveId/select-type': {
     isInFlow: myFirstRodeo,
     isComplete: always,
-    render: (key, pages) => ({ match }) => (
-      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-        <SelectMoveType />
-      </WizardPage>
-    ),
+    render: (key, pages) => ({ match }) => <SelectMoveType />,
   },
   '/moves/:moveId/ppm-start': {
-    isInFlow: (state) => state.selectedMoveType === 'PPM',
+    isInFlow: (state) => state.selectedMoveType === MOVE_TYPES.PPM,
     isComplete: ({ sm, orders, move, ppm }) => {
       return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },

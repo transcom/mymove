@@ -2,34 +2,55 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
-import ordersComplete from 'shared/images/orders-complete-gray-icon.png';
-import moveIcon from 'shared/images/move-icon.png';
+import RadioButton from 'shared/RadioButton';
+import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
+import { MOVE_TYPES } from 'shared/constants';
 
 export class SelectMoveType extends Component {
-  componentDidMount() {
-    // if (!this.props.selectedMoveType) {
-    //   // Make sure the move is always set to PPM since we no longer allow HHGs
-    //   this.props.updateMove(this.props.moveId, 'PPM');
-    // }
+  state = { ...this.initialState };
+
+  get initialState() {
+    return {
+      moveType: MOVE_TYPES.PPM,
+    };
   }
+
+  handleRadioChange = (event) => {
+    this.setState({
+      [event.target.name]: event.target.value,
+    });
+  };
 
   render() {
     return (
-      <div className="usa-grid">
-        <div className="grid-row grid-gap">
-          <div className="grid-col-3 desktop:grid-col-2 text-right">
-            <img className="sm margin-top-3 desktop:margin-top-1" src={ordersComplete} alt="profile-check" />
+      <div className="grid-container usa-prose">
+        <div className="usa-grid">
+          <div className="grid-row grid-gap">
+            <h1 className="sm-heading">How do you want to move your belongings?</h1>
+            <div className="grid-col-9 desktop:grid-col-12">
+              <RadioButton
+                inputClassName="inline_radio"
+                labelClassName="inline_radio"
+                label="Arrange it all yourself"
+                value={MOVE_TYPES.PPM}
+                name="moveType"
+                checked={this.state.moveType === MOVE_TYPES.PPM}
+                onChange={this.handleRadioChange}
+              />
+            </div>
           </div>
-          <div className="grid-col-9 desktop:grid-col-10">
-            <h1 className="sm-heading">SELECT MOVE TYPE</h1>
-          </div>
-        </div>
-        <div className="grid-row grid-gap">
-          <div className="grid-col-3 desktop:grid-col-2 text-right">
-            <img className="sm margin-top-5 desktop:margin-top-1" src={moveIcon} alt="onto-move-orders" />
-          </div>
-          <div className="grid-col-9 desktop:grid-col-10">
-            <h1 className="sm-heading">IT'S A PPM DON'T CARE WHAT YOU ACTUALLY WANT</h1>
+          <div className="grid-row grid-gap">
+            <div className="grid-col-9 desktop:grid-col-12">
+              <RadioButton
+                inputClassName="inline_radio"
+                labelClassName="inline_radio"
+                label="Have professionals pack and move it all"
+                value={MOVE_TYPES.HHG}
+                name="moveType"
+                checked={this.state.moveType === MOVE_TYPES.HHG}
+                onChange={this.handleRadioChange}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -38,7 +59,7 @@ export class SelectMoveType extends Component {
 }
 
 function mapStateToProps(state) {
-  const move = get(state, 'moves.currentMove');
+  const move = selectActiveOrLatestMove(state);
   const props = {
     moveId: get(move, 'id'),
     selectedMoveType: get(move, 'selected_move_type'),

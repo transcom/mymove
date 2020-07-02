@@ -7,6 +7,7 @@ import { get } from 'lodash';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
 import { setUserIsLoggedIn } from 'shared/Data/users';
+import { MOVE_TYPES } from 'shared/constants';
 import { defaultColumns } from './queueTableColumns';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -160,7 +161,7 @@ class QueueTable extends Component {
     };
 
     this.state.data.forEach((row) => {
-      row.shipments = 'PPM';
+      row.shipments = MOVE_TYPES.PPM;
 
       if (row.ppm_status !== null) {
         row.synthetic_status = row.ppm_status;

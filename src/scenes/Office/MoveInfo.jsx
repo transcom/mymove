@@ -41,7 +41,7 @@ import { approvePPM, loadPPMs, selectActivePPMForMove, selectReimbursement } fro
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import { openLinkInNewWindow } from 'shared/utils';
-import { defaultRelativeWindowSize } from 'shared/constants';
+import { defaultRelativeWindowSize, MOVE_TYPES } from 'shared/constants';
 
 import { roleTypes } from 'constants/userRoles';
 
@@ -211,7 +211,7 @@ class MoveInfo extends Component {
 
   render() {
     const { move, moveId, moveDocuments, moveStatus, orders, ppm, serviceMember, upload } = this.props;
-    const isPPM = move.selected_move_type === 'PPM';
+    const isPPM = move.selected_move_type === MOVE_TYPES.PPM;
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const ordersComplete = Boolean(
