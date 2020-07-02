@@ -79,7 +79,6 @@ export class AppWrapper extends Component {
   render() {
     const props = this.props;
     const Tag = detectIE11() ? 'div' : 'main';
-    console.log('props', props);
 
     return (
       <ConnectedRouter history={history}>

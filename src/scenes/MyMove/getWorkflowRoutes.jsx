@@ -65,7 +65,7 @@ const always = () => true;
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_TYPE.PPM;
-// const inHhgFlow = (props) => props.context.flags.hhgFlow;
+const inHhgFlow = (props) => props.context.flags.hhgFlow;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
@@ -158,7 +158,7 @@ const pages = {
     },
   },
   '/moves/:moveId/select-type': {
-    isInFlow: myFirstRodeo,
+    isInFlow: inHhgFlow,
     isComplete: always,
     render: (key, pages) => ({ match }) => <SelectMoveType />,
   },
