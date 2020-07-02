@@ -7,6 +7,7 @@
   @include u-margin-top(10);
   @include u-border('base-light');
   @include u-border('05');
+  overflow-x: hidden;
 
   button[type='submit'] {
     @include u-margin-left(0);
