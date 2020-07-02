@@ -16,7 +16,7 @@ import (
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/route"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -48,7 +48,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(queryBuilder)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
-	updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, route.NewTestingPlanner(500))
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(500, nil)
+	updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, planner)
 	handler := UpdateMTOShipmentStatusHandlerFunc{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		fetcher,

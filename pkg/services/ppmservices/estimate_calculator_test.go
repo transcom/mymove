@@ -6,13 +6,14 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/swag"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -38,7 +39,11 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 		},
 	})
 
-	planner := route.NewTestingPlanner(3200)
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistance",
+		"94540",
+		"95632",
+	).Return(3200, nil)
 	calculator := NewEstimateCalculator(suite.DB(), planner)
 	sitCharge, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
 	suite.NoError(err)
@@ -67,7 +72,11 @@ func (suite *PPMServiceSuite) TestCalculateEstimateNoSITSuccess() {
 		},
 	})
 
-	planner := route.NewTestingPlanner(3200)
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistance",
+		"94540",
+		"95632",
+	).Return(3200, nil)
 	calculator := NewEstimateCalculator(suite.DB(), planner)
 	sitCharge, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
 	suite.NoError(err)
@@ -97,7 +106,11 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 			WeightEstimate:   &weightEstimate,
 		},
 	})
-	planner := route.NewTestingPlanner(3200)
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(3200, nil)
 	calculator := NewEstimateCalculator(suite.DB(), planner)
 	nonExistentMoveID, err := uuid.FromString("2ef27bd2-97ae-4808-96cb-0cadd7f48972")
 	if err != nil {
@@ -131,7 +144,11 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadPickupZipFails() {
 			WeightEstimate:   &weightEstimate,
 		},
 	})
-	planner := route.NewTestingPlanner(3200)
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(3200, nil)
 	calculator := NewEstimateCalculator(suite.DB(), planner)
 	_, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
 
@@ -160,7 +177,11 @@ func (suite *PPMServiceSuite) TestCalculateEstimateOriginDutyStationZipFails() {
 		},
 	})
 
-	planner := route.NewTestingPlanner(3200)
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(3200, nil)
 	calculator := NewEstimateCalculator(suite.DB(), planner)
 	_, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
 	suite.Error(err)
@@ -188,7 +209,11 @@ func (suite *PPMServiceSuite) TestCalculateEstimateNewDutyStationZipFails() {
 		},
 	})
 
-	planner := route.NewTestingPlanner(3200)
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(3200, nil)
 	calculator := NewEstimateCalculator(suite.DB(), planner)
 	_, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
 	suite.Error(err)
@@ -217,7 +242,11 @@ func (suite *PPMServiceSuite) TestCalculateEstimateInvalidWeightFails() {
 		},
 	})
 
-	planner := route.NewTestingPlanner(3200)
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistance",
+		"94540",
+		"95632",
+	).Return(3200, nil)
 	calculator := NewEstimateCalculator(suite.DB(), planner)
 	_, _, err := calculator.CalculateEstimates(&ppm, moveID, suite.logger)
 	suite.Error(err)

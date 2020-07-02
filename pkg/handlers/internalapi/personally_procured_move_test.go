@@ -19,7 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
@@ -369,7 +369,12 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	}
 
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.SetPlanner(route.NewTestingPlanner(900))
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(900, nil)
+	handler.SetPlanner(planner)
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
@@ -475,7 +480,12 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 
 	mileage := 900
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.SetPlanner(route.NewTestingPlanner(mileage))
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(mileage, nil)
+	handler.SetPlanner(planner)
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
@@ -511,7 +521,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	estimateCalculator.On("CalculateEstimates",
 		mock.AnythingOfType("*models.PersonallyProcuredMove"), move.ID, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
 	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
-	updatePPMEstimateHandler.SetPlanner(route.NewTestingPlanner(mileage))
+	updatePPMEstimateHandler.SetPlanner(planner)
 	updatePPMEstimateResponse := updatePPMEstimateHandler.Handle(updatePPMEstimateParams)
 
 	// assert we got back the 201 response
@@ -570,8 +580,14 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		},
 	})
 
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(900, nil)
+
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.SetPlanner(route.NewTestingPlanner(900))
+	handler.SetPlanner(planner)
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response

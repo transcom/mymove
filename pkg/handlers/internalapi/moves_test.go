@@ -9,9 +9,10 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/swag"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/route/mocks"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -286,9 +287,14 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		MoveID:      moveID,
 		MoveDate:    moveDate,
 	}
+	planner := &mocks.Planner{}
+	planner.On("TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(1125, nil)
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetPlanner(route.NewTestingPlanner(1125))
+	context.SetPlanner(planner)
 
 	showHandler := ShowMoveDatesSummaryHandler{context}
 	response := showHandler.Handle(params)
@@ -353,9 +359,14 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 		MoveDate:    moveDate,
 	}
+	planner := &mocks.Planner{}
+	planner.On("TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(1125, nil)
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetPlanner(route.NewTestingPlanner(1125))
+	context.SetPlanner(planner)
 
 	showHandler := ShowMoveDatesSummaryHandler{context}
 	response := showHandler.Handle(params)
@@ -460,7 +471,11 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	planner := route.NewTestingPlanner(1044)
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(1044, nil)
 	context.SetPlanner(planner)
 
 	handler := ShowShipmentSummaryWorksheetHandler{context}

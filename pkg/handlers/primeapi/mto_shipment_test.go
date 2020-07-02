@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/route"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -247,8 +247,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		Body:          ClearNonUpdateFields(&mtoShipment),
 		IfMatch:       eTag,
 	}
+	planner := &routemocks.Planner{}
+	planner.On("TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
 	// used for all tests except the 500 server error:
-	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, route.NewTestingPlanner(400))
+	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
 	handler := UpdateMTOShipmentHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		updater,
@@ -382,7 +387,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	}
 
 	suite.T().Run("Successful PUT - Integration Test with Only Required Fields in Payload", func(t *testing.T) {
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, route.NewTestingPlanner(400))
+		planner := &routemocks.Planner{}
+		planner.On("TransitDistance",
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,

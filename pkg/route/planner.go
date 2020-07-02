@@ -81,6 +81,7 @@ func zip3TransitDistanceHelper(planner Planner, source string, destination strin
 }
 
 // Planner is the interface needed by Handlers to be able to evaluate the distance to be used for move accounting
+//go:generate mockery -name Planner
 type Planner interface {
 	TransitDistance(source *models.Address, destination *models.Address) (int, error)
 	LatLongTransitDistance(source LatLong, destination LatLong) (int, error)
