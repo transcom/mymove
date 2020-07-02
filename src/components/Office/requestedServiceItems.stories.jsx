@@ -1,6 +1,6 @@
 import React from 'react';
 
-import RequestedServiceItemsTable from '../components/Office/RequestedServiceItemsTable';
+import RequestedServiceItemsTable from './RequestedServiceItemsTable';
 
 export default {
   title: 'TOO/TIO Components|RequestedServiceItemsTable',

@@ -22,12 +22,12 @@ func getParamInt(params models.PaymentServiceItemParams, name models.ServiceItem
 
 	paramType := paymentServiceItemParam.ServiceItemParamKey.Type
 	if paramType != models.ServiceItemParamTypeInteger {
-		return 0, fmt.Errorf("trying to convert %s to a int, but param is of type %s", name, paramType)
+		return 0, fmt.Errorf("trying to convert %s to an int, but param is of type %s", name, paramType)
 	}
 
 	value, err := strconv.Atoi(paymentServiceItemParam.Value)
 	if err != nil {
-		return 0, fmt.Errorf("could not convert value %s to a int: %w", paymentServiceItemParam.Value, err)
+		return 0, fmt.Errorf("could not convert value %s to an int: %w", paymentServiceItemParam.Value, err)
 	}
 
 	return value, nil

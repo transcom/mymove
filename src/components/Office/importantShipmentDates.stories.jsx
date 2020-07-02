@@ -1,6 +1,6 @@
 import React from 'react';
 
-import ImportantShipmentDates from '../components/Office/ImportantShipmentDates';
+import ImportantShipmentDates from './ImportantShipmentDates';
 
 export default {
   title: 'TOO/TIO Components|ImportantShipmentDate',

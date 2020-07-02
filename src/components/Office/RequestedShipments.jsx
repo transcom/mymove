@@ -2,21 +2,27 @@ import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames/bind';
-import { Button, Checkbox, Fieldset, Modal, Overlay, ModalContainer } from '@trussworks/react-uswds';
-import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 
+import { MTOAgentShape, MTOShipmentShape } from '../../types/moveOrder';
+
+import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 import styles from './requestedShipments.module.scss';
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay';
 
 const cx = classNames.bind(styles);
 
-const RequestedShipments = ({ mtoShipments }) => {
+const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAgents }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [filteredShipments, setFilteredShipments] = useState([]);
 
   const handleApprovalClick = () => {
     setIsModalVisible(true);
+  };
+
+  const filterShipments = (formikShipmentIds) => {
+    return mtoShipments.filter(({ id }) => formikShipmentIds.includes(id));
   };
 
   const formik = useFormik({
@@ -26,6 +32,7 @@ const RequestedShipments = ({ mtoShipments }) => {
       shipments: [],
     },
     onSubmit: () => {
+      setFilteredShipments(filterShipments(formik.values.shipments));
       handleApprovalClick();
     },
   });
@@ -36,21 +43,15 @@ const RequestedShipments = ({ mtoShipments }) => {
   return (
     <div className={`${cx('requested-shipments')} container`} data-cy="requested-shipments">
       <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>
-        <Overlay />
-        <ModalContainer>
-          <Modal>
-            <div className={`${cx('approval-close')}`}>
-              <FontAwesomeIcon
-                aria-hidden
-                icon={faTimes}
-                title="Close shipment approval modal"
-                onClick={() => setIsModalVisible(false)}
-                className={`${cx('approval-close')} icon`}
-              />
-            </div>
-            <h1>Preview and post move task order</h1>
-          </Modal>
-        </ModalContainer>
+        <ShipmentApprovalPreview
+          mtoShipments={filteredShipments}
+          allowancesInfo={allowancesInfo}
+          customerInfo={customerInfo}
+          setIsModalVisible={setIsModalVisible}
+          mtoAgents={mtoAgents}
+          counselingFee={formik.values.counselingFee}
+          shipmentManagementFee={formik.values.shipmentManagementFee}
+        />
       </div>
       <h4>Requested shipments</h4>
       <form onSubmit={formik.handleSubmit}>
@@ -100,8 +101,43 @@ const RequestedShipments = ({ mtoShipments }) => {
 };
 
 RequestedShipments.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  mtoShipments: PropTypes.array.isRequired,
+  mtoShipments: PropTypes.arrayOf(MTOShipmentShape).isRequired,
+  mtoAgents: PropTypes.arrayOf(MTOAgentShape),
+  allowancesInfo: PropTypes.shape({
+    branch: PropTypes.string,
+    rank: PropTypes.string,
+    weightAllowance: PropTypes.number,
+    authorizedWeight: PropTypes.number,
+    progear: PropTypes.number,
+    spouseProgear: PropTypes.number,
+    storageInTransit: PropTypes.number,
+    dependents: PropTypes.bool,
+  }).isRequired,
+  customerInfo: PropTypes.shape({
+    name: PropTypes.string,
+    dodId: PropTypes.string,
+    phone: PropTypes.string,
+    email: PropTypes.string,
+    currentAddress: PropTypes.shape({
+      street_address_1: PropTypes.string,
+      city: PropTypes.string,
+      state: PropTypes.string,
+      postal_code: PropTypes.string,
+    }),
+    destinationAddress: PropTypes.shape({
+      street_address_1: PropTypes.string,
+      city: PropTypes.string,
+      state: PropTypes.string,
+      postal_code: PropTypes.string,
+    }),
+    backupContactName: PropTypes.string,
+    backupContactPhone: PropTypes.string,
+    backupContactEmail: PropTypes.string,
+  }).isRequired,
+};
+
+RequestedShipments.defaultProps = {
+  mtoAgents: [],
 };
 
 export default RequestedShipments;
