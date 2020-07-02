@@ -1,8 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { MockProviders } from 'testUtils';
 import PrivateRoute, { userIsAuthorized } from './PrivateRoute';
+
+import { MockProviders } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
 
 describe('userIsAuthorized function', () => {
@@ -29,7 +30,9 @@ describe('userIsAuthorized function', () => {
   });
 });
 
-describe('PrivateRouteContainer', () => {
+describe('ConnectedPrivateRoute', () => {
+  const MyPrivateComponent = () => <div>My page</div>;
+
   describe('if the user is still loading', () => {
     it('renders the loading placeholder', () => {
       const wrapper = mount(
@@ -62,7 +65,7 @@ describe('PrivateRouteContainer', () => {
           }}
           initialEntries={['/']}
         >
-          <PrivateRoute render={() => <div>My page</div>} requiredRoles={[roleTypes.TOO]} />
+          <PrivateRoute path="/" component={MyPrivateComponent} />
         </MockProviders>,
       );
 
@@ -72,8 +75,11 @@ describe('PrivateRouteContainer', () => {
       it('does not render the requested component', () => {
         expect(wrapper.contains(<div>My page</div>)).toEqual(false);
       });
-      it('displays the Sign In link', () => {
-        expect(wrapper.containsMatchingElement(<a href="/auth/login-gov">Sign in</a>)).toEqual(true);
+
+      it('redirects to the sign in URL', () => {
+        const redirect = wrapper.find('Redirect');
+        expect(redirect).toHaveLength(1);
+        expect(redirect.prop('to')).toEqual('/sign-in');
       });
     });
 
@@ -96,7 +102,7 @@ describe('PrivateRouteContainer', () => {
             }}
             initialEntries={['/']}
           >
-            <PrivateRoute render={() => <div>My page</div>} requiredRoles={[roleTypes.TOO]} />
+            <PrivateRoute component={MyPrivateComponent} requiredRoles={[roleTypes.TOO]} />
           </MockProviders>,
         );
 
@@ -131,7 +137,7 @@ describe('PrivateRouteContainer', () => {
             }}
             initialEntries={['/']}
           >
-            <PrivateRoute render={() => <div>My page</div>} requiredRoles={[roleTypes.PPM]} />
+            <PrivateRoute component={MyPrivateComponent} requiredRoles={[roleTypes.PPM]} />
           </MockProviders>,
         );
         it('does not render the loading placeholder', () => {
@@ -139,89 +145,6 @@ describe('PrivateRouteContainer', () => {
         });
         it('renders the requested component', () => {
           expect(wrapper.contains(<div>My page</div>)).toEqual(true);
-        });
-      });
-
-      describe('and is authorized with multiple roles', () => {
-        describe('on a page that isn’t the Select Application page', () => {
-          const wrapper = mount(
-            <MockProviders
-              initialState={{
-                user: {
-                  isLoading: false,
-                  userInfo: {
-                    isLoggedIn: true,
-                    roles: [
-                      {
-                        roleType: roleTypes.TOO,
-                      },
-                      {
-                        roleType: roleTypes.TIO,
-                      },
-                    ],
-                  },
-                },
-              }}
-              initialEntries={['/']}
-            >
-              <PrivateRoute
-                render={() => <div>My page</div>}
-                requiredRoles={[roleTypes.TOO]}
-                path="/my-page"
-                location={{ pathname: '/my-page' }}
-              />
-            </MockProviders>,
-          );
-
-          it('does not render the loading placeholder', () => {
-            expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(0);
-          });
-          it('renders the requested component', () => {
-            expect(wrapper.contains(<div>My page</div>)).toEqual(true);
-          });
-          it('renders the Select Application link', () => {
-            expect(wrapper.containsMatchingElement(<a href="/select-application">Change user role</a>)).toEqual(true);
-          });
-        });
-
-        describe('on the Select Application page', () => {
-          const wrapper = mount(
-            <MockProviders
-              initialState={{
-                user: {
-                  isLoading: false,
-                  userInfo: {
-                    isLoggedIn: true,
-                    roles: [
-                      {
-                        roleType: roleTypes.TOO,
-                      },
-                      {
-                        roleType: roleTypes.TIO,
-                      },
-                    ],
-                  },
-                },
-              }}
-              initialEntries={['/select-application']}
-            >
-              <PrivateRoute
-                render={() => <div>My page</div>}
-                requiredRoles={[roleTypes.TOO]}
-                path="/select-application"
-                location={{ pathname: '/select-application' }}
-              />
-            </MockProviders>,
-          );
-          it('does not render the loading placeholder', () => {
-            expect(wrapper.find('[data-name="loading-placeholder"]')).toHaveLength(0);
-          });
-          it('renders the requested component', () => {
-            expect(wrapper.contains(<div>My page</div>)).toEqual(true);
-          });
-          it('does not render the Select Application link', () => {
-            expect(wrapper.containsMatchingElement(<a href="/select-application">Change user role</a>)).toEqual(false);
-          });
         });
       });
     });
