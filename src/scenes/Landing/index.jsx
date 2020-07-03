@@ -76,7 +76,16 @@ export class Landing extends Component {
   };
 
   getNextIncompletePage = () => {
-    const { selectedMoveType, lastMoveIsCanceled, serviceMember, orders, move, ppm, backupContacts } = this.props;
+    const {
+      selectedMoveType,
+      lastMoveIsCanceled,
+      serviceMember,
+      orders,
+      move,
+      ppm,
+      backupContacts,
+      context,
+    } = this.props;
     return getNextIncompletePageInternal({
       selectedMoveType,
       lastMoveIsCanceled,
@@ -85,6 +94,7 @@ export class Landing extends Component {
       move,
       ppm,
       backupContacts,
+      context,
     });
   };
   render() {
@@ -104,7 +114,6 @@ export class Landing extends Component {
       requestPaymentSuccess,
       updateMove,
     } = this.props;
-    console.log('props ', this.props);
     return (
       <div className="grid-container usa-prose">
         {loggedInUserIsLoading && <LoadingPlaceholder />}

@@ -204,11 +204,13 @@ export const getNextIncompletePage = ({
   move = {},
   ppm = {},
   backupContacts = [],
+  context,
 }) => {
+  // console.log('props in getnext page', props);
   const rawPath = findKey(
     pages,
     (p) =>
-      p.isInFlow({ selectedMoveType, lastMoveIsCanceled }) &&
+      p.isInFlow({ selectedMoveType, lastMoveIsCanceled, context }) &&
       !p.isComplete({ sm: serviceMember, orders, move, ppm, backupContacts }),
   );
   const compiledPath = generatePath(rawPath, {
