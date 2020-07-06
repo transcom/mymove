@@ -28,7 +28,7 @@ type Assertions struct {
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
 	Contractor                               models.Contractor
-	Customer                                 models.Customer
+	Customer                                 models.ServiceMember // TODO: Delete customer in another round of cleanups
 	DestinationAddress                       models.Address
 	DestinationDutyStation                   models.DutyStation
 	DistanceCalculation                      models.DistanceCalculation

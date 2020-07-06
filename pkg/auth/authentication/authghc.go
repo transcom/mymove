@@ -35,14 +35,7 @@ type UserCreator interface {
 type RoleAssociator interface {
 	AdminUserAssociator
 	OfficeUserAssociator
-	CustomerCreatorAndAssociator
 	TOORoleChecker
-}
-
-// CustomerCreatorAndAssociator interface
-//go:generate mockery -name CustomerCreatorAndAssociator
-type CustomerCreatorAndAssociator interface {
-	CreateAndAssociateCustomer(userID uuid.UUID) error
 }
 
 // OfficeUserAssociator interface
@@ -77,16 +70,14 @@ type UnknownUserAuthorizer struct {
 func NewUnknownUserAuthorizer(db *pop.Connection, logger Logger) *UnknownUserAuthorizer {
 	uc := userCreator{db}
 	oa := officeUserAssociator{db, logger}
-	ca := customerAssociator{db, logger}
 	aa := adminUserAssociator{db, logger}
 	ta := tooRoleChecker{db, logger}
 	ra := roleAssociator{
-		db:                           db,
-		logger:                       logger,
-		OfficeUserAssociator:         oa,
-		AdminUserAssociator:          aa,
-		CustomerCreatorAndAssociator: ca,
-		TOORoleChecker:               ta,
+		db:                   db,
+		logger:               logger,
+		OfficeUserAssociator: oa,
+		AdminUserAssociator:  aa,
+		TOORoleChecker:       ta,
 	}
 	return &UnknownUserAuthorizer{
 		logger:         logger,
@@ -131,12 +122,7 @@ func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, sess
 			}
 		}
 	}
-	if session.IsMilApp() {
-		err = uua.CreateAndAssociateCustomer(user.ID)
-		if err != nil {
-			return err
-		}
-	}
+
 	return nil
 }
 
@@ -145,7 +131,6 @@ type roleAssociator struct {
 	logger Logger
 	OfficeUserAssociator
 	AdminUserAssociator
-	CustomerCreatorAndAssociator
 	TOORoleChecker
 }
 
@@ -222,27 +207,6 @@ func (aua adminUserAssociator) FetchAdminUser(email string) (*models.AdminUser, 
 	var adminUser models.AdminUser
 	err := aua.db.Where("LOWER(email) = $1", strings.ToLower(email)).First(&adminUser)
 	return &adminUser, err
-}
-
-type customerAssociator struct {
-	db     *pop.Connection
-	logger Logger
-}
-
-// CreateAndAssociateCustomer creates and associates a user
-func (ca customerAssociator) CreateAndAssociateCustomer(userID uuid.UUID) error {
-	if userID == uuid.Nil {
-		ca.logger.Error("error creating customer, user id cannot be nil")
-		return errors.New("user id is nil")
-	}
-	customer := models.Customer{}
-	customer.UserID = userID
-	err := ca.db.Create(&customer)
-	if err != nil {
-		ca.logger.Error("error creating customer", zap.Error(err))
-		return err
-	}
-	return nil
 }
 
 type userCreator struct {

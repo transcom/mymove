@@ -18,6 +18,11 @@ import (
 // ServiceMemberAffiliation represents a service member's branch
 type ServiceMemberAffiliation string
 
+// String is a string representation of a ServiceMemberAffiliation
+func (s ServiceMemberAffiliation) String() string {
+	return string(s)
+}
+
 const (
 	// AffiliationARMY captures enum value "ARMY"
 	AffiliationARMY ServiceMemberAffiliation = "ARMY"
