@@ -6,6 +6,11 @@ import { action } from '@storybook/addon-actions';
 
 export default {
   title: 'Components|Form',
+  parameters: {
+    abstract: {
+      url: 'https://share.goabstract.com/3f6f957c-aa9a-4ea4-a064-430e6624fd62?mode=design',
+    },
+  },
 };
 
 export const elements = () => (
