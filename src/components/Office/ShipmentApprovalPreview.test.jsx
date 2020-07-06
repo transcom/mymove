@@ -128,12 +128,12 @@ const shipments = [
 const allowancesInfo = {
   branch: 'Navy',
   rank: 'E-6',
-  weightAllowance: '11,000 lbs',
-  authorizedWeight: '11,000 lbs',
+  weightAllowance: 11000,
+  authorizedWeight: 11000,
   progear: 2000,
   spouseProgear: 500,
-  storageInTransit: '90 days',
-  dependents: 'Authorized',
+  storageInTransit: 90,
+  dependents: true,
 };
 
 const customerInfo = {
@@ -182,7 +182,10 @@ describe('Shipment preview modal', () => {
         customerInfo={customerInfo}
         mtoShipments={shipments}
         setIsModalVisible={jest.fn()}
+        onSubmit={jest.fn()}
         allowancesInfo={allowancesInfo}
+        counselingFee
+        shipmentManagementFee
       />,
     );
     expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
@@ -198,13 +201,58 @@ describe('Shipment preview modal', () => {
         setIsModalVisible={() => {
           return true;
         }}
+        onSubmit={jest.fn()}
         allowancesInfo={allowancesInfo}
         mtoAgents={agents}
+        counselingFee
+        shipmentManagementFee
       />,
     );
     expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
     expect(wrapper.find(ShipmentContainer).exists()).toBe(true);
     expect(wrapper.find(AllowancesTable).exists()).toBe(true);
     expect(wrapper.find(CustomerInfoTable).exists()).toBe(true);
+  });
+
+  it('renders the buttons successfully', () => {
+    const wrapper = mount(
+      <ShipmentApprovalPreview
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        setIsModalVisible={jest.fn()}
+        onSubmit={jest.fn()}
+        allowancesInfo={allowancesInfo}
+        mtoAgents={agents}
+        counselingFee
+        shipmentManagementFee
+      />,
+    );
+    expect(wrapper.find("button[type='submit']").exists()).toBe(true);
+    expect(wrapper.find("button[type='reset']").exists()).toBe(true);
+  });
+
+  it('attaches onClick listeners', () => {
+    const cancelClicked = jest.fn();
+    const submitClicked = jest.fn();
+    const wrapper = mount(
+      <ShipmentApprovalPreview
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        setIsModalVisible={cancelClicked}
+        onSubmit={submitClicked}
+        allowancesInfo={allowancesInfo}
+        mtoAgents={agents}
+        counselingFee
+        shipmentManagementFee
+      />,
+    );
+    wrapper.find('button[type="submit"]').simulate('click');
+    expect(submitClicked).toHaveBeenCalled();
+
+    wrapper.find('button[type="reset"]').simulate('click');
+    expect(cancelClicked).toHaveBeenCalledTimes(1);
+
+    wrapper.find('[data-testid="closeShipmentApproval"]').simulate('click');
+    expect(cancelClicked).toHaveBeenCalledTimes(2);
   });
 });
