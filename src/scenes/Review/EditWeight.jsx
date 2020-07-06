@@ -17,7 +17,7 @@ import {
   updatePPMEstimate,
   getPpmWeightEstimate,
 } from 'shared/Entities/modules/ppms';
-import { fetchLatestOrders, selectActiveOrders } from 'shared/Entities/modules/orders';
+import { fetchLatestOrders, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
@@ -342,7 +342,7 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
-    orders: selectActiveOrders(state),
+    orders: selectActiveOrLatestOrders(state),
   };
 }
 

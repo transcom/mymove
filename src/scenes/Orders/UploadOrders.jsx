@@ -6,7 +6,7 @@ import { get } from 'lodash';
 
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 // import { deleteUpload as tableDelete, addUploads } from './ducks';
-import { fetchLatestOrders, selectActiveOrders, selectUploadsForOrders } from 'shared/Entities/modules/orders';
+import { fetchLatestOrders, selectActiveOrLatestOrders, selectUploadsForOrders } from 'shared/Entities/modules/orders';
 
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import OrdersUploader from 'shared/Uploader/OrdersUploader';
@@ -121,7 +121,7 @@ UploadOrders.propTypes = {
 
 function mapStateToProps(state) {
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
-  const currentOrders = selectActiveOrders(state);
+  const currentOrders = selectActiveOrLatestOrders(state);
 
   const props = {
     serviceMemberId: serviceMemberId,

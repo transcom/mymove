@@ -7,7 +7,12 @@ import { getFormValues } from 'redux-form';
 
 import { Field } from 'redux-form';
 
-import { createOrders, updateOrders, fetchLatestOrders, selectActiveOrders } from 'shared/Entities/modules/orders';
+import {
+  createOrders,
+  updateOrders,
+  fetchLatestOrders,
+  selectActiveOrLatestOrders,
+} from 'shared/Entities/modules/orders';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { withContext } from 'shared/AppContext';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -24,7 +29,9 @@ const OrdersWizardForm = reduxifyWizardForm(formName, validateOrdersForm);
 export class Orders extends Component {
   componentDidMount() {
     const { serviceMemberId } = this.props;
-    this.props.fetchLatestOrders(serviceMemberId);
+    if (!isEmpty(this.props.currentOrders)) {
+      this.props.fetchLatestOrders(serviceMemberId);
+    }
   }
 
   handleSubmit = () => {
@@ -38,9 +45,9 @@ export class Orders extends Component {
       pendingValues['spouse_has_pro_gear'] =
         (pendingValues.has_dependents && pendingValues.spouse_has_pro_gear) || false;
       if (isEmpty(this.props.currentOrders)) {
-        return this.props.create(pendingValues);
+        return this.props.createOrders(pendingValues);
       } else {
-        return this.props.update(this.props.currentOrders.id, pendingValues);
+        return this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       }
     }
   };
@@ -105,7 +112,7 @@ function mapStateToProps(state) {
 
   return {
     serviceMemberId: serviceMemberId,
-    currentOrders: selectActiveOrders(state),
+    currentOrders: selectActiveOrLatestOrders(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
     formValues,
     currentStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
@@ -117,8 +124,8 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       fetchLatestOrders,
-      update: updateOrders,
-      create: createOrders,
+      updateOrders,
+      createOrders,
     },
     dispatch,
   );

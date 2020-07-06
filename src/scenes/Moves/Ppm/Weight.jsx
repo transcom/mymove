@@ -15,7 +15,7 @@ import {
   getPpmWeightEstimate,
   selectPPMEstimateRange,
 } from 'shared/Entities/modules/ppms';
-import { fetchLatestOrders, selectActiveOrders } from 'shared/Entities/modules/orders';
+import { fetchLatestOrders, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
@@ -426,7 +426,7 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
     originDutyStationZip,
-    orders: selectActiveOrders(state),
+    orders: selectActiveOrLatestOrders(state),
     // TODO this is a work around till we refactor more SM data...
     tempCurrentPPM: get(state, 'ppm.currentPpm'),
   };

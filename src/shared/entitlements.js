@@ -1,5 +1,5 @@
 import { get, isNull, sum, isEmpty } from 'lodash';
-import { selectActiveOrders } from 'shared/Entities/modules/orders';
+import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 
 export function selectEntitlements(rankEntitlement, hasDependents = false, spouseHasProGear = false) {
   if (!rankEntitlement) {
@@ -19,7 +19,7 @@ export function selectEntitlements(rankEntitlement, hasDependents = false, spous
 
 export function loadEntitlementsFromState(state) {
   // Temp fix until redux refactor finished - get orders from either entities or orders.currentOrders
-  let orders = selectActiveOrders(state);
+  let orders = selectActiveOrLatestOrders(state);
   if (isEmpty(orders)) {
     return {};
   }

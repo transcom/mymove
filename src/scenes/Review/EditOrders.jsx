@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, isEmpty, concat, includes, reject } from 'lodash';
+import { get, includes, reject } from 'lodash';
 
 import { push } from 'react-router-redux';
 import { getFormValues, reduxForm, Field } from 'redux-form';
@@ -18,10 +18,10 @@ import SaveCancelButtons from './SaveCancelButtons';
 import {
   updateOrders,
   fetchLatestOrders,
-  selectActiveOrders,
+  selectActiveOrLatestOrders,
   selectUploadsForOrders,
 } from 'shared/Entities/modules/orders';
-import { createUpload, deleteUpload, selectDocument, deleteUploads } from 'shared/Entities/modules/documents';
+import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
@@ -129,7 +129,7 @@ class EditOrders extends Component {
 
   handleDelete = (e, uploadId) => {
     e.preventDefault();
-    this.setState({ deleteQueue: concat(this.state.deleteQueue, uploadId) });
+    this.props.deleteUpload(uploadId);
   };
 
   handleNewUpload = (uploads) => {
@@ -144,9 +144,6 @@ class EditOrders extends Component {
       fieldValues.spouse_has_pro_gear !== this.props.spouse_has_pro_gear
     ) {
       this.props.entitlementChanged();
-    }
-    if (this.props.currentOrders && !isEmpty(this.state.deleteQueue)) {
-      this.props.deleteUploads(this.state.deleteQueue);
     }
     return Promise.all([this.props.updateOrders(fieldValues.id, fieldValues)]).then(() => {
       // This promise resolves regardless of error.
@@ -212,7 +209,7 @@ class EditOrders extends Component {
 
 function mapStateToProps(state) {
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
-  const currentOrders = selectActiveOrders(state);
+  const currentOrders = selectActiveOrLatestOrders(state);
   const uploads = selectUploadsForOrders(state, currentOrders.id);
 
   const props = {
@@ -237,7 +234,6 @@ function mapDispatchToProps(dispatch) {
       updateOrders,
       createUpload,
       deleteUpload,
-      deleteUploads,
       fetchLatestOrders,
       editBegin,
       entitlementChangeBegin,

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import { fetchLatestOrders, selectActiveOrders, selectUploadsForOrders } from 'shared/Entities/modules/orders';
+import { fetchLatestOrders, selectActiveOrLatestOrders, selectUploadsForOrders } from 'shared/Entities/modules/orders';
 
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -123,7 +123,7 @@ Summary.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const moveID = state.moves.currentMove.id;
-  const currentOrders = selectActiveOrders(state);
+  const currentOrders = selectActiveOrLatestOrders(state);
 
   return {
     currentPPM: selectActivePPMForMove(state, moveID),

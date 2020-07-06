@@ -46,7 +46,7 @@ function mapStateToProps(state) {
   const move = selectActiveOrLatestMove(state);
 
   const props = {
-    serviceMemberId: serviceMemberId,
+    serviceMemberId,
     moveId: get(move, 'id'),
     selectedMoveType: get(move, 'selected_move_type'),
   };

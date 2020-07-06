@@ -38,6 +38,8 @@ export function loadOrders(ordersId, label = loadOrdersLabel) {
 
 export function updateOrders(ordersId, orders, label = updateOrdersLabel) {
   const swaggerTag = 'orders.updateOrders';
+  orders.report_by_date = formatDateForSwagger(orders.report_by_date);
+  orders.issue_date = formatDateForSwagger(orders.issue_date);
   return swaggerRequest(getClient, swaggerTag, { ordersId, updateOrders: orders }, { label });
 }
 
@@ -88,19 +90,6 @@ export function selectOrdersForServiceMemberId(state, serviceMemberId) {
   const orders = Object.values(state.entities.orders);
   filter(orders, (order) => order.service_member_id === serviceMemberId);
   return orders || [];
-}
-
-export function selectActiveOrders(state) {
-  // temp until full redux refactor: gets active orders from entities if exist. If not, gets from orders.currentOrders.
-  const serviceMember = get(state, 'user.userInfo.service_member', {});
-  if (isNull(serviceMember)) {
-    return {};
-  }
-  let activeOrders = fetchActive(selectOrdersForServiceMemberId(state, serviceMember.id));
-  if (isEmpty(activeOrders)) {
-    activeOrders = fetchActive(get(state, 'user.userInfo.service_member.orders', {}));
-  }
-  return activeOrders || {};
 }
 
 export function selectActiveOrLatestOrders(state) {
