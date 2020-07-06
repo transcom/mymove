@@ -23,31 +23,29 @@ func MakeLastName() *string {
 }
 
 // MakeAgency chooses a random agency
-func MakeAgency() *string {
-	agencies := [5]string{
-		"ARMY",
-		"NAVY",
-		"MARINES",
-		"AIR_FORCE",
-		"COAST_GUARD",
+func MakeAgency() *models.ServiceMemberAffiliation {
+	agencies := [5]models.ServiceMemberAffiliation{
+		models.AffiliationARMY,
+		models.AffiliationNAVY,
+		models.AffiliationMARINES,
+		models.AffiliationAIRFORCE,
+		models.AffiliationCOASTGUARD,
 	}
 
 	return &agencies[rand.Intn(len(agencies))]
 }
 
 // MakeCustomer creates a single Customer
-func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
+func MakeCustomer(db *pop.Connection, assertions Assertions) models.ServiceMember {
 	user := assertions.User
 	aCustomer := assertions.Customer
 	firstName := aCustomer.FirstName
 	lastName := aCustomer.LastName
-	agency := aCustomer.Agency
-	currentAddressID := aCustomer.CurrentAddressID
-	currentAddress := aCustomer.CurrentAddress
-	destinationAddressID := aCustomer.DestinationAddressID
-	destinationAddress := aCustomer.DestinationAddress
-	email := aCustomer.Email
-	phoneNumber := aCustomer.PhoneNumber
+	agency := aCustomer.Affiliation
+	currentAddressID := aCustomer.ResidentialAddressID
+	currentAddress := aCustomer.ResidentialAddress
+	email := aCustomer.PersonalEmail
+	phoneNumber := aCustomer.Telephone
 
 	if firstName == nil {
 		firstName = MakeFirstName()
@@ -73,22 +71,18 @@ func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
 		user = MakeUser(db, assertions)
 	}
 	if currentAddressID == nil || isZeroUUID(*currentAddressID) {
-		currentAddress = MakeAddress(db, Assertions{})
+		newAddress := MakeAddress(db, Assertions{})
+		currentAddress = &newAddress
 	}
-	if destinationAddressID == nil || isZeroUUID(*destinationAddressID) {
-		destinationAddress = MakeAddress2(db, Assertions{})
-	}
-	customer := models.Customer{
-		Agency:               agency,
-		CurrentAddress:       currentAddress,
-		CurrentAddressID:     &currentAddress.ID,
-		DODID:                swag.String(randomEdipi()),
-		DestinationAddress:   destinationAddress,
-		DestinationAddressID: &destinationAddress.ID,
-		Email:                email,
+	customer := models.ServiceMember{
+		Affiliation:          agency,
+		ResidentialAddress:   currentAddress,
+		ResidentialAddressID: &currentAddress.ID,
+		Edipi:                swag.String(randomEdipi()),
+		PersonalEmail:        email,
 		FirstName:            firstName,
 		LastName:             lastName,
-		PhoneNumber:          phoneNumber,
+		Telephone:            phoneNumber,
 		User:                 user,
 		UserID:               user.ID,
 	}
@@ -101,6 +95,6 @@ func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
 }
 
 // MakeDefaultCustomer makes a Customer with default values
-func MakeDefaultCustomer(db *pop.Connection) models.Customer {
+func MakeDefaultCustomer(db *pop.Connection) models.ServiceMember {
 	return MakeCustomer(db, Assertions{})
 }

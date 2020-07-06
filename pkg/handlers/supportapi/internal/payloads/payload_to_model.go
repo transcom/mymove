@@ -12,18 +12,18 @@ import (
 )
 
 // CustomerModel converts payload to model - currently does not tackle addresses
-func CustomerModel(customer *supportmessages.Customer) *models.Customer {
+func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 	if customer == nil {
 		return nil
 	}
-	return &models.Customer{
-		ID:          uuid.FromStringOrNil(customer.ID.String()),
-		Agency:      &customer.Agency,
-		DODID:       &customer.DodID,
-		FirstName:   &customer.FirstName,
-		LastName:    &customer.LastName,
-		Email:       customer.Email,
-		PhoneNumber: customer.Phone,
+	return &models.ServiceMember{
+		ID:            uuid.FromStringOrNil(customer.ID.String()),
+		Affiliation:   (*models.ServiceMemberAffiliation)(&customer.Agency),
+		Edipi:         &customer.DodID,
+		FirstName:     &customer.FirstName,
+		LastName:      &customer.LastName,
+		PersonalEmail: customer.Email,
+		Telephone:     customer.Phone,
 	}
 }
 

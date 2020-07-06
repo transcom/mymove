@@ -24,11 +24,13 @@ const AllowancesTable = ({ info }) => {
   return (
     <div>
       <table className="table--stacked">
-        <div className="stackedtable-header">
-          <div>
-            <h4>Allowances</h4>
+        <caption>
+          <div className="stackedtable-header">
+            <div>
+              <h4>Allowances</h4>
+            </div>
           </div>
-        </div>
+        </caption>
         <colgroup>
           <col style={{ width: '25%' }} />
           <col style={{ width: '75%' }} />

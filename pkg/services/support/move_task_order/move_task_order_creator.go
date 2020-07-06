@@ -80,7 +80,7 @@ func NewInternalMoveTaskOrderCreator(db *pop.Connection) support.InternalMoveTas
 }
 
 // createMoveOrder creates a basic move order - this is a support function do not use in production
-func createMoveOrder(tx *pop.Connection, customer *models.Customer, moveOrderPayload *supportmessages.MoveOrder, logger handlers.Logger) (*models.MoveOrder, error) {
+func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, moveOrderPayload *supportmessages.MoveOrder, logger handlers.Logger) (*models.MoveOrder, error) {
 	if moveOrderPayload == nil {
 		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "MoveOrder definition is required to create MoveTaskOrder")
 		return nil, returnErr
@@ -132,7 +132,7 @@ func createUser(tx *pop.Connection, userEmail *string, logger handlers.Logger) (
 }
 
 // createOrGetCustomer creates a customer or gets one if id was provided
-func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, customerIDString string, customerBody *supportmessages.Customer, logger handlers.Logger) (*models.Customer, error) {
+func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, customerIDString string, customerBody *supportmessages.Customer, logger handlers.Logger) (*models.ServiceMember, error) {
 	// If customer ID string is provided, we should find this customer
 	if customerIDString != "" {
 		customerID, err := uuid.FromString(customerIDString)
@@ -179,18 +179,18 @@ func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, custome
 }
 
 // CustomerModel converts payload to model - currently does not tackle addresses
-func CustomerModel(customer *supportmessages.Customer) *models.Customer {
+func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 	if customer == nil {
 		return nil
 	}
-	return &models.Customer{
-		ID:          uuid.FromStringOrNil(customer.ID.String()),
-		Agency:      &customer.Agency,
-		DODID:       &customer.DodID,
-		FirstName:   &customer.FirstName,
-		LastName:    &customer.LastName,
-		Email:       customer.Email,
-		PhoneNumber: customer.Phone,
+	return &models.ServiceMember{
+		ID:            uuid.FromStringOrNil(customer.ID.String()),
+		Affiliation:   (*models.ServiceMemberAffiliation)(&customer.Agency),
+		Edipi:         &customer.DodID,
+		FirstName:     &customer.FirstName,
+		LastName:      &customer.LastName,
+		PersonalEmail: customer.Email,
+		Telephone:     customer.Phone,
 	}
 }
 

@@ -4,6 +4,8 @@ import propTypes from 'prop-types';
 
 import styles from './ShipmentServiceItemsTable.module.scss';
 
+import { SHIPMENT_TYPE } from 'shared/constants';
+
 const serviceItems = {
   domestic_linehaul: 'Domestic linehaul',
   fuel_surcharge: 'Fuel surcharge',
@@ -31,11 +33,12 @@ const shipmentTypes = {
   ],
 };
 
-const ShipmentServiceItemsTable = ({ shipmentType }) => {
-  const shipmentServiceItems = shipmentTypes[`${shipmentType}`];
+const ShipmentServiceItemsTable = ({ shipmentType, className }) => {
+  const shipmentServiceType = shipmentType === SHIPMENT_TYPE.NTS ? 'nts' : 'hhg';
+  const shipmentServiceItems = shipmentTypes[`${shipmentServiceType}`];
 
   return (
-    <div className="container container--gray">
+    <div className={classNames('container', 'container--gray', className)}>
       <table className={classNames('table--stacked', styles.serviceItemsTable)}>
         <caption>
           <div className="stackedtable-header">
@@ -62,7 +65,12 @@ const ShipmentServiceItemsTable = ({ shipmentType }) => {
 };
 
 ShipmentServiceItemsTable.propTypes = {
-  shipmentType: propTypes.string.isRequired,
+  shipmentType: propTypes.oneOf(Object.values(SHIPMENT_TYPE)).isRequired,
+  className: propTypes.string,
+};
+
+ShipmentServiceItemsTable.defaultProps = {
+  className: '',
 };
 
 export default ShipmentServiceItemsTable;

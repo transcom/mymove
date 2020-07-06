@@ -59,28 +59,27 @@ func MoveTaskOrders(moveTaskOrders *models.MoveTaskOrders) []*primemessages.Move
 }
 
 // Customer payload
-func Customer(customer *models.Customer) *primemessages.Customer {
+func Customer(customer *models.ServiceMember) *primemessages.Customer {
 	if customer == nil {
 		return nil
 	}
 	payload := primemessages.Customer{
-		FirstName:          swag.StringValue(customer.FirstName),
-		LastName:           swag.StringValue(customer.LastName),
-		DodID:              swag.StringValue(customer.DODID),
-		ID:                 strfmt.UUID(customer.ID.String()),
-		UserID:             strfmt.UUID(customer.UserID.String()),
-		CurrentAddress:     Address(&customer.CurrentAddress),
-		DestinationAddress: Address(&customer.DestinationAddress),
-		ETag:               etag.GenerateEtag(customer.UpdatedAt),
-		Branch:             swag.StringValue(customer.Agency),
+		FirstName:      swag.StringValue(customer.FirstName),
+		LastName:       swag.StringValue(customer.LastName),
+		DodID:          swag.StringValue(customer.Edipi),
+		ID:             strfmt.UUID(customer.ID.String()),
+		UserID:         strfmt.UUID(customer.UserID.String()),
+		CurrentAddress: Address(customer.ResidentialAddress),
+		ETag:           etag.GenerateEtag(customer.UpdatedAt),
+		Branch:         swag.StringValue((*string)(customer.Affiliation)),
 	}
 
-	if customer.PhoneNumber != nil {
-		payload.Phone = *customer.PhoneNumber
+	if customer.Telephone != nil {
+		payload.Phone = *customer.Telephone
 	}
 
-	if customer.Email != nil {
-		payload.Email = *customer.Email
+	if customer.PersonalEmail != nil {
+		payload.Email = *customer.PersonalEmail
 	}
 	return &payload
 }

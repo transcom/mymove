@@ -62,20 +62,6 @@ func (_m *RoleAssociator) AssociateOfficeUser(user *models.User) (uuid.UUID, err
 	return r0, r1
 }
 
-// CreateAndAssociateCustomer provides a mock function with given fields: userID
-func (_m *RoleAssociator) CreateAndAssociateCustomer(userID uuid.UUID) error {
-	ret := _m.Called(userID)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(uuid.UUID) error); ok {
-		r0 = rf(userID)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // FetchAdminUser provides a mock function with given fields: email
 func (_m *RoleAssociator) FetchAdminUser(email string) (*models.AdminUser, error) {
 	ret := _m.Called(email)

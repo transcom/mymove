@@ -19,26 +19,7 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 		return uuid.Nil, fmt.Errorf("Could not fetch move with id %s, %w", moveID, err)
 	}
 
-	// service member -> customer
 	sm := move.Orders.ServiceMember
-	var customer models.Customer
-	customer.CreatedAt = sm.CreatedAt
-	customer.UpdatedAt = sm.UpdatedAt
-	customer.DODID = sm.Edipi
-	customer.UserID = sm.UserID
-	customer.FirstName = sm.FirstName
-	customer.LastName = sm.LastName
-	customer.Email = sm.PersonalEmail
-	customer.PhoneNumber = sm.Telephone
-	if sm.Affiliation != nil {
-		affiliationValue := string(*sm.Affiliation)
-		customer.Agency = &affiliationValue
-	}
-	customer.CurrentAddressID = sm.ResidentialAddressID
-
-	if err := db.Save(&customer); err != nil {
-		return uuid.Nil, fmt.Errorf("Could not save customer, %w", err)
-	}
 
 	// create entitlement (required by move order)
 	weight, entitlementErr := models.GetEntitlement(*sm.Rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
@@ -59,8 +40,8 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	var mo models.MoveOrder
 	mo.CreatedAt = orders.CreatedAt
 	mo.UpdatedAt = orders.UpdatedAt
-	mo.Customer = &customer
-	mo.CustomerID = &customer.ID
+	mo.Customer = &sm
+	mo.CustomerID = &sm.ID
 	mo.DestinationDutyStation = &orders.NewDutyStation
 	mo.DestinationDutyStationID = &orders.NewDutyStationID
 
@@ -124,6 +105,35 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 
 	if err := db.Save(&hhg); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not save hhg shipment, %w", err)
+	}
+
+	// Domestic Shorthaul is less than 50 miles
+	// Hard coding the shipment to meet that requirment
+	var miramar models.DutyStation
+	var sanDiego models.DutyStation
+
+	if err := db.Where("name = ?", "USMC Miramar").First(&miramar); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not find miramar, %w", err)
+	}
+
+	if err := db.Where("name = ?", "USMC San Diego").First(&sanDiego); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not find san diego, %w", err)
+	}
+
+	hhgDomShortHaul := models.MTOShipment{
+		MoveTaskOrderID:      mto.ID,
+		RequestedPickupDate:  &requestedPickupDate,
+		ScheduledPickupDate:  &scheduledPickupDate,
+		PickupAddressID:      &sanDiego.AddressID,
+		DestinationAddressID: &miramar.AddressID,
+		ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+		Status:               models.MTOShipmentStatusSubmitted,
+		CreatedAt:            time.Now(),
+		UpdatedAt:            time.Now(),
+	}
+
+	if err := db.Save(&hhgDomShortHaul); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not save hhg domestic shorthaul shipment, %w", err)
 	}
 
 	return mo.ID, nil

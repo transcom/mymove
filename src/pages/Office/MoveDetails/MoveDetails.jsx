@@ -15,6 +15,8 @@ import {
   getMoveOrder as getMoveOrderAction,
   getCustomer as getCustomerAction,
   getAllMoveTaskOrders as getAllMoveTaskOrdersAction,
+  updateMoveTaskOrderStatus as updateMoveTaskOrderStatusAction,
+  selectMoveTaskOrders,
   selectMoveOrder,
   selectCustomer,
 } from 'shared/Entities/modules/moveTaskOrders';
@@ -25,7 +27,14 @@ import { getMTOShipments as getMTOShipmentsAction, selectMTOShipments } from 'sh
 import RequestedShipments from 'components/Office/RequestedShipments';
 import AllowancesTable from 'components/Office/AllowancesTable';
 import OrdersTable from 'components/Office/OrdersTable';
-import { MoveOrderShape, EntitlementShape, CustomerShape, MTOShipmentShape, MTOAgentShape } from 'types/moveOrder';
+import {
+  MoveOrderShape,
+  EntitlementShape,
+  CustomerShape,
+  MTOShipmentShape,
+  MTOAgentShape,
+  MoveTaskOrderShape,
+} from 'types/moveOrder';
 import { MatchShape } from 'types/router';
 
 const sectionLabels = {
@@ -96,7 +105,15 @@ export class MoveDetails extends Component {
   };
 
   render() {
-    const { moveOrder, allowances, customer, mtoShipments, mtoAgents } = this.props;
+    const {
+      moveOrder,
+      allowances,
+      customer,
+      mtoShipments,
+      mtoAgents,
+      moveTaskOrder,
+      updateMoveTaskOrderStatus,
+    } = this.props;
     const { activeSection } = this.state;
 
     const ordersInfo = {
@@ -157,6 +174,8 @@ export class MoveDetails extends Component {
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}
                 mtoAgents={mtoAgents}
+                approveMTO={updateMoveTaskOrderStatus}
+                moveTaskOrder={moveTaskOrder}
               />
             </div>
 
@@ -199,12 +218,14 @@ MoveDetails.propTypes = {
   getMoveOrder: PropTypes.func.isRequired,
   getCustomer: PropTypes.func.isRequired,
   getAllMoveTaskOrders: PropTypes.func.isRequired,
+  updateMoveTaskOrderStatus: PropTypes.func.isRequired,
   getMTOShipments: PropTypes.func.isRequired,
   moveOrder: MoveOrderShape,
   allowances: EntitlementShape,
   customer: CustomerShape,
   mtoShipments: PropTypes.arrayOf(MTOShipmentShape),
   mtoAgents: PropTypes.arrayOf(MTOAgentShape),
+  moveTaskOrder: MoveTaskOrderShape,
 };
 
 MoveDetails.defaultProps = {
@@ -213,6 +234,7 @@ MoveDetails.defaultProps = {
   customer: {},
   mtoShipments: [],
   mtoAgents: [],
+  moveTaskOrder: {},
 };
 
 const mapStateToProps = (state, ownProps) => {
@@ -220,6 +242,8 @@ const mapStateToProps = (state, ownProps) => {
   const moveOrder = selectMoveOrder(state, moveOrderId);
   const allowances = moveOrder?.entitlement;
   const customerId = moveOrder.customerID;
+  const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
+  const moveTaskOrder = moveTaskOrders[0];
 
   return {
     moveOrder,
@@ -227,6 +251,7 @@ const mapStateToProps = (state, ownProps) => {
     customer: selectCustomer(state, customerId),
     mtoShipments: selectMTOShipments(state, moveOrderId),
     mtoAgents: selectMTOAgents(state),
+    moveTaskOrder,
   };
 };
 
@@ -235,6 +260,7 @@ const mapDispatchToProps = {
   loadOrders,
   getCustomer: getCustomerAction,
   getAllMoveTaskOrders: getAllMoveTaskOrdersAction,
+  updateMoveTaskOrderStatus: updateMoveTaskOrderStatusAction,
   getMTOShipments: getMTOShipmentsAction,
   getMTOAgentList,
 };
