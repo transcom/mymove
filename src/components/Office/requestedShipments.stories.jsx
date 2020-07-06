@@ -174,6 +174,21 @@ const agents = [
   },
 ];
 
+const serviceItems = [
+  {
+    reServiceName: 'Move management',
+    approvedAt: '2020-01-01',
+    id: '76055c99-0990-410c-a7c9-69373b0b53eb',
+    status: 'APPROVED',
+  },
+  {
+    reServiceName: 'Counseling fee',
+    rejectedAt: '2020-01-05',
+    id: '76055c99-0990-410c-a7c9-69373b0b5322',
+    status: 'REJECTED',
+  },
+];
+
 storiesOf('TOO/TIO Components|RequestedShipments', module)
   .add('with one shipment', () => {
     return (
@@ -183,6 +198,7 @@ storiesOf('TOO/TIO Components|RequestedShipments', module)
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           mtoAgents={agents}
+          isSubmitted
         />
       </div>
     );
@@ -195,6 +211,34 @@ storiesOf('TOO/TIO Components|RequestedShipments', module)
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           mtoAgents={agents}
+          isSubmitted
+        />
+      </div>
+    );
+  })
+  .add('with one approved shipment', () => {
+    return (
+      <div style={{ position: 'relative', padding: '20px' }}>
+        <RequestedShipments
+          mtoShipments={[shipments[0]]}
+          allowancesInfo={allowancesInfo}
+          customerInfo={customerInfo}
+          mtoAgents={agents}
+          isSubmitted={false}
+          mtoServiceItems={serviceItems}
+        />
+      </div>
+    );
+  })
+  .add('with two approved shipments', () => {
+    return (
+      <div style={{ position: 'relative', padding: '20px' }}>
+        <RequestedShipments
+          mtoShipments={shipments}
+          allowancesInfo={allowancesInfo}
+          customerInfo={customerInfo}
+          mtoAgents={agents}
+          isSubmitted={false}
         />
       </div>
     );

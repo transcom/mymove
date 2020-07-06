@@ -3,6 +3,9 @@
 @import '../../shared/styles/colors';
 
 .requested-shipments {
+  .requestedShipmentsHeading {
+    @include u-margin-bottom(0)
+  }
   .__content {
     @include u-display('flex');
 
@@ -28,6 +31,18 @@
       @include u-margin-right(0);
     }
   }
+}
+
+.serviceItemApproval{
+  @include u-height(1rem);
+  @include u-width(1rem);
+  fill: #00AA2A;
+}
+
+.serviceItemRejection {
+  @include u-height(1rem);
+  @include u-width(1rem);
+  fill: #DA3613;
 }
 
 .usa-button--small {

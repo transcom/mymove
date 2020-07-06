@@ -64,3 +64,20 @@ export const MTOAgentShape = PropTypes.shape({
   email: PropTypes.string,
   phone: PropTypes.string,
 });
+
+export const MTOServiceItemShape = PropTypes.shape({
+  approvedAt: PropTypes.string,
+  createdAt: PropTypes.string,
+  deletedAt: PropTypes.string,
+  id: PropTypes.string,
+  moveTaskOrderID: PropTypes.string,
+  mtoShipmentID: PropTypes.string,
+  pickupPostalCode: PropTypes.string,
+  reServiceCode: PropTypes.string,
+  reServiceID: PropTypes.string,
+  reServiceName: PropTypes.string,
+  reason: PropTypes.string,
+  rejectedAt: PropTypes.string,
+  submittedAt: PropTypes.string,
+  status: PropTypes.string,
+});
