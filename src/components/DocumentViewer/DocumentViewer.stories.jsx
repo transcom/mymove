@@ -7,6 +7,7 @@ import pdf3 from './sample3.pdf';
 
 export default {
   title: 'Components|Document Viewer',
+  parameters: { loki: { skip: true } },
 };
 
 const testFiles = [
