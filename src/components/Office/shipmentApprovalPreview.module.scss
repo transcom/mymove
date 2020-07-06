@@ -12,6 +12,13 @@
   button[type='submit'] {
     @include u-margin-left(0);
   }
+
+  .previewContainer {
+    h2 {
+      @include u-margin-bottom(2);
+      @include u-margin-top(2);
+    }
+  }
 }
 
 .previewShipments {
@@ -69,11 +76,6 @@
   .tableH4 {
     @include u-margin-top(2);
     @include u-margin-bottom(2);
-  }
-
-  h2 {
-    @include u-margin-bottom(2);
-    @include u-margin-top(2);
   }
 
   h4 {
