@@ -45,6 +45,22 @@ func urlencodeAddress(address *models.Address) string {
 	return url.QueryEscape(strings.Join(s, ","))
 }
 
+func zip5TransitDistanceHelper(planner Planner, source string, destination string) (int, error) {
+	sLL, err := Zip5ToLatLong(source)
+	if err != nil {
+		return 0, err
+	}
+	dLL, err := Zip5ToLatLong(destination)
+	if err != nil {
+		return 0, err
+	}
+	distance, err := planner.LatLongTransitDistance(sLL, dLL)
+	if err != nil {
+		return 0, err
+	}
+	return distance, err
+}
+
 func zip5TransitDistanceLineHaulHelper(planner Planner, source string, destination string) (int, error) {
 	sLL, err := Zip5ToLatLong(source)
 	if err != nil {
@@ -86,6 +102,7 @@ type Planner interface {
 	TransitDistance(source *models.Address, destination *models.Address) (int, error)
 	LatLongTransitDistance(source LatLong, destination LatLong) (int, error)
 	Zip5TransitDistanceLineHaul(source string, destination string) (int, error)
+	Zip5TransitDistance(source string, destination string) (int, error)
 	Zip3TransitDistance(source string, destination string) (int, error)
 }
 

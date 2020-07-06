@@ -83,6 +83,11 @@ func (p *bingPlanner) Zip5TransitDistanceLineHaul(source string, destination str
 	return zip5TransitDistanceLineHaulHelper(p, source, destination)
 }
 
+// Zip5TransitDistance calculates the distance between two valid Zip5s
+func (p *bingPlanner) Zip5TransitDistance(source string, destination string) (int, error) {
+	return zip5TransitDistanceHelper(p, source, destination)
+}
+
 // Zip3TransitDistance calculates the distance between two valid Zip3s
 func (p *bingPlanner) Zip3TransitDistance(source string, destination string) (int, error) {
 	return zip3TransitDistanceHelper(p, source, destination)

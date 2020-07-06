@@ -77,6 +77,27 @@ func (_m *Planner) Zip3TransitDistance(source string, destination string) (int, 
 	return r0, r1
 }
 
+// Zip5TransitDistance provides a mock function with given fields: source, destination
+func (_m *Planner) Zip5TransitDistance(source string, destination string) (int, error) {
+	ret := _m.Called(source, destination)
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func(string, string) int); ok {
+		r0 = rf(source, destination)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(source, destination)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Zip5TransitDistanceLineHaul provides a mock function with given fields: source, destination
 func (_m *Planner) Zip5TransitDistanceLineHaul(source string, destination string) (int, error) {
 	ret := _m.Called(source, destination)

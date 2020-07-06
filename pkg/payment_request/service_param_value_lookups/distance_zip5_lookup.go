@@ -52,8 +52,7 @@ func (r DistanceZip5Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 	// Now calculate the distance between zip5s
 	pickupZip := mtoServiceItem.MTOShipment.PickupAddress.PostalCode
 	destinationZip := mtoServiceItem.MTOShipment.DestinationAddress.PostalCode
-	distanceMiles, err := planner.Zip5TransitDistanceLineHaul(pickupZip, destinationZip)
-	//distanceMiles, err := planner.Zip5TransitDistance(pickupZip, destinationZip)
+	distanceMiles, err := planner.Zip5TransitDistance(pickupZip, destinationZip)
 	if err != nil {
 		return "", err
 	}

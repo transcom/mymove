@@ -208,6 +208,17 @@ func (p *herePlanner) Zip5TransitDistanceLineHaul(source string, destination str
 	return distance, err
 }
 
+// Zip5TransitDistance calculates the distance between two valid Zip5s
+func (p *herePlanner) Zip5TransitDistance(source string, destination string) (int, error) {
+	distance, err := zip5TransitDistanceHelper(p, source, destination)
+	if err != nil {
+		var msg string
+		msg = "Failed to calculate HERE route between ZIPs"
+		p.logger.Error(msg, zap.String("source", source), zap.String("destination", destination), zap.Int("distance", distance))
+	}
+	return distance, err
+}
+
 // Zip3TransitDistance calculates the distance between two valid Zip3s
 func (p *herePlanner) Zip3TransitDistance(source string, destination string) (int, error) {
 	distance, err := zip3TransitDistanceHelper(p, source, destination)

@@ -34,6 +34,10 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 		mock.Anything,
 		mock.Anything,
 	).Return(defaultDistance, nil)
+	planner.On("Zip5TransitDistance",
+		"90210",
+		"94535",
+	).Return(defaultDistance, nil)
 
 	ts := &ServiceParamValueLookupsSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
