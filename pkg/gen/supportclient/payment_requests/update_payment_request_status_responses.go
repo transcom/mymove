@@ -151,24 +151,26 @@ func NewUpdatePaymentRequestStatusUnauthorized() *UpdatePaymentRequestStatusUnau
 
 /*UpdatePaymentRequestStatusUnauthorized handles this case with default header values.
 
-The request was unauthorized.
+The request was denied.
 */
 type UpdatePaymentRequestStatusUnauthorized struct {
-	Payload interface{}
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdatePaymentRequestStatusUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *UpdatePaymentRequestStatusUnauthorized) GetPayload() interface{} {
+func (o *UpdatePaymentRequestStatusUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdatePaymentRequestStatusUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -182,24 +184,26 @@ func NewUpdatePaymentRequestStatusForbidden() *UpdatePaymentRequestStatusForbidd
 
 /*UpdatePaymentRequestStatusForbidden handles this case with default header values.
 
-The client doesn't have permissions to perform the request.
+The request was denied.
 */
 type UpdatePaymentRequestStatusForbidden struct {
-	Payload interface{}
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdatePaymentRequestStatusForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusForbidden  %+v", 403, o.Payload)
 }
 
-func (o *UpdatePaymentRequestStatusForbidden) GetPayload() interface{} {
+func (o *UpdatePaymentRequestStatusForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdatePaymentRequestStatusForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

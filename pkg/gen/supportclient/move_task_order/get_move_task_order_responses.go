@@ -139,24 +139,26 @@ func NewGetMoveTaskOrderUnauthorized() *GetMoveTaskOrderUnauthorized {
 
 /*GetMoveTaskOrderUnauthorized handles this case with default header values.
 
-The request was unauthorized.
+The request was denied.
 */
 type GetMoveTaskOrderUnauthorized struct {
-	Payload interface{}
+	Payload *supportmessages.ClientError
 }
 
 func (o *GetMoveTaskOrderUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *GetMoveTaskOrderUnauthorized) GetPayload() interface{} {
+func (o *GetMoveTaskOrderUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -170,24 +172,26 @@ func NewGetMoveTaskOrderForbidden() *GetMoveTaskOrderForbidden {
 
 /*GetMoveTaskOrderForbidden handles this case with default header values.
 
-The client doesn't have permissions to perform the request.
+The request was denied.
 */
 type GetMoveTaskOrderForbidden struct {
-	Payload interface{}
+	Payload *supportmessages.ClientError
 }
 
 func (o *GetMoveTaskOrderForbidden) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderForbidden  %+v", 403, o.Payload)
 }
 
-func (o *GetMoveTaskOrderForbidden) GetPayload() interface{} {
+func (o *GetMoveTaskOrderForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
