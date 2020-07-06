@@ -8,8 +8,8 @@ import ServiceItemTableHasImg from '../components/ServiceItemTableHasImg';
 import DataPoint from '../components/DataPoint';
 import DataPair from '../components/DataPair';
 
-import { ReactComponent as ChevronRight } from 'shared/icon/chevron-right.svg';
 import { ReactComponent as ChevronLeft } from 'shared/icon/chevron-left.svg';
+import { ReactComponent as ChevronRight } from 'shared/icon/chevron-right.svg';
 
 const dataPointBody = (
   <>
@@ -25,6 +25,11 @@ const dataPointBody = (
 
 export default {
   title: 'Components|Tables',
+  parameters: {
+    abstract: {
+      url: 'https://share.goabstract.com/0a7c55ae-8268-4298-be70-4cf0117c6034?mode=design',
+    },
+  },
 };
 
 export const TableElements = () => (
