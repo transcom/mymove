@@ -11,7 +11,7 @@ import { withContext } from 'shared/AppContext';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import OrdersUploader from 'shared/Uploader/OrdersUploader';
+import OrdersUploader from 'components/OrdersUploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
 

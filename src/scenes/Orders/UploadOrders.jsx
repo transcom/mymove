@@ -5,11 +5,10 @@ import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
-// import { deleteUpload as tableDelete, addUploads } from './ducks';
 import { fetchLatestOrders, selectActiveOrLatestOrders, selectUploadsForOrders } from 'shared/Entities/modules/orders';
 
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
-import OrdersUploader from 'shared/Uploader/OrdersUploader';
+import OrdersUploader from 'components/OrdersUploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import WizardPage from 'shared/WizardPage';
 import { documentSizeLimitMsg } from 'shared/constants';
