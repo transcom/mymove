@@ -64,7 +64,7 @@ const RequestedShipments = ({ mtoShipments, allowancesInfo, customerInfo, mtoAge
           shipmentManagementFee={formik.values.shipmentManagementFee}
         />
       </div>
-      <h2>Requested shipments</h2>
+      <h4>Requested shipments</h4>
       <form onSubmit={formik.handleSubmit}>
         <div className={`${cx('__content')}`}>
           {mtoShipments &&
