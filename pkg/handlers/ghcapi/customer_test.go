@@ -35,11 +35,11 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 	getCustomerPayload := getCustomerResponse.Payload
 	suite.Assertions.IsType(&customerops.GetCustomerOK{}, response)
 	suite.Equal(strfmt.UUID(customer.ID.String()), getCustomerPayload.ID)
-	suite.Equal(*customer.DODID, getCustomerPayload.DodID)
+	suite.Equal(*customer.Edipi, getCustomerPayload.DodID)
 	suite.Equal(strfmt.UUID(customer.UserID.String()), getCustomerPayload.UserID)
-	suite.Equal(*customer.Agency, getCustomerPayload.Agency)
-	suite.Equal(customer.Email, getCustomerPayload.Email)
-	suite.Equal(customer.PhoneNumber, getCustomerPayload.Phone)
-	suite.NotZero(getCustomerPayload.DestinationAddress)
+	suite.Equal(customer.Affiliation.String(), getCustomerPayload.Agency)
+	suite.Equal(customer.PersonalEmail, getCustomerPayload.Email)
+	suite.Equal(customer.Telephone, getCustomerPayload.Phone)
+	suite.Nil(getCustomerPayload.DestinationAddress) // DestinationAddress not in ServiceMember
 	suite.NotZero(getCustomerPayload.CurrentAddress)
 }
