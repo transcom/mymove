@@ -7,6 +7,10 @@ const filterGroup = (filter) => Object.keys(colors).filter((color) => color.inde
 
 // Colors
 
+export default {
+  title: 'Global|Colors',
+};
+
 export const BrandColors = () => (
   <div style={{ padding: '20px' }}>
     <h3>Brand Colors</h3>
