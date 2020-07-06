@@ -26,7 +26,7 @@ func (suite *ServiceParamValueLookupsSuite) SetupTest() {
 
 func TestServiceParamValueLookupsSuite(t *testing.T) {
 	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(defaultDistance, nil)

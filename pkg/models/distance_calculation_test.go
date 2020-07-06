@@ -49,7 +49,7 @@ func (suite *ModelSuite) Test_NewDistanceCalculationCallsPlanner() {
 	address1 := testdatagen.MakeDefaultAddress(suite.DB())
 	address2 := testdatagen.MakeDefaultAddress(suite.DB())
 	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		address1.PostalCode,
 		address2.PostalCode,
 	).Return(1044, nil)

@@ -193,9 +193,9 @@ func (p *herePlanner) LatLongTransitDistance(source LatLong, dest LatLong) (int,
 	}
 }
 
-// Zip5TransitDistance calculates the distance between two valid Zip5s
-func (p *herePlanner) Zip5TransitDistance(source string, destination string) (int, error) {
-	distance, err := zip5TransitDistanceHelper(p, source, destination)
+// Zip5TransitDistanceLineHaul calculates the distance between two valid Zip5s
+func (p *herePlanner) Zip5TransitDistanceLineHaul(source string, destination string) (int, error) {
+	distance, err := zip5TransitDistanceLineHaulHelper(p, source, destination)
 	if err != nil {
 		var msg string
 		if err.(Error).Code() == ShortHaulError {

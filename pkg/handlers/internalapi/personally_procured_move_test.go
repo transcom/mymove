@@ -370,7 +370,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	planner := &routemocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(900, nil)
@@ -481,7 +481,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	mileage := 900
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	planner := &routemocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(mileage, nil)
@@ -581,7 +581,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	})
 
 	planner := &routemocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(900, nil)

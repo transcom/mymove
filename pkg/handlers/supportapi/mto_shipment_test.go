@@ -49,7 +49,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	fetcher := fetch.NewFetcher(queryBuilder)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
 	planner := &routemocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(500, nil)

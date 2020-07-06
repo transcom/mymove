@@ -40,7 +40,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateSuccess() {
 	})
 
 	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		"94540",
 		"95632",
 	).Return(3200, nil)
@@ -73,7 +73,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateNoSITSuccess() {
 	})
 
 	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		"94540",
 		"95632",
 	).Return(3200, nil)
@@ -107,7 +107,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadMoveIDFails() {
 		},
 	})
 	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(3200, nil)
@@ -145,7 +145,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateBadPickupZipFails() {
 		},
 	})
 	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(3200, nil)
@@ -178,7 +178,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateOriginDutyStationZipFails() {
 	})
 
 	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(3200, nil)
@@ -210,7 +210,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateNewDutyStationZipFails() {
 	})
 
 	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(3200, nil)
@@ -243,7 +243,7 @@ func (suite *PPMServiceSuite) TestCalculateEstimateInvalidWeightFails() {
 	})
 
 	planner := &mocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		"94540",
 		"95632",
 	).Return(3200, nil)

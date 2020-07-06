@@ -94,7 +94,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		On("UsingConnection", mock.Anything).Return(serviceItemPricer)
 
 	planner := &routemocks.Planner{}
-	planner.On("Zip5TransitDistance",
+	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(0, nil)
@@ -285,7 +285,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			On("UsingConnection", mock.Anything).Return(failingServiceItemPricer)
 
 		planner := &routemocks.Planner{}
-		planner.On("Zip5TransitDistance",
+		planner.On("Zip5TransitDistanceLineHaul",
 			mock.Anything,
 			mock.Anything,
 		).Return(0, nil)
