@@ -19,26 +19,7 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 		return uuid.Nil, fmt.Errorf("Could not fetch move with id %s, %w", moveID, err)
 	}
 
-	// service member -> customer
 	sm := move.Orders.ServiceMember
-	var customer models.Customer
-	customer.CreatedAt = sm.CreatedAt
-	customer.UpdatedAt = sm.UpdatedAt
-	customer.DODID = sm.Edipi
-	customer.UserID = sm.UserID
-	customer.FirstName = sm.FirstName
-	customer.LastName = sm.LastName
-	customer.Email = sm.PersonalEmail
-	customer.PhoneNumber = sm.Telephone
-	if sm.Affiliation != nil {
-		affiliationValue := string(*sm.Affiliation)
-		customer.Agency = &affiliationValue
-	}
-	customer.CurrentAddressID = sm.ResidentialAddressID
-
-	if err := db.Save(&customer); err != nil {
-		return uuid.Nil, fmt.Errorf("Could not save customer, %w", err)
-	}
 
 	// create entitlement (required by move order)
 	weight, entitlementErr := models.GetEntitlement(*sm.Rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
@@ -59,8 +40,8 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	var mo models.MoveOrder
 	mo.CreatedAt = orders.CreatedAt
 	mo.UpdatedAt = orders.UpdatedAt
-	mo.Customer = &customer
-	mo.CustomerID = &customer.ID
+	mo.Customer = &sm
+	mo.CustomerID = &sm.ID
 	mo.DestinationDutyStation = &orders.NewDutyStation
 	mo.DestinationDutyStationID = &orders.NewDutyStationID
 

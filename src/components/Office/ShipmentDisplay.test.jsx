@@ -22,7 +22,7 @@ const info = {
 
 describe('Shipment Container', () => {
   it('renders the container successfully', () => {
-    const wrapper = shallow(<ShipmentDisplay displayInfo={info} />);
+    const wrapper = shallow(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} />);
     expect(wrapper.find('div[data-cy="shipment-display"]').exists()).toBe(true);
   });
 });

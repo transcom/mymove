@@ -9,5 +9,5 @@ import (
 // CustomerFetcher is the service object interface for FetchCustomer
 //go:generate mockery -name CustomerFetcher
 type CustomerFetcher interface {
-	FetchCustomer(customerID uuid.UUID) (*models.Customer, error)
+	FetchCustomer(customerID uuid.UUID) (*models.ServiceMember, error)
 }

@@ -64,3 +64,15 @@ export const MTOAgentShape = PropTypes.shape({
   email: PropTypes.string,
   phone: PropTypes.string,
 });
+
+export const MoveTaskOrderShape = PropTypes.shape({
+  id: PropTypes.string,
+  availableToPrimeAt: PropTypes.string,
+  createdAt: PropTypes.string,
+  eTag: PropTypes.string,
+  isCanceled: PropTypes.bool,
+  moveOrderId: PropTypes.string,
+  referenceId: PropTypes.string,
+  requestedPickupDate: PropTypes.string,
+  updatedAt: PropTypes.string,
+});
