@@ -145,24 +145,26 @@ func NewCreateMoveTaskOrderUnauthorized() *CreateMoveTaskOrderUnauthorized {
 
 /*CreateMoveTaskOrderUnauthorized handles this case with default header values.
 
-The request was unauthorized.
+The request was denied.
 */
 type CreateMoveTaskOrderUnauthorized struct {
-	Payload interface{}
+	Payload *supportmessages.ClientError
 }
 
 func (o *CreateMoveTaskOrderUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *CreateMoveTaskOrderUnauthorized) GetPayload() interface{} {
+func (o *CreateMoveTaskOrderUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -176,24 +178,26 @@ func NewCreateMoveTaskOrderForbidden() *CreateMoveTaskOrderForbidden {
 
 /*CreateMoveTaskOrderForbidden handles this case with default header values.
 
-The client doesn't have permissions to perform the request.
+The request was denied.
 */
 type CreateMoveTaskOrderForbidden struct {
-	Payload interface{}
+	Payload *supportmessages.ClientError
 }
 
 func (o *CreateMoveTaskOrderForbidden) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderForbidden  %+v", 403, o.Payload)
 }
 
-func (o *CreateMoveTaskOrderForbidden) GetPayload() interface{} {
+func (o *CreateMoveTaskOrderForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *CreateMoveTaskOrderForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
