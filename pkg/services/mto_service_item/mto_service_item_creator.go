@@ -69,6 +69,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
 	// also rather basic.
 	if serviceItem.MTOShipmentID == nil {
+		if serviceItem.ReService.Code == models.ReServiceCodeMS || serviceItem.ReService.Code == models.ReServiceCodeCS {
+			serviceItem.Status = "APPROVED"
+		}
 		verrs, err = o.builder.CreateOne(serviceItem)
 		if verrs != nil {
 			return nil, verrs, nil
