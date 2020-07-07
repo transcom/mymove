@@ -15,6 +15,7 @@ import {
   updatePPM,
   updatePPMEstimate,
 } from 'shared/Entities/modules/ppms';
+import { fetchLatestOrders, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import { setInitialFormValues } from './ducks';
@@ -74,6 +75,7 @@ export class DateAndLocation extends Component {
   componentDidMount() {
     const moveId = this.props.match.params.moveId;
     this.props.loadPPMs(moveId);
+    this.props.fetchLatestOrders(this.props.serviceMemberId);
   }
 
   state = { showInfo: false };
@@ -196,10 +198,13 @@ function mapStateToProps(state) {
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
 
+  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+
   const props = {
+    serviceMemberId: serviceMemberId,
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     currentPPM: selectActivePPMForMove(state, moveID),
-    currentOrders: state.orders.currentOrders,
+    currentOrders: selectActiveOrLatestOrders(state),
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
     originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
@@ -217,7 +222,10 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadPPMs, createPPM, updatePPM, setInitialFormValues, updatePPMEstimate }, dispatch);
+  return bindActionCreators(
+    { loadPPMs, createPPM, updatePPM, setInitialFormValues, updatePPMEstimate, fetchLatestOrders },
+    dispatch,
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);

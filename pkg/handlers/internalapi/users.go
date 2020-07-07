@@ -90,10 +90,6 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				// The absence of an office shouldn't render the entire request a 404
 				return handlers.ResponseForError(logger, err)
 			}
-			// We might not have Transportation Office data for a Duty Station, and that's ok
-			if errors.Cause(err) != models.ErrFetchNotFound {
-				return handlers.ResponseForError(logger, err)
-			}
 		}
 		serviceMember.Orders[0].NewDutyStation.TransportationOffice = newDutyStationTransportationOffice
 
