@@ -3,9 +3,6 @@
 @import '../../shared/styles/colors';
 
 .requested-shipments {
-  .requestedShipmentsHeading {
-    @include u-margin-bottom(0)
-  }
   .__content {
     @include u-display('flex');
 

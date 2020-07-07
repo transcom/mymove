@@ -70,7 +70,6 @@ const RequestedShipments = ({
 
   const isButtonEnabled =
     formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
-
   return (
     <div className={`${styles['requested-shipments']} container`} data-cy="requested-shipments">
       {isSubmitted && (
@@ -143,7 +142,7 @@ const RequestedShipments = ({
       )}
       {!isSubmitted && (
         <div>
-          <h4 className={styles.requestedShipmentsHeading}>Approved Shipments</h4>
+          <h4>Approved Shipments</h4>
           {/* eslint-disable-next-line no-underscore-dangle */}
           <div className={styles.__content}>
             {mtoShipments &&

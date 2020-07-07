@@ -180,12 +180,14 @@ const serviceItems = [
     approvedAt: '2020-01-01',
     id: '76055c99-0990-410c-a7c9-69373b0b53eb',
     status: 'APPROVED',
+    reServiceCode: 'MS',
   },
   {
     reServiceName: 'Counseling fee',
-    rejectedAt: '2020-01-05',
     id: '76055c99-0990-410c-a7c9-69373b0b5322',
-    status: 'REJECTED',
+    status: 'APPROVED',
+    reServiceCode: 'CS',
+    approvedAt: '2020-01-01',
   },
 ];
 
@@ -239,6 +241,7 @@ storiesOf('TOO/TIO Components|RequestedShipments', module)
           customerInfo={customerInfo}
           mtoAgents={agents}
           isSubmitted={false}
+          mtoServiceItems={serviceItems}
         />
       </div>
     );
