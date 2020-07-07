@@ -189,6 +189,7 @@ describe('RequestedShipments', () => {
         customerInfo={customerInfo}
         mtoShipments={shipments}
         approveMTO={approveMTO}
+        isSubmitted
       />,
     );
     expect(wrapper.find('div[data-cy="requested-shipments"]').exists()).toBe(true);
@@ -202,6 +203,7 @@ describe('RequestedShipments', () => {
         allowancesInfo={allowancesInfo}
         customerInfo={customerInfo}
         approveMTO={approveMTO}
+        isSubmitted
       />,
     );
     expect(wrapper.find('div[data-cy="requested-shipments"]').text()).toContain('HHG');
@@ -215,6 +217,7 @@ describe('RequestedShipments', () => {
         allowancesInfo={allowancesInfo}
         customerInfo={customerInfo}
         approveMTO={approveMTO}
+        isSubmitted
       />,
     );
     const approveButton = wrapper.find('#shipmentApproveButton');
@@ -231,6 +234,7 @@ describe('RequestedShipments', () => {
         allowancesInfo={allowancesInfo}
         customerInfo={customerInfo}
         approveMTO={approveMTO}
+        isSubmitted
       />,
     );
     expect(wrapper.find('div[data-testid="checkbox"]').exists()).toBe(true);
@@ -248,6 +252,7 @@ describe('RequestedShipments', () => {
         customerInfo={customerInfo}
         moveTaskOrder={moveTaskOrder}
         approveMTO={mockOnSubmit}
+        isSubmitted
       />,
     );
 
@@ -299,6 +304,7 @@ describe('RequestedShipments', () => {
         customerInfo={customerInfo}
         moveTaskOrder={moveTaskOrder}
         approveMTO={mockOnSubmit}
+        isSubmitted
       />,
     );
 
@@ -332,6 +338,6 @@ describe('RequestedShipments', () => {
     });
 
     expect(mockOnSubmit).toHaveBeenCalled();
-    expect(mockOnSubmit.mock.calls[0]).toEqual([moveTaskOrder.id, moveTaskOrder.eTag]);
+    expect(mockOnSubmit.mock.calls[0]).toEqual([moveTaskOrder.id, moveTaskOrder.eTag, ['MS', 'CS']]);
   });
 });

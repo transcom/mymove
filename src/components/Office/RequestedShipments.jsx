@@ -46,13 +46,7 @@ const RequestedShipments = ({
         mtoApprovalServiceItemCodes.push('CS');
       }
       filteredShipments.forEach((shipment) =>
-        approveMTOShipment(
-          moveTaskOrder.id,
-          shipment.id,
-          'APPROVED',
-          shipment.eTag,
-          // eslint-disable-next-line no-empty-pattern
-        ).then(({}) => {}),
+        approveMTOShipment(moveTaskOrder.id, shipment.id, 'APPROVED', shipment.eTag),
       );
       approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes)
         .then(({ response }) => {
@@ -60,6 +54,7 @@ const RequestedShipments = ({
             setIsModalVisible(false);
           }
           setSubmitting(false);
+          window.location.reload();
         })
         .catch(() => {
           // TODO: Decided if we wnat to display an error notice, log error event, or retry
