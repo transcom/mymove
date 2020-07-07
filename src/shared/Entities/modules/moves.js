@@ -1,11 +1,11 @@
-import { isNull, get, isEmpty, head } from 'lodash';
+import { isNull, get, isEmpty } from 'lodash';
 import { moves } from '../schema';
 import { ADD_ENTITIES } from '../actions';
 import { denormalize } from 'normalizr';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 import { selectEntitlements } from 'shared/entitlements.js';
-import { selectOrdersForMove } from 'shared/Entities/modules/orders';
+import { selectOrdersForMove, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
 import { getGHCClient } from 'shared/Swagger/api';
 import { filter } from 'lodash';
@@ -34,11 +34,6 @@ export default function reducer(state = {}, action) {
 
 export function getMoveByLocator(locator, label = getMoveByLocatorOperation) {
   return swaggerRequest(getGHCClient, getMoveByLocatorOperation, { locator }, { label });
-}
-
-export function selectMoveByLocator(state, locator) {
-  const moves = filter(state.entities.moves, (move) => move.locator === locator);
-  return moves[0];
 }
 
 export function loadMove(moveId, label = loadMoveLabel) {
@@ -72,6 +67,7 @@ export function calculateEntitlementsForMove(state, moveId) {
   return selectEntitlements(weightAllotment, hasDependents, spouseHasProGear);
 }
 
+// Selectors
 export function selectMoveDatesSummary(state, moveId, moveDate) {
   if (!moveId || !moveDate) {
     return null;
@@ -84,6 +80,17 @@ export const selectMove = (state, id) => {
   if (!id) return emptyMove;
   return denormalize([id], moves, state.entities)[0] || emptyMove;
 };
+
+export function selectMoveByLocator(state, locator) {
+  const moves = filter(state.entities.moves, (move) => move.locator === locator);
+  return moves[0];
+}
+
+export function selectActiveMoveByOrdersId(state, ordersId) {
+  let emptymove = {};
+  const move = fetchActive(filter(state.entities.moves, (move) => move.orders_id === ordersId));
+  return move || emptymove;
+}
 
 export function selectMoveStatus(state, moveId) {
   const move = selectMove(state, moveId);
@@ -105,16 +112,13 @@ export function submitMoveForApproval(moveId, ppmSubmitDate, label = submitMoveF
 
 export function selectActiveOrLatestMove(state) {
   // temp until full redux refactor: gets active (or latest move) from entities if it exists.  If not, gets it from currentMove
-  const orders = get(state, 'user.userInfo.service_member.orders', {});
-  if (isEmpty(orders)) {
+  let activeOrLatestOrders = selectActiveOrLatestOrders(state);
+  if (isEmpty(activeOrLatestOrders)) {
     return {};
   }
 
-  let activeOrLatestOrders = fetchActive(orders) || head(orders);
-  const moves = get(activeOrLatestOrders, 'moves');
-  const activeOrLatestMove = fetchActive(moves) || head(moves);
   // get move from entities if it's there
-  let move = selectMove(state, activeOrLatestMove.id);
+  let move = selectActiveMoveByOrdersId(state, activeOrLatestOrders.id);
   if (isEmpty(move)) {
     move = get(state, 'moves.currentMove') || get(state, 'moves.latestMove') || {};
     return move;
