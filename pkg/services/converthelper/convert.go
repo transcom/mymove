@@ -7,6 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -86,21 +87,25 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 
 	// create HHG -> house hold goods
 	// mto shipment of type HHG
-	requestedPickupDate := time.Now()
-	scheduledPickupDate := time.Now()
+	// RequestedPickupDate 10 days ago
+	requestedPickupDate := time.Now().AddDate(0, 0, -10)
 	// add 7 days from requested pickup to scheduled pickup
-	h, _ := time.ParseDuration("168h")
-	scheduledPickupDate.Add(h)
+	scheduledPickupDate := requestedPickupDate.AddDate(0, 0, 7)
+	// set prime estmated record date to 3 days before scheduledPickupDate
+	primeEstimatedWeightRecordDate := scheduledPickupDate.AddDate(0, 0, -3)
+	primeEstimatedWeight := unit.Pound(4096)
 	hhg := models.MTOShipment{
-		MoveTaskOrderID:      mto.ID,
-		RequestedPickupDate:  &requestedPickupDate,
-		ScheduledPickupDate:  &scheduledPickupDate,
-		PickupAddressID:      &sm.DutyStation.AddressID,
-		DestinationAddressID: &orders.NewDutyStation.AddressID,
-		ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
-		Status:               models.MTOShipmentStatusSubmitted,
-		CreatedAt:            time.Now(),
-		UpdatedAt:            time.Now(),
+		MoveTaskOrderID:                  mto.ID,
+		RequestedPickupDate:              &requestedPickupDate,
+		ScheduledPickupDate:              &scheduledPickupDate,
+		PickupAddressID:                  &sm.DutyStation.AddressID,
+		DestinationAddressID:             &orders.NewDutyStation.AddressID,
+		ShipmentType:                     models.MTOShipmentTypeHHGLongHaulDom,
+		Status:                           models.MTOShipmentStatusSubmitted,
+		PrimeEstimatedWeight:             &primeEstimatedWeight,
+		PrimeEstimatedWeightRecordedDate: &primeEstimatedWeightRecordDate,
+		CreatedAt:                        time.Now(),
+		UpdatedAt:                        time.Now(),
 	}
 
 	if err := db.Save(&hhg); err != nil {
@@ -121,15 +126,17 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	}
 
 	hhgDomShortHaul := models.MTOShipment{
-		MoveTaskOrderID:      mto.ID,
-		RequestedPickupDate:  &requestedPickupDate,
-		ScheduledPickupDate:  &scheduledPickupDate,
-		PickupAddressID:      &sanDiego.AddressID,
-		DestinationAddressID: &miramar.AddressID,
-		ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
-		Status:               models.MTOShipmentStatusSubmitted,
-		CreatedAt:            time.Now(),
-		UpdatedAt:            time.Now(),
+		MoveTaskOrderID:                  mto.ID,
+		RequestedPickupDate:              &requestedPickupDate,
+		ScheduledPickupDate:              &scheduledPickupDate,
+		PickupAddressID:                  &sanDiego.AddressID,
+		DestinationAddressID:             &miramar.AddressID,
+		ShipmentType:                     models.MTOShipmentTypeHHGShortHaulDom,
+		Status:                           models.MTOShipmentStatusSubmitted,
+		PrimeEstimatedWeight:             &primeEstimatedWeight,
+		PrimeEstimatedWeightRecordedDate: &primeEstimatedWeightRecordDate,
+		CreatedAt:                        time.Now(),
+		UpdatedAt:                        time.Now(),
 	}
 
 	if err := db.Save(&hhgDomShortHaul); err != nil {
