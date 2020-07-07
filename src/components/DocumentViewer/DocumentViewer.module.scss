@@ -14,7 +14,7 @@
     display: flex;
     justify-content: flex-start;
     @include icon-hover-state;
-    @include u-padding-x(4);
+    @include u-padding-x(1); // Additional padding is built into the buttons
     z-index: 98;
 
     p {
