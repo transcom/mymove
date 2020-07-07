@@ -1,7 +1,5 @@
-import { Modal, ModalContainer, Overlay } from '@trussworks/react-uswds';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
-import React from 'react';
+import { Button, Modal, ModalContainer, Overlay } from '@trussworks/react-uswds';
+import React, { Fragment } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -12,6 +10,9 @@ import styles from './shipmentApprovalPreview.module.scss';
 import AllowancesTable from './AllowancesTable';
 import CustomerInfoTable from './CustomerInfoTable';
 import ShipmentContainer from './ShipmentContainer';
+import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
+
+import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
@@ -19,6 +20,7 @@ const ShipmentApprovalPreview = ({
   customerInfo,
   mtoAgents,
   setIsModalVisible,
+  onSubmit,
   counselingFee,
   shipmentManagementFee,
 }) => {
@@ -34,16 +36,30 @@ const ShipmentApprovalPreview = ({
       <Overlay />
       <ModalContainer>
         <Modal className={classNames(styles.approvalPreviewModal, 'padding-4 overflow-y-auto maxh-viewport')}>
-          <div className={classNames('approval-close')}>
-            <FontAwesomeIcon
-              aria-hidden
-              icon={faTimes}
-              title="Close shipment approval modal"
-              onClick={() => setIsModalVisible(false)}
-              className={classNames(styles['approval-close'], 'icon')}
-            />
+          <div className={classNames(styles.containerTop)}>
+            <div>
+              <button
+                type="button"
+                title="Close shipment approval modal"
+                onClick={() => setIsModalVisible(false)}
+                className={classNames(styles.approvalClose, 'usa-button--unstyled')}
+                data-testid="closeShipmentApproval"
+              >
+                <XHeavyIcon />
+              </button>
+            </div>
+            <h2>Preview and post move task order</h2>
+            <p>Is all the information shown correct and ready to send to Global Relocation Services?</p>
+            <div className="display-flex">
+              <Button type="submit" onClick={onSubmit}>
+                Approve and send
+              </Button>
+              <Button type="reset" secondary onClick={() => setIsModalVisible(false)}>
+                Back
+              </Button>
+            </div>
           </div>
-          <h2>Preview and post move task order</h2>
+
           <hr className={styles.sectionBorder} />
           <h1 className={classNames(styles.customerName, 'text-normal')}>{customerInfo.name}</h1>
           <div className={classNames(styles.previewContainer, 'container')}>
@@ -55,57 +71,67 @@ const ShipmentApprovalPreview = ({
                   shipmentType={shipment.shipmentType}
                   className={classNames(styles.previewShipments)}
                 >
-                  <div>
+                  <div className={styles.innerWrapper}>
                     <h4 className="text-normal">{mtoShipmentTypeToFriendlyDisplay(shipment.shipmentType)}</h4>
-                    <table className="table--stacked">
-                      <tbody>
-                        <tr>
-                          <th className="text-bold" scope="row">
-                            Requested Move Date
-                          </th>
-                          <td>{shipment.requestedPickupDate}</td>
-                        </tr>
-                        <tr>
-                          <th className="text-bold" scope="row">
-                            Current Address
-                          </th>
-                          <td>
-                            {shipment.pickupAddress.street_address_1}
-                            <br />
-                            {shipment.pickupAddress.city}, {shipment.pickupAddress.state}{' '}
-                            {shipment.pickupAddress.postal_code}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th className="text-bold" scope="row">
-                            Destination Address
-                          </th>
-                          <td>
-                            {shipment.destinationAddress.street_address_1}
-                            <br />
-                            {shipment.destinationAddress.city}, {shipment.destinationAddress.state}{' '}
-                            {shipment.destinationAddress.postal_code}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th className="text-bold" scope="row">
-                            Customer Remarks
-                          </th>
-                          <td>{shipment.customerRemarks}</td>
-                        </tr>
-                        {mtoAgents &&
-                          mtoAgents.map((agent) => (
-                            <tr>
-                              <td>{agent.type === 'RELEASING_AGENT' ? 'Releasing Agent' : 'Receiving Agent'}</td>
-                              <td>
-                                {agent.firstName} {agent.lastName}
-                                <br />
-                                {agent.phone} <br /> {agent.email}
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
+                    <div className="display-flex">
+                      <table className={classNames('table--stacked', styles.shipmentInfo)}>
+                        <tbody>
+                          <tr>
+                            <th className="text-bold" scope="row">
+                              Requested Move Date
+                            </th>
+                            <td>{shipment.requestedPickupDate}</td>
+                          </tr>
+                          <tr>
+                            <th className="text-bold" scope="row">
+                              Current Address
+                            </th>
+                            <td>
+                              {shipment.pickupAddress.street_address_1}
+                              <br />
+                              {shipment.pickupAddress.city}, {shipment.pickupAddress.state}{' '}
+                              {shipment.pickupAddress.postal_code}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th className="text-bold" scope="row">
+                              Destination Address
+                            </th>
+                            <td>
+                              {shipment.destinationAddress.street_address_1}
+                              <br />
+                              {shipment.destinationAddress.city}, {shipment.destinationAddress.state}{' '}
+                              {shipment.destinationAddress.postal_code}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th className="text-bold" scope="row">
+                              Customer Remarks
+                            </th>
+                            <td>{shipment.customerRemarks}</td>
+                          </tr>
+                          {mtoAgents &&
+                            mtoAgents.map((agent) => (
+                              <Fragment key={`${agent.type}-${agent.email}`}>
+                                <tr>
+                                  <th className="text-bold" scope="row">
+                                    {agent.type === 'RELEASING_AGENT' ? 'Releasing Agent' : 'Receiving Agent'}
+                                  </th>
+                                  <td>
+                                    {agent.firstName} {agent.lastName}
+                                    <br />
+                                    {agent.phone} <br /> {agent.email}
+                                  </td>
+                                </tr>
+                              </Fragment>
+                            ))}
+                        </tbody>
+                      </table>
+                      <ShipmentServiceItemsTable
+                        className={classNames(styles.shipmentServiceItems)}
+                        shipmentType={shipment.shipmentType}
+                      />
+                    </div>
                   </div>
                 </ShipmentContainer>
               ))}
@@ -173,6 +199,7 @@ ShipmentApprovalPreview.propTypes = {
     backupContactEmail: PropTypes.string,
   }).isRequired,
   setIsModalVisible: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
 
 ShipmentApprovalPreview.defaultProps = {

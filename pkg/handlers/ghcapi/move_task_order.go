@@ -4,6 +4,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -52,12 +54,22 @@ type UpdateMoveTaskOrderStatusHandlerFunc struct {
 func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	eTag := params.IfMatch
+	var serviceItemCodes []models.ReServiceCode
+
+	for _, serviceItemCode := range params.ServiceItemCodes {
+		if string(serviceItemCode) == string(models.ReServiceCodeCS) {
+			serviceItemCodes = append(serviceItemCodes, models.ReServiceCodeCS)
+		}
+		if string(serviceItemCode) == string(models.ReServiceCodeMS) {
+			serviceItemCodes = append(serviceItemCodes, models.ReServiceCodeMS)
+		}
+	}
 
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
 	// TODO to revisit?
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-	mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag)
+	mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag, &serviceItemCodes)
 
 	if err != nil {
 		logger.Error("ghcapi.MoveTaskOrderHandler error", zap.Error(err))

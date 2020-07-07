@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 
-import { MTOAgentShape, MTOServiceItemShape, MTOShipmentShape } from '../../types/moveOrder';
+import { MTOAgentShape, MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape } from '../../types/moveOrder';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 import styles from './requestedShipments.module.scss';
@@ -20,13 +20,12 @@ const RequestedShipments = ({
   mtoAgents,
   isSubmitted,
   mtoServiceItems,
+  moveTaskOrder,
+  approveMTO,
+  approveMTOShipment,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
-
-  const handleApprovalClick = () => {
-    setIsModalVisible(true);
-  };
 
   const filterShipments = (formikShipmentIds) => {
     return mtoShipments.filter(({ id }) => formikShipmentIds.includes(id));
@@ -38,41 +37,47 @@ const RequestedShipments = ({
       counselingFee: false,
       shipments: [],
     },
-    onSubmit: () => {
-      setFilteredShipments(filterShipments(formik.values.shipments));
-      handleApprovalClick();
+    onSubmit: (values, { setSubmitting }) => {
+      const mtoApprovalServiceItemCodes = [];
+      if (formik.values.shipmentManagementFee) {
+        mtoApprovalServiceItemCodes.push('MS');
+      }
+      if (formik.values.counselingFee) {
+        mtoApprovalServiceItemCodes.push('CS');
+      }
+      filteredShipments.forEach((shipment) =>
+        approveMTOShipment(
+          moveTaskOrder.id,
+          shipment.id,
+          'APPROVED',
+          shipment.eTag,
+          // eslint-disable-next-line no-empty-pattern
+        ).then(({}) => {}),
+      );
+      approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes)
+        .then(({ response }) => {
+          if (response.status === 200) {
+            setIsModalVisible(false);
+          }
+          setSubmitting(false);
+        })
+        .catch(() => {
+          // TODO: Decided if we wnat to display an error notice, log error event, or retry
+          setSubmitting(false);
+        });
     },
   });
+
+  const handleReviewClick = () => {
+    setFilteredShipments(filterShipments(formik.values.shipments));
+    setIsModalVisible(true);
+  };
 
   const isButtonEnabled =
     formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
 
   return (
     <div className={`${styles['requested-shipments']} container`} data-cy="requested-shipments">
-      {!isSubmitted && (
-        <div>
-          <h4 className={styles.requestedShipmentsHeading}>Approved Shipments</h4>
-          {/* eslint-disable-next-line no-underscore-dangle */}
-          <div className={styles.__content}>
-            {mtoShipments &&
-              mtoShipments.map((shipment) => (
-                <ShipmentDisplay
-                  key={shipment.id}
-                  shipmentId={shipment.id}
-                  shipmentType={shipment.shipmentType}
-                  displayInfo={{
-                    heading: shipment.shipmentType,
-                    requestedMoveDate: shipment.requestedPickupDate,
-                    currentAddress: shipment.pickupAddress,
-                    destinationAddress: shipment.destinationAddress,
-                  }}
-                  isSubmitted={false}
-                />
-              ))}
-          </div>
-        </div>
-      )}
-
       {isSubmitted && (
         <div>
           <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>
@@ -81,12 +86,13 @@ const RequestedShipments = ({
               allowancesInfo={allowancesInfo}
               customerInfo={customerInfo}
               setIsModalVisible={setIsModalVisible}
+              onSubmit={formik.handleSubmit}
               mtoAgents={mtoAgents}
               counselingFee={formik.values.counselingFee}
               shipmentManagementFee={formik.values.shipmentManagementFee}
             />
           </div>
-          <h4 className={styles.requestedShipmentsHeading}>Requested shipments</h4>
+          <h4>Requested shipments</h4>
           <form onSubmit={formik.handleSubmit}>
             {/* eslint-disable-next-line no-underscore-dangle */}
             <div className={styles.__content}>
@@ -112,7 +118,6 @@ const RequestedShipments = ({
             {isSubmitted && (
               <div>
                 <h3>Add service items to this move</h3>
-                <span>{isModalVisible}</span>
                 <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
                   <Checkbox
                     id="shipmentManagementFee"
@@ -130,8 +135,8 @@ const RequestedShipments = ({
                 <Button
                   id="shipmentApproveButton"
                   className={`${styles['usa-button--small']} usa-button--icon`}
-                  onClick={formik.handleSubmit}
-                  type="submit"
+                  onClick={handleReviewClick}
+                  type="button"
                   disabled={!isButtonEnabled}
                 >
                   <span>Approve selected shipments</span>
@@ -139,6 +144,29 @@ const RequestedShipments = ({
               </div>
             )}
           </form>
+        </div>
+      )}
+      {!isSubmitted && (
+        <div>
+          <h4 className={styles.requestedShipmentsHeading}>Approved Shipments</h4>
+          {/* eslint-disable-next-line no-underscore-dangle */}
+          <div className={styles.__content}>
+            {mtoShipments &&
+              mtoShipments.map((shipment) => (
+                <ShipmentDisplay
+                  key={shipment.id}
+                  shipmentId={shipment.id}
+                  shipmentType={shipment.shipmentType}
+                  displayInfo={{
+                    heading: shipment.shipmentType,
+                    requestedMoveDate: shipment.requestedPickupDate,
+                    currentAddress: shipment.pickupAddress,
+                    destinationAddress: shipment.destinationAddress,
+                  }}
+                  isSubmitted={false}
+                />
+              ))}
+          </div>
         </div>
       )}
       {!isSubmitted && (
@@ -153,25 +181,27 @@ const RequestedShipments = ({
             </colgroup>
             <tbody>
               {mtoServiceItems &&
-                mtoServiceItems.map((serviceItem) => (
-                  <tr key={serviceItem.id}>
-                    <td>{serviceItem.reServiceName}</td>
-                    <td>
-                      {serviceItem.status === 'APPROVED' && (
-                        <span>
-                          <FormCheckmarkIcon className={styles.serviceItemApproval} />{' '}
-                          {formatDate(serviceItem.approvedAt, 'DD MMM YYYY')}
-                        </span>
-                      )}
-                      {serviceItem.status === 'REJECTED' && (
-                        <span>
-                          <XHeavyIcon className={styles.serviceItemRejection} />{' '}
-                          {formatDate(serviceItem.rejectedAt, 'DD MMM YYYY')}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                mtoServiceItems
+                  .filter((serviceItem) => serviceItem.reServiceCode === 'MS' || serviceItem.reServiceCode === 'CS')
+                  .map((serviceItem) => (
+                    <tr key={serviceItem.id}>
+                      <td>{serviceItem.reServiceName}</td>
+                      <td>
+                        {serviceItem.status === 'APPROVED' && (
+                          <span>
+                            <FormCheckmarkIcon className={styles.serviceItemApproval} />{' '}
+                            {formatDate(serviceItem.approvedAt, 'DD MMM YYYY')}
+                          </span>
+                        )}
+                        {serviceItem.status === 'REJECTED' && (
+                          <span>
+                            <XHeavyIcon className={styles.serviceItemRejection} />{' '}
+                            {formatDate(serviceItem.rejectedAt, 'DD MMM YYYY')}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
             </tbody>
           </table>
         </div>
@@ -216,11 +246,17 @@ RequestedShipments.propTypes = {
     backupContactPhone: PropTypes.string,
     backupContactEmail: PropTypes.string,
   }).isRequired,
+  approveMTO: PropTypes.func,
+  approveMTOShipment: PropTypes.func,
+  moveTaskOrder: MoveTaskOrderShape,
 };
 
 RequestedShipments.defaultProps = {
   mtoAgents: [],
   mtoServiceItems: [],
+  moveTaskOrder: {},
+  approveMTO: () => {},
+  approveMTOShipment: () => {},
 };
 
 export default RequestedShipments;

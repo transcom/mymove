@@ -25,6 +25,9 @@ describe('MoveDetails page', () => {
     getCustomer: jest.fn(),
     getAllMoveTaskOrders: jest.fn(() => new Promise((res) => res({ response: { body: testMoveTaskOrders } }))),
     getMTOShipments: jest.fn(() => new Promise((res) => res({ response: { body: testMTOShipments } }))),
+    updateMoveTaskOrderStatus: jest
+      .fn()
+      .mockResolvedValue({ response: { status: 200, body: { id: '1a', eTag: '1a2b3c4d' } } }),
   };
 
   const wrapper = shallow(<MoveDetails {...moveDetailsProps} />);

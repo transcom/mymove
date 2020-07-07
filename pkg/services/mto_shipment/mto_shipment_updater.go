@@ -484,7 +484,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	err := o.builder.FetchOne(&shipment, queryFilters)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(shipmentID, "")
+		return nil, services.NewNotFoundError(shipmentID, "Shipment not found")
 	}
 
 	if shipment.Status != models.MTOShipmentStatusSubmitted {
@@ -614,7 +614,6 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 
 			if verrs != nil && verrs.HasAny() {
 				invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")
-
 				return &models.MTOShipment{}, invalidInputError
 			}
 
@@ -636,6 +635,7 @@ func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServ
 			MoveTaskOrderID: mtoID,
 			MTOShipmentID:   &shipmentID,
 			ReService:       models.ReService{Code: reServiceCode},
+			Status:          "APPROVED",
 		}
 		serviceItems[i] = serviceItem
 	}

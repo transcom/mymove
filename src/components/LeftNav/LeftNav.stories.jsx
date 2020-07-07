@@ -121,7 +121,7 @@ export const Layout = () => (
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          height: '2000px',
+          height: '768px',
         }}
       >
         <p>

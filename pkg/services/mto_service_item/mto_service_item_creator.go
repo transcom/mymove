@@ -44,18 +44,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	// check if shipment exists linked by MoveTaskOrderID
 	var mtoShipment models.MTOShipment
 	var mtoShipmentID uuid.UUID
-	if serviceItem.MTOShipmentID != nil {
-		mtoShipmentID = *serviceItem.MTOShipmentID
-	}
-	queryFilters = []services.QueryFilter{
-		query.NewQueryFilter("id", "=", mtoShipmentID),
-		query.NewQueryFilter("move_task_order_id", "=", moveTaskOrderID),
-	}
-	err = o.builder.FetchOne(&mtoShipment, queryFilters)
-	if err != nil {
-		return nil, nil, services.NewNotFoundError(mtoShipmentID,
-			fmt.Sprintf("MTOShipmentID with MoveTaskOrderID (%s): %s", moveTaskOrderID.String(), err))
-	}
 
 	// find the re service code id
 	var reService models.ReService
@@ -77,7 +65,30 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 				fmt.Sprintf("MTOShipment with id: %s is missing the estimated weight required for this service item", mtoShipmentID))
 		}
 	}
+	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
+	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
+	// also rather basic.
+	if serviceItem.MTOShipmentID == nil {
+		verrs, err = o.builder.CreateOne(serviceItem)
+		if verrs != nil {
+			return nil, verrs, nil
+		}
+		if err != nil {
+			return nil, nil, err
+		}
+		return serviceItem, nil, nil
+	}
 
+	mtoShipmentID = *serviceItem.MTOShipmentID
+	queryFilters = []services.QueryFilter{
+		query.NewQueryFilter("id", "=", mtoShipmentID),
+		query.NewQueryFilter("move_task_order_id", "=", moveTaskOrderID),
+	}
+	err = o.builder.FetchOne(&mtoShipment, queryFilters)
+	if err != nil {
+		return nil, nil, services.NewNotFoundError(mtoShipmentID,
+			fmt.Sprintf("MTOShipmentID with MoveTaskOrderID (%s): %s", moveTaskOrderID.String(), err))
+	}
 	// create new items in a transaction in case of failure
 	o.builder.Transaction(func(tx *pop.Connection) error {
 		// create new builder to use tx

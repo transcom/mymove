@@ -15,15 +15,15 @@ type CustomerFetcher struct {
 }
 
 // FetchCustomer provides a mock function with given fields: customerID
-func (_m *CustomerFetcher) FetchCustomer(customerID uuid.UUID) (*models.Customer, error) {
+func (_m *CustomerFetcher) FetchCustomer(customerID uuid.UUID) (*models.ServiceMember, error) {
 	ret := _m.Called(customerID)
 
-	var r0 *models.Customer
-	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.Customer); ok {
+	var r0 *models.ServiceMember
+	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.ServiceMember); ok {
 		r0 = rf(customerID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Customer)
+			r0 = ret.Get(0).(*models.ServiceMember)
 		}
 	}
 

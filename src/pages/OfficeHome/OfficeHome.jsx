@@ -3,6 +3,7 @@ import React, { lazy } from 'react';
 import PropTypes from 'prop-types';
 
 import { roleTypes } from 'constants/userRoles';
+import { UserRolesShape } from 'types/index';
 
 const Queues = lazy(() => import('scenes/Office/Queues'));
 const TOO = lazy(() => import('scenes/Office/TOO/too'));
@@ -29,11 +30,7 @@ OfficeHome.displayName = 'OfficeHome';
 
 OfficeHome.propTypes = {
   activeRole: PropTypes.string,
-  userRoles: PropTypes.arrayOf(
-    PropTypes.shape({
-      roleType: PropTypes.string.isRequired,
-    }),
-  ).isRequired,
+  userRoles: UserRolesShape.isRequired,
 };
 
 OfficeHome.defaultProps = {

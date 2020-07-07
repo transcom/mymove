@@ -10,7 +10,7 @@
     @include u-display('flex');
 
     :only-child {
-      @include u-width(100%)
+      @include u-width(100%);
     }
 
     :first-child {
@@ -30,6 +30,10 @@
     :last-child {
       @include u-margin-right(0);
     }
+  }
+
+  h4 {
+    @include u-margin-top(0);
   }
 }
 

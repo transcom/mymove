@@ -61,31 +61,6 @@ func (suite *AuthSuite) TestCreateTOO() {
 	suite.Equal(rr.Code, 307)
 }
 
-func (suite *AuthSuite) TestCreateAndAssociateCustomer() {
-	user := testdatagen.MakeDefaultUser(suite.DB())
-	ra := customerAssociator{suite.DB(), suite.logger}
-	err := ra.CreateAndAssociateCustomer(user.ID)
-	suite.NoError(err)
-	c, err := suite.DB().Count(models.Customer{})
-	suite.NoError(err)
-	customer := &models.Customer{}
-	err = suite.DB().Where("user_id=$1", user.ID).First(customer)
-	suite.NoError(err)
-
-	suite.Equal(1, c)
-	suite.Equal(user.ID, customer.UserID)
-}
-
-func (suite *AuthSuite) TestCreateAndAssociateCustomerUserIDNil() {
-	session := auth.Session{
-		ApplicationName: auth.MilApp,
-		Hostname:        MilTestHost,
-	}
-	ra := customerAssociator{suite.DB(), suite.logger}
-	err := ra.CreateAndAssociateCustomer(session.UserID)
-	suite.Error(err)
-}
-
 func (suite *AuthSuite) TestAssociateOfficeUser() {
 	user := testdatagen.MakeDefaultUser(suite.DB())
 	testdatagen.MakeOfficeUserWithNoUser(suite.DB(), testdatagen.Assertions{OfficeUser: models.OfficeUser{
@@ -162,13 +137,11 @@ func (suite *AuthSuite) TestAuthorizeUnknownUser() {
 func (suite *AuthSuite) TestAuthorizeUnknownUserCreateUserFails() {
 	oa := &mocks.OfficeUserAssociator{}
 	aa := &mocks.AdminUserAssociator{}
-	cca := &mocks.CustomerCreatorAndAssociator{}
 	ra := roleAssociator{
-		db:                           suite.DB(),
-		logger:                       suite.logger,
-		OfficeUserAssociator:         oa,
-		AdminUserAssociator:          aa,
-		CustomerCreatorAndAssociator: cca,
+		db:                   suite.DB(),
+		logger:               suite.logger,
+		OfficeUserAssociator: oa,
+		AdminUserAssociator:  aa,
 	}
 	uc := &mocks.UserCreator{}
 	uc.On("CreateUser", mock.Anything, mock.Anything).Return(&models.User{}, errors.New("error"))
@@ -191,13 +164,11 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsSystemAdmin() {
 	aa := &mocks.AdminUserAssociator{}
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	aa.On("AssociateAdminUser", mock.Anything).Return(fakeUUID, nil)
-	cca := &mocks.CustomerCreatorAndAssociator{}
 	ra := roleAssociator{
-		db:                           suite.DB(),
-		logger:                       suite.logger,
-		OfficeUserAssociator:         oa,
-		AdminUserAssociator:          aa,
-		CustomerCreatorAndAssociator: cca,
+		db:                   suite.DB(),
+		logger:               suite.logger,
+		OfficeUserAssociator: oa,
+		AdminUserAssociator:  aa,
 	}
 	uc := &mocks.UserCreator{}
 	uid, _ := uuid.NewV4()
@@ -226,13 +197,11 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsOfficeUser() {
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	oa.On("AssociateOfficeUser", mock.Anything).Return(fakeUUID, nil)
 	aa := &mocks.AdminUserAssociator{}
-	cca := &mocks.CustomerCreatorAndAssociator{}
 	ra := roleAssociator{
-		db:                           suite.DB(),
-		logger:                       suite.logger,
-		OfficeUserAssociator:         oa,
-		AdminUserAssociator:          aa,
-		CustomerCreatorAndAssociator: cca,
+		db:                   suite.DB(),
+		logger:               suite.logger,
+		OfficeUserAssociator: oa,
+		AdminUserAssociator:  aa,
 	}
 	uc := &mocks.UserCreator{}
 	uid, _ := uuid.NewV4()
@@ -260,14 +229,11 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsOfficeUser() {
 func (suite *AuthSuite) TestAuthorizeUnknownUserIsCustomer() {
 	oa := &mocks.OfficeUserAssociator{}
 	aa := &mocks.AdminUserAssociator{}
-	cca := &mocks.CustomerCreatorAndAssociator{}
-	cca.On("CreateAndAssociateCustomer", mock.Anything).Return(nil)
 	ra := roleAssociator{
-		db:                           suite.DB(),
-		logger:                       suite.logger,
-		OfficeUserAssociator:         oa,
-		AdminUserAssociator:          aa,
-		CustomerCreatorAndAssociator: cca,
+		db:                   suite.DB(),
+		logger:               suite.logger,
+		OfficeUserAssociator: oa,
+		AdminUserAssociator:  aa,
 	}
 	uc := &mocks.UserCreator{}
 	uc.On("CreateUser", mock.Anything, mock.Anything).Return(&models.User{}, nil)
@@ -285,7 +251,6 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsCustomer() {
 	err := uua.AuthorizeUnknownUser(user, &session)
 
 	suite.NoError(err)
-	cca.AssertNumberOfCalls(suite.T(), "CreateAndAssociateCustomer", 1)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserIsTOOUser() {
@@ -295,14 +260,12 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsTOOUser() {
 	tr.On("VerifyHasTOORole", mock.Anything).Return(roles.Role{RoleType: roles.RoleTypeTOO}, nil)
 	tr.On("FetchUserIdentity", mock.Anything).Return(&models.UserIdentity{}, nil)
 	aa := &mocks.AdminUserAssociator{}
-	cca := &mocks.CustomerCreatorAndAssociator{}
 	ra := roleAssociator{
-		db:                           suite.DB(),
-		logger:                       suite.logger,
-		OfficeUserAssociator:         oa,
-		AdminUserAssociator:          aa,
-		CustomerCreatorAndAssociator: cca,
-		TOORoleChecker:               tr,
+		db:                   suite.DB(),
+		logger:               suite.logger,
+		OfficeUserAssociator: oa,
+		AdminUserAssociator:  aa,
+		TOORoleChecker:       tr,
 	}
 	uc := &mocks.UserCreator{}
 	uid, _ := uuid.NewV4()

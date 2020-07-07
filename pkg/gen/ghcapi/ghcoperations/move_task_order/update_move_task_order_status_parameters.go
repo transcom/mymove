@@ -9,10 +9,13 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // NewUpdateMoveTaskOrderStatusParams creates a new UpdateMoveTaskOrderStatusParams object
@@ -41,6 +44,10 @@ type UpdateMoveTaskOrderStatusParams struct {
 	  In: path
 	*/
 	MoveTaskOrderID string
+	/*
+	  In: body
+	*/
+	ServiceItemCodes ghcmessages.MTOApprovalServiceItemCodes
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -61,6 +68,22 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 		res = append(res, err)
 	}
 
+	if runtime.HasBody(r) {
+		defer r.Body.Close()
+		var body ghcmessages.MTOApprovalServiceItemCodes
+		if err := route.Consumer.Consume(r.Body, &body); err != nil {
+			res = append(res, errors.NewParseError("serviceItemCodes", "body", "", err))
+		} else {
+			// validate body object
+			if err := body.Validate(route.Formats); err != nil {
+				res = append(res, err)
+			}
+
+			if len(res) == 0 {
+				o.ServiceItemCodes = body
+			}
+		}
+	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

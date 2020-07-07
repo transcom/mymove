@@ -5,16 +5,21 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 
-import { getMTOAgentList, selectMTOAgents } from '../../../shared/Entities/modules/mtoAgents';
-
 import styles from './MoveDetails.module.scss';
 
+import { getMTOAgentList, selectMTOAgents } from 'shared/Entities/modules/mtoAgents';
+import {
+  patchMTOShipmentStatus as patchMTOShipmentStatusAction,
+  getMTOShipments as getMTOShipmentsAction,
+  selectMTOShipments,
+} from 'shared/Entities/modules/mtoShipments';
 import 'pages/TOO/too.scss';
-
 import {
   getMoveOrder as getMoveOrderAction,
   getCustomer as getCustomerAction,
   getAllMoveTaskOrders as getAllMoveTaskOrdersAction,
+  updateMoveTaskOrderStatus as updateMoveTaskOrderStatusAction,
+  selectMoveTaskOrders,
   selectMoveOrder,
   selectCustomer,
 } from 'shared/Entities/modules/moveTaskOrders';
@@ -25,7 +30,6 @@ import {
 import { loadOrders } from 'shared/Entities/modules/orders';
 import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
-import { getMTOShipments as getMTOShipmentsAction, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
 import RequestedShipments from 'components/Office/RequestedShipments';
 import AllowancesTable from 'components/Office/AllowancesTable';
 import OrdersTable from 'components/Office/OrdersTable';
@@ -36,6 +40,7 @@ import {
   MTOShipmentShape,
   MTOAgentShape,
   MTOServiceItemShape,
+  MoveTaskOrderShape,
 } from 'types/moveOrder';
 import { MatchShape } from 'types/router';
 
@@ -50,7 +55,7 @@ export class MoveDetails extends Component {
   constructor(props) {
     super(props);
 
-    this.sections = ['requested-shipments', 'approved-shipments', 'orders', 'allowances', 'customer-info'];
+    this.sections = ['requested-shipments', 'orders', 'allowances', 'customer-info'];
 
     this.state = {
       activeSection: '',
@@ -107,9 +112,20 @@ export class MoveDetails extends Component {
   };
 
   render() {
-    const { moveOrder, allowances, customer, mtoShipments, mtoAgents, mtoServiceItems } = this.props;
+    const {
+      moveOrder,
+      allowances,
+      customer,
+      mtoShipments,
+      mtoAgents,
+      mtoServiceItems,
+      moveTaskOrder,
+      updateMoveTaskOrderStatus,
+      patchMTOShipmentStatus,
+    } = this.props;
     const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
     const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
+
     const { activeSection } = this.state;
 
     const ordersInfo = {
@@ -163,18 +179,22 @@ export class MoveDetails extends Component {
 
           <GridContainer className={styles.gridContainer} data-cy="too-move-details">
             <h1>Move details</h1>
-
-            <div className={styles.section} id="requested-shipments">
-              <RequestedShipments
-                mtoShipments={submittedShipments}
-                allowancesInfo={allowancesInfo}
-                customerInfo={customerInfo}
-                mtoAgents={mtoAgents}
-                isSubmitted
-              />
-            </div>
+            {submittedShipments.length > 0 && (
+              <div className={styles.section} id="requested-shipments">
+                <RequestedShipments
+                  mtoShipments={submittedShipments}
+                  allowancesInfo={allowancesInfo}
+                  customerInfo={customerInfo}
+                  mtoAgents={mtoAgents}
+                  isSubmitted
+                  approveMTO={updateMoveTaskOrderStatus}
+                  approveMTOShipment={patchMTOShipmentStatus}
+                  moveTaskOrder={moveTaskOrder}
+                />
+              </div>
+            )}
             {approvedShipments.length > 0 && (
-              <div className={styles.section} id="approved-shipments">
+              <div className={styles.section} id="requested-shipments">
                 <RequestedShipments
                   mtoShipments={approvedShipments}
                   allowancesInfo={allowancesInfo}
@@ -224,6 +244,8 @@ MoveDetails.propTypes = {
   getMoveOrder: PropTypes.func.isRequired,
   getCustomer: PropTypes.func.isRequired,
   getAllMoveTaskOrders: PropTypes.func.isRequired,
+  updateMoveTaskOrderStatus: PropTypes.func.isRequired,
+  patchMTOShipmentStatus: PropTypes.func.isRequired,
   getMTOShipments: PropTypes.func.isRequired,
   getMTOServiceItems: PropTypes.func.isRequired,
   moveOrder: MoveOrderShape,
@@ -232,6 +254,7 @@ MoveDetails.propTypes = {
   mtoShipments: PropTypes.arrayOf(MTOShipmentShape),
   mtoAgents: PropTypes.arrayOf(MTOAgentShape),
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
+  moveTaskOrder: MoveTaskOrderShape,
 };
 
 MoveDetails.defaultProps = {
@@ -241,6 +264,7 @@ MoveDetails.defaultProps = {
   mtoShipments: [],
   mtoAgents: [],
   mtoServiceItems: [],
+  moveTaskOrder: {},
 };
 
 const mapStateToProps = (state, ownProps) => {
@@ -248,6 +272,8 @@ const mapStateToProps = (state, ownProps) => {
   const moveOrder = selectMoveOrder(state, moveOrderId);
   const allowances = moveOrder?.entitlement;
   const customerId = moveOrder.customerID;
+  const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
+  const moveTaskOrder = moveTaskOrders[0];
 
   return {
     moveOrder,
@@ -256,6 +282,7 @@ const mapStateToProps = (state, ownProps) => {
     mtoShipments: selectMTOShipments(state, moveOrderId),
     mtoAgents: selectMTOAgents(state),
     mtoServiceItems: selectMTOServiceItems(state, moveOrderId),
+    moveTaskOrder,
   };
 };
 
@@ -264,9 +291,11 @@ const mapDispatchToProps = {
   loadOrders,
   getCustomer: getCustomerAction,
   getAllMoveTaskOrders: getAllMoveTaskOrdersAction,
+  updateMoveTaskOrderStatus: updateMoveTaskOrderStatusAction,
   getMTOShipments: getMTOShipmentsAction,
   getMTOAgentList,
   getMTOServiceItems: getMTOServiceItemsAction,
+  patchMTOShipmentStatus: patchMTOShipmentStatusAction,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MoveDetails));

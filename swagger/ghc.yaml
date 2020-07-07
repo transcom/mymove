@@ -835,6 +835,11 @@ paths:
           name: If-Match
           type: string
           required: true
+        - in: body
+          name: serviceItemCodes
+          schema:
+            $ref: '#/definitions/MTOApprovalServiceItemCodes'
+          x-nullable: true
       responses:
         '200':
           description: Successfully updated move task order status
@@ -1803,6 +1808,15 @@ definitions:
           - REJECTED
         type: string
     type: object
+  MTOApprovalServiceItemCodes:
+    type: array
+    items:
+      $ref: '#/definitions/MTOApprovalServiceItemCode'
+  MTOApprovalServiceItemCode:
+    enum:
+      - MS
+      - CS
+    type: string
   UpdatePaymentRequestPayload:
     properties:
       proofOfServicePackage:

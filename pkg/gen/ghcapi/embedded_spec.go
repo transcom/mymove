@@ -876,6 +876,14 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          },
+          {
+            "x-nullable": true,
+            "name": "serviceItemCodes",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/MTOApprovalServiceItemCodes"
+            }
           }
         ],
         "responses": {
@@ -2014,6 +2022,19 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOAgent"
+      }
+    },
+    "MTOApprovalServiceItemCode": {
+      "type": "string",
+      "enum": [
+        "MS",
+        "CS"
+      ]
+    },
+    "MTOApprovalServiceItemCodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOApprovalServiceItemCode"
       }
     },
     "MTOServiceItem": {
@@ -3694,6 +3715,14 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          },
+          {
+            "x-nullable": true,
+            "name": "serviceItemCodes",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/MTOApprovalServiceItemCodes"
+            }
           }
         ],
         "responses": {
@@ -4946,6 +4975,19 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOAgent"
+      }
+    },
+    "MTOApprovalServiceItemCode": {
+      "type": "string",
+      "enum": [
+        "MS",
+        "CS"
+      ]
+    },
+    "MTOApprovalServiceItemCodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOApprovalServiceItemCode"
       }
     },
     "MTOServiceItem": {
