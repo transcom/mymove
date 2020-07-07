@@ -865,7 +865,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	customer := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.Customer{
+		Customer: models.ServiceMember{
 			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"),
 		},
 	})
@@ -882,7 +882,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	customer2 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.Customer{
+		Customer: models.ServiceMember{
 			ID: uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
 		},
 	})
@@ -899,7 +899,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	customer3 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.Customer{
+		Customer: models.ServiceMember{
 			ID: uuid.FromStringOrNil("08606458-cee9-4529-a2e6-9121e67dac72"),
 		},
 	})
@@ -916,7 +916,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	customer4 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.Customer{
+		Customer: models.ServiceMember{
 			ID: uuid.FromStringOrNil("1a13ee6b-3e21-4170-83bc-0d41f60edb99"),
 		},
 	})
@@ -933,7 +933,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	customer5 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.Customer{
+		Customer: models.ServiceMember{
 			ID: uuid.FromStringOrNil("25a90fef-301e-4682-9758-60f0c76ea8b4"),
 		},
 	})
@@ -1093,7 +1093,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	// A more recent MTO for demonstrating the since parameter
 	customer6 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.Customer{
+		Customer: models.ServiceMember{
 			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b61"),
 		},
 	})

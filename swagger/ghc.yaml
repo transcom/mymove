@@ -1313,6 +1313,7 @@ definitions:
       current_address:
         x-nullable: true
         $ref: '#/definitions/Address'
+      # TODO: No more destination address, so could be removed from API payload
       destination_address:
         x-nullable: true
         $ref: '#/definitions/Address'

@@ -2,23 +2,54 @@
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
 
-.approval-close {
-   @include u-float('right');
-   color: $color-icon-gray;
- }
-
 .approvalPreviewModal {
   min-width: 80rem;
+  @include u-margin-top(10);
+  @include u-border('base-light');
+  @include u-border('05');
+  overflow-x: hidden;
+
+  button[type='submit'] {
+    @include u-margin-left(0);
+  }
+
+  .previewContainer {
+    h2 {
+      @include u-margin-bottom(2);
+      @include u-margin-top(2);
+    }
+
+    h4 {
+      @include u-margin-top(2);
+      @include u-margin-bottom(4);
+    }
+  }
 }
 
 .previewShipments {
   @include u-margin-x(0);
+  .innerWrapper {
+    @include u-margin-left(2);
+  }
 }
 
 .customerName {
   @include u-margin-bottom(0);
 }
 
+.containerTop {
+  @include u-margin-bottom(2);
+  .approvalClose {
+    @include u-float('right');
+    @include u-padding-right(0);
+    cursor: pointer;
+    svg {
+      height: 15px;
+      width: 15px;
+      fill: $base;
+    }
+  }
+}
 .sectionBorder {
   min-width: 80rem;
   margin-left: -2.1rem;
@@ -26,6 +57,17 @@
   height: 1px;
   border: 0;
   background-color: #dfe1e2;
+}
+
+.shipmentInfo {
+  width: 60%;
+}
+
+.shipmentServiceItems {
+  @include u-margin-right(2);
+  @include u-margin-top(0);
+  @include u-margin-left(4);
+  flex: 1 1 0;
 }
 
 .previewContainer {
@@ -36,29 +78,18 @@
   border-radius: 3px;
   border: 1px solid #dfe1e2;
 
-  .tableH4{
+  .tableH4 {
     @include u-margin-top(2);
     @include u-margin-bottom(2);
   }
 
-  h2 {
-    @include u-margin-bottom(2);
-    @include u-margin-top(2);
-  }
-
-  h4 {
-    @include u-margin-top(2);
-    @include u-margin-bottom(4);
-  }
   table {
     margin-bottom: 1.5rem;
     h4 {
       @include u-margin-bottom(2);
     }
   }
-  :global .table--stacked {
-    width: 100%;
-  }
+
   :global .stackedtable-header {
     h4 {
       @include u-margin-bottom(2);

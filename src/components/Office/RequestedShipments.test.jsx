@@ -1,4 +1,5 @@
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import { mount, shallow } from 'enzyme';
 
 import RequestedShipments from './RequestedShipments';
@@ -162,15 +163,22 @@ const agents = [
 ];
 
 const allowancesInfo = {
-  branch: 'Navy',
-  rank: 'E-6',
-  weightAllowance: '11,000 lbs',
-  authorizedWeight: '11,000 lbs',
+  branch: 'NAVY',
+  rank: 'E_6',
+  weightAllowance: 11000,
+  authorizedWeight: 11000,
   progear: 2000,
   spouseProgear: 500,
-  storageInTransit: '90 days',
-  dependents: 'Authorized',
+  storageInTransit: 90,
+  dependents: true,
 };
+
+const moveTaskOrder = {
+  eTag: 'MjAyMC0wNi0yNlQyMDoyMjo0MS43Mjc4NTNa',
+  id: '6e8c5ca4-774c-4170-934a-59d22259e480',
+};
+
+const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
 
 describe('RequestedShipments', () => {
   it('renders the container successfully', () => {
@@ -180,6 +188,7 @@ describe('RequestedShipments', () => {
         mtoAgents={agents}
         customerInfo={customerInfo}
         mtoShipments={shipments}
+        approveMTO={approveMTO}
       />,
     );
     expect(wrapper.find('div[data-cy="requested-shipments"]').exists()).toBe(true);
@@ -192,6 +201,7 @@ describe('RequestedShipments', () => {
         mtoAgents={agents}
         allowancesInfo={allowancesInfo}
         customerInfo={customerInfo}
+        approveMTO={approveMTO}
       />,
     );
     expect(wrapper.find('div[data-cy="requested-shipments"]').text()).toContain('HHG');
@@ -204,11 +214,13 @@ describe('RequestedShipments', () => {
         mtoAgents={agents}
         allowancesInfo={allowancesInfo}
         customerInfo={customerInfo}
+        approveMTO={approveMTO}
       />,
     );
-    expect(wrapper.find('button[data-testid="button"]').exists()).toBe(true);
-    expect(wrapper.find('button[data-testid="button"]').text()).toContain('Approve selected shipments');
-    expect(wrapper.find('button[data-testid="button"]').html()).toContain('disabled=""');
+    const approveButton = wrapper.find('#shipmentApproveButton');
+    expect(approveButton.exists()).toBe(true);
+    expect(approveButton.text()).toContain('Approve selected shipments');
+    expect(approveButton.html()).toContain('disabled=""');
   });
 
   it('renders the checkboxes', () => {
@@ -218,9 +230,108 @@ describe('RequestedShipments', () => {
         mtoAgents={agents}
         allowancesInfo={allowancesInfo}
         customerInfo={customerInfo}
+        approveMTO={approveMTO}
       />,
     );
     expect(wrapper.find('div[data-testid="checkbox"]').exists()).toBe(true);
     expect(wrapper.find('div[data-testid="checkbox"]').length).toEqual(4);
+  });
+
+  it('enables the modal button when a shipment and service item are checked', async () => {
+    const mockOnSubmit = jest.fn();
+
+    const wrapper = mount(
+      <RequestedShipments
+        mtoShipments={shipments}
+        mtoAgents={agents}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        moveTaskOrder={moveTaskOrder}
+        approveMTO={mockOnSubmit}
+      />,
+    );
+
+    await act(async () => {
+      wrapper
+        .find('input[name="shipments"]')
+        .at(0)
+        .simulate('change', {
+          target: {
+            name: 'shipments',
+            value: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+          },
+        });
+    });
+    wrapper.update();
+
+    expect(wrapper.find('form button[type="button"]').prop('disabled')).toEqual(true);
+    expect(wrapper.find('#approvalConfirmationModal').prop('style')).toHaveProperty('display', 'none');
+
+    await act(async () => {
+      wrapper
+        .find('input[name="shipmentManagementFee"]')
+        .simulate('change', { target: { name: 'shipmentManagementFee', value: true } });
+    });
+    wrapper.update();
+
+    expect(wrapper.find('form button[type="button"]').prop('disabled')).toBe(false);
+
+    await act(async () => {
+      wrapper.find('form button[type="button"]').simulate('click');
+    });
+    wrapper.update();
+
+    expect(wrapper.find('#approvalConfirmationModal').prop('style')).toHaveProperty('display', 'block');
+  });
+
+  it('calls approveMTO onSubmit', async () => {
+    const mockOnSubmit = jest.fn((id, eTag) => {
+      return new Promise((resolve) => {
+        resolve({ response: { status: 200, body: { id, eTag } } });
+      });
+    });
+
+    const wrapper = mount(
+      <RequestedShipments
+        mtoShipments={shipments}
+        mtoAgents={agents}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        moveTaskOrder={moveTaskOrder}
+        approveMTO={mockOnSubmit}
+      />,
+    );
+
+    // You could take the shortcut and call submit directly as well if providing initial values
+    //  wrapper.find('form').simulate('submit');
+
+    // When simulating change events you must pass the target with the id and
+    // name for formik to know which value to update
+    await act(async () => {
+      wrapper
+        .find('input[name="shipments"]')
+        .at(0)
+        .simulate('change', {
+          target: {
+            name: 'shipments',
+            value: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+          },
+        });
+
+      wrapper
+        .find('input[name="shipmentManagementFee"]')
+        .simulate('change', { target: { name: 'shipmentManagementFee', value: true } });
+
+      wrapper
+        .find('input[name="counselingFee"]')
+        .simulate('change', { target: { name: 'counselingFee', value: true } });
+
+      wrapper.find('form button[type="button"]').simulate('click');
+
+      wrapper.find('button[type="submit"]').simulate('click');
+    });
+
+    expect(mockOnSubmit).toHaveBeenCalled();
+    expect(mockOnSubmit.mock.calls[0]).toEqual([moveTaskOrder.id, moveTaskOrder.eTag]);
   });
 });

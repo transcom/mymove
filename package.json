@@ -33,7 +33,7 @@
     "ra-data-simple-rest": "^2.9.9",
     "ra-language-english": "^3.6.2",
     "react": "^16.13.1",
-    "react-admin": "^3.6.2",
+    "react-admin": "^3.7.0",
     "react-app-polyfill": "^1.0.6",
     "react-day-picker": "=7.4.8",
     "react-dom": "^16.13.1",
@@ -64,7 +64,7 @@
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
     "storybook-addons-abstract": "^5.0.6",
-    "swagger-client": "^3.10.9",
+    "swagger-client": "^3.10.10",
     "swagger-ui-dist": "^3.28.0",
     "uswds": "2.7.1",
     "yup": "^0.29.1"
