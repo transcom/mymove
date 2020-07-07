@@ -25,7 +25,7 @@ module.exports = (webpackConfig) => {
               ascii_only: true,
             },
           },
-          parallel: 2,
+          parallel: false,
           sourceMap: false,
         }),
       ],
