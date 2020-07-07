@@ -1,11 +1,26 @@
 import 'raf/polyfill';
 import { getPagesInFlow, getNextIncompletePage } from './getWorkflowRoutes';
 import { NULL_UUID, SHIPMENT_TYPE } from 'shared/constants';
+
+const ppmContext = {
+  flags: {
+    isHhgFlow: false,
+  },
+};
+// const hhgContext = {
+//   context: {
+//     flags: {
+//       isHhgFlow: true,
+//     },
+//   },
+// };
+
 describe('when getting the routes for the current workflow', () => {
   describe('given a complete service member', () => {
     describe('given a PPM', () => {
       const props = {
         selectedMoveType: SHIPMENT_TYPE.PPM,
+        context: ppmContext,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
@@ -29,7 +44,7 @@ describe('when getting the routes for the current workflow', () => {
       });
     });
     describe('given a canceled PPM', () => {
-      const props = { lastMoveIsCanceled: true, selectedMoveType: SHIPMENT_TYPE.PPM };
+      const props = { lastMoveIsCanceled: true, selectedMoveType: SHIPMENT_TYPE.PPM, context: ppmContext };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns profile review, the order and move pages', () => {
         expect(pages).toEqual([
@@ -49,6 +64,7 @@ describe('when getting the routes for the current workflow', () => {
     describe('given no move', () => {
       const props = {
         selectedMoveType: null,
+        context: ppmContext,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
@@ -72,6 +88,7 @@ describe('when getting the routes for the current workflow', () => {
     describe('given a PPM', () => {
       const props = {
         selectedMoveType: SHIPMENT_TYPE.PPM,
+        context: ppmContext,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and PPM-specific move pages', () => {
@@ -104,6 +121,7 @@ describe('when getting the next incomplete page', () => {
       const result = getNextIncompletePage({
         selectedMoveType: 'HHG',
         serviceMember,
+        context: ppmContext,
       });
       expect(result).toEqual('/service-member/foo/create');
     });
@@ -118,6 +136,7 @@ describe('when getting the next incomplete page', () => {
             rank: 'E_6',
             affiliation: 'Marines',
           },
+          context: ppmContext,
         });
         expect(result).toEqual('/service-member/foo/name');
       });
@@ -135,6 +154,7 @@ describe('when getting the next incomplete page', () => {
             last_name: 'foo',
             first_name: 'foo',
           },
+          context: ppmContext,
         });
         expect(result).toEqual('/service-member/foo/contact-info');
       });
@@ -159,6 +179,7 @@ describe('when getting the next incomplete page', () => {
               id: NULL_UUID,
               name: '',
             },
+            context: ppmContext,
           },
         });
         expect(result).toEqual('/service-member/foo/duty-station');
@@ -183,6 +204,7 @@ describe('when getting the next incomplete page', () => {
               id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
               name: 'Blue Grass Army Depot',
             },
+            context: ppmContext,
           },
         });
         expect(result).toEqual('/service-member/foo/residence-address');
@@ -213,6 +235,7 @@ describe('when getting the next incomplete page', () => {
               state: 'GA',
               street_address_1: 'xxx',
             },
+            context: ppmContext,
           },
         });
         expect(result).toEqual('/service-member/foo/backup-mailing-address');
@@ -249,6 +272,7 @@ describe('when getting the next incomplete page', () => {
               state: 'GA',
               street_address_1: 'zzz',
             },
+            context: ppmContext,
           },
         });
         expect(result).toEqual('/service-member/foo/backup-contacts');
@@ -298,6 +322,7 @@ describe('when getting the next incomplete page', () => {
         const result = getNextIncompletePage({
           serviceMember: sm,
           backupContacts,
+          context: ppmContext,
         });
         expect(result).toEqual('/orders/');
       });
@@ -310,6 +335,7 @@ describe('when getting the next incomplete page', () => {
           ...serviceMember,
           is_profile_complete: true,
         },
+        context: ppmContext,
       });
       expect(result).toEqual('/orders/');
     });
@@ -327,6 +353,7 @@ describe('when getting the next incomplete page', () => {
             new_duty_station: { id: 'something' },
           },
           move: { id: 'bar' },
+          context: ppmContext,
         });
         expect(result).toEqual('/orders/upload');
       });
@@ -348,6 +375,7 @@ describe('when getting the next incomplete page', () => {
             },
           },
           move: { id: 'bar' },
+          context: ppmContext,
         });
         expect(result).toEqual('/moves/bar/review');
       });
@@ -379,6 +407,7 @@ describe('when getting the next incomplete page', () => {
             pickup_postal_code: '22222',
             destination_postal_code: '22222',
           },
+          context: ppmContext,
         });
         expect(result).toEqual('/moves/bar/ppm-incentive');
       });
@@ -411,6 +440,7 @@ describe('when getting the next incomplete page', () => {
             destination_postal_code: '22222',
             weight_estimate: 555,
           },
+          context: ppmContext,
         });
         expect(result).toEqual('/moves/bar/review');
       });

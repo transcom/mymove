@@ -65,7 +65,7 @@ const always = () => true;
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_TYPE.PPM;
-const inHhgFlow = (props) => props.context.flags.hhgFlow;
+const inHhgFlow = (props) => props.context.flags.isHhgFlow;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
@@ -204,7 +204,7 @@ export const getNextIncompletePage = ({
   move = {},
   ppm = {},
   backupContacts = [],
-  context,
+  context = {},
 }) => {
   // console.log('props in getnext page', props);
   const rawPath = findKey(
