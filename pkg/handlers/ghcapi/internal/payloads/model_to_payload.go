@@ -47,22 +47,21 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 }
 
 // Customer payload
-func Customer(customer *models.Customer) *ghcmessages.Customer {
+func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	if customer == nil {
 		return nil
 	}
 	payload := ghcmessages.Customer{
-		Agency:             swag.StringValue(customer.Agency),
-		CurrentAddress:     Address(&customer.CurrentAddress),
-		DestinationAddress: Address(&customer.DestinationAddress),
-		DodID:              swag.StringValue(customer.DODID),
-		Email:              customer.Email,
-		FirstName:          swag.StringValue(customer.FirstName),
-		ID:                 strfmt.UUID(customer.ID.String()),
-		LastName:           swag.StringValue(customer.LastName),
-		Phone:              customer.PhoneNumber,
-		UserID:             strfmt.UUID(customer.UserID.String()),
-		ETag:               etag.GenerateEtag(customer.UpdatedAt),
+		Agency:         swag.StringValue((*string)(customer.Affiliation)),
+		CurrentAddress: Address(customer.ResidentialAddress),
+		DodID:          swag.StringValue(customer.Edipi),
+		Email:          customer.PersonalEmail,
+		FirstName:      swag.StringValue(customer.FirstName),
+		ID:             strfmt.UUID(customer.ID.String()),
+		LastName:       swag.StringValue(customer.LastName),
+		Phone:          customer.Telephone,
+		UserID:         strfmt.UUID(customer.UserID.String()),
+		ETag:           etag.GenerateEtag(customer.UpdatedAt),
 	}
 	return &payload
 }
@@ -89,7 +88,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	}
 
 	if moveOrder.Customer != nil {
-		payload.Agency = swag.StringValue(moveOrder.Customer.Agency)
+		payload.Agency = swag.StringValue((*string)(moveOrder.Customer.Affiliation))
 		payload.CustomerID = strfmt.UUID(moveOrder.CustomerID.String())
 		payload.FirstName = swag.StringValue(moveOrder.Customer.FirstName)
 		payload.LastName = swag.StringValue(moveOrder.Customer.LastName)

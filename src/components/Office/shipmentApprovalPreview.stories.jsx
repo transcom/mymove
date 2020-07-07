@@ -125,12 +125,12 @@ const shipments = [
 const allowancesInfo = {
   branch: 'NAVY',
   rank: 'E_6',
-  weightAllowance: '11,000 lbs',
-  authorizedWeight: '11,000 lbs',
-  progear: '2,000 lbs',
-  spouseProgear: '500 lbs',
-  storageInTransit: '90 days',
-  dependents: 'Authorized',
+  weightAllowance: 11000,
+  authorizedWeight: 11000,
+  progear: 2000,
+  spouseProgear: 500,
+  storageInTransit: 90,
+  dependents: true,
 };
 
 const customerInfo = {
