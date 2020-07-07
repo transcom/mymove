@@ -1,13 +1,14 @@
+/* eslint-disable no-only-tests/no-only-tests */
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { shallow, mount } from 'enzyme';
 
-import ConnectedOffice, { OfficeWrapper } from './index';
+import ConnectedOffice, { OfficeApp } from './index';
 
 import { MockProviders } from 'testUtils';
 import { roleTypes } from 'constants/userRoles';
 
-describe('ConnectedOffice', () => {
+describe('Office App', () => {
   const mockOfficeProps = {
     getCurrentUserInfo: jest.fn(),
     loadInternalSchema: jest.fn(),
@@ -18,7 +19,7 @@ describe('ConnectedOffice', () => {
     let wrapper;
 
     beforeEach(() => {
-      wrapper = shallow(<OfficeWrapper {...mockOfficeProps} />);
+      wrapper = shallow(<OfficeApp {...mockOfficeProps} />);
     });
 
     it('renders without crashing or erroring', () => {
@@ -43,47 +44,47 @@ describe('ConnectedOffice', () => {
         expect(wrapper.find('SomethingWentWrong')).toHaveLength(1);
       });
     });
+  });
 
-    describe('if the user is logged in with multiple roles', () => {
-      const multiRoleState = {
-        user: {
-          isLoading: false,
-          userInfo: {
-            isLoggedIn: true,
-            roles: [
-              {
-                roleType: roleTypes.TOO,
-              },
-              {
-                roleType: roleTypes.TIO,
-              },
-            ],
-          },
+  describe('if the user is logged in with multiple roles', () => {
+    const multiRoleState = {
+      user: {
+        isLoading: false,
+        userInfo: {
+          isLoggedIn: true,
+          roles: [
+            {
+              roleType: roleTypes.TOO,
+            },
+            {
+              roleType: roleTypes.TIO,
+            },
+          ],
         },
-      };
+      },
+    };
 
-      describe('on a page that isn’t the Select Application page', () => {
-        it('renders the Select Application link', () => {
-          const app = mount(
-            <MockProviders initialState={multiRoleState} initialEntries={['/']}>
-              <ConnectedOffice {...mockOfficeProps} location={{ pathname: '/' }} />
-            </MockProviders>,
-          );
+    describe('on a page that isn’t the Select Application page', () => {
+      it('renders the Select Application link', () => {
+        const app = mount(
+          <MockProviders initialState={multiRoleState} initialEntries={['/']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
 
-          expect(app.containsMatchingElement(<a href="/select-application">Change user role</a>)).toEqual(true);
-        });
+        expect(app.containsMatchingElement(<a href="/select-application">Change user role</a>)).toEqual(true);
       });
+    });
 
-      describe('on the Select Application page', () => {
-        it('does not render the Select Application link', () => {
-          const app = mount(
-            <MockProviders initialState={multiRoleState} initialEntries={['/select-application']}>
-              <ConnectedOffice {...mockOfficeProps} location={{ pathname: '/select-application' }} />
-            </MockProviders>,
-          );
+    describe('on the Select Application page', () => {
+      it('does not render the Select Application link', () => {
+        const app = mount(
+          <MockProviders initialState={multiRoleState} initialEntries={['/select-application']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
 
-          expect(app.containsMatchingElement(<a href="/select-application">Change user role</a>)).toEqual(false);
-        });
+        expect(app.containsMatchingElement(<a href="/select-application">Change user role</a>)).toEqual(false);
       });
     });
   });
@@ -119,7 +120,7 @@ describe('ConnectedOffice', () => {
     it('handles the SignIn URL', () => {
       const app = mount(
         <MockProviders initialState={loggedOutState} initialEntries={['/sign-in']}>
-          <OfficeWrapper {...mockOfficeProps} />
+          <ConnectedOffice />
         </MockProviders>,
       );
 
@@ -131,7 +132,7 @@ describe('ConnectedOffice', () => {
     it('handles the root URL', () => {
       const app = mount(
         <MockProviders initialState={loggedInState} initialEntries={['/']}>
-          <OfficeWrapper {...mockOfficeProps} />
+          <ConnectedOffice />
         </MockProviders>,
       );
 
@@ -143,7 +144,7 @@ describe('ConnectedOffice', () => {
     it('handles the Select Application URL', () => {
       const app = mount(
         <MockProviders initialState={loggedInState} initialEntries={['/select-application']}>
-          <OfficeWrapper {...mockOfficeProps} />
+          <ConnectedOffice />
         </MockProviders>,
       );
 
@@ -170,7 +171,7 @@ describe('ConnectedOffice', () => {
       it('handles a MoveInfo URL', () => {
         const app = mount(
           <MockProviders initialState={loggedInPPMState} initialEntries={['/queues/new/moves/123']}>
-            <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/queues/new/moves/123' }} />
+            <ConnectedOffice />
           </MockProviders>,
         );
 
@@ -182,7 +183,7 @@ describe('ConnectedOffice', () => {
       it('handles a Queues URL', () => {
         const app = mount(
           <MockProviders initialState={loggedInPPMState} initialEntries={['/queues/new']}>
-            <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/queues/new' }} />
+            <ConnectedOffice />
           </MockProviders>,
         );
 
@@ -194,7 +195,7 @@ describe('ConnectedOffice', () => {
       it('handles a OrdersInfo URL', () => {
         const app = mount(
           <MockProviders initialState={loggedInPPMState} initialEntries={['/moves/123/orders']}>
-            <OfficeWrapper {...mockOfficeProps} userIsLoggedIn location={{ pathname: '/moves/123/orders' }} />
+            <ConnectedOffice />
           </MockProviders>,
         );
 
@@ -209,7 +210,7 @@ describe('ConnectedOffice', () => {
       it('handles a DocumentViewer URL', () => {
         const app = mount(
           <MockProviders initialState={loggedInPPMState} initialEntries={['/moves/123/documents/abc']}>
-            <OfficeWrapper {...mockOfficeProps} userIsLoggedIn location={{ pathname: '/moves/123/documents/abc' }} />
+            <ConnectedOffice />
           </MockProviders>,
         );
 
@@ -237,83 +238,52 @@ describe('ConnectedOffice', () => {
         },
       };
 
-      describe('without the feature flags set', () => {
-        it('does not handle the moves queue URL', () => {
-          const app = mount(
-            <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/queue']}>
-              <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/moves/queue' }} />
-            </MockProviders>,
-          );
+      it('handles the moves queue URL', () => {
+        const app = mount(
+          <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/queue']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
 
-          const renderedRoute = app.find('PrivateRoute');
-          expect(renderedRoute).toHaveLength(0);
-        });
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual('/moves/queue');
       });
 
-      describe('with the feature flags set', () => {
-        it('handles the moves queue URL', () => {
-          const app = mount(
-            <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/queue']}>
-              <OfficeWrapper
-                context={{ flags: { too: true } }}
-                {...mockOfficeProps}
-                location={{ pathname: '/moves/queue' }}
-              />
-            </MockProviders>,
-          );
+      it('handles the TXOMoveInfo URL', () => {
+        const app = mount(
+          <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/123']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
 
-          const renderedRoute = app.find('PrivateRoute');
-          expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual('/moves/queue');
-        });
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId');
+      });
 
-        it('handles the TXOMoveInfo URL', () => {
-          const app = mount(
-            <MockProviders initialState={loggedInTOOState} initialEntries={['/moves/123']}>
-              <OfficeWrapper
-                context={{ flags: { too: true } }}
-                {...mockOfficeProps}
-                location={{ pathname: '/moves/123' }}
-              />
-            </MockProviders>,
-          );
+      it('handles the CustomerDetails URL', () => {
+        const app = mount(
+          <MockProviders initialState={loggedInTOOState} initialEntries={['/too/123/customer/abc']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
 
-          const renderedRoute = app.find('PrivateRoute');
-          expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId');
-        });
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual('/too/:moveOrderId/customer/:customerId');
+      });
 
-        it('handles the CustomerDetails URL', () => {
-          const app = mount(
-            <MockProviders initialState={loggedInTOOState} initialEntries={['/too/123/customer/abc']}>
-              <OfficeWrapper
-                context={{ flags: { too: true } }}
-                {...mockOfficeProps}
-                location={{ pathname: '/too/123/customer/abc' }}
-              />
-            </MockProviders>,
-          );
+      it('handles the Verification URL', () => {
+        const app = mount(
+          <MockProviders initialState={loggedInTOOState} initialEntries={['/verification-in-progress']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
 
-          const renderedRoute = app.find('PrivateRoute');
-          expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual('/too/:moveOrderId/customer/:customerId');
-        });
-
-        it('handles the Verification URL', () => {
-          const app = mount(
-            <MockProviders initialState={loggedInTOOState} initialEntries={['/verification-in-progress']}>
-              <OfficeWrapper
-                context={{ flags: { too: true } }}
-                {...mockOfficeProps}
-                location={{ pathname: '/verification-in-progress' }}
-              />
-            </MockProviders>,
-          );
-
-          const renderedRoute = app.find('Route');
-          expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual('/verification-in-progress');
-        });
+        const renderedRoute = app.find('Route');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual('/verification-in-progress');
       });
     });
 
@@ -332,67 +302,40 @@ describe('ConnectedOffice', () => {
         },
       };
 
-      describe('without the feature flags set', () => {
-        it('does not handle the invoicing queue URL', () => {
-          const app = mount(
-            <MockProviders initialState={loggedInTIOState} initialEntries={['/invoicing/queue']}>
-              <OfficeWrapper {...mockOfficeProps} location={{ pathname: '/invoicing/queue' }} />
-            </MockProviders>,
-          );
+      it('handles the invoicing queue URL', () => {
+        const app = mount(
+          <MockProviders initialState={loggedInTIOState} initialEntries={['/invoicing/queue']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
 
-          const renderedRoute = app.find('PrivateRoute');
-          expect(renderedRoute).toHaveLength(0);
-        });
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual('/invoicing/queue');
       });
 
-      describe('with the feature flags set', () => {
-        it('handles the invoicing queue URL', () => {
-          const app = mount(
-            <MockProviders initialState={loggedInTIOState} initialEntries={['/invoicing/queue']}>
-              <OfficeWrapper
-                context={{ flags: { tio: true } }}
-                {...mockOfficeProps}
-                location={{ pathname: '/invoicing/queue' }}
-              />
-            </MockProviders>,
-          );
+      it('handles the TXOMoveInfo URL', () => {
+        const app = mount(
+          <MockProviders initialState={loggedInTIOState} initialEntries={['/moves/123']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
 
-          const renderedRoute = app.find('PrivateRoute');
-          expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual('/invoicing/queue');
-        });
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId');
+      });
 
-        it('handles the TXOMoveInfo URL', () => {
-          const app = mount(
-            <MockProviders initialState={loggedInTIOState} initialEntries={['/moves/123']}>
-              <OfficeWrapper
-                context={{ flags: { too: true } }}
-                {...mockOfficeProps}
-                location={{ pathname: '/moves/123' }}
-              />
-            </MockProviders>,
-          );
+      it('handles the PaymentRequestIndex URL', () => {
+        const app = mount(
+          <MockProviders initialState={loggedInTIOState} initialEntries={['/payment_requests']}>
+            <ConnectedOffice />
+          </MockProviders>,
+        );
 
-          const renderedRoute = app.find('PrivateRoute');
-          expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId');
-        });
-
-        it('handles the PaymentRequestIndex URL', () => {
-          const app = mount(
-            <MockProviders initialState={loggedInTIOState} initialEntries={['/payment_requests']}>
-              <OfficeWrapper
-                context={{ flags: { tio: true } }}
-                {...mockOfficeProps}
-                location={{ pathname: '/payment_requests' }}
-              />
-            </MockProviders>,
-          );
-
-          const renderedRoute = app.find('PrivateRoute');
-          expect(renderedRoute).toHaveLength(1);
-          expect(renderedRoute.prop('path')).toEqual('/payment_requests');
-        });
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual('/payment_requests');
       });
     });
   });

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch, withRouter, matchPath, Link } from 'react-router-dom';
@@ -28,7 +29,6 @@ import { LocationShape, UserRolesShape } from 'types/index';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('shared/User/SignIn'));
-const ConnectedOfficeHome = lazy(() => import('pages/OfficeHome'));
 // PPM pages (TODO move into src/pages)
 const MoveInfo = lazy(() => import('scenes/Office/MoveInfo'));
 const Queues = lazy(() => import('scenes/Office/Queues'));
@@ -44,7 +44,7 @@ const TOOVerificationInProgress = lazy(() => import('scenes/Office/TOO/tooVerifi
 const TIO = lazy(() => import('scenes/Office/TIO/tio'));
 const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
 
-export class OfficeWrapper extends Component {
+export class OfficeApp extends Component {
   constructor(props) {
     super(props);
 
@@ -76,21 +76,20 @@ export class OfficeWrapper extends Component {
   render() {
     const { hasError, error, info } = this.state;
     const {
+      activeRole,
       userIsLoggedIn,
       userRoles,
-      context: {
-        flags: { too, tio },
-      },
       location: { pathname },
     } = this.props;
 
-    // TODO - doesn't seem like any of these routes are accessible if not logged in, suggest refactor PrivateRoute into HOC required by this entrypoint
+    const selectedRole = userIsLoggedIn && (activeRole || userRoles[0]?.roleType);
+
     // TODO - test login page?
 
     // TODO - I don't love this solution but it will work for now. Ideally we can abstract the page layout into a separate file where each route can use it or not
-    // Don't show Header on OrdersInfo or DocumentViewer pages
+    // Don't show Header on OrdersInfo or DocumentViewer pages (PPM only)
     const hideHeader =
-      userIsLoggedIn &&
+      selectedRole === roleTypes.PPM &&
       (matchPath(pathname, {
         path: '/moves/:moveId/documents/:moveDocumentId?',
         exact: true,
@@ -108,6 +107,72 @@ export class OfficeWrapper extends Component {
         exact: true,
       });
 
+    const ppmRoutes = [
+      <PrivateRoute
+        key="ppmMoveInfoRoute"
+        path="/queues/:queueType/moves/:moveId"
+        component={MoveInfo}
+        requiredRoles={[roleTypes.PPM]}
+      />,
+      <PrivateRoute
+        key="ppmQueuesRoute"
+        path="/queues/:queueType"
+        component={Queues}
+        requiredRoles={[roleTypes.PPM]}
+      />,
+      <PrivateRoute
+        key="ppmMoveOrdersRoute"
+        path="/moves/:moveId/orders"
+        component={OrdersInfo}
+        requiredRoles={[roleTypes.PPM]}
+      />,
+      <PrivateRoute
+        key="ppmMoveDocumentRoute"
+        path="/moves/:moveId/documents/:moveDocumentId?"
+        component={DocumentViewer}
+        requiredRoles={[roleTypes.PPM]}
+      />,
+    ];
+
+    const txoRoutes = [
+      <PrivateRoute
+        key="txoMovesQueueRoute"
+        path="/moves/queue"
+        exact
+        component={TOO}
+        requiredRoles={[roleTypes.TOO]}
+      />,
+      <PrivateRoute
+        key="txoMoveInfoRoute"
+        path="/moves/:moveOrderId"
+        component={TXOMoveInfo}
+        requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
+      />,
+      <PrivateRoute
+        key="txoInvoicingQueueRoute"
+        path="/invoicing/queue"
+        component={TIO}
+        requiredRoles={[roleTypes.TIO]}
+      />,
+      <PrivateRoute
+        key="txoCustomerInfoRoute"
+        path="/too/:moveOrderId/customer/:customerId"
+        component={CustomerDetails}
+        requiredRoles={[roleTypes.TOO]}
+      />,
+      <Route
+        key="verificationInProgressRoute"
+        path="/verification-in-progress"
+        component={TOOVerificationInProgress}
+      />,
+      <PrivateRoute
+        key="txoPaymentRequestsRoute"
+        path="/payment_requests"
+        component={PaymentRequestIndex}
+        requiredRoles={[roleTypes.TIO]}
+      />,
+    ];
+
     return (
       <div className="site">
         <FOUOHeader />
@@ -124,49 +189,28 @@ export class OfficeWrapper extends Component {
                 {/* no auth */}
                 <Route path="/sign-in" component={SignIn} />
 
-                {/* ROOT */}
-                <PrivateRoute exact path="/" component={ConnectedOfficeHome} />
+                {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
+
                 <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
 
-                {/* PPM routes */}
+                {/* ROOT */}
                 <PrivateRoute
-                  path="/queues/:queueType/moves/:moveId"
-                  component={MoveInfo}
-                  requiredRoles={[roleTypes.PPM]}
+                  exact
+                  path="/"
+                  render={(routeProps) => {
+                    switch (selectedRole) {
+                      case roleTypes.PPM:
+                        return <Queues queueType="new" {...routeProps} />;
+                      case roleTypes.TIO:
+                        return <TIO {...routeProps} />;
+                      case roleTypes.TOO:
+                        return <TOO {...routeProps} />;
+                      default:
+                        // User has unknown role or shouldn't have access
+                        return <div />;
+                    }
+                  }}
                 />
-                <PrivateRoute path="/queues/:queueType" component={Queues} requiredRoles={[roleTypes.PPM]} />
-                <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} requiredRoles={[roleTypes.PPM]} />
-                <PrivateRoute
-                  path="/moves/:moveId/documents/:moveDocumentId?"
-                  component={DocumentViewer}
-                  requiredRoles={[roleTypes.PPM]}
-                />
-
-                {/* TXO routes, depend on too/tio feature flags */}
-                {too && (
-                  <PrivateRoute
-                    path="/too/:moveOrderId/customer/:customerId"
-                    component={CustomerDetails}
-                    requiredRoles={[roleTypes.TOO]}
-                  />
-                )}
-                {too && <PrivateRoute path="/moves/queue" exact component={TOO} requiredRoles={[roleTypes.TOO]} />}
-                {(too || tio) && (
-                  <PrivateRoute
-                    path="/moves/:moveOrderId"
-                    component={TXOMoveInfo}
-                    requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
-                  />
-                )}
-                {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
-                {tio && <PrivateRoute path="/invoicing/queue" component={TIO} requiredRoles={[roleTypes.TIO]} />}
-                {tio && (
-                  <PrivateRoute
-                    path="/payment_requests"
-                    component={PaymentRequestIndex}
-                    requiredRoles={[roleTypes.TIO]}
-                  />
-                )}
               </Switch>
             )}
           </Suspense>
@@ -176,31 +220,21 @@ export class OfficeWrapper extends Component {
   }
 }
 
-OfficeWrapper.propTypes = {
+OfficeApp.propTypes = {
   loadInternalSchema: PropTypes.func.isRequired,
   loadPublicSchema: PropTypes.func.isRequired,
   getCurrentUserInfo: PropTypes.func.isRequired,
-  context: PropTypes.shape({
-    flags: PropTypes.shape({
-      too: PropTypes.bool,
-      tio: PropTypes.bool,
-    }),
-  }),
   location: LocationShape,
   userIsLoggedIn: PropTypes.bool,
   userRoles: UserRolesShape,
+  activeRole: PropTypes.string,
 };
 
-OfficeWrapper.defaultProps = {
-  context: {
-    flags: {
-      too: false,
-      tio: false,
-    },
-  },
+OfficeApp.defaultProps = {
   location: { pathname: '' },
   userIsLoggedIn: false,
   userRoles: [],
+  activeRole: null,
 };
 
 const mapStateToProps = (state) => {
@@ -209,6 +243,7 @@ const mapStateToProps = (state) => {
     swaggerError: state.swaggerInternal.hasErrored,
     userIsLoggedIn: user.isLoggedIn,
     userRoles: user.roles,
+    activeRole: state.auth.activeRole,
   };
 };
 
@@ -222,4 +257,4 @@ const mapDispatchToProps = (dispatch) =>
     dispatch,
   );
 
-export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(OfficeWrapper)));
+export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(OfficeApp)));
