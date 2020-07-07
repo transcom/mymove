@@ -3,7 +3,7 @@ import moment from 'moment';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import PropTypes from 'prop-types';
 import { getFormValues } from 'redux-form';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';

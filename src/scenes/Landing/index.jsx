@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { bindActionCreators } from 'redux';
 import { withLastLocation } from 'react-router-last-location';
 
