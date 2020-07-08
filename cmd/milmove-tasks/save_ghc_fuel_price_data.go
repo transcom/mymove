@@ -56,13 +56,13 @@ func saveGHCFuelPriceData(cmd *cobra.Command, args []string) error {
 
 	err := cmd.ParseFlags(args)
 	if err != nil {
-		return errors.Wrap(err, "Could not parse args")
+		return fmt.Errorf("could not parse args: %w", err)
 	}
 	flags := cmd.Flags()
 	v := viper.New()
 	err = v.BindPFlags(flags)
 	if err != nil {
-		return errors.Wrap(err, "Could not bind flags")
+		return fmt.Errorf("could not bind flags: %w", err)
 	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
@@ -97,7 +97,7 @@ func saveGHCFuelPriceData(cmd *cobra.Command, args []string) error {
 	if v.GetBool(cli.DbIamFlag) {
 		if session != nil {
 			// We want to get the credentials from the logged in AWS session rather than create directly,
-			// because the session conflates the environment, shared, and container metdata config
+			// because the session conflates the environment, shared, and container metadata config
 			// within NewSession.  With stscreds, we use the Secure Token Service,
 			// to assume the given role (that has rds db connect permissions).
 			dbIamRole := v.GetString(cli.DbIamRoleFlag)
