@@ -55,6 +55,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		serviceItemID1, _ := uuid.FromString("1b7b134a-7c44-45f2-9114-bb0831cc5db3")
 		serviceItemID2, _ := uuid.FromString("119f0a05-34d7-4d86-9745-009c0707b4c2")
+		// TODO should be using MakeMTOServiceItem to create MTO Service Items, causing failures
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
@@ -118,12 +119,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				ServiceItems: []*primemessages.ServiceItem{
 					{
 						ID: *handlers.FmtUUID(serviceItemID1),
-						Params: []*primemessages.ServiceItemParamsItems0{
-							{
-								Key:   "weight",
-								Value: "5678",
-							},
-						},
 					},
 				},
 				PointOfContact: "user@prime.com",

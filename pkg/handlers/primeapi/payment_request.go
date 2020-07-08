@@ -129,12 +129,26 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 			return nil, verrs, fmt.Errorf("could not convert service item ID [%v] to UUID: %w", payloadServiceItem.ID, err)
 		}
 
+		/*
+			var reService models.ReService
+			err = h.DB().Q().Join("mto_service_items", "mto_service_items.re_service_id = re_services.id").
+				Where("mto_service_items.id = ?", mtoServiceItemID).
+				First(&reService)
+			if err != nil {
+				return nil, verrs, fmt.Errorf("could not find RE (rate engine) service item for MTO Service Items with UUID %s with error: %w", mtoServiceItemID, err)
+			}
+		*/
+
 		paymentServiceItem := models.PaymentServiceItem{
 			// The rest of the model will be filled in when the payment request is created
 			MTOServiceItemID: mtoServiceItemID,
 		}
 
-		paymentServiceItem.PaymentServiceItemParams = h.buildPaymentServiceItemParams(payloadServiceItem)
+		//paymentServiceItem.PaymentServiceItemParams, err = h.buildPaymentServiceItemParams(payloadServiceItem, reService)
+		paymentServiceItem.PaymentServiceItemParams, err = h.buildPaymentServiceItemParams(payloadServiceItem)
+		if err != nil {
+			return nil, verrs, err
+		}
 
 		paymentServiceItems = append(paymentServiceItems, paymentServiceItem)
 	}
@@ -142,22 +156,21 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 	return paymentServiceItems, verrs, nil
 }
 
-
-func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem) models.PaymentServiceItemParams {
-	var paymentServiceItemParams models.PaymentServiceItemParams
-
+func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem) (models.PaymentServiceItemParams, error) {
 	/************
-	   ServiceItem.params is set to readOnly = true currently in prime.yaml. Therefore we are only checking if
-	   there were params sent. If there were params in via the create payment request then we will error out.
+	  ServiceItem.params is set to readOnly = true currently in prime.yaml. Therefore we are only checking if
+	  there were params sent. If there were params in via the create payment request then we will error out.
 
-	   Currently not expecting the prime to provide any params. This might change we continue adding service items
-	   for billing and will have to adjust which service items allow incoming params at that time.
-	 ***********/
+	  Currently not expecting the prime to provide any params. This might change we continue adding service items
+	  for billing and will have to adjust which service items allow incoming params at that time.
+	***********/
 
 	if len(payloadMTOServiceItem.Params) > 0 {
-		// TODO return error
 		// if not in this function it can also be done up top
+		//return models.PaymentServiceItemParams{}, fmt.Errorf("updating service item params not allowed for service item [%s] with MTO Service UUID: %s", reService.Name, payloadMTOServiceItem.ID)
+		return models.PaymentServiceItemParams{}, fmt.Errorf("updating service item params not allowed with MTO Service UUID: %s", payloadMTOServiceItem.ID)
 
 	}
 
+	return models.PaymentServiceItemParams{}, nil
 }
