@@ -39,10 +39,10 @@ const RequestedShipments = ({
     },
     onSubmit: (values, { setSubmitting }) => {
       const mtoApprovalServiceItemCodes = [];
-      if (formik.values.shipmentManagementFee) {
+      if (values.shipmentManagementFee) {
         mtoApprovalServiceItemCodes.push('MS');
       }
-      if (formik.values.counselingFee) {
+      if (values.counselingFee) {
         mtoApprovalServiceItemCodes.push('CS');
       }
       filteredShipments.forEach((shipment) =>
