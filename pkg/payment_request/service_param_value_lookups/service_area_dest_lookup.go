@@ -49,7 +49,9 @@ func (r ServiceAreaDestLookup) lookup(keyData *ServiceItemParamKeyData) (string,
 
 	var domesticServiceArea models.ReDomesticServiceArea
 
-	query := db.Q().Join("re_zip3s", "re_zip3s.domestic_service_area_id = re_domestic_service_areas.id").
+	query := db.Q().
+		Join("re_zip3s", "re_zip3s.domestic_service_area_id = re_domestic_service_areas.id").
+		Join("re_contracts", "re_contracts.id = re_domestic_service_areas.contract_id").
 		Where("zip3 = ?", zip3)
 
 	err = query.First(&domesticServiceArea)
