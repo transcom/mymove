@@ -21,7 +21,7 @@ import DutyStation from 'scenes/ServiceMembers/DutyStation';
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
-import SelectMoveType from 'scenes/Moves/Hhg/SelectMoveType';
+import SelectMoveType from 'pages/MyMove/SelectMoveType';
 
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
@@ -161,7 +161,13 @@ const pages = {
   '/moves/:moveId/select-type': {
     isInFlow: inHhgFlow,
     isComplete: always,
-    render: (key, pages) => ({ match }) => <SelectMoveType pages={pages} pageKey={key} match={match} />,
+    render: (key, pages) => () => {
+      return (
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+          <SelectMoveType />
+        </WizardPage>
+      );
+    },
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: (state) => state.selectedMoveType === SHIPMENT_TYPE.PPM,
