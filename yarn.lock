@@ -16127,10 +16127,10 @@ svgo@^1.0.0, svgo@^1.2.2:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swagger-client@^3.10.10:
-  version "3.10.10"
-  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.10.10.tgz#7da4158a8497db7d1f4deee379ba159e64d6f3d4"
-  integrity sha512-aOR1SaXa+hfNK5pHXeh1oVHO5aM3AgOmyrzaOazItQf0EuQGDbBlbmbSmyylYmWSMQhdkG1V1SQmGF17NiStXA==
+swagger-client@^3.10.11:
+  version "3.10.11"
+  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.10.11.tgz#f4338a4cee428bd7936e7c22c8b5d3a19042ae08"
+  integrity sha512-fycK6rsC956l7yFf8ad9ixSJojSC875jx+oSPn/UnxunKSVZJsXkxc0qLYZ7oBt3bgvSoDLHWgsBl7fLzTsHFQ==
   dependencies:
     "@babel/runtime-corejs2" "=7.10.4"
     btoa "=1.2.1"
