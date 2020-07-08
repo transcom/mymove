@@ -10,8 +10,6 @@ import RequestedServiceItemsTable from '../../components/Office/RequestedService
 import { getMTOShipments, selectMTOShiomentsByMTOId } from '../../shared/Entities/modules/mtoShipments';
 import { getMTOServiceItems, selectMTOServiceItemsByMTOId } from '../../shared/Entities/modules/mtoServiceItems';
 
-import 'styles/office.scss';
-
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
     return 'Household Goods';
