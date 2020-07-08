@@ -92,12 +92,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 	})
 
-	suite.T().Run("POST failure - 400", func(t *testing.T) {
+	suite.T().Run("POST failure - 422 Unprocessable Entity Error", func(t *testing.T) {
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockCreator,
 		}
+		// InvalidInputError should generate an UnprocessableEntity response
 		err := services.InvalidInputError{}
 
 		mockCreator.On("CreateMTOServiceItem",
@@ -105,7 +106,24 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		).Return(nil, nil, err)
 
 		response := handler.Handle(params)
-		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemBadRequest{}, response)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("POST failure - 409 Conflict Error", func(t *testing.T) {
+		mockCreator := mocks.MTOServiceItemCreator{}
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockCreator,
+		}
+		// ConflictError should generate a Conflict response
+		err := services.ConflictError{}
+
+		mockCreator.On("CreateMTOServiceItem",
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemConflict{}, response)
 	})
 
 	suite.T().Run("POST failure - 404", func(t *testing.T) {

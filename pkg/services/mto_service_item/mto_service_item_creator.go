@@ -37,7 +37,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	// check if MTO exists
 	err = o.builder.FetchOne(&moveTaskOrder, queryFilters)
 	if err != nil {
-		return nil, nil, services.NewNotFoundError(moveTaskOrderID, fmt.Sprintf("MoveTaskOrderID: %s", err))
+		return nil, nil, services.NewNotFoundError(moveTaskOrderID, "in MoveTaskOrders")
 	}
 
 	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
@@ -54,7 +54,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	err = o.builder.FetchOne(&mtoShipment, queryFilters)
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(mtoShipmentID,
-			fmt.Sprintf("MTOShipmentID with MoveTaskOrderID (%s): %s", moveTaskOrderID.String(), err))
+			fmt.Sprintf("in MTOShipments associated with MoveTaskOrderID %s", moveTaskOrderID.String()))
 	}
 
 	// find the re service code id
@@ -65,7 +65,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	}
 	err = o.builder.FetchOne(&reService, queryFilters)
 	if err != nil {
-		return nil, nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("failed to find service item code: %s; %s", reServiceCode, err))
+		return nil, nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf(". Failed to find service item code: %s", reServiceCode))
 	}
 
 	// set re service for service item
@@ -73,8 +73,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	serviceItem.Status = models.MTOServiceItemStatusSubmitted
 	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
 		if mtoShipment.PrimeEstimatedWeight == nil {
-			return nil, nil, services.NewInvalidInputError(mtoShipmentID, nil, nil,
-				fmt.Sprintf("MTOShipment with id: %s is missing the estimated weight required for this service item", mtoShipmentID))
+			return nil, verrs, services.NewConflictError(reService.ID, "Cannot create service item. MTOShipment associated with this service item must have a valid PrimeEstimatedWeight.")
 		}
 	}
 
@@ -112,8 +111,10 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return nil
 	})
 
-	if verrs != nil || err != nil {
-		return nil, verrs, err
+	if verrs != nil && verrs.HasAny() {
+		return nil, verrs, nil
+	} else if err != nil {
+		return nil, verrs, services.NewQueryError("unknown", err, "")
 	}
 
 	return serviceItem, nil, nil
