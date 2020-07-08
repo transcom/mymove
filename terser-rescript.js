@@ -27,6 +27,15 @@ module.exports = (webpackConfig) => {
           },
           parallel: false,
           sourceMap: false,
+          chunkFilter: (chunk) => {
+            // Exclude uglification for the `vendor` chunk
+            if (chunk.name === 'vendor') {
+              return false;
+            }
+
+            return true;
+          },
+          cache: true,
         }),
       ],
     },
