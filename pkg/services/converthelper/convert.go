@@ -36,36 +36,47 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	}
 
 	// orders -> move order
-	orders := move.Orders
 	var mo models.MoveOrder
-	mo.CreatedAt = orders.CreatedAt
-	mo.UpdatedAt = orders.UpdatedAt
-	mo.Customer = &sm
-	mo.CustomerID = &sm.ID
-	mo.DestinationDutyStation = &orders.NewDutyStation
-	mo.DestinationDutyStationID = &orders.NewDutyStationID
-
-	orderType := "GHC"
-	mo.OrderNumber = orders.OrdersNumber
-	mo.OrderType = &orderType
-	orderTypeDetail := "TBD"
-	mo.OrderTypeDetail = &orderTypeDetail
-	mo.OriginDutyStation = &sm.DutyStation
-	mo.OriginDutyStationID = sm.DutyStationID
-	mo.Entitlement = &entitlement
-	mo.EntitlementID = &entitlement.ID
-	mo.Grade = (*string)(sm.Rank)
-	mo.DateIssued = &orders.IssueDate
-	mo.ReportByDate = &orders.ReportByDate
-	mo.LinesOfAccounting = orders.TAC
-
-	if err := db.Save(&mo); err != nil {
-		return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)
+	var moveOrders []models.MoveOrder
+	err := db.Where("customer_id = $1", sm.ID).All(&moveOrders)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("Could not fetch move order, %w", err)
 	}
+	// if a sm
+	if len(moveOrders) == 0 {
+		orders := move.Orders
+		mo.CreatedAt = orders.CreatedAt
+		mo.UpdatedAt = orders.UpdatedAt
+		mo.Customer = &sm
+		mo.CustomerID = &sm.ID
+		mo.DestinationDutyStation = &orders.NewDutyStation
+		mo.DestinationDutyStationID = &orders.NewDutyStationID
+
+		orderType := "GHC"
+		mo.OrderNumber = orders.OrdersNumber
+		mo.OrderType = &orderType
+		orderTypeDetail := "TBD"
+		mo.OrderTypeDetail = &orderTypeDetail
+		mo.OriginDutyStation = &sm.DutyStation
+		mo.OriginDutyStationID = sm.DutyStationID
+		mo.Entitlement = &entitlement
+		mo.EntitlementID = &entitlement.ID
+		mo.Grade = (*string)(sm.Rank)
+		mo.DateIssued = &orders.IssueDate
+		mo.ReportByDate = &orders.ReportByDate
+		mo.LinesOfAccounting = orders.TAC
+
+		if err := db.Save(&mo); err != nil {
+			return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)
+		}
+	} else {
+		mo = moveOrders[0]
+	}
+
 
 	var contractor models.Contractor
 
-	err := db.Where("contract_number = ?", "HTC111-11-1-1111").First(&contractor)
+	err = db.Where("contract_number = ?", "HTC111-11-1-1111").First(&contractor)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("Could not find contractor, %w", err)
 	}
@@ -96,7 +107,7 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 		RequestedPickupDate:  &requestedPickupDate,
 		ScheduledPickupDate:  &scheduledPickupDate,
 		PickupAddressID:      &sm.DutyStation.AddressID,
-		DestinationAddressID: &orders.NewDutyStation.AddressID,
+		DestinationAddressID: &move.Orders.NewDutyStation.AddressID,
 		ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 		Status:               models.MTOShipmentStatusSubmitted,
 		CreatedAt:            time.Now(),

@@ -113,7 +113,7 @@ func (suite *ConvertSuite) TestConvertProfileOrdersToGHC() {
 	})
 	suite.NotNil(sanDiego)
 
-	moID, conversionErr := converthelper.ConvertFromPPMToGHC(suite.DB(), move.ID)
+	moID, conversionErr := converthelper.ConvertProfileOrdersToGHC(suite.DB(), move.ID)
 	suite.FatalNoError(conversionErr)
 
 	var mo models.MoveOrder
@@ -145,4 +145,41 @@ func (suite *ConvertSuite) TestConvertProfileOrdersToGHC() {
 
 	var mto models.MoveTaskOrder
 	suite.FatalNoError(suite.DB().Eager().Where("move_order_id = ?", mo.ID).First(&mto))
+}
+
+func (suite *ConvertSuite) TestConvertFromPPMToGHCMoveOrdersExist() {
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	suite.NotNil(move)
+
+	sm := move.Orders.ServiceMember
+	contractor := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{
+		Contractor: models.Contractor{
+			ContractNumber: "HTC111-11-1-1111",
+		},
+	})
+	suite.NotNil(contractor)
+
+	miramar := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name: "USMC Miramar",
+		},
+	})
+	suite.NotNil(miramar)
+
+	sanDiego := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name: "USMC San Diego",
+		},
+	})
+	suite.NotNil(sanDiego)
+
+	_, conversionErr := converthelper.ConvertProfileOrdersToGHC(suite.DB(), move.ID)
+	suite.FatalNoError(conversionErr)
+	_, conversionErr = converthelper.ConvertFromPPMToGHC(suite.DB(), move.ID)
+	suite.FatalNoError(conversionErr)
+	var moveOrders []models.MoveOrder
+
+	err := suite.DB().Where("customer_id = $1", sm.ID).All(&moveOrders)
+	suite.FatalNoError(err)
+	suite.Equal(1, len(moveOrders))
 }
