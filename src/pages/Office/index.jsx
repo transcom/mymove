@@ -42,7 +42,6 @@ const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
 const TOOVerificationInProgress = lazy(() => import('scenes/Office/TOO/tooVerificationInProgress'));
 // TIO pages (TODO move into src/pages)
 const TIO = lazy(() => import('scenes/Office/TIO/tio'));
-const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
 
 export class OfficeApp extends Component {
   constructor(props) {
@@ -154,22 +153,18 @@ export class OfficeApp extends Component {
         component={TIO}
         requiredRoles={[roleTypes.TIO]}
       />,
-      <PrivateRoute
-        key="txoCustomerInfoRoute"
-        path="/too/:moveOrderId/customer/:customerId"
-        component={CustomerDetails}
-        requiredRoles={[roleTypes.TOO]}
-      />,
+      // TODO - audit functionality of this route
       <Route
         key="verificationInProgressRoute"
         path="/verification-in-progress"
         component={TOOVerificationInProgress}
       />,
+      // TEMP FOR DEV ONLY
       <PrivateRoute
-        key="txoPaymentRequestsRoute"
-        path="/payment_requests"
-        component={PaymentRequestIndex}
-        requiredRoles={[roleTypes.TIO]}
+        key="txoCustomerInfoRoute"
+        path="/too/:moveOrderId/customer/:customerId"
+        component={CustomerDetails}
+        requiredRoles={[roleTypes.TOO]}
       />,
     ];
 

@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { NavLink, Switch, useParams } from 'react-router-dom';
+import { NavLink, Switch, useParams, Redirect } from 'react-router-dom';
 import { Tag } from '@trussworks/react-uswds';
 
 import 'styles/office.scss';
@@ -10,9 +10,10 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
+const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
+const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
 const PaymentRequestShow = lazy(() => import('scenes/Office/TIO/paymentRequestShow'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
-const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
 
 const TXOMoveInfo = () => {
   const { moveOrderId } = useParams();
@@ -48,25 +49,37 @@ const TXOMoveInfo = () => {
             component={MoveDetails}
             requiredRoles={[roleTypes.TOO]}
           />
-          <PrivateRoute path="/moves/:id/orders" exact component={MoveOrders} />
+          <PrivateRoute path="/moves/:moveOrderId/orders" exact component={MoveOrders} />
+
+          {/* TODO - the nav to this url is passing moveOrderId instead of moveTaskOrderId */}
           <PrivateRoute
             path="/moves/:moveTaskOrderId/mto"
             exact
             component={TOOMoveTaskOrder}
             requiredRoles={[roleTypes.TOO]}
           />
+
           <PrivateRoute
-            path="/moves/:id/payment-requests"
+            path="/moves/:moveOrderId/payment-requests/:id"
             exact
             component={PaymentRequestShow}
             requiredRoles={[roleTypes.TIO]}
           />
+          <PrivateRoute
+            path="/moves/:moveOrderId/payment-requests"
+            exact
+            component={PaymentRequestIndex}
+            requiredRoles={[roleTypes.TIO]}
+          />
+
           <PrivateRoute
             path="/moves/:moveOrderId/history"
             exact
             component={MoveHistory}
             requiredRoles={[roleTypes.TIO]}
           />
+
+          <Redirect from="/moves/:moveOrderId" to="/moves/:moveOrderId/details" />
         </Switch>
       </Suspense>
     </>

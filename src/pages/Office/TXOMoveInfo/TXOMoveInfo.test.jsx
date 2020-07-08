@@ -34,4 +34,78 @@ describe('TXO Move Info Container', () => {
     expect(wrapper.find('li.tabItem a').at(2).prop('href')).toEqual(`/moves/${testMoveId}/payment-requests`);
     expect(wrapper.find('li.tabItem a').at(3).prop('href')).toEqual(`/moves/${testMoveId}/history`);
   });
+
+  describe('routing', () => {
+    it('should handle the Move Details route', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveId}/details`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      const renderedRoute = wrapper.find('PrivateRoute');
+      expect(renderedRoute).toHaveLength(1);
+      expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/details');
+    });
+
+    it('should redirect from move info root to the Move Details route', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveId}`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      const renderedRoute = wrapper.find('PrivateRoute');
+      expect(renderedRoute).toHaveLength(1);
+      expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/details');
+    });
+
+    it('should handle the Move Orders route', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveId}/orders`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      const renderedRoute = wrapper.find('PrivateRoute');
+      expect(renderedRoute).toHaveLength(1);
+      expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/orders');
+    });
+
+    it('should handle the Move Task Order route', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveId}/mto`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      const renderedRoute = wrapper.find('PrivateRoute');
+      expect(renderedRoute).toHaveLength(1);
+      expect(renderedRoute.prop('path')).toEqual('/moves/:moveTaskOrderId/mto');
+    });
+
+    it('should handle the Move Payment Requests route', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveId}/payment-requests`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      const renderedRoute = wrapper.find('PrivateRoute');
+      expect(renderedRoute).toHaveLength(1);
+      expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/payment-requests');
+    });
+
+    it('should handle the Move History route', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveId}/history`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      const renderedRoute = wrapper.find('PrivateRoute');
+      expect(renderedRoute).toHaveLength(1);
+      expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/history');
+    });
+  });
 });

@@ -325,18 +325,6 @@ describe('Office App', () => {
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId');
       });
-
-      it('handles the PaymentRequestIndex URL', () => {
-        const app = mount(
-          <MockProviders initialState={loggedInTIOState} initialEntries={['/payment_requests']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/payment_requests');
-      });
     });
   });
 });
