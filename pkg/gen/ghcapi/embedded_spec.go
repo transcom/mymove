@@ -878,9 +878,9 @@ func init() {
             "required": true
           },
           {
-            "x-nullable": true,
             "name": "serviceItemCodes",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/MTOApprovalServiceItemCodes"
             }
@@ -3717,9 +3717,9 @@ func init() {
             "required": true
           },
           {
-            "x-nullable": true,
             "name": "serviceItemCodes",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/MTOApprovalServiceItemCodes"
             }

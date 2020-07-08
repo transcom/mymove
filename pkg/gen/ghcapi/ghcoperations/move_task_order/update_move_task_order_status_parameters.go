@@ -6,6 +6,7 @@ package move_task_order
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -45,6 +46,7 @@ type UpdateMoveTaskOrderStatusParams struct {
 	*/
 	MoveTaskOrderID string
 	/*
+	  Required: true
 	  In: body
 	*/
 	ServiceItemCodes ghcmessages.MTOApprovalServiceItemCodes
@@ -72,7 +74,11 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 		defer r.Body.Close()
 		var body ghcmessages.MTOApprovalServiceItemCodes
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			res = append(res, errors.NewParseError("serviceItemCodes", "body", "", err))
+			if err == io.EOF {
+				res = append(res, errors.Required("serviceItemCodes", "body"))
+			} else {
+				res = append(res, errors.NewParseError("serviceItemCodes", "body", "", err))
+			}
 		} else {
 			// validate body object
 			if err := body.Validate(route.Formats); err != nil {
@@ -83,6 +89,8 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 				o.ServiceItemCodes = body
 			}
 		}
+	} else {
+		res = append(res, errors.Required("serviceItemCodes", "body"))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

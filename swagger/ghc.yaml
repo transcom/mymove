@@ -839,7 +839,7 @@ paths:
           name: serviceItemCodes
           schema:
             $ref: '#/definitions/MTOApprovalServiceItemCodes'
-          x-nullable: true
+          required: true
       responses:
         '200':
           description: Successfully updated move task order status

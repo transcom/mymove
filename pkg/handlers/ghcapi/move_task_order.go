@@ -57,12 +57,14 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	var serviceItemCodes []models.ReServiceCode
 
 	for _, serviceItemCode := range params.ServiceItemCodes {
-		if string(serviceItemCode) == string(models.ReServiceCodeCS) {
+		switch models.ReServiceCode(serviceItemCode) {
+		case models.ReServiceCodeCS:
 			serviceItemCodes = append(serviceItemCodes, models.ReServiceCodeCS)
-		}
-		if string(serviceItemCode) == string(models.ReServiceCodeMS) {
+		case models.ReServiceCodeMS:
 			serviceItemCodes = append(serviceItemCodes, models.ReServiceCodeMS)
+
 		}
+
 	}
 
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to

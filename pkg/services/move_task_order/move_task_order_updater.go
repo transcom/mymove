@@ -62,7 +62,7 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 				MoveTaskOrderID: moveTaskOrderID,
 				MTOShipmentID:   nil,
 				ReService:       models.ReService{Code: serviceItem},
-				Status:          "APPROVED",
+				Status:          models.MTOServiceItemStatusApproved,
 			})
 			if err != nil {
 				return &models.MoveTaskOrder{}, err
