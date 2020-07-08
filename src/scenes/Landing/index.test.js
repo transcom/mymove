@@ -15,10 +15,19 @@ describe('HomePage tests', () => {
   let wrapper;
   const mockStore = configureStore();
   let store;
+
+  const minProps = {
+    context: {
+      flags: {
+        hhgFlow: false,
+      },
+    },
+  };
+
   describe('when not loggedIn', () => {
     it('renders without crashing', () => {
       const div = document.createElement('div');
-      wrapper = shallow(<Landing isLoggedIn={false} />, div);
+      wrapper = shallow(<Landing isLoggedIn={false} {...minProps} />, div);
       expect(wrapper.find('.grid-container').length).toEqual(1);
     });
   });
@@ -26,7 +35,7 @@ describe('HomePage tests', () => {
     let service_member = { id: 'foo' };
     it('renders without crashing', () => {
       const div = document.createElement('div');
-      wrapper = shallow(<Landing isLoggedIn={true} />, div);
+      wrapper = shallow(<Landing isLoggedIn={true} {...minProps} />, div);
       expect(wrapper.find('.grid-container').length).toEqual(1);
     });
     describe('When the user has never logged in before', () => {
@@ -43,6 +52,7 @@ describe('HomePage tests', () => {
               isProfileComplete={false}
               push={mockPush}
               reduxState={{}}
+              {...minProps}
             />
           </Provider>,
         );
@@ -61,6 +71,7 @@ describe('HomePage tests', () => {
             isLoggedIn={true}
             loggedInUserSuccess={true}
             isProfileComplete={false}
+            {...minProps}
           />,
           div,
         );
@@ -96,6 +107,7 @@ describe('HomePage tests', () => {
               isLoggedIn={true}
               loggedInUserSuccess={true}
               isProfileComplete={true}
+              {...minProps}
             />,
           );
           const ppmAlert = wrapper.find(PpmAlert).shallow();

@@ -11,7 +11,7 @@ describe('AppWrapper tests', () => {
   const minProps = {
     context: {
       flags: {
-        isHhgFlow: false,
+        hhgFlow: false,
       },
     },
   };

@@ -26,7 +26,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
-import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
+import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 export class Landing extends Component {
@@ -82,6 +82,7 @@ export class Landing extends Component {
       lastMoveIsCanceled,
       serviceMember,
       orders,
+      uploads,
       move,
       ppm,
       backupContacts,
@@ -92,6 +93,7 @@ export class Landing extends Component {
       lastMoveIsCanceled,
       serviceMember,
       orders,
+      uploads,
       move,
       ppm,
       backupContacts,
@@ -164,7 +166,7 @@ export class Landing extends Component {
 Landing.propTypes = {
   context: PropTypes.shape({
     flags: PropTypes.shape({
-      isHhgFlow: PropTypes.bool,
+      hhgFlow: PropTypes.bool,
     }).isRequired,
   }).isRequired,
 };
@@ -181,6 +183,7 @@ const mapStateToProps = (state) => {
     serviceMember: serviceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: selectActiveOrLatestOrders(state),
+    uploads: selectUploadsForActiveOrders(state),
     move: selectActiveOrLatestMove(state),
     ppm: getPPM(state),
     loggedInUser: user,

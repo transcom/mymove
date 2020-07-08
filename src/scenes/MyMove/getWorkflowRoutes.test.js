@@ -4,16 +4,14 @@ import { NULL_UUID, SHIPMENT_TYPE } from 'shared/constants';
 
 const ppmContext = {
   flags: {
-    isHhgFlow: false,
+    hhgFlow: false,
   },
 };
-// const hhgContext = {
-//   context: {
-//     flags: {
-//       isHhgFlow: true,
-//     },
-//   },
-// };
+const hhgContext = {
+  flags: {
+    hhgFlow: true,
+  },
+};
 
 describe('when getting the routes for the current workflow', () => {
   describe('given a complete service member', () => {
@@ -106,6 +104,30 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/transition',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-incentive',
+          '/moves/:moveId/review',
+          '/moves/:moveId/agreement',
+        ]);
+      });
+    });
+    describe('given hhgFlow flag is true', () => {
+      const props = {
+        context: hhgContext,
+      };
+      const pages = getPagesInFlow(props);
+      it('getPagesInFlow returns service member, order and select move type page', () => {
+        expect(pages).toEqual([
+          '/service-member/:serviceMemberId/create',
+          '/service-member/:serviceMemberId/name',
+          '/service-member/:serviceMemberId/contact-info',
+          '/service-member/:serviceMemberId/duty-station',
+          '/service-member/:serviceMemberId/residence-address',
+          '/service-member/:serviceMemberId/backup-mailing-address',
+          '/service-member/:serviceMemberId/backup-contacts',
+          '/service-member/:serviceMemberId/transition',
+          '/orders/',
+          '/orders/upload',
+          '/orders/transition',
+          '/moves/:moveId/select-type',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -375,6 +397,14 @@ describe('when getting the next incomplete page', () => {
             },
           },
           move: { id: 'bar' },
+          uploads: [
+            {
+              content_type: 'application/pdf',
+              filename: 'testfile.pdf',
+              status: 'PROCESSING',
+              url: 'storage/user/1234pdf',
+            },
+          ],
           context: ppmContext,
         });
         expect(result).toEqual('/moves/bar/review');

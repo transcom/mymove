@@ -65,7 +65,7 @@ const always = () => true;
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_TYPE.PPM;
-const inHhgFlow = (props) => props.context.flags.isHhgFlow;
+const inHhgFlow = (props) => props.context.flags.hhgFlow;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
@@ -142,7 +142,8 @@ const pages = {
   },
   '/orders/upload': {
     isInFlow: always,
-    isComplete: ({ sm, orders }) => get(orders, 'uploaded_orders.uploads', []).length > 0,
+    isComplete: ({ sm, orders, uploads }) =>
+      get(orders, 'uploaded_orders.uploads', []).length > 0 || uploads.length > 0,
     render: (key, pages) => ({ match }) => <UploadOrders pages={pages} pageKey={key} match={match} />,
     description: 'Upload your orders',
   },
@@ -160,7 +161,7 @@ const pages = {
   '/moves/:moveId/select-type': {
     isInFlow: inHhgFlow,
     isComplete: always,
-    render: (key, pages) => ({ match }) => <SelectMoveType />,
+    render: (key, pages) => ({ match }) => <SelectMoveType pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: (state) => state.selectedMoveType === SHIPMENT_TYPE.PPM,
@@ -201,17 +202,17 @@ export const getNextIncompletePage = ({
   lastMoveIsCanceled = false,
   serviceMember = {},
   orders = {},
+  uploads = [],
   move = {},
   ppm = {},
   backupContacts = [],
   context = {},
 }) => {
-  // console.log('props in getnext page', props);
   const rawPath = findKey(
     pages,
     (p) =>
       p.isInFlow({ selectedMoveType, lastMoveIsCanceled, context }) &&
-      !p.isComplete({ sm: serviceMember, orders, move, ppm, backupContacts }),
+      !p.isComplete({ sm: serviceMember, orders, uploads, move, ppm, backupContacts }),
   );
   const compiledPath = generatePath(rawPath, {
     serviceMemberId: get(serviceMember, 'id'),
