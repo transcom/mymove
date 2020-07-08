@@ -1,0 +1,11 @@
+.MoveOrders {
+  display: flex;
+  height: 80vh; // TODO this is temporary until we can modify <main> to be display: flex
+}
+
+.embed {
+  flex-grow: 1;
+}
+
+.sidebar {
+}
