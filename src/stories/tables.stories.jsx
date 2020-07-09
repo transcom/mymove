@@ -8,8 +8,8 @@ import ServiceItemTableHasImg from '../components/ServiceItemTableHasImg';
 import DataPoint from '../components/DataPoint';
 import DataPair from '../components/DataPair';
 
-import { ReactComponent as ChevronLeft } from 'shared/icon/chevron-left.svg';
 import { ReactComponent as ChevronRight } from 'shared/icon/chevron-right.svg';
+import { ReactComponent as ChevronLeft } from 'shared/icon/chevron-left.svg';
 
 const dataPointBody = (
   <>

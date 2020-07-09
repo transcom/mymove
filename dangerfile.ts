@@ -36,7 +36,7 @@ const fileChecks = () => {
   );
 
   if (hasComponentChanges && !hasStorybookChanges) {
-    fail('This PR does not include changes to storybook, even though it affects component code.');
+    warn('This PR does not include changes to storybook, even though it affects component code.');
   }
 
   // Request update of yarn.lock if package.json changed but yarn.lock isn't

@@ -251,13 +251,13 @@ commands:
           name: make server_test_build for <<parameters.application>>
           command: make server_test_build
           environment:
-            APPLICATION: "<< parameters.application >>"
-            GOFLAGS: "-p=4"
+            APPLICATION: '<< parameters.application >>'
+            GOFLAGS: '-p=4'
       - run:
           name: make db_test_reset for <<parameters.application>>
           command: make db_test_reset
           environment:
-            APPLICATION: "<< parameters.application >>"
+            APPLICATION: '<< parameters.application >>'
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -271,7 +271,7 @@ commands:
           name: make db_test_migrate for <<parameters.application>>
           command: make db_test_migrate
           environment:
-            APPLICATION: "<< parameters.application >>"
+            APPLICATION: '<< parameters.application >>'
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -288,7 +288,7 @@ commands:
             source $BASH_ENV
             make server_test_standalone
           environment:
-            APPLICATION: "<< parameters.application >>"
+            APPLICATION: '<< parameters.application >>'
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -299,7 +299,7 @@ commands:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            GOFLAGS: "-p=4"
+            GOFLAGS: '-p=4'
             JUNIT: 1
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
@@ -668,7 +668,7 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: make build_tools
       - persist_to_workspace:
-          root:  /home/circleci/transcom/mymove/bin
+          root: /home/circleci/transcom/mymove/bin
           paths:
             - ecs-deploy # for registering task defs and deploying task container
             - ecs-service-logs # for showing logs on failed deploy
@@ -682,7 +682,7 @@ jobs:
 
   # `build_app` builds the application container and pushes to the container repository
   build_app:
-    executor: mymove_medium
+    executor: mymove_medium_plus
     steps:
       - checkout
       - setup_remote_docker:
@@ -870,7 +870,7 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_steps:
-          compare_host: "" # leave blank since we want experimental to be able to roll back
+          compare_host: '' # leave blank since we want experimental to be able to roll back
           health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,admin.experimental.move.mil
 
   # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
@@ -880,7 +880,7 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_client_tls_steps:
-          compare_host: "" # leave blank since we want experimental to be able to roll back
+          compare_host: '' # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
 
   check_circle_against_staging_sha:

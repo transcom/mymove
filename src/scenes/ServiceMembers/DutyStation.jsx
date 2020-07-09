@@ -8,6 +8,7 @@ import { get } from 'lodash';
 import { updateServiceMember } from './ducks';
 import { NULL_UUID } from 'shared/constants';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
+import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 
@@ -98,12 +99,14 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const formValues = getFormValues(dutyStationFormName)(state);
+  const orders = selectActiveOrLatestOrders(state);
+
   return {
     values: getFormValues(dutyStationFormName)(state),
     existingStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
     ...state.serviceMember,
     currentStation: get(formValues, 'current_station', {}),
-    newDutyStation: get(state, 'orders.currentOrders.new_duty_station', {}),
+    newDutyStation: get(orders, 'new_duty_station', {}),
   };
 }
 

@@ -149,10 +149,6 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"UploadedOrders.UserUploads.Upload",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications").
-		Join("documents as d", "orders.uploaded_orders_id = d.id").
-		LeftJoin("user_uploads as uu", "d.id = uu.document_id").
-		LeftJoin("uploads as u", "uu.upload_id = u.id").
-		Where("u.deleted_at is null and uu.deleted_at is null").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -161,6 +157,17 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		// Otherwise, it's an unexpected err so we return that.
 		return Order{}, err
 	}
+
+	// Only return user uploads that haven't been deleted
+	userUploads := order.UploadedOrders.UserUploads
+	relevantUploads := make([]UserUpload, 0, len(userUploads))
+	for _, userUpload := range userUploads {
+		if userUpload.DeletedAt == nil {
+			relevantUploads = append(relevantUploads, userUpload)
+		}
+	}
+	order.UploadedOrders.UserUploads = relevantUploads
+
 	// TODO: Handle case where more than one user is authorized to modify orders
 	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
 		return Order{}, ErrFetchForbidden

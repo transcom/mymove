@@ -4,6 +4,7 @@ import { withRouter } from 'react-router';
 import { NavLink, Switch } from 'react-router-dom';
 import { Tag } from '@trussworks/react-uswds';
 
+import 'styles/office.scss';
 import PrivateRoute from 'containers/PrivateRoute';
 import { roleTypes } from 'constants/userRoles';
 import TabNav from 'components/TabNav';
@@ -15,6 +16,7 @@ const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
 const PaymentRequestShow = lazy(() => import('scenes/Office/TIO/paymentRequestShow'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
+const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
 
 const TXOMoveInfo = ({
   context: {
@@ -65,6 +67,7 @@ const TXOMoveInfo = ({
               requiredRoles={[roleTypes.TOO]}
             />
           )}
+          <PrivateRoute path="/moves/:id/neworders" component={MoveOrders} /> {/* TODO fix this URL */}
           {tio && (
             <PrivateRoute
               path="/moves/:id/payment-requests"

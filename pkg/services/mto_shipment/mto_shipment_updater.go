@@ -202,7 +202,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, 
 
 	err := f.FetchRecord(&oldShipment, queryFilters)
 	if err != nil {
-		return nil, services.NewNotFoundError(mtoShipment.ID, "")
+		return nil, services.NewNotFoundError(mtoShipment.ID, "while looking for mtoShipment")
 	}
 
 	err = setNewShipmentFields(f.planner, f.db, &oldShipment, mtoShipment)
@@ -308,7 +308,15 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(mtoShipment *models.MTOShipmen
 
 	})
 
-	return transactionError
+	if transactionError != nil {
+		// Two possible types of transaction errors to handle
+		if t, ok := transactionError.(StaleIdentifierError); ok {
+			return services.NewPreconditionFailedError(mtoShipment.ID, t)
+		}
+		return services.NewQueryError("mtoShipment", transactionError, "")
+	}
+	return nil
+
 }
 
 func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
@@ -720,7 +728,10 @@ func (f mtoShipmentUpdater) MTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, 
 		Where("mto_shipments.id = ?", mtoShipmentID).
 		First(&mto)
 	if err != nil {
-		return false, err
+		if err.Error() == "sql: no rows in result set" {
+			return false, services.NewNotFoundError(mtoShipmentID, "while looking for MTOshipment")
+		}
+		return false, services.NewQueryError("mtoShipments", err, "Unexpected error.")
 	}
 
 	return true, nil
