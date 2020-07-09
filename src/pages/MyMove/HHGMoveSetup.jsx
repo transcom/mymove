@@ -8,7 +8,7 @@ export class HHGMoveSetup extends Component {
   render() {
     return (
       <div>
-        <h1>HHG Move Setup</h1>
+        <h1>Now lets arrange details for the professional movers</h1>
         <HHGDetailsForm />
       </div>
     );

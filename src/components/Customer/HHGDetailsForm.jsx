@@ -1,26 +1,33 @@
 // HHG details form storybook component
 import React from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 // import { Button } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
-import { TextInput } from '../form/fields';
+import { DatePickerInput, TextInput } from '../form/fields';
 
-export const HHGDetailsForm = () => {
+// eslint-disable-next-line
+export const HHGDetailsForm = ({ initialValues }) => {
   return (
-    <Formik>
+    <Formik initialValues={{ remarks: '' }}>
       <Form>
-        <TextInput name="name" label="label" />
+        <DatePickerInput name="requestedPickupDate" label="Requested pickup date" />
+        <TextInput name="remarks" label="Remarks" />
       </Form>
     </Formik>
   );
 };
 
-// HHGDetailsForm.propTypes = {
-//   initialValues: PropTypes.shape({
-//     name: PropTypes.string,
-//   }),
-// };
+HHGDetailsForm.propTypes = {
+  initialValues: PropTypes.shape({
+    remarks: PropTypes.string,
+    requestedPickupDate: PropTypes.string,
+  }),
+};
+
+HHGDetailsForm.defaultProps = {
+  initialValues: {},
+};
 
 export default HHGDetailsForm;
