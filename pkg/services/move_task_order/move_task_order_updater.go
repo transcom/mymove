@@ -68,7 +68,7 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 	err := o.builder.FetchOne(&moveTaskOrder, queryFilters)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(moveTaskOrder.ID, "")
+		return nil, services.NewNotFoundError(moveTaskOrderID, "while looking for moveTaskOrder.")
 	}
 
 	estimatedWeight := unit.Pound(body.PpmEstimatedWeight)

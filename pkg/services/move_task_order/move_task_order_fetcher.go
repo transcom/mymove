@@ -58,12 +58,7 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, sin
 	err = query.All(&moveTaskOrders)
 
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return models.MoveTaskOrders{}, services.NotFoundError{}
-		default:
-			return models.MoveTaskOrders{}, err
-		}
+		return models.MoveTaskOrders{}, services.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
 	}
 
 	return moveTaskOrders, nil

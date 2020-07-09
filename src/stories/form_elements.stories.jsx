@@ -2,10 +2,18 @@ import React from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Fieldset, Checkbox, Radio } from '@trussworks/react-uswds';
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-storiesOf('Components|Form', module).add('elements', () => (
+export default {
+  title: 'Components|Form',
+  parameters: {
+    abstract: {
+      url: 'https://share.goabstract.com/3f6f957c-aa9a-4ea4-a064-430e6624fd62?mode=design',
+    },
+  },
+};
+
+export const elements = () => (
   <div style={{ padding: '20px' }}>
     <hr />
     <h3>Form Elements</h3>
@@ -81,4 +89,4 @@ storiesOf('Components|Form', module).add('elements', () => (
       </form>
     </Formik>
   </div>
-));
+);

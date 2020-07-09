@@ -79,33 +79,33 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
 	if err != nil {
 		logger.Error("Error creating payment request", zap.Error(err))
-		if typedErr, ok := err.(services.InvalidCreateInputError); ok {
-			verrs := typedErr.ValidationErrors
+		switch e := err.(type) {
+		case services.InvalidCreateInputError:
+			verrs := e.ValidationErrors
 			detail := err.Error()
 			payload := payloads.ValidationError(detail, h.GetTraceID(), verrs)
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
-		}
 
-		if _, ok := err.(services.NotFoundError); ok {
+		case services.NotFoundError:
 			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID())
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestNotFound().WithPayload(payload)
-		}
-		if _, ok := err.(*services.BadDataError); ok {
+		case *services.BadDataError:
 			payload := payloads.ClientError(handlers.SQLErrMessage, err.Error(), h.GetTraceID())
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(payload)
+		default:
+			logger.Error("Payment Request",
+				zap.Any("payload", payload))
+			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
-		logger.Error("Payment Request",
-			zap.Any("payload", payload))
-		return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 	}
 
 	returnPayload := payloads.PaymentRequest(createdPaymentRequest)
