@@ -186,7 +186,7 @@ export class MoveDetails extends Component {
                   allowancesInfo={allowancesInfo}
                   customerInfo={customerInfo}
                   mtoAgents={mtoAgents}
-                  isSubmitted
+                  shipmentsStatus="SUBMITTED"
                   approveMTO={updateMoveTaskOrderStatus}
                   approveMTOShipment={patchMTOShipmentStatus}
                   moveTaskOrder={moveTaskOrder}
@@ -201,7 +201,7 @@ export class MoveDetails extends Component {
                   customerInfo={customerInfo}
                   mtoAgents={mtoAgents}
                   mtoServiceItems={mtoServiceItems}
-                  isSubmitted={false}
+                  shipmentsStatus="APPROVED"
                 />
               </div>
             )}

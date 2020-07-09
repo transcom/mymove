@@ -18,7 +18,7 @@ const RequestedShipments = ({
   allowancesInfo,
   customerInfo,
   mtoAgents,
-  isSubmitted,
+  shipmentsStatus,
   mtoServiceItems,
   moveTaskOrder,
   approveMTO,
@@ -54,6 +54,7 @@ const RequestedShipments = ({
             setIsModalVisible(false);
           }
           setSubmitting(false);
+          // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
           window.location.reload();
         })
         .catch(() => {
@@ -72,7 +73,7 @@ const RequestedShipments = ({
     formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
   return (
     <div className={`${styles['requested-shipments']} container`} data-cy="requested-shipments">
-      {isSubmitted && (
+      {shipmentsStatus === 'SUBMITTED' && (
         <div>
           <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>
             <ShipmentApprovalPreview
@@ -109,7 +110,7 @@ const RequestedShipments = ({
                 ))}
             </div>
 
-            {isSubmitted && (
+            {shipmentsStatus === 'SUBMITTED' && (
               <div>
                 <h3>Add service items to this move</h3>
                 <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
@@ -140,7 +141,7 @@ const RequestedShipments = ({
           </form>
         </div>
       )}
-      {!isSubmitted && (
+      {shipmentsStatus === 'APPROVED' && (
         <div>
           <h4>Approved Shipments</h4>
           {/* eslint-disable-next-line no-underscore-dangle */}
@@ -163,7 +164,7 @@ const RequestedShipments = ({
           </div>
         </div>
       )}
-      {!isSubmitted && (
+      {shipmentsStatus === 'APPROVED' && (
         <div>
           <div className="stackedtable-header">
             <h4>Service Items</h4>
@@ -207,7 +208,7 @@ const RequestedShipments = ({
 RequestedShipments.propTypes = {
   mtoShipments: PropTypes.arrayOf(MTOShipmentShape).isRequired,
   mtoAgents: PropTypes.arrayOf(MTOAgentShape),
-  isSubmitted: PropTypes.bool.isRequired,
+  shipmentsStatus: PropTypes.string.isRequired,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
   allowancesInfo: PropTypes.shape({
     branch: PropTypes.string,

@@ -200,7 +200,7 @@ storiesOf('TOO/TIO Components|RequestedShipments', module)
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           mtoAgents={agents}
-          isSubmitted
+          shipmentsStatus="SUBMITTED"
         />
       </div>
     );
@@ -213,7 +213,7 @@ storiesOf('TOO/TIO Components|RequestedShipments', module)
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           mtoAgents={agents}
-          isSubmitted
+          shipmentsStatus="SUBMITTED"
         />
       </div>
     );
@@ -226,7 +226,7 @@ storiesOf('TOO/TIO Components|RequestedShipments', module)
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           mtoAgents={agents}
-          isSubmitted={false}
+          shipmentsStatus="APPROVED"
           mtoServiceItems={serviceItems}
         />
       </div>
@@ -240,7 +240,7 @@ storiesOf('TOO/TIO Components|RequestedShipments', module)
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           mtoAgents={agents}
-          isSubmitted={false}
+          shipmentsStatus="APPROVED"
           mtoServiceItems={serviceItems}
         />
       </div>
