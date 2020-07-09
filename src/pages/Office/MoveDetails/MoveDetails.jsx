@@ -56,8 +56,6 @@ export class MoveDetails extends Component {
   constructor(props) {
     super(props);
 
-    // this.sections = ['requested-shipments', 'orders', 'allowances', 'customer-info'];
-
     this.state = {
       activeSection: '',
       sections: ['orders', 'allowances', 'customer-info'],
