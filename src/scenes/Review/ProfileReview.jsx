@@ -20,15 +20,27 @@ class ProfileReview extends Component {
     this.props.push(this.getNextIncompletePage());
   };
   getNextIncompletePage = () => {
-    const { selectedMoveType, lastMoveIsCanceled, serviceMember, orders, move, ppm, backupContacts } = this.props;
+    const {
+      selectedMoveType,
+      lastMoveIsCanceled,
+      serviceMember,
+      orders,
+      uploads,
+      move,
+      ppm,
+      backupContacts,
+      context,
+    } = this.props;
     return getNextIncompletePageInternal({
       selectedMoveType,
       lastMoveIsCanceled,
       serviceMember,
       orders,
+      uploads,
       move,
       ppm,
       backupContacts,
+      context,
     });
   };
   render() {

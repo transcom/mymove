@@ -7,6 +7,7 @@ import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter, push, goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
@@ -158,6 +159,11 @@ export class AppWrapper extends Component {
 AppWrapper.defaultProps = {
   loadInternalSchema: no_op,
   getCurrentUserInfo: no_op,
+  context: PropTypes.shape({
+    flags: PropTypes.shape({
+      hhgFlow: false,
+    }),
+  }).isRequired,
 };
 
 const mapStateToProps = (state) => {
