@@ -117,6 +117,8 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	}
 	newOrder.Moves = append(newOrder.Moves, *newMove)
 
+	// temp create corresponding move order and move task order until db is reconciled
+
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), newOrder)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
