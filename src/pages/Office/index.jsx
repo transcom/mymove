@@ -108,18 +108,6 @@ export class OfficeApp extends Component {
 
     const ppmRoutes = [
       <PrivateRoute
-        key="ppmMoveInfoRoute"
-        path="/queues/:queueType/moves/:moveId"
-        component={MoveInfo}
-        requiredRoles={[roleTypes.PPM]}
-      />,
-      <PrivateRoute
-        key="ppmQueuesRoute"
-        path="/queues/:queueType"
-        component={Queues}
-        requiredRoles={[roleTypes.PPM]}
-      />,
-      <PrivateRoute
         key="ppmMoveOrdersRoute"
         path="/moves/:moveId/orders"
         component={OrdersInfo}
@@ -135,36 +123,10 @@ export class OfficeApp extends Component {
 
     const txoRoutes = [
       <PrivateRoute
-        key="txoMovesQueueRoute"
-        path="/moves/queue"
-        exact
-        component={TOO}
-        requiredRoles={[roleTypes.TOO]}
-      />,
-      <PrivateRoute
         key="txoMoveInfoRoute"
         path="/moves/:moveOrderId"
         component={TXOMoveInfo}
         requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
-      />,
-      <PrivateRoute
-        key="txoInvoicingQueueRoute"
-        path="/invoicing/queue"
-        component={TIO}
-        requiredRoles={[roleTypes.TIO]}
-      />,
-      // TODO - audit functionality of this route
-      <Route
-        key="verificationInProgressRoute"
-        path="/verification-in-progress"
-        component={TOOVerificationInProgress}
-      />,
-      // TEMP FOR DEV ONLY
-      <PrivateRoute
-        key="txoCustomerInfoRoute"
-        path="/too/:moveOrderId/customer/:customerId"
-        component={CustomerDetails}
-        requiredRoles={[roleTypes.TOO]}
       />,
     ];
 
@@ -184,10 +146,32 @@ export class OfficeApp extends Component {
                 {/* no auth */}
                 <Route path="/sign-in" component={SignIn} />
 
+                {/* PPM & TXO conflicting routes - select based on user role */}
                 {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
 
-                <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
+                {/* PPM */}
+                <PrivateRoute
+                  path="/queues/:queueType/moves/:moveId"
+                  component={MoveInfo}
+                  requiredRoles={[roleTypes.PPM]}
+                />
+                <PrivateRoute path="/queues/:queueType" component={Queues} requiredRoles={[roleTypes.PPM]} />
 
+                {/* TXO */}
+                <PrivateRoute path="/moves/queue" exact component={TOO} requiredRoles={[roleTypes.TOO]} />
+                <PrivateRoute path="/invoicing/queue" component={TIO} requiredRoles={[roleTypes.TIO]} />
+
+                {/* TODO - audit functionality of this route */}
+                <Route path="/verification-in-progress" component={TOOVerificationInProgress} />
+
+                {/* TEMP FOR DEV ONLY */}
+                <PrivateRoute
+                  path="/too/:moveOrderId/customer/:customerId"
+                  component={CustomerDetails}
+                  requiredRoles={[roleTypes.TOO]}
+                />
+
+                <PrivateRoute exact path="/select-application" component={ConnectedSelectApplication} />
                 {/* ROOT */}
                 <PrivateRoute
                   exact
