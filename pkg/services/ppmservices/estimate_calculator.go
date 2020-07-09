@@ -46,12 +46,12 @@ func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMo
 	originDutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
 	destinationDutyStationZip := ppm.Move.Orders.NewDutyStation.Address.PostalCode
 
-	distanceMilesFromOriginPickupZip, err := e.planner.Zip5TransitDistance(*ppm.PickupPostalCode, destinationDutyStationZip)
+	distanceMilesFromOriginPickupZip, err := e.planner.Zip5TransitDistanceLineHaul(*ppm.PickupPostalCode, destinationDutyStationZip)
 	if err != nil {
 		return sitCharge, cost, fmt.Errorf("error calculating estimate: cannot get distance from origin pickup to destination: %w", err)
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := e.planner.Zip5TransitDistance(originDutyStationZip, destinationDutyStationZip)
+	distanceMilesFromOriginDutyStationZip, err := e.planner.Zip5TransitDistanceLineHaul(originDutyStationZip, destinationDutyStationZip)
 	if err != nil {
 		return sitCharge, cost, fmt.Errorf("error calculating estimate: cannot get distance from origin duty station to destination: %w", err)
 	}
