@@ -2,7 +2,7 @@ import React from 'react';
 import { string, func, bool } from 'prop-types';
 import { uniqueId } from 'lodash';
 
-const RadioButton = ({ name, label, onChange, value, checked, disabled, inputClassName, labelClassName, testId }) => {
+const RadioButton = ({ name, label, onChange, value, checked, inputClassName, labelClassName, testId }) => {
   const radioId = uniqueId(label);
   return (
     <>
@@ -13,7 +13,6 @@ const RadioButton = ({ name, label, onChange, value, checked, disabled, inputCla
         name={name}
         value={value}
         checked={checked}
-        disabled={disabled}
         onChange={onChange}
         data-cy={testId}
       />
