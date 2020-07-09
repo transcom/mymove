@@ -146,9 +146,6 @@ export class OfficeApp extends Component {
                 {/* no auth */}
                 <Route path="/sign-in" component={SignIn} />
 
-                {/* PPM & TXO conflicting routes - select based on user role */}
-                {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
-
                 {/* PPM */}
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
@@ -160,6 +157,9 @@ export class OfficeApp extends Component {
                 {/* TXO */}
                 <PrivateRoute path="/moves/queue" exact component={TOO} requiredRoles={[roleTypes.TOO]} />
                 <PrivateRoute path="/invoicing/queue" component={TIO} requiredRoles={[roleTypes.TIO]} />
+
+                {/* PPM & TXO conflicting routes - select based on user role */}
+                {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
 
                 {/* TODO - audit functionality of this route */}
                 <Route path="/verification-in-progress" component={TOOVerificationInProgress} />

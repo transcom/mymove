@@ -76,9 +76,10 @@ const TXOMoveInfo = () => {
             path="/moves/:moveOrderId/history"
             exact
             component={MoveHistory}
-            requiredRoles={[roleTypes.TIO]}
+            requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
           />
 
+          {/* TODO - clarify role/tab access */}
           <Redirect from="/moves/:moveOrderId" to="/moves/:moveOrderId/details" />
         </Switch>
       </Suspense>
