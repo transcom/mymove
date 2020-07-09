@@ -104,7 +104,7 @@ func (o *UpdatePaymentRequestStatusBadRequest) WriteResponse(rw http.ResponseWri
 // UpdatePaymentRequestStatusUnauthorizedCode is the HTTP code returned for type UpdatePaymentRequestStatusUnauthorized
 const UpdatePaymentRequestStatusUnauthorizedCode int = 401
 
-/*UpdatePaymentRequestStatusUnauthorized The request was unauthorized.
+/*UpdatePaymentRequestStatusUnauthorized The request was denied.
 
 swagger:response updatePaymentRequestStatusUnauthorized
 */
@@ -113,7 +113,7 @@ type UpdatePaymentRequestStatusUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestStatusUnauthorized creates UpdatePaymentRequestStatusUnauthorized with default headers values
@@ -123,13 +123,13 @@ func NewUpdatePaymentRequestStatusUnauthorized() *UpdatePaymentRequestStatusUnau
 }
 
 // WithPayload adds the payload to the update payment request status unauthorized response
-func (o *UpdatePaymentRequestStatusUnauthorized) WithPayload(payload interface{}) *UpdatePaymentRequestStatusUnauthorized {
+func (o *UpdatePaymentRequestStatusUnauthorized) WithPayload(payload *supportmessages.ClientError) *UpdatePaymentRequestStatusUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request status unauthorized response
-func (o *UpdatePaymentRequestStatusUnauthorized) SetPayload(payload interface{}) {
+func (o *UpdatePaymentRequestStatusUnauthorized) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -137,16 +137,18 @@ func (o *UpdatePaymentRequestStatusUnauthorized) SetPayload(payload interface{})
 func (o *UpdatePaymentRequestStatusUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdatePaymentRequestStatusForbiddenCode is the HTTP code returned for type UpdatePaymentRequestStatusForbidden
 const UpdatePaymentRequestStatusForbiddenCode int = 403
 
-/*UpdatePaymentRequestStatusForbidden The client doesn't have permissions to perform the request.
+/*UpdatePaymentRequestStatusForbidden The request was denied.
 
 swagger:response updatePaymentRequestStatusForbidden
 */
@@ -155,7 +157,7 @@ type UpdatePaymentRequestStatusForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestStatusForbidden creates UpdatePaymentRequestStatusForbidden with default headers values
@@ -165,13 +167,13 @@ func NewUpdatePaymentRequestStatusForbidden() *UpdatePaymentRequestStatusForbidd
 }
 
 // WithPayload adds the payload to the update payment request status forbidden response
-func (o *UpdatePaymentRequestStatusForbidden) WithPayload(payload interface{}) *UpdatePaymentRequestStatusForbidden {
+func (o *UpdatePaymentRequestStatusForbidden) WithPayload(payload *supportmessages.ClientError) *UpdatePaymentRequestStatusForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request status forbidden response
-func (o *UpdatePaymentRequestStatusForbidden) SetPayload(payload interface{}) {
+func (o *UpdatePaymentRequestStatusForbidden) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -179,9 +181,11 @@ func (o *UpdatePaymentRequestStatusForbidden) SetPayload(payload interface{}) {
 func (o *UpdatePaymentRequestStatusForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 

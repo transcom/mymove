@@ -28,6 +28,7 @@ describe('Weight', () => {
       }),
     match: { params: { moveId: 'some id' } },
     loadPPMs: jest.fn(),
+    fetchLatestOrders: jest.fn(),
   };
   it('Component renders', () => {
     expect(shallow(<PpmWeight {...minProps} />).length).toEqual(1);

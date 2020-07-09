@@ -3,12 +3,12 @@ package mtoshipment
 import (
 	"fmt"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/services/fetch"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -60,7 +60,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		return nil, services.NewNotFoundError(moveTaskOrderID, "")
 	}
 
-	err = f.db.Transaction(func(tx *pop.Connection) error {
+	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 		// create new builder to use tx
 		txBuilder := f.createNewBuilder(tx)
 
@@ -70,30 +70,26 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			if verrs != nil || err != nil {
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
+			shipment.PickupAddressID = &shipment.PickupAddress.ID
 		} else {
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "pickup address is required to create MTO shipment")
+			// Swagger should pick this up before it ever gets here
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create MTO shipment")
 		}
 
 		if shipment.DestinationAddress != nil {
 			verrs, err = txBuilder.CreateOne(shipment.DestinationAddress)
-
 			if verrs != nil || err != nil {
 				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
 			}
+			shipment.DestinationAddressID = &shipment.DestinationAddress.ID
 		} else {
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "destination address is required to create MTO shipment")
+			// Swagger should pick this up before it ever gets here
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "DestinationAddress is required to create MTO shipment")
 		}
-
-		// assign addresses to shipment
-		shipment.PickupAddressID = &shipment.PickupAddress.ID
-		shipment.DestinationAddressID = &shipment.DestinationAddress.ID
 
 		// check that required items to create shipment are present
 		if shipment.RequestedPickupDate == nil {
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "requested pickup date is required to create MTO shipment")
-		}
-		if shipment.ShipmentType == "" {
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "shipment type is required to create MTO shipment")
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create MTO shipment")
 		}
 		//assign status to shipment submitted
 		shipment.Status = models.MTOShipmentStatusSubmitted
@@ -116,20 +112,14 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			}
 		}
 
-		// create MTOServiceItems List
-		if serviceItems != nil {
-			mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(txBuilder)
-			for i, serviceItem := range serviceItems {
-				serviceItem.MTOShipmentID = &shipment.ID
-				serviceItem, verrs, error := mtoServiceItemCreator.CreateMTOServiceItem(&serviceItem)
-				if verrs != nil || error != nil {
-					return fmt.Errorf("%#v %e", verrs, error)
-				}
-				serviceItems[i] = *serviceItem
-			}
-		}
 		return nil
 	})
 
-	return shipment, err
+	if verrs != nil && verrs.HasAny() {
+		return nil, services.NewInvalidInputError(uuid.Nil, err, verrs, "")
+	} else if err != nil {
+		return nil, services.NewQueryError("unknown", err, "")
+	}
+
+	return shipment, transactionError
 }

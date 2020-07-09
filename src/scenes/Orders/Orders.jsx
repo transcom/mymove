@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -7,7 +7,12 @@ import { getFormValues } from 'redux-form';
 
 import { Field } from 'redux-form';
 
-import { createOrders, updateOrders } from './ducks';
+import {
+  createOrders,
+  updateOrders,
+  fetchLatestOrders,
+  selectActiveOrLatestOrders,
+} from 'shared/Entities/modules/orders';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { withContext } from 'shared/AppContext';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -22,8 +27,14 @@ const formName = 'orders_info';
 const OrdersWizardForm = reduxifyWizardForm(formName, validateOrdersForm);
 
 export class Orders extends Component {
+  componentDidMount() {
+    const { serviceMemberId } = this.props;
+    if (!isEmpty(this.props.currentOrders)) {
+      this.props.fetchLatestOrders(serviceMemberId);
+    }
+  }
+
   handleSubmit = () => {
-    // const pendingValues = Object.assign({}, this.props.formData.values);
     const pendingValues = Object.assign({}, this.props.formValues);
 
     // Update if orders object already extant
@@ -33,10 +44,10 @@ export class Orders extends Component {
       pendingValues['has_dependents'] = pendingValues.has_dependents || false;
       pendingValues['spouse_has_pro_gear'] =
         (pendingValues.has_dependents && pendingValues.spouse_has_pro_gear) || false;
-      if (this.props.currentOrders) {
-        return this.props.updateOrders(this.props.currentOrders.id, pendingValues);
-      } else {
+      if (isEmpty(this.props.currentOrders)) {
         return this.props.createOrders(pendingValues);
+      } else {
+        return this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       }
     }
   };
@@ -87,8 +98,6 @@ export class Orders extends Component {
 }
 Orders.propTypes = {
   schema: PropTypes.object.isRequired,
-  updateOrders: PropTypes.func.isRequired,
-  currentOrders: PropTypes.object,
   error: PropTypes.object,
   context: PropTypes.shape({
     flags: PropTypes.shape({
@@ -99,11 +108,13 @@ Orders.propTypes = {
 
 function mapStateToProps(state) {
   const formValues = getFormValues(formName)(state);
+  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+
   return {
-    serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
+    serviceMemberId: serviceMemberId,
+    currentOrders: selectActiveOrLatestOrders(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
     formValues,
-    currentOrders: state.orders.currentOrders,
     currentStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
     newDutyStation: get(formValues, 'new_duty_station', {}),
   };
@@ -112,6 +123,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
+      fetchLatestOrders,
       updateOrders,
       createOrders,
     },
