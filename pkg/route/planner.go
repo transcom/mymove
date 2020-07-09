@@ -45,6 +45,7 @@ func urlencodeAddress(address *models.Address) string {
 	return url.QueryEscape(strings.Join(s, ","))
 }
 
+// zip5TransitDistanceHelper takes a source and destination zip5 and calculates the distance between them using a Zip5 to LatLong lookup, this is needed to support HHG short haul distance lookups
 func zip5TransitDistanceHelper(planner Planner, source string, destination string) (int, error) {
 	sLL, err := Zip5ToLatLong(source)
 	if err != nil {
@@ -61,6 +62,8 @@ func zip5TransitDistanceHelper(planner Planner, source string, destination strin
 	return distance, err
 }
 
+// zip5TransitDistanceHelper takes a source and destination zip5 and calculates the distance between them using a Zip5 to LatLong lookup and will throw an error if distance is less than 50, this is used by PPM code
+// Ideally I don't think we should check for minimum distance here and should refactor code to use zip5TransitDistanceHelper over this helper over time.
 func zip5TransitDistanceLineHaulHelper(planner Planner, source string, destination string) (int, error) {
 	sLL, err := Zip5ToLatLong(source)
 	if err != nil {
@@ -80,6 +83,7 @@ func zip5TransitDistanceLineHaulHelper(planner Planner, source string, destinati
 	return distance, err
 }
 
+// zip3TransitDistanceHelper takes a source and destination zip3 and calculates the distence between them using a Zip3 to LatLong lookup, this is intended for HHG long haul calculations with two differnet zip3s
 func zip3TransitDistanceHelper(planner Planner, source string, destination string) (int, error) {
 	sLL, err := Zip5ToZip3LatLong(source)
 	if err != nil {
@@ -101,6 +105,8 @@ func zip3TransitDistanceHelper(planner Planner, source string, destination strin
 type Planner interface {
 	TransitDistance(source *models.Address, destination *models.Address) (int, error)
 	LatLongTransitDistance(source LatLong, destination LatLong) (int, error)
+	// Zip5TransitDistanceLineHaul is used by PPM flow and checks for minimum distance restriciton as PPM doesn't allow short hauls
+	// New code should probably make the minimum checks after calling Zip5TransitDistance over using this method
 	Zip5TransitDistanceLineHaul(source string, destination string) (int, error)
 	Zip5TransitDistance(source string, destination string) (int, error)
 	Zip3TransitDistance(source string, destination string) (int, error)
