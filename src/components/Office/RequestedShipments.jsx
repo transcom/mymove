@@ -45,17 +45,24 @@ const RequestedShipments = ({
       if (values.counselingFee) {
         mtoApprovalServiceItemCodes.push('CS');
       }
-      filteredShipments.forEach((shipment) =>
-        approveMTOShipment(moveTaskOrder.id, shipment.id, 'APPROVED', shipment.eTag),
-      );
-      approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes)
-        .then(({ response }) => {
-          if (response.status === 200) {
+      Promise.all([
+        Promise.all(
+          filteredShipments.map((shipment) =>
+            approveMTOShipment(moveTaskOrder.id, shipment.id, 'APPROVED', shipment.eTag),
+          ),
+        ),
+        approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes),
+      ])
+        .then((results) => {
+          if (
+            results[1].response.status === 200 &&
+            results[0].every((shipmentResult) => shipmentResult.response.status === 200)
+          ) {
             setIsModalVisible(false);
+            setSubmitting(false);
+            // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
+            window.location.reload();
           }
-          setSubmitting(false);
-          // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
-          window.location.reload();
         })
         .catch(() => {
           // TODO: Decided if we wnat to display an error notice, log error event, or retry
@@ -250,8 +257,8 @@ RequestedShipments.defaultProps = {
   mtoAgents: [],
   mtoServiceItems: [],
   moveTaskOrder: {},
-  approveMTO: () => {},
-  approveMTOShipment: () => {},
+  approveMTO: () => Promise.resolve(),
+  approveMTOShipment: () => Promise.resolve(),
 };
 
 export default RequestedShipments;

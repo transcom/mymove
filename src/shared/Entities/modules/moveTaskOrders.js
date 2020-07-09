@@ -10,7 +10,6 @@ export function updateMoveTaskOrderStatus(
   label = updateMoveTaskOrders,
 ) {
   const swaggerTag = 'moveTaskOrder.updateMoveTaskOrderStatus';
-  console.log(mtoApprovalServiceItemCodes);
   return swaggerRequest(
     getGHCClient,
     swaggerTag,

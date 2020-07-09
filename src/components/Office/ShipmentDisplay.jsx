@@ -17,7 +17,7 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
   return (
     <div className={styles['shipment-display']} data-cy="shipment-display">
       <ShipmentContainer className={styles['shipment-display__container']} shipmentType={shipmentType}>
-        <table className={styles['table--small']} data-cy="shipment-display-table">
+        <table className="table--small" data-cy="shipment-display-table">
           <thead>
             <tr>
               <th className={styles['shipment-display__header-checkbox']}>
