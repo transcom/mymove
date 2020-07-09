@@ -233,6 +233,50 @@ func (o *CreateMTOServiceItemNotFound) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
+// CreateMTOServiceItemConflictCode is the HTTP code returned for type CreateMTOServiceItemConflict
+const CreateMTOServiceItemConflictCode int = 409
+
+/*CreateMTOServiceItemConflict The request could not be processed because of conflict in the current state of the resource.
+
+swagger:response createMTOServiceItemConflict
+*/
+type CreateMTOServiceItemConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ClientError `json:"body,omitempty"`
+}
+
+// NewCreateMTOServiceItemConflict creates CreateMTOServiceItemConflict with default headers values
+func NewCreateMTOServiceItemConflict() *CreateMTOServiceItemConflict {
+
+	return &CreateMTOServiceItemConflict{}
+}
+
+// WithPayload adds the payload to the create m t o service item conflict response
+func (o *CreateMTOServiceItemConflict) WithPayload(payload *primemessages.ClientError) *CreateMTOServiceItemConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create m t o service item conflict response
+func (o *CreateMTOServiceItemConflict) SetPayload(payload *primemessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateMTOServiceItemConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreateMTOServiceItemUnprocessableEntityCode is the HTTP code returned for type CreateMTOServiceItemUnprocessableEntity
 const CreateMTOServiceItemUnprocessableEntityCode int = 422
 

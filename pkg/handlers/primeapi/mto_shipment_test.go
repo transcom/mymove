@@ -128,7 +128,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		response := handler.Handle(badParams)
 
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 	})
 
 	suite.T().Run("POST failure - 404 -- not found", func(t *testing.T) {
