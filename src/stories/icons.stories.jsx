@@ -25,6 +25,11 @@ import { ReactComponent as ZoomOutIcon } from 'shared/icon/zoom-out.svg';
 // Icons
 export default {
   title: 'Global|Icons',
+  parameters: {
+    abstract: {
+      url: 'https://share.goabstract.com/eabef4a2-603e-4c3d-b249-0e580f1c8306?mode=design',
+    },
+  },
 };
 
 export const all = () => (

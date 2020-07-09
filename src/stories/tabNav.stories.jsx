@@ -7,6 +7,11 @@ import TabNav from '../components/TabNav';
 export default {
   title: 'Components|Tab Navigation',
   decorators: [withKnobs],
+  parameters: {
+    abstract: {
+      url: 'https://share.goabstract.com/d23132ee-a6ce-451e-95f9-0a4ef0882ace?mode=design',
+    },
+  },
 };
 
 export const Default = () => (
