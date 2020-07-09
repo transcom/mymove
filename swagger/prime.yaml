@@ -249,6 +249,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -480,6 +482,7 @@ definitions:
         default: USA
       eTag:
         type: string
+        readOnly: true
     required:
       - streetAddress1
       - city
@@ -550,6 +553,9 @@ definitions:
           $ref: '#/definitions/MTOServiceItem'
     required:
       - moveTaskOrderID
+      - pickupAddress
+      - destinationAddress
+      - shipmentType
   Customer:
     type: object
     properties:
@@ -1441,6 +1447,10 @@ responses:
       $ref: '#/definitions/ClientError'
   NotFound:
     description: The requested resource wasn't found.
+    schema:
+      $ref: '#/definitions/ClientError'
+  Conflict:
+    description: "The request could not be processed because of conflict in the current state of the resource."
     schema:
       $ref: '#/definitions/ClientError'
   PermissionDenied:

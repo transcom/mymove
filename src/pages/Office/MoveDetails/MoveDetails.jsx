@@ -9,8 +9,7 @@ import { getMTOAgentList, selectMTOAgents } from '../../../shared/Entities/modul
 
 import styles from './MoveDetails.module.scss';
 
-import 'pages/TOO/too.scss';
-
+import 'styles/office.scss';
 import {
   getMoveOrder as getMoveOrderAction,
   getCustomer as getCustomerAction,

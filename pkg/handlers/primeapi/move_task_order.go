@@ -25,7 +25,7 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(true, params.Since)
 
 	if err != nil {
-		logger.Error("Unable to fetch records:", zap.Error(err))
+		logger.Error("Unexpected error while fetching records:", zap.Error(err))
 		return movetaskorderops.NewFetchMTOUpdatesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 	}
 

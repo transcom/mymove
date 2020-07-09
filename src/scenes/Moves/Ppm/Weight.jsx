@@ -15,6 +15,7 @@ import {
   getPpmWeightEstimate,
   selectPPMEstimateRange,
 } from 'shared/Entities/modules/ppms';
+import { fetchLatestOrders, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
@@ -60,6 +61,7 @@ export class PpmWeight extends Component {
     const { currentPPM } = this.props;
     const moveId = this.props.match.params.moveId;
     this.props.loadPPMs(moveId);
+    this.props.fetchLatestOrders(this.props.serviceMemberId);
 
     if (currentPPM) {
       this.setState(
@@ -413,16 +415,18 @@ function mapStateToProps(state) {
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
   const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
   const moveID = state.moves.currentMove.id;
+  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
 
   const props = {
     ...state.ppm,
+    serviceMemberId: serviceMemberId,
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
     currentPPM: selectActivePPMForMove(state, moveID),
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
     originDutyStationZip,
-    orders: get(state, 'orders.currentOrders', {}),
+    orders: selectActiveOrLatestOrders(state),
     // TODO this is a work around till we refactor more SM data...
     tempCurrentPPM: get(state, 'ppm.currentPpm'),
   };
@@ -437,6 +441,7 @@ function mapDispatchToProps(dispatch) {
       getPpmWeightEstimate,
       updatePPM,
       updatePPMEstimate,
+      fetchLatestOrders,
     },
     dispatch,
   );

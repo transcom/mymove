@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/route/mocks"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -62,9 +63,14 @@ func (suite *PaperworkSuite) TestComputeObligationsParams() {
 	missingZip := models.ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{{}}}
 	missingActualMoveDate := models.ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm}}
 
-	_, err1 := ppmComputer.ComputeObligations(noPPM, route.NewTestingPlanner(10))
-	_, err2 := ppmComputer.ComputeObligations(missingZip, route.NewTestingPlanner(10))
-	_, err3 := ppmComputer.ComputeObligations(missingActualMoveDate, route.NewTestingPlanner(10))
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(10, nil)
+	_, err1 := ppmComputer.ComputeObligations(noPPM, planner)
+	_, err2 := ppmComputer.ComputeObligations(missingZip, planner)
+	_, err3 := ppmComputer.ComputeObligations(missingActualMoveDate, planner)
 
 	suite.NotNil(err1)
 	suite.Equal("missing ppm", err1.Error())
@@ -80,7 +86,11 @@ func (suite *PaperworkSuite) TestComputeObligations() {
 	miles := 100
 	totalWeightEntitlement := unit.Pound(1000)
 	ppmRemainingEntitlement := unit.Pound(2000)
-	planner := route.NewTestingPlanner(miles)
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(miles, nil)
 	origMoveDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
 	actualDate := time.Date(2018, 12, 15, 0, 0, 0, 0, time.UTC)
 	pickupPostalCode := "85369"
