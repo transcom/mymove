@@ -46,6 +46,7 @@ import { MatchShape } from 'types/router';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
+  'approved-shipments': 'Approved shipments',
   orders: 'Orders',
   allowances: 'Allowances',
   'customer-info': 'Customer info',
@@ -55,10 +56,11 @@ export class MoveDetails extends Component {
   constructor(props) {
     super(props);
 
-    this.sections = ['requested-shipments', 'orders', 'allowances', 'customer-info'];
+    // this.sections = ['requested-shipments', 'orders', 'allowances', 'customer-info'];
 
     this.state = {
       activeSection: '',
+      sections: ['orders', 'allowances', 'customer-info'],
     };
   }
 
@@ -76,7 +78,8 @@ export class MoveDetails extends Component {
       getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
         moveTaskOrder.forEach((item) =>
           getMTOShipments(item.id).then(({ response: { body: mtoShipments } }) => {
-            mtoShipments.forEach((shipment) => getMTOAgentList(shipment.moveTaskOrderID, shipment.id));
+            mtoShipments.map((shipment) => getMTOAgentList(shipment.moveTaskOrderID, shipment.id));
+            this.checkToAddShipmentsSections(mtoShipments);
           }, getMTOServiceItems(item.id)),
         );
       });
@@ -96,10 +99,10 @@ export class MoveDetails extends Component {
 
   handleScroll = () => {
     const distanceFromTop = window.scrollY;
-    const { activeSection } = this.state;
+    const { sections, activeSection } = this.state;
     let newActiveSection;
 
-    this.sections.forEach((section) => {
+    sections.forEach((section) => {
       const sectionEl = document.querySelector(`#${section}`);
       if (sectionEl.offsetTop <= distanceFromTop && sectionEl.offsetTop + sectionEl.offsetHeight > distanceFromTop) {
         newActiveSection = section;
@@ -108,6 +111,19 @@ export class MoveDetails extends Component {
 
     if (activeSection !== newActiveSection) {
       this.setActiveSection(newActiveSection);
+    }
+  };
+
+  checkToAddShipmentsSections = (shipments) => {
+    const approvedShipments = shipments.filter((shipment) => shipment.status === 'APPROVED');
+    const submittedShipments = shipments.filter((shipment) => shipment.status === 'SUBMITTED');
+
+    if (submittedShipments.length > 0) {
+      this.setState((previousState) => ({ sections: ['requested-shipments', ...previousState.sections] }));
+    }
+
+    if (approvedShipments.length > 0) {
+      this.setState((previousState) => ({ sections: ['approved-shipments', ...previousState.sections] }));
     }
   };
 
@@ -123,10 +139,11 @@ export class MoveDetails extends Component {
       updateMoveTaskOrderStatus,
       patchMTOShipmentStatus,
     } = this.props;
+
     const approvedShipments = mtoShipments.filter((shipment) => shipment.status === 'APPROVED');
     const submittedShipments = mtoShipments.filter((shipment) => shipment.status === 'SUBMITTED');
 
-    const { activeSection } = this.state;
+    const { activeSection, sections } = this.state;
 
     const ordersInfo = {
       newDutyStation: moveOrder.destinationDutyStation?.name,
@@ -166,7 +183,7 @@ export class MoveDetails extends Component {
       <div className={styles.MoveDetails}>
         <div className={styles.container}>
           <LeftNav className={styles.sidebar}>
-            {this.sections.map((s) => {
+            {sections.map((s) => {
               const classes = classnames({ active: s === activeSection });
               return (
                 <a key={`sidenav_${s}`} href={`#${s}`} className={classes}>
@@ -194,7 +211,7 @@ export class MoveDetails extends Component {
               </div>
             )}
             {approvedShipments.length > 0 && (
-              <div className={styles.section} id="requested-shipments">
+              <div className={styles.section} id="approved-shipments">
                 <RequestedShipments
                   mtoShipments={approvedShipments}
                   allowancesInfo={allowancesInfo}
