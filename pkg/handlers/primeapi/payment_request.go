@@ -67,6 +67,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	// in from the API. These paymentRequest.PaymentServiceItems will be used as a temp holder to process the incoming API data
 	verrs := validate.NewErrors()
 	paymentRequest.PaymentServiceItems, verrs, err = h.buildPaymentServiceItems(payload)
+
 	if err != nil || verrs.HasAny() {
 
 		logger.Error("could not build service items", zap.Error(err))
@@ -114,6 +115,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 }
 
 func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemessages.CreatePaymentRequestPayload) (models.PaymentServiceItems, *validate.Errors, error) {
+
 	var paymentServiceItems models.PaymentServiceItems
 	verrs := validate.NewErrors()
 	for _, payloadServiceItem := range payload.ServiceItems {
@@ -127,12 +129,24 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 			return nil, verrs, fmt.Errorf("could not convert service item ID [%v] to UUID: %w", payloadServiceItem.ID, err)
 		}
 
+		// Find the ReService model that maps to to the MTOServiceItem
+		var reService models.ReService
+		err = h.DB().Q().Join("mto_service_items", "mto_service_items.re_service_id = re_services.id").
+			Where("mto_service_items.id = ?", mtoServiceItemID).
+			First(&reService)
+		if err != nil {
+			return nil, verrs, fmt.Errorf("could not find RE (rate engine) service item for MTO Service Item with UUID %s with error: %w", mtoServiceItemID, err)
+		}
+
 		paymentServiceItem := models.PaymentServiceItem{
 			// The rest of the model will be filled in when the payment request is created
 			MTOServiceItemID: mtoServiceItemID,
 		}
 
-		paymentServiceItem.PaymentServiceItemParams = h.buildPaymentServiceItemParams(payloadServiceItem)
+		paymentServiceItem.PaymentServiceItemParams, err = h.buildPaymentServiceItemParams(payloadServiceItem, reService)
+		if err != nil {
+			return nil, verrs, err
+		}
 
 		paymentServiceItems = append(paymentServiceItems, paymentServiceItem)
 	}
@@ -140,18 +154,20 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 	return paymentServiceItems, verrs, nil
 }
 
-func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem) models.PaymentServiceItemParams {
-	var paymentServiceItemParams models.PaymentServiceItemParams
+func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem, reService models.ReService) (models.PaymentServiceItemParams, error) {
+	/************
+	  ServiceItem.params is set to readOnly = true currently in prime.yaml. Therefore we are only checking if
+	  there were params sent. If there were params in via the create payment request then we will error out.
 
-	for _, payloadServiceItemParam := range payloadMTOServiceItem.Params {
-		paymentServiceItemParam := models.PaymentServiceItemParam{
-			// ID and PaymentServiceItemID to be filled in when payment request is created
-			IncomingKey: payloadServiceItemParam.Key,
-			Value:       payloadServiceItemParam.Value,
-		}
+	  Currently not expecting the prime to provide any params. This might change as we continue adding service items
+	  for billing and then we'll have to adjust which service items allow incoming params at that time.
+	***********/
 
-		paymentServiceItemParams = append(paymentServiceItemParams, paymentServiceItemParam)
+	if len(payloadMTOServiceItem.Params) > 0 {
+		// if not in this function it can also be done up top
+		return models.PaymentServiceItemParams{}, fmt.Errorf("updating service item params not allowed for service item [%s] with MTO Service UUID: %s", reService.Name, payloadMTOServiceItem.ID)
+
 	}
 
-	return paymentServiceItemParams
+	return models.PaymentServiceItemParams{}, nil
 }

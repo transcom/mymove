@@ -1254,6 +1254,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       params:
         type: array
+        readOnly: true
         items:
           properties:
             key:

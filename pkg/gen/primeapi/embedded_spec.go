@@ -1738,7 +1738,8 @@ func init() {
                 "example": "Service Item Parameter Value"
               }
             }
-          }
+          },
+          "readOnly": true
         }
       }
     },
@@ -3772,7 +3773,8 @@ func init() {
                 "example": "Service Item Parameter Value"
               }
             }
-          }
+          },
+          "readOnly": true
         }
       }
     },
