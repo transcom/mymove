@@ -994,11 +994,6 @@ func init() {
         "rate": {
           "type": "integer"
         },
-        "reServiceID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
         "reServiceName": {
           "type": "string"
         },
@@ -1414,12 +1409,6 @@ func init() {
         "reServiceCode": {
           "type": "string",
           "readOnly": true
-        },
-        "reServiceID": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
           "type": "string",
@@ -2740,11 +2729,6 @@ func init() {
         "rate": {
           "type": "integer"
         },
-        "reServiceID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
         "reServiceName": {
           "type": "string"
         },
@@ -3160,12 +3144,6 @@ func init() {
         "reServiceCode": {
           "type": "string",
           "readOnly": true
-        },
-        "reServiceID": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
           "type": "string",

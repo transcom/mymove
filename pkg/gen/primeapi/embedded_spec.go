@@ -952,7 +952,8 @@ func init() {
       ],
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -972,17 +973,14 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "reServiceID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
         "reServiceName": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
+          "readOnly": true,
           "example": "item was too heavy"
         },
         "status": {
@@ -2970,7 +2968,8 @@ func init() {
       ],
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2990,17 +2989,14 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "reServiceID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
         "reServiceName": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
+          "readOnly": true,
           "example": "item was too heavy"
         },
         "status": {

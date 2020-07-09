@@ -504,6 +504,7 @@ definitions:
     properties:
       isFinal:
         default: false
+
         type: boolean
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -988,22 +989,21 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      reServiceID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
       reServiceName:
         type: string
+        readOnly: true
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
       rejectionReason:
         example: item was too heavy
         type: string
         x-nullable: true
+        readOnly: true
       modelType: # Base type and sub-types of MTOServiceItem
         $ref: '#/definitions/MTOServiceItemModelType'
       eTag:
         type: string
+        readOnly: true
     required:
       - modelType
       - moveTaskOrderID

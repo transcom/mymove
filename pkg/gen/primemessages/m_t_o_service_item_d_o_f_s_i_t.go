@@ -27,8 +27,6 @@ type MTOServiceItemDOFSIT struct {
 
 	mtoShipmentIdField strfmt.UUID
 
-	reServiceIdField strfmt.UUID
-
 	reServiceNameField string
 
 	rejectionReasonField *string
@@ -97,16 +95,6 @@ func (m *MTOServiceItemDOFSIT) MtoShipmentID() strfmt.UUID {
 // SetMtoShipmentID sets the mto shipment ID of this subtype
 func (m *MTOServiceItemDOFSIT) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
-}
-
-// ReServiceID gets the re service ID of this subtype
-func (m *MTOServiceItemDOFSIT) ReServiceID() strfmt.UUID {
-	return m.reServiceIdField
-}
-
-// SetReServiceID sets the re service ID of this subtype
-func (m *MTOServiceItemDOFSIT) SetReServiceID(val strfmt.UUID) {
-	m.reServiceIdField = val
 }
 
 // ReServiceName gets the re service name of this subtype
@@ -183,8 +171,6 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
-		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
-
 		ReServiceName string `json:"reServiceName,omitempty"`
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -213,8 +199,6 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 	result.moveTaskOrderIdField = base.MoveTaskOrderID
 
 	result.mtoShipmentIdField = base.MtoShipmentID
-
-	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
 
@@ -274,8 +258,6 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
-		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
-
 		ReServiceName string `json:"reServiceName,omitempty"`
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -292,8 +274,6 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		MoveTaskOrderID: m.MoveTaskOrderID(),
 
 		MtoShipmentID: m.MtoShipmentID(),
-
-		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
 
@@ -322,10 +302,6 @@ func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMtoShipmentID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReServiceID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -384,19 +360,6 @@ func (m *MTOServiceItemDOFSIT) validateMtoShipmentID(formats strfmt.Registry) er
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemDOFSIT) validateReServiceID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ReServiceID()) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
 		return err
 	}
 
