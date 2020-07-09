@@ -167,8 +167,16 @@ Landing.propTypes = {
   context: PropTypes.shape({
     flags: PropTypes.shape({
       hhgFlow: PropTypes.bool,
-    }).isRequired,
+    }),
   }).isRequired,
+};
+
+Landing.defaultProps = {
+  context: {
+    flags: {
+      hhgFlow: false,
+    },
+  },
 };
 
 const mapStateToProps = (state) => {

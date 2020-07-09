@@ -161,8 +161,8 @@ AppWrapper.defaultProps = {
   getCurrentUserInfo: no_op,
   context: PropTypes.shape({
     flags: PropTypes.shape({
-      hhgFlow: PropTypes.bool,
-    }).isRequired,
+      hhgFlow: false,
+    }),
   }).isRequired,
 };
 
