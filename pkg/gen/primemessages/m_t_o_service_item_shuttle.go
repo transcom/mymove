@@ -33,7 +33,7 @@ type MTOServiceItemShuttle struct {
 
 	statusField MTOServiceItemStatus
 
-	// description
+	// Further details about the shuttle service.
 	// Required: true
 	Description *string `json:"description"`
 
@@ -42,7 +42,7 @@ type MTOServiceItemShuttle struct {
 	// Enum: [DOSHUT DDSHUT]
 	ReServiceCode *string `json:"reServiceCode"`
 
-	// reason
+	// Explanation of why a shuttle service is required.
 	// Required: true
 	Reason *string `json:"reason"`
 }
@@ -137,7 +137,7 @@ func (m *MTOServiceItemShuttle) SetStatus(val MTOServiceItemStatus) {
 func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// description
+		// Further details about the shuttle service.
 		// Required: true
 		Description *string `json:"description"`
 
@@ -146,7 +146,7 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// reason
+		// Explanation of why a shuttle service is required.
 		// Required: true
 		Reason *string `json:"reason"`
 	}
@@ -223,7 +223,7 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// description
+		// Further details about the shuttle service.
 		// Required: true
 		Description *string `json:"description"`
 
@@ -232,7 +232,7 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// reason
+		// Explanation of why a shuttle service is required.
 		// Required: true
 		Reason *string `json:"reason"`
 	}{

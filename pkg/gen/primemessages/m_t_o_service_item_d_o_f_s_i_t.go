@@ -42,7 +42,7 @@ type MTOServiceItemDOFSIT struct {
 	// Enum: [DOFSIT]
 	ReServiceCode string `json:"reServiceCode,omitempty"`
 
-	// reason
+	// Explanation of why Prime is picking up SIT item.
 	// Required: true
 	Reason *string `json:"reason"`
 }
@@ -146,7 +146,7 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 		// Enum: [DOFSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
-		// reason
+		// Explanation of why Prime is picking up SIT item.
 		// Required: true
 		Reason *string `json:"reason"`
 	}
@@ -232,7 +232,7 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		// Enum: [DOFSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
-		// reason
+		// Explanation of why Prime is picking up SIT item.
 		// Required: true
 		Reason *string `json:"reason"`
 	}{

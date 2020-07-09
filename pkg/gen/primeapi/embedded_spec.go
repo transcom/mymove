@@ -1024,11 +1024,13 @@ func init() {
           ],
           "properties": {
             "firstAvailableDeliveryDate1": {
+              "description": "First available date that Prime can deliver SIT service item.",
               "type": "string",
               "format": "date",
               "example": "2020-01-20"
             },
             "firstAvailableDeliveryDate2": {
+              "description": "Second available date that Prime can deliver SIT service item.",
               "type": "string",
               "format": "date",
               "example": "2020-01-20"
@@ -1041,10 +1043,12 @@ func init() {
               ]
             },
             "timeMilitary1": {
+              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `.",
               "type": "string",
               "example": "0400Z"
             },
             "timeMilitary2": {
+              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `.",
               "type": "string",
               "example": "0400Z"
             },
@@ -1082,6 +1086,7 @@ func init() {
               ]
             },
             "reason": {
+              "description": "Explanation of why Prime is picking up SIT item.",
               "type": "string",
               "example": "Storage items need to be picked up"
             }
@@ -1190,6 +1195,7 @@ func init() {
           ],
           "properties": {
             "description": {
+              "description": "Further details about the shuttle service.",
               "type": "string",
               "example": "Things to be moved to the place by shuttle."
             },
@@ -1202,6 +1208,7 @@ func init() {
               ]
             },
             "reason": {
+              "description": "Explanation of why a shuttle service is required.",
               "type": "string",
               "example": "Storage items need to be picked up."
             }
@@ -3040,11 +3047,13 @@ func init() {
           ],
           "properties": {
             "firstAvailableDeliveryDate1": {
+              "description": "First available date that Prime can deliver SIT service item.",
               "type": "string",
               "format": "date",
               "example": "2020-01-20"
             },
             "firstAvailableDeliveryDate2": {
+              "description": "Second available date that Prime can deliver SIT service item.",
               "type": "string",
               "format": "date",
               "example": "2020-01-20"
@@ -3057,10 +3066,12 @@ func init() {
               ]
             },
             "timeMilitary1": {
+              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `.",
               "type": "string",
               "example": "0400Z"
             },
             "timeMilitary2": {
+              "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `.",
               "type": "string",
               "example": "0400Z"
             },
@@ -3098,6 +3109,7 @@ func init() {
               ]
             },
             "reason": {
+              "description": "Explanation of why Prime is picking up SIT item.",
               "type": "string",
               "example": "Storage items need to be picked up"
             }
@@ -3206,6 +3218,7 @@ func init() {
           ],
           "properties": {
             "description": {
+              "description": "Further details about the shuttle service.",
               "type": "string",
               "example": "Things to be moved to the place by shuttle."
             },
@@ -3218,6 +3231,7 @@ func init() {
               ]
             },
             "reason": {
+              "description": "Explanation of why a shuttle service is required.",
               "type": "string",
               "example": "Storage items need to be picked up."
             }

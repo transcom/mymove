@@ -33,12 +33,12 @@ type MTOServiceItemDDFSIT struct {
 
 	statusField MTOServiceItemStatus
 
-	// first available delivery date1
+	// First available date that Prime can deliver SIT service item.
 	// Required: true
 	// Format: date
 	FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1"`
 
-	// first available delivery date2
+	// Second available date that Prime can deliver SIT service item.
 	// Required: true
 	// Format: date
 	FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
@@ -47,11 +47,11 @@ type MTOServiceItemDDFSIT struct {
 	// Enum: [DDFSIT]
 	ReServiceCode string `json:"reServiceCode,omitempty"`
 
-	// time military1
+	// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
 	// Required: true
 	TimeMilitary1 *string `json:"timeMilitary1"`
 
-	// time military2
+	// Time of delivery corresponding to `firstAvailableDeliveryDate2`.
 	// Required: true
 	TimeMilitary2 *string `json:"timeMilitary2"`
 
@@ -155,12 +155,12 @@ func (m *MTOServiceItemDDFSIT) SetStatus(val MTOServiceItemStatus) {
 func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// first available delivery date1
+		// First available date that Prime can deliver SIT service item.
 		// Required: true
 		// Format: date
 		FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1"`
 
-		// first available delivery date2
+		// Second available date that Prime can deliver SIT service item.
 		// Required: true
 		// Format: date
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
@@ -169,11 +169,11 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		// Enum: [DDFSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
-		// time military1
+		// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
 		// Required: true
 		TimeMilitary1 *string `json:"timeMilitary1"`
 
-		// time military2
+		// Time of delivery corresponding to `firstAvailableDeliveryDate2`.
 		// Required: true
 		TimeMilitary2 *string `json:"timeMilitary2"`
 
@@ -259,12 +259,12 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// first available delivery date1
+		// First available date that Prime can deliver SIT service item.
 		// Required: true
 		// Format: date
 		FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1"`
 
-		// first available delivery date2
+		// Second available date that Prime can deliver SIT service item.
 		// Required: true
 		// Format: date
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
@@ -273,11 +273,11 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		// Enum: [DDFSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
-		// time military1
+		// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
 		// Required: true
 		TimeMilitary1 *string `json:"timeMilitary1"`
 
-		// time military2
+		// Time of delivery corresponding to `firstAvailableDeliveryDate2`.
 		// Required: true
 		TimeMilitary2 *string `json:"timeMilitary2"`
 

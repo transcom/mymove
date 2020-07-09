@@ -1031,6 +1031,7 @@ definitions:
           reason:
             type: string
             example: Storage items need to be picked up
+            description: Explanation of why Prime is picking up SIT item.
           pickupPostalCode:
             type: string
             format: zip
@@ -1055,17 +1056,21 @@ definitions:
           timeMilitary1:
             type: string
             example: 0400Z
+            description: Time of delivery corresponding to `firstAvailableDeliveryDate1`.
           firstAvailableDeliveryDate1:
             format: date
             type: string
             example: 2020-01-20
+            description: First available date that Prime can deliver SIT service item.
           timeMilitary2:
             type: string
             example: 0400Z
+            description: Time of delivery corresponding to `firstAvailableDeliveryDate2`.
           firstAvailableDeliveryDate2:
             format: date
             type: string
             example: 2020-01-20
+            description: Second available date that Prime can deliver SIT service item.
         required:
           - timeMilitary1
           - firstAvailableDeliveryDate1
@@ -1086,9 +1091,11 @@ definitions:
           reason:
             type: string
             example: Storage items need to be picked up.
+            description: Explanation of why a shuttle service is required.
           description:
             type: string
             example: Things to be moved to the place by shuttle.
+            description: Further details about the shuttle service.
         required:
           - reason
           - reServiceCode
