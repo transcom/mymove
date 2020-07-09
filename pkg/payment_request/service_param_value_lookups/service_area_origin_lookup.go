@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-
 )
 
 // ServiceAreaOriginLookup does lookup on pickup address postal code
@@ -31,7 +30,7 @@ func (r ServiceAreaOriginLookup) lookup(keyData *ServiceItemParamKeyData) (strin
 		default:
 			return "", err
 		}
-	} 
+	}
 
 	// Make sure there's an MTOShipment since that's nullable
 	mtoShipmentID := mtoServiceItem.MTOShipmentID
