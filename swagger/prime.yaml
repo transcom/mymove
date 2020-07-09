@@ -1025,7 +1025,7 @@ definitions:
         properties:
           reServiceCode:
             type: string
-            description: "Service code allowed for this model type."
+            description: Service code allowed for this model type.
             enum:
               - DOFSIT # Domestic Origin First Day SIT
           reason:
@@ -1048,7 +1048,7 @@ definitions:
         properties:
           reServiceCode:
             type: string
-            description: "Service code allowed for this model type."
+            description: Service code allowed for this model type.
             enum:
               - DDFSIT # Domestic Destination First Day SIT
           type:
@@ -1084,7 +1084,7 @@ definitions:
         properties:
           reServiceCode:
             type: string
-            description: "Service codes allowed for this model type."
+            description: Service codes allowed for this model type.
             enum:
               - DOSHUT # Domestic Origin Shuttle Service
               - DDSHUT # Domestic Destination Shuttle Service
@@ -1108,7 +1108,7 @@ definitions:
         properties:
           reServiceCode:
             type: string
-            description: "Service codes allowed for this model type."
+            description: Service codes allowed for this model type.
             enum:
               - DCRT # Domestic Crating
               - DCRTSA # Domestic Crating - Standalone
