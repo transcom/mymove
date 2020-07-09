@@ -1,10 +1,8 @@
 import React, { Suspense, lazy } from 'react';
-import { NavLink, Switch, useParams, Redirect } from 'react-router-dom';
+import { NavLink, Switch, useParams, Redirect, Route } from 'react-router-dom';
 import { Tag } from '@trussworks/react-uswds';
 
 import 'styles/office.scss';
-import PrivateRoute from 'containers/PrivateRoute';
-import { roleTypes } from 'constants/userRoles';
 import TabNav from 'components/TabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
@@ -43,41 +41,28 @@ const TXOMoveInfo = () => {
       </header>
       <Suspense fallback={<LoadingPlaceholder />}>
         <Switch>
-          <PrivateRoute
-            path="/moves/:moveOrderId/details"
-            exact
-            component={MoveDetails}
-            requiredRoles={[roleTypes.TOO]}
-          />
-          <PrivateRoute path="/moves/:moveOrderId/orders" exact component={MoveOrders} />
+          <Route path="/moves/:moveOrderId/details" exact>
+            <MoveDetails />
+          </Route>
+          <Route path="/moves/:moveOrderId/orders" exact>
+            <MoveOrders />
+          </Route>
 
           {/* TODO - the nav to this url is passing moveOrderId instead of moveTaskOrderId */}
-          <PrivateRoute
-            path="/moves/:moveTaskOrderId/mto"
-            exact
-            component={TOOMoveTaskOrder}
-            requiredRoles={[roleTypes.TOO]}
-          />
+          <Route path="/moves/:moveTaskOrderId/mto" exact>
+            <TOOMoveTaskOrder />
+          </Route>
 
-          <PrivateRoute
-            path="/moves/:moveOrderId/payment-requests/:id"
-            exact
-            component={PaymentRequestShow}
-            requiredRoles={[roleTypes.TIO]}
-          />
-          <PrivateRoute
-            path="/moves/:moveOrderId/payment-requests"
-            exact
-            component={PaymentRequestIndex}
-            requiredRoles={[roleTypes.TIO]}
-          />
+          <Route path="/moves/:moveOrderId/payment-requests/:id" exact>
+            <PaymentRequestShow />
+          </Route>
+          <Route path="/moves/:moveOrderId/payment-requests" exact>
+            <PaymentRequestIndex />
+          </Route>
 
-          <PrivateRoute
-            path="/moves/:moveOrderId/history"
-            exact
-            component={MoveHistory}
-            requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
-          />
+          <Route path="/moves/:moveOrderId/history" exact>
+            <MoveHistory />
+          </Route>
 
           {/* TODO - clarify role/tab access */}
           <Redirect from="/moves/:moveOrderId" to="/moves/:moveOrderId/details" />

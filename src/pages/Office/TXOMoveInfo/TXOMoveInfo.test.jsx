@@ -43,9 +43,7 @@ describe('TXO Move Info Container', () => {
         </MockProviders>,
       );
 
-      const renderedRoute = wrapper.find('PrivateRoute');
-      expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/details');
+      expect(wrapper.find('MoveDetails')).toHaveLength(1);
     });
 
     it('should redirect from move info root to the Move Details route', () => {
@@ -55,9 +53,8 @@ describe('TXO Move Info Container', () => {
         </MockProviders>,
       );
 
-      const renderedRoute = wrapper.find('PrivateRoute');
+      const renderedRoute = wrapper.find('MoveDetails');
       expect(renderedRoute).toHaveLength(1);
-      expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/details');
     });
 
     it('should handle the Move Orders route', () => {
@@ -67,7 +64,7 @@ describe('TXO Move Info Container', () => {
         </MockProviders>,
       );
 
-      const renderedRoute = wrapper.find('PrivateRoute');
+      const renderedRoute = wrapper.find('Route');
       expect(renderedRoute).toHaveLength(1);
       expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/orders');
     });
@@ -79,7 +76,7 @@ describe('TXO Move Info Container', () => {
         </MockProviders>,
       );
 
-      const renderedRoute = wrapper.find('PrivateRoute');
+      const renderedRoute = wrapper.find('Route');
       expect(renderedRoute).toHaveLength(1);
       expect(renderedRoute.prop('path')).toEqual('/moves/:moveTaskOrderId/mto');
     });
@@ -91,7 +88,7 @@ describe('TXO Move Info Container', () => {
         </MockProviders>,
       );
 
-      const renderedRoute = wrapper.find('PrivateRoute');
+      const renderedRoute = wrapper.find('Route');
       expect(renderedRoute).toHaveLength(1);
       expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/payment-requests');
     });
@@ -103,7 +100,7 @@ describe('TXO Move Info Container', () => {
         </MockProviders>,
       );
 
-      const renderedRoute = wrapper.find('PrivateRoute');
+      const renderedRoute = wrapper.find('Route');
       expect(renderedRoute).toHaveLength(1);
       expect(renderedRoute.prop('path')).toEqual('/moves/:moveOrderId/history');
     });
