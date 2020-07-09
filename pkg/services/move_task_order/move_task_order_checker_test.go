@@ -20,10 +20,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 	notAvailableMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 	mtoChecker := NewMoveTaskOrderChecker(suite.DB())
 
-	err := mtoChecker.IsAvailableToPrime(availableMTO.ID)
+	availableToPrime, err := mtoChecker.MTOAvailableToPrime(availableMTO.ID)
+	suite.Equal(availableToPrime, true)
 	suite.NoError(err)
 
-	expectedErr := mtoChecker.IsAvailableToPrime(notAvailableMTO.ID)
+	availableToPrime2, expectedErr := mtoChecker.MTOAvailableToPrime(notAvailableMTO.ID)
 	suite.Error(expectedErr)
 	suite.IsType(expectedErr, services.InvalidInputError{})
+	suite.Equal(availableToPrime2, false)
 }

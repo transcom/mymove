@@ -19,23 +19,23 @@ func NewMoveTaskOrderChecker(db *pop.Connection) services.MoveTaskOrderChecker {
 	return &moveTaskOrderChecker{db}
 }
 
-//IsAvailableToPrime retrieves a MoveTaskOrder for a given UUID
-func (f moveTaskOrderChecker) IsAvailableToPrime(moveTaskOrderID uuid.UUID) error {
+//MTOAvailableToPrime retrieves a MoveTaskOrder for a given UUID and checks if it is available to prime
+func (f moveTaskOrderChecker) MTOAvailableToPrime(moveTaskOrderID uuid.UUID) (bool, error) {
 	mto := &models.MoveTaskOrder{}
 	err := f.db.RawQuery("SELECT * from move_task_orders WHERE id = $1", moveTaskOrderID).First(mto)
 
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return services.NewNotFoundError(moveTaskOrderID, "")
+			return false, services.NewNotFoundError(moveTaskOrderID, "")
 		default:
-			return err
+			return false, err
 		}
 	}
 
 	if mto.AvailableToPrimeAt == nil {
-		return services.NewInvalidInputError(mto.ID, nil, nil, "MTO is not available to prime")
+		return false, services.NewInvalidInputError(mto.ID, nil, nil, "MTO is not available to prime")
 	}
 
-	return nil
+	return true, nil
 }

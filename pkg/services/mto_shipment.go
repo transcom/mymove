@@ -10,7 +10,6 @@ import (
 //go:generate mockery -name MTOShipmentUpdater
 type MTOShipmentUpdater interface {
 	UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
-	MTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error)
 }
 
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status

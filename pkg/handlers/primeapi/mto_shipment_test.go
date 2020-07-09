@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/swag"
@@ -252,6 +254,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	handler := UpdateMTOShipmentHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		updater,
+		movetaskorder.NewMoveTaskOrderChecker(suite.DB()),
 	}
 
 	suite.T().Run("Successful PUT - Integration Test", func(t *testing.T) {
@@ -278,6 +281,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mockHandler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockUpdater,
+			movetaskorder.NewMoveTaskOrderChecker(suite.DB()),
 		}
 		internalServerErr := errors.New("ServerError")
 
@@ -386,6 +390,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
+			movetaskorder.NewMoveTaskOrderChecker(suite.DB()),
 		}
 
 		response := handler.Handle(params)

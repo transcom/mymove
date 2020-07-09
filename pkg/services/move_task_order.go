@@ -33,5 +33,5 @@ type MoveTaskOrderUpdater interface {
 //MoveTaskOrderChecker is the service object interface for checking if a MoveTaskOrder is in a certain state
 //go:generate mockery -name MoveTaskOrderChecker
 type MoveTaskOrderChecker interface {
-	IsAvailableToPrime(moveTaskOrderID uuid.UUID) error
+	MTOAvailableToPrime(moveTaskOrderID uuid.UUID) (bool, error)
 }
