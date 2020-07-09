@@ -30,7 +30,8 @@ type CreateShipmentPayload struct {
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// destination address
-	DestinationAddress *Address `json:"destinationAddress,omitempty"`
+	// Required: true
+	DestinationAddress *Address `json:"destinationAddress"`
 
 	// move task order ID
 	// Required: true
@@ -40,7 +41,8 @@ type CreateShipmentPayload struct {
 	mtoServiceItemsField []MTOServiceItem
 
 	// pickup address
-	PickupAddress *Address `json:"pickupAddress,omitempty"`
+	// Required: true
+	PickupAddress *Address `json:"pickupAddress"`
 
 	// Email or id of a contact person for this update
 	PointOfContact string `json:"pointOfContact,omitempty"`
@@ -50,7 +52,8 @@ type CreateShipmentPayload struct {
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// shipment type
-	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+	// Required: true
+	ShipmentType MTOShipmentType `json:"shipmentType"`
 }
 
 // MtoServiceItems gets the mto service items of this base type
@@ -70,19 +73,19 @@ func (m *CreateShipmentPayload) UnmarshalJSON(raw []byte) error {
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-		DestinationAddress *Address `json:"destinationAddress,omitempty"`
+		DestinationAddress *Address `json:"destinationAddress"`
 
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
 
-		PickupAddress *Address `json:"pickupAddress,omitempty"`
+		PickupAddress *Address `json:"pickupAddress"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
 		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
-		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+		ShipmentType MTOShipmentType `json:"shipmentType"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -144,17 +147,17 @@ func (m CreateShipmentPayload) MarshalJSON() ([]byte, error) {
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-		DestinationAddress *Address `json:"destinationAddress,omitempty"`
+		DestinationAddress *Address `json:"destinationAddress"`
 
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
-		PickupAddress *Address `json:"pickupAddress,omitempty"`
+		PickupAddress *Address `json:"pickupAddress"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
 		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
-		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+		ShipmentType MTOShipmentType `json:"shipmentType"`
 	}{
 
 		Agents: m.Agents,
@@ -247,8 +250,8 @@ func (m *CreateShipmentPayload) validateAgents(formats strfmt.Registry) error {
 
 func (m *CreateShipmentPayload) validateDestinationAddress(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.DestinationAddress) { // not required
-		return nil
+	if err := validate.Required("destinationAddress", "body", m.DestinationAddress); err != nil {
+		return err
 	}
 
 	if m.DestinationAddress != nil {
@@ -298,8 +301,8 @@ func (m *CreateShipmentPayload) validateMtoServiceItems(formats strfmt.Registry)
 
 func (m *CreateShipmentPayload) validatePickupAddress(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.PickupAddress) { // not required
-		return nil
+	if err := validate.Required("pickupAddress", "body", m.PickupAddress); err != nil {
+		return err
 	}
 
 	if m.PickupAddress != nil {
@@ -328,10 +331,6 @@ func (m *CreateShipmentPayload) validateRequestedPickupDate(formats strfmt.Regis
 }
 
 func (m *CreateShipmentPayload) validateShipmentType(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ShipmentType) { // not required
-		return nil
-	}
 
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

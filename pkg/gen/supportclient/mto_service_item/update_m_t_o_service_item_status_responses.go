@@ -157,24 +157,26 @@ func NewUpdateMTOServiceItemStatusUnauthorized() *UpdateMTOServiceItemStatusUnau
 
 /*UpdateMTOServiceItemStatusUnauthorized handles this case with default header values.
 
-The request was unauthorized.
+The request was denied.
 */
 type UpdateMTOServiceItemStatusUnauthorized struct {
-	Payload interface{}
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdateMTOServiceItemStatusUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusUnauthorized  %+v", 401, o.Payload)
 }
 
-func (o *UpdateMTOServiceItemStatusUnauthorized) GetPayload() interface{} {
+func (o *UpdateMTOServiceItemStatusUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOServiceItemStatusUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -188,24 +190,26 @@ func NewUpdateMTOServiceItemStatusForbidden() *UpdateMTOServiceItemStatusForbidd
 
 /*UpdateMTOServiceItemStatusForbidden handles this case with default header values.
 
-The client doesn't have permissions to perform the request.
+The request was denied.
 */
 type UpdateMTOServiceItemStatusForbidden struct {
-	Payload interface{}
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdateMTOServiceItemStatusForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusForbidden  %+v", 403, o.Payload)
 }
 
-func (o *UpdateMTOServiceItemStatusForbidden) GetPayload() interface{} {
+func (o *UpdateMTOServiceItemStatusForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOServiceItemStatusForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -252,24 +256,26 @@ func NewUpdateMTOServiceItemStatusConflict() *UpdateMTOServiceItemStatusConflict
 
 /*UpdateMTOServiceItemStatusConflict handles this case with default header values.
 
-Conflict error due to trying to change the status of service item that is not currently "SUBMITTED".
+There was a conflict with the request.
 */
 type UpdateMTOServiceItemStatusConflict struct {
-	Payload interface{}
+	Payload *supportmessages.ClientError
 }
 
 func (o *UpdateMTOServiceItemStatusConflict) Error() string {
 	return fmt.Sprintf("[PATCH /service-items/{mtoServiceItemID}/status][%d] updateMTOServiceItemStatusConflict  %+v", 409, o.Payload)
 }
 
-func (o *UpdateMTOServiceItemStatusConflict) GetPayload() interface{} {
+func (o *UpdateMTOServiceItemStatusConflict) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
 
 func (o *UpdateMTOServiceItemStatusConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(supportmessages.ClientError)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

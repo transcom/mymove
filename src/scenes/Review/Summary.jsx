@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
+import { fetchLatestOrders, selectActiveOrLatestOrders, selectUploadsForOrders } from 'shared/Entities/modules/orders';
 
-import { getPPM } from 'scenes/Moves/Ppm/ducks.js';
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
@@ -23,7 +23,7 @@ import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
 export class Summary extends Component {
   componentDidMount() {
     if (this.props.onDidMount) {
-      this.props.onDidMount();
+      this.props.onDidMount(this.props.serviceMember.id);
     }
   }
   componentDidUpdate(prevProps) {
@@ -46,8 +46,8 @@ export class Summary extends Component {
       serviceMember,
       entitlement,
       match,
+      uploads,
     } = this.props;
-
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
@@ -84,6 +84,7 @@ export class Summary extends Component {
         {showProfileAndOrders && (
           <ServiceMemberSummary
             orders={currentOrders}
+            uploads={uploads}
             backupContacts={currentBackupContacts}
             serviceMember={serviceMember}
             schemaRank={schemaRank}
@@ -113,7 +114,6 @@ Summary.propTypes = {
   getCurrentMove: PropTypes.func,
   currentOrders: PropTypes.object,
   currentPPM: PropTypes.object,
-  currentPpm: PropTypes.object,
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
   moveIsApproved: PropTypes.bool,
@@ -123,13 +123,15 @@ Summary.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const moveID = state.moves.currentMove.id;
+  const currentOrders = selectActiveOrLatestOrders(state);
+
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
-    currentPpm: getPPM(state),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, ownProps.match.params.moveId),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
-    currentOrders: state.orders.currentOrders,
+    currentOrders: currentOrders,
+    uploads: selectUploadsForOrders(state, currentOrders.id),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
@@ -141,9 +143,10 @@ function mapStateToProps(state, ownProps) {
 }
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    onDidMount: function () {
+    onDidMount: function (smId) {
       const moveID = ownProps.match.params.moveId;
       dispatch(loadMove(moveID, 'Summary.getMove'));
+      dispatch(fetchLatestOrders(smId));
     },
     onCheckEntitlement: (moveId) => {
       dispatch(checkEntitlement(moveId));

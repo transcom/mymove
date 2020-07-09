@@ -13,7 +13,7 @@ import {
   getMTOShipments as getMTOShipmentsAction,
   selectMTOShipments,
 } from 'shared/Entities/modules/mtoShipments';
-import 'pages/TOO/too.scss';
+import 'styles/office.scss';
 import {
   getMoveOrder as getMoveOrderAction,
   getCustomer as getCustomerAction,
