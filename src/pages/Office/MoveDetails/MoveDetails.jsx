@@ -78,7 +78,8 @@ export class MoveDetails extends Component {
           getMTOShipments(item.id).then(({ response: { body: mtoShipments } }) => {
             mtoShipments.map((shipment) => getMTOAgentList(shipment.moveTaskOrderID, shipment.id));
             this.checkToAddShipmentsSections(mtoShipments);
-          }, getMTOServiceItems(item.id)),
+            getMTOServiceItems(item.id);
+          }),
         );
       });
     });
