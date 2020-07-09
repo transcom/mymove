@@ -52,7 +52,7 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 		mo.DestinationDutyStation = &orders.NewDutyStation
 		mo.DestinationDutyStationID = &orders.NewDutyStationID
 
-		orderType := "Permanent Change of Station (PCS)"
+		orderType := "GHC"
 		mo.OrderNumber = orders.OrdersNumber
 		mo.OrderType = &orderType
 		orderTypeDetail := "Shipment of HHG permitted"
@@ -182,7 +182,7 @@ func ConvertProfileOrdersToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID,
 	mo.DestinationDutyStation = &orders.NewDutyStation
 	mo.DestinationDutyStationID = &orders.NewDutyStationID
 
-	orderType := "Permanent Change of Station (PCS)"
+	orderType := "GHC"
 	mo.OrderNumber = orders.OrdersNumber
 	mo.OrderType = &orderType
 	orderTypeDetail := "Shipment of HHG permitted"
