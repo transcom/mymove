@@ -6,8 +6,9 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
+	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/route/mocks"
 
 	"github.com/transcom/mymove/pkg/services"
 
@@ -26,7 +27,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	oldMTOShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
 	builder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(builder)
-	mtoShipmentUpdater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, route.NewTestingPlanner(500))
+	planner := &mocks.Planner{}
+	planner.On("TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(500, nil)
+	mtoShipmentUpdater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
 
 	requestedPickupDate := *oldMTOShipment.RequestedPickupDate
 	scheduledPickupDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
@@ -483,7 +489,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 	builder := query.NewQueryBuilder(suite.DB())
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
-	updater := NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, route.NewTestingPlanner(500))
+	planner := &mocks.Planner{}
+	planner.On("TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(500, nil)
+	updater := NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
 
 	suite.T().Run("If we get a mto shipment pointer with a status it should update and return no error", func(t *testing.T) {
 		_, err := updater.UpdateMTOShipmentStatus(shipment.ID, status, nil, eTag)

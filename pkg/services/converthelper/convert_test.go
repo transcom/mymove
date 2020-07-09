@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ConvertSuite) TestConvertFromPPMToGHC() {
@@ -73,14 +74,20 @@ func (suite *ConvertSuite) TestConvertFromPPMToGHC() {
 	suite.FatalNoError(suite.DB().Eager().Where("move_task_order_id = ? and shipment_type = ?", mto.ID, models.MTOShipmentTypeHHGLongHaulDom).First(&mtoShipmentHHG))
 
 	suite.NotNil(mtoShipmentHHG.ScheduledPickupDate)
+	suite.Equal(unit.Pound(4096), *mtoShipmentHHG.PrimeEstimatedWeight)
 
 	expectedNilTime := time.Time{}
 	suite.NotEqual(expectedNilTime, *mtoShipmentHHG.ScheduledPickupDate)
+	suite.NotNil(*mtoShipmentHHG.PrimeEstimatedWeightRecordedDate)
+	suite.NotEqual(expectedNilTime, *mtoShipmentHHG.PrimeEstimatedWeightRecordedDate)
 
 	var mtoShipmentHHGDomShortHaul models.MTOShipment
 	suite.FatalNoError(suite.DB().Eager().Where("move_task_order_id = ? and shipment_type = ?", mto.ID, models.MTOShipmentTypeHHGShortHaulDom).First(&mtoShipmentHHGDomShortHaul))
 
 	suite.NotNil(mtoShipmentHHGDomShortHaul.ScheduledPickupDate)
+	suite.Equal(unit.Pound(4096), *mtoShipmentHHGDomShortHaul.PrimeEstimatedWeight)
+	suite.NotNil(*mtoShipmentHHGDomShortHaul.PrimeEstimatedWeightRecordedDate)
+	suite.NotEqual(expectedNilTime, *mtoShipmentHHGDomShortHaul.PrimeEstimatedWeightRecordedDate)
 
 	suite.NotEqual(expectedNilTime, *mtoShipmentHHGDomShortHaul.ScheduledPickupDate)
 

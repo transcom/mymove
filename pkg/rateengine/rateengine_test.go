@@ -4,11 +4,13 @@ import (
 	"testing"
 
 	"github.com/go-openapi/swag"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
@@ -239,9 +241,13 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 	}
 	suite.setupRateEngineTest()
 	logger, _ := zap.NewDevelopment()
-	planner := route.NewTestingPlanner(1234)
 	originZip := "39574"
 	destinationZip := "33633"
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		originZip,
+		destinationZip,
+	).Return(1234, nil)
 	distanceMiles := 1044
 	weight := unit.Pound(2000)
 	cost, err := suite.computePPMIncludingLHRates(originZip, destinationZip, distanceMiles, weight, logger, planner)
@@ -268,7 +274,11 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 	}
 	suite.setupRateEngineTest()
 	logger, _ := zap.NewDevelopment()
-	planner := route.NewTestingPlanner(1234)
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(1234, nil)
 	originZip := "39574"
 	originDutyStationZip := "50309"
 	destinationZip := "33633"
