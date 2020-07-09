@@ -13,6 +13,7 @@ export const HHGDetailsForm = ({ initialValues }) => {
     <Formik initialValues={{ remarks: '' }}>
       <Form>
         <DatePickerInput name="requestedPickupDate" label="Requested pickup date" />
+        <DatePickerInput name="requestedDeliveryDate" label="Requested delivery date" />
         <TextInput name="remarks" label="Remarks" />
       </Form>
     </Formik>
@@ -23,6 +24,7 @@ HHGDetailsForm.propTypes = {
   initialValues: PropTypes.shape({
     remarks: PropTypes.string,
     requestedPickupDate: PropTypes.string,
+    requestedDeliveryDate: PropTypes.string,
   }),
 };
 
