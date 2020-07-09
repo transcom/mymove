@@ -52,10 +52,10 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 		mo.DestinationDutyStation = &orders.NewDutyStation
 		mo.DestinationDutyStationID = &orders.NewDutyStationID
 
-		orderType := "GHC"
+		orderType := "Permanent Change of Station (PCS)"
 		mo.OrderNumber = orders.OrdersNumber
 		mo.OrderType = &orderType
-		orderTypeDetail := "TBD"
+		orderTypeDetail := "Shipment of HHG permitted"
 		mo.OrderTypeDetail = &orderTypeDetail
 		mo.OriginDutyStation = &sm.DutyStation
 		mo.OriginDutyStationID = sm.DutyStationID
@@ -66,13 +66,12 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 		mo.ReportByDate = &orders.ReportByDate
 		mo.LinesOfAccounting = orders.TAC
 
-		if err := db.Save(&mo); err != nil {
+		if err = db.Save(&mo); err != nil {
 			return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)
 		}
 	} else {
 		mo = moveOrders[0]
 	}
-
 
 	var contractor models.Contractor
 
@@ -183,10 +182,10 @@ func ConvertProfileOrdersToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID,
 	mo.DestinationDutyStation = &orders.NewDutyStation
 	mo.DestinationDutyStationID = &orders.NewDutyStationID
 
-	orderType := "GHC"
+	orderType := "Permanent Change of Station (PCS)"
 	mo.OrderNumber = orders.OrdersNumber
 	mo.OrderType = &orderType
-	orderTypeDetail := "TBD"
+	orderTypeDetail := "Shipment of HHG permitted"
 	mo.OrderTypeDetail = &orderTypeDetail
 	mo.OriginDutyStation = &sm.DutyStation
 	mo.OriginDutyStationID = sm.DutyStationID
