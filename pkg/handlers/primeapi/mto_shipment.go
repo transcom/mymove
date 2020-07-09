@@ -158,16 +158,15 @@ func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MT
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerContext
 	mtoShipmentUpdater services.MTOShipmentUpdater
-	mtoChecker         services.MoveTaskOrderChecker
 }
 
 // Handle handler that updates a mto shipment
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	moveTaskOrderID := uuid.FromStringOrNil(params.Body.MoveTaskOrderID.String())
-	mtoAvailableToPrime, err := h.mtoChecker.MTOAvailableToPrime(moveTaskOrderID)
+	mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 
+	mtoAvailableToPrime, err := h.mtoShipmentUpdater.MTOShipmentsMTOAvailableToPrime(mtoShipmentID)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error - MTO is not available to prime", zap.Error(err))
 		switch e := err.(type) {

@@ -718,3 +718,21 @@ func (e ConflictStatusError) Error() string {
 	return fmt.Sprintf("shipment with id '%s' can not transition status from '%s' to '%s'. Must be in status '%s'.",
 		e.id.String(), e.transitionFromStatus, e.transitionToStatus, models.MTOShipmentStatusSubmitted)
 }
+
+func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
+	var mto models.MoveTaskOrder
+
+	err := f.db.Q().
+		Join("mto_shipments", "move_task_orders.id = mto_shipments.move_task_order_id").
+		Where("available_to_prime_at IS NOT NULL").
+		Where("mto_shipments.id = ?", mtoShipmentID).
+		First(&mto)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return false, services.NewNotFoundError(mtoShipmentID, "while looking for MTOshipment")
+		}
+		return false, services.NewQueryError("mtoShipments", err, "Unexpected error.")
+	}
+
+	return true, nil
+}
