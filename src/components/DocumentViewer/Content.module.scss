@@ -2,48 +2,54 @@
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
 
-$menuWidth: 308px;
-$contentWidth: 80%;
-
-
-.docViewerContent {
-  width: $contentWidth;
-  min-width: 640px;
-  @include u-height(100%);
-  max-height: 100%;
-  overflow-y: scroll;
-  @include u-bg('base-lighter');
+.DocViewerContent {
+  height: 100%;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: stretch;
-  svg path {
-    fill: $primary;
+  @include u-bg('base-lighter');
+
+  :global {
+    .pdf-viewer-container {
+      height: 100%;
+    }
+
+    .pdf-viewer {
+      height: 100%;
+      overflow-y: scroll;
+    }
+
+    .pdf-canvas {
+      text-align: center;
+      // spacing for controls/title bar
+      padding-top: 75px;
+      padding-bottom: 75px;
+    }
   }
 }
 
+:global(.pg-viewer-wrapper) {
+  .controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.75);
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    svg {
+      @include u-margin-right(1);
+    }
+    @include icon-hover-state;
 
-
-.titleBar {
-  width: $contentWidth;
-  background: rgba(255, 255, 255, 0.75);
-  height: 52px;
-  position: fixed;
-  top: 0;
-  display: flex;
-  justify-content: space-between;
-  @include icon-hover-state;
-  @include u-padding-x(4);
-  p {
-    @include u-text('bold');
-    color: $base-darkest;
-  }
-  svg {
-    @include u-margin-left(1);
+    button {
+      display: flex;
+    }
   }
 }
 
+// TODO
+/*
 .docArrows {
   position: fixed;
   top: 50vh;
@@ -59,25 +65,4 @@ $contentWidth: 80%;
     @include u-shadow(2);
   }
 }
-
-.docArea {
-  @include u-padding(5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.docControls {
-  background: rgba(255, 255, 255, 0.75);
-  width: $contentWidth;
-  height: 50px;
-  position: fixed;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  svg {
-    @include u-margin-right(1);
-  }
-  @include icon-hover-state;
-}
+*/

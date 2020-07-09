@@ -9,8 +9,6 @@ import ImportantShipmentDates from '../../components/Office/ImportantShipmentDat
 import RequestedServiceItemsTable from '../../components/Office/RequestedServiceItemsTable';
 import { getMTOShipments, selectMTOShiomentsByMTOId } from '../../shared/Entities/modules/mtoShipments';
 import { getMTOServiceItems, selectMTOServiceItemsByMTOId } from '../../shared/Entities/modules/mtoServiceItems';
-import '../../index.scss';
-import '../../ghc_index.scss';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
