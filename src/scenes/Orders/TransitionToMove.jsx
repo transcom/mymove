@@ -5,13 +5,17 @@ import { get } from 'lodash';
 import { updateMove } from '../Moves/ducks';
 import ordersComplete from 'shared/images/orders-complete-gray-icon.png';
 import moveIcon from 'shared/images/move-icon.png';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
+import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 
 export class TransitionToMove extends Component {
   componentDidMount() {
     if (!this.props.selectedMoveType) {
       // Make sure the move is always set to PPM since we no longer allow HHGs
-      this.props.updateMove(this.props.moveId, 'PPM');
+      this.props.updateMove(this.props.moveId, SHIPMENT_OPTIONS.PPM);
     }
+    this.props.fetchLatestOrders(this.props.serviceMemberId);
   }
 
   render() {
@@ -39,8 +43,11 @@ export class TransitionToMove extends Component {
 }
 
 function mapStateToProps(state) {
-  const move = get(state, 'moves.currentMove');
+  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const move = selectActiveOrLatestMove(state);
+
   const props = {
+    serviceMemberId,
     moveId: get(move, 'id'),
     selectedMoveType: get(move, 'selected_move_type'),
   };
@@ -48,6 +55,6 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateMove }, dispatch);
+  return bindActionCreators({ fetchLatestOrders, updateMove }, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(TransitionToMove);

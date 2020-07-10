@@ -17,7 +17,7 @@ import (
 
 const (
 	dlhPricerMinimumWeight   = 500
-	dlhPricerMinimumDistance = 0
+	dlhPricerMinimumDistance = 50
 )
 
 type domesticLinehaulPricer struct {
@@ -87,8 +87,8 @@ func fetchDomesticLinehaulPrice(db *pop.Connection, contractCode string, request
 	if requestedPickupDate.IsZero() {
 		return milliCentPriceAndEscalation{}, errors.New("MoveDate is required")
 	}
-	if distance <= dlhPricerMinimumDistance {
-		return milliCentPriceAndEscalation{}, fmt.Errorf("distance must be greater than %d", dlhPricerMinimumDistance)
+	if distance < dlhPricerMinimumDistance {
+		return milliCentPriceAndEscalation{}, fmt.Errorf("distance must be at least %d", dlhPricerMinimumDistance)
 	}
 	if weight < dlhPricerMinimumWeight {
 		return milliCentPriceAndEscalation{}, fmt.Errorf("weight must be at least %d", dlhPricerMinimumWeight)

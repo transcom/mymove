@@ -214,6 +214,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
           },
@@ -477,7 +480,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -671,7 +675,10 @@ func init() {
     "CreateShipmentPayload": {
       "type": "object",
       "required": [
-        "moveTaskOrderID"
+        "moveTaskOrderID",
+        "pickupAddress",
+        "destinationAddress",
+        "shipmentType"
       ],
       "properties": {
         "agents": {
@@ -1731,7 +1738,8 @@ func init() {
                 "example": "Service Item Parameter Value"
               }
             }
-          }
+          },
+          "readOnly": true
         }
       }
     },
@@ -1883,6 +1891,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {
@@ -2163,6 +2177,12 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
           "422": {
             "description": "The payload was unprocessable.",
             "schema": {
@@ -2495,7 +2515,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2689,7 +2710,10 @@ func init() {
     "CreateShipmentPayload": {
       "type": "object",
       "required": [
-        "moveTaskOrderID"
+        "moveTaskOrderID",
+        "pickupAddress",
+        "destinationAddress",
+        "shipmentType"
       ],
       "properties": {
         "agents": {
@@ -3749,7 +3773,8 @@ func init() {
                 "example": "Service Item Parameter Value"
               }
             }
-          }
+          },
+          "readOnly": true
         }
       }
     },
@@ -3901,6 +3926,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {

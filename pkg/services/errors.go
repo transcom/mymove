@@ -30,6 +30,7 @@ func (e PreconditionFailedError) Error() string {
 type NotFoundError struct {
 	id      uuid.UUID
 	message string
+	err     error
 }
 
 // NewNotFoundError returns an error for when a struct can not be found
@@ -42,6 +43,16 @@ func NewNotFoundError(id uuid.UUID, message string) NotFoundError {
 
 func (e NotFoundError) Error() string {
 	return fmt.Sprintf("id: %s not found %s", e.id.String(), e.message)
+}
+
+// Wrap lets the caller add an error to be wrapped in the NotFoundError
+func (e *NotFoundError) Wrap(err error) {
+	e.err = err
+}
+
+// Unwrap returns the wrapped error, could be nil
+func (e *NotFoundError) Unwrap() error {
+	return e.err
 }
 
 // ErrorCode contains error codes for the route package
@@ -105,10 +116,13 @@ func NewInvalidInputError(id uuid.UUID, err error, validationErrors *validate.Er
 func (e InvalidInputError) Error() string {
 	if e.message != "" {
 		return fmt.Sprintf(e.message)
-	} else if e.id == uuid.Nil {
+	} else if e.id == uuid.Nil && e.ValidationErrors != nil {
 		return fmt.Sprintf("Invalid input received. %s", e.ValidationErrors)
+	} else if e.ValidationErrors != nil {
+		return fmt.Sprintf("Invalid input for id: %s. %s", e.id.String(), e.ValidationErrors)
+	} else {
+		return ("Invalid Input.")
 	}
-	return fmt.Sprintf("Invalid input for id: %s. %s", e.id.String(), e.ValidationErrors)
 }
 
 // QueryError is returned when a query in the database failed.
@@ -125,6 +139,11 @@ func (e QueryError) Error() string {
 		return fmt.Sprintf(e.message)
 	}
 	return fmt.Sprintf("Could not complete query related to object of type: %s.", e.objectType)
+}
+
+// Unwrap returns the enclosed error
+func (e *QueryError) Unwrap() error {
+	return e.err
 }
 
 // NewQueryError returns an error on a query to the database

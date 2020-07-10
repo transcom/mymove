@@ -1,9 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { isEmpty } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 import { withLastLocation } from 'react-router-last-location';
+import { withContext } from 'shared/AppContext';
 
 import { MoveSummary } from './MoveSummary';
 import PpmAlert from './PpmAlert';
@@ -24,6 +26,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
+import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 export class Landing extends Component {
@@ -74,15 +77,27 @@ export class Landing extends Component {
   };
 
   getNextIncompletePage = () => {
-    const { selectedMoveType, lastMoveIsCanceled, serviceMember, orders, move, ppm, backupContacts } = this.props;
+    const {
+      selectedMoveType,
+      lastMoveIsCanceled,
+      serviceMember,
+      orders,
+      uploads,
+      move,
+      ppm,
+      backupContacts,
+      context,
+    } = this.props;
     return getNextIncompletePageInternal({
       selectedMoveType,
       lastMoveIsCanceled,
       serviceMember,
       orders,
+      uploads,
       move,
       ppm,
       backupContacts,
+      context,
     });
   };
   render() {
@@ -148,16 +163,35 @@ export class Landing extends Component {
   }
 }
 
+Landing.propTypes = {
+  context: PropTypes.shape({
+    flags: PropTypes.shape({
+      hhgFlow: PropTypes.bool,
+    }),
+  }).isRequired,
+};
+
+Landing.defaultProps = {
+  context: {
+    flags: {
+      hhgFlow: false,
+    },
+  },
+};
+
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
+  const serviceMember = get(state, 'serviceMember.currentServiceMember');
+
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
-    serviceMember: state.serviceMember.currentServiceMember || {},
+    serviceMember: serviceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
-    orders: state.orders.currentOrders || {},
+    orders: selectActiveOrLatestOrders(state),
+    uploads: selectUploadsForActiveOrders(state),
     move: selectActiveOrLatestMove(state),
     ppm: getPPM(state),
     loggedInUser: user,
@@ -179,4 +213,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push, createServiceMember, updateMove, loadPPMs }, dispatch);
 }
 
-export default withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing));
+export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing)));

@@ -7,6 +7,7 @@ import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter, push, goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
@@ -46,6 +47,7 @@ import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import { withContext } from 'shared/AppContext';
+import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -157,14 +159,21 @@ export class AppWrapper extends Component {
 AppWrapper.defaultProps = {
   loadInternalSchema: no_op,
   getCurrentUserInfo: no_op,
+  context: PropTypes.shape({
+    flags: PropTypes.shape({
+      hhgFlow: false,
+    }),
+  }).isRequired,
 };
 
 const mapStateToProps = (state) => {
+  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+
   return {
-    currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
+    currentServiceMemberId: serviceMemberId,
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),
-    moveId: get(state, 'moves.currentMove.id'),
+    moveId: selectActiveOrLatestMove(state).id,
     selectedMoveType: selectedMoveType(state),
     swaggerError: state.swaggerInternal.hasErrored,
   };
