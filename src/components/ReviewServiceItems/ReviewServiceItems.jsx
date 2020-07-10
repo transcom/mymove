@@ -8,12 +8,16 @@ import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 
 const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
-  // const [curServiceItemCard] = useState(serviceItemCards[0]);
-  const [curCardIndex] = useState(0);
+  const [curCardIndex, setCardIndex] = useState(0);
   const totalCards = serviceItemCards.length;
 
   // debugging
   // console.log(curServiceItemCard);
+  const handleClick = (index) => {
+    setCardIndex(index);
+  };
+
+  const curCardItem = serviceItemCards[parseInt(curCardIndex, 10)];
 
   return (
     <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
@@ -24,8 +28,28 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
         <div className={styles.eyebrowTitle}>{`${curCardIndex + 1} OF ${totalCards} ITEMS`}</div>
         <h2 className={styles.header}>{header}</h2>
       </div>
-      <div className={styles.body}>BODY</div>
-      <div className={styles.bottom}>BOTTOM</div>
+      <div className={styles.body}>
+        <div className={('container', { 'container--hhg': true })}>{curCardItem.serviceItemName}</div>
+      </div>
+      <div className={styles.bottom}>
+        <Button
+          data-cy="prevServiceItem"
+          type="button"
+          onClick={() => handleClick(curCardIndex - 1)}
+          secondary
+          disabled={curCardIndex === 0}
+        >
+          Previous
+        </Button>
+        <Button
+          data-cy="nextServiceItem"
+          type="button"
+          onClick={() => handleClick(curCardIndex + 1)}
+          disabled={curCardIndex + 1 === totalCards}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 };

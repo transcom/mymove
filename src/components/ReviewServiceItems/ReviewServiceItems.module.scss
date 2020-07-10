@@ -49,11 +49,14 @@
   }
 
   .bottom {
-    @include u-padding('4');
+    @include u-padding-x('3');
+    @include u-padding-y('1');
     @include u-bg('white');
 
     @include u-border-top('2px');
     @include u-border-top('gray-10');
     @include u-position('relative');
+
+    display: flex;
   }
 }
