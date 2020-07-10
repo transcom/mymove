@@ -1,6 +1,6 @@
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/colors';
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/mixins';
+@import '../../../shared/styles/colors';
 
 .ReviewServiceItems {
   @include u-height('viewport');
@@ -12,7 +12,7 @@
   .top button[type='button'] {
     float: right;
     // on mobile the button becomes flexed so must override centering
-    justify-content: right;
+    justify-content: flex-end;
     @include u-padding(0);
     svg {
       @include u-width(2);
