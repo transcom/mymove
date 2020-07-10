@@ -58,5 +58,26 @@
     @include u-position('relative');
 
     display: flex;
+
+    .totalApproved {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      text-align: right;
+
+      .totalLabel {
+        @include u-font-size('body', '3xs');
+        @include u-text('bold');
+        @include u-padding-top(1);
+        color: $base-darker;
+      }
+
+      .totalAmount {
+        @include u-font-size('body', 'xs');
+        @include u-padding-bottom(1);
+        color: $base-darkest;
+        flex-grow: 1;
+      }
+    }
   }
 }

@@ -9,7 +9,14 @@ import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 
 const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   const [curCardIndex, setCardIndex] = useState(0);
+  // eslint-disable-next-line no-unused-vars
+  const [totalApproved, setTotalApproved] = useState(0);
   const totalCards = serviceItemCards.length;
+
+  // sort ascending (service items should still be grouped by shipment?)
+  serviceItemCards.sort((a, b) => {
+    return Date.parse(a.createdAt) - Date.parse(b.createdAt);
+  });
 
   // debugging
   // console.log(curServiceItemCard);
@@ -49,6 +56,10 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
         >
           Next
         </Button>
+        <div className={styles.totalApproved}>
+          <div className={styles.totalLabel}>Total approved</div>
+          <div className={styles.totalAmount}>${totalApproved.toFixed(2)}</div>
+        </div>
       </div>
     </div>
   );

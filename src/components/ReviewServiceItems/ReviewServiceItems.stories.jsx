@@ -23,7 +23,21 @@ const serviceItemCards = [
     shipmentType: SHIPMENT_TYPE.HHG,
     serviceItemName: 'Domestic linehaul',
     amount: 6423,
-    createdAt: '2020-01-01T00:8:00.999Z',
+    createdAt: '2020-01-01T00:08:00.999Z',
+  },
+  {
+    id: '2',
+    shipmentType: null,
+    serviceItemName: 'Counseling fee',
+    amount: 2.8,
+    createdAt: '2020-01-02T00:08:00.999Z',
+  },
+  {
+    id: '3',
+    shipmentType: SHIPMENT_TYPE.NTS,
+    serviceItemName: 'Fuel surcharge',
+    amount: 2.8,
+    createdAt: '2020-01-01T00:08:00.999Z',
   },
 ];
 
