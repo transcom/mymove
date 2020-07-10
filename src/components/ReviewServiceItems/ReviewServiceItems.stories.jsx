@@ -23,6 +23,7 @@ const serviceItemCards = [
     shipmentType: SHIPMENT_TYPE.HHG,
     serviceItemName: 'Domestic linehaul',
     amount: 6423,
+    createdAt: '2020-01-01T00:8:00.999Z',
   },
 ];
 

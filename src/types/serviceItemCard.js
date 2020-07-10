@@ -7,6 +7,7 @@ const ServiceItemCardShape = PropTypes.shape({
   shipmentType: ShipmentTypeOneOf,
   serviceItemName: PropTypes.string,
   amount: PropTypes.number,
+  createdAt: PropTypes.string,
 });
 
 // eslint-disable-next-line import/prefer-default-export
