@@ -115,34 +115,32 @@ const RequestedShipments = ({
                 ))}
             </div>
 
-            {shipmentsStatus === 'SUBMITTED' && (
-              <div>
-                <h3>Add service items to this move</h3>
-                <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
-                  <Checkbox
-                    id="shipmentManagementFee"
-                    label="Shipment management fee"
-                    name="shipmentManagementFee"
-                    onChange={formik.handleChange}
-                  />
-                  <Checkbox
-                    id="counselingFee"
-                    label="Counseling fee"
-                    name="counselingFee"
-                    onChange={formik.handleChange}
-                  />
-                </Fieldset>
-                <Button
-                  id="shipmentApproveButton"
-                  className={`${styles['usa-button--small']} usa-button--icon`}
-                  onClick={handleReviewClick}
-                  type="button"
-                  disabled={!isButtonEnabled}
-                >
-                  <span>Approve selected shipments</span>
-                </Button>
-              </div>
-            )}
+            <div>
+              <h3>Add service items to this move</h3>
+              <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
+                <Checkbox
+                  id="shipmentManagementFee"
+                  label="Shipment management fee"
+                  name="shipmentManagementFee"
+                  onChange={formik.handleChange}
+                />
+                <Checkbox
+                  id="counselingFee"
+                  label="Counseling fee"
+                  name="counselingFee"
+                  onChange={formik.handleChange}
+                />
+              </Fieldset>
+              <Button
+                id="shipmentApproveButton"
+                className={`${styles['usa-button--small']} usa-button--icon`}
+                onClick={handleReviewClick}
+                type="button"
+                disabled={!isButtonEnabled}
+              >
+                <span>Approve selected shipments</span>
+              </Button>
+            </div>
           </form>
         </div>
       )}
