@@ -11,7 +11,7 @@ import ShipmentContainer from './ShipmentContainer';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import styles from 'components/Office/ShipmentDisplay.module.scss';
 import { formatDate } from 'shared/dates';
-import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkmark.svg';
+import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkbox--unchecked.svg';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted }) => {
   return (
