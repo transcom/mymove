@@ -8,6 +8,13 @@ import { SHIPMENT_TYPE } from 'shared/constants';
 export default {
   title: 'TOO/TIO Components|Review service items',
   component: ReviewServiceItems,
+  decorators: [
+    (storyFn) => (
+      <div id="l-nav" style={{ padding: '20px', background: '#f0f0f0' }}>
+        {storyFn()}
+      </div>
+    ),
+  ],
 };
 
 const serviceItemCards = [
@@ -20,7 +27,5 @@ const serviceItemCards = [
 ];
 
 export const Basic = () => (
-  <div id="l-nav" style={{ padding: '20px', background: '#f0f0f0' }}>
-    <ReviewServiceItems shipmentType={SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC} serviceItemCards={serviceItemCards} />
-  </div>
+  <ReviewServiceItems shipmentType={SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC} serviceItemCards={serviceItemCards} />
 );

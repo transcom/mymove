@@ -24,6 +24,7 @@
   .eyebrowTitle {
     @include u-text('gray-40');
     @include u-font-size('body', '3xs');
+    @include u-padding-top(1);
   }
 
   .header {
