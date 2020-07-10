@@ -11,6 +11,8 @@
 
   .top button[type='button'] {
     float: right;
+    // on mobile the button becomes flexed so must override centering
+    justify-content: right;
     @include u-padding(0);
     svg {
       @include u-width(2);
