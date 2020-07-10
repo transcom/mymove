@@ -3,7 +3,7 @@ import WizardPage from 'shared/WizardPage';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
@@ -20,15 +20,27 @@ class ProfileReview extends Component {
     this.props.push(this.getNextIncompletePage());
   };
   getNextIncompletePage = () => {
-    const { selectedMoveType, lastMoveIsCanceled, serviceMember, orders, move, ppm, backupContacts } = this.props;
+    const {
+      selectedMoveType,
+      lastMoveIsCanceled,
+      serviceMember,
+      orders,
+      uploads,
+      move,
+      ppm,
+      backupContacts,
+      context,
+    } = this.props;
     return getNextIncompletePageInternal({
       selectedMoveType,
       lastMoveIsCanceled,
       serviceMember,
       orders,
+      uploads,
       move,
       ppm,
       backupContacts,
+      context,
     });
   };
   render() {

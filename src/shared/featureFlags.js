@@ -14,20 +14,18 @@ const defaultFlags = {
   moveInfoComboButton: true,
   sitPanel: true,
   ppmPaymentRequest: true,
-  too: false,
-  tio: false,
   allOrdersTypes: false,
   hhgFlow: false,
 };
 
 const environmentFlags = {
-  development: Object.assign({}, defaultFlags, { tio: true, too: true, allOrdersTypes: true, hhgFlow: true }),
+  development: Object.assign({}, defaultFlags, { allOrdersTypes: true, hhgFlow: true }),
 
   test: Object.assign({}, defaultFlags),
 
-  experimental: Object.assign({}, defaultFlags, { tio: true, too: true, allOrdersTypes: true, hhgFlow: true }),
+  experimental: Object.assign({}, defaultFlags, { allOrdersTypes: true, hhgFlow: true }),
 
-  staging: Object.assign({}, defaultFlags, { tio: true, too: true, allOrdersTypes: true, hhgFlow: true }),
+  staging: Object.assign({}, defaultFlags, { allOrdersTypes: true, hhgFlow: true }),
 
   production: Object.assign({}, defaultFlags, {
     sitPanel: false,

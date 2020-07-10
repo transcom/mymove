@@ -69,7 +69,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 		// These incoming payment service items have not been created in the database yet
 		var newPaymentServiceItems models.PaymentServiceItems
 		for _, paymentServiceItem := range paymentRequestArg.PaymentServiceItems {
-
 			var mtoServiceItem models.MTOServiceItem
 
 			// Gather message information for logging
@@ -122,6 +121,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 			// Retrieve all of the params needed to price this service item
 			paymentHelper := paymentrequesthelper.RequestPaymentHelper{DB: tx}
+
 			reServiceParams, err := paymentHelper.FetchServiceParamList(paymentServiceItem.MTOServiceItemID)
 			if err != nil {
 				errMessage := "Failed to retrieve service item param list for " + errMessageString

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import generatePath from './generatePath';
 import './index.css';
@@ -68,7 +68,7 @@ export class WizardPage extends Component {
         )}
         {children}
         <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col margin-top-6 tablet:margin-top-3">
+          <div className="grid-col-2 margin-top-6 tablet:margin-top-3">
             {!isMobile && (
               <button
                 className="usa-button usa-button--outline cancel padding-left-0"
@@ -79,7 +79,7 @@ export class WizardPage extends Component {
               </button>
             )}
           </div>
-          <div className="grid-col text-right margin-top-6 tablet:margin-top-3">
+          <div className="grid-col-10 text-right margin-top-6 tablet:margin-top-3">
             <button
               className="usa-button usa-button--outline prev"
               onClick={this.previousPage}

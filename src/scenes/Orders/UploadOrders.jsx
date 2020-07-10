@@ -5,7 +5,11 @@ import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
-import { fetchLatestOrders, selectActiveOrLatestOrders, selectUploadsForOrders } from 'shared/Entities/modules/orders';
+import {
+  fetchLatestOrders,
+  selectActiveOrLatestOrders,
+  selectUploadsForActiveOrders,
+} from 'shared/Entities/modules/orders';
 
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import OrdersUploader from 'components/OrdersUploader';
@@ -125,7 +129,7 @@ function mapStateToProps(state) {
   const props = {
     serviceMemberId: serviceMemberId,
     currentOrders,
-    uploads: selectUploadsForOrders(state, currentOrders.id),
+    uploads: selectUploadsForActiveOrders(state),
     document: selectDocument(state, currentOrders.uploaded_orders),
   };
   return props;

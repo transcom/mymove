@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
+import { FilesShape } from '../types';
+
 import styles from './Menu.module.scss';
-import { FilesShape } from './types';
 
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 

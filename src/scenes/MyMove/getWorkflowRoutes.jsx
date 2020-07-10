@@ -5,7 +5,7 @@ import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
-import { NULL_UUID } from 'shared/constants';
+import { NULL_UUID, SHIPMENT_OPTIONS } from 'shared/constants';
 import DodInfo from 'scenes/ServiceMembers/DodInfo';
 import SMName from 'scenes/ServiceMembers/Name';
 import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
@@ -20,6 +20,8 @@ import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
+
+import SelectMoveType from 'pages/MyMove/SelectMoveType';
 
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
@@ -64,7 +66,8 @@ const always = () => true;
 // Todo: update this when moves can be completed
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
-const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'PPM';
+const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.PPM;
+const inHhgFlow = (props) => props.context.flags.hhgFlow;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
@@ -141,7 +144,8 @@ const pages = {
   },
   '/orders/upload': {
     isInFlow: always,
-    isComplete: ({ sm, orders }) => get(orders, 'uploaded_orders.uploads', []).length > 0,
+    isComplete: ({ sm, orders, uploads }) =>
+      get(orders, 'uploaded_orders.uploads', []).length > 0 || uploads.length > 0,
     render: (key, pages) => ({ match }) => <UploadOrders pages={pages} pageKey={key} match={match} />,
     description: 'Upload your orders',
   },
@@ -156,8 +160,19 @@ const pages = {
       );
     },
   },
+  '/moves/:moveId/select-type': {
+    isInFlow: inHhgFlow,
+    isComplete: always,
+    render: (key, pages) => () => {
+      return (
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+          <SelectMoveType />
+        </WizardPage>
+      );
+    },
+  },
   '/moves/:moveId/ppm-start': {
-    isInFlow: (state) => state.selectedMoveType === 'PPM',
+    isInFlow: (state) => state.selectedMoveType === SHIPMENT_OPTIONS.PPM,
     isComplete: ({ sm, orders, move, ppm }) => {
       return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
@@ -206,15 +221,17 @@ export const getNextIncompletePage = ({
   lastMoveIsCanceled = false,
   serviceMember = {},
   orders = {},
+  uploads = [],
   move = {},
   ppm = {},
   backupContacts = [],
+  context = {},
 }) => {
   const rawPath = findKey(
     pages,
     (p) =>
-      p.isInFlow({ selectedMoveType, lastMoveIsCanceled }) &&
-      !p.isComplete({ sm: serviceMember, orders, move, ppm, backupContacts }),
+      p.isInFlow({ selectedMoveType, lastMoveIsCanceled, context }) &&
+      !p.isComplete({ sm: serviceMember, orders, uploads, move, ppm, backupContacts }),
   );
   const compiledPath = generatePath(rawPath, {
     serviceMemberId: get(serviceMember, 'id'),

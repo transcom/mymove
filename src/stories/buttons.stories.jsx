@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { Button } from '@trussworks/react-uswds';
 
-import { DocsButton, EditButton } from '../components/form';
+import { EditButton } from '../components/form';
 
 // Buttons
-
 const ButtonGroup = ({ className, disabled }) => (
   <div className={className} style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
     <Button disabled={disabled} onClick={action('Button clicked')}>
@@ -42,31 +40,17 @@ ButtonGroup.propTypes = {
   disabled: PropTypes.bool,
 };
 
-storiesOf('Components|Button', module)
-  .add('default', () => <ButtonGroup />)
-  .add('active', () => <ButtonGroup className="active" />)
-  .add('hover', () => <ButtonGroup className="hover" />)
-  .add('focus', () => <ButtonGroup className="focus" />)
-  .add('disabled', () => <ButtonGroup disabled />);
+export default {
+  title: 'Components|Button',
+  parameters: {
+    abstract: {
+      url: 'https://share.goabstract.com/cb93b349-6a47-4823-b4eb-28deb04381a1?mode=design',
+    },
+  },
+};
 
-storiesOf('Components|Icon Buttons', module)
-  .add('docs', () => (
-    <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
-      <DocsButton label="My Documents" onClick={action('Docs button clicked')} />
-      <DocsButton small label="My Documents" onClick={action('Docs button clicked')} />
-      <DocsButton secondary label="My Documents" onClick={action('Docs button clicked')} />
-      <DocsButton secondary small label="My Documents" onClick={action('Docs button clicked')} />
-      <DocsButton unstyled label="My Documents" onClick={action('Docs button clicked')} />
-      <DocsButton disabled label="My Documents" onClick={action('Docs button clicked')} />
-    </div>
-  ))
-  .add('edit', () => (
-    <div style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
-      <EditButton onClick={action('Edit button clicked')} />
-      <EditButton small onClick={action('Edit button clicked')} />
-      <EditButton secondary onClick={action('Edit button clicked')} />
-      <EditButton secondary small onClick={action('Edit button clicked')} />
-      <EditButton unstyled onClick={action('Edit button clicked')} />
-      <EditButton disabled onClick={action('Edit button clicked')} />
-    </div>
-  ));
+export const Default = () => <ButtonGroup />;
+export const Active = () => <ButtonGroup className="active" />;
+export const Hover = () => <ButtonGroup className="hover" />;
+export const Focus = () => <ButtonGroup className="focus" />;
+export const Disabled = () => <ButtonGroup disabled />;

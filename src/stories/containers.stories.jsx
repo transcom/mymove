@@ -1,9 +1,16 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 // Containers
+export default {
+  title: 'Components|Containers',
+  parameters: {
+    abstract: {
+      url: 'https://share.goabstract.com/d3d16e0f-e1c9-4ff1-a8dd-bf677a6d82ea?mode=design',
+    },
+  },
+};
 
-storiesOf('Components|Containers', module).add('all', () => (
+export const all = () => (
   <div id="containers" style={{ padding: '20px' }}>
     <div className="container">
       <code>
@@ -76,4 +83,4 @@ storiesOf('Components|Containers', module).add('all', () => (
       </code>
     </div>
   </div>
-));
+);

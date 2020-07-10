@@ -99,12 +99,12 @@ func (d *DieselFuelPriceInfo) RunFetcher() error {
 	d.eiaData = eiaData
 	d.logger.Info("response status from RunFetcher function in ghcdieselfuelprice service", zap.Int("code", d.eiaData.responseStatusCode))
 
-	dieselFuelPriceData, err := extractDieselFuelPriceData(eiaData)
+	extractedDieselFuelPriceData, err := extractDieselFuelPriceData(eiaData)
 	if err != nil {
 		return err
 	}
 
-	d.dieselFuelPriceData = dieselFuelPriceData
+	d.dieselFuelPriceData = extractedDieselFuelPriceData
 	d.logger.Info(
 		"most recent diesel fuel price data",
 		zap.String("last updated", d.dieselFuelPriceData.lastUpdated),

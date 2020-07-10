@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -93,7 +93,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		On("PriceServiceItem", mock.Anything).Return(testPrice, nil).
 		On("UsingConnection", mock.Anything).Return(serviceItemPricer)
 
-	creator := NewPaymentRequestCreator(suite.DB(), route.NewTestingPlanner(0), serviceItemPricer)
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(0, nil)
+	creator := NewPaymentRequestCreator(suite.DB(), planner, serviceItemPricer)
 
 	suite.T().Run("Payment request is created successfully (using IncomingKey)", func(t *testing.T) {
 		paymentRequest := models.PaymentRequest{
@@ -279,7 +284,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			On("PriceServiceItem", mock.Anything).Return(unit.Cents(0), errors.New(errMsg)).
 			On("UsingConnection", mock.Anything).Return(failingServiceItemPricer)
 
-		failingCreator := NewPaymentRequestCreator(suite.DB(), route.NewTestingPlanner(0), failingServiceItemPricer)
+		planner := &routemocks.Planner{}
+		planner.On("Zip5TransitDistanceLineHaul",
+			mock.Anything,
+			mock.Anything,
+		).Return(0, nil)
+		failingCreator := NewPaymentRequestCreator(suite.DB(), planner, failingServiceItemPricer)
 
 		_, err := failingCreator.CreatePaymentRequest(&paymentRequest)
 		suite.Error(err)
