@@ -134,3 +134,7 @@ export const Layout = () => (
     </div>
   </div>
 );
+
+Layout.story = {
+  parameters: { loki: { skip: true } },
+};
