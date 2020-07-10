@@ -2,14 +2,19 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getPaymentRequestList, selectPaymentRequests } from 'shared/Entities/modules/paymentRequests';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 class PaymentRequestIndex extends React.Component {
   componentDidMount() {
+    // TODO - only get payment requests associated with the given move order ID
     this.props.getPaymentRequestList();
   }
 
   render() {
+    const {
+      params: { moveOrderId },
+    } = this.props.match;
+
     return (
       <>
         <h1>Payment Requests</h1>
@@ -27,7 +32,7 @@ class PaymentRequestIndex extends React.Component {
             {this.props.paymentRequests.map((pr) => (
               <tr key={pr.id}>
                 <td>
-                  <Link to={`/payment_requests/${pr.id}`}>{pr.id}</Link>
+                  <Link to={`/moves/${moveOrderId}/payment-requests/${pr.id}`}>{pr.id}</Link>
                 </td>
                 <td>{`${pr.isFinal}`}</td>
                 <td>{pr.rejectionReason}</td>
@@ -48,4 +53,4 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({ getPaymentRequestList }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequestIndex);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PaymentRequestIndex));
