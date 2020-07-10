@@ -18,7 +18,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   return (
     <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <div className={styles.top}>
-        <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled className={styles.sidebarClose}>
+        <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
           <XLightIcon />
         </Button>
         <div className={styles.eyebrowTitle}>{`${curCardIndex + 1} OF ${totalCards} ITEMS`}</div>
