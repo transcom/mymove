@@ -26,6 +26,6 @@ type MoveTaskOrderFetcher interface {
 //MoveTaskOrderUpdater is the service object interface for MakeAvailableToPrime
 //go:generate mockery -name MoveTaskOrderUpdater
 type MoveTaskOrderUpdater interface {
-	MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string) (*models.MoveTaskOrder, error)
+	MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string, mtoApprovalServiceItems *[]models.ReServiceCode) (*models.MoveTaskOrder, error)
 	UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.MoveTaskOrder, error)
 }

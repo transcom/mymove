@@ -106,6 +106,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 			{
 				MoveTaskOrderID: mtoShipment.MoveTaskOrder.ID,
 				MoveTaskOrder:   mtoShipment.MoveTaskOrder,
+				Status:          models.MTOServiceItemStatusSubmitted,
 				ReService: models.ReService{
 					Code: models.ReServiceCodeCS,
 				},
@@ -113,6 +114,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 			{
 				MoveTaskOrderID: mtoShipment.MoveTaskOrder.ID,
 				MoveTaskOrder:   mtoShipment.MoveTaskOrder,
+				Status:          models.MTOServiceItemStatusSubmitted,
 				ReService: models.ReService{
 					Code: models.ReServiceCodeDCRT,
 				},
