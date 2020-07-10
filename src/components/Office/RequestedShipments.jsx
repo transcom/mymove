@@ -58,8 +58,6 @@ const RequestedShipments = ({
             results[1].response.status === 200 &&
             results[0].every((shipmentResult) => shipmentResult.response.status === 200)
           ) {
-            setIsModalVisible(false);
-            setSubmitting(false);
             // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
             window.location.reload();
           }

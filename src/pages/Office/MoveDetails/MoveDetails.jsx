@@ -117,12 +117,14 @@ export class MoveDetails extends Component {
     const approvedShipments = shipments.filter((shipment) => shipment.status === 'APPROVED');
     const submittedShipments = shipments.filter((shipment) => shipment.status === 'SUBMITTED');
 
-    if (submittedShipments.length > 0) {
-      this.setState((previousState) => ({ sections: ['requested-shipments', ...previousState.sections] }));
-    }
-
-    if (approvedShipments.length > 0) {
+    if (submittedShipments.length > 0 && approvedShipments.length > 0) {
+      this.setState((previousState) => ({
+        sections: ['approved-shipments', 'requested-shipments', ...previousState.sections],
+      }));
+    } else if (approvedShipments.length > 0) {
       this.setState((previousState) => ({ sections: ['approved-shipments', ...previousState.sections] }));
+    } else if (submittedShipments.length > 0) {
+      this.setState((previousState) => ({ sections: ['requested-shipments', ...previousState.sections] }));
     }
   };
 
