@@ -8,7 +8,7 @@ import { ReactComponent as ChevronDown } from '../../shared/icon/chevron-down.sv
 
 import ShipmentContainer from './ShipmentContainer';
 
-import { SHIPMENT_TYPE } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import styles from 'components/Office/ShipmentDisplay.module.scss';
 import { formatDate } from 'shared/dates';
 import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkmark.svg';
@@ -81,10 +81,10 @@ ShipmentDisplay.propTypes = {
   shipmentId: PropTypes.string.isRequired,
   isSubmitted: PropTypes.bool.isRequired,
   shipmentType: PropTypes.oneOf([
-    SHIPMENT_TYPE.HHG,
-    SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC,
-    SHIPMENT_TYPE.HHG_LONGHAUL_DOMESTIC,
-    SHIPMENT_TYPE.NTS,
+    SHIPMENT_OPTIONS.HHG,
+    SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+    SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+    SHIPMENT_OPTIONS.NTS,
   ]),
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,
@@ -105,8 +105,8 @@ ShipmentDisplay.propTypes = {
 };
 
 ShipmentDisplay.defaultProps = {
-  shipmentType: SHIPMENT_TYPE.HHG,
   onChange: () => {},
+  shipmentType: SHIPMENT_OPTIONS.HHG,
 };
 
 export default ShipmentDisplay;

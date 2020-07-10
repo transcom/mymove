@@ -19,7 +19,7 @@ import {
   updateOrders,
   fetchLatestOrders,
   selectActiveOrLatestOrders,
-  selectUploadsForOrders,
+  selectUploadsForActiveOrders,
 } from 'shared/Entities/modules/orders';
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
@@ -210,7 +210,7 @@ class EditOrders extends Component {
 function mapStateToProps(state) {
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
   const currentOrders = selectActiveOrLatestOrders(state);
-  const uploads = selectUploadsForOrders(state, currentOrders.id);
+  const uploads = selectUploadsForActiveOrders(state);
 
   const props = {
     currentOrders,

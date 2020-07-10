@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/transcom/mymove/pkg/route"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 
 	"github.com/transcom/mymove/pkg/services"
 
@@ -136,7 +136,8 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(queryBuilder)
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
-		updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, route.NewTestingPlanner(500))
+		planner := &routemocks.Planner{}
+		updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, planner)
 		handler := PatchShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,

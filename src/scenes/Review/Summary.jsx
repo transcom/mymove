@@ -6,7 +6,11 @@ import PropTypes from 'prop-types';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import { fetchLatestOrders, selectActiveOrLatestOrders, selectUploadsForOrders } from 'shared/Entities/modules/orders';
+import {
+  fetchLatestOrders,
+  selectActiveOrLatestOrders,
+  selectUploadsForActiveOrders,
+} from 'shared/Entities/modules/orders';
 
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -131,7 +135,7 @@ function mapStateToProps(state, ownProps) {
     currentMove: selectMove(state, ownProps.match.params.moveId),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: currentOrders,
-    uploads: selectUploadsForOrders(state, currentOrders.id),
+    uploads: selectUploadsForActiveOrders(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
