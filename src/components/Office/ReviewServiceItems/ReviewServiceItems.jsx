@@ -6,9 +6,10 @@ import styles from './ReviewServiceItems.module.scss';
 
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
+import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
 
 const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
-  // const [curServiceItemCard] = useState(serviceItemCards[0]);
+  const [curServiceItemCard] = useState(serviceItemCards[0]);
   const [curCardIndex] = useState(0);
   const totalCards = serviceItemCards.length;
 
@@ -24,7 +25,10 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
         <div className={styles.eyebrowTitle}>{`${curCardIndex + 1} OF ${totalCards} ITEMS`}</div>
         <h2 className={styles.header}>{header}</h2>
       </div>
-      <div className={styles.body}>BODY</div>
+      <div className={styles.body}>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <ServiceItemCard {...curServiceItemCard} />
+      </div>
       <div className={styles.bottom}>BOTTOM</div>
     </div>
   );
