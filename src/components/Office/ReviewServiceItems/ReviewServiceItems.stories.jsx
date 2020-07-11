@@ -1,4 +1,5 @@
 import React from 'react';
+import { action } from '@storybook/addon-actions';
 
 import ReviewServiceItems from './ReviewServiceItems';
 
@@ -28,5 +29,9 @@ const serviceItemCards = [
 ];
 
 export const Basic = () => (
-  <ReviewServiceItems shipmentType={SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC} serviceItemCards={serviceItemCards} />
+  <ReviewServiceItems
+    shipmentType={SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC}
+    serviceItemCards={serviceItemCards}
+    handleClose={action('clicked')}
+  />
 );
