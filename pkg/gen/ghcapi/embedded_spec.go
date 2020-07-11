@@ -2334,16 +2334,10 @@ func init() {
           "example": "030-00362"
         },
         "order_type": {
-          "type": "string",
-          "example": "GHC"
+          "$ref": "#/definitions/OrdersType"
         },
         "order_type_detail": {
-          "type": "string",
-          "enum": [
-            "GHC",
-            "NTS"
-          ],
-          "x-nullable": true
+          "$ref": "#/definitions/OrdersTypeDetail"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -2428,6 +2422,47 @@ func init() {
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
       }
+    },
+    "OrdersType": {
+      "type": "string",
+      "title": "Orders type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION",
+        "GHC",
+        "NTS"
+      ],
+      "x-display-value": {
+        "GHC": "GHC",
+        "NTS": "NTS",
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
+      }
+    },
+    "OrdersTypeDetail": {
+      "type": "string",
+      "title": "Orders type detail",
+      "enum": [
+        "HHG_PERMITTED",
+        "PCS_TDY",
+        "HHG_RESTRICTED_PROHIBITED",
+        "HHG_RESTRICTED_AREA",
+        "INSTRUCTION_20_WEEKS",
+        "HHG_PROHIBITED_20_WEEKS",
+        "DELAYED_APPROVAL"
+      ],
+      "x-display-value": {
+        "DELAYED_APPROVAL": "Delayed Approval 20 Weeks or More",
+        "HHG_PERMITTED": "Shipment of HHG Permitted",
+        "HHG_PROHIBITED_20_WEEKS": "Shipment of HHG Prohibited but Authorized within 20 weeks",
+        "HHG_RESTRICTED_AREA": "HHG Restricted Area-HHG Prohibited",
+        "HHG_RESTRICTED_PROHIBITED": "Shipment of HHG Restricted or Prohibited",
+        "INSTRUCTION_20_WEEKS": "Course of Instruction 20 Weeks or More",
+        "PCS_TDY": "PCS with TDY Enroute"
+      },
+      "x-nullable": true
     },
     "PatchMTOShipmentStatusPayload": {
       "properties": {
@@ -5287,16 +5322,10 @@ func init() {
           "example": "030-00362"
         },
         "order_type": {
-          "type": "string",
-          "example": "GHC"
+          "$ref": "#/definitions/OrdersType"
         },
         "order_type_detail": {
-          "type": "string",
-          "enum": [
-            "GHC",
-            "NTS"
-          ],
-          "x-nullable": true
+          "$ref": "#/definitions/OrdersTypeDetail"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -5381,6 +5410,47 @@ func init() {
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
       }
+    },
+    "OrdersType": {
+      "type": "string",
+      "title": "Orders type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION",
+        "GHC",
+        "NTS"
+      ],
+      "x-display-value": {
+        "GHC": "GHC",
+        "NTS": "NTS",
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
+      }
+    },
+    "OrdersTypeDetail": {
+      "type": "string",
+      "title": "Orders type detail",
+      "enum": [
+        "HHG_PERMITTED",
+        "PCS_TDY",
+        "HHG_RESTRICTED_PROHIBITED",
+        "HHG_RESTRICTED_AREA",
+        "INSTRUCTION_20_WEEKS",
+        "HHG_PROHIBITED_20_WEEKS",
+        "DELAYED_APPROVAL"
+      ],
+      "x-display-value": {
+        "DELAYED_APPROVAL": "Delayed Approval 20 Weeks or More",
+        "HHG_PERMITTED": "Shipment of HHG Permitted",
+        "HHG_PROHIBITED_20_WEEKS": "Shipment of HHG Prohibited but Authorized within 20 weeks",
+        "HHG_RESTRICTED_AREA": "HHG Restricted Area-HHG Prohibited",
+        "HHG_RESTRICTED_PROHIBITED": "Shipment of HHG Restricted or Prohibited",
+        "INSTRUCTION_20_WEEKS": "Course of Instruction 20 Weeks or More",
+        "PCS_TDY": "PCS with TDY Enroute"
+      },
+      "x-nullable": true
     },
     "PatchMTOShipmentStatusPayload": {
       "properties": {

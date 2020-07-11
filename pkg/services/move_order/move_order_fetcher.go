@@ -14,15 +14,15 @@ type moveOrderFetcher struct {
 	db *pop.Connection
 }
 
-func (f moveOrderFetcher) ListMoveOrders() ([]models.MoveOrder, error) {
-	var moveOrders []models.MoveOrder
+func (f moveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
+	var moveOrders []models.Order
 	err := f.db.All(&moveOrders)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return []models.MoveOrder{}, services.NotFoundError{}
+			return []models.Order{}, services.NotFoundError{}
 		default:
-			return []models.MoveOrder{}, err
+			return []models.Order{}, err
 		}
 	}
 
@@ -31,10 +31,10 @@ func (f moveOrderFetcher) ListMoveOrders() ([]models.MoveOrder, error) {
 	// bad. But that's also what the current implementation of Eager does, so this is no worse
 	// that what we had.
 	for i := range moveOrders {
-		f.db.Load(&moveOrders[i], "Customer")
+		f.db.Load(&moveOrders[i], "ServiceMember")
 		f.db.Load(&moveOrders[i], "ConfirmationNumber")
-		f.db.Load(&moveOrders[i], "DestinationDutyStation")
-		f.db.Load(moveOrders[i].DestinationDutyStation, "Address")
+		f.db.Load(&moveOrders[i], "NewDutyStation")
+		f.db.Load(&moveOrders[i].NewDutyStation, "Address")
 		f.db.Load(&moveOrders[i], "OriginDutyStation")
 		f.db.Load(moveOrders[i].OriginDutyStation, "Address")
 		f.db.Load(&moveOrders[i], "Entitlement")
@@ -49,22 +49,22 @@ func NewMoveOrderFetcher(db *pop.Connection) services.MoveOrderFetcher {
 }
 
 // FetchMoveOrder retrieves a MoveOrder for a given UUID
-func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.MoveOrder, error) {
-	moveOrder := &models.MoveOrder{}
+func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, error) {
+	moveOrder := &models.Order{}
 	err := f.db.Find(moveOrder, moveOrderID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.MoveOrder{}, services.NewNotFoundError(moveOrderID, "")
+			return &models.Order{}, services.NewNotFoundError(moveOrderID, "")
 		default:
-			return &models.MoveOrder{}, err
+			return &models.Order{}, err
 		}
 	}
 
-	f.db.Load(moveOrder, "Customer")
+	f.db.Load(moveOrder, "ServiceMember")
 	f.db.Load(moveOrder, "ConfirmationNumber")
-	f.db.Load(moveOrder, "DestinationDutyStation")
-	f.db.Load(moveOrder.DestinationDutyStation, "Address")
+	f.db.Load(moveOrder, "NewDutyStation")
+	f.db.Load(&moveOrder.NewDutyStation, "Address")
 	f.db.Load(moveOrder, "OriginDutyStation")
 	f.db.Load(moveOrder.OriginDutyStation, "Address")
 	f.db.Load(moveOrder, "Entitlement")

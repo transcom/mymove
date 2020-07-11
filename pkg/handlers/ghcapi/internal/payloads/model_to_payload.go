@@ -6,6 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -67,37 +68,39 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 }
 
 // MoveOrder payload
-func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
+func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 	if moveOrder == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(moveOrder.DestinationDutyStation)
+	destinationDutyStation := DutyStation(&moveOrder.NewDutyStation)
 	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
 	if moveOrder.Grade != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
 	entitlements := Entitlement(moveOrder.Entitlement)
+	orderTypeDetail := OrdersTypeDetail(moveOrder.OrdersTypeDetail)
+
 	payload := ghcmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
-		OrderNumber:            moveOrder.OrderNumber,
-		OrderTypeDetail:        moveOrder.OrderTypeDetail,
+		OrderNumber:            moveOrder.OrdersNumber,
+		OrderTypeDetail:        orderTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
 	}
 
-	if moveOrder.Customer != nil {
-		payload.Agency = swag.StringValue((*string)(moveOrder.Customer.Affiliation))
-		payload.CustomerID = strfmt.UUID(moveOrder.CustomerID.String())
-		payload.FirstName = swag.StringValue(moveOrder.Customer.FirstName)
-		payload.LastName = swag.StringValue(moveOrder.Customer.LastName)
+	if &moveOrder.ServiceMember != nil {
+		payload.Agency = swag.StringValue((*string)(moveOrder.ServiceMember.Affiliation))
+		payload.CustomerID = strfmt.UUID(moveOrder.ServiceMemberID.String())
+		payload.FirstName = swag.StringValue(moveOrder.ServiceMember.FirstName)
+		payload.LastName = swag.StringValue(moveOrder.ServiceMember.LastName)
 	}
-	if moveOrder.ReportByDate != nil {
-		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
+	if &moveOrder.ReportByDate != nil {
+		payload.ReportByDate = strfmt.Date(moveOrder.ReportByDate)
 	}
-	if moveOrder.DateIssued != nil {
-		payload.DateIssued = strfmt.Date(*moveOrder.DateIssued)
+	if &moveOrder.IssueDate != nil {
+		payload.DateIssued = strfmt.Date(moveOrder.IssueDate)
 	}
 	if moveOrder.Grade != nil {
 		payload.Grade = *moveOrder.Grade
@@ -105,8 +108,8 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	if moveOrder.ConfirmationNumber != nil {
 		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
 	}
-	if moveOrder.OrderType != nil {
-		payload.OrderType = *moveOrder.OrderType
+	if &moveOrder.OrdersType != nil {
+		payload.OrderType = ghcmessages.OrdersType(moveOrder.OrdersType)
 	}
 
 	return &payload
@@ -164,6 +167,15 @@ func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
 		Name:      dutyStation.Name,
 		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
 	}
+	return &payload
+}
+
+// OrdersTypeDetail payload
+func OrdersTypeDetail(orderTypeDetail *internalmessages.OrdersTypeDetail) *ghcmessages.OrdersTypeDetail {
+	if orderTypeDetail == nil {
+		return nil
+	}
+	payload := ghcmessages.OrdersTypeDetail(*orderTypeDetail)
 	return &payload
 }
 

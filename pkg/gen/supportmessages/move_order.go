@@ -56,8 +56,15 @@ type MoveOrder struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
+	// Date that the move order was issued on.
+	// Format: date
+	IssueDate strfmt.Date `json:"issueDate,omitempty"`
+
 	// ID of the military orders associated with this move.
 	OrderNumber *string `json:"orderNumber,omitempty"`
+
+	// order type
+	OrderType OrderType `json:"orderType,omitempty"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
@@ -75,6 +82,16 @@ type MoveOrder struct {
 	// Date that the service member must report to the new DutyStation by.
 	// Format: date
 	ReportByDate strfmt.Date `json:"reportByDate,omitempty"`
+
+	// status
+	Status OrdersStatus `json:"status,omitempty"`
+
+	// uploaded orders
+	UploadedOrders *Document `json:"uploadedOrders,omitempty"`
+
+	// ID of the uploaded document.
+	// Format: uuid
+	UploadedOrdersID strfmt.UUID `json:"uploadedOrdersID,omitempty"`
 }
 
 // Validate validates this move order
@@ -109,6 +126,14 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateIssueDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrderType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateOriginDutyStation(formats); err != nil {
 		res = append(res, err)
 	}
@@ -118,6 +143,18 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReportByDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUploadedOrders(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUploadedOrdersID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -233,6 +270,35 @@ func (m *MoveOrder) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MoveOrder) validateIssueDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.IssueDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("issueDate", "body", "date", m.IssueDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateOrderType(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.OrderType) { // not required
+		return nil
+	}
+
+	if err := m.OrderType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("orderType")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.OriginDutyStation) { // not required
@@ -271,6 +337,53 @@ func (m *MoveOrder) validateReportByDate(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateUploadedOrders(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.UploadedOrders) { // not required
+		return nil
+	}
+
+	if m.UploadedOrders != nil {
+		if err := m.UploadedOrders.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("uploadedOrders")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateUploadedOrdersID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.UploadedOrdersID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("uploadedOrdersID", "body", "uuid", m.UploadedOrdersID.String(), formats); err != nil {
 		return err
 	}
 

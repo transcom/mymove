@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -35,6 +36,22 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	if err := db.Save(&entitlement); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not save entitlement, %w", err)
 	}
+
+	document := models.Document{
+		ServiceMemberID: sm.ID,
+		ServiceMember:   sm,
+	}
+
+	if err := db.Save(&document); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not save document, %w", err)
+	}
+
+	userUpload := models.UserUpload{
+		DocumentID: &document.ID,
+		Document:   document,
+		UploaderID: sm.UserID,
+	}
+	document.UserUploads = append(document.UserUploads, userUpload)
 
 	// orders -> move order
 	var mo models.MoveOrder

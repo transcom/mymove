@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -43,7 +44,7 @@ func MakeGrade() string {
 }
 
 // MakeMoveOrder creates a single MoveOrder and associated set relationships
-func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
+func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.Order {
 	grade := assertions.MoveOrder.Grade
 	if grade == nil || *grade == "" {
 		grade = stringPointer(MakeGrade())
@@ -66,52 +67,76 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		destinationDutyStation = MakeDutyStation(db, assertions)
 	}
 
-	orderNumber := assertions.MoveOrder.OrderNumber
+	orderNumber := assertions.MoveOrder.OrdersNumber
 	if orderNumber == nil || *orderNumber == "" {
 		orderNumber = stringPointer("ORDER123")
 	}
 
-	orderType := assertions.MoveOrder.OrderType
-	if orderType == nil || *orderType == "" {
-		orderType = stringPointer("GHC")
+	orderType := assertions.MoveOrder.OrdersType
+	if &orderType == nil || orderType == "" {
+		orderType = "GHC"
 	}
 
-	orderTypeDetail := assertions.MoveOrder.OrderTypeDetail
+	orderTypeDetail := assertions.MoveOrder.OrdersTypeDetail
+	tbdString := internalmessages.OrdersTypeDetail("TBD")
 	if orderTypeDetail == nil || *orderTypeDetail == "" {
-		orderTypeDetail = stringPointer("TBD")
+		orderTypeDetail = &tbdString
 	}
 
-	reportByDate := assertions.MoveOrder.ReportByDate
+	reportByDate := &assertions.MoveOrder.ReportByDate
 
-	if reportByDate == nil || time.Time.IsZero(*reportByDate) {
+	if &reportByDate == nil || time.Time.IsZero(*reportByDate) {
 		reportByDate = models.TimePointer(time.Date(2020, time.February, 15, 0, 0, 0, 0, time.UTC))
 	}
 
-	dateIssued := assertions.MoveOrder.DateIssued
+	dateIssued := &assertions.MoveOrder.IssueDate
 
-	if dateIssued == nil || time.Time.IsZero(*dateIssued) {
+	if &dateIssued == nil || time.Time.IsZero(*dateIssued) {
 		dateIssued = models.TimePointer(time.Date(2020, time.January, 15, 0, 0, 0, 0, time.UTC))
 	}
 
 	linesOfAccounting := "F8E1"
 
-	moveOrder := models.MoveOrder{
-		Customer:                 &customer,
-		CustomerID:               &customer.ID,
-		ConfirmationNumber:       stringPointer(models.GenerateLocator()),
-		DateIssued:               dateIssued,
-		Entitlement:              &entitlement,
-		EntitlementID:            &entitlement.ID,
-		DestinationDutyStation:   &destinationDutyStation,
-		DestinationDutyStationID: &destinationDutyStation.ID,
-		Grade:                    grade,
-		OriginDutyStation:        &originDutyStation,
-		OriginDutyStationID:      &originDutyStation.ID,
-		OrderNumber:              orderNumber,
-		OrderType:                orderType,
-		OrderTypeDetail:          orderTypeDetail,
-		ReportByDate:             reportByDate,
-		LinesOfAccounting:        &linesOfAccounting,
+	document := assertions.Order.UploadedOrders
+	// Note above
+	if isZeroUUID(assertions.Order.UploadedOrdersID) {
+		document = MakeDocument(db, Assertions{
+			Document: models.Document{
+				ServiceMemberID: customer.ID,
+				ServiceMember:   customer,
+			},
+		})
+		u := MakeUserUpload(db, Assertions{
+			UserUpload: models.UserUpload{
+				DocumentID: &document.ID,
+				Document:   document,
+				UploaderID: customer.UserID,
+			},
+			UserUploader: assertions.UserUploader,
+		})
+		document.UserUploads = append(document.UserUploads, u)
+	}
+
+	moveOrder := models.Order{
+		ServiceMember:       customer,
+		ServiceMemberID:     customer.ID,
+		ConfirmationNumber:  stringPointer(models.GenerateLocator()),
+		IssueDate:           *dateIssued,
+		Entitlement:         &entitlement,
+		EntitlementID:       &entitlement.ID,
+		NewDutyStation:      destinationDutyStation,
+		NewDutyStationID:    destinationDutyStation.ID,
+		Grade:               grade,
+		OriginDutyStation:   &originDutyStation,
+		OriginDutyStationID: &originDutyStation.ID,
+		OrdersNumber:        orderNumber,
+		OrdersType:          orderType,
+		OrdersTypeDetail:    orderTypeDetail,
+		ReportByDate:        *reportByDate,
+		TAC:                 &linesOfAccounting,
+		Status:              models.OrderStatusDRAFT,
+		UploadedOrders:      document,
+		UploadedOrdersID:    document.ID,
 	}
 
 	// Overwrite values with those from assertions
@@ -123,6 +148,6 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 }
 
 // MakeDefaultMoveOrder makes a MoveOrder with default values
-func MakeDefaultMoveOrder(db *pop.Connection) models.MoveOrder {
+func MakeDefaultMoveOrder(db *pop.Connection) models.Order {
 	return MakeMoveOrder(db, Assertions{})
 }

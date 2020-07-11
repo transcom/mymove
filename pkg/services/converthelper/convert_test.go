@@ -40,17 +40,17 @@ func (suite *ConvertSuite) TestConvertFromPPMToGHC() {
 	moID, conversionErr := converthelper.ConvertFromPPMToGHC(suite.DB(), move.ID)
 	suite.FatalNoError(conversionErr)
 
-	var mo models.MoveOrder
-	suite.FatalNoError(suite.DB().Eager("Customer", "Entitlement").Find(&mo, moID))
+	var mo models.Order
+	suite.FatalNoError(suite.DB().Eager("ServiceMember", "Entitlement").Find(&mo, moID))
 
 	suite.NotNil(mo.ReportByDate)
-	suite.NotNil(mo.DateIssued)
-	suite.NotNil(mo.OrderType)
-	suite.NotNil(mo.OrderTypeDetail)
+	suite.NotNil(mo.IssueDate)
+	suite.NotNil(mo.OrdersType)
+	suite.NotNil(mo.OrdersTypeDetail)
 	suite.NotNil(mo.Grade)
 
-	suite.NotEqual(uuid.Nil, mo.DestinationDutyStationID)
-	suite.Equal(&move.Orders.NewDutyStationID, mo.DestinationDutyStationID)
+	suite.NotEqual(uuid.Nil, mo.NewDutyStationID)
+	suite.Equal(move.Orders.NewDutyStationID, mo.NewDutyStationID)
 
 	suite.NotEqual(uuid.Nil, mo.OriginDutyStationID)
 	suite.Equal(move.Orders.ServiceMember.DutyStationID, mo.OriginDutyStationID)
@@ -59,13 +59,13 @@ func (suite *ConvertSuite) TestConvertFromPPMToGHC() {
 	suite.Equal(false, *mo.Entitlement.DependentsAuthorized)
 	suite.Equal(7000, *mo.Entitlement.DBAuthorizedWeight)
 
-	customer := mo.Customer
+	customer := mo.ServiceMember
 	suite.Equal(*move.Orders.ServiceMember.Edipi, *customer.Edipi)
 	suite.NotEqual(uuid.Nil, customer.UserID)
 	suite.Equal(move.Orders.ServiceMember.UserID, customer.UserID)
 
 	suite.NotEqual(uuid.Nil, customer.UserID)
-	suite.Equal(&customer.ID, mo.CustomerID)
+	suite.Equal(customer.ID, mo.ServiceMemberID)
 
 	var mto models.MoveTaskOrder
 	suite.FatalNoError(suite.DB().Eager().Where("move_order_id = ?", mo.ID).First(&mto))

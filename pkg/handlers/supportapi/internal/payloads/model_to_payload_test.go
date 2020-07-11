@@ -7,6 +7,6 @@ import (
 )
 
 func TestMoveOrder(t *testing.T) {
-	moveOrder := &models.MoveOrder{}
+	moveOrder := &models.Order{}
 	MoveOrder(moveOrder)
 }

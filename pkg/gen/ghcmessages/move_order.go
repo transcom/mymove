@@ -6,8 +6,6 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -65,11 +63,10 @@ type MoveOrder struct {
 	OrderNumber *string `json:"order_number,omitempty"`
 
 	// order type
-	OrderType string `json:"order_type,omitempty"`
+	OrderType OrdersType `json:"order_type,omitempty"`
 
 	// order type detail
-	// Enum: [GHC NTS]
-	OrderTypeDetail *string `json:"order_type_detail,omitempty"`
+	OrderTypeDetail *OrdersTypeDetail `json:"order_type_detail,omitempty"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
@@ -104,6 +101,10 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrderType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -213,32 +214,19 @@ func (m *MoveOrder) validateMoveTaskOrderID(formats strfmt.Registry) error {
 	return nil
 }
 
-var moveOrderTypeOrderTypeDetailPropEnum []interface{}
+func (m *MoveOrder) validateOrderType(formats strfmt.Registry) error {
 
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["GHC","NTS"]`), &res); err != nil {
-		panic(err)
+	if swag.IsZero(m.OrderType) { // not required
+		return nil
 	}
-	for _, v := range res {
-		moveOrderTypeOrderTypeDetailPropEnum = append(moveOrderTypeOrderTypeDetailPropEnum, v)
-	}
-}
 
-const (
-
-	// MoveOrderOrderTypeDetailGHC captures enum value "GHC"
-	MoveOrderOrderTypeDetailGHC string = "GHC"
-
-	// MoveOrderOrderTypeDetailNTS captures enum value "NTS"
-	MoveOrderOrderTypeDetailNTS string = "NTS"
-)
-
-// prop value enum
-func (m *MoveOrder) validateOrderTypeDetailEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, moveOrderTypeOrderTypeDetailPropEnum); err != nil {
+	if err := m.OrderType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("order_type")
+		}
 		return err
 	}
+
 	return nil
 }
 
@@ -248,9 +236,13 @@ func (m *MoveOrder) validateOrderTypeDetail(formats strfmt.Registry) error {
 		return nil
 	}
 
-	// value enum
-	if err := m.validateOrderTypeDetailEnum("order_type_detail", "body", *m.OrderTypeDetail); err != nil {
-		return err
+	if m.OrderTypeDetail != nil {
+		if err := m.OrderTypeDetail.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("order_type_detail")
+			}
+			return err
+		}
 	}
 
 	return nil

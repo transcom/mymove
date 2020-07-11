@@ -870,7 +870,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 	moveOrders := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988")},
+		MoveOrder: models.Order{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988")},
 		Customer:  customer,
 	})
 	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
@@ -887,7 +887,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 	moveOrders2 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("42f9cd3b-d630-4762-9762-542e9a3a67e4")},
+		MoveOrder: models.Order{ID: uuid.FromStringOrNil("42f9cd3b-d630-4762-9762-542e9a3a67e4")},
 		Customer:  customer2,
 	})
 
@@ -904,7 +904,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 	moveOrders3 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("eb6b0c75-3972-4a09-a453-3a7b257aa7f7")},
+		MoveOrder: models.Order{ID: uuid.FromStringOrNil("eb6b0c75-3972-4a09-a453-3a7b257aa7f7")},
 		Customer:  customer3,
 	})
 
@@ -921,7 +921,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 	moveOrders4 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("8779beda-f69a-43bf-8606-ebd22973d474")},
+		MoveOrder: models.Order{ID: uuid.FromStringOrNil("8779beda-f69a-43bf-8606-ebd22973d474")},
 		Customer:  customer4,
 	})
 
@@ -938,7 +938,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 	moveOrders5 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("f2473488-2504-4872-a6b6-dd385dad4bf9")},
+		MoveOrder: models.Order{ID: uuid.FromStringOrNil("f2473488-2504-4872-a6b6-dd385dad4bf9")},
 		Customer:  customer5,
 	})
 
@@ -1099,7 +1099,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 	moveOrders6 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981")},
+		MoveOrder: models.Order{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981")},
 		Customer:  customer6,
 	})
 	mto2 := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{

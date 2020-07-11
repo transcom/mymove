@@ -53,6 +53,12 @@ type Order struct {
 	TAC                 *string                            `json:"tac" db:"tac"`
 	SAC                 *string                            `json:"sac" db:"sac"`
 	DepartmentIndicator *string                            `json:"department_indicator" db:"department_indicator"`
+	Grade               *string                            `json:"grade" db:"grade"`
+	ConfirmationNumber  *string                            `json:"confirmation_number" db:"confirmation_number"`
+	Entitlement         *Entitlement                       `belongs_to:"entitlements"`
+	EntitlementID       *uuid.UUID                         `json:"entitlement_id" db:"entitlement_id"`
+	OriginDutyStation   *DutyStation                       `belongs_to:"duty_stations"`
+	OriginDutyStationID *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
 }
 
 // Orders is not required by pop and may be deleted
@@ -72,6 +78,8 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&StringIsNilOrNotBlank{Field: o.SAC, Name: "SAC"},
 		&StringIsNilOrNotBlank{Field: o.DepartmentIndicator, Name: "DepartmentIndicator"},
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
+		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
+		&OptionalUUIDIsPresent{Field: o.OriginDutyStationID, Name: "OriginDutyStationID"},
 	), nil
 }
 
