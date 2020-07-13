@@ -68,7 +68,7 @@
     "storybook-addons-abstract": "^5.0.6",
     "swagger-client": "^3.10.12",
     "swagger-ui-dist": "^3.28.0",
-    "uswds": "2.7.1",
+    "uswds": "2.8.0",
     "yup": "^0.29.1"
   },
   "resolutions": {
