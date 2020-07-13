@@ -3,7 +3,7 @@ import { action } from '@storybook/addon-actions';
 
 import ReviewServiceItems from './ReviewServiceItems';
 
-import { SHIPMENT_TYPE } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 // Left Nav
 export default {
@@ -21,7 +21,7 @@ export default {
 const serviceItemCards = [
   {
     id: '1',
-    shipmentType: SHIPMENT_TYPE.HHG,
+    shipmentType: SHIPMENT_OPTIONS.HHG,
     serviceItemName: 'Domestic linehaul',
     amount: 6423,
     createdAt: '2020-01-01T00:08:00.999Z',
@@ -30,7 +30,7 @@ const serviceItemCards = [
 
 export const Basic = () => (
   <ReviewServiceItems
-    shipmentType={SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC}
+    shipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC}
     serviceItemCards={serviceItemCards}
     handleClose={action('clicked')}
   />
