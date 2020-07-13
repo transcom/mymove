@@ -2,7 +2,7 @@ import React from 'react';
 
 import ReviewServiceItems from './ReviewServiceItems';
 
-import { SHIPMENT_TYPE } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 // Left Nav
 export default {
@@ -20,7 +20,7 @@ export default {
 const serviceItemCards = [
   {
     id: '1',
-    shipmentType: SHIPMENT_TYPE.HHG,
+    shipmentType: SHIPMENT_OPTIONS.HHG,
     serviceItemName: 'Domestic linehaul',
     amount: 6423,
     createdAt: '2020-01-01T00:08:00.999Z',
@@ -34,7 +34,7 @@ const serviceItemCards = [
   },
   {
     id: '3',
-    shipmentType: SHIPMENT_TYPE.NTS,
+    shipmentType: SHIPMENT_OPTIONS.NTS,
     serviceItemName: 'Fuel surcharge',
     amount: 2.8,
     createdAt: '2020-01-01T00:08:00.999Z',
@@ -42,5 +42,5 @@ const serviceItemCards = [
 ];
 
 export const Basic = () => (
-  <ReviewServiceItems shipmentType={SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC} serviceItemCards={serviceItemCards} />
+  <ReviewServiceItems shipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC} serviceItemCards={serviceItemCards} />
 );
