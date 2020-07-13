@@ -9,18 +9,18 @@ import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 import { WizardPage } from '../../shared/WizardPage';
 
 // eslint-disable-next-line
-export const HHGDetailsForm = ({ initialValues, pageKey, pages }) => {
+export const HHGDetailsForm = (initialValues, pageKey, pages) => {
   return (
-    <Formik initialValues={{ initialValues }}>
-      <WizardPage pageKey={pageKey} pageList={pages}>
+    <Formik initialValues={initialValues}>
+      <WizardPage pageKey={pageKey} pageList={pages} handleSubmit={() => {}}>
         <Form>
-          <DatePickerInput name="requestedPickupDate" label="Requested pickup date" />
+          <DatePickerInput name="requestedPickupDate" label="Requested pickup date" id="requested-pickup-date" />
           <AddressFields initialValues={initialValues.pickupLocation} legend="Pickup location" />
           <ContactInfoFields legend="Releasing agent" />
-          <DatePickerInput name="requestedDeliveryDate" label="Requested delivery date" />
+          <DatePickerInput name="requestedDeliveryDate" label="Requested delivery date" id="requested-delivery-date" />
           <AddressFields initialValues={initialValues.deliveryLocation} legend="Delivery location" />
           <ContactInfoFields legend="Receiving agent" />
-          <TextInput name="remarks" label="Remarks" />
+          <TextInput name="remarks" label="Remarks" id="requested-delivery-date" />
         </Form>
       </WizardPage>
     </Formik>
