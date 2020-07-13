@@ -3,7 +3,7 @@ import React from 'react';
 import { HHGDetailsForm } from './HHGDetailsForm';
 
 export default {
-  title: 'Components|HHGDetailsForm',
+  title: 'Components | Customer | HHGDetailsForm',
 };
 
 export const Basic = () => <HHGDetailsForm />;

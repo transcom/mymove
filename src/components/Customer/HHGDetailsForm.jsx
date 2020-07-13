@@ -11,7 +11,7 @@ import { WizardPage } from '../../shared/WizardPage';
 // eslint-disable-next-line
 export const HHGDetailsForm = ({ initialValues, pageKey, pages }) => {
   return (
-    <Formik initialValues={{ remarks: '' }}>
+    <Formik initialValues={{ initialValues }}>
       <WizardPage pageKey={pageKey} pageList={pages}>
         <Form>
           <DatePickerInput name="requestedPickupDate" label="Requested pickup date" />

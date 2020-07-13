@@ -185,7 +185,7 @@ const pages = {
     render: (key, pages) => ({ match }) => <PpmWeight pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/hhg-start': {
-    isInFlow: always,
+    isInFlow: inHhgFlow,
     isComplete: always,
     render: (key, pages, description, props) => ({ match }) => {
       return <HHGMoveSetup pages={pages} pageKey={key} />;
