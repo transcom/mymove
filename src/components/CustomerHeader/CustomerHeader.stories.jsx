@@ -6,4 +6,4 @@ export default {
   title: 'Components|Headers|Customer Header',
 };
 
-export const component = () => <CustomerHeader />;
+export const Customer = () => <CustomerHeader />;

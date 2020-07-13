@@ -6,4 +6,4 @@ export default {
   title: 'Components|Headers|FOUO Header',
 };
 
-export const component = () => <FOUOHeader />;
+export const FOUO = () => <FOUOHeader />;
