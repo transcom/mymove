@@ -4,8 +4,8 @@ import * as PropTypes from 'prop-types';
 
 import styles from './ShipmentContainer.module.scss';
 
-import { SHIPMENT_TYPE } from 'shared/constants';
-import { ShipmentTypeOneOf } from 'types/shipment';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ShipmentOptionsOneOf } from 'types/shipment';
 
 const ShipmentContainer = ({ className, children, shipmentType }) => {
   const containerClasses = classNames(
@@ -13,10 +13,10 @@ const ShipmentContainer = ({ className, children, shipmentType }) => {
     styles.shipmentContainer,
     {
       'container--accent--hhg':
-        shipmentType === SHIPMENT_TYPE.HHG ||
-        shipmentType === SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC ||
-        shipmentType === SHIPMENT_TYPE.HHG_LONGHAUL_DOMESTIC,
-      'container--accent--nts': shipmentType === SHIPMENT_TYPE.NTS,
+        shipmentType === SHIPMENT_OPTIONS.HHG ||
+        shipmentType === SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC ||
+        shipmentType === SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+      'container--accent--nts': shipmentType === SHIPMENT_OPTIONS.NTS,
     },
     className,
   );
@@ -28,11 +28,11 @@ ShipmentContainer.propTypes = {
   className: PropTypes.string,
   children: PropTypes.element.isRequired,
   /** Describes the type of shipment container. */
-  shipmentType: ShipmentTypeOneOf,
+  shipmentType: ShipmentOptionsOneOf,
 };
 
 ShipmentContainer.defaultProps = {
-  shipmentType: SHIPMENT_TYPE.HHG,
+  shipmentType: SHIPMENT_OPTIONS.HHG,
   className: '',
 };
 

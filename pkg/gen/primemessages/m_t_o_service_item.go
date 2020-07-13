@@ -25,6 +25,7 @@ type MTOServiceItem interface {
 	runtime.Validatable
 
 	// e tag
+	// Read Only: true
 	ETag() string
 	SetETag(string)
 
@@ -49,16 +50,13 @@ type MTOServiceItem interface {
 	MtoShipmentID() strfmt.UUID
 	SetMtoShipmentID(strfmt.UUID)
 
-	// re service ID
-	// Format: uuid
-	ReServiceID() strfmt.UUID
-	SetReServiceID(strfmt.UUID)
-
 	// re service name
+	// Read Only: true
 	ReServiceName() string
 	SetReServiceName(string)
 
 	// rejection reason
+	// Read Only: true
 	RejectionReason() *string
 	SetRejectionReason(*string)
 
@@ -77,8 +75,6 @@ type mTOServiceItem struct {
 	moveTaskOrderIdField *strfmt.UUID
 
 	mtoShipmentIdField strfmt.UUID
-
-	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
 
@@ -135,16 +131,6 @@ func (m *mTOServiceItem) MtoShipmentID() strfmt.UUID {
 // SetMtoShipmentID sets the mto shipment ID of this polymorphic type
 func (m *mTOServiceItem) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
-}
-
-// ReServiceID gets the re service ID of this polymorphic type
-func (m *mTOServiceItem) ReServiceID() strfmt.UUID {
-	return m.reServiceIdField
-}
-
-// SetReServiceID sets the re service ID of this polymorphic type
-func (m *mTOServiceItem) SetReServiceID(val strfmt.UUID) {
-	m.reServiceIdField = val
 }
 
 // ReServiceName gets the re service name of this polymorphic type
@@ -286,10 +272,6 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateReServiceID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -333,19 +315,6 @@ func (m *mTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *mTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ReServiceID()) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
 		return err
 	}
 

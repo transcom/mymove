@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
 // ServiceAreaOriginLookup does lookup on pickup address postal code
@@ -50,8 +51,21 @@ func (r ServiceAreaOriginLookup) lookup(keyData *ServiceItemParamKeyData) (strin
 
 	var domesticServiceArea models.ReDomesticServiceArea
 
-	query := db.Q().Join("re_zip3s", "re_zip3s.domestic_service_area_id = re_domestic_service_areas.id").
-		Where("zip3 = ?", zip3)
+	query := db.Q().
+		Join("re_zip3s", "re_zip3s.domestic_service_area_id = re_domestic_service_areas.id").
+		Join("re_contracts", "re_contracts.id = re_domestic_service_areas.contract_id").
+		Where("re_zip3s.zip3 = ?", zip3).
+		/*
+			DefaultContractCode = TRUSS_TEST is temporarily being used here because the contract
+			code is not currently accessible. This is caused by:
+				- mtoServiceItem is not linked or associated with a contract record
+				- MTO currently has a contractor_id but not a contract_id
+			In order for this lookup's query to have accesss to a contract code there must be a contract_code field created on either the mtoServiceItem or the MTO models
+			If it'll will be possible for a MTO to contain service items that are associated with different contracts
+			then it would be ideal for the mtoServiceItem records to contain a contract code that can then be passed
+			to this query. Otherwise the contract_code field could be added to the MTO.
+		*/
+		Where("re_contracts.code = ?", ghcrateengine.DefaultContractCode)
 
 	err = query.First(&domesticServiceArea)
 

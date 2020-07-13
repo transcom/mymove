@@ -27,6 +27,7 @@ type ServiceItem struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// params
+	// Read Only: true
 	Params []*ServiceItemParamsItems0 `json:"params"`
 }
 

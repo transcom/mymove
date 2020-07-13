@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, includes, reject } from 'lodash';
 
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { getFormValues, reduxForm, Field } from 'redux-form';
 
 import Alert from 'shared/Alert'; // eslint-disable-line
@@ -19,7 +19,7 @@ import {
   updateOrders,
   fetchLatestOrders,
   selectActiveOrLatestOrders,
-  selectUploadsForOrders,
+  selectUploadsForActiveOrders,
 } from 'shared/Entities/modules/orders';
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
@@ -210,7 +210,7 @@ class EditOrders extends Component {
 function mapStateToProps(state) {
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
   const currentOrders = selectActiveOrLatestOrders(state);
-  const uploads = selectUploadsForOrders(state, currentOrders.id);
+  const uploads = selectUploadsForActiveOrders(state);
 
   const props = {
     currentOrders,

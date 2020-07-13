@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 
-import { ShipmentTypeOneOf } from 'types/shipment';
+import { ShipmentOptionsOneOf } from 'types/shipment';
 
 export const ServiceItemCardShape = PropTypes.shape({
   id: PropTypes.string, // service item id
-  shipmentType: ShipmentTypeOneOf,
+  shipmentType: ShipmentOptionsOneOf,
   serviceItemName: PropTypes.string,
   amount: PropTypes.number,
   createdAt: PropTypes.string,

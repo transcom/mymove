@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -306,7 +308,8 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(queryBuilder)
-		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator)
 		handler := UpdateMTOPostCounselingInformationHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,

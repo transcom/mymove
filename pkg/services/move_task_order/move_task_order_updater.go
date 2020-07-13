@@ -18,16 +18,18 @@ import (
 type moveTaskOrderUpdater struct {
 	db *pop.Connection
 	moveTaskOrderFetcher
-	builder UpdateMoveTaskOrderQueryBuilder
+	builder            UpdateMoveTaskOrderQueryBuilder
+	serviceItemCreator services.MTOServiceItemCreator
 }
 
 // NewMoveTaskOrderUpdater creates a new struct with the service dependencies
-func NewMoveTaskOrderUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQueryBuilder) services.MoveTaskOrderUpdater {
-	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db}, builder}
+func NewMoveTaskOrderUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQueryBuilder, serviceItemCreator services.MTOServiceItemCreator) services.MoveTaskOrderUpdater {
+	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db}, builder, serviceItemCreator}
 }
 
 //MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
-func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string) (*models.MoveTaskOrder, error) {
+func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string,
+	mtoApprovalServiceItems *[]models.ReServiceCode) (*models.MoveTaskOrder, error) {
 	mto, err := o.FetchMoveTaskOrder(moveTaskOrderID)
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
@@ -50,6 +52,27 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 			return &models.MoveTaskOrder{}, err
 		}
 	}
+
+	// When provided, this will auto create and approve MTO level service items. This is going to typically happen
+	// from the ghc api via the office app. The handler in question is this one: UpdateMoveTaskOrderStatusHandlerFunc
+	// in ghcapi/move_task_order.go
+	if mtoApprovalServiceItems != nil {
+		for _, serviceItem := range *mtoApprovalServiceItems {
+			_, verrs, err := o.serviceItemCreator.CreateMTOServiceItem(&models.MTOServiceItem{
+				MoveTaskOrderID: moveTaskOrderID,
+				MTOShipmentID:   nil,
+				ReService:       models.ReService{Code: serviceItem},
+				Status:          models.MTOServiceItemStatusApproved,
+			})
+			if err != nil {
+				return &models.MoveTaskOrder{}, err
+			}
+			if verrs != nil {
+				return &models.MoveTaskOrder{}, verrs
+			}
+		}
+	}
+
 	return mto, nil
 }
 

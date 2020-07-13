@@ -1,6 +1,6 @@
 import { isFinite } from 'lodash';
 import moment from 'moment';
-import { SHIPMENT_TYPE } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -281,13 +281,13 @@ export const formatToOrdinal = (n) => {
 // Map shipment types to friendly display names for mto shipments
 export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
   switch (shipmentType) {
-    case SHIPMENT_TYPE.HHG:
+    case SHIPMENT_OPTIONS.HHG:
       return 'Household goods';
-    case SHIPMENT_TYPE.NTS:
+    case SHIPMENT_OPTIONS.NTS:
       return 'NTS release';
-    case SHIPMENT_TYPE.HHG_LONGHAUL_DOMESTIC:
+    case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
       return 'Household goods longhaul domestic';
-    case SHIPMENT_TYPE.HHG_SHORTHAUL_DOMESTIC:
+    case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
       return 'Household goods shorthaul domestic';
     default:
       return shipmentType;

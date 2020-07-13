@@ -6,7 +6,7 @@ import pdf2 from './sample2.pdf';
 import pdf3 from './sample3.pdf';
 
 export default {
-  title: 'Components|Document Viewer',
+  title: 'Components|Document Viewer|Document Viewer',
   parameters: { loki: { skip: true } },
 };
 

@@ -3,12 +3,17 @@ import { getGHCClient } from 'shared/Swagger/api';
 import { get, filter } from 'lodash';
 
 const updateMoveTaskOrders = 'moveTaskOrder.updateMoveTaskOrderStatus';
-export function updateMoveTaskOrderStatus(moveTaskOrderID, ifMatchETag, label = updateMoveTaskOrders) {
+export function updateMoveTaskOrderStatus(
+  moveTaskOrderID,
+  ifMatchETag,
+  mtoApprovalServiceItemCodes,
+  label = updateMoveTaskOrders,
+) {
   const swaggerTag = 'moveTaskOrder.updateMoveTaskOrderStatus';
   return swaggerRequest(
     getGHCClient,
     swaggerTag,
-    { moveTaskOrderID, 'If-Match': ifMatchETag },
+    { moveTaskOrderID, 'If-Match': ifMatchETag, serviceItemCodes: mtoApprovalServiceItemCodes },
     { updateMoveTaskOrders },
   );
 }
