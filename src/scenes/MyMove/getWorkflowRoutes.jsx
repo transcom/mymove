@@ -188,11 +188,7 @@ const pages = {
     isInFlow: always,
     isComplete: always,
     render: (key, pages, description, props) => ({ match }) => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} additionalParams={{ moveId: props.moveId }}>
-          <HHGMoveSetup />
-        </WizardPage>
-      );
+      return <HHGMoveSetup pages={pages} pageKey={key} />;
     },
   },
   '/moves/:moveId/review': {
