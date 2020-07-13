@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -74,10 +76,11 @@ func (suite *HandlerSuite) TestMakeMoveTaskOrderAvailableHandlerIntegrationSucce
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
 
 	// make the request
 	handler := MakeMoveTaskOrderAvailableHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
 	}
 	response := handler.Handle(params)
 

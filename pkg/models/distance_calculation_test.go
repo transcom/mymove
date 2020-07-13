@@ -4,7 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -46,9 +46,13 @@ func (suite *ModelSuite) Test_DistanceCalculationValidations() {
 }
 
 func (suite *ModelSuite) Test_NewDistanceCalculationCallsPlanner() {
-	planner := route.NewTestingPlanner(1044)
 	address1 := testdatagen.MakeDefaultAddress(suite.DB())
 	address2 := testdatagen.MakeDefaultAddress(suite.DB())
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		address1.PostalCode,
+		address2.PostalCode,
+	).Return(1044, nil)
 	useZipOnlyForDistance := true
 	distanceCalculation, err := models.NewDistanceCalculation(planner, address1, address2, useZipOnlyForDistance)
 

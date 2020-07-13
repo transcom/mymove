@@ -50,7 +50,7 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-	mto, err := h.moveTaskOrderAvailabilityUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag)
+	mto, err := h.moveTaskOrderAvailabilityUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag, nil)
 
 	if err != nil {
 		logger.Error("supportapi.MakeMoveTaskOrderAvailableHandlerFunc error", zap.Error(err))

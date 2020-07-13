@@ -3,8 +3,8 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { shallow, mount } from 'enzyme';
 
-import DocViewerContent from './Content';
-import DocViewerMenu from './Menu';
+import DocViewerContent from './Content/Content';
+import DocViewerMenu from './Menu/Menu';
 import DocumentViewer from './DocumentViewer';
 import samplePDF from './sample.pdf';
 import samplePDF2 from './sample2.pdf';

@@ -59,11 +59,6 @@ type UpdateMTOServiceItemStatus struct {
 	// Read Only: true
 	ReServiceCode string `json:"reServiceCode,omitempty"`
 
-	// re service ID
-	// Read Only: true
-	// Format: uuid
-	ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
-
 	// re service name
 	// Read Only: true
 	ReServiceName string `json:"reServiceName,omitempty"`
@@ -97,10 +92,6 @@ func (m *UpdateMTOServiceItemStatus) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMtoShipmentID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReServiceID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -196,19 +187,6 @@ func (m *UpdateMTOServiceItemStatus) validateMtoShipmentID(formats strfmt.Regist
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOServiceItemStatus) validateReServiceID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ReServiceID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID.String(), formats); err != nil {
 		return err
 	}
 

@@ -1,5 +1,5 @@
 import { debounce, get, bind, cloneDeep } from 'lodash';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import PropTypes from 'prop-types';
 import { getFormValues } from 'redux-form';
 import SaveCancelButtons from './SaveCancelButtons';

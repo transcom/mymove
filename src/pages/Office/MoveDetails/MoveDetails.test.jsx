@@ -10,9 +10,50 @@ describe('MoveDetails page', () => {
     customerID: 'abc',
   };
 
+  const shipments = [
+    {
+      approvedDate: '2020-01-01',
+      customerRemarks: 'please treat gently',
+      destinationAddress: {
+        city: 'Fairfield',
+        country: 'US',
+        id: '672ff379-f6e3-48b4-a87d-796713f8f997',
+        postal_code: '94535',
+        state: 'CA',
+        street_address_1: '987 Any Avenue',
+        street_address_2: 'P.O. Box 9876',
+        street_address_3: 'c/o Some Person',
+      },
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
+      id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+      moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+      pickupAddress: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+        id: '1686751b-ab36-43cf-b3c9-c0f467d13c19',
+        postal_code: '90210',
+        state: 'CA',
+        street_address_1: '123 Any Street',
+        street_address_2: 'P.O. Box 12345',
+        street_address_3: 'c/o Some Person',
+      },
+      requestedPickupDate: '2018-03-15',
+      scheduledPickupDate: '2018-03-16',
+      shipmentType: 'HHG',
+      status: 'SUBMITTED',
+      updatedAt: '2020-06-10T15:58:02.404031Z',
+    },
+  ];
+
   const testMoveTaskOrders = [{ id: '1a' }, { id: '2b' }];
 
-  const testMTOShipments = [{ id: '1a' }, { id: '2b' }];
+  const testMTOShipments = [
+    { id: '1a', status: 'SUBMITTED', currentAddress: { street_address_1: 'test' } },
+    { id: '2b', status: 'SUBMITTED', currentAddress: { street_address_1: 'test' } },
+  ];
+
+  const testMtoServiceItems = [{ id: '1a', status: 'APPROVED' }];
 
   const moveDetailsProps = {
     match: {
@@ -25,6 +66,9 @@ describe('MoveDetails page', () => {
     getCustomer: jest.fn(),
     getAllMoveTaskOrders: jest.fn(() => new Promise((res) => res({ response: { body: testMoveTaskOrders } }))),
     getMTOShipments: jest.fn(() => new Promise((res) => res({ response: { body: testMTOShipments } }))),
+    patchMTOShipmentStatus: jest.fn(() => new Promise((res) => res({ response: { body: testMTOShipments[0] } }))),
+    getMTOServiceItems: jest.fn(() => new Promise((res) => res({ response: { body: testMtoServiceItems } }))),
+    mtoShipments: shipments,
     updateMoveTaskOrderStatus: jest
       .fn()
       .mockResolvedValue({ response: { status: 200, body: { id: '1a', eTag: '1a2b3c4d' } } }),

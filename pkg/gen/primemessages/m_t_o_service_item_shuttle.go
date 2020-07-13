@@ -27,15 +27,13 @@ type MTOServiceItemShuttle struct {
 
 	mtoShipmentIdField strfmt.UUID
 
-	reServiceIdField strfmt.UUID
-
 	reServiceNameField string
 
 	rejectionReasonField *string
 
 	statusField MTOServiceItemStatus
 
-	// description
+	// Further details about the shuttle service.
 	// Required: true
 	Description *string `json:"description"`
 
@@ -44,7 +42,7 @@ type MTOServiceItemShuttle struct {
 	// Enum: [DOSHUT DDSHUT]
 	ReServiceCode *string `json:"reServiceCode"`
 
-	// reason
+	// Explanation of why a shuttle service is required.
 	// Required: true
 	Reason *string `json:"reason"`
 }
@@ -99,16 +97,6 @@ func (m *MTOServiceItemShuttle) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
 }
 
-// ReServiceID gets the re service ID of this subtype
-func (m *MTOServiceItemShuttle) ReServiceID() strfmt.UUID {
-	return m.reServiceIdField
-}
-
-// SetReServiceID sets the re service ID of this subtype
-func (m *MTOServiceItemShuttle) SetReServiceID(val strfmt.UUID) {
-	m.reServiceIdField = val
-}
-
 // ReServiceName gets the re service name of this subtype
 func (m *MTOServiceItemShuttle) ReServiceName() string {
 	return m.reServiceNameField
@@ -149,7 +137,7 @@ func (m *MTOServiceItemShuttle) SetStatus(val MTOServiceItemStatus) {
 func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// description
+		// Further details about the shuttle service.
 		// Required: true
 		Description *string `json:"description"`
 
@@ -158,7 +146,7 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// reason
+		// Explanation of why a shuttle service is required.
 		// Required: true
 		Reason *string `json:"reason"`
 	}
@@ -182,8 +170,6 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
-
-		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
@@ -214,8 +200,6 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 
 	result.mtoShipmentIdField = base.MtoShipmentID
 
-	result.reServiceIdField = base.ReServiceID
-
 	result.reServiceNameField = base.ReServiceName
 
 	result.rejectionReasonField = base.RejectionReason
@@ -239,7 +223,7 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// description
+		// Further details about the shuttle service.
 		// Required: true
 		Description *string `json:"description"`
 
@@ -248,7 +232,7 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// reason
+		// Explanation of why a shuttle service is required.
 		// Required: true
 		Reason *string `json:"reason"`
 	}{
@@ -274,8 +258,6 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
-		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
-
 		ReServiceName string `json:"reServiceName,omitempty"`
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -292,8 +274,6 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		MoveTaskOrderID: m.MoveTaskOrderID(),
 
 		MtoShipmentID: m.MtoShipmentID(),
-
-		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
 
@@ -322,10 +302,6 @@ func (m *MTOServiceItemShuttle) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMtoShipmentID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReServiceID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -384,19 +360,6 @@ func (m *MTOServiceItemShuttle) validateMtoShipmentID(formats strfmt.Registry) e
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemShuttle) validateReServiceID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ReServiceID()) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
 		return err
 	}
 

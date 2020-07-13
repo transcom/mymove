@@ -4,6 +4,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/services/query"
 
@@ -73,10 +75,11 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
 	}
 	response := handler.Handle(params)
 
@@ -102,10 +105,11 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
 	}
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusPreconditionFailed{}, response)

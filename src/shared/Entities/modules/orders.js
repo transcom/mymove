@@ -68,8 +68,8 @@ export function selectOrdersForMove(state, moveId) {
   }
 }
 
-export function selectUploadsForOrders(state, ordersId) {
-  const orders = selectOrders(state, ordersId);
+export function selectUploadsForActiveOrders(state) {
+  const orders = selectActiveOrLatestOrders(state);
   const uploadedOrders = get(state, `entities.documents.${orders.uploaded_orders}`);
   if (uploadedOrders) {
     return uploadedOrders.uploads

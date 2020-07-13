@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 import { ReactComponent as AddIcon } from 'shared/icon/add.svg';
 import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
@@ -24,8 +23,16 @@ import { ReactComponent as ZoomInIcon } from 'shared/icon/zoom-in.svg';
 import { ReactComponent as ZoomOutIcon } from 'shared/icon/zoom-out.svg';
 
 // Icons
+export default {
+  title: 'Global|Icons',
+  parameters: {
+    abstract: {
+      url: 'https://share.goabstract.com/eabef4a2-603e-4c3d-b249-0e580f1c8306?mode=design',
+    },
+  },
+};
 
-storiesOf('Global|Icons', module).add('all', () => (
+export const all = () => (
   <div style={{ padding: '20px', background: '#f0f0f0' }}>
     <h3>Icons</h3>
     <div id="icons" style={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -115,4 +122,4 @@ storiesOf('Global|Icons', module).add('all', () => (
       </div>
     </div>
   </div>
-));
+);

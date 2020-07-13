@@ -8,8 +8,16 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 describe('AppWrapper tests', () => {
   let _wrapper;
 
+  const minProps = {
+    context: {
+      flags: {
+        hhgFlow: false,
+      },
+    },
+  };
+
   beforeEach(() => {
-    _wrapper = shallow(<AppWrapper />);
+    _wrapper = shallow(<AppWrapper {...minProps} />);
   });
 
   it('renders without crashing or erroring', () => {

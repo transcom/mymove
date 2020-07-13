@@ -1,30 +1,20 @@
 import React, { Suspense, lazy } from 'react';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
-import { NavLink, Switch } from 'react-router-dom';
+import { NavLink, Switch, useParams, Redirect, Route } from 'react-router-dom';
 import { Tag } from '@trussworks/react-uswds';
 
 import 'styles/office.scss';
-import PrivateRoute from 'containers/PrivateRoute';
-import { roleTypes } from 'constants/userRoles';
 import TabNav from 'components/TabNav';
-import { MatchShape } from 'types/router';
-import { withContext } from 'shared/AppContext';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
+const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
+const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
 const PaymentRequestShow = lazy(() => import('scenes/Office/TIO/paymentRequestShow'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
-const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
 
-const TXOMoveInfo = ({
-  context: {
-    flags: { too, tio },
-  },
-  match,
-}) => {
-  const { moveOrderId } = match.params;
+const TXOMoveInfo = () => {
+  const { moveOrderId } = useParams();
 
   return (
     <>
@@ -51,62 +41,35 @@ const TXOMoveInfo = ({
       </header>
       <Suspense fallback={<LoadingPlaceholder />}>
         <Switch>
-          {too && (
-            <PrivateRoute
-              path="/moves/:moveOrderId/details"
-              exact
-              component={MoveDetails}
-              requiredRoles={[roleTypes.TOO]}
-            />
-          )}
-          {too && (
-            <PrivateRoute
-              path="/moves/:moveTaskOrderId/mto"
-              exact
-              component={TOOMoveTaskOrder}
-              requiredRoles={[roleTypes.TOO]}
-            />
-          )}
-          <PrivateRoute path="/moves/:id/neworders" component={MoveOrders} /> {/* TODO fix this URL */}
-          {tio && (
-            <PrivateRoute
-              path="/moves/:id/payment-requests"
-              exact
-              component={PaymentRequestShow}
-              requiredRoles={[roleTypes.TIO]}
-            />
-          )}
-          {tio && (
-            <PrivateRoute
-              path="/moves/:moveOrderId/history"
-              exact
-              component={MoveHistory}
-              requiredRoles={[roleTypes.TIO]}
-            />
-          )}
+          <Route path="/moves/:moveOrderId/details" exact>
+            <MoveDetails />
+          </Route>
+          <Route path="/moves/:moveOrderId/orders" exact>
+            <MoveOrders />
+          </Route>
+
+          {/* TODO - the nav to this url is passing moveOrderId instead of moveTaskOrderId */}
+          <Route path="/moves/:moveTaskOrderId/mto" exact>
+            <TOOMoveTaskOrder />
+          </Route>
+
+          <Route path="/moves/:moveOrderId/payment-requests/:id" exact>
+            <PaymentRequestShow />
+          </Route>
+          <Route path="/moves/:moveOrderId/payment-requests" exact>
+            <PaymentRequestIndex />
+          </Route>
+
+          <Route path="/moves/:moveOrderId/history" exact>
+            <MoveHistory />
+          </Route>
+
+          {/* TODO - clarify role/tab access */}
+          <Redirect from="/moves/:moveOrderId" to="/moves/:moveOrderId/details" />
         </Switch>
       </Suspense>
     </>
   );
 };
 
-TXOMoveInfo.propTypes = {
-  context: PropTypes.shape({
-    flags: PropTypes.shape({
-      too: PropTypes.bool,
-      tio: PropTypes.bool,
-    }),
-  }),
-  match: MatchShape.isRequired,
-};
-
-TXOMoveInfo.defaultProps = {
-  context: {
-    flags: {
-      too: false,
-      tio: false,
-    },
-  },
-};
-
-export default withContext(withRouter(TXOMoveInfo));
+export default TXOMoveInfo;
