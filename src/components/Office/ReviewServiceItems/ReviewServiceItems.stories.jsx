@@ -2,7 +2,7 @@ import React from 'react';
 
 import ReviewServiceItems from './ReviewServiceItems';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SERVICE_ITEM_STATUS } from 'shared/constants';
 
 // Left Nav
 export default {
@@ -21,26 +21,30 @@ const serviceItemCards = [
   {
     id: '1',
     shipmentType: SHIPMENT_OPTIONS.HHG,
+    shipmentId: '10',
     serviceItemName: 'Domestic linehaul',
     amount: 6423,
+    status: SERVICE_ITEM_STATUS.SUBMITTED,
     createdAt: '2020-01-01T00:08:00.999Z',
   },
   {
     id: '2',
     shipmentType: null,
+    shipmentId: null,
     serviceItemName: 'Counseling fee',
     amount: 2.8,
+    status: SERVICE_ITEM_STATUS.SUBMITTED,
     createdAt: '2020-01-02T00:08:00.999Z',
   },
   {
     id: '3',
     shipmentType: SHIPMENT_OPTIONS.NTS,
+    shipmentId: '30',
     serviceItemName: 'Fuel surcharge',
     amount: 2.8,
+    status: SERVICE_ITEM_STATUS.SUBMITTED,
     createdAt: '2020-01-01T00:08:00.999Z',
   },
 ];
 
-export const Basic = () => (
-  <ReviewServiceItems shipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC} serviceItemCards={serviceItemCards} />
-);
+export const Basic = () => <ReviewServiceItems serviceItemCards={serviceItemCards} />;

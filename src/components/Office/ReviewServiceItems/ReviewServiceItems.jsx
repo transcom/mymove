@@ -27,7 +27,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   const curCardItem = serviceItemCards[parseInt(curCardIndex, 10)];
 
   return (
-    <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
+    <div data-cy="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <div className={styles.top}>
         <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
           <XLightIcon />
