@@ -8,7 +8,6 @@ import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 import { WizardPage } from '../../shared/WizardPage';
 
-// eslint-disable-next-line
 export const HHGDetailsForm = ({ initialValues, pageKey, pageList }) => {
   return (
     <Formik initialValues={initialValues}>
@@ -28,6 +27,10 @@ export const HHGDetailsForm = ({ initialValues, pageKey, pageList }) => {
 };
 
 HHGDetailsForm.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
+  pageKey: PropTypes.object,
+  // eslint-disable-next-line react/forbid-prop-types
+  pageList: PropTypes.object,
   initialValues: PropTypes.shape({
     requestedPickupDate: PropTypes.string,
     pickupLocation: PropTypes.shape({
@@ -50,6 +53,8 @@ HHGDetailsForm.propTypes = {
 };
 
 HHGDetailsForm.defaultProps = {
+  pageKey: {},
+  pageList: {},
   initialValues: {},
 };
 
