@@ -80,19 +80,30 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("Could not find contractor, %w", err)
 	}
-	// create mto -> move task order
-	var mto = models.MoveTaskOrder{
-		MoveOrderID:  mo.ID,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
-		ContractorID: contractor.ID,
+
+	var moveTaskOrders []models.MoveTaskOrder
+	err = db.Where("move_order_id = $1", mo.ID).All(&moveTaskOrders)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("Could not fetch move order, %w", err)
 	}
+	// create mto -> move task order
+	var mto models.MoveTaskOrder
+	if len(moveTaskOrders) == 0 {
+		mto = models.MoveTaskOrder{
+			MoveOrderID:  mo.ID,
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
+			ContractorID: contractor.ID,
+		}
 
-	builder := query.NewQueryBuilder(db)
-	mtoCreator := movetaskorder.NewMoveTaskOrderCreator(builder, db)
+		builder := query.NewQueryBuilder(db)
+		mtoCreator := movetaskorder.NewMoveTaskOrderCreator(builder, db)
 
-	if _, verrs, err := mtoCreator.CreateMoveTaskOrder(&mto); err != nil || (verrs != nil && verrs.HasAny()) {
-		return uuid.Nil, fmt.Errorf("Could not save move task order, %w, %v", err, verrs)
+		if _, verrs, err := mtoCreator.CreateMoveTaskOrder(&mto); err != nil || (verrs != nil && verrs.HasAny()) {
+			return uuid.Nil, fmt.Errorf("Could not save move task order, %w, %v", err, verrs)
+		}
+	} else {
+		mto = moveTaskOrders[0]
 	}
 
 	// create HHG -> house hold goods
