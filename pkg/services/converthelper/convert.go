@@ -54,9 +54,9 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	document.UserUploads = append(document.UserUploads, userUpload)
 
 	// orders -> move order
-	var mo models.MoveOrder
-	var moveOrders []models.MoveOrder
-	err := db.Where("customer_id = $1", sm.ID).All(&moveOrders)
+	var mo models.Order
+	var moveOrders []models.Order
+	err := db.Where("service_member_id = $1", sm.ID).All(&moveOrders)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("Could not fetch move order, %w", err)
 	}
@@ -65,24 +65,26 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 		orders := move.Orders
 		mo.CreatedAt = orders.CreatedAt
 		mo.UpdatedAt = orders.UpdatedAt
-		mo.Customer = &sm
-		mo.CustomerID = &sm.ID
-		mo.DestinationDutyStation = &orders.NewDutyStation
-		mo.DestinationDutyStationID = &orders.NewDutyStationID
+		mo.ServiceMember = sm
+		mo.ServiceMemberID = sm.ID
+		mo.NewDutyStation = orders.NewDutyStation
+		mo.NewDutyStationID = orders.NewDutyStationID
 
-		orderType := "GHC"
-		mo.OrderNumber = orders.OrdersNumber
-		mo.OrderType = &orderType
-		orderTypeDetail := "Shipment of HHG permitted"
-		mo.OrderTypeDetail = &orderTypeDetail
+		mo.OrdersNumber = orders.OrdersNumber
+		mo.OrdersType = "GHC"
+
+		orderTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
+		mo.OrdersTypeDetail = &orderTypeDetail
 		mo.OriginDutyStation = &sm.DutyStation
 		mo.OriginDutyStationID = sm.DutyStationID
 		mo.Entitlement = &entitlement
 		mo.EntitlementID = &entitlement.ID
 		mo.Grade = (*string)(sm.Rank)
-		mo.DateIssued = &orders.IssueDate
-		mo.ReportByDate = &orders.ReportByDate
-		mo.LinesOfAccounting = orders.TAC
+		mo.IssueDate = orders.IssueDate
+		mo.ReportByDate = orders.ReportByDate
+		mo.TAC = orders.TAC
+		mo.UploadedOrders = document
+		mo.UploadedOrdersID = document.ID
 
 		if err = db.Save(&mo); err != nil {
 			return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)
@@ -198,27 +200,37 @@ func ConvertProfileOrdersToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID,
 
 	// orders -> move order
 	orders := move.Orders
-	var mo models.MoveOrder
+	var mo models.Order
 	mo.CreatedAt = orders.CreatedAt
 	mo.UpdatedAt = orders.UpdatedAt
-	mo.Customer = &sm
-	mo.CustomerID = &sm.ID
-	mo.DestinationDutyStation = &orders.NewDutyStation
-	mo.DestinationDutyStationID = &orders.NewDutyStationID
+	mo.ServiceMember = sm
+	mo.ServiceMemberID = sm.ID
+	mo.NewDutyStation = orders.NewDutyStation
+	mo.NewDutyStationID = orders.NewDutyStationID
 
-	orderType := "GHC"
-	mo.OrderNumber = orders.OrdersNumber
-	mo.OrderType = &orderType
-	orderTypeDetail := "Shipment of HHG permitted"
-	mo.OrderTypeDetail = &orderTypeDetail
+	mo.OrdersNumber = orders.OrdersNumber
+	mo.OrdersType = "GHC"
+	orderTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
+	mo.OrdersTypeDetail = &orderTypeDetail
 	mo.OriginDutyStation = &sm.DutyStation
 	mo.OriginDutyStationID = sm.DutyStationID
 	mo.Entitlement = &entitlement
 	mo.EntitlementID = &entitlement.ID
 	mo.Grade = (*string)(sm.Rank)
-	mo.DateIssued = &orders.IssueDate
-	mo.ReportByDate = &orders.ReportByDate
-	mo.LinesOfAccounting = orders.TAC
+	mo.IssueDate = orders.IssueDate
+	mo.ReportByDate = orders.ReportByDate
+	mo.TAC = orders.TAC
+
+	document := models.Document{
+		ServiceMemberID: sm.ID,
+		ServiceMember:   sm,
+	}
+
+	if err := db.Save(&document); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not save document, %w", err)
+	}
+	mo.UploadedOrders = document
+	mo.UploadedOrdersID = document.ID
 
 	if err := db.Save(&mo); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)
