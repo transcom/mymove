@@ -720,11 +720,6 @@ definitions:
           ID of the destination duty station.
 
           If creating a MoveTaskOrder, this should match an existing duty station.
-      issueDate:
-        description: Date that the move order was issued on.
-        type: string
-        format: date
-        example: '2020-01-01'
       orderType:
         $ref: '#/definitions/OrderType'
       originDutyStation:

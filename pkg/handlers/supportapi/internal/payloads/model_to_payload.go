@@ -95,7 +95,6 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 		OriginDutyStation:        originDutyStation,
 		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
 		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
-		IssueDate:                strfmt.Date(moveOrder.IssueDate),
 		UploadedOrders:           uploadedOrders,
 		UploadedOrdersID:         strfmt.UUID(uploadedOrders.ID.String()),
 	}

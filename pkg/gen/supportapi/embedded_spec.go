@@ -1146,12 +1146,6 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "issueDate": {
-          "description": "Date that the move order was issued on.",
-          "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
-        },
         "orderNumber": {
           "description": "ID of the military orders associated with this move.",
           "type": "string",
@@ -2977,12 +2971,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "issueDate": {
-          "description": "Date that the move order was issued on.",
-          "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
         },
         "orderNumber": {
           "description": "ID of the military orders associated with this move.",

@@ -56,10 +56,6 @@ type MoveOrder struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// Date that the move order was issued on.
-	// Format: date
-	IssueDate strfmt.Date `json:"issueDate,omitempty"`
-
 	// ID of the military orders associated with this move.
 	OrderNumber *string `json:"orderNumber,omitempty"`
 
@@ -123,10 +119,6 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateIssueDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -264,19 +256,6 @@ func (m *MoveOrder) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MoveOrder) validateIssueDate(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.IssueDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("issueDate", "body", "date", m.IssueDate.String(), formats); err != nil {
 		return err
 	}
 
