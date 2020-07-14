@@ -33,6 +33,7 @@ func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOSer
 		ReServiceName:    handlers.FmtStringPtr(&s.ReService.Name),
 		Reason:           handlers.FmtStringPtr(s.Reason),
 		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
+		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
 	}
 }
 

@@ -66,11 +66,6 @@ type MTOServiceItem interface {
 	Rate() int64
 	SetRate(int64)
 
-	// re service ID
-	// Format: uuid
-	ReServiceID() strfmt.UUID
-	SetReServiceID(strfmt.UUID)
-
 	// re service name
 	ReServiceName() string
 	SetReServiceName(string)
@@ -102,8 +97,6 @@ type mTOServiceItem struct {
 	quantityField int64
 
 	rateField int64
-
-	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
 
@@ -200,16 +193,6 @@ func (m *mTOServiceItem) Rate() int64 {
 // SetRate sets the rate of this polymorphic type
 func (m *mTOServiceItem) SetRate(val int64) {
 	m.rateField = val
-}
-
-// ReServiceID gets the re service ID of this polymorphic type
-func (m *mTOServiceItem) ReServiceID() strfmt.UUID {
-	return m.reServiceIdField
-}
-
-// SetReServiceID sets the re service ID of this polymorphic type
-func (m *mTOServiceItem) SetReServiceID(val strfmt.UUID) {
-	m.reServiceIdField = val
 }
 
 // ReServiceName gets the re service name of this polymorphic type
@@ -320,10 +303,6 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateReServiceID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -416,19 +395,6 @@ func (m *mTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *mTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ReServiceID()) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
 		return err
 	}
 

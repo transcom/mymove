@@ -27,20 +27,18 @@ type MTOServiceItemDDFSIT struct {
 
 	mtoShipmentIdField strfmt.UUID
 
-	reServiceIdField strfmt.UUID
-
 	reServiceNameField string
 
 	rejectionReasonField *string
 
 	statusField MTOServiceItemStatus
 
-	// first available delivery date1
+	// First available date that Prime can deliver SIT service item.
 	// Required: true
 	// Format: date
 	FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1"`
 
-	// first available delivery date2
+	// Second available date that Prime can deliver SIT service item.
 	// Required: true
 	// Format: date
 	FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
@@ -49,11 +47,11 @@ type MTOServiceItemDDFSIT struct {
 	// Enum: [DDFSIT]
 	ReServiceCode string `json:"reServiceCode,omitempty"`
 
-	// time military1
+	// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
 	// Required: true
 	TimeMilitary1 *string `json:"timeMilitary1"`
 
-	// time military2
+	// Time of delivery corresponding to `firstAvailableDeliveryDate2`.
 	// Required: true
 	TimeMilitary2 *string `json:"timeMilitary2"`
 
@@ -111,16 +109,6 @@ func (m *MTOServiceItemDDFSIT) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
 }
 
-// ReServiceID gets the re service ID of this subtype
-func (m *MTOServiceItemDDFSIT) ReServiceID() strfmt.UUID {
-	return m.reServiceIdField
-}
-
-// SetReServiceID sets the re service ID of this subtype
-func (m *MTOServiceItemDDFSIT) SetReServiceID(val strfmt.UUID) {
-	m.reServiceIdField = val
-}
-
 // ReServiceName gets the re service name of this subtype
 func (m *MTOServiceItemDDFSIT) ReServiceName() string {
 	return m.reServiceNameField
@@ -167,12 +155,12 @@ func (m *MTOServiceItemDDFSIT) SetStatus(val MTOServiceItemStatus) {
 func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// first available delivery date1
+		// First available date that Prime can deliver SIT service item.
 		// Required: true
 		// Format: date
 		FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1"`
 
-		// first available delivery date2
+		// Second available date that Prime can deliver SIT service item.
 		// Required: true
 		// Format: date
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
@@ -181,11 +169,11 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		// Enum: [DDFSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
-		// time military1
+		// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
 		// Required: true
 		TimeMilitary1 *string `json:"timeMilitary1"`
 
-		// time military2
+		// Time of delivery corresponding to `firstAvailableDeliveryDate2`.
 		// Required: true
 		TimeMilitary2 *string `json:"timeMilitary2"`
 
@@ -212,8 +200,6 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
-
-		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
@@ -244,8 +230,6 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 
 	result.mtoShipmentIdField = base.MtoShipmentID
 
-	result.reServiceIdField = base.ReServiceID
-
 	result.reServiceNameField = base.ReServiceName
 
 	result.rejectionReasonField = base.RejectionReason
@@ -275,12 +259,12 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// first available delivery date1
+		// First available date that Prime can deliver SIT service item.
 		// Required: true
 		// Format: date
 		FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1"`
 
-		// first available delivery date2
+		// Second available date that Prime can deliver SIT service item.
 		// Required: true
 		// Format: date
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
@@ -289,11 +273,11 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		// Enum: [DDFSIT]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
-		// time military1
+		// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
 		// Required: true
 		TimeMilitary1 *string `json:"timeMilitary1"`
 
-		// time military2
+		// Time of delivery corresponding to `firstAvailableDeliveryDate2`.
 		// Required: true
 		TimeMilitary2 *string `json:"timeMilitary2"`
 
@@ -328,8 +312,6 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
-		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
-
 		ReServiceName string `json:"reServiceName,omitempty"`
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -346,8 +328,6 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		MoveTaskOrderID: m.MoveTaskOrderID(),
 
 		MtoShipmentID: m.MtoShipmentID(),
-
-		ReServiceID: m.ReServiceID(),
 
 		ReServiceName: m.ReServiceName(),
 
@@ -376,10 +356,6 @@ func (m *MTOServiceItemDDFSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMtoShipmentID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReServiceID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -450,19 +426,6 @@ func (m *MTOServiceItemDDFSIT) validateMtoShipmentID(formats strfmt.Registry) er
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemDDFSIT) validateReServiceID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ReServiceID()) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
 		return err
 	}
 

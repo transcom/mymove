@@ -180,43 +180,30 @@ const moveTaskOrder = {
 
 const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
 
+const requestedShipmentsComponent = (
+  <RequestedShipments
+    allowancesInfo={allowancesInfo}
+    mtoAgents={agents}
+    customerInfo={customerInfo}
+    mtoShipments={shipments}
+    approveMTO={approveMTO}
+    shipmentsStatus="SUBMITTED"
+  />
+);
+
 describe('RequestedShipments', () => {
   it('renders the container successfully', () => {
-    const wrapper = shallow(
-      <RequestedShipments
-        allowancesInfo={allowancesInfo}
-        mtoAgents={agents}
-        customerInfo={customerInfo}
-        mtoShipments={shipments}
-        approveMTO={approveMTO}
-      />,
-    );
+    const wrapper = shallow(requestedShipmentsComponent);
     expect(wrapper.find('div[data-cy="requested-shipments"]').exists()).toBe(true);
   });
 
   it('renders a shipment passed to it', () => {
-    const wrapper = mount(
-      <RequestedShipments
-        mtoShipments={shipments}
-        mtoAgents={agents}
-        allowancesInfo={allowancesInfo}
-        customerInfo={customerInfo}
-        approveMTO={approveMTO}
-      />,
-    );
+    const wrapper = mount(requestedShipmentsComponent);
     expect(wrapper.find('div[data-cy="requested-shipments"]').text()).toContain('HHG');
   });
 
   it('renders the button', () => {
-    const wrapper = mount(
-      <RequestedShipments
-        mtoShipments={shipments}
-        mtoAgents={agents}
-        allowancesInfo={allowancesInfo}
-        customerInfo={customerInfo}
-        approveMTO={approveMTO}
-      />,
-    );
+    const wrapper = mount(requestedShipmentsComponent);
     const approveButton = wrapper.find('#shipmentApproveButton');
     expect(approveButton.exists()).toBe(true);
     expect(approveButton.text()).toContain('Approve selected shipments');
@@ -224,32 +211,13 @@ describe('RequestedShipments', () => {
   });
 
   it('renders the checkboxes', () => {
-    const wrapper = mount(
-      <RequestedShipments
-        mtoShipments={shipments}
-        mtoAgents={agents}
-        allowancesInfo={allowancesInfo}
-        customerInfo={customerInfo}
-        approveMTO={approveMTO}
-      />,
-    );
+    const wrapper = mount(requestedShipmentsComponent);
     expect(wrapper.find('div[data-testid="checkbox"]').exists()).toBe(true);
     expect(wrapper.find('div[data-testid="checkbox"]').length).toEqual(4);
   });
 
   it('enables the modal button when a shipment and service item are checked', async () => {
-    const mockOnSubmit = jest.fn();
-
-    const wrapper = mount(
-      <RequestedShipments
-        mtoShipments={shipments}
-        mtoAgents={agents}
-        allowancesInfo={allowancesInfo}
-        customerInfo={customerInfo}
-        moveTaskOrder={moveTaskOrder}
-        approveMTO={mockOnSubmit}
-      />,
-    );
+    const wrapper = mount(requestedShipmentsComponent);
 
     await act(async () => {
       wrapper
@@ -299,6 +267,7 @@ describe('RequestedShipments', () => {
         customerInfo={customerInfo}
         moveTaskOrder={moveTaskOrder}
         approveMTO={mockOnSubmit}
+        shipmentsStatus="SUBMITTED"
       />,
     );
 
@@ -332,6 +301,6 @@ describe('RequestedShipments', () => {
     });
 
     expect(mockOnSubmit).toHaveBeenCalled();
-    expect(mockOnSubmit.mock.calls[0]).toEqual([moveTaskOrder.id, moveTaskOrder.eTag]);
+    expect(mockOnSubmit.mock.calls[0]).toEqual([moveTaskOrder.id, moveTaskOrder.eTag, ['MS', 'CS']]);
   });
 });

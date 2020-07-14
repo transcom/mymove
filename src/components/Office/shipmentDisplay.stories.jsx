@@ -43,14 +43,21 @@ storiesOf('TOO/TIO Components|ShipmentDisplay', module)
   .add('HHG Shipment', () => {
     return (
       <div style={{ padding: '20px' }}>
-        <ShipmentDisplay displayInfo={object('displayInfo', hhgInfo)} />
+        <ShipmentDisplay displayInfo={object('displayInfo', hhgInfo)} isSubmitted />
       </div>
     );
   })
   .add('NTS Shipment', () => {
     return (
       <div style={{ padding: '20px' }}>
-        <ShipmentDisplay displayInfo={object('displayInfo', ntsInfo)} shipmentType="NTS" />
+        <ShipmentDisplay displayInfo={object('displayInfo', ntsInfo)} shipmentType="NTS" isSubmitted />
+      </div>
+    );
+  })
+  .add('Approved Shipment', () => {
+    return (
+      <div style={{ padding: '20px' }}>
+        <ShipmentDisplay displayInfo={object('displayInfo', hhgInfo)} isSubmitted={false} />
       </div>
     );
   });

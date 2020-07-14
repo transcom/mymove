@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, includes, reject } from 'lodash';
 
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { getFormValues, reduxForm, Field } from 'redux-form';
 
 import Alert from 'shared/Alert'; // eslint-disable-line

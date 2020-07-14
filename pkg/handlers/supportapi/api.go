@@ -41,7 +41,7 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	supportAPI.MoveTaskOrderMakeMoveTaskOrderAvailableHandler = MakeMoveTaskOrderAvailableHandlerFunc{
 		context,
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
 	}
 
 	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
