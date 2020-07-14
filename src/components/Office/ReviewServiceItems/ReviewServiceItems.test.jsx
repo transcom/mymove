@@ -2,12 +2,12 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
-import { SHIPMENT_TYPE } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const serviceItemCards = [
   {
     id: '1',
-    shipmentType: SHIPMENT_TYPE.HHG,
+    shipmentType: SHIPMENT_OPTIONS.HHG,
     serviceItemName: 'Domestic linehaul',
     amount: 6423,
     createdAt: '2020-01-01T00:08:00.999Z',
