@@ -6,7 +6,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -78,13 +77,12 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
 	entitlements := Entitlement(moveOrder.Entitlement)
-	orderTypeDetail := OrdersTypeDetail(moveOrder.OrdersTypeDetail)
 
 	payload := ghcmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
 		OrderNumber:            moveOrder.OrdersNumber,
-		OrderTypeDetail:        orderTypeDetail,
+		OrderTypeDetail:        (*string)(moveOrder.OrdersTypeDetail),
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
@@ -109,7 +107,7 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
 	}
 	if &moveOrder.OrdersType != nil {
-		payload.OrderType = ghcmessages.OrdersType(moveOrder.OrdersType)
+		payload.OrderType = swag.StringValue((*string)(&moveOrder.OrdersType))
 	}
 
 	return &payload
@@ -167,15 +165,6 @@ func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
 		Name:      dutyStation.Name,
 		ETag:      etag.GenerateEtag(dutyStation.UpdatedAt),
 	}
-	return &payload
-}
-
-// OrdersTypeDetail payload
-func OrdersTypeDetail(orderTypeDetail *internalmessages.OrdersTypeDetail) *ghcmessages.OrdersTypeDetail {
-	if orderTypeDetail == nil {
-		return nil
-	}
-	payload := ghcmessages.OrdersTypeDetail(*orderTypeDetail)
 	return &payload
 }
 
