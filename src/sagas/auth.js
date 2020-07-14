@@ -8,7 +8,7 @@ import { addEntities } from 'shared/Entities/actions';
 
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 
-const getLoggedInActions = generateAsyncActions(getLoggedInUserType);
+export const getLoggedInActions = generateAsyncActions(getLoggedInUserType);
 
 export function* fetchUser() {
   try {
@@ -32,8 +32,6 @@ export function* fetchUser() {
   } catch (e) {
     put(getLoggedInActions.error(e));
   }
-
-  yield;
 }
 
 export default function* watchFetchUser() {

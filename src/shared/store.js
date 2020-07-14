@@ -11,7 +11,7 @@ import { isDevelopment, isAdminSite } from 'shared/constants';
 import logger from './reduxLogger';
 import * as schema from 'shared/Entities/schema';
 
-import authSaga from 'sagas/auth';
+import rootSaga from 'sagas/index';
 
 export const history = createBrowserHistory();
 
@@ -35,7 +35,7 @@ export const configureStore = (history, initialState = {}) => {
   const rootReducer = appSelector();
   const store = createStore(rootReducer, initialState, composeEnhancers(applyMiddleware(...middlewares)));
 
-  sagaMiddleware.run(authSaga);
+  sagaMiddleware.run(rootSaga);
 
   return store;
 };
