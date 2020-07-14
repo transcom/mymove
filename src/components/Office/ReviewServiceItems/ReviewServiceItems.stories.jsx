@@ -1,4 +1,5 @@
 import React from 'react';
+import { action } from '@storybook/addon-actions';
 
 import ReviewServiceItems from './ReviewServiceItems';
 
@@ -47,4 +48,4 @@ const serviceItemCards = [
   },
 ];
 
-export const Basic = () => <ReviewServiceItems serviceItemCards={serviceItemCards} />;
+export const Basic = () => <ReviewServiceItems serviceItemCards={serviceItemCards} handleClose={action('clicked')} />;

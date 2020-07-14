@@ -2,6 +2,25 @@ import { isFinite } from 'lodash';
 import moment from 'moment';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
+/**
+ * Formats number into a dollar string. Eg. $1,234.12
+ * @param num
+ * @returns {string}
+ */
+export function toDollarString(num) {
+  if (!isFinite(num)) {
+    return '';
+  }
+
+  return (
+    '$' +
+    num.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+  );
+}
+
 export function formatNumber(num) {
   if (!isFinite(num)) {
     return '';
@@ -271,6 +290,6 @@ export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
     case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
       return 'Household goods shorthaul domestic';
     default:
-      return shipmentType;
+      return 'Basic Service Items';
   }
 };

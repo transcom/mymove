@@ -6,6 +6,7 @@ import styles from './ReviewServiceItems.module.scss';
 
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
+import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
 
 const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   const [curCardIndex, setCardIndex] = useState(0);
@@ -36,7 +37,8 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
         <h2 className={styles.header}>{header}</h2>
       </div>
       <div className={styles.body}>
-        <div className={('container', { 'container--hhg': true })}>{curCardItem.serviceItemName}</div>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <ServiceItemCard {...curCardItem} />
       </div>
       <div className={styles.bottom}>
         <Button

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 // eslint-disable-next-line import/prefer-default-export
-export const ShipmentTypeOneOf = PropTypes.oneOf([
+export const ShipmentOptionsOneOf = PropTypes.oneOf([
   SHIPMENT_OPTIONS.HHG,
   SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
   SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,

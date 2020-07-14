@@ -5,7 +5,7 @@ import ReviewServiceItems from './ReviewServiceItems';
 
 import { SHIPMENT_OPTIONS, SERVICE_ITEM_STATUS } from 'shared/constants';
 
-const serviceItems = [
+const serviceItemCards = [
   {
     id: '1',
     shipmentType: SHIPMENT_OPTIONS.HHG,
@@ -49,9 +49,10 @@ const serviceItems = [
   },
 ];
 
-describe('Review Service Items', () => {
-  it('should render the data passed to its props', () => {
-    const wrapper = shallow(<ReviewServiceItems serviceItemCards={serviceItems} handleClose={jest.fn()} />);
-    expect(wrapper.find({ 'data-cy': 'ReviewServiceItems' }).length).toBe(1);
+describe('ReviewServiceItems component', () => {
+  const component = shallow(<ReviewServiceItems serviceItemCards={serviceItemCards} handleClose={jest.fn()} />);
+
+  it('renders without crashing', () => {
+    expect(component.find('[data-cy="ReviewServiceItems"]').length).toBe(1);
   });
 });
