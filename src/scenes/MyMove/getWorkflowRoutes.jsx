@@ -188,7 +188,7 @@ const pages = {
     isInFlow: inHhgFlow,
     isComplete: always,
     render: (key, pages, description, props) => ({ match }) => {
-      return <HHGMoveSetup pages={pages} pageKey={key} />;
+      return <HHGMoveSetup pageList={pages} pageKey={key} />;
     },
   },
   '/moves/:moveId/review': {

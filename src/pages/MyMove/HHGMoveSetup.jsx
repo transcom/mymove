@@ -6,19 +6,24 @@ import { HHGDetailsForm } from 'components/Customer/HHGDetailsForm';
 // eslint-disable-next-line react/prefer-stateless-function
 export class HHGMoveSetup extends Component {
   render() {
-    const { pages, pageKey } = this.props;
+    const { pageList, pageKey } = this.props;
     return (
       <div>
         <h3>Now lets arrange details for the professional movers</h3>
-        <HHGDetailsForm pages={pages} pageKey={pageKey} />
+        <HHGDetailsForm pageList={pageList} pageKey={pageKey} />
       </div>
     );
   }
 }
 
 HHGMoveSetup.propTypes = {
-  pages: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  pageKey: PropTypes.string.isRequired,
+  pageList: PropTypes.arrayOf(PropTypes.string),
+  pageKey: PropTypes.string,
+};
+
+HHGMoveSetup.defaultProps = {
+  pageList: [],
+  pageKey: '',
 };
 
 export default HHGMoveSetup;
