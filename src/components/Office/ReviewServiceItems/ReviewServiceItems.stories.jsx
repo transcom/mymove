@@ -6,7 +6,7 @@ import ReviewServiceItems from './ReviewServiceItems';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {
-  title: 'TOO/TIO Components|Review service items',
+  title: 'TOO/TIO Components|ReviewServiceItems',
   component: ReviewServiceItems,
   decorators: [
     (storyFn) => (
