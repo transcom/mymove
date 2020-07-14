@@ -213,4 +213,9 @@ func (suite *ConvertSuite) TestConvertFromPPMToGHCMoveOrdersExist() {
 	err := suite.DB().Where("service_member_id = $1", sm.ID).All(&moveOrders)
 	suite.FatalNoError(err)
 	suite.Equal(2, len(moveOrders))
+
+	var moveTaskOrders []models.MoveTaskOrder
+	err = suite.DB().Where("move_order_id = $1", moveOrders[0].ID).All(&moveTaskOrders)
+	suite.FatalNoError(err)
+	suite.Equal(1, len(moveTaskOrders))
 }
