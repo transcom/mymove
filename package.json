@@ -16,7 +16,7 @@
     "filepond-plugin-image-exif-orientation": "^1.0.9",
     "filepond-plugin-image-preview": "https://github.com/transcom/filepond-plugin-image-preview",
     "filepond-polyfill": "^1.0.2",
-    "formik": "^2.1.4",
+    "formik": "^2.1.5",
     "history": "^4.10.1",
     "http-proxy-middleware": "^1.0.5",
     "is-mobile": "2.2.2",
@@ -25,7 +25,7 @@
     "js-yaml": "^3.14.0",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.19",
-    "marked": "^1.1.0",
+    "marked": "^1.1.1",
     "moment": "^2.26.0",
     "node-sass": "^4.14.1",
     "normalizr": "^3.6.0",
@@ -65,9 +65,9 @@
     "regenerator-runtime": "^0.13.5",
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
-    "swagger-client": "^3.10.11",
+    "swagger-client": "^3.10.12",
     "swagger-ui-dist": "^3.28.0",
-    "uswds": "2.7.1",
+    "uswds": "2.8.0",
     "yup": "^0.29.1"
   },
   "resolutions": {
@@ -90,7 +90,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.10.4",
+    "@babel/core": "~7.10.5",
     "@dump247/storybook-state": "^1.6.1",
     "@rescripts/cli": "^0.0.14",
     "@rescripts/rescript-env": "^0.0.12",
