@@ -46,7 +46,7 @@ export const HHG = () => (
   />
 );
 
-export const NTS = () => (
+export const NonTemporaryStorage = () => (
   <ReviewServiceItems
     serviceItemCards={[
       {
