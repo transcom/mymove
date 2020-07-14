@@ -1,5 +1,7 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
+
+import { toDollarString } from '../../../shared/formatters';
 
 import ReviewServiceItems from './ReviewServiceItems';
 import ServiceItemCard from './ServiceItemCard';
@@ -22,7 +24,7 @@ const serviceItemCards = [
     shipmentId: '10',
     serviceItemName: 'Fuel Surcharge',
     amount: 50.25,
-    createdAt: '2020-01-01T00:08:00.999Z',
+    createdAt: '2020-01-01T00:08:30.999Z',
   },
   {
     id: '3',
@@ -38,7 +40,7 @@ const serviceItemCards = [
     shipmentId: null,
     serviceItemName: 'Counseling Services',
     amount: 1000,
-    createdAt: '2020-01-01T00:01:00.999Z',
+    createdAt: '2020-01-01T00:02:00.999Z',
   },
   {
     id: '5',
@@ -50,14 +52,88 @@ const serviceItemCards = [
   },
 ];
 
+const compareItem = (component, item) => {
+  expect(component.find('[data-cy="serviceItemName"]').text()).toEqual(item.serviceItemName);
+  expect(component.find('[data-cy="serviceItemAmount"]').text()).toEqual(toDollarString(item.amount));
+};
+
 describe('ReviewServiceItems component', () => {
-  const component = shallow(<ReviewServiceItems serviceItemCards={serviceItemCards} handleClose={jest.fn()} />);
+  const handleClose = jest.fn();
+  const shallowComponent = shallow(
+    <ReviewServiceItems serviceItemCards={serviceItemCards} handleClose={handleClose} />,
+  );
+  const mountedComponent = mount(<ReviewServiceItems serviceItemCards={serviceItemCards} handleClose={handleClose} />);
 
   it('renders without crashing', () => {
-    expect(component.find('[data-cy="ReviewServiceItems"]').length).toBe(1);
+    expect(shallowComponent.find('[data-cy="ReviewServiceItems"]').length).toBe(1);
   });
 
   it('renders ServiceItemCard component', () => {
-    expect(component.find(ServiceItemCard).length).toBe(1);
+    expect(shallowComponent.find(ServiceItemCard).length).toBe(1);
+  });
+
+  it('attaches the close listener', () => {
+    expect(shallowComponent.find('[data-cy="closeSidebar"]').prop('onClick')).toBe(handleClose);
+  });
+
+  it('displays the total count', () => {
+    expect(shallowComponent.find('[data-cy="itemCount"]').text()).toEqual('1 OF 5 ITEMS');
+  });
+
+  it('disables previous button at beginning', () => {
+    expect(shallowComponent.find('[data-cy="prevServiceItem"]').prop('disabled')).toBe(true);
+  });
+
+  it('enables next button at beginning', () => {
+    expect(shallowComponent.find('[data-cy="nextServiceItem"]').prop('disabled')).toBe(false);
+  });
+
+  it('navigates service items in timestamp ascending', () => {
+    const nextButton = mountedComponent.find('[data-cy="nextServiceItem"]');
+    const prevButton = mountedComponent.find('[data-cy="prevServiceItem"]');
+
+    compareItem(mountedComponent, serviceItemCards[4]);
+
+    nextButton.simulate('click');
+    mountedComponent.update();
+
+    compareItem(mountedComponent, serviceItemCards[3]);
+
+    nextButton.simulate('click');
+    mountedComponent.update();
+
+    compareItem(mountedComponent, serviceItemCards[0]);
+
+    nextButton.simulate('click');
+    mountedComponent.update();
+
+    compareItem(mountedComponent, serviceItemCards[1]);
+
+    nextButton.simulate('click');
+    mountedComponent.update();
+
+    compareItem(mountedComponent, serviceItemCards[2]);
+
+    expect(mountedComponent.find('[data-cy="nextServiceItem"]').prop('disabled')).toBe(true);
+
+    prevButton.simulate('click');
+    mountedComponent.update();
+
+    compareItem(mountedComponent, serviceItemCards[1]);
+
+    prevButton.simulate('click');
+    mountedComponent.update();
+
+    compareItem(mountedComponent, serviceItemCards[0]);
+
+    prevButton.simulate('click');
+    mountedComponent.update();
+
+    compareItem(mountedComponent, serviceItemCards[3]);
+
+    prevButton.simulate('click');
+    mountedComponent.update();
+
+    compareItem(mountedComponent, serviceItemCards[4]);
   });
 });

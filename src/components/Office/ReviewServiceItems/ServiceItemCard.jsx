@@ -11,13 +11,17 @@ const ServiceItemCard = ({ shipmentType, serviceItemName, amount }) => {
     <div data-testid="ServiceItemCard" className={styles.ServiceItemCard}>
       <ShipmentContainer shipmentType={shipmentType}>
         <>
-          <h6 className={styles.cardHeader}>
-            {mtoShipmentTypeToFriendlyDisplay(shipmentType).toUpperCase() || 'BASIC SERVICE ITEMS'}
+          <h6 data-cy="shipmentTypeHeader" className={styles.cardHeader}>
+            {mtoShipmentTypeToFriendlyDisplay(shipmentType)?.toUpperCase() || 'BASIC SERVICE ITEMS'}
           </h6>
           <div className="usa-label">Service item</div>
-          <div className={styles.textValue}>{serviceItemName}</div>
+          <div data-cy="serviceItemName" className={styles.textValue}>
+            {serviceItemName}
+          </div>
           <div className="usa-label">Amount</div>
-          <div className={styles.textValue}>{toDollarString(amount)}</div>
+          <div data-cy="serviceItemAmount" className={styles.textValue}>
+            {toDollarString(amount)}
+          </div>
         </>
       </ShipmentContainer>
     </div>

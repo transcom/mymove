@@ -14,21 +14,23 @@ const dateCreatedSort = (a, b) => {
 };
 
 const sortByGroup = (serviceItemCards) => {
+  // Make a copy so we're not mutating the props
+  const cards = [...serviceItemCards];
   // Will populate with earliest service item of each shipment id
   const shipmentOrder = [];
   // Contains sorted service items keyed by shipment id or undefined for basic items
   const shipmentServiceItems = {};
 
-  serviceItemCards.sort(dateCreatedSort);
+  cards.sort(dateCreatedSort);
 
-  serviceItemCards.map((serviceItem) => {
+  cards.map((serviceItem) => {
     const { shipmentId } = serviceItem;
     // We've already added the earliest service item for this shipment, continue until we get to the next
     if (shipmentServiceItems[`${shipmentId}`]) {
       return false;
     }
 
-    shipmentServiceItems[`${shipmentId}`] = serviceItemCards.filter((item) => item.shipmentId === shipmentId);
+    shipmentServiceItems[`${shipmentId}`] = cards.filter((item) => item.shipmentId === shipmentId);
     shipmentOrder.push(serviceItem);
     return true;
   });
@@ -59,10 +61,10 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   return (
     <div data-cy="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <div className={styles.top}>
-        <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
+        <Button data-cy="closeSidebar" type="button" onClick={handleClose} unstyled>
           <XLightIcon />
         </Button>
-        <div className={styles.eyebrowTitle}>{`${curCardIndex + 1} OF ${totalCards} ITEMS`}</div>
+        <div data-cy="itemCount" className={styles.eyebrowTitle}>{`${curCardIndex + 1} OF ${totalCards} ITEMS`}</div>
         <h2 className={styles.header}>{header}</h2>
       </div>
       <div className={styles.body}>
