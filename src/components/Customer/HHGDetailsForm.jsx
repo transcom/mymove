@@ -27,10 +27,8 @@ export const HHGDetailsForm = ({ initialValues, pageKey, pageList }) => {
 };
 
 HHGDetailsForm.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  pageKey: PropTypes.object,
-  // eslint-disable-next-line react/forbid-prop-types
-  pageList: PropTypes.object,
+  pageKey: PropTypes.string.isRequired,
+  pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   initialValues: PropTypes.shape({
     requestedPickupDate: PropTypes.string,
     pickupLocation: PropTypes.shape({
@@ -53,8 +51,6 @@ HHGDetailsForm.propTypes = {
 };
 
 HHGDetailsForm.defaultProps = {
-  pageKey: {},
-  pageList: {},
   initialValues: {},
 };
 

@@ -17,13 +17,8 @@ export class HHGMoveSetup extends Component {
 }
 
 HHGMoveSetup.propTypes = {
-  pageList: PropTypes.arrayOf(PropTypes.string),
-  pageKey: PropTypes.string,
-};
-
-HHGMoveSetup.defaultProps = {
-  pageList: [],
-  pageKey: '',
+  pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
+  pageKey: PropTypes.string.isRequired,
 };
 
 export default HHGMoveSetup;
