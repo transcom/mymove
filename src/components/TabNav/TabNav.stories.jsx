@@ -2,7 +2,7 @@ import React from 'react';
 import { withKnobs } from '@storybook/addon-knobs';
 import { Tag } from '@trussworks/react-uswds';
 
-import TabNav from '../components/TabNav';
+import TabNav from './index';
 
 export default {
   title: 'Components|Tab Navigation',
