@@ -5,7 +5,6 @@ import ReviewServiceItems from './ReviewServiceItems';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
-// Left Nav
 export default {
   title: 'TOO/TIO Components|Review service items',
   component: ReviewServiceItems,
@@ -18,20 +17,46 @@ export default {
   ],
 };
 
-const serviceItemCards = [
-  {
-    id: '1',
-    shipmentType: SHIPMENT_OPTIONS.HHG,
-    serviceItemName: 'Domestic linehaul',
-    amount: 6423,
-    createdAt: '2020-01-01T00:08:00.999Z',
-  },
-];
-
 export const Basic = () => (
   <ReviewServiceItems
-    shipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC}
-    serviceItemCards={serviceItemCards}
+    serviceItemCards={[
+      {
+        id: '1',
+        serviceItemName: 'Domestic linehaul',
+        amount: 6423,
+        createdAt: '2020-01-01T00:08:00.999Z',
+      },
+    ]}
+    handleClose={action('clicked')}
+  />
+);
+
+export const HHG = () => (
+  <ReviewServiceItems
+    serviceItemCards={[
+      {
+        id: '1',
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        serviceItemName: 'Domestic linehaul',
+        amount: 6423,
+        createdAt: '2020-01-01T00:08:00.999Z',
+      },
+    ]}
+    handleClose={action('clicked')}
+  />
+);
+
+export const NTS = () => (
+  <ReviewServiceItems
+    serviceItemCards={[
+      {
+        id: '1',
+        shipmentType: SHIPMENT_OPTIONS.NTS,
+        serviceItemName: 'Domestic linehaul',
+        amount: 6423,
+        createdAt: '2020-01-01T00:08:00.999Z',
+      },
+    ]}
     handleClose={action('clicked')}
   />
 );
