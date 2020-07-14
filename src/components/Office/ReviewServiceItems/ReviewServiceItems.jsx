@@ -8,24 +8,53 @@ import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
 
+// Sort ascending by objects with string iso timestamps
+const dateCreatedSort = (a, b) => {
+  return Date.parse(a.createdAt) - Date.parse(b.createdAt);
+};
+
+const sortByGroup = (serviceItemCards) => {
+  // Will populate with earliest service item of each shipment id
+  const shipmentOrder = [];
+  // Contains sorted service items keyed by shipment id or undefined for basic items
+  const shipmentServiceItems = {};
+
+  serviceItemCards.sort(dateCreatedSort);
+
+  serviceItemCards.map((serviceItem) => {
+    const { shipmentId } = serviceItem;
+    // We've already added the earliest service item for this shipment, continue until we get to the next
+    if (shipmentServiceItems[`${shipmentId}`]) {
+      return false;
+    }
+
+    shipmentServiceItems[`${shipmentId}`] = serviceItemCards.filter((item) => item.shipmentId === shipmentId);
+    shipmentOrder.push(serviceItem);
+    return true;
+  });
+
+  shipmentOrder.sort(dateCreatedSort);
+
+  const sortedCards = [];
+  shipmentOrder.map((shipment) => {
+    sortedCards.push(...shipmentServiceItems[`${shipment.shipmentId}`]);
+    return true;
+  });
+
+  return sortedCards;
+};
+
 const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   const [curCardIndex, setCardIndex] = useState(0);
   // eslint-disable-next-line no-unused-vars
   const [totalApproved, setTotalApproved] = useState(0);
+  const [sortedCards] = useState(sortByGroup(serviceItemCards));
+
   const totalCards = serviceItemCards.length;
 
-  // sort ascending (service items should still be grouped by shipment?)
-  serviceItemCards.sort((a, b) => {
-    return Date.parse(a.createdAt) - Date.parse(b.createdAt);
-  });
-
-  // debugging
-  // console.log(curServiceItemCard);
   const handleClick = (index) => {
     setCardIndex(index);
   };
-
-  const curCardItem = serviceItemCards[parseInt(curCardIndex, 10)];
 
   return (
     <div data-cy="ReviewServiceItems" className={styles.ReviewServiceItems}>
@@ -38,7 +67,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
       </div>
       <div className={styles.body}>
         {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-        <ServiceItemCard {...curCardItem} />
+        <ServiceItemCard {...sortedCards[parseInt(curCardIndex, 10)]} />
       </div>
       <div className={styles.bottom}>
         <Button

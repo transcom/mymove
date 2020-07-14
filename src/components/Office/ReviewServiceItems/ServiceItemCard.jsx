@@ -8,10 +8,12 @@ import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatt
 
 const ServiceItemCard = ({ shipmentType, serviceItemName, amount }) => {
   return (
-    <div className={styles.ServiceItemCard}>
+    <div data-testid="ServiceItemCard" className={styles.ServiceItemCard}>
       <ShipmentContainer shipmentType={shipmentType}>
         <>
-          <h6 className={styles.cardHeader}>{mtoShipmentTypeToFriendlyDisplay(shipmentType).toUpperCase()}</h6>
+          <h6 className={styles.cardHeader}>
+            {mtoShipmentTypeToFriendlyDisplay(shipmentType).toUpperCase() || 'BASIC SERVICE ITEMS'}
+          </h6>
           <div className="usa-label">Service item</div>
           <div className={styles.textValue}>{serviceItemName}</div>
           <div className="usa-label">Amount</div>
@@ -23,9 +25,13 @@ const ServiceItemCard = ({ shipmentType, serviceItemName, amount }) => {
 };
 
 ServiceItemCard.propTypes = {
-  shipmentType: propTypes.string.isRequired,
+  shipmentType: propTypes.string,
   serviceItemName: propTypes.string.isRequired,
   amount: propTypes.number.isRequired,
+};
+
+ServiceItemCard.defaultProps = {
+  shipmentType: '',
 };
 
 export default ServiceItemCard;

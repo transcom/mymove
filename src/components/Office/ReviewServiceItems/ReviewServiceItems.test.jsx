@@ -2,6 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import ReviewServiceItems from './ReviewServiceItems';
+import ServiceItemCard from './ServiceItemCard';
 
 import { SHIPMENT_OPTIONS, SERVICE_ITEM_STATUS } from 'shared/constants';
 
@@ -54,5 +55,9 @@ describe('ReviewServiceItems component', () => {
 
   it('renders without crashing', () => {
     expect(component.find('[data-cy="ReviewServiceItems"]').length).toBe(1);
+  });
+
+  it('renders ServiceItemCard component', () => {
+    expect(component.find(ServiceItemCard).length).toBe(1);
   });
 });
