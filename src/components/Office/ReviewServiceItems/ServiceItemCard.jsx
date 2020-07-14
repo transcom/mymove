@@ -8,7 +8,7 @@ import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatt
 
 const ServiceItemCard = ({ shipmentType, serviceItemName, amount }) => {
   return (
-    <div className={styles.ServiceItemCard}>
+    <div data-testid="ServiceItemCard" className={styles.ServiceItemCard}>
       <ShipmentContainer shipmentType={shipmentType}>
         <>
           <h6 className={styles.cardHeader}>

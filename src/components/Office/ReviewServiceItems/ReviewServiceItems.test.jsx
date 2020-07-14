@@ -2,6 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
+import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const serviceItemCards = [
@@ -19,5 +20,9 @@ describe('ReviewServiceItems component', () => {
 
   it('renders without crashing', () => {
     expect(component.find('[data-testid="ReviewServiceItems"]').length).toBe(1);
+  });
+
+  it('renders ServiceItemCard component', () => {
+    expect(component.find(ServiceItemCard).length).toBe(1);
   });
 });
