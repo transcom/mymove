@@ -74,7 +74,7 @@ export const MultipleShipmentWithGroups = () => (
       },
       {
         id: '2',
-        serviceItemName: 'Shipment management services',
+        serviceItemName: 'Move management',
         amount: 1234.0,
         createdAt: '2020-01-01T00:06:00.999Z',
       },

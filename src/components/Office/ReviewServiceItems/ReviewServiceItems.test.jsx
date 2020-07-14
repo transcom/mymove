@@ -44,7 +44,7 @@ const serviceItemCards = [
     id: '5',
     shipmentType: null,
     shipmentId: null,
-    serviceItemName: 'Shipment Management Services',
+    serviceItemName: 'Move management',
     amount: 1,
     createdAt: '2020-01-01T00:01:00.999Z',
   },

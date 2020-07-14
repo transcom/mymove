@@ -290,6 +290,6 @@ export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
     case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
       return 'Household goods shorthaul domestic';
     default:
-      return 'Basic Service Items';
+      return shipmentType;
   }
 };
