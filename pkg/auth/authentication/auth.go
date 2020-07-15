@@ -558,7 +558,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	stateCookie, err := r.Cookie(StateCookieName(session))
 	if err != nil {
 		h.logger.Error("Getting login.gov state cookie", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
 
