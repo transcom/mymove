@@ -87,11 +87,11 @@ func (p domesticDestinationPricer) PriceUsingParams(params models.PaymentService
 		return unit.Cents(0), err
 	}
 
-	serviceAreaOrigin, err := getParamString(params, models.ServiceItemParamNameServiceAreaOrigin)
+	serviceAreaDest, err := getParamString(params, models.ServiceItemParamNameServiceAreaDest)
 	if err != nil {
 		return unit.Cents(0), err
 	}
 
-	total, err := p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin)
+	total, err := p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaDest)
 	return total, err
 }

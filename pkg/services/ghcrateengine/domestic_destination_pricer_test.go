@@ -37,7 +37,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 				"0",
 			},
 			{
-				models.ServiceItemParamNameServiceAreaOrigin,
+				models.ServiceItemParamNameServiceAreaDest,
 				models.ServiceItemParamTypeString,
 				ddpTestServiceArea,
 			},
@@ -85,10 +85,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 		suite.Equal("could not find param with key WeightBilledActual", err.Error())
 
 		// No service area
-		missingServiceAreaOrigin := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameServiceAreaOrigin)
-		_, err = pricer.PriceUsingParams(missingServiceAreaOrigin)
+		missingServiceAreaDest := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameServiceAreaDest)
+		_, err = pricer.PriceUsingParams(missingServiceAreaDest)
 		suite.Error(err)
-		suite.Equal("could not find param with key ServiceAreaOrigin", err.Error())
+		suite.Equal("could not find param with key ServiceAreaDest", err.Error())
 	})
 }
 
@@ -203,7 +203,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationServiceItems() m
 				strconv.Itoa(ddpTestWeight),
 			},
 			{
-				models.ServiceItemParamNameServiceAreaOrigin,
+				models.ServiceItemParamNameServiceAreaDest,
 				models.ServiceItemParamTypeString,
 				ddpTestServiceArea,
 			},
