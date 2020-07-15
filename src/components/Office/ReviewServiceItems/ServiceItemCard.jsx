@@ -12,7 +12,7 @@ const ServiceItemCard = ({ shipmentType, serviceItemName, amount }) => {
       <ShipmentContainer shipmentType={shipmentType}>
         <>
           <h6 className={styles.cardHeader}>
-            {mtoShipmentTypeToFriendlyDisplay(shipmentType).toUpperCase() || 'BASIC SERVICE ITEMS'}
+            {mtoShipmentTypeToFriendlyDisplay(shipmentType) || 'BASIC SERVICE ITEMS'}
           </h6>
           <div className="usa-label">Service item</div>
           <div className={styles.textValue}>{serviceItemName}</div>
