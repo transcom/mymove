@@ -80,7 +80,7 @@ class HHGDetailsForm extends Component {
               className={fieldsetClasses.margin}
             />
             <Fieldset legend="Remarks" className={fieldsetClasses.margin}>
-              <TextInput name="remarks" label="Remarks" id="requested-delivery-date" />
+              <TextInput name="remarks" label="Anything else you would like us to know?" id="requested-delivery-date" />
             </Fieldset>
           </Form>
         </WizardPage>
