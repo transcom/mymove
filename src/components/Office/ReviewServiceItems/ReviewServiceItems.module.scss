@@ -3,7 +3,7 @@
 @import '../../../shared/styles/colors';
 
 .ReviewServiceItems {
-  @include u-height('viewport');
+  @include u-height('full');
   display: flex;
   flex-direction: column;
 
