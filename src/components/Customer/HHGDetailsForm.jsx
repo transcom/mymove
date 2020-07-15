@@ -48,14 +48,16 @@ class HHGDetailsForm extends Component {
               className={fieldsetClasses.margin}
               subtitle="Who can allow the movers to take your stuff if you're not there?"
             />
-            <DatePickerInput
-              name="requestedDeliveryDate"
-              label="Requested delivery date"
-              id="requested-delivery-date"
-            />
-            <span className="usa-hint" id="deliveryDateHint">
-              Your movers will confirm this date or one shortly before or after.
-            </span>
+            <Fieldset legend="Delivery date" className={fieldsetClasses.margin}>
+              <DatePickerInput
+                name="requestedDeliveryDate"
+                label="Requested delivery date"
+                id="requested-delivery-date"
+              />
+              <span className="usa-hint" id="deliveryDateHint">
+                Your movers will confirm this date or one shortly before or after.
+              </span>
+            </Fieldset>
             <Fieldset legend="Delivery location" className={fieldsetClasses.margin}>
               <Label>Do you know your delivery address?</Label>
               <Radio
