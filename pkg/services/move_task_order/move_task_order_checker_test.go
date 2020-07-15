@@ -26,6 +26,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 
 	availableToPrime2, expectedErr := mtoChecker.MTOAvailableToPrime(notAvailableMTO.ID)
 	suite.Error(expectedErr)
-	suite.IsType(expectedErr, services.InvalidInputError{})
+	suite.IsType(expectedErr, services.NotFoundError{})
 	suite.Equal(availableToPrime2, false)
 }

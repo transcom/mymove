@@ -34,7 +34,7 @@ func (f moveTaskOrderChecker) MTOAvailableToPrime(moveTaskOrderID uuid.UUID) (bo
 	}
 
 	if mto.AvailableToPrimeAt == nil {
-		return false, services.NewInvalidInputError(mto.ID, nil, nil, "MTO is not available to prime")
+		return false, services.NewNotFoundError(mto.ID, "MTO with that ID not available")
 	}
 
 	return true, nil
