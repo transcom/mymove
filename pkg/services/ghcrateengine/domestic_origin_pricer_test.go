@@ -19,7 +19,7 @@ const (
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemParamsBadData() {
 	suite.setUpDomesticOriginData()
 	paymentServiceItem := suite.setupPaymentServiceItemWithParams(
-		models.ReServiceCodeDSH,
+		models.ReServiceCodeDOP,
 		[]createParams{
 			{
 				models.ServiceItemParamNameContractCode,
@@ -59,9 +59,9 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 
 	pricer := NewDomesticOriginPricer(suite.DB())
 
-	suite.T().Run("success all params for shorthaul available", func(t *testing.T) {
+	suite.T().Run("success all params for domestic origin available", func(t *testing.T) {
 		cost, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
-		expectedCost := unit.Cents(6563903)
+		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 	})
@@ -101,7 +101,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		cost, err := pricer.Price(
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			dshTestWeight,
+			dopTestWeight,
 			dopTestServiceArea,
 		)
 		expectedCost := unit.Cents(6563903)
@@ -114,10 +114,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		cost, err := pricer.Price(
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
-			dshTestWeight,
+			dopTestWeight,
 			dopTestServiceArea,
 		)
-		expectedCost := unit.Cents(5709696)
+		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 	})
@@ -126,7 +126,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		_, err := pricer.Price(
 			"bogus_code",
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			dshTestWeight,
+			dopTestWeight,
 			dopTestServiceArea,
 		)
 
@@ -138,7 +138,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		_, err := pricer.Price(
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear+1, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			dshTestWeight,
+			dopTestWeight,
 			dopTestServiceArea,
 		)
 
@@ -185,7 +185,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticOriginServiceItems() models.PaymentServiceItem {
 	return suite.setupPaymentServiceItemWithParams(
-		models.ReServiceCodeDSH,
+		models.ReServiceCodeDOP,
 		[]createParams{
 			{
 				models.ServiceItemParamNameContractCode,
@@ -196,11 +196,6 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginServiceItems() models
 				models.ServiceItemParamNameRequestedPickupDate,
 				models.ServiceItemParamTypeDate,
 				time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
-			},
-			{
-				models.ServiceItemParamNameDistanceZip5,
-				models.ServiceItemParamTypeInteger,
-				strconv.Itoa(dshTestMileage),
 			},
 			{
 				models.ServiceItemParamNameWeightBilledActual,
@@ -214,16 +209,6 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginServiceItems() models
 			},
 		},
 	)
-}
-
-func (suite *GHCRateEngineServiceSuite) removeOnePaymentServiceItem(paymentServiceItemParams models.PaymentServiceItemParams, nameToRemove models.ServiceItemParamName) models.PaymentServiceItemParams {
-	var params models.PaymentServiceItemParams
-	for _, param := range paymentServiceItemParams {
-		if param.ServiceItemParamKey.Key != nameToRemove {
-			params = append(params, param)
-		}
-	}
-	return params
 }
 
 func (suite *GHCRateEngineServiceSuite) setUpDomesticOriginData() {

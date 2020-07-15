@@ -14,10 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-const (
-	dopPricerMinimumWeight = 500
-)
-
 type domesticOriginPricer struct {
 	db *pop.Connection
 }

@@ -51,7 +51,7 @@ type DomesticShorthaulPricer interface {
 	ParamsPricer
 }
 
-// DomesticShorthaulPricer prices the domestic shorthaul for a GHC Move
+// DomesticShorthaulPricer prices the domestic origin for a GHC Move
 //go:generate mockery -name DomesticOriginPricer
 type DomesticOriginPricer interface {
 	Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, error)
