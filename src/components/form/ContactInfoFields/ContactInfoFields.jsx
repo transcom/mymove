@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Fieldset, Label, TextInput } from '@trussworks/react-uswds';
 
-export const ContactInfoFields = ({ legend, className }) => {
+export const ContactInfoFields = ({ legend, className, subtitle }) => {
   return (
     <Fieldset legend={legend} className={className}>
+      {subtitle && <span>{subtitle}</span>}
       <Label hint="(optional)" htmlFor="first-name">
         First name
       </Label>
@@ -28,11 +29,13 @@ export const ContactInfoFields = ({ legend, className }) => {
 ContactInfoFields.propTypes = {
   legend: PropTypes.string,
   className: PropTypes.string,
+  subtitle: PropTypes.string,
 };
 
 ContactInfoFields.defaultProps = {
   legend: '',
   className: '',
+  subtitle: '',
 };
 
 export default ContactInfoFields;

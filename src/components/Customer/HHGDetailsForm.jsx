@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
-import { Fieldset, Radio } from '@trussworks/react-uswds';
+import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
 import { DatePickerInput, TextInput } from '../form/fields';
@@ -34,6 +34,9 @@ class HHGDetailsForm extends Component {
             <Fieldset legend="Pickup date" className={fieldsetClasses.margin}>
               <DatePickerInput name="requestedPickupDate" label="Requested pickup date" id="requested-pickup-date" />
             </Fieldset>
+            <span className="usa-hint" id="pickupDateHint">
+              Your movers will confirm this date or one shortly before or after.
+            </span>
             <AddressFields
               initialValues={initialValues.pickupLocation}
               legend="Pickup location"
@@ -43,12 +46,16 @@ class HHGDetailsForm extends Component {
               initialValues={initialValues.releasingAgent}
               legend="Releasing agent"
               className={fieldsetClasses.margin}
+              subtitle="Who can allow the movers to take your stuff if you're not there?"
             />
             <DatePickerInput
               name="requestedDeliveryDate"
               label="Requested delivery date"
               id="requested-delivery-date"
             />
+            <span className="usa-hint" id="deliveryDateHint">
+              Your movers will confirm this date or one shortly before or after.
+            </span>
             <Fieldset legend="Delivery location" className={fieldsetClasses.margin}>
               <Radio
                 className="display-inline"
@@ -78,9 +85,11 @@ class HHGDetailsForm extends Component {
               initialValues={initialValues.receivingAgent}
               legend="Receiving agent"
               className={fieldsetClasses.margin}
+              subtitle="Who can take delivery for you if the movers arrive and you're not there?"
             />
             <Fieldset legend="Remarks" className={fieldsetClasses.margin}>
-              <TextInput name="remarks" label="Anything else you would like us to know?" id="requested-delivery-date" />
+              <Label hint="(optional)">Anything else you would like us to know?</Label>
+              <TextInput name="remarks" id="requested-delivery-date" maxLength={1500} />
             </Fieldset>
           </Form>
         </WizardPage>
