@@ -1,15 +1,17 @@
 import { takeLatest, put, call } from 'redux-saga/effects';
 import { normalize } from 'normalizr';
 
-import { generateAsyncActions } from 'shared/ReduxHelpers';
+import { LOAD_USER } from 'store/auth/actions';
 import { GetIsLoggedIn, GetLoggedInUser } from 'shared/User/api';
 import { ordersArray } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
+import { getLoggedInActions } from 'shared/Data/users';
 
-const getLoggedInUserType = 'GET_LOGGED_IN_USER';
-
-export const getLoggedInActions = generateAsyncActions(getLoggedInUserType);
-
+/**
+ * This saga mirrors the getCurrentUserInfo thunk (shared/Data/users.js)
+ * and is triggered by the 'LOAD_USER' action (currently only called by
+ * the OfficeApp)
+ */
 export function* fetchUser() {
   try {
     const isLoggedIn = yield call(GetIsLoggedIn);
@@ -24,16 +26,16 @@ export function* fetchUser() {
 
         yield put(getLoggedInActions.success(user));
       } catch (e) {
-        put(getLoggedInActions.error(e));
+        yield put(getLoggedInActions.error(e));
       }
     } else {
-      put(getLoggedInActions.error('User is not logged in'));
+      yield put(getLoggedInActions.error('User is not logged in'));
     }
   } catch (e) {
-    put(getLoggedInActions.error(e));
+    yield put(getLoggedInActions.error(e));
   }
 }
 
 export default function* watchFetchUser() {
-  yield takeLatest('GET_LOGGED_IN_USER_START', fetchUser);
+  yield takeLatest(LOAD_USER, fetchUser);
 }

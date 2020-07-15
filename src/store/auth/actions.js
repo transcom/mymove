@@ -4,3 +4,9 @@ export const setActiveRole = (roleType) => ({
   type: SET_ACTIVE_ROLE,
   payload: roleType,
 });
+
+export const LOAD_USER = 'LOAD_USER';
+
+export const loadUser = () => ({
+  type: LOAD_USER,
+});
