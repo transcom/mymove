@@ -1,12 +1,15 @@
 import React from 'react';
-import propTypes from 'prop-types';
+import PropTypes from 'prop-types';
+import { Radio, Textarea, FormGroup, Label, Button } from '@trussworks/react-uswds';
 
 import styles from './ServiceItemCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatters';
 
-const ServiceItemCard = ({ shipmentType, serviceItemName, amount }) => {
+const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, value, clearValues }) => {
+  const { status, rejectionReason } = value;
+
   return (
     <div data-testid="ServiceItemCard" className={styles.ServiceItemCard}>
       <ShipmentContainer shipmentType={shipmentType}>
@@ -22,6 +25,41 @@ const ServiceItemCard = ({ shipmentType, serviceItemName, amount }) => {
           <div data-cy="serviceItemAmount" className={styles.textValue}>
             {toDollarString(amount)}
           </div>
+          <Radio
+            id="approve"
+            checked={status === 'APPROVED'}
+            value="APPROVED"
+            name={`${id}.status`}
+            label="Approve"
+            onChange={onChange}
+          />
+          <Radio
+            id="reject"
+            checked={status === 'REJECTED'}
+            value="REJECTED"
+            name={`${id}.status`}
+            label="Reject"
+            onChange={onChange}
+          />
+
+          {status === 'REJECTED' && (
+            <FormGroup>
+              <Label htmlFor="rejectReason">Reason for rejection</Label>
+              <Textarea id="rejectReason" name={`${id}.rejectionReason`} onChange={onChange} value={rejectionReason} />
+            </FormGroup>
+          )}
+
+          {(status === 'APPROVED' || status === 'REJECTED') && (
+            <Button
+              type="button"
+              unstyled
+              onClick={() => {
+                clearValues(id);
+              }}
+            >
+              X Clear selection
+            </Button>
+          )}
         </>
       </ShipmentContainer>
     </div>
@@ -29,13 +67,26 @@ const ServiceItemCard = ({ shipmentType, serviceItemName, amount }) => {
 };
 
 ServiceItemCard.propTypes = {
-  shipmentType: propTypes.string,
-  serviceItemName: propTypes.string.isRequired,
-  amount: propTypes.number.isRequired,
+  id: PropTypes.string.isRequired,
+  shipmentType: PropTypes.string,
+  serviceItemName: PropTypes.string.isRequired,
+  amount: PropTypes.number.isRequired,
+  onChange: PropTypes.func,
+  value: PropTypes.shape({
+    status: PropTypes.string,
+    rejectionReason: PropTypes.string,
+  }),
+  clearValues: PropTypes.func,
 };
 
 ServiceItemCard.defaultProps = {
   shipmentType: '',
+  onChange: () => {},
+  value: {
+    status: undefined,
+    rejectionReason: '',
+  },
+  clearValues: () => {},
 };
 
 export default ServiceItemCard;

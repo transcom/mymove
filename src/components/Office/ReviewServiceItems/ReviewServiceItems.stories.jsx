@@ -10,9 +10,7 @@ export default {
   component: ReviewServiceItems,
   decorators: [
     (storyFn) => (
-      <div id="l-nav" style={{ padding: '20px', background: '#f0f0f0' }}>
-        {storyFn()}
-      </div>
+      <div style={{ margin: '10px', height: '80vh', display: 'flex', flexDirection: 'column' }}>{storyFn()}</div>
     ),
   ],
 };
