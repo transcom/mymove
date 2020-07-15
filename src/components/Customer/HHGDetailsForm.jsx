@@ -18,7 +18,6 @@ class HHGDetailsForm extends Component {
   }
 
   handleChangeHasDeliveryAddress = () => {
-    // not currently getting hit
     this.setState((prevState) => {
       return { hasDeliveryAddress: !prevState.hasDeliveryAddress };
     });
@@ -40,8 +39,19 @@ class HHGDetailsForm extends Component {
               id="requested-delivery-date"
             />
             <Fieldset legend="Delivery location">
-              <Radio label="Yes" checked={hasDeliveryAddress} onChange={this.handleChangeHasDeliveryAddress} />
-              <Radio label="No" checked={!hasDeliveryAddress} onChange={this.handleChangeHasDeliveryAddress} />
+              <Radio
+                id="has-delivery-address"
+                label="Yes"
+                name="has-delivery-address"
+                onChange={this.handleChangeHasDeliveryAddress}
+              />
+              <Radio
+                id="no-delivery-address"
+                label="No"
+                name="has-delivery-address"
+                defaultChecked
+                onChange={this.handleChangeHasDeliveryAddress}
+              />
               {hasDeliveryAddress ? (
                 <AddressFields initialValues={initialValues.deliveryLocation} />
               ) : (

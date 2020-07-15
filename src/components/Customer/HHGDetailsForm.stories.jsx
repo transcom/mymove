@@ -1,7 +1,7 @@
 import React from 'react';
 import { array, text } from '@storybook/addon-knobs';
 
-import { HHGDetailsForm } from './HHGDetailsForm';
+import HHGDetailsForm from './HHGDetailsForm';
 
 export default {
   title: 'Components | Customer | HHGDetailsForm',
