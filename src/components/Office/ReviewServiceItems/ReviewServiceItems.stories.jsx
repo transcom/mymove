@@ -63,7 +63,7 @@ export const NonTemporaryStorage = () => (
   />
 );
 
-export const MultipleShipmentWithGroups = () => (
+export const MultipleShipmentsGroups = () => (
   <ReviewServiceItems
     serviceItemCards={[
       {
