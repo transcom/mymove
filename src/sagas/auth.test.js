@@ -23,6 +23,10 @@ describe('fetchUser saga', () => {
   describe('if the user is not logged in', () => {
     const generator = fetchUser();
 
+    it('dispatches the GET_LOGGED_IN_USER_START action', () => {
+      expect(generator.next().value).toEqual(put(getLoggedInActions.start()));
+    });
+
     it('makes the GetIsLoggedIn API call', () => {
       expect(generator.next().value).toEqual(call(GetIsLoggedIn));
     });
@@ -40,6 +44,10 @@ describe('fetchUser saga', () => {
     const testUser = { id: 'testUserId' };
 
     const generator = fetchUser();
+
+    it('dispatches the GET_LOGGED_IN_USER_START action', () => {
+      expect(generator.next().value).toEqual(put(getLoggedInActions.start()));
+    });
 
     it('makes the GetIsLoggedIn API call', () => {
       expect(generator.next().value).toEqual(call(GetIsLoggedIn));
@@ -65,6 +73,10 @@ describe('fetchUser saga', () => {
     };
 
     const generator = fetchUser();
+
+    it('dispatches the GET_LOGGED_IN_USER_START action', () => {
+      expect(generator.next().value).toEqual(put(getLoggedInActions.start()));
+    });
 
     it('makes the GetIsLoggedIn API call', () => {
       expect(generator.next().value).toEqual(call(GetIsLoggedIn));

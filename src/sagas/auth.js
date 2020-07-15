@@ -13,6 +13,8 @@ import { getLoggedInActions } from 'shared/Data/users';
  * the OfficeApp)
  */
 export function* fetchUser() {
+  yield put(getLoggedInActions.start());
+
   try {
     const isLoggedIn = yield call(GetIsLoggedIn);
     if (isLoggedIn) {
