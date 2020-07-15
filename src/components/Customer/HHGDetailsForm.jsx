@@ -26,19 +26,30 @@ class HHGDetailsForm extends Component {
   render() {
     const { initialValues, pageKey, pageList } = this.props;
     const { hasDeliveryAddress } = this.state;
+    const fieldsetClasses = { margin: 'margin-top-2' };
     return (
       <Formik initialValues={initialValues}>
         <WizardPage pageKey={pageKey} pageList={pageList} handleSubmit={() => {}}>
           <Form>
-            <DatePickerInput name="requestedPickupDate" label="Requested pickup date" id="requested-pickup-date" />
-            <AddressFields initialValues={initialValues.pickupLocation} legend="Pickup location" />
-            <ContactInfoFields initialValues={initialValues.releasingAgent} legend="Releasing agent" />
+            <Fieldset legend="Pickup date" className={fieldsetClasses.margin}>
+              <DatePickerInput name="requestedPickupDate" label="Requested pickup date" id="requested-pickup-date" />
+            </Fieldset>
+            <AddressFields
+              initialValues={initialValues.pickupLocation}
+              legend="Pickup location"
+              className={fieldsetClasses.margin}
+            />
+            <ContactInfoFields
+              initialValues={initialValues.releasingAgent}
+              legend="Releasing agent"
+              className={fieldsetClasses.margin}
+            />
             <DatePickerInput
               name="requestedDeliveryDate"
               label="Requested delivery date"
               id="requested-delivery-date"
             />
-            <Fieldset legend="Delivery location" className="">
+            <Fieldset legend="Delivery location" className={fieldsetClasses.margin}>
               <Radio
                 className="display-inline"
                 id="has-delivery-address"
@@ -55,16 +66,20 @@ class HHGDetailsForm extends Component {
                 onChange={this.handleChangeHasDeliveryAddress}
               />
               {hasDeliveryAddress ? (
-                <AddressFields initialValues={initialValues.deliveryLocation} />
+                <AddressFields initialValues={initialValues.deliveryLocation} className={fieldsetClasses.margin} />
               ) : (
                 <>
-                  <div>We can use the zip of your new duty station.</div>
+                  <div className={fieldsetClasses.margin}>We can use the zip of your new duty station.</div>
                   <div>[City], [State] [New duty station zip]</div>
                 </>
               )}
             </Fieldset>
-            <ContactInfoFields initialValues={initialValues.receivingAgent} legend="Receiving agent" />
-            <Fieldset legend="Remarks">
+            <ContactInfoFields
+              initialValues={initialValues.receivingAgent}
+              legend="Receiving agent"
+              className={fieldsetClasses.margin}
+            />
+            <Fieldset legend="Remarks" className={fieldsetClasses.margin}>
               <TextInput name="remarks" label="Remarks" id="requested-delivery-date" />
             </Fieldset>
           </Form>

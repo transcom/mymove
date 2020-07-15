@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Fieldset, Label, TextInput } from '@trussworks/react-uswds';
 
-export const AddressFields = ({ legend }) => {
+export const AddressFields = ({ legend, className }) => {
   return (
-    <Fieldset legend={legend}>
+    <Fieldset legend={legend} className={className}>
       <Label htmlFor="mailing-address-1">Street address 1</Label>
       <TextInput id="mailing-address-1" name="mailing-address-1" type="text" />
       <Label hint=" (optional)" htmlFor="mailing-address-2">
@@ -23,10 +23,12 @@ export const AddressFields = ({ legend }) => {
 
 AddressFields.propTypes = {
   legend: PropTypes.string,
+  className: PropTypes.string,
 };
 
 AddressFields.defaultProps = {
   legend: '',
+  className: '',
 };
 
 export default AddressFields;
