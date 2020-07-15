@@ -5,8 +5,6 @@ import (
 	"math"
 	"time"
 
-	"go.uber.org/zap/zapcore"
-
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/gobuffalo/pop"
@@ -32,7 +30,7 @@ func NewDomesticOriginPricer(db *pop.Connection) services.DomesticOriginPricer {
 }
 
 // Price determines the price for a domestic origin
-func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate time.Time, weight int, serviceArea string) (unit.Cents, error) {
+func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (totalCost unit.Cents, err error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, errors.New("ContractCode is required")
@@ -100,32 +98,5 @@ func (p domesticOriginPricer) PriceUsingParams(params models.PaymentServiceItemP
 		return unit.Cents(0), err
 	}
 
-	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-
-	return p.Price(contractCode, requestedPickupDate, isPeakPeriod, weightBilledActual, serviceAreaOrigin)
-}
-
-func (p domesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
-	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
-	if err != nil {
-		return unit.Cents(0), err
-	}
-
-	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
-	if err != nil {
-		return unit.Cents(0), err
-	}
-
-	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
-	if err != nil {
-		return unit.Cents(0), err
-	}
-
-	serviceAreaOrigin, err := getParamString(params, models.ServiceItemParamNameServiceAreaOrigin)
-	if err != nil {
-		return unit.Cents(0), err
-	}
-
-	total, err := p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin)
-	return total, err
+	return p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin)
 }
