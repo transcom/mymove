@@ -57,6 +57,7 @@ class HHGDetailsForm extends Component {
               Your movers will confirm this date or one shortly before or after.
             </span>
             <Fieldset legend="Delivery location" className={fieldsetClasses.margin}>
+              <Label>Do you know your delivery address?</Label>
               <Radio
                 className="display-inline"
                 id="has-delivery-address"
