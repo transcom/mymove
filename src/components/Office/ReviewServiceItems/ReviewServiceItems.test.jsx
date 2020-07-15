@@ -23,6 +23,6 @@ describe('ReviewServiceItems component', () => {
   });
 
   it('renders ServiceItemCard component', () => {
-    expect(component.find(ServiceItemCard).length).toBe(1);
+    expect(component.find(ServiceItemCard).dive().length).toBe(1);
   });
 });

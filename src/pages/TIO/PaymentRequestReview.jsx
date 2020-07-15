@@ -33,7 +33,7 @@ class PaymentRequestReview extends Component {
     ];
 
     return (
-      <div className={styles.PaymentRequestReview}>
+      <div data-testid="PaymentRequestReview" className={styles.PaymentRequestReview}>
         <div className={styles.embed}>
           <DocumentViewer files={testFiles} />
         </div>
