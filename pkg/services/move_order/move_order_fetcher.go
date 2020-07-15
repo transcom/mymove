@@ -16,7 +16,14 @@ type moveOrderFetcher struct {
 
 func (f moveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
 	var moveOrders []models.Order
-	err := f.db.All(&moveOrders)
+	err := f.db.Eager(
+		"ServiceMember",
+		"ConfirmationNumber",
+		"NewDutyStation",
+		"OriginDutyStation",
+		"Entitlement",
+	).All(&moveOrders)
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -24,20 +31,6 @@ func (f moveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
 		default:
 			return []models.Order{}, err
 		}
-	}
-
-	// Attempting to load these associations using Eager() returns an error, so this loop
-	// loads them one at a time. This is creating a N + 1 query for each association, which is
-	// bad. But that's also what the current implementation of Eager does, so this is no worse
-	// that what we had.
-	for i := range moveOrders {
-		f.db.Load(&moveOrders[i], "ServiceMember")
-		f.db.Load(&moveOrders[i], "ConfirmationNumber")
-		f.db.Load(&moveOrders[i], "NewDutyStation")
-		f.db.Load(&moveOrders[i].NewDutyStation, "Address")
-		f.db.Load(&moveOrders[i], "OriginDutyStation")
-		f.db.Load(moveOrders[i].OriginDutyStation, "Address")
-		f.db.Load(&moveOrders[i], "Entitlement")
 	}
 
 	return moveOrders, nil
@@ -51,7 +44,14 @@ func NewMoveOrderFetcher(db *pop.Connection) services.MoveOrderFetcher {
 // FetchMoveOrder retrieves a MoveOrder for a given UUID
 func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, error) {
 	moveOrder := &models.Order{}
-	err := f.db.Find(moveOrder, moveOrderID)
+	err := f.db.Eager(
+		"ServiceMember",
+		"ConfirmationNumber",
+		"NewDutyStation",
+		"OriginDutyStation",
+		"Entitlement",
+	).Find(moveOrder, moveOrderID)
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -60,14 +60,6 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 			return &models.Order{}, err
 		}
 	}
-
-	f.db.Load(moveOrder, "ServiceMember")
-	f.db.Load(moveOrder, "ConfirmationNumber")
-	f.db.Load(moveOrder, "NewDutyStation")
-	f.db.Load(&moveOrder.NewDutyStation, "Address")
-	f.db.Load(moveOrder, "OriginDutyStation")
-	f.db.Load(moveOrder.OriginDutyStation, "Address")
-	f.db.Load(moveOrder, "Entitlement")
 
 	return moveOrder, nil
 }
