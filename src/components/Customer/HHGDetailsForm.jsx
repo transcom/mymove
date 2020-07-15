@@ -38,14 +38,16 @@ class HHGDetailsForm extends Component {
               label="Requested delivery date"
               id="requested-delivery-date"
             />
-            <Fieldset legend="Delivery location">
+            <Fieldset legend="Delivery location" className="">
               <Radio
+                className="display-inline"
                 id="has-delivery-address"
                 label="Yes"
                 name="has-delivery-address"
                 onChange={this.handleChangeHasDeliveryAddress}
               />
               <Radio
+                className="display-inline-flex"
                 id="no-delivery-address"
                 label="No"
                 name="has-delivery-address"
