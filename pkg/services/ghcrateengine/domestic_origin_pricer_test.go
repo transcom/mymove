@@ -104,7 +104,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			dopTestWeight,
 			dopTestServiceArea,
 		)
-		expectedCost := unit.Cents(6563903)
+		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 	})
@@ -117,7 +117,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 			dopTestWeight,
 			dopTestServiceArea,
 		)
-		expectedCost := unit.Cents(5470)
+		expectedCost := unit.Cents(4758)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 	})
