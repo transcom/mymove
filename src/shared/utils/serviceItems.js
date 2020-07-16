@@ -15,12 +15,10 @@ export function sortServiceItemsByGroup(serviceItemCards) {
   cards.forEach((serviceItem) => {
     const { shipmentId } = serviceItem;
     // We've already added the earliest service item for this shipment, continue until we get to the next
-    if (shipmentServiceItems[`${shipmentId}`]) {
-      return;
+    if (!shipmentServiceItems[`${shipmentId}`]) {
+      shipmentServiceItems[`${shipmentId}`] = cards.filter((item) => item.shipmentId === shipmentId);
+      shipmentOrder.push(serviceItem);
     }
-
-    shipmentServiceItems[`${shipmentId}`] = cards.filter((item) => item.shipmentId === shipmentId);
-    shipmentOrder.push(serviceItem);
   });
 
   shipmentOrder.sort(dateCreatedSort);
