@@ -16,6 +16,8 @@
 .site-office__content {
   flex-direction: column;
   display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .my-move-container {
