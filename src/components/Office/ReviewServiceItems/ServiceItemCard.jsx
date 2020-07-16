@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Radio, Textarea, FormGroup, Label, Button } from '@trussworks/react-uswds';
+import { Radio, Textarea, FormGroup, Fieldset, Label, Button } from '@trussworks/react-uswds';
 
 import styles from './ServiceItemCard.module.scss';
 
@@ -25,34 +25,43 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
           <div data-cy="serviceItemAmount" className={styles.textValue}>
             {toDollarString(amount)}
           </div>
-          <Radio
-            id="approve"
-            checked={status === 'APPROVED'}
-            value="APPROVED"
-            name={`${id}.status`}
-            label="Approve"
-            onChange={onChange}
-          />
-          <Radio
-            id="reject"
-            checked={status === 'REJECTED'}
-            value="REJECTED"
-            name={`${id}.status`}
-            label="Reject"
-            onChange={onChange}
-          />
+          <Fieldset className={styles.statusOption}>
+            <Radio
+              id="approve"
+              checked={status === 'APPROVED'}
+              value="APPROVED"
+              name={`${id}.status`}
+              label="Approve"
+              onChange={onChange}
+            />
+          </Fieldset>
+          <Fieldset className={styles.statusOption}>
+            <Radio
+              id="reject"
+              checked={status === 'REJECTED'}
+              value="REJECTED"
+              name={`${id}.status`}
+              label="Reject"
+              onChange={onChange}
+            />
 
-          {status === 'REJECTED' && (
-            <FormGroup>
-              <Label htmlFor="rejectReason">Reason for rejection</Label>
-              <Textarea id="rejectReason" name={`${id}.rejectionReason`} onChange={onChange} value={rejectionReason} />
-            </FormGroup>
-          )}
-
+            {status === 'REJECTED' && (
+              <FormGroup>
+                <Label htmlFor="rejectReason">Reason for rejection</Label>
+                <Textarea
+                  id="rejectReason"
+                  name={`${id}.rejectionReason`}
+                  onChange={onChange}
+                  value={rejectionReason}
+                />
+              </FormGroup>
+            )}
+          </Fieldset>
           {(status === 'APPROVED' || status === 'REJECTED') && (
             <Button
               type="button"
               unstyled
+              className={styles.clearStatus}
               onClick={() => {
                 clearValues(id);
               }}
