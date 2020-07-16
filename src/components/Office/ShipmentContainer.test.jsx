@@ -22,7 +22,7 @@ describe('Shipment Container', () => {
         <ShipmentHeading shipmentInfo={headingInfo} />
       </ShipmentContainer>,
     );
-    expect(wrapper.find('.container').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="ShipmentContainer"]').exists()).toBe(true);
   });
   it('renders a child component passed to it', () => {
     const wrapper = shallow(
