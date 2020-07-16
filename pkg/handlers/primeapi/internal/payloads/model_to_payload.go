@@ -107,10 +107,9 @@ func MoveOrder(moveOrder *models.Order) *primemessages.MoveOrder {
 		Rank:                   moveOrder.Grade,
 		ConfirmationNumber:     moveOrder.ConfirmationNumber,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
+		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
 	}
-	if &moveOrder.ReportByDate != nil {
-		payload.ReportByDate = strfmt.Date(moveOrder.ReportByDate)
-	}
+
 	return &payload
 }
 

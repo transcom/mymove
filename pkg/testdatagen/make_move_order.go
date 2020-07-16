@@ -73,7 +73,7 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.Order {
 	}
 
 	orderType := assertions.MoveOrder.OrdersType
-	if &orderType == nil || orderType == "" {
+	if orderType == "" {
 		orderType = "GHC"
 	}
 
@@ -83,16 +83,16 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.Order {
 		orderTypeDetail = &tbdString
 	}
 
-	reportByDate := &assertions.MoveOrder.ReportByDate
-
-	if &reportByDate == nil || time.Time.IsZero(*reportByDate) {
-		reportByDate = models.TimePointer(time.Date(2020, time.February, 15, 0, 0, 0, 0, time.UTC))
+	reportByDate := assertions.MoveOrder.ReportByDate
+	if time.Time.IsZero(reportByDate) {
+		newReportByDate := models.TimePointer(time.Date(2020, time.February, 15, 0, 0, 0, 0, time.UTC))
+		reportByDate = *newReportByDate
 	}
 
-	dateIssued := &assertions.MoveOrder.IssueDate
-
-	if &dateIssued == nil || time.Time.IsZero(*dateIssued) {
-		dateIssued = models.TimePointer(time.Date(2020, time.January, 15, 0, 0, 0, 0, time.UTC))
+	dateIssued := assertions.MoveOrder.IssueDate
+	if time.Time.IsZero(dateIssued) {
+		newIssueDate := models.TimePointer(time.Date(2020, time.January, 15, 0, 0, 0, 0, time.UTC))
+		dateIssued = *newIssueDate
 	}
 
 	linesOfAccounting := "F8E1"
@@ -121,7 +121,7 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.Order {
 		ServiceMember:       customer,
 		ServiceMemberID:     customer.ID,
 		ConfirmationNumber:  stringPointer(models.GenerateLocator()),
-		IssueDate:           *dateIssued,
+		IssueDate:           dateIssued,
 		Entitlement:         &entitlement,
 		EntitlementID:       &entitlement.ID,
 		NewDutyStation:      destinationDutyStation,
@@ -132,7 +132,7 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.Order {
 		OrdersNumber:        orderNumber,
 		OrdersType:          orderType,
 		OrdersTypeDetail:    orderTypeDetail,
-		ReportByDate:        *reportByDate,
+		ReportByDate:        reportByDate,
 		TAC:                 &linesOfAccounting,
 		Status:              models.OrderStatusDRAFT,
 		UploadedOrders:      document,

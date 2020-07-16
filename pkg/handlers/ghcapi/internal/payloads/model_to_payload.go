@@ -86,28 +86,20 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
+		Agency:                 swag.StringValue((*string)(moveOrder.ServiceMember.Affiliation)),
+		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
+		FirstName:              swag.StringValue(moveOrder.ServiceMember.FirstName),
+		LastName:               swag.StringValue(moveOrder.ServiceMember.LastName),
+		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
+		DateIssued:             strfmt.Date(moveOrder.IssueDate),
+		OrderType:              swag.StringValue((*string)(&moveOrder.OrdersType)),
 	}
 
-	if &moveOrder.ServiceMember != nil {
-		payload.Agency = swag.StringValue((*string)(moveOrder.ServiceMember.Affiliation))
-		payload.CustomerID = strfmt.UUID(moveOrder.ServiceMemberID.String())
-		payload.FirstName = swag.StringValue(moveOrder.ServiceMember.FirstName)
-		payload.LastName = swag.StringValue(moveOrder.ServiceMember.LastName)
-	}
-	if &moveOrder.ReportByDate != nil {
-		payload.ReportByDate = strfmt.Date(moveOrder.ReportByDate)
-	}
-	if &moveOrder.IssueDate != nil {
-		payload.DateIssued = strfmt.Date(moveOrder.IssueDate)
-	}
 	if moveOrder.Grade != nil {
 		payload.Grade = *moveOrder.Grade
 	}
 	if moveOrder.ConfirmationNumber != nil {
 		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
-	}
-	if &moveOrder.OrdersType != nil {
-		payload.OrderType = swag.StringValue((*string)(&moveOrder.OrdersType))
 	}
 
 	return &payload

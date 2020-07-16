@@ -97,14 +97,10 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
 		UploadedOrders:           uploadedOrders,
 		UploadedOrdersID:         strfmt.UUID(uploadedOrders.ID.String()),
+		ReportByDate:             strfmt.Date(moveOrder.ReportByDate),
+		DateIssued:               strfmt.Date(moveOrder.IssueDate),
 	}
 
-	if &moveOrder.ReportByDate != nil {
-		payload.ReportByDate = strfmt.Date(moveOrder.ReportByDate)
-	}
-	if &moveOrder.IssueDate != nil {
-		payload.DateIssued = strfmt.Date(moveOrder.IssueDate)
-	}
 	if moveOrder.Grade != nil {
 		payload.Rank = *moveOrder.Grade
 	}

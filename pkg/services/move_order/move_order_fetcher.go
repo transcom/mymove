@@ -18,7 +18,6 @@ func (f moveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
 	var moveOrders []models.Order
 	err := f.db.Eager(
 		"ServiceMember",
-		"ConfirmationNumber",
 		"NewDutyStation",
 		"OriginDutyStation",
 		"Entitlement",
@@ -46,7 +45,6 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 	moveOrder := &models.Order{}
 	err := f.db.Eager(
 		"ServiceMember",
-		"ConfirmationNumber",
 		"NewDutyStation",
 		"OriginDutyStation",
 		"Entitlement",
