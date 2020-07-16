@@ -719,7 +719,7 @@ func (e ConflictStatusError) Error() string {
 		e.id.String(), e.transitionFromStatus, e.transitionToStatus, models.MTOShipmentStatusSubmitted)
 }
 
-func (f mtoShipmentUpdater) MTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
+func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
 	var mto models.MoveTaskOrder
 
 	err := f.db.Q().

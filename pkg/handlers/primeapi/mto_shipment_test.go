@@ -286,7 +286,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 		internalServerErr := errors.New("ServerError")
 
-		mockUpdater.On("MTOAvailableToPrime",
+		mockUpdater.On("MTOShipmentsMTOAvailableToPrime",
 			mock.Anything,
 		).Return(true, nil)
 
