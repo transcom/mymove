@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -37,79 +36,35 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 		return uuid.Nil, fmt.Errorf("Could not save entitlement, %w", err)
 	}
 
-	document := models.Document{
-		ServiceMemberID: sm.ID,
-		ServiceMember:   sm,
-	}
+	// add/update fields originally from move_order
+	orders := move.Orders
+	orders.Grade = (*string)(sm.Rank)
+	orders.EntitlementID = &entitlement.ID
+	orders.Entitlement = &entitlement
+	orders.OriginDutyStationID = sm.DutyStationID
+	orders.OriginDutyStation = &sm.DutyStation
 
-	if err := db.Save(&document); err != nil {
-		return uuid.Nil, fmt.Errorf("Could not save document, %w", err)
-	}
-
-	userUpload := models.UserUpload{
-		DocumentID: &document.ID,
-		Document:   document,
-		UploaderID: sm.UserID,
-	}
-	document.UserUploads = append(document.UserUploads, userUpload)
-
-	// orders -> move order
-	var mo models.Order
-	var moveOrders []models.Order
-	err := db.Where("service_member_id = $1", sm.ID).All(&moveOrders)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("Could not fetch move order, %w", err)
-	}
-	// if a sm
-	if len(moveOrders) == 0 {
-		orders := move.Orders
-		mo.CreatedAt = orders.CreatedAt
-		mo.UpdatedAt = orders.UpdatedAt
-		mo.ServiceMember = sm
-		mo.ServiceMemberID = sm.ID
-		mo.NewDutyStation = orders.NewDutyStation
-		mo.NewDutyStationID = orders.NewDutyStationID
-
-		mo.OrdersNumber = orders.OrdersNumber
-		mo.OrdersType = "GHC"
-
-		orderTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
-		mo.OrdersTypeDetail = &orderTypeDetail
-		mo.OriginDutyStation = &sm.DutyStation
-		mo.OriginDutyStationID = sm.DutyStationID
-		mo.Entitlement = &entitlement
-		mo.EntitlementID = &entitlement.ID
-		mo.Grade = (*string)(sm.Rank)
-		mo.IssueDate = orders.IssueDate
-		mo.ReportByDate = orders.ReportByDate
-		mo.TAC = orders.TAC
-		mo.UploadedOrders = document
-		mo.UploadedOrdersID = document.ID
-
-		if err = db.Save(&mo); err != nil {
-			return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)
-		}
-	} else {
-		mo = moveOrders[0]
-	}
-
-	var contractor models.Contractor
-
-	err = db.Where("contract_number = ?", "HTC111-11-1-1111").First(&contractor)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("Could not find contractor, %w", err)
+	if err := db.Save(&orders); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not save order, %w", err)
 	}
 
 	var moveTaskOrders []models.MoveTaskOrder
-	err = db.Where("move_order_id = $1", mo.ID).All(&moveTaskOrders)
+	err := db.Where("move_order_id = $1", orders.ID).All(&moveTaskOrders)
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("Could not fetch move order, %w", err)
+		return uuid.Nil, fmt.Errorf("Could not fetch move task order, %w", err)
 	}
 	// create mto -> move task order
 	var mto models.MoveTaskOrder
 	if len(moveTaskOrders) == 0 {
+		var contractor models.Contractor
+
+		err := db.Where("contract_number = ?", "HTC111-11-1-1111").First(&contractor)
+		if err != nil {
+			return uuid.Nil, fmt.Errorf("Could not find contractor, %w", err)
+		}
+
 		mto = models.MoveTaskOrder{
-			MoveOrderID:  mo.ID,
+			MoveOrderID:  orders.ID,
 			CreatedAt:    time.Now(),
 			UpdatedAt:    time.Now(),
 			ContractorID: contractor.ID,
@@ -183,13 +138,13 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 		return uuid.Nil, fmt.Errorf("Could not save hhg domestic shorthaul shipment, %w", err)
 	}
 
-	return mo.ID, nil
+	return orders.ID, nil
 }
 
 // ConvertProfileOrdersToGHC creates models in the new GHC data model for pre move-setup data (no shipments created)
 func ConvertProfileOrdersToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error) {
 	var move models.Move
-	if err := db.Eager("Orders.ServiceMember.DutyStation.Address", "Orders.NewDutyStation.Address").Find(&move, moveID); err != nil {
+	if err := db.Eager("Orders.ServiceMember").Find(&move, moveID); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not fetch move with id %s, %w", moveID, err)
 	}
 
@@ -209,42 +164,16 @@ func ConvertProfileOrdersToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID,
 		return uuid.Nil, fmt.Errorf("Could not save entitlement, %w", err)
 	}
 
-	// orders -> move order
+	// add fields originally from move_order
 	orders := move.Orders
-	var mo models.Order
-	mo.CreatedAt = orders.CreatedAt
-	mo.UpdatedAt = orders.UpdatedAt
-	mo.ServiceMember = sm
-	mo.ServiceMemberID = sm.ID
-	mo.NewDutyStation = orders.NewDutyStation
-	mo.NewDutyStationID = orders.NewDutyStationID
+	orders.Grade = (*string)(sm.Rank)
+	orders.EntitlementID = &entitlement.ID
+	orders.Entitlement = &entitlement
+	orders.OriginDutyStationID = sm.DutyStationID
+	orders.OriginDutyStation = &sm.DutyStation
 
-	mo.OrdersNumber = orders.OrdersNumber
-	mo.OrdersType = "GHC"
-	orderTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
-	mo.OrdersTypeDetail = &orderTypeDetail
-	mo.OriginDutyStation = &sm.DutyStation
-	mo.OriginDutyStationID = sm.DutyStationID
-	mo.Entitlement = &entitlement
-	mo.EntitlementID = &entitlement.ID
-	mo.Grade = (*string)(sm.Rank)
-	mo.IssueDate = orders.IssueDate
-	mo.ReportByDate = orders.ReportByDate
-	mo.TAC = orders.TAC
-
-	document := models.Document{
-		ServiceMemberID: sm.ID,
-		ServiceMember:   sm,
-	}
-
-	if err := db.Save(&document); err != nil {
-		return uuid.Nil, fmt.Errorf("Could not save document, %w", err)
-	}
-	mo.UploadedOrders = document
-	mo.UploadedOrdersID = document.ID
-
-	if err := db.Save(&mo); err != nil {
-		return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)
+	if err := db.Save(&orders); err != nil {
+		return uuid.Nil, fmt.Errorf("Could not save order, %w", err)
 	}
 
 	var contractor models.Contractor
@@ -255,7 +184,7 @@ func ConvertProfileOrdersToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID,
 	}
 	// create mto -> move task order
 	var mto = models.MoveTaskOrder{
-		MoveOrderID:  mo.ID,
+		MoveOrderID:  orders.ID,
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
 		ContractorID: contractor.ID,
@@ -268,5 +197,5 @@ func ConvertProfileOrdersToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID,
 		return uuid.Nil, fmt.Errorf("Could not save move task order, %w, %v", err, verrs)
 	}
 
-	return mo.ID, nil
+	return orders.ID, nil
 }
