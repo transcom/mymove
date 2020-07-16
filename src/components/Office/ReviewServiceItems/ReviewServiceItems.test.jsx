@@ -23,6 +23,7 @@ describe('ReviewServiceItems component', () => {
   });
 
   it('renders ServiceItemCard component', () => {
-    expect(component.find(ServiceItemCard).dive().length).toBe(1);
+    const serviceItemCard = component.find(ServiceItemCard).dive();
+    expect(serviceItemCard.find('[data-testid="ServiceItemCard"]').length).toBe(1);
   });
 });
