@@ -10,7 +10,7 @@ import { roleTypes } from 'constants/userRoles';
 
 describe('Office App', () => {
   const mockOfficeProps = {
-    getCurrentUserInfo: jest.fn(),
+    loadUser: jest.fn(),
     loadInternalSchema: jest.fn(),
     loadPublicSchema: jest.fn(),
   };
@@ -33,7 +33,7 @@ describe('Office App', () => {
     });
 
     it('fetches initial data', () => {
-      expect(mockOfficeProps.getCurrentUserInfo).toHaveBeenCalled();
+      expect(mockOfficeProps.loadUser).toHaveBeenCalled();
       expect(mockOfficeProps.loadInternalSchema).toHaveBeenCalled();
       expect(mockOfficeProps.loadPublicSchema).toHaveBeenCalled();
     });
@@ -92,7 +92,7 @@ describe('Office App', () => {
   describe('routing', () => {
     // TODO - expects should look for actual component content instead of the route path
     // Might have to add testing-library for this because something about enzyme + Suspense + routes are not rendering content
-    // I FIGURED OUT HOW - need to mock the getCurrentUserInfo (this sets loading back to true and prevents content from rendering)
+    // I FIGURED OUT HOW - need to mock the loadUser (this sets loading back to true and prevents content from rendering)
 
     const loggedInState = {
       user: {
