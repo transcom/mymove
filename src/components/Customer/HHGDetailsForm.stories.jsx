@@ -4,7 +4,7 @@ import { array, text } from '@storybook/addon-knobs';
 import HHGDetailsForm from './HHGDetailsForm';
 
 export default {
-  title: 'Components | HHGDetailsForm',
+  title: 'Customer Components | HHGDetailsForm',
 };
 
 const pageKey = 'pageKey';
