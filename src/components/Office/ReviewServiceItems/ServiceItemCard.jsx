@@ -30,7 +30,7 @@ ServiceItemCard.propTypes = {
 };
 
 ServiceItemCard.defaultProps = {
-  shipmentType: '',
+  shipmentType: null,
 };
 
 export default ServiceItemCard;
