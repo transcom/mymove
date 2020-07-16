@@ -1,31 +1,46 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Fieldset, Label, TextInput } from '@trussworks/react-uswds';
+import { Fieldset } from '@trussworks/react-uswds';
 
-export const AddressFields = ({ legend }) => {
+import { TextInput } from 'components/form/fields/TextInput';
+
+export const AddressFields = ({ addressType, legend }) => {
   return (
     <Fieldset legend={legend}>
-      <Label htmlFor="mailing-address-1">Street address 1</Label>
-      <TextInput id="mailing-address-1" name="mailing-address-1" type="text" />
-      <Label hint=" (optional)" htmlFor="mailing-address-2">
-        Street address 2
-      </Label>
-      <TextInput id="mailing-address-2" name="mailing-address-2" type="text" />
-      <Label htmlFor="city">City</Label>
-      <TextInput id="city" name="city" type="text" />
-      <Label htmlFor="state">State</Label>
-      <TextInput id="state" name="state" type="text" />
-      <Label htmlFor="zip">ZIP</Label>
-      <TextInput id="zip" inputSize="medium" name="zip" pattern="[\d]{5}(-[\d]{4})?" type="text" />
+      <TextInput
+        label="Street address 1"
+        id={`${addressType}-mailing-address-1`}
+        name={`${addressType}-mailing-address-1`}
+        type="text"
+      />
+      <TextInput
+        label="Street address 2"
+        id={`${addressType}-mailing-address-2`}
+        name={`${addressType}-mailing-address-2`}
+        type="text"
+        hint=" (optional)"
+      />
+      <TextInput label="City" id="city" name={`${addressType}-city`} type="text" />
+      <TextInput label="State" id="state" name={`${addressType}-state`} type="text" />
+      <TextInput
+        label="ZIP"
+        id="zip"
+        inputSize="medium"
+        name={`${addressType}-zip`}
+        pattern="[\d]{5}(-[\d]{4})?"
+        type="text"
+      />
     </Fieldset>
   );
 };
 
 AddressFields.propTypes = {
+  addressType: PropTypes.string,
   legend: PropTypes.string,
 };
 
 AddressFields.defaultProps = {
+  addressType: '',
   legend: '',
 };
 
