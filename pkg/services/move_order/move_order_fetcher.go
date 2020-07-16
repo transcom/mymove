@@ -32,6 +32,15 @@ func (f moveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
 		}
 	}
 
+	for i := range moveOrders {
+		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+		// cannot eager load the address as "OriginDutyStation.Address" because
+		// OriginDutyStation is a pointer.
+		if moveOrders[i].OriginDutyStation != nil {
+			f.db.Load(moveOrders[i].OriginDutyStation, "Address")
+		}
+	}
+
 	return moveOrders, nil
 }
 
@@ -45,7 +54,7 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 	moveOrder := &models.Order{}
 	err := f.db.Eager(
 		"ServiceMember",
-		"NewDutyStation",
+		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",
 	).Find(moveOrder, moveOrderID)
@@ -57,6 +66,13 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 		default:
 			return &models.Order{}, err
 		}
+	}
+
+	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+	// cannot eager load the address as "OriginDutyStation.Address" because
+	// OriginDutyStation is a pointer.
+	if moveOrder.OriginDutyStation != nil {
+		f.db.Load(moveOrder.OriginDutyStation, "Address")
 	}
 
 	return moveOrder, nil

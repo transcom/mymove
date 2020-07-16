@@ -15,9 +15,13 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcher() {
 	suite.Equal(expectedMoveOrder.ServiceMemberID, moveOrder.ServiceMemberID)
 	suite.NotNil(moveOrder.NewDutyStation)
 	suite.Equal(expectedMoveOrder.NewDutyStationID, moveOrder.NewDutyStation.ID)
+	suite.Equal(expectedMoveOrder.NewDutyStation.AddressID, moveOrder.NewDutyStation.AddressID)
+	suite.Equal(expectedMoveOrder.NewDutyStation.Address.StreetAddress1, moveOrder.NewDutyStation.Address.StreetAddress1)
 	suite.NotNil(moveOrder.Entitlement)
 	suite.Equal(*expectedMoveOrder.EntitlementID, moveOrder.Entitlement.ID)
 	suite.Equal(expectedMoveOrder.OriginDutyStation.ID, moveOrder.OriginDutyStation.ID)
+	suite.Equal(expectedMoveOrder.OriginDutyStation.AddressID, moveOrder.OriginDutyStation.AddressID)
+	suite.Equal(expectedMoveOrder.OriginDutyStation.Address.StreetAddress1, moveOrder.OriginDutyStation.Address.StreetAddress1)
 	suite.NotZero(moveOrder.OriginDutyStation)
 }
 
@@ -59,6 +63,8 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrder() {
 	suite.Equal(*expectedMoveOrder.EntitlementID, moveOrder.Entitlement.ID)
 	suite.Equal(expectedMoveOrder.OriginDutyStation.ID, moveOrder.OriginDutyStation.ID)
 	suite.NotNil(moveOrder.OriginDutyStation)
+	suite.Equal(expectedMoveOrder.OriginDutyStation.AddressID, moveOrder.OriginDutyStation.AddressID)
+	suite.Equal(expectedMoveOrder.OriginDutyStation.Address.StreetAddress1, moveOrder.OriginDutyStation.Address.StreetAddress1)
 }
 
 func (suite *MoveOrderServiceSuite) TestListMoveOrderWithEmptyFields() {
