@@ -153,7 +153,6 @@ func (suite *ConvertSuite) TestConvertProfileOrdersToGHC() {
 	suite.NotNil(mo.ReportByDate)
 	suite.NotNil(mo.IssueDate)
 	suite.NotNil(mo.OrdersType)
-	suite.NotNil(mo.OrdersTypeDetail)
 	suite.Equal(mo.Grade, (*string)(mo.ServiceMember.Rank))
 
 	suite.NotEqual(uuid.Nil, mo.NewDutyStationID)
@@ -208,14 +207,14 @@ func (suite *ConvertSuite) TestConvertFromPPMToGHCMoveOrdersExist() {
 	suite.FatalNoError(conversionErr)
 	_, conversionErr = converthelper.ConvertFromPPMToGHC(suite.DB(), move.ID)
 	suite.FatalNoError(conversionErr)
-	var moveOrders []models.Order
+	var orders []models.Order
 
-	err := suite.DB().Where("service_member_id = $1", sm.ID).All(&moveOrders)
+	err := suite.DB().Where("service_member_id = $1", sm.ID).All(&orders)
 	suite.FatalNoError(err)
-	suite.Equal(2, len(moveOrders))
+	suite.Equal(1, len(orders))
 
 	var moveTaskOrders []models.MoveTaskOrder
-	err = suite.DB().Where("move_order_id = $1", moveOrders[0].ID).All(&moveTaskOrders)
+	err = suite.DB().Where("move_order_id = $1", orders[0].ID).All(&moveTaskOrders)
 	suite.FatalNoError(err)
 	suite.Equal(1, len(moveTaskOrders))
 }
