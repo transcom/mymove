@@ -3,9 +3,6 @@
 @import '../../../shared/styles/colors';
 
 .ServiceItemCard {
-  @include u-margin-left(-3);
-  @include u-margin-right(-3);
-
   .cardHeader {
     text-transform: uppercase;
     @include u-margin-top(2);

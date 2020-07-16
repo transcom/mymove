@@ -44,7 +44,7 @@
   }
 
   .body {
-    @include u-padding-y('1');
+    @include u-padding-y('3');
     @include u-padding-x('4');
     @include u-bg('gray-5');
     @include u-overflow-y('auto');

@@ -8,7 +8,6 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const ShipmentContainer = ({ className, children, shipmentType }) => {
   const containerClasses = classNames(
-    'container',
     styles.shipmentContainer,
     {
       'container--accent--default': shipmentType === '',

@@ -145,7 +145,7 @@ const RequestedShipments = ({
         </div>
       )}
       {shipmentsStatus === 'APPROVED' && (
-        <div>
+        <div className={styles.approvedShipments}>
           <h4>Approved Shipments</h4>
           {/* eslint-disable-next-line no-underscore-dangle */}
           <div className={styles.__content}>
@@ -168,7 +168,7 @@ const RequestedShipments = ({
         </div>
       )}
       {shipmentsStatus === 'APPROVED' && (
-        <div>
+        <div className={styles.serviceItems}>
           <div className="stackedtable-header">
             <h4>Service Items</h4>
           </div>
