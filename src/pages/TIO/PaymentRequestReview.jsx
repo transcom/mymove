@@ -66,7 +66,7 @@ const mapStateToProps = (state, ownProps) => {
     },
     {
       id: '3',
-      shipmentType: '', // to indicate basic service item
+      shipmentType: null, // to indicate basic service item
       serviceItemName: 'Domestic linehaul',
       amount: 1234.56,
       createdAt: Date(),

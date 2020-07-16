@@ -1,6 +1,6 @@
 import { dateSort } from 'shared/utils';
 
-export function sortServiceItemsByGroup(serviceItemCards) {
+export default function sortServiceItemsByGroup(serviceItemCards) {
   // Make a copy so we're not mutating the props
   const cards = [...serviceItemCards];
   // Will populate with earliest service item of each shipment id

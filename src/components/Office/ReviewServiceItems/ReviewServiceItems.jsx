@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import { sortServiceItemsByGroup } from '../../../shared/utils/serviceItems';
+import sortServiceItemsByGroup from '../../../utils/serviceItems';
 
 import styles from './ReviewServiceItems.module.scss';
 
