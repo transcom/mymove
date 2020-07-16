@@ -10,19 +10,14 @@ const ServiceItemCard = ({ shipmentType, serviceItemName, amount }) => {
   return (
     <div data-testid="ServiceItemCard" className={styles.ServiceItemCard}>
       <ShipmentContainer shipmentType={shipmentType}>
-        <>
-          <h6 className={styles.cardHeader}>
-            {mtoShipmentTypeToFriendlyDisplay(shipmentType) || 'BASIC SERVICE ITEMS'}
-          </h6>
-          <div className="usa-label">Service item</div>
-          <div data-cy="serviceItemName" className={styles.textValue}>
-            {serviceItemName}
-          </div>
-          <div className="usa-label">Amount</div>
-          <div data-cy="serviceItemAmount" className={styles.textValue}>
-            {toDollarString(amount)}
-          </div>
-        </>
+        <h6 className={styles.cardHeader}>{mtoShipmentTypeToFriendlyDisplay(shipmentType) || 'BASIC SERVICE ITEMS'}</h6>
+        <dl>
+          <dt>Service item</dt>
+          <dd data-cy="serviceItemName">{serviceItemName}</dd>
+
+          <dt>Amount</dt>
+          <dd data-cy="serviceItemAmount">{toDollarString(amount)}</dd>
+        </dl>
       </ShipmentContainer>
     </div>
   );
