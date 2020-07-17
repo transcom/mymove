@@ -2056,10 +2056,14 @@ definitions:
       - PERMANENT_CHANGE_OF_STATION
       - RETIREMENT
       - SEPARATION
+      - GHC
+      - NTS
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
       RETIREMENT: Retirement
       SEPARATION: Separation
+      GHC: GHC
+      NTS: NTS
   OrdersTypeDetail:
     type: string
     title: Orders type detail
