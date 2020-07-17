@@ -111,6 +111,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given hhgFlow flag is true', () => {
       const props = {
+        selectedMoveType: SHIPMENT_OPTIONS.HHG,
         context: hhgContext,
       };
       const pages = getPagesInFlow(props);
