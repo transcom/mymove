@@ -12,7 +12,7 @@ describe('HHGDetailsForm component', () => {
     expect(wrapper.find('ContactInfoFields').length).toBe(2);
     expect(wrapper.find('input[name="remarks"]').length).toBe(1);
   });
-  it('renders second address field when has delivery date', () => {
+  it('renders second address field when has delivery address', () => {
     const wrapper = mount(<HHGDetailsForm pageList={['page1', 'anotherPage/:foo/:bar']} pageKey="page1" />);
     wrapper.setState({ hasDeliveryAddress: true });
     expect(wrapper.find('AddressFields').length).toBe(2);

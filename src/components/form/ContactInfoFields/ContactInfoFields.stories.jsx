@@ -7,5 +7,3 @@ export default {
 };
 
 export const Basic = () => <ContactInfoFields />;
-
-// every named export is a test case

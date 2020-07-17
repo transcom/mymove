@@ -7,5 +7,3 @@ export default {
 };
 
 export const Basic = () => <AddressFields />;
-
-// every named export is a test case
