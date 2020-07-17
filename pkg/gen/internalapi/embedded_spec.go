@@ -1947,6 +1947,51 @@ func init() {
         ]
       }
     },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipmentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -3421,6 +3466,26 @@ func init() {
         }
       }
     },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "CreateGenericMoveDocumentPayload": {
       "type": "object",
       "required": [
@@ -3798,6 +3863,53 @@ func init() {
         }
       }
     },
+    "CreateShipmentPayload": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "pickupAddress",
+        "destinationAddress",
+        "shipmentType"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
     "CreateSignedCertificationPayload": {
       "type": "object",
       "required": [
@@ -4091,6 +4203,25 @@ func init() {
         "$ref": "#/definitions/DutyStationPayload"
       }
     },
+    "Error": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "ExpenseSummaryPayload": {
       "type": "object",
       "properties": {
@@ -4238,6 +4369,266 @@ func init() {
           "$ref": "#/definitions/ServiceMemberPayload"
         }
       }
+    },
+    "MTOAgent": {
+      "type": "object",
+      "properties": {
+        "agentType": {
+          "$ref": "#/definitions/MTOAgentType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MTOAgentType": {
+      "type": "string",
+      "title": "MTO Agent Type",
+      "enum": [
+        "RELEASING_AGENT",
+        "RECEIVING_AGENT"
+      ],
+      "example": "RELEASING_AGENT"
+    },
+    "MTOAgents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOAgent"
+      }
+    },
+    "MTOServiceItem": {
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
+      "type": "object",
+      "required": [
+        "modelType",
+        "moveTaskOrderID"
+      ],
+      "properties": {
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "modelType": {
+          "$ref": "#/definitions/MTOServiceItemModelType"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string",
+          "readOnly": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
+        }
+      },
+      "discriminator": "modelType"
+    },
+    "MTOServiceItemModelType": {
+      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DDFSIT - MTOServiceItemDDFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
+      "type": "string",
+      "enum": [
+        "MTOServiceItemBasic",
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemDDFSIT",
+        "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticCrating"
+      ]
+    },
+    "MTOServiceItemStatus": {
+      "description": "Describes all statuses for a MTOServiceItem.",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
+    "MTOShipment": {
+      "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "approvedDate": {
+          "description": "date when the shipment was given the status \"APPROVED\"",
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "firstAvailableDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update.",
+          "type": "string"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeightRecordedDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "MTO Shipment not good enough"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "requiredDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "scheduledPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ],
+          "readOnly": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
     },
     "MethodOfReceipt": {
       "type": "string",
@@ -6194,6 +6585,31 @@ func init() {
         }
       }
     },
+    "ValidationError": {
+      "required": [
+        "invalidFields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalidFields": {
+          "type": "object",
+          "additionalProperties": {
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "WeightAllotment": {
       "type": "object",
       "required": [
@@ -6237,6 +6653,50 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    }
+  },
+  "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "InvalidRequest": {
+      "description": "The request payload is invalid.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "NotFound": {
+      "description": "The requested resource wasn't found.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PermissionDenied": {
+      "description": "The request was denied.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "ServerError": {
+      "description": "A server error occurred.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
+      }
     }
   }
 }`))
@@ -8170,6 +8630,63 @@ func init() {
         ]
       }
     },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipmentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -9644,6 +10161,26 @@ func init() {
         }
       }
     },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "CreateGenericMoveDocumentPayload": {
       "type": "object",
       "required": [
@@ -10023,6 +10560,53 @@ func init() {
         }
       }
     },
+    "CreateShipmentPayload": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "pickupAddress",
+        "destinationAddress",
+        "shipmentType"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update",
+          "type": "string"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
     "CreateSignedCertificationPayload": {
       "type": "object",
       "required": [
@@ -10318,6 +10902,25 @@ func init() {
         "$ref": "#/definitions/DutyStationPayload"
       }
     },
+    "Error": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "ExpenseSummaryPayload": {
       "type": "object",
       "properties": {
@@ -10465,6 +11068,266 @@ func init() {
           "$ref": "#/definitions/ServiceMemberPayload"
         }
       }
+    },
+    "MTOAgent": {
+      "type": "object",
+      "properties": {
+        "agentType": {
+          "$ref": "#/definitions/MTOAgentType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MTOAgentType": {
+      "type": "string",
+      "title": "MTO Agent Type",
+      "enum": [
+        "RELEASING_AGENT",
+        "RECEIVING_AGENT"
+      ],
+      "example": "RELEASING_AGENT"
+    },
+    "MTOAgents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOAgent"
+      }
+    },
+    "MTOServiceItem": {
+      "description": "MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.",
+      "type": "object",
+      "required": [
+        "modelType",
+        "moveTaskOrderID"
+      ],
+      "properties": {
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "modelType": {
+          "$ref": "#/definitions/MTOServiceItemModelType"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string",
+          "readOnly": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "item was too heavy"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOServiceItemStatus"
+        }
+      },
+      "discriminator": "modelType"
+    },
+    "MTOServiceItemModelType": {
+      "description": "Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DDFSIT - MTOServiceItemDDFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n",
+      "type": "string",
+      "enum": [
+        "MTOServiceItemBasic",
+        "MTOServiceItemDOFSIT",
+        "MTOServiceItemDDFSIT",
+        "MTOServiceItemShuttle",
+        "MTOServiceItemDomesticCrating"
+      ]
+    },
+    "MTOServiceItemStatus": {
+      "description": "Describes all statuses for a MTOServiceItem.",
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
+    "MTOShipment": {
+      "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "approvedDate": {
+          "description": "date when the shipment was given the status \"APPROVED\"",
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "firstAvailableDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update.",
+          "type": "string"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeightRecordedDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "MTO Shipment not good enough"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "requiredDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "scheduledPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ],
+          "readOnly": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
     },
     "MethodOfReceipt": {
       "type": "string",
@@ -12430,6 +13293,31 @@ func init() {
         }
       }
     },
+    "ValidationError": {
+      "required": [
+        "invalidFields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalidFields": {
+          "type": "object",
+          "additionalProperties": {
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "WeightAllotment": {
       "type": "object",
       "required": [
@@ -12473,6 +13361,50 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    }
+  },
+  "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "InvalidRequest": {
+      "description": "The request payload is invalid.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "NotFound": {
+      "description": "The requested resource wasn't found.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PermissionDenied": {
+      "description": "The request was denied.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "ServerError": {
+      "description": "A server error occurred.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
+      }
     }
   }
 }`))
