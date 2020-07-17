@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
 
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
-		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
+		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
 
 	})
 
@@ -138,7 +138,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.T().Run("POST failure - 404 -- not found", func(t *testing.T) {
-
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 
@@ -169,12 +168,35 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
-		params := mtoshipmentops.CreateMTOShipmentParams{
+		paramsNilBody := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 		}
-		response := handler.Handle(params)
+		response := handler.Handle(paramsNilBody)
 
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
+	})
+
+	suite.T().Run("POST failure - 404 -- MTO is not available to Prime", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		mtoNotAvailable := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+		mtoIDNotAvailable := strfmt.UUID(mtoNotAvailable.ID.String())
+
+		paramsNotAvailable := params
+		paramsNotAvailable.Body.MoveTaskOrderID = &mtoIDNotAvailable
+
+		response := handler.Handle(paramsNotAvailable)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentNotFound{}, response)
+
+		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentNotFound)
+		suite.Contains(*typedResponse.Payload.Detail, mtoNotAvailable.ID.String())
 	})
 }
 
@@ -307,7 +329,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentInternalServerError{}, response)
 
 		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentInternalServerError)
-		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
+		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
 
 	})
 
@@ -349,11 +371,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
 	})
 
-	mto2 := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
-			AvailableToPrimeAt: swag.Time(time.Now()),
-		},
-	})
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 	})
@@ -384,7 +401,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		ID: strfmt.UUID(mtoShipment2.ID.String()),
 	}
 
-	req2 := httptest.NewRequest("PUT", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto2.ID.String(), mtoShipment2.ID.String()), nil)
+	req2 := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", mtoShipment2.ID.String()), nil)
 
 	eTag = etag.GenerateEtag(mtoShipment2.UpdatedAt)
 	params = mtoshipmentops.UpdateMTOShipmentParams{
