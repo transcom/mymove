@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http/httptest"
 
+	"github.com/gobuffalo/pop"
+
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -31,8 +33,19 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+// MakeAvailableMoveTaskOrder returns a default MTO with AvailableToPrimeAt set
+func MakeAvailableMoveTaskOrder(db *pop.Connection) models.MoveTaskOrder {
+	now := time.Now()
+	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			AvailableToPrimeAt: &now,
+		},
+	})
+	return mto
+}
+
 func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := MakeAvailableMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 	})
@@ -93,7 +106,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemInternalServerError{}, response)
 
 		errResponse := response.(*mtoserviceitemops.CreateMTOServiceItemInternalServerError)
-		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
+		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
 
 	})
 
@@ -225,7 +238,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := MakeAvailableMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 	})
