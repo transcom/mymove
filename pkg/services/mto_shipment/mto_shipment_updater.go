@@ -729,9 +729,9 @@ func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.U
 		First(&mto)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
-			return false, services.NewNotFoundError(mtoShipmentID, "while looking for MTOshipment")
+			return false, services.NewNotFoundError(mtoShipmentID, "for mtoShipment")
 		}
-		return false, services.NewQueryError("mtoShipments", err, "Unexpected error.")
+		return false, services.NewQueryError("mtoShipments", err, "Unexpected error")
 	}
 
 	return true, nil

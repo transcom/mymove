@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http/httptest"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
 	"testing"
@@ -30,7 +32,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := MakeAvailableMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 	})
@@ -41,6 +43,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		},
 	})
 	builder := query.NewQueryBuilder(suite.DB())
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 
 	req := httptest.NewRequest("POST", "/mto-service-items", nil)
 
@@ -63,6 +66,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
+			mtoChecker,
 		}
 
 		response := handler.Handle(params)
@@ -77,6 +81,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockCreator,
+			mtoChecker,
 		}
 		err := errors.New("ServerError")
 
@@ -88,7 +93,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemInternalServerError{}, response)
 
 		errResponse := response.(*mtoserviceitemops.CreateMTOServiceItemInternalServerError)
-		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
+		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
 
 	})
 
@@ -97,6 +102,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockCreator,
+			mtoChecker,
 		}
 		// InvalidInputError should generate an UnprocessableEntity response
 		err := services.InvalidInputError{}
@@ -114,6 +120,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockCreator,
+			mtoChecker,
 		}
 		// ConflictError should generate a Conflict response
 		err := services.ConflictError{}
@@ -131,6 +138,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockCreator,
+			mtoChecker,
 		}
 		err := services.NotFoundError{}
 
@@ -142,8 +150,33 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
 	})
 
+	suite.T().Run("POST failure - 404 - MTO is not available to Prime", func(t *testing.T) {
+		mtoNotAvailable := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		body := payloads.MTOServiceItem(&mtoServiceItem)
+		body.SetMoveTaskOrderID(handlers.FmtUUID(mtoNotAvailable.ID))
+
+		paramsNotAvailable := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        body,
+		}
+
+		response := handler.Handle(paramsNotAvailable)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+
+		typedResponse := response.(*mtoserviceitemops.CreateMTOServiceItemNotFound)
+		suite.Contains(*typedResponse.Payload.Detail, mtoNotAvailable.ID.String())
+	})
+
 	suite.T().Run("POST failure - 404 - Integration - ShipmentID not linked by MoveTaskOrderID", func(t *testing.T) {
-		mto2 := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+		mto2 := MakeAvailableMoveTaskOrder(suite.DB())
 		mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MoveTaskOrder: mto2,
 		})
@@ -151,6 +184,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
+			mtoChecker,
 		}
 
 		body := payloads.MTOServiceItem(&mtoServiceItem)
@@ -171,6 +205,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockCreator,
+			mtoChecker,
 		}
 		verrs := validate.NewErrors()
 		verrs.Add("test", "testing")
@@ -188,6 +223,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockCreator,
+			mtoChecker,
 		}
 		err := services.NotFoundError{}
 
@@ -214,7 +250,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := MakeAvailableMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 	})
@@ -234,6 +270,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		},
 	})
 	builder := query.NewQueryBuilder(suite.DB())
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 
 	req := httptest.NewRequest("POST", "/mto-service-items", nil)
 
@@ -264,6 +301,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
+			mtoChecker,
 		}
 
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDCRT
@@ -284,6 +322,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
+			mtoChecker,
 		}
 
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDUCRT
@@ -304,6 +343,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
+			mtoChecker,
 		}
 
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDCRTSA
@@ -324,6 +364,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockCreator,
+			mtoChecker,
 		}
 		err := errors.New("ServerError")
 
@@ -345,7 +386,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := MakeAvailableMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 	})
@@ -355,6 +396,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 		},
 	})
 	builder := query.NewQueryBuilder(suite.DB())
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 
 	req := httptest.NewRequest("POST", "/mto-service-items", nil)
 
@@ -388,6 +430,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
+			mtoChecker,
 		}
 
 		response := handler.Handle(params)

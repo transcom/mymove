@@ -27,14 +27,14 @@ func (f moveTaskOrderChecker) MTOAvailableToPrime(moveTaskOrderID uuid.UUID) (bo
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return false, services.NewNotFoundError(moveTaskOrderID, "")
+			return false, services.NewNotFoundError(moveTaskOrderID, "for moveTaskOrder")
 		default:
 			return false, err
 		}
 	}
 
 	if mto.AvailableToPrimeAt == nil {
-		return false, services.NewNotFoundError(mto.ID, "MTO with that ID not available")
+		return false, nil
 	}
 
 	return true, nil
