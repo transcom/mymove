@@ -30,7 +30,7 @@ const ShipmentContainer = ({ className, children, shipmentType }) => {
 
 ShipmentContainer.propTypes = {
   className: PropTypes.string,
-  children: PropTypes.oneOfType([PropTypes.element, PropTypes.arrayOf(PropTypes.element)]).isRequired,
+  children: PropTypes.node.isRequired,
   /** Describes the type of shipment container. */
   shipmentType: ShipmentOptionsOneOf,
 };

@@ -54,6 +54,7 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
           <Button
             type="button"
             unstyled
+            data-testid="clearStatusButton"
             className={styles.clearStatus}
             onClick={() => {
               clearValues(id);
