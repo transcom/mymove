@@ -1,6 +1,9 @@
 package internalapi
 
 import (
+	"github.com/transcom/mymove/pkg/services/fetch"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
 	"io"
 	"log"
 
@@ -28,6 +31,8 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
 
 	internalAPI.ServeError = handlers.ServeCustomError
+	builder := query.NewQueryBuilder(context.DB())
+	fetcher := fetch.NewFetcher(builder)
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context}
 
@@ -116,7 +121,14 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
 	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
 
-	return internalAPI
+	// GHC Endpoint
+
+	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
+		context,
+		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher),
+	}
+
+return internalAPI
 }
 
 // PDFProducer creates a new PDF producer
