@@ -163,6 +163,31 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
 	})
 
+	suite.T().Run("POST failure - 404 - MTO is not available to Prime", func(t *testing.T) {
+		mtoNotAvailable := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		body := payloads.MTOServiceItem(&mtoServiceItem)
+		body.SetMoveTaskOrderID(handlers.FmtUUID(mtoNotAvailable.ID))
+
+		paramsNotAvailable := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        body,
+		}
+
+		response := handler.Handle(paramsNotAvailable)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+
+		typedResponse := response.(*mtoserviceitemops.CreateMTOServiceItemNotFound)
+		suite.Contains(*typedResponse.Payload.Detail, mtoNotAvailable.ID.String())
+	})
+
 	suite.T().Run("POST failure - 404 - Integration - ShipmentID not linked by MoveTaskOrderID", func(t *testing.T) {
 		mto2 := MakeAvailableMoveTaskOrder(suite.DB())
 		mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
