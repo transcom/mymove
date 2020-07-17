@@ -62,28 +62,22 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	}
 
 	moveTaskOrderID := uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID.String())
-	mtoAvailableToPrime, mtoErr := h.mtoAvailabilityChecker.MTOAvailableToPrime(moveTaskOrderID)
-	if mtoErr != nil {
-		logger.Error("primeapi.CreateMTOServiceItemHandler error - checking MTO availability to Prime", zap.Error(mtoErr))
-		switch e := mtoErr.(type) {
-		case services.NotFoundError:
-			return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceID()))
-		default:
-			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
-		}
-	} else if !mtoAvailableToPrime {
-		logger.Error("primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime", zap.Error(mtoErr))
+	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(moveTaskOrderID)
+
+	if mtoAvailableToPrime {
+		mtoServiceItem, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
+	} else if err == nil {
+		logger.Error("primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
 		return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(
 			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), h.GetTraceID()))
 	}
 
-	mtoServiceItem, verrs, err := h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
 	if verrs != nil && verrs.HasAny() {
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
 			verrs.Error(), h.GetTraceID(), verrs))
 	}
 
+	// Could be the error from MTOAvailableToPrime or CreateMTOServiceItem:
 	if err != nil {
 		logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(err))
 		switch e := err.(type) {
@@ -96,13 +90,14 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 		case services.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
+				logger.Error("primeapi.CreateMTOServiceItemHandler query error", zap.Error(e.Unwrap()))
 			}
 			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		default:
 			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
 	}
+
 	mtoServiceItemPayload := payloads.MTOServiceItem(mtoServiceItem)
 	return mtoserviceitemops.NewCreateMTOServiceItemOK().WithPayload(mtoServiceItemPayload)
 }

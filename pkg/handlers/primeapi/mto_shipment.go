@@ -30,7 +30,6 @@ type CreateMTOShipmentHandler struct {
 
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
-
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	payload := params.Body
@@ -40,25 +39,9 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
 	}
 
-	moveTaskOrderID := uuid.FromStringOrNil(payload.MoveTaskOrderID.String())
-	mtoAvailableToPrime, mtoErr := h.mtoAvailabilityChecker.MTOAvailableToPrime(moveTaskOrderID)
-	if mtoErr != nil {
-		logger.Error("primeapi.CreateMTOShipmentHandler error - checking MTO availability to Prime", zap.Error(mtoErr))
-		switch e := mtoErr.(type) {
-		case services.NotFoundError:
-			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceID()))
-		default:
-			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
-		}
-	} else if !mtoAvailableToPrime {
-		logger.Error("primeapi.CreateMTOShipmentHandler error - MTO is not available to Prime")
-		return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(
-			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), h.GetTraceID()))
-	}
-
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-
 	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
+
 	if verrs != nil && verrs.HasAny() {
 		logger.Error("Error validating mto service item list: ", zap.Error(verrs))
 
@@ -66,10 +49,20 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			"The MTO service item list is invalid.", h.GetTraceID(), nil))
 	}
 
-	//mtoShipment.MTOServiceItems = *mtoServiceItemsList
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
+	moveTaskOrderID := uuid.FromStringOrNil(payload.MoveTaskOrderID.String())
+	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(moveTaskOrderID)
+
+	if mtoAvailableToPrime {
+		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
+	} else if err == nil {
+		logger.Error("primeapi.CreateMTOShipmentHandler error - MTO is not available to Prime")
+		return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(
+			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), h.GetTraceID()))
+	}
+
+	// Could be the error from MTOAvailableToPrime or CreateMTOShipment:
 	if err != nil {
-		logger.Error("primeapi.CreateMTOShipmentHandler", zap.Error(err))
+		logger.Error("primeapi.CreateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
 			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
@@ -78,7 +71,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		case services.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
+				logger.Error("primeapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		default:
