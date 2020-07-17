@@ -65,7 +65,8 @@ describe('ReviewServiceItems component', () => {
   const mountedComponent = mount(<ReviewServiceItems serviceItemCards={serviceItemCards} handleClose={handleClose} />);
 
   it('renders without crashing', () => {
-    expect(shallowComponent.find('[data-cy="ReviewServiceItems"]').length).toBe(1);
+    const serviceItemCard = shallowComponent.find(ServiceItemCard).dive();
+    expect(serviceItemCard.find('[data-testid="ServiceItemCard"]').length).toBe(1);
   });
 
   it('renders ServiceItemCard component', () => {
