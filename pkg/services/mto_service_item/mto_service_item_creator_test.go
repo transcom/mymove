@@ -203,7 +203,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Nil(createdServiceItemBadShip)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
-		suite.Contains(err.Error(), shipment.ID.String(), moveTaskOrder.ID.String())
+		suite.Contains(err.Error(), shipment.ID.String())
+		suite.Contains(err.Error(), moveTaskOrder.ID.String())
 	})
 
 	// If the service item we're trying to create is shuttle service and there is no estimated weight, it fails.
