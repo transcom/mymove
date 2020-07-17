@@ -4,8 +4,6 @@ import (
 	"errors"
 	"net/http/httptest"
 
-	"github.com/gobuffalo/pop"
-
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -32,17 +30,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
-
-// MakeAvailableMoveTaskOrder returns a default MTO with AvailableToPrimeAt set
-func MakeAvailableMoveTaskOrder(db *pop.Connection) models.MoveTaskOrder {
-	now := time.Now()
-	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
-			AvailableToPrimeAt: &now,
-		},
-	})
-	return mto
-}
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	mto := MakeAvailableMoveTaskOrder(suite.DB())

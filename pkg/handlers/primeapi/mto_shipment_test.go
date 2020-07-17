@@ -35,7 +35,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := MakeAvailableMoveTaskOrder(suite.DB())
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
