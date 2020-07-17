@@ -147,12 +147,6 @@ const customerInfo = {
     state: 'TX',
     postal_code: '78234',
   },
-  destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
-    city: 'Tacoma',
-    state: 'WA',
-    postal_code: '98421',
-  },
   backupContactName: 'Quinn Ocampo',
   backupContactPhone: '+1 999-999-9999',
   backupContactEmail: 'quinnocampo@myemail.com',
