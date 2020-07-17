@@ -9,19 +9,19 @@ export const ContactInfoFields = ({ legend, className, subtitle }) => {
       <Label hint="(optional)" htmlFor="first-name">
         First name
       </Label>
-      <TextInput id="first-name" data-cy="firstName" name="first-name" type="text" />
+      <TextInput id="first-name" data-testid="firstName" name="first-name" type="text" />
       <Label hint="(optional)" htmlFor="last-name">
         Last name
       </Label>
-      <TextInput id="last-name" data-cy="lastName" name="last-name" type="text" />
+      <TextInput id="last-name" data-testid="lastName" name="last-name" type="text" />
       <Label hint="(optional)" htmlFor="phone">
         Phone
       </Label>
-      <TextInput id="phone" data-cy="phone" name="phone" type="text" />
+      <TextInput id="phone" data-testid="phone" name="phone" type="text" />
       <Label hint="(optional)" htmlFor="state">
         Email
       </Label>
-      <TextInput id="email" data-cy="email" name="email" type="text" />
+      <TextInput id="email" data-testid="email" name="email" type="text" />
     </Fieldset>
   );
 };
