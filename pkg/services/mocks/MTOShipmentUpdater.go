@@ -14,8 +14,8 @@ type MTOShipmentUpdater struct {
 	mock.Mock
 }
 
-// MTOAvailableToPrime provides a mock function with given fields: mtoShipmentID
-func (_m *MTOShipmentUpdater) MTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
+// MTOShipmentsMTOAvailableToPrime provides a mock function with given fields: mtoShipmentID
+func (_m *MTOShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
 	ret := _m.Called(mtoShipmentID)
 
 	var r0 bool

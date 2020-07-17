@@ -166,7 +166,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 	mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 
-	mtoAvailableToPrime, err := h.mtoShipmentUpdater.MTOAvailableToPrime(mtoShipmentID)
+	mtoAvailableToPrime, err := h.mtoShipmentUpdater.MTOShipmentsMTOAvailableToPrime(mtoShipmentID)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error - MTO is not available to prime", zap.Error(err))
 		switch e := err.(type) {

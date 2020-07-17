@@ -1,5 +1,7 @@
+import * as child from 'child_process';
+
 /* eslint-disable import/no-extraneous-dependencies */
-import { includes } from 'lodash';
+import { includes, replace } from 'lodash';
 import { danger, warn, fail } from 'danger';
 import jiraIssue from 'danger-plugin-jira-issue';
 
@@ -50,8 +52,47 @@ const fileChecks = () => {
   }
 };
 
+const checkYarnAudit = () => {
+  const result = child.spawnSync('yarn', ['audit', '--groups=dependencies', '--level=high', '--json']);
+  const output = result.stdout.toString().split('\n');
+  const summary = JSON.parse(output[output.length - 2]);
+  if (
+    'data' in summary &&
+    'vulnerabilities' in summary.data &&
+    'high' in summary.data.vulnerabilities &&
+    'critical' in summary.data.vulnerabilities
+  ) {
+    if (summary.data.vulnerabilities.high > 0 || summary.data.vulnerabilities.critical > 0) {
+      let issuesFound = 'Yarn Audit Issues Found:\n';
+      output.forEach((rawAudit) => {
+        try {
+          const audit = JSON.parse(rawAudit);
+          if (audit.type === 'auditAdvisory') {
+            issuesFound +=
+              `${audit.data.advisory.severity} - ${audit.data.advisory.title}\n` +
+              `Package ${audit.data.advisory.module_name}\n` +
+              `Patched in ${audit.data.advisory.patched_versions}\n` +
+              `Dependency of ${audit.data.resolution.path.split('>')[0]}\n` +
+              `Path ${replace(audit.data.resolution.path, />/g, ' > ')}\n` +
+              `More info ${audit.data.advisory.url}\n\n`;
+          }
+        } catch {
+          // not all outputs maybe json and that's okay
+        }
+      });
+      fail(
+        `${issuesFound}${summary.data.vulnerabilities.high} high vulnerabilities and ` +
+          `${summary.data.vulnerabilities.critical} critical vulnerabilities found`,
+      );
+    }
+  } else {
+    warn(`Couldn't find summary of vulnerabilities from yarn audit`);
+  }
+};
+
 // skip these checks if PR is by dependabot, if we don't have a github object let it run also since we are local
 if (!danger.github || (danger.github && danger.github.pr.user.login !== 'dependabot-preview[bot]')) {
   githubChecks();
   fileChecks();
+  checkYarnAudit();
 }
