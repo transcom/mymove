@@ -24,6 +24,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   };
 
   const formValues = {};
+  // TODO - preset these based on existing values
   serviceItemCards.forEach((serviceItem) => {
     formValues[serviceItem.id] = {
       status: serviceItem.status,
