@@ -9,7 +9,7 @@ export const setIsLoggedInType = 'SET_IS_LOGGED_IN';
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 
 export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(getLoggedInUserType);
-const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
+export const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
 
 export function getCurrentUserInfo() {
   return function (dispatch) {
