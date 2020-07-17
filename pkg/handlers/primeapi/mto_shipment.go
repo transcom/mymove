@@ -1,6 +1,7 @@
 package primeapi
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -23,7 +24,8 @@ import (
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerContext
-	mtoShipmentCreator services.MTOShipmentCreator
+	mtoShipmentCreator     services.MTOShipmentCreator
+	mtoAvailabilityChecker services.MoveTaskOrderChecker
 }
 
 // Handle creates the mto shipment
@@ -36,6 +38,22 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		logger.Error("Invalid mto shipment: params Body is nil")
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
+	}
+
+	moveTaskOrderID := uuid.FromStringOrNil(payload.MoveTaskOrderID.String())
+	mtoAvailableToPrime, mtoErr := h.mtoAvailabilityChecker.MTOAvailableToPrime(moveTaskOrderID)
+	if mtoErr != nil {
+		logger.Error("primeapi.CreateMTOShipmentHandler error - checking MTO availability to Prime", zap.Error(mtoErr))
+		switch e := mtoErr.(type) {
+		case services.NotFoundError:
+			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceID()))
+		default:
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		}
+	} else if !mtoAvailableToPrime {
+		logger.Error("primeapi.CreateMTOShipmentHandler error - MTO is not available to Prime")
+		return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(
+			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), h.GetTraceID()))
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)

@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/swag"
@@ -44,6 +46,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mtoShipment.MoveTaskOrderID = mto.ID
 
 	builder := query.NewQueryBuilder(suite.DB())
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 
 	req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
@@ -83,6 +86,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
+			mtoChecker,
 		}
 		response := handler.Handle(params)
 
@@ -96,6 +100,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockCreator,
+			mtoChecker,
 		}
 
 		err := errors.New("ServerError")
@@ -121,6 +126,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
+			mtoChecker,
 		}
 
 		badParams := params
@@ -139,6 +145,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
+			mtoChecker,
 		}
 
 		uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
@@ -157,6 +164,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
+			mtoChecker,
 		}
 
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)

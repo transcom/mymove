@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
@@ -28,7 +30,8 @@ var allowedServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
 // CreateMTOServiceItemHandler is the handler to update MTO shipments
 type CreateMTOServiceItemHandler struct {
 	handlers.HandlerContext
-	mtoServiceItemCreator services.MTOServiceItemCreator
+	mtoServiceItemCreator  services.MTOServiceItemCreator
+	mtoAvailabilityChecker services.MoveTaskOrderChecker
 }
 
 // Handle handler that updates a mto shipment
@@ -53,6 +56,26 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	if verrs != nil && verrs.HasAny() {
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
 			verrs.Error(), h.GetTraceID(), verrs))
+	} else if mtoServiceItem == nil {
+		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(
+			payloads.ValidationError("Unable to process service item", h.GetTraceID(), nil))
+	}
+
+	moveTaskOrderID := uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID.String())
+	mtoAvailableToPrime, mtoErr := h.mtoAvailabilityChecker.MTOAvailableToPrime(moveTaskOrderID)
+	if mtoErr != nil {
+		logger.Error("primeapi.CreateMTOServiceItemHandler error - checking MTO availability to Prime", zap.Error(mtoErr))
+		switch e := mtoErr.(type) {
+		case services.NotFoundError:
+			return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceID()))
+		default:
+			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		}
+	} else if !mtoAvailableToPrime {
+		logger.Error("primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime", zap.Error(mtoErr))
+		return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(
+			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), h.GetTraceID()))
 	}
 
 	mtoServiceItem, verrs, err := h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
