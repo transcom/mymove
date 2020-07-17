@@ -1,4 +1,4 @@
-ALTER TABLE re_services ADD COLUMN priority integer;
+ALTER TABLE re_services ADD COLUMN priority integer NOT NULL DEFAULT 99;
 
 UPDATE re_services SET priority = 1 WHERE id = '50f1179a-3b72-4fa1-a951-fe5bcc70bd14' AND name = 'Dom. Destination Price';
 UPDATE re_services SET priority = 1 WHERE id = '8d600f25-1def-422d-b159-617c7d59156e' AND name = 'Dom. Linehaul';
@@ -9,5 +9,3 @@ UPDATE re_services SET priority = 1 WHERE id = '07051352-4715-49b5-88e7-045b7541
 UPDATE re_services SET priority = 1 WHERE id = '67ba1eaf-6ffd-49de-9a69-497be7789877' AND name = 'Int''l. HHG Pack';
 UPDATE re_services SET priority = 1 WHERE id = 'd0bb2cae-838a-4fc7-8efc-f7c6ad57431d' AND name = 'Int''l. O->C Shipping & LH';
 UPDATE re_services SET priority = 1 WHERE id = '56bb94cd-f160-4239-a028-b31ffc641eb7' AND name = 'Int''l. O->O Shipping & LH';
-
-UPDATE re_services SET priority = 99 WHERE priority IS NULL;
