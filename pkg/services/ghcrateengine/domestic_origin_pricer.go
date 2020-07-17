@@ -43,7 +43,6 @@ func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate tim
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
 	// look up rate for domestic origin price
-	domesticOriginPriceServiceCode := "DOP"
 	var contractYear models.ReContractYear
 	var domServiceAreaPrice models.ReDomesticServiceAreaPrice
 	err = p.db.Q().
@@ -51,7 +50,7 @@ func (p domesticOriginPricer) Price(contractCode string, requestedPickupDate tim
 		Join("re_services", "service_id = re_services.id").
 		Join("re_contracts", "re_contracts.id = re_domestic_service_area_prices.contract_id").
 		Where("sa.service_area = $1", serviceArea).
-		Where("re_services.code = $2", domesticOriginPriceServiceCode).
+		Where("re_services.code = $2", models.ReServiceCodeDOP).
 		Where("re_contracts.code = $3", contractCode).
 		Where("is_peak_period = $4", isPeakPeriod).
 		First(&domServiceAreaPrice)
