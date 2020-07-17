@@ -1,6 +1,6 @@
 import { dateSort } from 'shared/utils';
 
-export function sortServiceItemsByGroup(serviceItemCards) {
+export default function sortServiceItemsByGroup(serviceItemCards) {
   // Make a copy so we're not mutating the props
   const cards = [...serviceItemCards];
   // Will populate with earliest service item of each shipment id
@@ -15,13 +15,10 @@ export function sortServiceItemsByGroup(serviceItemCards) {
   cards.forEach((serviceItem) => {
     const { shipmentId } = serviceItem;
     // We've already added the earliest service item for this shipment, continue until we get to the next
-    if (shipmentServiceItems[`${shipmentId}`]) {
-      return false;
+    if (!shipmentServiceItems[`${shipmentId}`]) {
+      shipmentServiceItems[`${shipmentId}`] = cards.filter((item) => item.shipmentId === shipmentId);
+      shipmentOrder.push(serviceItem);
     }
-
-    shipmentServiceItems[`${shipmentId}`] = cards.filter((item) => item.shipmentId === shipmentId);
-    shipmentOrder.push(serviceItem);
-    return true;
   });
 
   shipmentOrder.sort(dateCreatedSort);
@@ -29,7 +26,6 @@ export function sortServiceItemsByGroup(serviceItemCards) {
   const sortedCards = [];
   shipmentOrder.forEach((shipment) => {
     sortedCards.push(...shipmentServiceItems[`${shipment.shipmentId}`]);
-    return true;
   });
 
   return sortedCards;

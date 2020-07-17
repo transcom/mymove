@@ -3,18 +3,22 @@
 @import '../../../shared/styles/colors';
 
 .ServiceItemCard {
-  @include u-margin-left(-3);
-  @include u-margin-right(-3);
+  dt {
+    @include u-font-size('base', 2);
+    @include u-font-weight('bold');
+    @include u-color('gray-90');
+  }
+
+  dd {
+    margin-inline-start: 0;
+    @include u-margin-y(1);
+  }
 
   .cardHeader {
+    text-transform: uppercase;
     @include u-margin-top(2);
     @include u-margin-bottom(2);
     @include u-text('gray-40');
-  }
-
-  .textValue {
-    @include u-margin-top(1);
-    @include u-margin-bottom(1);
   }
 
   .statusOption {

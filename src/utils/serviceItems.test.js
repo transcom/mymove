@@ -1,4 +1,5 @@
-import { sortServiceItemsByGroup } from './serviceItems';
+import sortServiceItemsByGroup from './serviceItems';
+
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 describe('serviceItems utils', () => {

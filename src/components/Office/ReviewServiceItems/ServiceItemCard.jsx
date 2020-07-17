@@ -13,63 +13,53 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
   return (
     <div data-testid="ServiceItemCard" className={styles.ServiceItemCard}>
       <ShipmentContainer shipmentType={shipmentType}>
-        <>
-          <h6 data-cy="shipmentTypeHeader" className={styles.cardHeader}>
-            {mtoShipmentTypeToFriendlyDisplay(shipmentType)?.toUpperCase() || 'BASIC SERVICE ITEMS'}
-          </h6>
-          <div className="usa-label">Service item</div>
-          <div data-cy="serviceItemName" className={styles.textValue}>
-            {serviceItemName}
-          </div>
-          <div className="usa-label">Amount</div>
-          <div data-cy="serviceItemAmount" className={styles.textValue}>
-            {toDollarString(amount)}
-          </div>
-          <Fieldset className={styles.statusOption}>
-            <Radio
-              id="approve"
-              checked={status === 'APPROVED'}
-              value="APPROVED"
-              name={`${id}.status`}
-              label="Approve"
-              onChange={onChange}
-            />
-          </Fieldset>
-          <Fieldset className={styles.statusOption}>
-            <Radio
-              id="reject"
-              checked={status === 'REJECTED'}
-              value="REJECTED"
-              name={`${id}.status`}
-              label="Reject"
-              onChange={onChange}
-            />
+        <h6 className={styles.cardHeader}>{mtoShipmentTypeToFriendlyDisplay(shipmentType) || 'BASIC SERVICE ITEMS'}</h6>
+        <dl>
+          <dt>Service item</dt>
+          <dd data-cy="serviceItemName">{serviceItemName}</dd>
 
-            {status === 'REJECTED' && (
-              <FormGroup>
-                <Label htmlFor="rejectReason">Reason for rejection</Label>
-                <Textarea
-                  id="rejectReason"
-                  name={`${id}.rejectionReason`}
-                  onChange={onChange}
-                  value={rejectionReason}
-                />
-              </FormGroup>
-            )}
-          </Fieldset>
-          {(status === 'APPROVED' || status === 'REJECTED') && (
-            <Button
-              type="button"
-              unstyled
-              className={styles.clearStatus}
-              onClick={() => {
-                clearValues(id);
-              }}
-            >
-              X Clear selection
-            </Button>
+          <dt>Amount</dt>
+          <dd data-cy="serviceItemAmount">{toDollarString(amount)}</dd>
+        </dl>
+        <Fieldset className={styles.statusOption}>
+          <Radio
+            id="approve"
+            checked={status === 'APPROVED'}
+            value="APPROVED"
+            name={`${id}.status`}
+            label="Approve"
+            onChange={onChange}
+          />
+        </Fieldset>
+        <Fieldset className={styles.statusOption}>
+          <Radio
+            id="reject"
+            checked={status === 'REJECTED'}
+            value="REJECTED"
+            name={`${id}.status`}
+            label="Reject"
+            onChange={onChange}
+          />
+
+          {status === 'REJECTED' && (
+            <FormGroup>
+              <Label htmlFor="rejectReason">Reason for rejection</Label>
+              <Textarea id="rejectReason" name={`${id}.rejectionReason`} onChange={onChange} value={rejectionReason} />
+            </FormGroup>
           )}
-        </>
+        </Fieldset>
+        {(status === 'APPROVED' || status === 'REJECTED') && (
+          <Button
+            type="button"
+            unstyled
+            className={styles.clearStatus}
+            onClick={() => {
+              clearValues(id);
+            }}
+          >
+            X Clear selection
+          </Button>
+        )}
       </ShipmentContainer>
     </div>
   );

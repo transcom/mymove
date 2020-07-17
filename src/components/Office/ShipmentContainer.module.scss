@@ -2,5 +2,8 @@
 
 .shipmentContainer {
     @include u-padding-top(0);
+    @include u-padding-x(2);
+    @include u-padding-bottom(2);
+    @include u-bg('white');
 }
 

@@ -5,10 +5,10 @@ import * as PropTypes from 'prop-types';
 import styles from './ShipmentContainer.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ShipmentOptionsOneOf } from 'types/shipment';
 
 const ShipmentContainer = ({ className, children, shipmentType }) => {
   const containerClasses = classNames(
-    'container',
     styles.shipmentContainer,
     {
       'container--accent--default': shipmentType === '',
@@ -21,20 +21,18 @@ const ShipmentContainer = ({ className, children, shipmentType }) => {
     className,
   );
 
-  return <div className={`${containerClasses}`}>{children}</div>;
+  return (
+    <div data-testid="ShipmentContainer" className={`${containerClasses}`}>
+      {children}
+    </div>
+  );
 };
 
 ShipmentContainer.propTypes = {
   className: PropTypes.string,
-  children: PropTypes.element.isRequired,
+  children: PropTypes.oneOfType([PropTypes.element, PropTypes.arrayOf(PropTypes.element)]).isRequired,
   /** Describes the type of shipment container. */
-  shipmentType: PropTypes.oneOf([
-    '',
-    SHIPMENT_OPTIONS.HHG,
-    SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
-    SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
-    SHIPMENT_OPTIONS.NTS,
-  ]),
+  shipmentType: ShipmentOptionsOneOf,
 };
 
 ShipmentContainer.defaultProps = {

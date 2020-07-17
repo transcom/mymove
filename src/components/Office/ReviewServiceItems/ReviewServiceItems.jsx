@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button, Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 
-import { sortServiceItemsByGroup } from '../../../shared/utils/serviceItems';
+import sortServiceItemsByGroup from '../../../utils/serviceItems';
 
 import styles from './ReviewServiceItems.module.scss';
 
