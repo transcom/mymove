@@ -59,7 +59,6 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
                 <h2 className={styles.header}>{header}</h2>
               </div>
               <div className={styles.body}>
-                {JSON.stringify(values)}
                 <ServiceItemCard
                   key={`serviceItemCard_${currentCard.id}`}
                   // eslint-disable-next-line react/jsx-props-no-spreading

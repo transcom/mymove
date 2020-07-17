@@ -6,9 +6,11 @@ import styles from './ServiceItemCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatters';
+import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, value, clearValues }) => {
   const { status, rejectionReason } = value;
+  const { APPROVED, REJECTED } = SERVICE_ITEM_STATUS;
 
   return (
     <div data-testid="ServiceItemCard" className={styles.ServiceItemCard}>
@@ -24,8 +26,8 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
         <Fieldset className={styles.statusOption}>
           <Radio
             id="approve"
-            checked={status === 'APPROVED'}
-            value="APPROVED"
+            checked={status === APPROVED}
+            value={APPROVED}
             name={`${id}.status`}
             label="Approve"
             onChange={onChange}
@@ -34,21 +36,21 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
         <Fieldset className={styles.statusOption}>
           <Radio
             id="reject"
-            checked={status === 'REJECTED'}
-            value="REJECTED"
+            checked={status === REJECTED}
+            value={REJECTED}
             name={`${id}.status`}
             label="Reject"
             onChange={onChange}
           />
 
-          {status === 'REJECTED' && (
+          {status === REJECTED && (
             <FormGroup>
               <Label htmlFor="rejectReason">Reason for rejection</Label>
               <Textarea id="rejectReason" name={`${id}.rejectionReason`} onChange={onChange} value={rejectionReason} />
             </FormGroup>
           )}
         </Fieldset>
-        {(status === 'APPROVED' || status === 'REJECTED') && (
+        {(status === APPROVED || status === REJECTED) && (
           <Button
             type="button"
             unstyled

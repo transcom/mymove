@@ -11,6 +11,9 @@
 
   .form {
     max-width: none;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
   }
 
   .top button[type='button'] {
@@ -52,7 +55,8 @@
     @include u-padding-x('4');
     @include u-bg('gray-5');
     @include u-overflow-y('auto');
-    flex-grow: 1;
+    flex: 1 1 0;
+    flex-basis: 0;
   }
 
   .bottom {
