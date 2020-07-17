@@ -729,9 +729,6 @@ func init() {
         "currentAddress": {
           "$ref": "#/definitions/Address"
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "dodID": {
           "type": "string"
         },
@@ -2767,9 +2764,6 @@ func init() {
           "example": "COAST_GUARD"
         },
         "currentAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "dodID": {
