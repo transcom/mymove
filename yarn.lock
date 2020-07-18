@@ -14098,10 +14098,10 @@ react-hotkeys@2.0.0:
   dependencies:
     prop-types "^15.6.1"
 
-react-idle-timer@^4.2.12:
-  version "4.2.12"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.2.12.tgz#3756e3256cd225f319ed093b3d5ebe0d98fcc498"
-  integrity sha512-YD/2Oe4PU5uRv/TH6zTxykKMHpRHWHPEWCUohda81o/jzsrlgyUrklfy46fd8WjgYhlNkJKsiX/GXJAQQC1hcQ==
+react-idle-timer@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.3.0.tgz#d25ccfde6228f1223daea0ab48fba98feb529e64"
+  integrity sha512-QrPvJWL0yBy7raBP9qmAAivV73d20WJPwyw3ptJG/w/z3bQ8kljqMA2mS8wa/s3kkbCYdu10fOcvYynLaj6HFA==
 
 react-input-autosize@^2.2.2:
   version "2.2.2"
