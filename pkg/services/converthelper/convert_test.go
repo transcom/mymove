@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/services/converthelper"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -13,7 +14,30 @@ import (
 )
 
 func (suite *ConvertSuite) TestConvertFromPPMToGHC() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			HasDependents: false,
+		},
+	})
+	moveOrder := move.Orders
+	sm := moveOrder.ServiceMember
+	hasDependents := moveOrder.HasDependents
+	spouseHasProGear := moveOrder.SpouseHasProGear
+	weight, _ := models.GetEntitlement(*sm.Rank, hasDependents, spouseHasProGear)
+	entitlement := models.Entitlement{
+		DependentsAuthorized: &hasDependents,
+		DBAuthorizedWeight:   models.IntPointer(weight),
+	}
+	suite.MustSave(&entitlement)
+	moveOrder.Entitlement = &entitlement
+	moveOrder.EntitlementID = &entitlement.ID
+	moveOrder.OriginDutyStation = &sm.DutyStation
+	moveOrder.OriginDutyStationID = &sm.DutyStation.ID
+	orderTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
+	moveOrder.OrdersTypeDetail = &orderTypeDetail
+	moveOrder.Grade = (*string)(sm.Rank)
+	suite.MustSave(&moveOrder)
+
 	suite.NotNil(move)
 
 	contractor := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{
@@ -40,17 +64,17 @@ func (suite *ConvertSuite) TestConvertFromPPMToGHC() {
 	moID, conversionErr := converthelper.ConvertFromPPMToGHC(suite.DB(), move.ID)
 	suite.FatalNoError(conversionErr)
 
-	var mo models.MoveOrder
-	suite.FatalNoError(suite.DB().Eager("Customer", "Entitlement").Find(&mo, moID))
+	var mo models.Order
+	suite.FatalNoError(suite.DB().Eager("ServiceMember", "Entitlement").Find(&mo, moID))
 
 	suite.NotNil(mo.ReportByDate)
-	suite.NotNil(mo.DateIssued)
-	suite.NotNil(mo.OrderType)
-	suite.NotNil(mo.OrderTypeDetail)
+	suite.NotNil(mo.IssueDate)
+	suite.NotNil(mo.OrdersType)
+	suite.NotNil(mo.OrdersTypeDetail)
 	suite.NotNil(mo.Grade)
 
-	suite.NotEqual(uuid.Nil, mo.DestinationDutyStationID)
-	suite.Equal(&move.Orders.NewDutyStationID, mo.DestinationDutyStationID)
+	suite.NotEqual(uuid.Nil, mo.NewDutyStationID)
+	suite.Equal(move.Orders.NewDutyStationID, mo.NewDutyStationID)
 
 	suite.NotEqual(uuid.Nil, mo.OriginDutyStationID)
 	suite.Equal(move.Orders.ServiceMember.DutyStationID, mo.OriginDutyStationID)
@@ -59,13 +83,13 @@ func (suite *ConvertSuite) TestConvertFromPPMToGHC() {
 	suite.Equal(false, *mo.Entitlement.DependentsAuthorized)
 	suite.Equal(7000, *mo.Entitlement.DBAuthorizedWeight)
 
-	customer := mo.Customer
+	customer := mo.ServiceMember
 	suite.Equal(*move.Orders.ServiceMember.Edipi, *customer.Edipi)
 	suite.NotEqual(uuid.Nil, customer.UserID)
 	suite.Equal(move.Orders.ServiceMember.UserID, customer.UserID)
 
 	suite.NotEqual(uuid.Nil, customer.UserID)
-	suite.Equal(&customer.ID, mo.CustomerID)
+	suite.Equal(customer.ID, mo.ServiceMemberID)
 
 	var mto models.MoveTaskOrder
 	suite.FatalNoError(suite.DB().Eager().Where("move_order_id = ?", mo.ID).First(&mto))
@@ -123,17 +147,16 @@ func (suite *ConvertSuite) TestConvertProfileOrdersToGHC() {
 	moID, conversionErr := converthelper.ConvertProfileOrdersToGHC(suite.DB(), move.ID)
 	suite.FatalNoError(conversionErr)
 
-	var mo models.MoveOrder
-	suite.FatalNoError(suite.DB().Eager("Customer", "Entitlement").Find(&mo, moID))
+	var mo models.Order
+	suite.FatalNoError(suite.DB().Eager("ServiceMember", "Entitlement").Find(&mo, moID))
 
 	suite.NotNil(mo.ReportByDate)
-	suite.NotNil(mo.DateIssued)
-	suite.NotNil(mo.OrderType)
-	suite.NotNil(mo.OrderTypeDetail)
-	suite.NotNil(mo.Grade)
+	suite.NotNil(mo.IssueDate)
+	suite.NotNil(mo.OrdersType)
+	suite.Equal(mo.Grade, (*string)(mo.ServiceMember.Rank))
 
-	suite.NotEqual(uuid.Nil, mo.DestinationDutyStationID)
-	suite.Equal(&move.Orders.NewDutyStationID, mo.DestinationDutyStationID)
+	suite.NotEqual(uuid.Nil, mo.NewDutyStationID)
+	suite.Equal(move.Orders.NewDutyStationID, mo.NewDutyStationID)
 
 	suite.NotEqual(uuid.Nil, mo.OriginDutyStationID)
 	suite.Equal(move.Orders.ServiceMember.DutyStationID, mo.OriginDutyStationID)
@@ -142,13 +165,13 @@ func (suite *ConvertSuite) TestConvertProfileOrdersToGHC() {
 	suite.Equal(false, *mo.Entitlement.DependentsAuthorized)
 	suite.Equal(7000, *mo.Entitlement.DBAuthorizedWeight)
 
-	customer := mo.Customer
+	customer := mo.ServiceMember
 	suite.Equal(*move.Orders.ServiceMember.Edipi, *customer.Edipi)
 	suite.NotEqual(uuid.Nil, customer.UserID)
 	suite.Equal(move.Orders.ServiceMember.UserID, customer.UserID)
 
 	suite.NotEqual(uuid.Nil, customer.UserID)
-	suite.Equal(&customer.ID, mo.CustomerID)
+	suite.Equal(customer.ID, mo.ServiceMemberID)
 
 	var mto models.MoveTaskOrder
 	suite.FatalNoError(suite.DB().Eager().Where("move_order_id = ?", mo.ID).First(&mto))
@@ -184,14 +207,14 @@ func (suite *ConvertSuite) TestConvertFromPPMToGHCMoveOrdersExist() {
 	suite.FatalNoError(conversionErr)
 	_, conversionErr = converthelper.ConvertFromPPMToGHC(suite.DB(), move.ID)
 	suite.FatalNoError(conversionErr)
-	var moveOrders []models.MoveOrder
+	var orders []models.Order
 
-	err := suite.DB().Where("customer_id = $1", sm.ID).All(&moveOrders)
+	err := suite.DB().Where("service_member_id = $1", sm.ID).All(&orders)
 	suite.FatalNoError(err)
-	suite.Equal(1, len(moveOrders))
+	suite.Equal(1, len(orders))
 
 	var moveTaskOrders []models.MoveTaskOrder
-	err = suite.DB().Where("move_order_id = $1", moveOrders[0].ID).All(&moveTaskOrders)
+	err = suite.DB().Where("move_order_id = $1", orders[0].ID).All(&moveTaskOrders)
 	suite.FatalNoError(err)
 	suite.Equal(1, len(moveTaskOrders))
 }

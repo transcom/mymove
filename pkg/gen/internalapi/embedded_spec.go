@@ -4877,9 +4877,13 @@ func init() {
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "GHC",
+        "NTS"
       ],
       "x-display-value": {
+        "GHC": "GHC",
+        "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation"
@@ -11106,9 +11110,13 @@ func init() {
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "GHC",
+        "NTS"
       ],
       "x-display-value": {
+        "GHC": "GHC",
+        "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation"
