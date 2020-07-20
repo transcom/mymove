@@ -973,34 +973,172 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781"),
-		},
-		MoveTaskOrder: mto,
-		MTOShipment:   MTOShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH
-		},
-	})
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
-		},
-		MoveTaskOrder: mto,
-		MTOShipment:   MTOShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP
-		},
-	})
-
-	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:            uuid.FromStringOrNil("a2c34dba-015f-4f96-a38b-0c0b9272e208"),
 			MoveTaskOrder: mto,
 			IsFinal:       false,
 			Status:        models.PaymentRequestStatusPending,
 		},
+	})
+
+	msCost := unit.Cents(10000)
+	serviceItemMS := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("4fba4249-b5aa-4c29-8448-66aa07ac8560"),
+		},
+		MoveTaskOrder: mto,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &msCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemMS,
+	})
+
+	csCost := unit.Cents(25000)
+	serviceItemCS := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("e43c0df3-0dcd-4b70-adaa-46d669e094ad"),
+		},
+		MoveTaskOrder: mto,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &csCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemCS,
+	})
+
+	dlhCost := unit.Cents(99999)
+	serviceItemDLH := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781"),
+		},
+		MoveTaskOrder: mto,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dlhCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDLH,
+	})
+
+	fscCost := unit.Cents(55555)
+	serviceItemFSC := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("b380f732-2fb2-49a0-8260-7a52ce223c59"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &fscCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemFSC,
+	})
+
+	dopCost := unit.Cents(3456)
+	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dopCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDOP,
+	})
+
+	ddpCost := unit.Cents(7890)
+	serviceItemDDP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("551caa30-72fe-469a-b463-ad1f14780432"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &ddpCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDDP,
+	})
+
+	// Schedule 1 peak price
+	dpkCost := unit.Cents(6544)
+	serviceItemDPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("616dfdb5-52ec-436d-a570-a464c9dbd47a"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK - Domestic Packing
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dpkCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDPK,
+	})
+
+	// Schedule 1 peak price
+	dupkCost := unit.Cents(8544)
+	serviceItemDUPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("1baeee0e-00d6-4d90-b22c-654c11d50d0f"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dupkCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDUPK,
 	})
 
 	/* A user with Roles */
