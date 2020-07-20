@@ -1,6 +1,8 @@
 package movetaskorder_test
 
 import (
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/services"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
 
@@ -24,8 +26,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 	suite.Equal(availableToPrime, true)
 	suite.NoError(err)
 
-	availableToPrime2, expectedErr := mtoChecker.MTOAvailableToPrime(notAvailableMTO.ID)
-	suite.Error(expectedErr)
-	suite.IsType(expectedErr, services.NotFoundError{})
+	availableToPrime2, err2 := mtoChecker.MTOAvailableToPrime(notAvailableMTO.ID)
 	suite.Equal(availableToPrime2, false)
+	suite.NoError(err2)
+
+	availableToPrime3, err3 := mtoChecker.MTOAvailableToPrime(uuid.Nil)
+	suite.Error(err3)
+	suite.IsType(err3, services.NotFoundError{})
+	suite.Equal(availableToPrime3, false)
 }
