@@ -58,6 +58,13 @@ type DomesticOriginPricer interface {
 	ParamsPricer
 }
 
+// DomesticDestinationPricer prices the domestic destination price for a GHC Move
+//go:generate mockery -name DomesticDestinationPricer
+type DomesticDestinationPricer interface {
+	Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, error)
+	ParamsPricer
+}
+
 // Older pricers below (pre-dates payment requests)
 
 // DomesticServiceAreaPricer domestic prices: origin and destination service area, SIT day 1, SIT Addt'l days

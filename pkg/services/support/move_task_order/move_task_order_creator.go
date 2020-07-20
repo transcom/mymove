@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -80,7 +81,7 @@ func NewInternalMoveTaskOrderCreator(db *pop.Connection) support.InternalMoveTas
 }
 
 // createMoveOrder creates a basic move order - this is a support function do not use in production
-func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, moveOrderPayload *supportmessages.MoveOrder, logger handlers.Logger) (*models.MoveOrder, error) {
+func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, moveOrderPayload *supportmessages.MoveOrder, logger handlers.Logger) (*models.Order, error) {
 	if moveOrderPayload == nil {
 		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "MoveOrder definition is required to create MoveTaskOrder")
 		return nil, returnErr
@@ -90,8 +91,8 @@ func createMoveOrder(tx *pop.Connection, customer *models.ServiceMember, moveOrd
 	moveOrder := MoveOrderModel(moveOrderPayload)
 
 	// Add customer to mO
-	moveOrder.Customer = customer
-	moveOrder.CustomerID = &customer.ID
+	moveOrder.ServiceMember = *customer
+	moveOrder.ServiceMemberID = customer.ID
 
 	// Creates the moveOrder and the entitlement at the same time
 	verrs, err := tx.Eager().ValidateAndCreate(moveOrder)
@@ -198,30 +199,34 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 // duty stations but will preserve the ID if provided.
 // It will create nested customer and entitlement models
 // if those are provided in the payload
-func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.MoveOrder {
+func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 	if moveOrderPayload == nil {
 		return nil
 	}
-	model := &models.MoveOrder{
-		ID:          uuid.FromStringOrNil(moveOrderPayload.ID.String()),
-		Grade:       &moveOrderPayload.Rank,
-		OrderNumber: moveOrderPayload.OrderNumber,
-		Customer:    CustomerModel(moveOrderPayload.Customer),
-		Entitlement: EntitlementModel(moveOrderPayload.Entitlement),
+	model := &models.Order{
+		ID:               uuid.FromStringOrNil(moveOrderPayload.ID.String()),
+		Grade:            &moveOrderPayload.Rank,
+		OrdersNumber:     moveOrderPayload.OrderNumber,
+		ServiceMember:    *CustomerModel(moveOrderPayload.Customer),
+		Entitlement:      EntitlementModel(moveOrderPayload.Entitlement),
+		Status:           (models.OrderStatus)(moveOrderPayload.Status),
+		IssueDate:        (time.Time)(moveOrderPayload.DateIssued),
+		OrdersType:       (internalmessages.OrdersType)(moveOrderPayload.OrderType),
+		UploadedOrdersID: uuid.FromStringOrNil(moveOrderPayload.UploadedOrdersID.String()),
 	}
 
 	customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())
-	model.CustomerID = &customerID
+	model.ServiceMemberID = customerID
 
 	destinationDutyStationID := uuid.FromStringOrNil(moveOrderPayload.DestinationDutyStationID.String())
-	model.DestinationDutyStationID = &destinationDutyStationID
+	model.NewDutyStationID = destinationDutyStationID
 
 	originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
 	model.OriginDutyStationID = &originDutyStationID
 
 	reportByDate := time.Time(moveOrderPayload.ReportByDate)
 	if !reportByDate.IsZero() {
-		model.ReportByDate = &reportByDate
+		model.ReportByDate = reportByDate
 	}
 	return model
 }

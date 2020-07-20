@@ -43,7 +43,7 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, sin
 		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.MTOAgents",
-		"MoveOrder.Customer",
+		"MoveOrder.ServiceMember",
 		"MoveOrder.Entitlement")
 
 	if isAvailableToPrime {
@@ -82,7 +82,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mo
 		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.MTOAgents",
-		"MoveOrder.Customer",
+		"MoveOrder.ServiceMember",
 		"MoveOrder.Entitlement").Find(mto, moveTaskOrderID); err != nil {
 
 		switch err {

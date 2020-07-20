@@ -3107,7 +3107,7 @@ func init() {
         "claimed_at": {
           "description": "when the access code was claimed or used",
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "x-nullable": true,
           "example": "2018-04-12T23:20:50.52Z"
         },
@@ -4877,9 +4877,13 @@ func init() {
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "GHC",
+        "NTS"
       ],
       "x-display-value": {
+        "GHC": "GHC",
+        "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation"
@@ -9330,7 +9334,7 @@ func init() {
         "claimed_at": {
           "description": "when the access code was claimed or used",
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "x-nullable": true,
           "example": "2018-04-12T23:20:50.52Z"
         },
@@ -11106,9 +11110,13 @@ func init() {
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "GHC",
+        "NTS"
       ],
       "x-display-value": {
+        "GHC": "GHC",
+        "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation"
