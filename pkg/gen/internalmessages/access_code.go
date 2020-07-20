@@ -20,7 +20,7 @@ import (
 type AccessCode struct {
 
 	// when the access code was claimed or used
-	// Format: datetime
+	// Format: date-time
 	ClaimedAt *strfmt.DateTime `json:"claimed_at,omitempty"`
 
 	// code
@@ -87,7 +87,7 @@ func (m *AccessCode) validateClaimedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("claimed_at", "body", "datetime", m.ClaimedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("claimed_at", "body", "date-time", m.ClaimedAt.String(), formats); err != nil {
 		return err
 	}
 
