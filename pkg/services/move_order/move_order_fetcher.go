@@ -18,7 +18,7 @@ func (f moveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
 	var moveOrders []models.Order
 	err := f.db.Eager(
 		"ServiceMember",
-		"NewDutyStation",
+		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",
 	).All(&moveOrders)
