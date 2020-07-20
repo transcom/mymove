@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import { AddressFields } from './AddressFields';
 
-const wrapper = mount(<AddressFields />);
+const wrapper = mount(<AddressFields handleChange={jest.fn()} />);
 
 describe('AddressFields component', () => {
   it('renders', () => {

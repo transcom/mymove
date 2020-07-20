@@ -29,73 +29,100 @@ class HHGDetailsForm extends Component {
     const fieldsetClasses = { margin: 'margin-top-2' };
     return (
       <Formik initialValues={initialValues}>
-        <WizardPage pageKey={pageKey} pageList={pageList} handleSubmit={() => {}}>
-          <Form>
-            <Fieldset legend="Pickup date" className={fieldsetClasses.margin}>
-              <DatePickerInput name="requestedPickupDate" label="Requested pickup date" id="requested-pickup-date" />
-            </Fieldset>
-            <span className="usa-hint" id="pickupDateHint">
-              Your movers will confirm this date or one shortly before or after.
-            </span>
-            <AddressFields
-              initialValues={initialValues.pickupLocation}
-              legend="Pickup location"
-              className={fieldsetClasses.margin}
-            />
-            <ContactInfoFields
-              initialValues={initialValues.releasingAgent}
-              legend="Releasing agent"
-              className={fieldsetClasses.margin}
-              subtitle="Who can allow the movers to take your stuff if you're not there?"
-            />
-            <Fieldset legend="Delivery date" className={fieldsetClasses.margin}>
-              <DatePickerInput
-                name="requestedDeliveryDate"
-                label="Requested delivery date"
-                id="requested-delivery-date"
-              />
-              <span className="usa-hint" id="deliveryDateHint">
+        {({ handleChange, values }) => (
+          <WizardPage pageKey={pageKey} pageList={pageList} handleSubmit={() => {}}>
+            <Form>
+              <Fieldset legend="Pickup date" className={fieldsetClasses.margin}>
+                <DatePickerInput
+                  name="requestedPickupDate"
+                  label="Requested pickup date"
+                  id="requested-pickup-date"
+                  onChange={handleChange}
+                  value={values.requestedPickupDate}
+                />
+              </Fieldset>
+              <span className="usa-hint" id="pickupDateHint">
                 Your movers will confirm this date or one shortly before or after.
               </span>
-            </Fieldset>
-            <Fieldset legend="Delivery location" className={fieldsetClasses.margin}>
-              <Label>Do you know your delivery address?</Label>
-              <Radio
-                className="display-inline"
-                id="has-delivery-address"
-                label="Yes"
-                name="has-delivery-address"
-                onChange={this.handleChangeHasDeliveryAddress}
+              <AddressFields
+                initialValues={initialValues.pickupLocation}
+                legend="Pickup location"
+                className={fieldsetClasses.margin}
+                onChange={handleChange}
+                values={values.pickupLocation}
               />
-              <Radio
-                className="display-inline-flex"
-                id="no-delivery-address"
-                label="No"
-                name="has-delivery-address"
-                defaultChecked
-                onChange={this.handleChangeHasDeliveryAddress}
+              <ContactInfoFields
+                initialValues={initialValues.releasingAgent}
+                legend="Releasing agent"
+                className={fieldsetClasses.margin}
+                subtitle="Who can allow the movers to take your stuff if you're not there?"
+                onChange={handleChange}
+                values={values.releasingAgent}
               />
-              {hasDeliveryAddress ? (
-                <AddressFields initialValues={initialValues.deliveryLocation} className={fieldsetClasses.margin} />
-              ) : (
-                <>
-                  <div className={fieldsetClasses.margin}>We can use the zip of your new duty station.</div>
-                  <div>[City], [State] [New duty station zip]</div>
-                </>
-              )}
-            </Fieldset>
-            <ContactInfoFields
-              initialValues={initialValues.receivingAgent}
-              legend="Receiving agent"
-              className={fieldsetClasses.margin}
-              subtitle="Who can take delivery for you if the movers arrive and you're not there?"
-            />
-            <Fieldset legend="Remarks" className={fieldsetClasses.margin}>
-              <Label hint="(optional)">Anything else you would like us to know?</Label>
-              <TextInput name="remarks" id="requested-delivery-date" maxLength={1500} />
-            </Fieldset>
-          </Form>
-        </WizardPage>
+              <Fieldset legend="Delivery date" className={fieldsetClasses.margin}>
+                <DatePickerInput
+                  name="requestedDeliveryDate"
+                  label="Requested delivery date"
+                  id="requested-delivery-date"
+                  onChange={handleChange}
+                  value={values.requestedDeliveryDate}
+                />
+                <span className="usa-hint" id="deliveryDateHint">
+                  Your movers will confirm this date or one shortly before or after.
+                </span>
+              </Fieldset>
+              <Fieldset legend="Delivery location" className={fieldsetClasses.margin}>
+                <Label>Do you know your delivery address?</Label>
+                <Radio
+                  className="display-inline"
+                  id="has-delivery-address"
+                  label="Yes"
+                  name="has-delivery-address"
+                  onChange={this.handleChangeHasDeliveryAddress}
+                />
+                <Radio
+                  className="display-inline-flex"
+                  id="no-delivery-address"
+                  label="No"
+                  name="has-delivery-address"
+                  defaultChecked
+                  onChange={this.handleChangeHasDeliveryAddress}
+                />
+                {hasDeliveryAddress ? (
+                  <AddressFields
+                    initialValues={initialValues.deliveryLocation}
+                    className={fieldsetClasses.margin}
+                    onChange={handleChange}
+                    values={values.deliveryLocation}
+                  />
+                ) : (
+                  <>
+                    <div className={fieldsetClasses.margin}>We can use the zip of your new duty station.</div>
+                    <div>[City], [State] [New duty station zip]</div>
+                  </>
+                )}
+              </Fieldset>
+              <ContactInfoFields
+                initialValues={initialValues.receivingAgent}
+                legend="Receiving agent"
+                className={fieldsetClasses.margin}
+                subtitle="Who can take delivery for you if the movers arrive and you're not there?"
+                onChange={handleChange}
+                values={values.receivingAgent}
+              />
+              <Fieldset legend="Remarks" className={fieldsetClasses.margin}>
+                <Label hint="(optional)">Anything else you would like us to know?</Label>
+                <TextInput
+                  name="remarks"
+                  id="remarks"
+                  maxLength={1500}
+                  onChange={handleChange}
+                  value={values.remarks}
+                />
+              </Fieldset>
+            </Form>
+          </WizardPage>
+        )}
       </Formik>
     );
   }
