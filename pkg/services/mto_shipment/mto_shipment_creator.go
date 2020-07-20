@@ -57,7 +57,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 	// check if MTO exists
 	err = f.builder.FetchOne(&moveTaskOrder, queryFilters)
 	if err != nil {
-		return nil, services.NewNotFoundError(moveTaskOrderID, "")
+		return nil, services.NewNotFoundError(moveTaskOrderID, "for moveTaskOrder")
 	}
 
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
