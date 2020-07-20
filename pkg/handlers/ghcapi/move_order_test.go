@@ -14,7 +14,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
-	moveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	moveOrder := moveTaskOrder.MoveOrder
 	request := httptest.NewRequest("GET", "/move-orders/{moveOrderID}", nil)
 	params := moveorderop.GetMoveOrderParams{
 		HTTPRequest: request,
