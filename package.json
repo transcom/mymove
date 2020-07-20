@@ -69,6 +69,7 @@
     "swagger-client": "^3.10.12",
     "swagger-ui-dist": "^3.29.0",
     "uswds": "2.8.0",
+    "uuid": "^8.2.0",
     "yup": "^0.29.1"
   },
   "resolutions": {
@@ -101,7 +102,6 @@
     "@storybook/addon-links": "^5.3.19",
     "@storybook/addons": "^5.3.17",
     "@storybook/react": "^5.3.19",
-    "storybook-addons-abstract": "^5.0.6",
     "danger": "^10.2.1",
     "danger-plugin-jira-issue": "^1.4.1",
     "enzyme": "^3.11.0",
@@ -116,6 +116,7 @@
     "mime-types": "^2.1.27",
     "mockdate": "^3.0.2",
     "prettier": "=2.0.5",
+    "storybook-addons-abstract": "^5.0.6",
     "terser-webpack-plugin": "^3.0.6"
   },
   "browserslist": [

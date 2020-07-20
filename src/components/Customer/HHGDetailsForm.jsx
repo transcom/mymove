@@ -36,7 +36,7 @@ class HHGDetailsForm extends Component {
                 <DatePickerInput
                   name="requestedPickupDate"
                   label="Requested pickup date"
-                  id="requested-pickup-date"
+                  id="requestedPickupDate"
                   onChange={handleChange}
                   value={values.requestedPickupDate}
                 />
@@ -63,7 +63,7 @@ class HHGDetailsForm extends Component {
                 <DatePickerInput
                   name="requestedDeliveryDate"
                   label="Requested delivery date"
-                  id="requested-delivery-date"
+                  id="requestedDeliveryDate"
                   onChange={handleChange}
                   value={values.requestedDeliveryDate}
                 />
@@ -77,14 +77,14 @@ class HHGDetailsForm extends Component {
                   className="display-inline"
                   id="has-delivery-address"
                   label="Yes"
-                  name="has-delivery-address"
+                  name="hasDeliveryAddress"
                   onChange={this.handleChangeHasDeliveryAddress}
                 />
                 <Radio
                   className="display-inline-flex"
                   id="no-delivery-address"
                   label="No"
-                  name="has-delivery-address"
+                  name="hasDeliveryAddress"
                   defaultChecked
                   onChange={this.handleChangeHasDeliveryAddress}
                 />
