@@ -25,7 +25,7 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
         </dl>
         <Fieldset className={styles.statusOption}>
           <Radio
-            id="approve"
+            id={`${id}.approve`}
             checked={status === APPROVED}
             value={APPROVED}
             name={`${id}.status`}
@@ -35,7 +35,7 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
         </Fieldset>
         <Fieldset className={styles.statusOption}>
           <Radio
-            id="reject"
+            id={`${id}.reject`}
             checked={status === REJECTED}
             value={REJECTED}
             name={`${id}.status`}
@@ -46,7 +46,12 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
           {status === REJECTED && (
             <FormGroup>
               <Label htmlFor="rejectReason">Reason for rejection</Label>
-              <Textarea id="rejectReason" name={`${id}.rejectionReason`} onChange={onChange} value={rejectionReason} />
+              <Textarea
+                id={`${id}.rejectReason`}
+                name={`${id}.rejectionReason`}
+                onChange={onChange}
+                value={rejectionReason}
+              />
             </FormGroup>
           )}
         </Fieldset>
