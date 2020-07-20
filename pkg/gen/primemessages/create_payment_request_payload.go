@@ -32,6 +32,7 @@ type CreatePaymentRequestPayload struct {
 
 	// service items
 	// Required: true
+	// Min Items: 1
 	ServiceItems []*ServiceItem `json:"serviceItems"`
 }
 
@@ -69,6 +70,12 @@ func (m *CreatePaymentRequestPayload) validateMoveTaskOrderID(formats strfmt.Reg
 func (m *CreatePaymentRequestPayload) validateServiceItems(formats strfmt.Registry) error {
 
 	if err := validate.Required("serviceItems", "body", m.ServiceItems); err != nil {
+		return err
+	}
+
+	iServiceItemsSize := int64(len(m.ServiceItems))
+
+	if err := validate.MinItems("serviceItems", "body", iServiceItemsSize, 1); err != nil {
 		return err
 	}
 
