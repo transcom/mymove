@@ -666,6 +666,7 @@ func init() {
         },
         "serviceItems": {
           "type": "array",
+          "minItems": 1,
           "items": {
             "$ref": "#/definitions/ServiceItem"
           }
@@ -2703,6 +2704,7 @@ func init() {
         },
         "serviceItems": {
           "type": "array",
+          "minItems": 1,
           "items": {
             "$ref": "#/definitions/ServiceItem"
           }

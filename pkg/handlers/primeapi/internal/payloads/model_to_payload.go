@@ -85,32 +85,31 @@ func Customer(customer *models.ServiceMember) *primemessages.Customer {
 }
 
 // MoveOrder payload
-func MoveOrder(moveOrder *models.MoveOrder) *primemessages.MoveOrder {
+func MoveOrder(moveOrder *models.Order) *primemessages.MoveOrder {
 	if moveOrder == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(moveOrder.DestinationDutyStation)
+	destinationDutyStation := DutyStation(&moveOrder.NewDutyStation)
 	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
 	if moveOrder.Grade != nil && moveOrder.Entitlement != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
 	entitlements := Entitlement(moveOrder.Entitlement)
 	payload := primemessages.MoveOrder{
-		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
-		Customer:               Customer(moveOrder.Customer),
+		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
+		Customer:               Customer(&moveOrder.ServiceMember),
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
-		OrderNumber:            moveOrder.OrderNumber,
-		LinesOfAccounting:      moveOrder.LinesOfAccounting,
+		OrderNumber:            moveOrder.OrdersNumber,
+		LinesOfAccounting:      moveOrder.TAC,
 		Rank:                   moveOrder.Grade,
 		ConfirmationNumber:     moveOrder.ConfirmationNumber,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
+		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
 	}
-	if moveOrder.ReportByDate != nil {
-		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
-	}
+
 	return &payload
 }
 
@@ -454,7 +453,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)
 	payload.SetStatus(primemessages.MTOServiceItemStatus(mtoServiceItem.Status))
-	payload.SetRejectionReason(mtoServiceItem.Reason)
 	payload.SetETag(etag.GenerateEtag(mtoServiceItem.UpdatedAt))
 	return payload
 }

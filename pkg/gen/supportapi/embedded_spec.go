@@ -743,6 +743,32 @@ func init() {
         }
       }
     },
+    "Document": {
+      "type": "object",
+      "required": [
+        "id",
+        "serviceMemberID",
+        "uploads"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "serviceMemberID": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadPayload"
+          }
+        }
+      }
+    },
     "DutyStation": {
       "type": "object",
       "properties": {
@@ -1122,6 +1148,9 @@ func init() {
           "x-nullable": true,
           "example": "030-00362"
         },
+        "orderType": {
+          "$ref": "#/definitions/OrderType"
+        },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -1141,6 +1170,18 @@ func init() {
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
+        },
+        "status": {
+          "$ref": "#/definitions/OrdersStatus"
+        },
+        "uploadedOrders": {
+          "$ref": "#/definitions/Document"
+        },
+        "uploadedOrdersID": {
+          "description": "ID of the uploaded document.",
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -1242,6 +1283,40 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "OrderType": {
+      "type": "string",
+      "title": "Order type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION",
+        "GHC",
+        "NTS"
+      ],
+      "x-display-value": {
+        "GHC": "GHC",
+        "NTS": "NTS",
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
+      }
+    },
+    "OrdersStatus": {
+      "type": "string",
+      "title": "Move status",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "CANCELED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
       }
     },
     "PaymentRequest": {
@@ -1478,6 +1553,58 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "UploadPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "url",
+        "filename",
+        "content_type",
+        "bytes",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer"
+        },
+        "content_type": {
+          "type": "string",
+          "format": "mime-type",
+          "example": "application/pdf"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filename": {
+          "type": "string",
+          "example": "filename.pdf"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
+        },
+        "updated_at": {
           "type": "string",
           "format": "date-time"
         },
@@ -2438,6 +2565,32 @@ func init() {
         }
       }
     },
+    "Document": {
+      "type": "object",
+      "required": [
+        "id",
+        "serviceMemberID",
+        "uploads"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "serviceMemberID": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UploadPayload"
+          }
+        }
+      }
+    },
     "DutyStation": {
       "type": "object",
       "properties": {
@@ -2817,6 +2970,9 @@ func init() {
           "x-nullable": true,
           "example": "030-00362"
         },
+        "orderType": {
+          "$ref": "#/definitions/OrderType"
+        },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -2836,6 +2992,18 @@ func init() {
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
+        },
+        "status": {
+          "$ref": "#/definitions/OrdersStatus"
+        },
+        "uploadedOrders": {
+          "$ref": "#/definitions/Document"
+        },
+        "uploadedOrdersID": {
+          "description": "ID of the uploaded document.",
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -2937,6 +3105,40 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "OrderType": {
+      "type": "string",
+      "title": "Order type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION",
+        "GHC",
+        "NTS"
+      ],
+      "x-display-value": {
+        "GHC": "GHC",
+        "NTS": "NTS",
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
+      }
+    },
+    "OrdersStatus": {
+      "type": "string",
+      "title": "Move status",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "CANCELED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
       }
     },
     "PaymentRequest": {
@@ -3173,6 +3375,58 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "UploadPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "url",
+        "filename",
+        "content_type",
+        "bytes",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer"
+        },
+        "content_type": {
+          "type": "string",
+          "format": "mime-type",
+          "example": "application/pdf"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filename": {
+          "type": "string",
+          "example": "filename.pdf"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
+        },
+        "updated_at": {
           "type": "string",
           "format": "date-time"
         },

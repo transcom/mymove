@@ -590,6 +590,25 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+  Document:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      serviceMemberID:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/UploadPayload'
+    required:
+      - id
+      - serviceMemberID
+      - uploads
   DutyStation:
     type: object
     properties:
@@ -697,6 +716,8 @@ definitions:
           ID of the destination duty station.
 
           If creating a MoveTaskOrder, this should match an existing duty station.
+      orderType:
+        $ref: '#/definitions/OrderType'
       originDutyStation:
         $ref: '#/definitions/DutyStation'
       originDutyStationID:
@@ -716,6 +737,15 @@ definitions:
         type: string
         format: date
         example: '2020-01-01'
+      status:
+        $ref: '#/definitions/OrdersStatus'
+      uploadedOrders:
+        $ref: '#/definitions/Document'
+      uploadedOrdersID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        description: ID of the uploaded document.
       orderNumber:
         description: ID of the military orders associated with this move.
         type: string
@@ -868,6 +898,34 @@ definitions:
       eTag:
         type: string
     type: object
+  OrdersStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - CANCELED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      CANCELED: Canceled
+  OrderType:
+    type: string
+    title: Order type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - RETIREMENT
+      - SEPARATION
+      - GHC
+      - NTS
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
+      RETIREMENT: Retirement
+      SEPARATION: Separation
+      GHC: GHC
+      NTS: NTS
   PaymentRequest:
     properties:
       documentPackage:
@@ -1180,6 +1238,46 @@ definitions:
       - createdAt
       - updatedAt
     type: object
+  UploadPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+      filename:
+        type: string
+        example: filename.pdf
+      content_type:
+        type: string
+        format: mime-type
+        example: application/pdf
+      bytes:
+        type: integer
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - url
+      - filename
+      - content_type
+      - bytes
+      - created_at
+      - updated_at
 responses:
   InvalidRequest:
     description: The request payload is invalid.

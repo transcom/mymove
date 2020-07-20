@@ -67,46 +67,39 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 }
 
 // MoveOrder payload
-func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
+func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 	if moveOrder == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(moveOrder.DestinationDutyStation)
+	destinationDutyStation := DutyStation(&moveOrder.NewDutyStation)
 	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
 	if moveOrder.Grade != nil {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
 	entitlements := Entitlement(moveOrder.Entitlement)
+
 	payload := ghcmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
-		OrderNumber:            moveOrder.OrderNumber,
-		OrderTypeDetail:        moveOrder.OrderTypeDetail,
+		OrderNumber:            moveOrder.OrdersNumber,
+		OrderTypeDetail:        (*string)(moveOrder.OrdersTypeDetail),
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
+		Agency:                 swag.StringValue((*string)(moveOrder.ServiceMember.Affiliation)),
+		CustomerID:             strfmt.UUID(moveOrder.ServiceMemberID.String()),
+		FirstName:              swag.StringValue(moveOrder.ServiceMember.FirstName),
+		LastName:               swag.StringValue(moveOrder.ServiceMember.LastName),
+		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
+		DateIssued:             strfmt.Date(moveOrder.IssueDate),
+		OrderType:              swag.StringValue((*string)(&moveOrder.OrdersType)),
 	}
 
-	if moveOrder.Customer != nil {
-		payload.Agency = swag.StringValue((*string)(moveOrder.Customer.Affiliation))
-		payload.CustomerID = strfmt.UUID(moveOrder.CustomerID.String())
-		payload.FirstName = swag.StringValue(moveOrder.Customer.FirstName)
-		payload.LastName = swag.StringValue(moveOrder.Customer.LastName)
-	}
-	if moveOrder.ReportByDate != nil {
-		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
-	}
-	if moveOrder.DateIssued != nil {
-		payload.DateIssued = strfmt.Date(*moveOrder.DateIssued)
-	}
 	if moveOrder.Grade != nil {
 		payload.Grade = *moveOrder.Grade
 	}
 	if moveOrder.ConfirmationNumber != nil {
 		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
-	}
-	if moveOrder.OrderType != nil {
-		payload.OrderType = *moveOrder.OrderType
 	}
 
 	return &payload

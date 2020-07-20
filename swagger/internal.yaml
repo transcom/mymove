@@ -2056,10 +2056,14 @@ definitions:
       - PERMANENT_CHANGE_OF_STATION
       - RETIREMENT
       - SEPARATION
+      - GHC
+      - NTS
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
       RETIREMENT: Retirement
       SEPARATION: Separation
+      GHC: GHC
+      NTS: NTS
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -2492,7 +2496,7 @@ definitions:
         format: date-time
       claimed_at:
         type: string
-        format: datetime
+        format: date-time
         example: 2018-04-12T23:20:50.52Z
         description: when the access code was claimed or used
         x-nullable: true

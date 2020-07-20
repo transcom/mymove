@@ -15,15 +15,15 @@ type MoveOrderFetcher struct {
 }
 
 // FetchMoveOrder provides a mock function with given fields: moveTaskOrderID
-func (_m *MoveOrderFetcher) FetchMoveOrder(moveTaskOrderID uuid.UUID) (*models.MoveOrder, error) {
+func (_m *MoveOrderFetcher) FetchMoveOrder(moveTaskOrderID uuid.UUID) (*models.Order, error) {
 	ret := _m.Called(moveTaskOrderID)
 
-	var r0 *models.MoveOrder
-	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.MoveOrder); ok {
+	var r0 *models.Order
+	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.Order); ok {
 		r0 = rf(moveTaskOrderID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MoveOrder)
+			r0 = ret.Get(0).(*models.Order)
 		}
 	}
 
@@ -38,15 +38,15 @@ func (_m *MoveOrderFetcher) FetchMoveOrder(moveTaskOrderID uuid.UUID) (*models.M
 }
 
 // ListMoveOrders provides a mock function with given fields:
-func (_m *MoveOrderFetcher) ListMoveOrders() ([]models.MoveOrder, error) {
+func (_m *MoveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
 	ret := _m.Called()
 
-	var r0 []models.MoveOrder
-	if rf, ok := ret.Get(0).(func() []models.MoveOrder); ok {
+	var r0 []models.Order
+	if rf, ok := ret.Get(0).(func() []models.Order); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.MoveOrder)
+			r0 = ret.Get(0).([]models.Order)
 		}
 	}
 
