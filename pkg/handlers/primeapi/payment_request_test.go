@@ -69,6 +69,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
 			mock.MatchedBy(func(paymentRequest *models.PaymentRequest) bool {
+				// Making sure the service items are ordered by priority regardless of the order in which they come in through the payment request parameters
 				return paymentRequest.PaymentServiceItems[0].MTOServiceItemID == serviceItemID1
 			})).Return(&returnedPaymentRequest, nil).Once()
 
