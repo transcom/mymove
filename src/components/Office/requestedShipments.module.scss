@@ -3,7 +3,12 @@
 @import '../../shared/styles/colors';
 
 .requested-shipments {
+  .serviceItems{
+    @include u-margin-top(4);
+  }
+
   .__content {
+    @include u-margin-top(6);
     @include u-display('flex');
 
     :only-child {

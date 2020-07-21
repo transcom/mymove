@@ -577,10 +577,6 @@ definitions:
       currentAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
-      # TODO: No more destination address, so could be removed from API payload
-      destinationAddress:
-        x-nullable: true
-        $ref: '#/definitions/Address'
       id:
         type: string
         format: uuid

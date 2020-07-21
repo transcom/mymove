@@ -40,6 +40,5 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 	suite.Equal(customer.Affiliation.String(), getCustomerPayload.Agency)
 	suite.Equal(customer.PersonalEmail, getCustomerPayload.Email)
 	suite.Equal(customer.Telephone, getCustomerPayload.Phone)
-	suite.Nil(getCustomerPayload.DestinationAddress) // DestinationAddress not in ServiceMember
 	suite.NotZero(getCustomerPayload.CurrentAddress)
 }

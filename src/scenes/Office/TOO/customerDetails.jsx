@@ -54,8 +54,6 @@ class CustomerDetails extends Component {
               <dd>{get(customer, 'phone')}</dd>
               <dt>Current Address</dt>
               <dd>{JSON.stringify(get(customer, 'current_address'))}</dd>
-              <dt>Destination Address</dt>
-              <dd>{JSON.stringify(get(customer, 'destination_address'))}</dd>
               <dt>DOD ID</dt>
               <dd>{get(customer, 'dodID')}</dd>
               <dt>Agency</dt>
