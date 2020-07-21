@@ -10,7 +10,7 @@ export const SelectMoveType = () => (
         <h1 className="sm-heading">How do you want to move your belongings?</h1>
         <Radio
           id={SHIPMENT_OPTIONS.PPM}
-          label="Arrange it all yourself"
+          label="I’ll move things myself"
           value={SHIPMENT_OPTIONS.PPM}
           name="moveType"
           defaultChecked
@@ -23,7 +23,7 @@ export const SelectMoveType = () => (
         </ul>
         <Radio
           id={SHIPMENT_OPTIONS.HHG}
-          label="Have professionals pack and move it all"
+          label="The government packs for me and moves me"
           value={SHIPMENT_OPTIONS.HHG}
           name="moveType"
           disabled
