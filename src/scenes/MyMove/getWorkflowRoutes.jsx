@@ -170,7 +170,10 @@ const pages = {
     },
   },
   '/moves/:moveId/ppm-start': {
-    isInFlow: (state) => state.selectedMoveType === SHIPMENT_OPTIONS.PPM,
+    isInFlow: (state) => {
+      console.log('what is state', state);
+      return state.selectedMoveType === SHIPMENT_OPTIONS.PPM;
+    },
     isComplete: ({ sm, orders, move, ppm }) => {
       return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
