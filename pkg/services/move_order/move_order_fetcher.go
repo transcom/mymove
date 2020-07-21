@@ -15,13 +15,15 @@ type moveOrderFetcher struct {
 }
 
 func (f moveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
+	// Now that we've joined orders and move_orders, we only want to return orders that
+	// have an associated move_task_order.
 	var moveOrders []models.Order
-	err := f.db.Eager(
+	err := f.db.Q().Eager(
 		"ServiceMember",
-		"NewDutyStation",
+		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",
-	).All(&moveOrders)
+	).InnerJoin("move_task_orders mto", "orders.id = mto.move_order_id").All(&moveOrders)
 
 	if err != nil {
 		switch err {
@@ -51,13 +53,15 @@ func NewMoveOrderFetcher(db *pop.Connection) services.MoveOrderFetcher {
 
 // FetchMoveOrder retrieves a MoveOrder for a given UUID
 func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, error) {
+	// Now that we've joined orders and move_orders, we only want to return orders that
+	// have an associated move_task_order.
 	moveOrder := &models.Order{}
-	err := f.db.Eager(
+	err := f.db.Q().Eager(
 		"ServiceMember",
 		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",
-	).Find(moveOrder, moveOrderID)
+	).InnerJoin("move_task_orders mto", "orders.id = mto.move_order_id").Find(moveOrder, moveOrderID)
 
 	if err != nil {
 		switch err {

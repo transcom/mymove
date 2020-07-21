@@ -3107,7 +3107,7 @@ func init() {
         "claimed_at": {
           "description": "when the access code was claimed or used",
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "x-nullable": true,
           "example": "2018-04-12T23:20:50.52Z"
         },
@@ -9334,7 +9334,7 @@ func init() {
         "claimed_at": {
           "description": "when the access code was claimed or used",
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "x-nullable": true,
           "example": "2018-04-12T23:20:50.52Z"
         },

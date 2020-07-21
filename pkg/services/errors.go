@@ -185,7 +185,7 @@ type ConflictError struct {
 }
 
 func (e ConflictError) Error() string {
-	return fmt.Sprintf("id: %s not found %s", e.id.String(), e.message)
+	return fmt.Sprintf("id: %s is in a conflicting state %s", e.id.String(), e.message)
 }
 
 // NewConflictError returns an error for when a struct can not be found

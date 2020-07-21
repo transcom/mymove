@@ -40,11 +40,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return nil, nil, services.NewNotFoundError(moveTaskOrderID, "in MoveTaskOrders")
 	}
 
-	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
-	// check if shipment exists linked by MoveTaskOrderID
-	var mtoShipment models.MTOShipment
-	var mtoShipmentID uuid.UUID
-
 	// find the re service code id
 	var reService models.ReService
 	reServiceCode := serviceItem.ReService.Code
@@ -53,17 +48,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	}
 	err = o.builder.FetchOne(&reService, queryFilters)
 	if err != nil {
-		return nil, nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf(". Failed to find service item code: %s", reServiceCode))
+		return nil, nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
 	}
-
 	// set re service for service item
 	serviceItem.ReServiceID = reService.ID
 	serviceItem.Status = models.MTOServiceItemStatusSubmitted
-	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
-		if mtoShipment.PrimeEstimatedWeight == nil {
-			return nil, verrs, services.NewConflictError(reService.ID, "Cannot create service item. MTOShipment associated with this service item must have a valid PrimeEstimatedWeight.")
-		}
-	}
+
 	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
 	// also rather basic.
@@ -81,6 +71,11 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return serviceItem, nil, nil
 	}
 
+	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
+	// check if shipment exists linked by MoveTaskOrderID
+	var mtoShipment models.MTOShipment
+	var mtoShipmentID uuid.UUID
+
 	mtoShipmentID = *serviceItem.MTOShipmentID
 	queryFilters = []services.QueryFilter{
 		query.NewQueryFilter("id", "=", mtoShipmentID),
@@ -89,8 +84,15 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	err = o.builder.FetchOne(&mtoShipment, queryFilters)
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(mtoShipmentID,
-			fmt.Sprintf("MTOShipmentID with MoveTaskOrderID (%s): %s", moveTaskOrderID.String(), err))
+			fmt.Sprintf("for mtoShipment with moveTaskOrderID: %s", moveTaskOrderID.String()))
 	}
+
+	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
+		if mtoShipment.PrimeEstimatedWeight == nil {
+			return nil, verrs, services.NewConflictError(reService.ID, "for creating a service item. MTOShipment associated with this service item must have a valid PrimeEstimatedWeight.")
+		}
+	}
+
 	// create new items in a transaction in case of failure
 	o.builder.Transaction(func(tx *pop.Connection) error {
 		// create new builder to use tx

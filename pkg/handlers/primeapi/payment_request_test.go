@@ -41,30 +41,42 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			CreatedAt:            time.Now(),
 			UpdatedAt:            time.Now(),
 		}
-		paymentRequestCreator := &mocks.PaymentRequestCreator{}
-		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
-
-		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			paymentRequestCreator,
-		}
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		serviceItemID1, _ := uuid.FromString("1b7b134a-7c44-45f2-9114-bb0831cc5db3")
 		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code:     models.ReServiceCodeDLH,
+				Priority: 1,
+			},
 			MTOServiceItem: models.MTOServiceItem{
 				ID: serviceItemID1,
 			},
 		})
 		serviceItemID2, _ := uuid.FromString("119f0a05-34d7-4d86-9745-009c0707b4c2")
 		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code:     models.ReServiceCodeFSC,
+				Priority: 99,
+			},
 			MTOServiceItem: models.MTOServiceItem{
 				ID: serviceItemID2,
 			},
 		})
+
+		paymentRequestCreator := &mocks.PaymentRequestCreator{}
+		paymentRequestCreator.On("CreatePaymentRequest",
+			mock.MatchedBy(func(paymentRequest *models.PaymentRequest) bool {
+				// Making sure the service items are ordered by priority regardless of the order in which they come in through the payment request parameters
+				return paymentRequest.PaymentServiceItems[0].MTOServiceItemID == serviceItemID1
+			})).Return(&returnedPaymentRequest, nil).Once()
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestCreator,
+		}
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
@@ -73,10 +85,10 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
 					{
-						ID: *handlers.FmtUUID(serviceItemID1),
+						ID: *handlers.FmtUUID(serviceItemID2),
 					},
 					{
-						ID: *handlers.FmtUUID(serviceItemID2),
+						ID: *handlers.FmtUUID(serviceItemID1),
 					},
 				},
 				PointOfContact: "user@prime.com",
