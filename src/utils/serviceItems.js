@@ -23,9 +23,17 @@ export default function sortServiceItemsByGroup(serviceItemCards) {
 
   shipmentOrder.sort(dateCreatedSort);
 
-  const sortedCards = [];
+  const sortedCards = { basicServiceItems: [], shipmentServiceItems: [] };
   shipmentOrder.forEach((shipment) => {
-    sortedCards.push(...shipmentServiceItems[`${shipment.shipmentId}`]);
+    // sortedCards.push(...shipmentServiceItems[`${shipment.shipmentId}`]);
+
+    // has shipment id then add to shipmentServiceItems
+    if (shipment.shipmentId) {
+      sortedCards.shipmentServiceItems.push(...shipmentServiceItems[`${shipment.shipmentId}`]);
+    } else {
+      // add to basic service items
+      sortedCards.basicServiceItems.push(...shipmentServiceItems[`${shipment.shipmentId}`]);
+    }
   });
 
   return sortedCards;
