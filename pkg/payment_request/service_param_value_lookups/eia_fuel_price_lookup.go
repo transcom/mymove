@@ -42,6 +42,7 @@ func (r EIAFuelPriceLookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 		return "", fmt.Errorf("could not find actual pickup date for MTOShipment [%s]", mtoShipmentID)
 	}
 
+	// Find the GHCDieselFuelPrice object with the closest prior PublicationDate to the ActualPickupDate of the MTOShipment in question
 	var ghcDieselFuelPrice models.GHCDieselFuelPrice
 	err = db.Where("publication_date <= ?", actualPickupDate).Order("publication_date DESC").Last(&ghcDieselFuelPrice)
 	if err != nil {
