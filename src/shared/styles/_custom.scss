@@ -23,8 +23,12 @@ html {
     @include u-shadow(2);
   }
   &--accent {
-    &--hhg, &--ppm, &--ub, &--nts, &--ntsr {
+    &--default, &--hhg, &--ppm, &--ub, &--nts, &--ntsr {
       @include u-radius('0');
+    }
+
+    &--default {
+      @include cont-border-top($accent-default)
     }
 
     &--hhg {
