@@ -572,9 +572,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       currentAddress:
         $ref: '#/definitions/Address'
-      # TODO: No more destination address, so could be removed from API payload
-      destinationAddress:
-        $ref: '#/definitions/Address'
       firstName:
         type: string
         example: Vanya

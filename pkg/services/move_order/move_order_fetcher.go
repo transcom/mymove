@@ -14,30 +14,33 @@ type moveOrderFetcher struct {
 	db *pop.Connection
 }
 
-func (f moveOrderFetcher) ListMoveOrders() ([]models.MoveOrder, error) {
-	var moveOrders []models.MoveOrder
-	err := f.db.All(&moveOrders)
+func (f moveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
+	// Now that we've joined orders and move_orders, we only want to return orders that
+	// have an associated move_task_order.
+	var moveOrders []models.Order
+	err := f.db.Q().Eager(
+		"ServiceMember",
+		"NewDutyStation.Address",
+		"OriginDutyStation",
+		"Entitlement",
+	).InnerJoin("move_task_orders mto", "orders.id = mto.move_order_id").All(&moveOrders)
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return []models.MoveOrder{}, services.NotFoundError{}
+			return []models.Order{}, services.NotFoundError{}
 		default:
-			return []models.MoveOrder{}, err
+			return []models.Order{}, err
 		}
 	}
 
-	// Attempting to load these associations using Eager() returns an error, so this loop
-	// loads them one at a time. This is creating a N + 1 query for each association, which is
-	// bad. But that's also what the current implementation of Eager does, so this is no worse
-	// that what we had.
 	for i := range moveOrders {
-		f.db.Load(&moveOrders[i], "Customer")
-		f.db.Load(&moveOrders[i], "ConfirmationNumber")
-		f.db.Load(&moveOrders[i], "DestinationDutyStation")
-		f.db.Load(moveOrders[i].DestinationDutyStation, "Address")
-		f.db.Load(&moveOrders[i], "OriginDutyStation")
-		f.db.Load(moveOrders[i].OriginDutyStation, "Address")
-		f.db.Load(&moveOrders[i], "Entitlement")
+		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+		// cannot eager load the address as "OriginDutyStation.Address" because
+		// OriginDutyStation is a pointer.
+		if moveOrders[i].OriginDutyStation != nil {
+			f.db.Load(moveOrders[i].OriginDutyStation, "Address")
+		}
 	}
 
 	return moveOrders, nil
@@ -49,25 +52,32 @@ func NewMoveOrderFetcher(db *pop.Connection) services.MoveOrderFetcher {
 }
 
 // FetchMoveOrder retrieves a MoveOrder for a given UUID
-func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.MoveOrder, error) {
-	moveOrder := &models.MoveOrder{}
-	err := f.db.Find(moveOrder, moveOrderID)
+func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, error) {
+	// Now that we've joined orders and move_orders, we only want to return orders that
+	// have an associated move_task_order.
+	moveOrder := &models.Order{}
+	err := f.db.Q().Eager(
+		"ServiceMember",
+		"NewDutyStation.Address",
+		"OriginDutyStation",
+		"Entitlement",
+	).InnerJoin("move_task_orders mto", "orders.id = mto.move_order_id").Find(moveOrder, moveOrderID)
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.MoveOrder{}, services.NewNotFoundError(moveOrderID, "")
+			return &models.Order{}, services.NewNotFoundError(moveOrderID, "")
 		default:
-			return &models.MoveOrder{}, err
+			return &models.Order{}, err
 		}
 	}
 
-	f.db.Load(moveOrder, "Customer")
-	f.db.Load(moveOrder, "ConfirmationNumber")
-	f.db.Load(moveOrder, "DestinationDutyStation")
-	f.db.Load(moveOrder.DestinationDutyStation, "Address")
-	f.db.Load(moveOrder, "OriginDutyStation")
-	f.db.Load(moveOrder.OriginDutyStation, "Address")
-	f.db.Load(moveOrder, "Entitlement")
+	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+	// cannot eager load the address as "OriginDutyStation.Address" because
+	// OriginDutyStation is a pointer.
+	if moveOrder.OriginDutyStation != nil {
+		f.db.Load(moveOrder.OriginDutyStation, "Address")
+	}
 
 	return moveOrder, nil
 }

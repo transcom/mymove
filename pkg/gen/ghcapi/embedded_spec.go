@@ -1829,10 +1829,6 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
-        "destination_address": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
-        },
         "dodID": {
           "type": "string"
         },
@@ -4779,10 +4775,6 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "current_address": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
-        },
-        "destination_address": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },

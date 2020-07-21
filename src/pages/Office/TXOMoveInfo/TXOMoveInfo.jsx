@@ -10,7 +10,7 @@ const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
 const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
 const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
-const PaymentRequestShow = lazy(() => import('scenes/Office/TIO/paymentRequestShow'));
+const PaymentRequestReview = lazy(() => import('pages/TIO/PaymentRequestReview'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 
 const TXOMoveInfo = () => {
@@ -53,8 +53,8 @@ const TXOMoveInfo = () => {
             <TOOMoveTaskOrder />
           </Route>
 
-          <Route path="/moves/:moveOrderId/payment-requests/:id" exact>
-            <PaymentRequestShow />
+          <Route path="/moves/:moveOrderId/payment-requests/:paymentRequestId" exact>
+            <PaymentRequestReview />
           </Route>
           <Route path="/moves/:moveOrderId/payment-requests" exact>
             <PaymentRequestIndex />

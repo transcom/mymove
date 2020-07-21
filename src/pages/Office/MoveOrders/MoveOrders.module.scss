@@ -1,6 +1,9 @@
 .MoveOrders {
   display: flex;
-  height: 80vh; // TODO this is temporary until we can modify <main> to be display: flex
+  flex-basis: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
+  overflow: auto;
 }
 
 .embed {

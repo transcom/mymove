@@ -29,6 +29,7 @@
     "moment": "^2.26.0",
     "node-sass": "^4.14.1",
     "normalizr": "^3.6.0",
+    "numeral": "^2.0.6",
     "path-to-regexp": "^6.1.0",
     "prop-types": "^15.7.2",
     "query-string": "6",
@@ -42,7 +43,7 @@
     "react-filepond": "^4.0.0",
     "react-form": "^4.0.1",
     "react-highlight-words": "^0.16.0",
-    "react-idle-timer": "^4.2.12",
+    "react-idle-timer": "^4.3.0",
     "react-loadable": "^5.3.1",
     "react-numeric-input": "^2.2.3",
     "react-rangeslider": "^2.2.0",
@@ -67,7 +68,7 @@
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.10.12",
-    "swagger-ui-dist": "^3.29.0",
+    "swagger-ui-dist": "^3.30.0",
     "uswds": "2.8.0",
     "uuid": "^8.2.0",
     "yup": "^0.29.1"
@@ -117,7 +118,7 @@
     "mockdate": "^3.0.2",
     "prettier": "=2.0.5",
     "storybook-addons-abstract": "^5.0.6",
-    "terser-webpack-plugin": "^3.0.6"
+    "terser-webpack-plugin": "^3.0.7"
   },
   "browserslist": [
     ">0.2%",

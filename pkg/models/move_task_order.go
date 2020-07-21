@@ -15,7 +15,7 @@ import (
 // MoveTaskOrder is an object representing the task orders for a move
 type MoveTaskOrder struct {
 	ID                 uuid.UUID       `db:"id"`
-	MoveOrder          MoveOrder       `belongs_to:"move_orders"`
+	MoveOrder          Order           `belongs_to:"orders"`
 	MTOServiceItems    MTOServiceItems `has_many:"mto_service_items"`
 	PaymentRequests    PaymentRequests `has_many:"payment_requests"`
 	MTOShipments       MTOShipments    `has_many:"mto_shipments"`
