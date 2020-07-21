@@ -3,13 +3,10 @@ package payloads
 import (
 	"time"
 
-	"github.com/gobuffalo/validate"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 // AddressModel model
@@ -61,29 +58,6 @@ func MTOAgentsModel(mtoAgents *internalmessages.MTOAgents) *models.MTOAgents {
 	return &agents
 }
 
-// MTOServiceItemList model
-func MTOServiceItemList(mtoShipment *internalmessages.CreateShipmentPayload) (models.MTOServiceItems, *validate.Errors) {
-
-	if mtoShipment == nil {
-		return nil, nil
-	}
-
-	serviceItemsListFromPayload := mtoShipment.MtoServiceItems()
-
-	serviceItemsList := make(models.MTOServiceItems, len(serviceItemsListFromPayload))
-
-	for i, m := range serviceItemsListFromPayload {
-		serviceItem, verrs := MTOServiceItemModel(m)
-		if verrs != nil && verrs.HasAny() {
-			return nil, verrs
-		}
-
-		serviceItemsList[i] = *serviceItem
-	}
-
-	return serviceItemsList, nil
-}
-
 // MTOShipmentModelFromCreate model
 func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipmentPayload) *models.MTOShipment {
 	if mtoShipment == nil {
@@ -129,11 +103,6 @@ func MTOShipmentModel(mtoShipment *internalmessages.MTOShipment) *models.MTOShip
 		model.ScheduledPickupDate = &scheduledPickupDate
 	}
 
-	firstAvailableDeliveryDate := time.Time(mtoShipment.FirstAvailableDeliveryDate)
-	if !firstAvailableDeliveryDate.IsZero() {
-		model.FirstAvailableDeliveryDate = &firstAvailableDeliveryDate
-	}
-
 	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
 	if !requestedPickupDate.IsZero() {
 		model.RequestedPickupDate = &requestedPickupDate
@@ -157,16 +126,6 @@ func MTOShipmentModel(mtoShipment *internalmessages.MTOShipment) *models.MTOShip
 		model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
 	}
 
-	if mtoShipment.PrimeActualWeight > 0 {
-		actualWeight := unit.Pound(mtoShipment.PrimeActualWeight)
-		model.PrimeActualWeight = &actualWeight
-	}
-
-	if mtoShipment.PrimeEstimatedWeight > 0 {
-		estimatedWeight := unit.Pound(mtoShipment.PrimeEstimatedWeight)
-		model.PrimeEstimatedWeight = &estimatedWeight
-	}
-
 	if mtoShipment.SecondaryPickupAddress != nil {
 		model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
 		secondaryPickupAddressID := uuid.FromStringOrNil(mtoShipment.SecondaryPickupAddress.ID.String())
@@ -184,91 +143,4 @@ func MTOShipmentModel(mtoShipment *internalmessages.MTOShipment) *models.MTOShip
 	}
 
 	return model
-}
-
-// MTOServiceItemModel model
-func MTOServiceItemModel(mtoServiceItem internalmessages.MTOServiceItem) (*models.MTOServiceItem, *validate.Errors) {
-	if mtoServiceItem == nil {
-		return nil, nil
-	}
-
-	shipmentID := uuid.FromStringOrNil(mtoServiceItem.MtoShipmentID().String())
-
-	// basic service item
-	model := &models.MTOServiceItem{
-		ID:              uuid.FromStringOrNil(mtoServiceItem.ID().String()),
-		MoveTaskOrderID: uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID().String()),
-		MTOShipmentID:   &shipmentID,
-		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
-	}
-
-	// here we initialize more fields below for other service item types. Eg. MTOServiceItemDOFSIT
-	switch mtoServiceItem.ModelType() {
-	case internalmessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:
-		dofsit := mtoServiceItem.(*internalmessages.MTOServiceItemDOFSIT)
-		model.ReService.Code = models.ReServiceCodeDOFSIT
-		model.Reason = dofsit.Reason
-		model.PickupPostalCode = dofsit.PickupPostalCode
-	case internalmessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:
-		ddfsit := mtoServiceItem.(*internalmessages.MTOServiceItemDDFSIT)
-		model.ReService.Code = models.ReServiceCodeDDFSIT
-		model.CustomerContacts = models.MTOServiceItemCustomerContacts{
-			models.MTOServiceItemCustomerContact{
-				Type:                       models.CustomerContactTypeFirst,
-				TimeMilitary:               *ddfsit.TimeMilitary1,
-				FirstAvailableDeliveryDate: time.Time(*ddfsit.FirstAvailableDeliveryDate1),
-			},
-			models.MTOServiceItemCustomerContact{
-				Type:                       models.CustomerContactTypeSecond,
-				TimeMilitary:               *ddfsit.TimeMilitary2,
-				FirstAvailableDeliveryDate: time.Time(*ddfsit.FirstAvailableDeliveryDate2),
-			},
-		}
-	case internalmessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
-		shuttleService := mtoServiceItem.(*internalmessages.MTOServiceItemShuttle)
-		// values to get from payload
-		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
-		model.Reason = shuttleService.Reason
-		model.Description = shuttleService.Description
-	case internalmessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
-		domesticCrating := mtoServiceItem.(*internalmessages.MTOServiceItemDomesticCrating)
-
-		// additional validation for this specific service item type
-		verrs := validateDomesticCrating(*domesticCrating)
-		if verrs.HasAny() {
-			return nil, verrs
-		}
-
-		// have to get code from payload
-		model.ReService.Code = models.ReServiceCode(*domesticCrating.ReServiceCode)
-		model.Description = domesticCrating.Description
-		model.Dimensions = models.MTOServiceItemDimensions{
-			models.MTOServiceItemDimension{
-				Type:   models.DimensionTypeItem,
-				Length: unit.ThousandthInches(*domesticCrating.Item.Length),
-				Height: unit.ThousandthInches(*domesticCrating.Item.Height),
-				Width:  unit.ThousandthInches(*domesticCrating.Item.Width),
-			},
-			models.MTOServiceItemDimension{
-				Type:   models.DimensionTypeCrate,
-				Length: unit.ThousandthInches(*domesticCrating.Crate.Length),
-				Height: unit.ThousandthInches(*domesticCrating.Crate.Height),
-				Width:  unit.ThousandthInches(*domesticCrating.Crate.Width),
-			},
-		}
-	default:
-		// assume basic service item, take in provided re service code
-		basic := mtoServiceItem.(*internalmessages.MTOServiceItemBasic)
-		model.ReService.Code = models.ReServiceCode(basic.ReServiceCode)
-	}
-
-	return model, nil
-}
-
-// validateDomesticCrating validates this mto service item domestic crating
-func validateDomesticCrating(m internalmessages.MTOServiceItemDomesticCrating) *validate.Errors {
-	return validate.Validate(
-		&models.ItemCanFitInsideCrate{Name: "Item", NameCompared: "Crate", Item: m.Item, Crate: m.Crate},
-	)
 }

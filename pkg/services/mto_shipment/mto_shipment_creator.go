@@ -91,6 +91,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		if shipment.RequestedPickupDate == nil {
 			return services.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create MTO shipment")
 		}
+
 		//assign status to shipment submitted
 		shipment.Status = models.MTOShipmentStatusSubmitted
 

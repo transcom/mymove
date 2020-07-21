@@ -216,6 +216,41 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 		}
 		return &result, nil
 
+	case "MTOServiceItemBasic":
+		var result MTOServiceItemBasic
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
+	case "MTOServiceItemDDFSIT":
+		var result MTOServiceItemDDFSIT
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
+	case "MTOServiceItemDOFSIT":
+		var result MTOServiceItemDOFSIT
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
+	case "MTOServiceItemDomesticCrating":
+		var result MTOServiceItemDomesticCrating
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
+	case "MTOServiceItemShuttle":
+		var result MTOServiceItemShuttle
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+
 	}
 	return nil, errors.New(422, "invalid modelType value: %q", getType.ModelType)
 

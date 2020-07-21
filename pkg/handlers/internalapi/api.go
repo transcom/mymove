@@ -1,11 +1,12 @@
 package internalapi
 
 import (
+	"io"
+	"log"
+
 	"github.com/transcom/mymove/pkg/services/fetch"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
-	"io"
-	"log"
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
@@ -128,7 +129,7 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher),
 	}
 
-return internalAPI
+	return internalAPI
 }
 
 // PDFProducer creates a new PDF producer

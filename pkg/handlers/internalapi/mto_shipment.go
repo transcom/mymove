@@ -4,6 +4,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
@@ -30,18 +32,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 
-	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
-	if verrs != nil && verrs.HasAny() {
-		logger.Error("Error validating mto service item list: ", zap.Error(verrs))
+	serviceItemsList := make(models.MTOServiceItems, 0)
+	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, serviceItemsList)
 
-		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
-			"The MTO service item list is invalid.", h.GetTraceID(), nil))
-	}
-
-	//mtoShipment.MTOServiceItems = *mtoServiceItemsList
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
 	if err != nil {
-		logger.Error("primeapi.CreateMTOShipmentHandler", zap.Error(err))
+		logger.Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
 			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
@@ -50,7 +45,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		case services.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
+				logger.Error("internalapi.CreateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
 			}
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		default:

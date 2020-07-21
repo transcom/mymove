@@ -6,8 +6,6 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -26,11 +24,6 @@ type MTOShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
-	// date when the shipment was given the status "APPROVED"
-	// Read Only: true
-	// Format: date
-	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
-
 	// created at
 	// Read Only: true
 	// Format: date-time
@@ -42,14 +35,6 @@ type MTOShipment struct {
 
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
-
-	// e tag
-	// Read Only: true
-	ETag string `json:"eTag,omitempty"`
-
-	// first available delivery date
-	// Format: date
-	FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
 
 	// id
 	// Read Only: true
@@ -63,24 +48,6 @@ type MTOShipment struct {
 
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
-
-	// Email or id of a contact person for this update.
-	PointOfContact string `json:"pointOfContact,omitempty"`
-
-	// prime actual weight
-	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
-
-	// prime estimated weight
-	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
-
-	// prime estimated weight recorded date
-	// Read Only: true
-	// Format: date
-	PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
-
-	// rejection reason
-	// Read Only: true
-	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// requested pickup date
 	// Read Only: true
@@ -105,11 +72,6 @@ type MTOShipment struct {
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
-	// status
-	// Read Only: true
-	// Enum: [APPROVED SUBMITTED REJECTED]
-	Status string `json:"status,omitempty"`
-
 	// updated at
 	// Read Only: true
 	// Format: date-time
@@ -128,19 +90,11 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateApprovedDate(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateDestinationAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateFirstAvailableDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -153,10 +107,6 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePrimeEstimatedWeightRecordedDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -181,10 +131,6 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -227,19 +173,6 @@ func (m *MTOShipment) validateAgents(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOShipment) validateApprovedDate(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ApprovedDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("approvedDate", "body", "date", m.ApprovedDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.CreatedAt) { // not required
@@ -266,19 +199,6 @@ func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error 
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *MTOShipment) validateFirstAvailableDeliveryDate(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.FirstAvailableDeliveryDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("firstAvailableDeliveryDate", "body", "date", m.FirstAvailableDeliveryDate.String(), formats); err != nil {
-		return err
 	}
 
 	return nil
@@ -323,19 +243,6 @@ func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *MTOShipment) validatePrimeEstimatedWeightRecordedDate(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.PrimeEstimatedWeightRecordedDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("primeEstimatedWeightRecordedDate", "body", "date", m.PrimeEstimatedWeightRecordedDate.String(), formats); err != nil {
-		return err
 	}
 
 	return nil
@@ -426,52 +333,6 @@ func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
 		}
-		return err
-	}
-
-	return nil
-}
-
-var mTOShipmentTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["APPROVED","SUBMITTED","REJECTED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		mTOShipmentTypeStatusPropEnum = append(mTOShipmentTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// MTOShipmentStatusAPPROVED captures enum value "APPROVED"
-	MTOShipmentStatusAPPROVED string = "APPROVED"
-
-	// MTOShipmentStatusSUBMITTED captures enum value "SUBMITTED"
-	MTOShipmentStatusSUBMITTED string = "SUBMITTED"
-
-	// MTOShipmentStatusREJECTED captures enum value "REJECTED"
-	MTOShipmentStatusREJECTED string = "REJECTED"
-)
-
-// prop value enum
-func (m *MTOShipment) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOShipmentTypeStatusPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
 		return err
 	}
 

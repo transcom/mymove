@@ -2604,28 +2604,10 @@ definitions:
         format: date-time
         type: string
         readOnly: true
-      approvedDate:
-        description: date when the shipment was given the status "APPROVED"
-        format: date
-        type: string
-        readOnly: true
       scheduledPickupDate:
         format: date
         type: string
       requestedPickupDate:
-        format: date
-        type: string
-        readOnly: true
-      firstAvailableDeliveryDate:
-        format: date
-        type: string
-      primeActualWeight:
-        type: integer
-        example: 4500
-      primeEstimatedWeight:
-        type: integer
-        example: 4500
-      primeEstimatedWeightRecordedDate:
         format: date
         type: string
         readOnly: true
@@ -2653,24 +2635,6 @@ definitions:
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         $ref: '#/definitions/Address'
-      eTag:
-        type: string
-        readOnly: true
-      status:
-        type: string
-        readOnly: true
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
-      rejectionReason:
-        type: string
-        readOnly: true
-        example: MTO Shipment not good enough
-        x-nullable: true
-      pointOfContact:
-        type: string
-        description: Email or id of a contact person for this update.
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -2685,6 +2649,9 @@ definitions:
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       requestedPickupDate:
+        format: date
+        type: string
+      requestedDeliveryDate:
         format: date
         type: string
       customerRemarks:

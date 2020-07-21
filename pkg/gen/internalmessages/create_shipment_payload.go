@@ -47,6 +47,10 @@ type CreateShipmentPayload struct {
 	// Email or id of a contact person for this update
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
+	// requested delivery date
+	// Format: date
+	RequestedDeliveryDate strfmt.Date `json:"requestedDeliveryDate,omitempty"`
+
 	// requested pickup date
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
@@ -82,6 +86,8 @@ func (m *CreateShipmentPayload) UnmarshalJSON(raw []byte) error {
 		PickupAddress *Address `json:"pickupAddress"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
+
+		RequestedDeliveryDate strfmt.Date `json:"requestedDeliveryDate,omitempty"`
 
 		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
@@ -127,6 +133,9 @@ func (m *CreateShipmentPayload) UnmarshalJSON(raw []byte) error {
 	// pointOfContact
 	result.PointOfContact = data.PointOfContact
 
+	// requestedDeliveryDate
+	result.RequestedDeliveryDate = data.RequestedDeliveryDate
+
 	// requestedPickupDate
 	result.RequestedPickupDate = data.RequestedPickupDate
 
@@ -155,6 +164,8 @@ func (m CreateShipmentPayload) MarshalJSON() ([]byte, error) {
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
+		RequestedDeliveryDate strfmt.Date `json:"requestedDeliveryDate,omitempty"`
+
 		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 		ShipmentType MTOShipmentType `json:"shipmentType"`
@@ -171,6 +182,8 @@ func (m CreateShipmentPayload) MarshalJSON() ([]byte, error) {
 		PickupAddress: m.PickupAddress,
 
 		PointOfContact: m.PointOfContact,
+
+		RequestedDeliveryDate: m.RequestedDeliveryDate,
 
 		RequestedPickupDate: m.RequestedPickupDate,
 
@@ -215,6 +228,10 @@ func (m *CreateShipmentPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRequestedDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -312,6 +329,19 @@ func (m *CreateShipmentPayload) validatePickupAddress(formats strfmt.Registry) e
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *CreateShipmentPayload) validateRequestedDeliveryDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.RequestedDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("requestedDeliveryDate", "body", "date", m.RequestedDeliveryDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
