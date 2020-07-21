@@ -14,7 +14,7 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
 
   return (
     <div data-testid="ServiceItemCard" className={styles.ServiceItemCard}>
-      <ShipmentContainer shipmentType={shipmentType}>
+      <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={shipmentType}>
         <h6 className={styles.cardHeader}>{mtoShipmentTypeToFriendlyDisplay(shipmentType) || 'BASIC SERVICE ITEMS'}</h6>
         <dl>
           <dt>Service item</dt>
