@@ -116,7 +116,7 @@
     "mockdate": "^3.0.2",
     "prettier": "=2.0.5",
     "storybook-addons-abstract": "^5.0.6",
-    "terser-webpack-plugin": "^3.0.6"
+    "terser-webpack-plugin": "^3.0.7"
   },
   "browserslist": [
     ">0.2%",
