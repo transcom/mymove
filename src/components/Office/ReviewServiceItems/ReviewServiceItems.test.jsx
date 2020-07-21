@@ -44,24 +44,24 @@ const serviceItemCards = [
   },
 ];
 
-// const basicServiceItemsCard = [
-//   {
-//     id: '4',
-//     shipmentType: null,
-//     shipmentId: null,
-//     serviceItemName: 'Counseling Services',
-//     amount: 1000,
-//     createdAt: '2020-01-01T00:02:00.999Z',
-//   },
-//   {
-//     id: '5',
-//     shipmentType: null,
-//     shipmentId: null,
-//     serviceItemName: 'Move management',
-//     amount: 1,
-//     createdAt: '2020-01-01T00:01:00.999Z',
-//   },
-// ];
+const basicServiceItemsCard = [
+  {
+    id: '4',
+    shipmentType: null,
+    shipmentId: null,
+    serviceItemName: 'Counseling Services',
+    amount: 1000,
+    createdAt: '2020-01-01T00:02:00.999Z',
+  },
+  {
+    id: '5',
+    shipmentType: null,
+    shipmentId: null,
+    serviceItemName: 'Move management',
+    amount: 1,
+    createdAt: '2020-01-01T00:01:00.999Z',
+  },
+];
 
 const compareItem = (component, item) => {
   expect(component.find('[data-cy="serviceItemName"]').text()).toEqual(item.serviceItemName);
@@ -101,6 +101,11 @@ describe('ReviewServiceItems component', () => {
 
   it('enables next button at beginning', () => {
     expect(mountedComponent.find('[data-cy="nextServiceItem"]').prop('disabled')).toBe(false);
+  });
+
+  it('showing two basic service items at once', () => {
+    const wrapper = mount(<ReviewServiceItems serviceItemCards={basicServiceItemsCard} handleClose={handleClose} />);
+    expect(wrapper.find('ServiceItemCard').length).toBe(2);
   });
 
   describe('navigating through service items', () => {
