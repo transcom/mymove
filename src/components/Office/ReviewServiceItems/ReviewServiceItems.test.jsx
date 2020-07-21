@@ -42,15 +42,26 @@ const serviceItemCards = [
     amount: 1000,
     createdAt: '2020-01-01T00:02:00.999Z',
   },
-  {
-    id: '5',
-    shipmentType: null,
-    shipmentId: null,
-    serviceItemName: 'Move management',
-    amount: 1,
-    createdAt: '2020-01-01T00:01:00.999Z',
-  },
 ];
+
+// const basicServiceItemsCard = [
+//   {
+//     id: '4',
+//     shipmentType: null,
+//     shipmentId: null,
+//     serviceItemName: 'Counseling Services',
+//     amount: 1000,
+//     createdAt: '2020-01-01T00:02:00.999Z',
+//   },
+//   {
+//     id: '5',
+//     shipmentType: null,
+//     shipmentId: null,
+//     serviceItemName: 'Move management',
+//     amount: 1,
+//     createdAt: '2020-01-01T00:01:00.999Z',
+//   },
+// ];
 
 const compareItem = (component, item) => {
   expect(component.find('[data-cy="serviceItemName"]').text()).toEqual(item.serviceItemName);
@@ -81,7 +92,7 @@ describe('ReviewServiceItems component', () => {
   });
 
   it('displays the total count', () => {
-    expect(mountedComponent.find('[data-cy="itemCount"]').text()).toEqual('1 OF 5 ITEMS');
+    expect(mountedComponent.find('[data-cy="itemCount"]').text()).toEqual('1 OF 4 ITEMS');
   });
 
   it('disables previous button at beginning', () => {
@@ -97,11 +108,6 @@ describe('ReviewServiceItems component', () => {
     const prevButton = mountedComponent.find('[data-cy="prevServiceItem"]');
 
     it('renders the service item cards ordered by timestamp ascending', () => {
-      compareItem(mountedComponent, serviceItemCards[4]);
-
-      nextButton.simulate('click');
-      mountedComponent.update();
-
       compareItem(mountedComponent, serviceItemCards[3]);
 
       nextButton.simulate('click');
@@ -139,11 +145,6 @@ describe('ReviewServiceItems component', () => {
       mountedComponent.update();
 
       compareItem(mountedComponent, serviceItemCards[3]);
-
-      prevButton.simulate('click');
-      mountedComponent.update();
-
-      compareItem(mountedComponent, serviceItemCards[4]);
     });
   });
 
@@ -157,7 +158,7 @@ describe('ReviewServiceItems component', () => {
     });
 
     it('can approve an item', async () => {
-      const serviceItemId = serviceItemCards[4].id;
+      const serviceItemId = serviceItemCards[3].id;
       const approveInput = mountedComponent.find(`input[name="${serviceItemId}.status"][value="APPROVED"]`);
       expect(approveInput.length).toBe(1);
 
@@ -173,7 +174,7 @@ describe('ReviewServiceItems component', () => {
       nextButton.simulate('click');
       mountedComponent.update();
 
-      const serviceItemId = serviceItemCards[3].id;
+      const serviceItemId = serviceItemCards[0].id;
       const rejectInput = mountedComponent.find(`input[name="${serviceItemId}.status"][value="REJECTED"]`);
       expect(rejectInput.length).toBe(1);
 
@@ -186,7 +187,7 @@ describe('ReviewServiceItems component', () => {
     });
 
     it('can enter a reason for rejecting an item', async () => {
-      const serviceItemId = serviceItemCards[3].id;
+      const serviceItemId = serviceItemCards[0].id;
       const rejectReasonInput = mountedComponent.find(`textarea[name="${serviceItemId}.rejectionReason"]`);
       expect(rejectReasonInput.length).toBe(1);
 
