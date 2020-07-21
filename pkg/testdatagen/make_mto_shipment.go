@@ -43,7 +43,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		MoveTaskOrderID:          moveTaskOrder.ID,
 		RequestedPickupDate:      &requestedPickupDate,
 		ScheduledPickupDate:      &scheduledPickupDate,
-		ActualPickupDate: 		  &actualPickupDate,
+		ActualPickupDate:         &actualPickupDate,
 		CustomerRemarks:          &remarks,
 		PickupAddress:            &pickupAddress,
 		PickupAddressID:          &pickupAddress.ID,

@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// ZipPickupAddressLookup does lookup on the postal code for the pickup address
+// EIAFuelPriceLookup does lookup on the ghc diesel fuel price
 type EIAFuelPriceLookup struct {
 }
 
@@ -30,21 +30,25 @@ func (r EIAFuelPriceLookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 		}
 	}
 
-	// Make sure there's an MTOShipment since that's nullable
+	// Make sure there is an MTOShipment since that's nullable
 	mtoShipmentID := mtoServiceItem.MTOShipmentID
 	if mtoShipmentID == nil {
 		return "", services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
 	}
 
-	// Make sure there's a pickup address zip code since pickupAddress is nullable
+	// Make sure there is an actual pickup date since ActualPickupDate is nullable
 	actualPickupDate := mtoServiceItem.MTOShipment.ActualPickupDate
-
 	if actualPickupDate == nil {
 		return "", fmt.Errorf("could not find actual pickup date for MTOShipment [%s]", mtoShipmentID)
 	}
 
-	eiaFuelPrice := pickupAddress.PostalCode
+	var ghcDieselFuelPrice models.GHCDieselFuelPrice
+	err = db.Where("publication_date <= ?", actualPickupDate).Order("publication_date DESC").Last(&ghcDieselFuelPrice)
+	if err != nil {
+		return "", fmt.Errorf("could not find ghc diesel fuel price with publication date [%s]", actualPickupDate)
+	}
 
-	value := fmt.Sprintf("%s", zipPickupAddress)
+	value := fmt.Sprintf("%d", ghcDieselFuelPrice.FuelPriceInMillicents.Int())
+
 	return value, nil
 }
