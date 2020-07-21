@@ -92,3 +92,9 @@ describe('formatToOrdinal', () => {
     expect(formatters.formatToOrdinal(4)).toEqual('4th');
   });
 });
+
+describe('toDollarString', () => {
+  it('returns string representation of a dollar', () => {
+    expect(formatters.toDollarString(1234.12)).toEqual('$1,234.12');
+  });
+});

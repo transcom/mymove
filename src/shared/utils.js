@@ -142,3 +142,16 @@ export function openLinkInNewWindow(url, windowName, window, relativeSize) {
     .focus(); // required in IE to put re-used window on top
   return false;
 }
+
+// Sort ascending by objects with string iso timestamps
+export function dateSort(field, direction) {
+  if (direction === 'desc') {
+    return (a, b) => {
+      return Date.parse(b[`${field}`]) - Date.parse(a[`${field}`]);
+    };
+  } else {
+    return (a, b) => {
+      return Date.parse(a[`${field}`]) - Date.parse(b[`${field}`]);
+    };
+  }
+}

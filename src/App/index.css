@@ -13,6 +13,13 @@
   flex: 1 0 auto; /* using auto fixes a bug in IE11 where the footer would float over everything. */
 }
 
+.site-office__content {
+  flex-direction: column;
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
 .my-move-container {
   padding-top: 20px;
 }
