@@ -21,7 +21,9 @@ import DutyStation from 'scenes/ServiceMembers/DutyStation';
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
+import Home from 'pages/MyMove/Home';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
+import MoveLocation from 'pages/MyMove/MoveLocation';
 
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
@@ -66,6 +68,7 @@ const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.PPM;
 const inHhgFlow = (props) => props.context.flags.hhgFlow;
+const inGhcFlow = (props) => props.context.flags.ghcFlow;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
@@ -124,6 +127,17 @@ const pages = {
       </WizardPage>
     ),
   },
+  '/service-member/:serviceMemberId/home': {
+    isInFlow: myFirstRodeo && inGhcFlow,
+    isComplete: always,
+    render: (key, pages) => () => {
+      return (
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+          <Home />
+        </WizardPage>
+      );
+    },
+  },
   '/profile-review': {
     isInFlow: notMyFirstRodeo,
     isComplete: always,
@@ -146,6 +160,17 @@ const pages = {
       get(orders, 'uploaded_orders.uploads', []).length > 0 || uploads.length > 0,
     render: (key, pages) => ({ match }) => <UploadOrders pages={pages} pageKey={key} match={match} />,
     description: 'Upload your orders',
+  },
+  '/orders/move-location': {
+    isInFlow: always && inGhcFlow,
+    isComplete: always,
+    render: (key, pages) => () => {
+      return (
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+          <MoveLocation />
+        </WizardPage>
+      );
+    },
   },
   '/orders/transition': {
     isInFlow: always,

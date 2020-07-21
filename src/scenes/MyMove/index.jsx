@@ -162,6 +162,7 @@ AppWrapper.defaultProps = {
   context: PropTypes.shape({
     flags: PropTypes.shape({
       hhgFlow: false,
+      ghcFlow: false,
     }),
   }).isRequired,
 };

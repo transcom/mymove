@@ -167,6 +167,7 @@ Landing.propTypes = {
   context: PropTypes.shape({
     flags: PropTypes.shape({
       hhgFlow: PropTypes.bool,
+      ghcFlow: PropTypes.bool,
     }),
   }).isRequired,
 };
@@ -175,6 +176,7 @@ Landing.defaultProps = {
   context: {
     flags: {
       hhgFlow: false,
+      ghcFlow: false,
     },
   },
 };
