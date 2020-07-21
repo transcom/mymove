@@ -88,7 +88,7 @@ export class OfficeApp extends Component {
 
     // TODO - I don't love this solution but it will work for now. Ideally we can abstract the page layout into a separate file where each route can use it or not
     // Don't show Header on OrdersInfo or DocumentViewer pages (PPM only)
-    const hideHeader =
+    const hideHeaderPPM =
       selectedRole === roleTypes.PPM &&
       (matchPath(pathname, {
         path: '/moves/:moveId/documents/:moveDocumentId?',
@@ -98,6 +98,17 @@ export class OfficeApp extends Component {
           path: '/moves/:moveId/orders',
           exact: true,
         }));
+
+    const hideHeaderTXO =
+      ((selectedRole === roleTypes.TOO || selectedRole === roleTypes.TIO) &&
+        matchPath(pathname, {
+          path: '/moves/:moveId/payment-requests/:id',
+          exact: true,
+        })) ||
+      matchPath(pathname, {
+        path: '/moves/:moveId/orders',
+        exact: true,
+      });
 
     const displayChangeRole =
       userIsLoggedIn &&
@@ -135,7 +146,7 @@ export class OfficeApp extends Component {
       <div className="site">
         <FOUOHeader />
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-        {!hideHeader && <QueueHeader />}
+        {!hideHeaderPPM && !hideHeaderTXO && <QueueHeader />}
         <main role="main" className="site__content">
           <ConnectedLogoutOnInactivity />
 
