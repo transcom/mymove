@@ -3,7 +3,6 @@ package testdatagen
 import (
 	"fmt"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -31,7 +30,7 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 		MoveTaskOrder:        moveTaskOrder,
 		MoveTaskOrderID:      moveTaskOrder.ID,
 		IsFinal:              false,
-		RejectionReason:      swag.String("Not good enough"),
+		RejectionReason:      nil,
 		Status:               models.PaymentRequestStatusPending,
 		PaymentRequestNumber: paymentRequestNumber,
 		SequenceNumber:       sequenceNumber,

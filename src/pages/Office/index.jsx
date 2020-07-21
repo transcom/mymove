@@ -99,17 +99,6 @@ export class OfficeApp extends Component {
           exact: true,
         }));
 
-    const hideHeaderTXO =
-      ((selectedRole === roleTypes.TOO || selectedRole === roleTypes.TIO) &&
-        matchPath(pathname, {
-          path: '/moves/:moveId/payment-requests/:id',
-          exact: true,
-        })) ||
-      matchPath(pathname, {
-        path: '/moves/:moveId/orders',
-        exact: true,
-      });
-
     const displayChangeRole =
       userIsLoggedIn &&
       userRoles?.length > 1 &&
@@ -146,7 +135,7 @@ export class OfficeApp extends Component {
       <div className="site">
         <FOUOHeader />
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-        {!hideHeaderPPM && !hideHeaderTXO && <QueueHeader />}
+        {!hideHeaderPPM && <QueueHeader />}
         <main role="main" className="site__content">
           <ConnectedLogoutOnInactivity />
 
