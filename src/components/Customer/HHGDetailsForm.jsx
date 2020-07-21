@@ -17,6 +17,8 @@ class HHGDetailsForm extends Component {
     };
   }
 
+  // TODO: when we can pull in initialValues from redux, set state.hasDeliveryAddress to true if a delivery address exists
+
   handleChangeHasDeliveryAddress = () => {
     this.setState((prevState) => {
       return { hasDeliveryAddress: !prevState.hasDeliveryAddress };
@@ -24,15 +26,16 @@ class HHGDetailsForm extends Component {
   };
 
   render() {
+    // TODO: replace minimal styling with actual styling during UI phase
     const { initialValues, pageKey, pageList } = this.props;
     const { hasDeliveryAddress } = this.state;
-    const fieldsetClasses = { margin: 'margin-top-2' };
+    const fieldsetClasses = 'margin-top-2';
     return (
       <Formik initialValues={initialValues}>
         {({ handleChange, values }) => (
           <WizardPage pageKey={pageKey} pageList={pageList} handleSubmit={() => {}}>
             <Form>
-              <Fieldset legend="Pickup date" className={fieldsetClasses.margin}>
+              <Fieldset legend="Pickup date" className={fieldsetClasses}>
                 <DatePickerInput
                   name="requestedPickupDate"
                   label="Requested pickup date"
@@ -45,72 +48,73 @@ class HHGDetailsForm extends Component {
                 Your movers will confirm this date or one shortly before or after.
               </span>
               <AddressFields
-                initialValues={initialValues.pickupLocation}
+                name="pickupLocation"
                 legend="Pickup location"
-                className={fieldsetClasses.margin}
-                onChange={handleChange}
+                className={fieldsetClasses}
+                handleChange={handleChange}
                 values={values.pickupLocation}
               />
               <ContactInfoFields
-                initialValues={initialValues.releasingAgent}
+                name="releasingAgent"
                 legend="Releasing agent"
-                className={fieldsetClasses.margin}
+                className={fieldsetClasses}
                 subtitle="Who can allow the movers to take your stuff if you're not there?"
-                onChange={handleChange}
+                handleChange={handleChange}
                 values={values.releasingAgent}
               />
-              <Fieldset legend="Delivery date" className={fieldsetClasses.margin}>
+              <Fieldset legend="Delivery date" className={fieldsetClasses}>
                 <DatePickerInput
                   name="requestedDeliveryDate"
                   label="Requested delivery date"
                   id="requestedDeliveryDate"
-                  onChange={handleChange}
+                  handleChange={handleChange}
                   value={values.requestedDeliveryDate}
                 />
                 <span className="usa-hint" id="deliveryDateHint">
                   Your movers will confirm this date or one shortly before or after.
                 </span>
               </Fieldset>
-              <Fieldset legend="Delivery location" className={fieldsetClasses.margin}>
+              <Fieldset legend="Delivery location" className={fieldsetClasses}>
                 <Label>Do you know your delivery address?</Label>
-                <Radio
-                  className="display-inline"
-                  id="has-delivery-address"
-                  label="Yes"
-                  name="hasDeliveryAddress"
-                  onChange={this.handleChangeHasDeliveryAddress}
-                />
-                <Radio
-                  className="display-inline-flex"
-                  id="no-delivery-address"
-                  label="No"
-                  name="hasDeliveryAddress"
-                  defaultChecked
-                  onChange={this.handleChangeHasDeliveryAddress}
-                />
+                <div className="display-flex margin-top-1">
+                  <Radio
+                    id="has-delivery-address"
+                    label="Yes"
+                    name="hasDeliveryAddress"
+                    onChange={this.handleChangeHasDeliveryAddress}
+                    checked={hasDeliveryAddress}
+                  />
+                  <Radio
+                    id="no-delivery-address"
+                    label="No"
+                    name="hasDeliveryAddress"
+                    checked={!hasDeliveryAddress}
+                    onChange={this.handleChangeHasDeliveryAddress}
+                  />
+                </div>
                 {hasDeliveryAddress ? (
                   <AddressFields
-                    initialValues={initialValues.deliveryLocation}
-                    className={fieldsetClasses.margin}
-                    onChange={handleChange}
+                    name="deliveryLocation"
+                    className={fieldsetClasses}
+                    handleChange={handleChange}
                     values={values.deliveryLocation}
                   />
                 ) : (
                   <>
-                    <div className={fieldsetClasses.margin}>We can use the zip of your new duty station.</div>
+                    <div className={fieldsetClasses}>We can use the zip of your new duty station.</div>
                     <div>[City], [State] [New duty station zip]</div>
                   </>
                 )}
               </Fieldset>
               <ContactInfoFields
-                initialValues={initialValues.receivingAgent}
+                name="receivingAgent"
                 legend="Receiving agent"
-                className={fieldsetClasses.margin}
+                className={fieldsetClasses}
                 subtitle="Who can take delivery for you if the movers arrive and you're not there?"
-                onChange={handleChange}
+                handleChange={handleChange}
                 values={values.receivingAgent}
               />
-              <Fieldset legend="Remarks" className={fieldsetClasses.margin}>
+              <Fieldset legend="Remarks" className={fieldsetClasses}>
                 <Label hint="(optional)">Anything else you would like us to know?</Label>
                 <TextInput
                   name="remarks"

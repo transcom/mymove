@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Fieldset, Label, TextInput } from '@trussworks/react-uswds';
 import { v4 as uuidv4 } from 'uuid';
 
-export const ContactInfoFields = ({ legend, className, subtitle, values, handleChange }) => {
+export const ContactInfoFields = ({ legend, className, subtitle, values, handleChange, name }) => {
   const contactInfoFieldsUUID = uuidv4();
 
   return (
@@ -15,7 +15,7 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, handleC
       <TextInput
         id={`firstName_${contactInfoFieldsUUID}`}
         data-testid="firstName"
-        name="firstName"
+        name={`${name}.firstName`}
         type="text"
         onChange={handleChange}
         value={values.firstName}
@@ -26,7 +26,7 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, handleC
       <TextInput
         id={`lastName_${contactInfoFieldsUUID}`}
         data-testid="lastName"
-        name="lastName"
+        name={`${name}.lastName`}
         type="text"
         onChange={handleChange}
         value={values.lastName}
@@ -37,7 +37,7 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, handleC
       <TextInput
         id={`phone_${contactInfoFieldsUUID}`}
         data-testid="phone"
-        name="phone"
+        name={`${name}.phone`}
         type="text"
         onChange={handleChange}
         value={values.phone}
@@ -48,7 +48,7 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, handleC
       <TextInput
         id={`email_${contactInfoFieldsUUID}`}
         data-testid="email"
-        name="email"
+        name={`${name}.email`}
         type="text"
         onChange={handleChange}
         value={values.email}
@@ -67,6 +67,7 @@ ContactInfoFields.propTypes = {
     phone: PropTypes.string,
     email: PropTypes.string,
   }),
+  name: PropTypes.string.isRequired,
   handleChange: PropTypes.func.isRequired,
 };
 

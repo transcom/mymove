@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Fieldset, Label, TextInput } from '@trussworks/react-uswds';
 import { v4 as uuidv4 } from 'uuid';
 
-export const AddressFields = ({ legend, className, values, handleChange }) => {
+export const AddressFields = ({ legend, className, values, handleChange, name }) => {
   const addressFieldsUUID = uuidv4();
 
   return (
@@ -12,7 +12,7 @@ export const AddressFields = ({ legend, className, values, handleChange }) => {
       <TextInput
         id={`mailingAddress1_${addressFieldsUUID}`}
         data-testid="mailingAddress1"
-        name="mailingAddress1"
+        name={`${name}.mailingAddress1`}
         type="text"
         onChange={handleChange}
         value={values.mailingAddress1}
@@ -23,7 +23,7 @@ export const AddressFields = ({ legend, className, values, handleChange }) => {
       <TextInput
         id={`mailingAddress2_${addressFieldsUUID}`}
         data-testid="mailingAddress2"
-        name="mailingAddress2"
+        name={`${name}.mailingAddress2`}
         type="text"
         onChange={handleChange}
         value={values.mailingAddress2}
@@ -32,7 +32,7 @@ export const AddressFields = ({ legend, className, values, handleChange }) => {
       <TextInput
         id={`city_${addressFieldsUUID}`}
         data-testid="city"
-        name="city"
+        name={`${name}.city`}
         type="text"
         onChange={handleChange}
         value={values.city}
@@ -41,7 +41,7 @@ export const AddressFields = ({ legend, className, values, handleChange }) => {
       <TextInput
         id={`state_${addressFieldsUUID}`}
         data-testid="state"
-        name="state"
+        name={`${name}.state`}
         type="text"
         onChange={handleChange}
         value={values.state}
@@ -51,7 +51,7 @@ export const AddressFields = ({ legend, className, values, handleChange }) => {
         id={`zip_${addressFieldsUUID}`}
         data-testid="zip"
         inputSize="medium"
-        name="zip"
+        name={`${name}.zip`}
         pattern="[\d]{5}(-[\d]{4})?"
         type="text"
         onChange={handleChange}
@@ -71,6 +71,7 @@ AddressFields.propTypes = {
     state: PropTypes.string,
     zip: PropTypes.string,
   }),
+  name: PropTypes.string.isRequired,
   handleChange: PropTypes.func.isRequired,
 };
 
