@@ -40,4 +40,5 @@ const mapStateToProps = () => ({});
 const mapDispatchToProps = {
   setSelectedMoveType,
 };
+
 export default connect(mapStateToProps, mapDispatchToProps)(SelectMoveType);
