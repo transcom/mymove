@@ -5,7 +5,8 @@ import (
 )
 
 func (suite *MoveOrderServiceSuite) TestMoveOrderFetcher() {
-	expectedMoveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
+	expectedMoveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	expectedMoveOrder := expectedMoveTaskOrder.MoveOrder
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
 	moveOrder, err := moveOrderFetcher.FetchMoveOrder(expectedMoveOrder.ID)
@@ -35,6 +36,9 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcherWithEmptyFields() {
 	// noticed an exception due to trying to load empty OriginDutyStations.
 	// This was not caught by any tests, so we're adding one now.
 	expectedMoveOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveOrder: expectedMoveOrder,
+	})
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 	moveOrder, err := moveOrderFetcher.FetchMoveOrder(expectedMoveOrder.ID)
 
@@ -45,7 +49,8 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcherWithEmptyFields() {
 }
 
 func (suite *MoveOrderServiceSuite) TestListMoveOrder() {
-	expectedMoveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
+	expectedMoveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	expectedMoveOrder := expectedMoveTaskOrder.MoveOrder
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 	moveOrders, err := moveOrderFetcher.ListMoveOrders()
 	suite.FatalNoError(err)
@@ -68,7 +73,10 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrder() {
 }
 
 func (suite *MoveOrderServiceSuite) TestListMoveOrderWithEmptyFields() {
-	testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+	expectedMoveOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveOrder: expectedMoveOrder,
+	})
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 	moveOrders, err := moveOrderFetcher.ListMoveOrders()
 	moveOrder := moveOrders[0]
