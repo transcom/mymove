@@ -1,0 +1,102 @@
+package ghcrateengine
+
+import (
+	"fmt"
+	"math"
+	"time"
+
+	"github.com/pkg/errors"
+
+	"github.com/gobuffalo/pop"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/unit"
+)
+
+// FuelSurchargePricer is a service object to price domestic shorthaul
+type fuelSurchargePricer struct {
+	db *pop.Connection
+}
+
+// NewFuelSurchargePricer is the public constructor for a domesticFuelSurchargePricer using Pop
+func NewFuelSurchargePricer(db *pop.Connection) services.FuelSurchargePricer {
+	return &fuelSurchargePricer{
+		db: db,
+	}
+}
+
+// Price determines the price for a counseling service
+func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, weightBasedDistanceMultiplier unit.Millicents, fuelPrice unit.Millicents) (totalCost unit.Cents, err error) {
+	// Validate parameters
+	if len(contractCode) == 0 {
+		return 0, errors.New("ContractCode is required")
+	}
+	if actualPickupDate.IsZero() {
+		return 0, errors.New("RequestedPickupDate is required")
+	}
+	if weight < minDomesticWeight {
+		return 0, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+	}
+	if distance <= 0 {
+		return 0, errors.New("Distance must be greater than 0")
+	}
+	if weightBasedDistanceMultiplier == 0 {
+		return 0, errors.New("WeightBasedDistanceMultiplier is required")
+	}
+
+	priceDifference := (fuelPrice.ToCents() - unit.Cents(250)).Float64()
+	x := weightBasedDistanceMultiplier.ToDollarFloat() * distance.Float64()
+	basePrice := x * priceDifference
+	totalCost = unit.Cents(math.Round(basePrice))
+
+	return totalCost, err
+}
+
+func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	actualPickupDate, err := getParamTime(params, models.ServiceItemParamNameActualPickupDate)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	distanceZip5, err := getParamInt(params, models.ServiceItemParamNameDistanceZip5)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	distanceZip3, err := getParamInt(params, models.ServiceItemParamNameDistanceZip3)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	var distance int
+	if distanceZip3 == 0 {
+		distance = distanceZip5
+	} else if distanceZip5 == 0 {
+		distance = distanceZip3
+	}
+
+	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	weightBasedDistanceMultiplier, err := getParamInt(params, models.ServiceItemParamNameWeightBasedDistanceMultiplier)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	fuelPrice, err := getParamInt(params, models.ServiceItemParamNameEIAFuelPrice)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	total, err := p.Price(contractCode, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilledActual), unit.Millicents(weightBasedDistanceMultiplier), unit.Millicents(fuelPrice))
+	return total, err
+	// return unit.Cents(1000), nil
+}

@@ -18,6 +18,8 @@ func (s ServiceItemParamName) String() string {
 }
 
 const (
+	// ServiceItemParamNameActualPickupDate is the param key name ActualPickupDate
+	ServiceItemParamNameActualPickupDate ServiceItemParamName = "ActualPickupDate"
 	// ServiceItemParamNameCanStandAlone is the param key name CanStandAlone
 	ServiceItemParamNameCanStandAlone ServiceItemParamName = "CanStandAlone"
 	// ServiceItemParamNameContractCode is the param key name ContractCode
@@ -108,6 +110,8 @@ const (
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
 	// ServiceItemParamNameWeightActual is the param key name WeightActual
 	ServiceItemParamNameWeightActual ServiceItemParamName = "WeightActual"
+	// ServiceItemParamNameWeightBasedDistanceMultiplier is the param key name WeightBasedDistanceMultiplier
+	ServiceItemParamNameWeightBasedDistanceMultiplier ServiceItemParamName = "WeightBasedDistanceMultiplier"
 	// ServiceItemParamNameWeightBilledActual is the param key name WeightBilledActual
 	ServiceItemParamNameWeightBilledActual ServiceItemParamName = "WeightBilledActual"
 	// ServiceItemParamNameWeightEstimated is the param key name WeightEstimated
@@ -198,6 +202,7 @@ var ValidServiceItemParamNames = []string{
 	string(ServiceItemParamNameRateAreaNonStdDest),
 	string(ServiceItemParamNameRateAreaNonStdOrigin),
 	string(ServiceItemParamNameRequestedPickupDate),
+	string(ServiceItemParamNameActualPickupDate),
 	string(ServiceItemParamNameServiceAreaDest),
 	string(ServiceItemParamNameServiceAreaOrigin),
 	string(ServiceItemParamNameServicesScheduleDest),
@@ -205,6 +210,7 @@ var ValidServiceItemParamNames = []string{
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
 	string(ServiceItemParamNameWeightActual),
+	string(ServiceItemParamNameWeightBasedDistanceMultiplier),
 	string(ServiceItemParamNameWeightBilledActual),
 	string(ServiceItemParamNameWeightEstimated),
 	string(ServiceItemParamNameZipDestAddress),
