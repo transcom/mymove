@@ -103,7 +103,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.nextPage();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/transition/);
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/conus-status/);
   });
 
   //transition
