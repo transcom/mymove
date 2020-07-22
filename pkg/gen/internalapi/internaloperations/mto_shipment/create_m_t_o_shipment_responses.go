@@ -101,6 +101,94 @@ func (o *CreateMTOShipmentBadRequest) WriteResponse(rw http.ResponseWriter, prod
 	}
 }
 
+// CreateMTOShipmentUnauthorizedCode is the HTTP code returned for type CreateMTOShipmentUnauthorized
+const CreateMTOShipmentUnauthorizedCode int = 401
+
+/*CreateMTOShipmentUnauthorized The request was denied.
+
+swagger:response createMTOShipmentUnauthorized
+*/
+type CreateMTOShipmentUnauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
+}
+
+// NewCreateMTOShipmentUnauthorized creates CreateMTOShipmentUnauthorized with default headers values
+func NewCreateMTOShipmentUnauthorized() *CreateMTOShipmentUnauthorized {
+
+	return &CreateMTOShipmentUnauthorized{}
+}
+
+// WithPayload adds the payload to the create m t o shipment unauthorized response
+func (o *CreateMTOShipmentUnauthorized) WithPayload(payload *internalmessages.ClientError) *CreateMTOShipmentUnauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create m t o shipment unauthorized response
+func (o *CreateMTOShipmentUnauthorized) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateMTOShipmentUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+// CreateMTOShipmentForbiddenCode is the HTTP code returned for type CreateMTOShipmentForbidden
+const CreateMTOShipmentForbiddenCode int = 403
+
+/*CreateMTOShipmentForbidden The request was denied.
+
+swagger:response createMTOShipmentForbidden
+*/
+type CreateMTOShipmentForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
+}
+
+// NewCreateMTOShipmentForbidden creates CreateMTOShipmentForbidden with default headers values
+func NewCreateMTOShipmentForbidden() *CreateMTOShipmentForbidden {
+
+	return &CreateMTOShipmentForbidden{}
+}
+
+// WithPayload adds the payload to the create m t o shipment forbidden response
+func (o *CreateMTOShipmentForbidden) WithPayload(payload *internalmessages.ClientError) *CreateMTOShipmentForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create m t o shipment forbidden response
+func (o *CreateMTOShipmentForbidden) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateMTOShipmentForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(403)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreateMTOShipmentNotFoundCode is the HTTP code returned for type CreateMTOShipmentNotFound
 const CreateMTOShipmentNotFoundCode int = 404
 

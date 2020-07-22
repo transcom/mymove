@@ -39,12 +39,10 @@ Required fields include:
 * Customer requested pick-up date
 * Pick-up Address
 * Delivery Address
-* Releasing / Receiving agents
 
 Optional fields include:
 * Customer Remarks
 * Releasing / Receiving agents
-* An array of optional accessorial service item codes
 
 
 */

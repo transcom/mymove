@@ -59,7 +59,7 @@ func MTOAgentsModel(mtoAgents *internalmessages.MTOAgents) *models.MTOAgents {
 }
 
 // MTOShipmentModelFromCreate model
-func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipmentPayload) *models.MTOShipment {
+func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *models.MTOShipment {
 	if mtoShipment == nil {
 		return nil
 	}

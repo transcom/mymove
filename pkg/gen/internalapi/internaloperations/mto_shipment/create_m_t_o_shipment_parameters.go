@@ -34,7 +34,7 @@ type CreateMTOShipmentParams struct {
 	/*
 	  In: body
 	*/
-	Body *internalmessages.CreateShipmentPayload
+	Body *internalmessages.CreateShipment
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -48,7 +48,7 @@ func (o *CreateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body internalmessages.CreateShipmentPayload
+		var body internalmessages.CreateShipment
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {

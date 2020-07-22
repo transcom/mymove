@@ -1949,7 +1949,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -1966,7 +1966,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateShipmentPayload"
+              "$ref": "#/definitions/CreateShipment"
             }
           }
         ],
@@ -1979,6 +1979,12 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -3863,7 +3869,7 @@ func init() {
         }
       }
     },
-    "CreateShipmentPayload": {
+    "CreateShipment": {
       "type": "object",
       "required": [
         "moveTaskOrderID",
@@ -3888,18 +3894,8 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "mtoServiceItems": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
-        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "pointOfContact": {
-          "description": "Email or id of a contact person for this update",
-          "type": "string"
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -4810,8 +4806,10 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB"
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC"
       ],
       "x-display-value": {
         "HHG": "HHG",
@@ -8884,7 +8882,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -8901,7 +8899,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateShipmentPayload"
+              "$ref": "#/definitions/CreateShipment"
             }
           }
         ],
@@ -8914,6 +8912,18 @@ func init() {
           },
           "400": {
             "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -10812,7 +10822,7 @@ func init() {
         }
       }
     },
-    "CreateShipmentPayload": {
+    "CreateShipment": {
       "type": "object",
       "required": [
         "moveTaskOrderID",
@@ -10837,18 +10847,8 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "mtoServiceItems": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MTOServiceItem"
-          }
-        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "pointOfContact": {
-          "description": "Email or id of a contact person for this update",
-          "type": "string"
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -11761,8 +11761,10 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB"
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC"
       ],
       "x-display-value": {
         "HHG": "HHG",

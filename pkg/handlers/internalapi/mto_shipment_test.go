@@ -40,7 +40,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	params := mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
-		Body: &internalmessages.CreateShipmentPayload{
+		Body: &internalmessages.CreateShipment{
 			MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 			Agents:          internalmessages.MTOAgents{},
 			CustomerRemarks: nil,
@@ -62,7 +62,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				StreetAddress2: pickupAddress.StreetAddress2,
 				StreetAddress3: pickupAddress.StreetAddress3,
 			},
-			PointOfContact:        "John Doe",
 			RequestedPickupDate:   strfmt.Date(*mtoShipment.RequestedPickupDate),
 			RequestedDeliveryDate: strfmt.Date(*mtoShipment.RequestedDeliveryDate),
 			ShipmentType:          internalmessages.MTOShipmentTypeHHG,

@@ -2578,8 +2578,10 @@ definitions:
     example: HHG
     enum:
       - HHG
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
+      - HHG_LONGHAUL_DOMESTIC
+      - HHG_SHORTHAUL_DOMESTIC
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
@@ -2639,7 +2641,7 @@ definitions:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
-  CreateShipmentPayload:
+  CreateShipment:
     type: object
     properties:
       moveTaskOrderID:
@@ -2664,13 +2666,6 @@ definitions:
         $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
-      pointOfContact:
-        type: string
-        description: Email or id of a contact person for this update
-      mtoServiceItems:
-        type: array
-        items:
-          $ref: '#/definitions/MTOServiceItem'
     required:
       - moveTaskOrderID
       - pickupAddress
@@ -5081,12 +5076,10 @@ paths:
         * Customer requested pick-up date
         * Pick-up Address
         * Delivery Address
-        * Releasing / Receiving agents
 
         Optional fields include:
         * Customer Remarks
         * Releasing / Receiving agents
-        * An array of optional accessorial service item codes
       consumes:
         - application/json
       produces:
@@ -5098,7 +5091,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreateShipmentPayload'
+            $ref: '#/definitions/CreateShipment'
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -5106,6 +5099,10 @@ paths:
             $ref: '#/definitions/MTOShipment'
         '400':
           $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '422':
@@ -5122,7 +5119,7 @@ responses:
     schema:
       $ref: '#/definitions/ClientError'
   Conflict:
-    description: "The request could not be processed because of conflict in the current state of the resource."
+    description: 'The request could not be processed because of conflict in the current state of the resource.'
     schema:
       $ref: '#/definitions/ClientError'
   PermissionDenied:
