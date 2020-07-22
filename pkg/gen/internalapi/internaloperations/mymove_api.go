@@ -31,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
@@ -83,6 +84,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveDocsCreateGenericMoveDocumentHandler: move_docs.CreateGenericMoveDocumentHandlerFunc(func(params move_docs.CreateGenericMoveDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveDocsCreateGenericMoveDocument has not yet been implemented")
+		}),
+		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentCreateMTOShipment has not yet been implemented")
 		}),
 		MoveDocsCreateMovingExpenseDocumentHandler: move_docs.CreateMovingExpenseDocumentHandlerFunc(func(params move_docs.CreateMovingExpenseDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveDocsCreateMovingExpenseDocument has not yet been implemented")
@@ -295,6 +299,8 @@ type MymoveAPI struct {
 	DocumentsCreateDocumentHandler documents.CreateDocumentHandler
 	// MoveDocsCreateGenericMoveDocumentHandler sets the operation handler for the create generic move document operation
 	MoveDocsCreateGenericMoveDocumentHandler move_docs.CreateGenericMoveDocumentHandler
+	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
+	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// MoveDocsCreateMovingExpenseDocumentHandler sets the operation handler for the create moving expense document operation
 	MoveDocsCreateMovingExpenseDocumentHandler move_docs.CreateMovingExpenseDocumentHandler
 	// OrdersCreateOrdersHandler sets the operation handler for the create orders operation
@@ -500,6 +506,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveDocsCreateGenericMoveDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.CreateGenericMoveDocumentHandler")
+	}
+
+	if o.MtoShipmentCreateMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
 	}
 
 	if o.MoveDocsCreateMovingExpenseDocumentHandler == nil {
@@ -856,6 +866,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/move_documents"] = move_docs.NewCreateGenericMoveDocument(o.context, o.MoveDocsCreateGenericMoveDocumentHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
