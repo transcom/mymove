@@ -80,13 +80,15 @@ export class WizardPage extends Component {
             )}
           </div>
           <div className="grid-col-10 text-right margin-top-6 tablet:margin-top-3">
-            <button
-              className="usa-button usa-button--outline prev"
-              onClick={this.previousPage}
-              disabled={!canMoveBackward}
-            >
-              Back
-            </button>
+            {!isFirstPage(pageList, pageKey) && (
+              <button
+                className="usa-button usa-button--outline prev"
+                onClick={this.previousPage}
+                disabled={!canMoveBackward}
+              >
+                Back
+              </button>
+            )}
             {!isLastPage(pageList, pageKey) && (
               <button className="usa-button next" onClick={this.nextPage} disabled={!canMoveForward}>
                 Next

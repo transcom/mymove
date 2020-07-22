@@ -16,23 +16,28 @@ export class ConusONo extends Component {
       <div className="grid-row">
         <div className="grid-col">
           <h1 className="sm-heading">Where are you moving?</h1>
-          <p>Are you moving inside or outside the continental US?</p>
           <Radio
             id={CONUS_STATUS.CONUS}
-            label="CONUS (continental US)"
+            label="CONUS"
             value={CONUS_STATUS.CONUS}
             name="conusStatus"
             onChange={(e) => setLocation(e.target.value)}
             checked={conusStatus === CONUS_STATUS.CONUS}
           />
+          <span className="usa-hint" id="conusStatus">
+            Starts and ends in the continental US
+          </span>
           <Radio
             id={CONUS_STATUS.OCONUS}
-            label="OCONUS (Alaska, Hawaii, international)"
+            label="OCONUS"
             value={CONUS_STATUS.OCONUS}
             onChange={(e) => setLocation(e.target.value)}
             name="conusStatus"
             checked={conusStatus === CONUS_STATUS.OCONUS}
           />
+          <span className="usa-hint" id="conusStatus">
+            Starts or ends in Alaska, Hawaii, or International locations
+          </span>
           {conusStatus === CONUS_STATUS.OCONUS && (
             <div>
               MilMove does not support OCONUS moves yet. Contact your current transportation office to set up your move.
