@@ -1,6 +1,19 @@
 import { isFinite } from 'lodash';
 import moment from 'moment';
+import numeral from 'numeral';
+
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+
+/**
+ * Formats number into a dollar string. Eg. $1,234.12
+ *
+ * More info: http://numeraljs.com/
+ * @param num
+ * @returns {string}
+ */
+export function toDollarString(num) {
+  return numeral(num).format('$0,0.00');
+}
 
 export function formatNumber(num) {
   if (!isFinite(num)) {

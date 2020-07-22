@@ -44,7 +44,6 @@ export const CustomerShape = PropTypes.shape({
   phone: PropTypes.string,
   email: PropTypes.string,
   current_address: AddressShape,
-  destination_address: AddressShape,
 });
 
 export const MTOShipmentShape = PropTypes.shape({

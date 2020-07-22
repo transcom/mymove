@@ -1318,9 +1318,6 @@ definitions:
       current_address:
         x-nullable: true
         $ref: '#/definitions/Address'
-      destination_address:
-        x-nullable: true
-        $ref: '#/definitions/Address'
       id:
         type: string
         format: uuid

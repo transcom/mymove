@@ -23,9 +23,6 @@ type Customer struct {
 	// current address
 	CurrentAddress *Address `json:"currentAddress,omitempty"`
 
-	// destination address
-	DestinationAddress *Address `json:"destinationAddress,omitempty"`
-
 	// dod ID
 	DodID string `json:"dodID,omitempty"`
 
@@ -62,10 +59,6 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDestinationAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateEmail(formats); err != nil {
 		res = append(res, err)
 	}
@@ -94,24 +87,6 @@ func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
 		if err := m.CurrentAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("currentAddress")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *Customer) validateDestinationAddress(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.DestinationAddress) { // not required
-		return nil
-	}
-
-	if m.DestinationAddress != nil {
-		if err := m.DestinationAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationAddress")
 			}
 			return err
 		}

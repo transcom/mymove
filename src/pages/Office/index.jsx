@@ -136,7 +136,7 @@ export class OfficeApp extends Component {
         <FOUOHeader />
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
         {!hideHeaderPPM && <QueueHeader />}
-        <main role="main" className="site__content">
+        <main role="main" className="site__content site-office__content">
           <ConnectedLogoutOnInactivity />
 
           {hasError && <SomethingWentWrong error={error} info={info} />}
