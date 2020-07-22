@@ -61,6 +61,7 @@ type MTOShipment struct {
 	RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
 
 	// scheduled pickup date
+	// Read Only: true
 	// Format: date
 	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 

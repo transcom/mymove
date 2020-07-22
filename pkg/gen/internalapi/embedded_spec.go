@@ -4486,7 +4486,8 @@ func init() {
         },
         "scheduledPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "secondaryDeliveryAddress": {
           "$ref": "#/definitions/Address"
@@ -11088,7 +11089,8 @@ func init() {
         },
         "scheduledPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "secondaryDeliveryAddress": {
           "$ref": "#/definitions/Address"
