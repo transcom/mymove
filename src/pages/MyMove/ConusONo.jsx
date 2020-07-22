@@ -33,6 +33,11 @@ export class ConusONo extends Component {
             name="conusStatus"
             checked={conusStatus === CONUS_STATUS.OCONUS}
           />
+          {conusStatus === CONUS_STATUS.OCONUS && (
+            <div>
+              MilMove does not support OCONUS moves yet. Contact your current transportation office to set up your move.
+            </div>
+          )}
         </div>
       </div>
     );

@@ -23,7 +23,7 @@ import UploadOrders from 'scenes/Orders/UploadOrders';
 import MoveLanding from 'pages/MyMove/MoveLanding';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
 import ConusONo from 'pages/MyMove/ConusONo';
-import UnsupportedMove from 'pages/MyMove/UnsupportedMove';
+import MovingInfo from 'pages/MyMove/MovingInfo';
 
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
@@ -74,6 +74,23 @@ const isCurrentMoveSubmitted = ({ move }) => {
 };
 
 const pages = {
+  '/service-member/:serviceMemberId/conus-status': {
+    isInFlow: inGhcFlow,
+    isComplete: always,
+    render: (key, pages, description, props) => ({ match }) => {
+      return (
+        <WizardPage
+          handleSubmit={no_op}
+          pageList={pages}
+          pageKey={key}
+          match={match}
+          canMoveNext={props.conusStatus === CONUS_STATUS.CONUS}
+        >
+          <ConusONo conusStatus={props.conusStatus} />
+        </WizardPage>
+      );
+    },
+  },
   '/service-member/:serviceMemberId/create': {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
@@ -118,30 +135,6 @@ const pages = {
     render: (key, pages) => ({ match }) => <BackupContact pages={pages} pageKey={key} match={match} />,
     description: 'Backup contacts',
   },
-  '/service-member/:serviceMemberId/conus-status': {
-    isInFlow: inGhcFlow,
-    isComplete: always,
-    render: (key, pages, description, props) => ({ match }) => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} match={match}>
-          <ConusONo conusStatus={props.conusStatus} />
-        </WizardPage>
-      );
-    },
-  },
-  '/service-member/:serviceMemberId/move-location/unsupported': {
-    isInFlow: (state) => {
-      return inGhcFlow && state.conusStatus === CONUS_STATUS.OCONUS;
-    },
-    isComplete: always,
-    render: (key, pages) => ({ match }) => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} match={match} canMoveNext={false}>
-          <UnsupportedMove />
-        </WizardPage>
-      );
-    },
-  },
   '/service-member/:serviceMemberId/move-landing': {
     isInFlow: myFirstRodeo && inGhcFlow,
     isComplete: always,
@@ -183,6 +176,17 @@ const pages = {
       return (
         <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} additionalParams={{ moveId: props.moveId }}>
           <TransitionToMove />
+        </WizardPage>
+      );
+    },
+  },
+  '/moves/:moveId/moving-info': {
+    isInFlow: inHhgFlow,
+    isComplete: always,
+    render: (key, pages) => () => {
+      return (
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+          <MovingInfo />
         </WizardPage>
       );
     },
