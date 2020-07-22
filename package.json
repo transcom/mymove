@@ -70,6 +70,7 @@
     "swagger-client": "^3.10.12",
     "swagger-ui-dist": "^3.30.1",
     "uswds": "2.8.0",
+    "uuid": "^8.2.0",
     "yup": "^0.29.1"
   },
   "resolutions": {
