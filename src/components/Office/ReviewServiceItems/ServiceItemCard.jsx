@@ -24,46 +24,54 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
           <dt>Amount</dt>
           <dd data-cy="serviceItemAmount">{toDollarString(amount)}</dd>
         </dl>
-        <Fieldset className={styles.statusOption}>
-          <Radio
-            id="approve"
-            checked={status === APPROVED}
-            value={APPROVED}
-            name={`${id}.status`}
-            label="Approve"
-            onChange={onChange}
-          />
-        </Fieldset>
-        <Fieldset className={styles.statusOption}>
-          <Radio
-            id="reject"
-            checked={status === REJECTED}
-            value={REJECTED}
-            name={`${id}.status`}
-            label="Reject"
-            onChange={onChange}
-          />
+        <Fieldset>
+          <div className={styles.statusOption}>
+            <Radio
+              id="approve"
+              checked={status === APPROVED}
+              value={APPROVED}
+              name={`${id}.status`}
+              label="Approve"
+              onChange={onChange}
+            />
+          </div>
+          <div className={styles.statusOption}>
+            <Radio
+              id="reject"
+              checked={status === REJECTED}
+              value={REJECTED}
+              name={`${id}.status`}
+              label="Reject"
+              onChange={onChange}
+            />
 
-          {status === REJECTED && (
-            <FormGroup>
-              <Label htmlFor="rejectReason">Reason for rejection</Label>
-              <Textarea id="rejectReason" name={`${id}.rejectionReason`} onChange={onChange} value={rejectionReason} />
-            </FormGroup>
+            {status === REJECTED && (
+              <FormGroup>
+                <Label htmlFor="rejectReason">Reason for rejection</Label>
+                <Textarea
+                  id="rejectReason"
+                  name={`${id}.rejectionReason`}
+                  onChange={onChange}
+                  value={rejectionReason}
+                />
+              </FormGroup>
+            )}
+          </div>
+
+          {(status === APPROVED || status === REJECTED) && (
+            <Button
+              type="button"
+              unstyled
+              data-testid="clearStatusButton"
+              className={styles.clearStatus}
+              onClick={() => {
+                clearValues(id);
+              }}
+            >
+              X Clear selection
+            </Button>
           )}
         </Fieldset>
-        {(status === APPROVED || status === REJECTED) && (
-          <Button
-            type="button"
-            unstyled
-            data-testid="clearStatusButton"
-            className={styles.clearStatus}
-            onClick={() => {
-              clearValues(id);
-            }}
-          >
-            X Clear selection
-          </Button>
-        )}
       </ShipmentContainer>
     </div>
   );
