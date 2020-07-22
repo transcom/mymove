@@ -6,7 +6,6 @@ import { SelectMoveType } from 'pages/MyMove/SelectMoveType';
 
 describe('SelectMoveType', () => {
   it('should render radio buttons', () => {
-    // const wrapper = shallow(<SelectMoveType />);
     const wrapper = mount(<SelectMoveType />);
     expect(wrapper.find(Radio).length).toBe(2);
 

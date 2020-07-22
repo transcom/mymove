@@ -4,13 +4,13 @@ import { Radio } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import { string } from 'yup';
 
-import { CONUS_STATUS } from 'shared/constants';
 import { setConusStatus, selectedConusStatus } from 'scenes/Moves/ducks';
+import { CONUS_STATUS } from 'shared/constants';
 
 // eslint-disable-next-line react/prefer-stateless-function
-class ConusONo extends Component {
+export class ConusONo extends Component {
   render() {
-    const { setLocation, moveLocation } = this.props;
+    const { setLocation, conusStatus } = this.props;
 
     return (
       <div className="grid-row">
@@ -21,17 +21,17 @@ class ConusONo extends Component {
             id={CONUS_STATUS.CONUS}
             label="CONUS (continental US)"
             value={CONUS_STATUS.CONUS}
-            name="moveLocation"
+            name="conusStatus"
             onChange={(e) => setLocation(e.target.value)}
-            checked={moveLocation === CONUS_STATUS.CONUS}
+            checked={conusStatus === CONUS_STATUS.CONUS}
           />
           <Radio
             id={CONUS_STATUS.OCONUS}
             label="OCONUS (Alaska, Hawaii, international)"
             value={CONUS_STATUS.OCONUS}
             onChange={(e) => setLocation(e.target.value)}
-            name="moveLocation"
-            checked={moveLocation === CONUS_STATUS.OCONUS}
+            name="conusStatus"
+            checked={conusStatus === CONUS_STATUS.OCONUS}
           />
         </div>
       </div>
@@ -41,16 +41,16 @@ class ConusONo extends Component {
 
 ConusONo.propTypes = {
   setLocation: func.isRequired,
-  moveLocation: string,
+  conusStatus: string,
 };
 
 ConusONo.defaultProps = {
-  moveLocation: CONUS_STATUS.CONUS,
+  conusStatus: CONUS_STATUS.CONUS,
 };
 
 const mapStateToProps = (state) => {
   const props = {
-    moveLocation: selectedConusStatus(state),
+    conusStatus: selectedConusStatus(state),
   };
   return props;
 };

@@ -23,7 +23,7 @@ class ProfileReview extends Component {
   getNextIncompletePage = () => {
     const {
       selectedMoveType,
-      moveLocation,
+      conusStatus,
       lastMoveIsCanceled,
       serviceMember,
       orders,
@@ -35,7 +35,7 @@ class ProfileReview extends Component {
     } = this.props;
     return getNextIncompletePageInternal({
       selectedMoveType,
-      moveLocation,
+      conusStatus,
       lastMoveIsCanceled,
       serviceMember,
       orders,
@@ -93,7 +93,7 @@ function mapStateToProps(state) {
     serviceMember: state.serviceMember.currentServiceMember,
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state),
-    moveLocation: selectedConusStatus(state),
+    conusStatus: selectedConusStatus(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),

@@ -160,7 +160,7 @@ export class AppWrapper extends Component {
 AppWrapper.defaultProps = {
   loadInternalSchema: no_op,
   getCurrentUserInfo: no_op,
-  moveLocation: CONUS_STATUS.CONUS,
+  conusStatus: CONUS_STATUS.CONUS,
   context: PropTypes.shape({
     flags: PropTypes.shape({
       hhgFlow: false,
@@ -178,7 +178,7 @@ const mapStateToProps = (state) => {
     latestMove: get(state, 'moves.latestMove'),
     moveId: selectActiveOrLatestMove(state).id,
     selectedMoveType: selectedMoveType(state),
-    moveLocation: selectedConusStatus(state),
+    conusStatus: selectedConusStatus(state),
     swaggerError: state.swaggerInternal.hasErrored,
   };
 };

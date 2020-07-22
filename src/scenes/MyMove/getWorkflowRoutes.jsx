@@ -124,14 +124,14 @@ const pages = {
     render: (key, pages, description, props) => ({ match }) => {
       return (
         <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} match={match}>
-          <ConusONo moveLocation={props.moveLocation} />
+          <ConusONo conusStatus={props.conusStatus} />
         </WizardPage>
       );
     },
   },
   '/service-member/:serviceMemberId/move-location/unsupported': {
     isInFlow: (state) => {
-      return inGhcFlow && state.moveLocation === CONUS_STATUS.OCONUS;
+      return inGhcFlow && state.conusStatus === CONUS_STATUS.OCONUS;
     },
     isComplete: always,
     render: (key, pages) => ({ match }) => {
@@ -225,16 +225,16 @@ const pages = {
   },
 };
 
-export const getPagesInFlow = ({ selectedMoveType, moveLocation, lastMoveIsCanceled, context }) =>
+export const getPagesInFlow = ({ selectedMoveType, conusStatus, lastMoveIsCanceled, context }) =>
   Object.keys(pages).filter((pageKey) => {
     // eslint-disable-next-line security/detect-object-injection
     const page = pages[pageKey];
-    return page.isInFlow({ selectedMoveType, moveLocation, lastMoveIsCanceled, context });
+    return page.isInFlow({ selectedMoveType, conusStatus, lastMoveIsCanceled, context });
   });
 
 export const getNextIncompletePage = ({
   selectedMoveType = undefined,
-  moveLocation = '',
+  conusStatus = '',
   lastMoveIsCanceled = false,
   serviceMember = {},
   orders = {},
@@ -247,7 +247,7 @@ export const getNextIncompletePage = ({
   const rawPath = findKey(
     pages,
     (p) =>
-      p.isInFlow({ selectedMoveType, moveLocation, lastMoveIsCanceled, context }) &&
+      p.isInFlow({ selectedMoveType, conusStatus, lastMoveIsCanceled, context }) &&
       !p.isComplete({ sm: serviceMember, orders, uploads, move, ppm, backupContacts }),
   );
   const compiledPath = generatePath(rawPath, {
@@ -258,7 +258,7 @@ export const getNextIncompletePage = ({
 };
 
 export const getWorkflowRoutes = (props) => {
-  const flowProps = pick(props, ['selectedMoveType', 'moveLocation', 'lastMoveIsCanceled', 'context']);
+  const flowProps = pick(props, ['selectedMoveType', 'conusStatus', 'lastMoveIsCanceled', 'context']);
   const pageList = getPagesInFlow(flowProps);
   return Object.keys(pages).map((key) => {
     // eslint-disable-next-line security/detect-object-injection
