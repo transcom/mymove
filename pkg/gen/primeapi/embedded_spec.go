@@ -1022,6 +1022,7 @@ func init() {
         {
           "type": "object",
           "required": [
+            "reServiceCode",
             "timeMilitary1",
             "firstAvailableDeliveryDate1",
             "timeMilitary2",
@@ -1073,6 +1074,7 @@ func init() {
         {
           "type": "object",
           "required": [
+            "reServiceCode",
             "reason",
             "pickupPostalCode"
           ],
@@ -3060,6 +3062,7 @@ func init() {
         {
           "type": "object",
           "required": [
+            "reServiceCode",
             "timeMilitary1",
             "firstAvailableDeliveryDate1",
             "timeMilitary2",
@@ -3111,6 +3114,7 @@ func init() {
         {
           "type": "object",
           "required": [
+            "reServiceCode",
             "reason",
             "pickupPostalCode"
           ],

@@ -1041,6 +1041,7 @@ definitions:
             example: 90210
             pattern: '^(\d{5}([\-]\d{4})?)$'
         required:
+          - reServiceCode
           - reason
           - pickupPostalCode
   MTOServiceItemDDFSIT:
@@ -1075,6 +1076,7 @@ definitions:
             example: 2020-01-20
             description: Second available date that Prime can deliver SIT service item.
         required:
+          - reServiceCode
           - timeMilitary1
           - firstAvailableDeliveryDate1
           - timeMilitary2
