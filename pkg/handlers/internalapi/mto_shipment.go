@@ -20,8 +20,11 @@ type CreateMTOShipmentHandler struct {
 
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	if session == nil {
+		return mtoshipmentops.NewCreateMTOShipmentUnauthorized()
+	}
 
 	payload := params.Body
 	if payload == nil {

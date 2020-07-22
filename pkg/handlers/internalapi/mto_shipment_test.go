@@ -1,14 +1,8 @@
 package internalapi
 
 import (
-	"errors"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
-
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/services/mocks"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -80,30 +74,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 	})
 
-	suite.T().Run("POST failure - 500", func(t *testing.T) {
-		mockCreator := mocks.MTOShipmentCreator{}
-
-		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			&mockCreator,
-		}
-
-		err := errors.New("ServerError")
-
-		mockCreator.On("CreateMTOShipment",
-			mock.Anything,
-			mock.Anything,
-		).Return(nil, err)
-
-		response := handler.Handle(params)
-
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
-
-		errResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
-		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
-
-	})
-	//
 	suite.T().Run("POST failure - 400 - invalid input, missing pickup address", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
