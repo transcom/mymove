@@ -10,7 +10,8 @@ import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
-import { getCurrentUserInfo as getCurrentUserInfoAction, selectCurrentUser } from 'shared/Data/users';
+import { loadUser as loadUserAction } from 'store/auth/actions';
+import { selectCurrentUser } from 'shared/Data/users';
 import {
   loadInternalSchema as loadInternalSchemaAction,
   loadPublicSchema as loadPublicSchemaAction,
@@ -57,11 +58,11 @@ export class OfficeApp extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Office';
 
-    const { loadInternalSchema, loadPublicSchema, getCurrentUserInfo } = this.props;
+    const { loadUser, loadInternalSchema, loadPublicSchema } = this.props;
 
     loadInternalSchema();
     loadPublicSchema();
-    getCurrentUserInfo();
+    loadUser();
   }
 
   componentDidCatch(error, info) {
@@ -202,7 +203,7 @@ export class OfficeApp extends Component {
 OfficeApp.propTypes = {
   loadInternalSchema: PropTypes.func.isRequired,
   loadPublicSchema: PropTypes.func.isRequired,
-  getCurrentUserInfo: PropTypes.func.isRequired,
+  loadUser: PropTypes.func.isRequired,
   location: LocationShape,
   userIsLoggedIn: PropTypes.bool,
   userRoles: UserRolesShape,
@@ -231,7 +232,7 @@ const mapDispatchToProps = (dispatch) =>
     {
       loadInternalSchema: loadInternalSchemaAction,
       loadPublicSchema: loadPublicSchemaAction,
-      getCurrentUserInfo: getCurrentUserInfoAction,
+      loadUser: loadUserAction,
     },
     dispatch,
   );

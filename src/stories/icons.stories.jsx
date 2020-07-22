@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { ReactComponent as AddIcon } from 'shared/icon/add.svg';
+import { ReactComponent as AcceptIcon } from 'shared/icon/accept.svg';
 import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 import { ReactComponent as ArrowRightIcon } from 'shared/icon/arrow-right.svg';
 import { ReactComponent as ArrowLeftIcon } from 'shared/icon/arrow-left.svg';
@@ -15,6 +16,7 @@ import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.
 import { ReactComponent as FormDoubleCaratIcon } from 'shared/icon/form-double-carat.svg';
 import { ReactComponent as LockIcon } from 'shared/icon/lock.svg';
 import { ReactComponent as MapPinIcon } from 'shared/icon/map-pin.svg';
+import { ReactComponent as RejectIcon } from 'shared/icon/reject.svg';
 import { ReactComponent as RotateClockwiseIcon } from 'shared/icon/rotate-clockwise.svg';
 import { ReactComponent as RotateCounterClockwiseIcon } from 'shared/icon/rotate-counter-clockwise.svg';
 import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
@@ -36,6 +38,10 @@ export const all = () => (
   <div style={{ padding: '20px', background: '#f0f0f0' }}>
     <h3>Icons</h3>
     <div id="icons" style={{ display: 'flex', flexWrap: 'wrap' }}>
+      <div>
+        <AcceptIcon />
+        <code>accept</code>
+      </div>
       <div>
         <AddIcon />
         <code>add</code>
@@ -95,6 +101,10 @@ export const all = () => (
       <div>
         <MapPinIcon />
         <code>map pin</code>
+      </div>
+      <div>
+        <RejectIcon />
+        <code>reject</code>
       </div>
       <div>
         <RotateClockwiseIcon />

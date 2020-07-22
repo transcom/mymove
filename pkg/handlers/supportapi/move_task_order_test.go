@@ -121,22 +121,31 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	originDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{})
 	dbCustomer := testdatagen.MakeCustomer(suite.DB(), testdatagen.Assertions{})
 	contractor := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{})
+	document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+	issueDate := swag.Time(time.Now())
+	reportByDate := swag.Time(time.Now().AddDate(0, 0, -1))
 
 	mtoWithoutCustomer := models.MoveTaskOrder{
 		ReferenceID:        "4857363",
 		AvailableToPrimeAt: swag.Time(time.Now()),
 		PPMType:            swag.String("FULL"),
 		ContractorID:       contractor.ID,
-		MoveOrder: models.MoveOrder{
-			Grade:                    swag.String("E_6"),
-			OrderNumber:              swag.String("4554"),
-			DestinationDutyStationID: &destinationDutyStation.ID,
-			OriginDutyStationID:      &originDutyStation.ID,
+		MoveOrder: models.Order{
+			Grade:               swag.String("E_6"),
+			OrdersNumber:        swag.String("4554"),
+			NewDutyStationID:    destinationDutyStation.ID,
+			OriginDutyStationID: &originDutyStation.ID,
 			Entitlement: &models.Entitlement{
 				DependentsAuthorized: swag.Bool(true),
 				TotalDependents:      swag.Int(5),
 				NonTemporaryStorage:  swag.Bool(false),
 			},
+			Status:           models.OrderStatusDRAFT,
+			IssueDate:        *issueDate,
+			ReportByDate:     *reportByDate,
+			OrdersType:       "GHC",
+			UploadedOrders:   document,
+			UploadedOrdersID: document.ID,
 		},
 	}
 

@@ -6,6 +6,7 @@ import styles from './ServiceItemCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatters';
+import { ShipmentOptionsOneOf } from 'types/shipment';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, value, clearValues }) => {
@@ -70,7 +71,7 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
 
 ServiceItemCard.propTypes = {
   id: PropTypes.string.isRequired,
-  shipmentType: PropTypes.string,
+  shipmentType: ShipmentOptionsOneOf,
   serviceItemName: PropTypes.string.isRequired,
   amount: PropTypes.number.isRequired,
   onChange: PropTypes.func,
@@ -82,7 +83,7 @@ ServiceItemCard.propTypes = {
 };
 
 ServiceItemCard.defaultProps = {
-  shipmentType: '',
+  shipmentType: null,
   onChange: () => {},
   value: {
     status: undefined,

@@ -31,30 +31,30 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 // duty stations but will preserve the ID if provided.
 // It will create nested customer and entitlement models
 // if those are provided in the payload
-func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.MoveOrder {
+func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 	if moveOrderPayload == nil {
 		return nil
 	}
-	model := &models.MoveOrder{
-		ID:          uuid.FromStringOrNil(moveOrderPayload.ID.String()),
-		Grade:       &moveOrderPayload.Rank,
-		OrderNumber: moveOrderPayload.OrderNumber,
-		Customer:    CustomerModel(moveOrderPayload.Customer),
-		Entitlement: EntitlementModel(moveOrderPayload.Entitlement),
+	model := &models.Order{
+		ID:            uuid.FromStringOrNil(moveOrderPayload.ID.String()),
+		Grade:         &moveOrderPayload.Rank,
+		OrdersNumber:  moveOrderPayload.OrderNumber,
+		ServiceMember: *CustomerModel(moveOrderPayload.Customer),
+		Entitlement:   EntitlementModel(moveOrderPayload.Entitlement),
 	}
 
 	customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())
-	model.CustomerID = &customerID
+	model.ServiceMemberID = customerID
 
 	destinationDutyStationID := uuid.FromStringOrNil(moveOrderPayload.DestinationDutyStationID.String())
-	model.DestinationDutyStationID = &destinationDutyStationID
+	model.NewDutyStationID = destinationDutyStationID
 
 	originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
 	model.OriginDutyStationID = &originDutyStationID
 
 	reportByDate := time.Time(moveOrderPayload.ReportByDate)
 	if !reportByDate.IsZero() {
-		model.ReportByDate = &reportByDate
+		model.ReportByDate = reportByDate
 	}
 	return model
 }

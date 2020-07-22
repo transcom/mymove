@@ -53,20 +53,6 @@ const CustomerInfoTable = ({ customerInfo }) => {
           </tr>
           <tr>
             <th scope="row" className="text-bold">
-              Destination address
-            </th>
-            <td data-cy="destinationAddress">
-              {`${get(customerInfo, 'destinationAddress.street_address_1')}, ${get(
-                customerInfo,
-                'destinationAddress.city',
-              )}, ${get(customerInfo, 'destinationAddress.state')} ${get(
-                customerInfo,
-                'destinationAddress.postal_code',
-              )}`}
-            </td>
-          </tr>
-          <tr>
-            <th scope="row" className="text-bold">
               Backup contact name
             </th>
             <td data-cy="backupContactName">{customerInfo.backupContactName}</td>
@@ -96,12 +82,6 @@ CustomerInfoTable.propTypes = {
     phone: PropTypes.string,
     email: PropTypes.string,
     currentAddress: PropTypes.shape({
-      street_address_1: PropTypes.string,
-      city: PropTypes.string,
-      state: PropTypes.string,
-      postal_code: PropTypes.string,
-    }),
-    destinationAddress: PropTypes.shape({
       street_address_1: PropTypes.string,
       city: PropTypes.string,
       state: PropTypes.string,

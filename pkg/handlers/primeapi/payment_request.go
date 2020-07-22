@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/gobuffalo/validate"
 
@@ -130,10 +131,8 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 		}
 
 		// Find the ReService model that maps to to the MTOServiceItem
-		var reService models.ReService
-		err = h.DB().Q().Join("mto_service_items", "mto_service_items.re_service_id = re_services.id").
-			Where("mto_service_items.id = ?", mtoServiceItemID).
-			First(&reService)
+		var mtoServiceItem models.MTOServiceItem
+		err = h.DB().Eager("ReService").Find(&mtoServiceItem, mtoServiceItemID)
 		if err != nil {
 			return nil, verrs, fmt.Errorf("could not find RE (rate engine) service item for MTO Service Item with UUID %s with error: %w", mtoServiceItemID, err)
 		}
@@ -141,15 +140,20 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 		paymentServiceItem := models.PaymentServiceItem{
 			// The rest of the model will be filled in when the payment request is created
 			MTOServiceItemID: mtoServiceItemID,
+			MTOServiceItem:   mtoServiceItem,
 		}
 
-		paymentServiceItem.PaymentServiceItemParams, err = h.buildPaymentServiceItemParams(payloadServiceItem, reService)
+		paymentServiceItem.PaymentServiceItemParams, err = h.buildPaymentServiceItemParams(payloadServiceItem, mtoServiceItem.ReService)
 		if err != nil {
 			return nil, verrs, err
 		}
 
 		paymentServiceItems = append(paymentServiceItems, paymentServiceItem)
 	}
+
+	sort.SliceStable(paymentServiceItems, func(i, j int) bool {
+		return paymentServiceItems[i].MTOServiceItem.ReService.Priority < paymentServiceItems[j].MTOServiceItem.ReService.Priority
+	})
 
 	return paymentServiceItems, verrs, nil
 }
