@@ -23,7 +23,7 @@ type CreateMTOShipmentHandler struct {
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	if session.IsMilApp() && session.ServiceMemberID == uuid.Nil {
+	if session == nil || (session.IsMilApp() && session.ServiceMemberID == uuid.Nil) {
 		return mtoshipmentops.NewCreateMTOShipmentUnauthorized()
 	}
 
