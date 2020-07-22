@@ -36,6 +36,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	builder := query.NewQueryBuilder(suite.DB())
 
 	req := httptest.NewRequest("POST", "/mto-shipments", nil)
+	unauthorizedReq := httptest.NewRequest("POST", "/mto-shipments", nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
 
 	params := mtoshipmentops.CreateMTOShipmentParams{
@@ -97,10 +98,54 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 	})
 
-	suite.T().Run("POST failure - 401 & 403 - permission denied", func(t *testing.T) {
+	suite.T().Run("POST failure - 401- permission denied - not authenticated", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
-		unauthorizedReq := httptest.NewRequest("POST", "/mto-shipments", nil)
+		unauthorizedParams := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: unauthorizedReq,
+			Body: &internalmessages.CreateShipment{
+				MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+				Agents:          internalmessages.MTOAgents{},
+				CustomerRemarks: nil,
+				DestinationAddress: &internalmessages.Address{
+					City:           &destinationAddress.City,
+					Country:        destinationAddress.Country,
+					PostalCode:     &destinationAddress.PostalCode,
+					State:          &destinationAddress.State,
+					StreetAddress1: &destinationAddress.StreetAddress1,
+					StreetAddress2: destinationAddress.StreetAddress2,
+					StreetAddress3: destinationAddress.StreetAddress3,
+				},
+				PickupAddress: &internalmessages.Address{
+					City:           &pickupAddress.City,
+					Country:        pickupAddress.Country,
+					PostalCode:     &pickupAddress.PostalCode,
+					State:          &pickupAddress.State,
+					StreetAddress1: &pickupAddress.StreetAddress1,
+					StreetAddress2: pickupAddress.StreetAddress2,
+					StreetAddress3: pickupAddress.StreetAddress3,
+				},
+				RequestedPickupDate:   strfmt.Date(*mtoShipment.RequestedPickupDate),
+				RequestedDeliveryDate: strfmt.Date(*mtoShipment.RequestedDeliveryDate),
+				ShipmentType:          internalmessages.MTOShipmentTypeHHG,
+			},
+		}
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		response := handler.Handle(unauthorizedParams)
+
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnauthorized{}, response)
+	})
+
+	suite.T().Run("POST failure - 403- permission denied - wrong application", func(t *testing.T) {
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+		unauthorizedReq = suite.AuthenticateOfficeRequest(req, officeUser)
 		unauthorizedParams := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: unauthorizedReq,
 			Body: &internalmessages.CreateShipment{

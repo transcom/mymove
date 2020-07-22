@@ -2616,6 +2616,7 @@ definitions:
       actualPickupDate:
         format: date
         type: string
+        readOnly: true
       requiredDeliveryDate:
         format: date
         type: string

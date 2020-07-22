@@ -4439,7 +4439,8 @@ func init() {
       "properties": {
         "actualPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -11040,7 +11041,8 @@ func init() {
       "properties": {
         "actualPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "agents": {
           "$ref": "#/definitions/MTOAgents"

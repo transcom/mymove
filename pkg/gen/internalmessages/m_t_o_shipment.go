@@ -18,6 +18,7 @@ import (
 type MTOShipment struct {
 
 	// actual pickup date
+	// Read Only: true
 	// Format: date
 	ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
 
