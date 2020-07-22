@@ -122,7 +122,7 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps redis_pull bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit client_deps redis_pull bin/rds-ca-2019-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -213,6 +213,10 @@ bin/mockery: .check_go_version.stamp .check_gopath.stamp
 bin/rds-ca-2019-root.pem:
 	mkdir -p bin/
 	curl -sSo bin/rds-ca-2019-root.pem https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem
+
+bin/rds-ca-us-gov-west-1-2017-root.pem:
+	mkdir -p bin/
+	curl -sSo bin/rds-ca-us-gov-west-1-2017-root.pem https://s3.us-gov-west-1.amazonaws.com/rds-downloads/rds-ca-us-gov-west-1-2017-root.pem
 
 ### MilMove Targets
 
@@ -337,6 +341,7 @@ server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp
 build_tools: bin/gin \
 	bin/mockery \
 	bin/rds-ca-2019-root.pem \
+	bin/rds-ca-us-gov-west-1-2017-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
 	bin/generate-deploy-notes \
@@ -365,7 +370,10 @@ build: server_build build_tools client_build ## Build the server, tools, and cli
 # acceptance_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: acceptance_test
-acceptance_test: bin/rds-ca-2019-root.pem ## Run acceptance tests
+
+## Run acceptance tests
+acceptance_test: bin/rds-ca-2019-root.pem \
+	bin/rds-ca-us-gov-west-1-2017-root.pem
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
