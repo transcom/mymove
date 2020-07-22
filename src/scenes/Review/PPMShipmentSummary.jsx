@@ -18,7 +18,7 @@ export class PPMShipmentSummary extends Component {
   chooseEstimateText(ppmEstimate) {
     if (hasShortHaulError(ppmEstimate.rateEngineError)) {
       return (
-        <td data-cy="estimateError">
+        <td data-testid="estimateError">
           MilMove does not presently support short-haul PPM moves. Please contact your PPPO.
         </td>
       );
@@ -26,7 +26,7 @@ export class PPMShipmentSummary extends Component {
 
     if (ppmEstimate.hasEstimateError || ppmEstimate.rateEngineError) {
       return (
-        <td data-cy="estimateError">
+        <td data-testid="estimateError">
           Not ready yet{' '}
           <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
         </td>
@@ -34,7 +34,7 @@ export class PPMShipmentSummary extends Component {
     }
 
     return (
-      <td data-cy="estimate">
+      <td data-testid="estimate">
         {' '}
         {ppmEstimate && formatCentsRange(ppmEstimate.incentive_estimate_min, ppmEstimate.incentive_estimate_max)}
       </td>
@@ -56,14 +56,14 @@ export class PPMShipmentSummary extends Component {
       : 'Not requested';
 
     return (
-      <div data-cy="ppm-summary">
+      <div data-testid="ppm-summary">
         <h3>Shipment - You move your stuff (PPM)</h3>
         <div className="grid-row grid-gap review-content">
           <div className="grid-col-6 review-section ppm-review-section">
             <p className="heading">
               Dates & Locations
               <span className="edit-section-link">
-                <Link data-cy="edit-ppm-dates" to={editDateAndLocationAddress} className="usa-link">
+                <Link data-testid="edit-ppm-dates" to={editDateAndLocationAddress} className="usa-link">
                   Edit
                 </Link>
               </span>
@@ -91,7 +91,7 @@ export class PPMShipmentSummary extends Component {
                 </tr>
                 <tr>
                   <td> Storage: </td>
-                  <td data-cy="sit-display">{sitDisplay}</td>
+                  <td data-testid="sit-display">{sitDisplay}</td>
                 </tr>
               </tbody>
             </table>
@@ -101,7 +101,7 @@ export class PPMShipmentSummary extends Component {
             <p className="heading">
               Pre-move Estimated Weight
               <span className="edit-section-link">
-                <Link data-cy="edit-ppm-weight" to={editWeightAddress} className="usa-link">
+                <Link data-testid="edit-ppm-weight" to={editWeightAddress} className="usa-link">
                   Edit
                 </Link>
               </span>

@@ -2,7 +2,7 @@
 describe('Office ppm queue', () => {
   beforeEach(() => {
     cy.signIntoOffice();
-    cy.get('[data-cy=ppm-queue]').click();
+    cy.get('[data-testid=ppm-queue]').click();
   });
 
   it('does not have a GBL column', checkForGBLColumn);

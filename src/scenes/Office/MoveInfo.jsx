@@ -278,7 +278,7 @@ class MoveInfo extends Component {
           <div className="grid-col-9">
             <RoutedTabs startPathWith={this.props.match.url}>
               <NavTab to="/basics">
-                <span className="title" data-cy="basics-tab">
+                <span className="title" data-testid="basics-tab">
                   Basics
                 </span>
                 <span className="status">
@@ -288,7 +288,7 @@ class MoveInfo extends Component {
               </NavTab>
               {isPPM && (
                 <NavTab to="/ppm">
-                  <span className="title" data-cy="ppm-tab">
+                  <span className="title" data-testid="ppm-tab">
                     PPM
                   </span>
                   {this.renderPPMTabStatus()}
