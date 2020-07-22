@@ -56,6 +56,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0049](0049-etag-for-child-updates.md) - Do not update child records using parent's E-tag
 - [ADR-0050](0050-doc-viewer-fork.md) - Fork & maintain react-file-viewer under @trussworks
 - [ADR-0051](0051-swagger-date-formats.md) - Use only Swagger supported formats for dates
+- [ADR-0052](0052-use-data-testid.md) - Use `data-testid` as an attribute for finding components in tests
 
 <!-- adrlogstop -->
 
