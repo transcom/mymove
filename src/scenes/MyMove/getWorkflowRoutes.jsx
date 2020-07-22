@@ -5,7 +5,7 @@ import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
-import { NULL_UUID, SHIPMENT_OPTIONS, MOVE_LOCATION } from 'shared/constants';
+import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
 import DodInfo from 'scenes/ServiceMembers/DodInfo';
 import SMName from 'scenes/ServiceMembers/Name';
 import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
@@ -14,16 +14,15 @@ import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 
-import TransitionToOrders from 'scenes/ServiceMembers/TransitionToOrders';
 import Orders from 'scenes/Orders/Orders';
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
-import Home from 'pages/MyMove/Home';
+import MoveLanding from 'pages/MyMove/MoveLanding';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
-import MoveLocation from 'pages/MyMove/MoveLocation';
+import ConusONo from 'pages/MyMove/ConusONo';
 import UnsupportedMove from 'pages/MyMove/UnsupportedMove';
 
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
@@ -119,22 +118,37 @@ const pages = {
     render: (key, pages) => ({ match }) => <BackupContact pages={pages} pageKey={key} match={match} />,
     description: 'Backup contacts',
   },
-  '/service-member/:serviceMemberId/transition': {
-    isInFlow: myFirstRodeo,
+  '/service-member/:serviceMemberId/conus-status': {
+    isInFlow: inGhcFlow,
     isComplete: always,
-    render: (key, pages) => ({ match }) => (
-      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-        <TransitionToOrders />
-      </WizardPage>
-    ),
+    render: (key, pages, description, props) => ({ match }) => {
+      return (
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} match={match}>
+          <ConusONo moveLocation={props.moveLocation} />
+        </WizardPage>
+      );
+    },
   },
-  '/service-member/:serviceMemberId/home': {
+  '/service-member/:serviceMemberId/move-location/unsupported': {
+    isInFlow: (state) => {
+      return inGhcFlow && state.moveLocation === CONUS_STATUS.OCONUS;
+    },
+    isComplete: always,
+    render: (key, pages) => ({ match }) => {
+      return (
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} match={match} canMoveNext={false}>
+          <UnsupportedMove />
+        </WizardPage>
+      );
+    },
+  },
+  '/service-member/:serviceMemberId/move-landing': {
     isInFlow: myFirstRodeo && inGhcFlow,
     isComplete: always,
     render: (key, pages) => () => {
       return (
         <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-          <Home />
+          <MoveLanding />
         </WizardPage>
       );
     },
@@ -161,30 +175,6 @@ const pages = {
       get(orders, 'uploaded_orders.uploads', []).length > 0 || uploads.length > 0,
     render: (key, pages) => ({ match }) => <UploadOrders pages={pages} pageKey={key} match={match} />,
     description: 'Upload your orders',
-  },
-  '/orders/move-location': {
-    isInFlow: inGhcFlow,
-    isComplete: always,
-    render: (key, pages, description, props) => ({ match }) => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} match={match}>
-          <MoveLocation moveLocation={props.moveLocation} />
-        </WizardPage>
-      );
-    },
-  },
-  '/orders/move-location/unsupported': {
-    isInFlow: (state) => {
-      return inGhcFlow && state.moveLocation === MOVE_LOCATION.OCONUS;
-    },
-    isComplete: always,
-    render: (key, pages) => ({ match }) => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} match={match} canMoveNext={false}>
-          <UnsupportedMove />
-        </WizardPage>
-      );
-    },
   },
   '/orders/transition': {
     isInFlow: always,

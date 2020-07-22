@@ -53,7 +53,7 @@ export const SHIPMENT_OPTIONS = {
   NTS: 'NTS',
 };
 
-export const MOVE_LOCATION = {
+export const CONUS_STATUS = {
   CONUS: 'CONUS',
   OCONUS: 'OCONUS',
 };

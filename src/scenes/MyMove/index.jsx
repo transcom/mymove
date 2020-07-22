@@ -36,7 +36,7 @@ import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { selectedMoveType, lastMoveIsCanceled, selectedMoveLocation } from 'scenes/Moves/ducks';
+import { selectedMoveType, lastMoveIsCanceled, selectedConusStatus } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
@@ -48,7 +48,7 @@ import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import { withContext } from 'shared/AppContext';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
-import { MOVE_LOCATION } from 'shared/constants';
+import { CONUS_STATUS } from 'shared/constants';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -160,7 +160,7 @@ export class AppWrapper extends Component {
 AppWrapper.defaultProps = {
   loadInternalSchema: no_op,
   getCurrentUserInfo: no_op,
-  moveLocation: MOVE_LOCATION.CONUS,
+  moveLocation: CONUS_STATUS.CONUS,
   context: PropTypes.shape({
     flags: PropTypes.shape({
       hhgFlow: false,
@@ -178,7 +178,7 @@ const mapStateToProps = (state) => {
     latestMove: get(state, 'moves.latestMove'),
     moveId: selectActiveOrLatestMove(state).id,
     selectedMoveType: selectedMoveType(state),
-    moveLocation: selectedMoveLocation(state),
+    moveLocation: selectedConusStatus(state),
     swaggerError: state.swaggerInternal.hasErrored,
   };
 };

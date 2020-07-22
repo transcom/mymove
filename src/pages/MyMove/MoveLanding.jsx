@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
-export const Home = ({ serviceMember }) => {
+export const MoveLanding = ({ serviceMember }) => {
   return (
     <div className="usa-grid">
       <h1 className="sm-heading">Home</h1>
@@ -12,13 +12,13 @@ export const Home = ({ serviceMember }) => {
   );
 };
 
-Home.propTypes = {
+MoveLanding.propTypes = {
   serviceMember: PropTypes.shape({
     first_name: PropTypes.string,
   }),
 };
 
-Home.defaultProps = {
+MoveLanding.defaultProps = {
   serviceMember: {},
 };
 function mapStateToProps(state) {
@@ -27,4 +27,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(Home);
+export default connect(mapStateToProps)(MoveLanding);

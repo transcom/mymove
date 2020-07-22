@@ -5,7 +5,7 @@ import { fetchActive } from 'shared/utils';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 // Types
-const SET_MOVE_LOCATION = 'SET_MOVE_LOCATION';
+const SET_CONUS_STATUS = 'SET_CONUS_STATUS';
 
 export const getMoveType = 'GET_MOVE';
 export const GET_MOVE = ReduxHelpers.generateAsyncActionTypes(getMoveType);
@@ -17,8 +17,8 @@ export const submitForApprovalType = 'SUBMIT_FOR_APPROVAL';
 export const SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(submitForApprovalType);
 
 // Action creation
-export function setMoveLocation(moveType) {
-  return { type: SET_MOVE_LOCATION, moveType };
+export function setConusStatus(moveType) {
+  return { type: SET_CONUS_STATUS, moveType };
 }
 
 export function updateMove(moveId, moveType) {
@@ -49,7 +49,7 @@ export const lastMoveIsCanceled = (state) => get(state, 'moves.latestMove.status
 
 export const selectedMoveType = (state) => get(state, 'moves.currentMove.selected_move_type');
 
-export const selectedMoveLocation = (state) => get(state, 'moves.currentMove.move_location');
+export const selectedConusStatus = (state) => get(state, 'moves.currentMove.conus_status');
 
 export const isPpm = (state) => Boolean(get(state, 'ppm.currentPpm', false));
 
@@ -127,11 +127,11 @@ export function moveReducer(state = initialState, action) {
         submittedForApproval: false,
         error: action.error,
       });
-    case SET_MOVE_LOCATION:
+    case SET_CONUS_STATUS:
       return Object.assign({}, state, {
         currentMove: {
           ...state.currentMove,
-          move_location: action.moveType,
+          conus_status: action.moveType,
         },
       });
     default:

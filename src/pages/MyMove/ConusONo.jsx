@@ -4,11 +4,11 @@ import { Radio } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import { string } from 'yup';
 
-import { MOVE_LOCATION } from 'shared/constants';
-import { setMoveLocation, selectedMoveLocation } from 'scenes/Moves/ducks';
+import { CONUS_STATUS } from 'shared/constants';
+import { setConusStatus, selectedConusStatus } from 'scenes/Moves/ducks';
 
 // eslint-disable-next-line react/prefer-stateless-function
-class MoveLocation extends Component {
+class ConusONo extends Component {
   render() {
     const { setLocation, moveLocation } = this.props;
 
@@ -18,20 +18,20 @@ class MoveLocation extends Component {
           <h1 className="sm-heading">Where are you moving?</h1>
           <p>Are you moving inside or outside the continental US?</p>
           <Radio
-            id={MOVE_LOCATION.CONUS}
+            id={CONUS_STATUS.CONUS}
             label="CONUS (continental US)"
-            value={MOVE_LOCATION.CONUS}
+            value={CONUS_STATUS.CONUS}
             name="moveLocation"
             onChange={(e) => setLocation(e.target.value)}
-            checked={moveLocation === MOVE_LOCATION.CONUS}
+            checked={moveLocation === CONUS_STATUS.CONUS}
           />
           <Radio
-            id={MOVE_LOCATION.OCONUS}
+            id={CONUS_STATUS.OCONUS}
             label="OCONUS (Alaska, Hawaii, international)"
-            value={MOVE_LOCATION.OCONUS}
+            value={CONUS_STATUS.OCONUS}
             onChange={(e) => setLocation(e.target.value)}
             name="moveLocation"
-            checked={moveLocation === MOVE_LOCATION.OCONUS}
+            checked={moveLocation === CONUS_STATUS.OCONUS}
           />
         </div>
       </div>
@@ -39,24 +39,24 @@ class MoveLocation extends Component {
   }
 }
 
-MoveLocation.propTypes = {
+ConusONo.propTypes = {
   setLocation: func.isRequired,
   moveLocation: string,
 };
 
-MoveLocation.defaultProps = {
-  moveLocation: MOVE_LOCATION.CONUS,
+ConusONo.defaultProps = {
+  moveLocation: CONUS_STATUS.CONUS,
 };
 
 const mapStateToProps = (state) => {
   const props = {
-    moveLocation: selectedMoveLocation(state),
+    moveLocation: selectedConusStatus(state),
   };
   return props;
 };
 
 const mapDispatchToProps = {
-  setLocation: setMoveLocation,
+  setLocation: setConusStatus,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(MoveLocation);
+export default connect(mapStateToProps, mapDispatchToProps)(ConusONo);
