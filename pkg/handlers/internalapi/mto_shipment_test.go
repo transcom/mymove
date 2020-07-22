@@ -1,14 +1,18 @@
 package internalapi
 
 import (
+	"errors"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"net/http/httptest"
 	"testing"
@@ -20,6 +24,7 @@ import (
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -31,6 +36,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	builder := query.NewQueryBuilder(suite.DB())
 
 	req := httptest.NewRequest("POST", "/mto-shipments", nil)
+	req = suite.AuthenticateRequest(req, serviceMember)
 
 	params := mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
@@ -119,13 +125,35 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			creator,
 		}
 
-		req := httptest.NewRequest("POST", "/mto-shipments", nil)
-
-		params := mtoshipmentops.CreateMTOShipmentParams{
+		otherParams := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
 		}
-		response := handler.Handle(params)
+		response := handler.Handle(otherParams)
 
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
+	})
+
+	suite.T().Run("POST failure - 500", func(t *testing.T) {
+		mockCreator := mocks.MTOShipmentCreator{}
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockCreator,
+		}
+
+		err := errors.New("ServerError")
+
+		mockCreator.On("CreateMTOShipment",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, err)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
+
+		errResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
+
 	})
 }
