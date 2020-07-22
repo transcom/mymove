@@ -30,16 +30,14 @@ func Address(address *models.Address) *internalmessages.Address {
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
-		ID:                       strfmt.UUID(mtoShipment.ID.String()),
-		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:             internalmessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		PickupAddress:            Address(mtoShipment.PickupAddress),
-		DestinationAddress:       Address(mtoShipment.DestinationAddress),
-		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
-		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
-		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
+		ID:                 strfmt.UUID(mtoShipment.ID.String()),
+		MoveTaskOrderID:    strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:       internalmessages.MTOShipmentType(mtoShipment.ShipmentType),
+		CustomerRemarks:    mtoShipment.CustomerRemarks,
+		PickupAddress:      Address(mtoShipment.PickupAddress),
+		DestinationAddress: Address(mtoShipment.DestinationAddress),
+		CreatedAt:          strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:          strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
 
 	if mtoShipment.ScheduledPickupDate != nil {
