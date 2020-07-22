@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
+import sortServiceItemsByGroup from '../../../utils/serviceItems';
+
 import styles from './ReviewServiceItems.module.scss';
 
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
@@ -9,27 +11,53 @@ import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
 
 const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
-  const [curServiceItemCard] = useState(serviceItemCards[0]);
-  const [curCardIndex] = useState(0);
+  const [curCardIndex, setCardIndex] = useState(0);
+  // eslint-disable-next-line no-unused-vars
+  const [totalApproved, setTotalApproved] = useState(0);
+  const [sortedCards] = useState(sortServiceItemsByGroup(serviceItemCards));
+
   const totalCards = serviceItemCards.length;
 
-  // debugging
-  // console.log(curServiceItemCard);
+  const handleClick = (index) => {
+    setCardIndex(index);
+  };
 
   return (
-    <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
+    <div data-cy="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <div className={styles.top}>
-        <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
+        <Button data-cy="closeSidebar" type="button" onClick={handleClose} unstyled>
           <XLightIcon />
         </Button>
-        <div className={styles.eyebrowTitle}>{`${curCardIndex + 1} OF ${totalCards} ITEMS`}</div>
+        <div data-cy="itemCount" className={styles.eyebrowTitle}>{`${curCardIndex + 1} OF ${totalCards} ITEMS`}</div>
         <h2 className={styles.header}>{header}</h2>
       </div>
       <div className={styles.body}>
         {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-        <ServiceItemCard {...curServiceItemCard} />
+        <ServiceItemCard {...sortedCards[parseInt(curCardIndex, 10)]} />
       </div>
-      <div className={styles.bottom}>BOTTOM</div>
+      <div className={styles.bottom}>
+        <Button
+          data-cy="prevServiceItem"
+          type="button"
+          onClick={() => handleClick(curCardIndex - 1)}
+          secondary
+          disabled={curCardIndex === 0}
+        >
+          Previous
+        </Button>
+        <Button
+          data-cy="nextServiceItem"
+          type="button"
+          onClick={() => handleClick(curCardIndex + 1)}
+          disabled={curCardIndex + 1 === totalCards}
+        >
+          Next
+        </Button>
+        <div className={styles.totalApproved}>
+          <div className={styles.totalLabel}>Total approved</div>
+          <div className={styles.totalAmount}>${totalApproved.toFixed(2)}</div>
+        </div>
+      </div>
     </div>
   );
 };

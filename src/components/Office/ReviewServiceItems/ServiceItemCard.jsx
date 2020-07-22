@@ -14,10 +14,10 @@ const ServiceItemCard = ({ shipmentType, serviceItemName, amount }) => {
         <h6 className={styles.cardHeader}>{mtoShipmentTypeToFriendlyDisplay(shipmentType) || 'BASIC SERVICE ITEMS'}</h6>
         <dl>
           <dt>Service item</dt>
-          <dd>{serviceItemName}</dd>
+          <dd data-cy="serviceItemName">{serviceItemName}</dd>
 
           <dt>Amount</dt>
-          <dd>{toDollarString(amount)}</dd>
+          <dd data-cy="serviceItemAmount">{toDollarString(amount)}</dd>
         </dl>
       </ShipmentContainer>
     </div>

@@ -52,11 +52,36 @@
   }
 
   .bottom {
-    @include u-padding('4');
+    @include u-padding-x('3');
+    @include u-padding-y('1');
     @include u-bg('white');
 
     @include u-border-top('2px');
     @include u-border-top('gray-10');
     @include u-position('relative');
+
+    display: flex;
+    align-items: center;
+
+    .totalApproved {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      text-align: right;
+
+      .totalLabel {
+        @include u-font-size('body', '3xs');
+        @include u-text('bold');
+        @include u-padding-top(1);
+        color: $base-darker;
+      }
+
+      .totalAmount {
+        @include u-font-size('body', 'xs');
+        @include u-padding-bottom(1);
+        color: $base-darkest;
+        flex-grow: 1;
+      }
+    }
   }
 }
