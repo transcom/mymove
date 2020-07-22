@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/events"
 )
 
 // CreatePaymentRequestHandler is the handler for creating payment requests
@@ -29,6 +30,11 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	// TODO: authorization to create payment request
 
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	eventGen := events.NewEventGenerator(h.DB(), h)
+	_, err := eventGen.EventRecord("prime.CreatePaymentRequest", params.HTTPRequest)
+	if err != nil {
+		logger.Error("primeapi.CreatePaymentRequestHanders could not generate the event")
+	}
 
 	payload := params.Body
 	if payload == nil {
