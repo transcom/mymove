@@ -138,7 +138,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreateShipmentPayload'
+            $ref: '#/definitions/CreateMTOShipment'
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -523,7 +523,7 @@ definitions:
     required:
       - moveTaskOrderID
       - serviceItems
-  CreateShipmentPayload:
+  CreateMTOShipment:
     type: object
     properties:
       moveTaskOrderID:

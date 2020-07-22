@@ -52,7 +52,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	params := mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
-		Body: &primemessages.CreateShipmentPayload{
+		Body: &primemessages.CreateMTOShipment{
 			MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 			Agents:          nil,
 			CustomerRemarks: nil,

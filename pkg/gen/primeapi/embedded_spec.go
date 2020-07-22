@@ -245,7 +245,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateShipmentPayload"
+              "$ref": "#/definitions/CreateMTOShipment"
             }
           }
         ],
@@ -644,36 +644,7 @@ func init() {
         }
       }
     },
-    "CreatePaymentRequestPayload": {
-      "type": "object",
-      "required": [
-        "moveTaskOrderID",
-        "serviceItems"
-      ],
-      "properties": {
-        "isFinal": {
-          "type": "boolean",
-          "default": false
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "pointOfContact": {
-          "description": "Email or id of a contact person for this update.",
-          "type": "string"
-        },
-        "serviceItems": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/definitions/ServiceItem"
-          }
-        }
-      }
-    },
-    "CreateShipmentPayload": {
+    "CreateMTOShipment": {
       "type": "object",
       "required": [
         "moveTaskOrderID",
@@ -717,6 +688,35 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
+    "CreatePaymentRequestPayload": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "serviceItems"
+      ],
+      "properties": {
+        "isFinal": {
+          "type": "boolean",
+          "default": false
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update.",
+          "type": "string"
+        },
+        "serviceItems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/ServiceItem"
+          }
         }
       }
     },
@@ -2220,7 +2220,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateShipmentPayload"
+              "$ref": "#/definitions/CreateMTOShipment"
             }
           }
         ],
@@ -2682,36 +2682,7 @@ func init() {
         }
       }
     },
-    "CreatePaymentRequestPayload": {
-      "type": "object",
-      "required": [
-        "moveTaskOrderID",
-        "serviceItems"
-      ],
-      "properties": {
-        "isFinal": {
-          "type": "boolean",
-          "default": false
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "pointOfContact": {
-          "description": "Email or id of a contact person for this update.",
-          "type": "string"
-        },
-        "serviceItems": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/definitions/ServiceItem"
-          }
-        }
-      }
-    },
-    "CreateShipmentPayload": {
+    "CreateMTOShipment": {
       "type": "object",
       "required": [
         "moveTaskOrderID",
@@ -2755,6 +2726,35 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
+    "CreatePaymentRequestPayload": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "serviceItems"
+      ],
+      "properties": {
+        "isFinal": {
+          "type": "boolean",
+          "default": false
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update.",
+          "type": "string"
+        },
+        "serviceItems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/ServiceItem"
+          }
         }
       }
     },
