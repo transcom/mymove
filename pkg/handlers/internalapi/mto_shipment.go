@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -22,7 +23,7 @@ type CreateMTOShipmentHandler struct {
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	if session == nil {
+	if session.IsMilApp() && session.ServiceMemberID == uuid.Nil {
 		return mtoshipmentops.NewCreateMTOShipmentUnauthorized()
 	}
 
