@@ -8,16 +8,35 @@ import sortServiceItemsByGroup from '../../../utils/serviceItems';
 import styles from './ReviewServiceItems.module.scss';
 
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
+import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
 
 const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   const [curCardIndex, setCardIndex] = useState(0);
-  // eslint-disable-next-line no-unused-vars
-  const [totalApproved, setTotalApproved] = useState(0);
   const [sortedCards] = useState(sortServiceItemsByGroup(serviceItemCards));
-
   const totalCards = serviceItemCards.length;
+
+  const { APPROVED, REJECTED } = SERVICE_ITEM_STATUS;
+
+  // eslint-disable-next-line
+  let requestedSum = 0;
+  let approvedSum = 0;
+  let rejectedSum = 0;
+
+  serviceItemCards.forEach((serviceItemCard) => {
+    requestedSum += serviceItemCard.amount;
+    if (serviceItemCard.status === APPROVED) {
+      approvedSum += serviceItemCard.amount;
+    } else if (serviceItemCard.status === REJECTED) {
+      rejectedSum += serviceItemCard.amount;
+    }
+  });
+
+  // eslint-disable-next-line
+  const [approvedTotal, setApprovedTotal] = useState(approvedSum);
+  // eslint-disable-next-line
+  const [rejectedTotal, setRejectedTotal] = useState(rejectedSum);
 
   const handleClick = (index) => {
     setCardIndex(index);
@@ -89,7 +108,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
                 </Button>
                 <div className={styles.totalApproved}>
                   <div className={styles.totalLabel}>Total approved</div>
-                  <div className={styles.totalAmount}>${totalApproved.toFixed(2)}</div>
+                  <div className={styles.totalAmount}>${approvedTotal.toFixed(2)}</div>
                 </div>
               </div>
             </Form>
