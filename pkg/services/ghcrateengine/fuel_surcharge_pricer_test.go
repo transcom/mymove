@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	fscTestDistance             = unit.Miles(1200)
-	fscTestWeight               = unit.Pound(4000)
-	fscPriceCents               = unit.Cents(249770)
-	fscWeightDistanceMultiplier = unit.Millicents(500000)
-	fscFuelPrice                = unit.Millicents(500000)
+	fscTestDistance             = unit.Miles(4200)
+	fscTestWeight               = unit.Pound(5800)
+	fscWeightDistanceMultiplier = float64(0.0006255)
+	fscFuelPrice                = unit.Millicents(320000)
+	fscPriceCents               = unit.Cents(18390)
 )
 
 var fscActualPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -117,8 +117,8 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 			},
 			{
 				models.ServiceItemParamNameWeightBasedDistanceMultiplier,
-				models.ServiceItemParamTypeInteger,
-				fmt.Sprintf("%d", int(fscWeightDistanceMultiplier)),
+				models.ServiceItemParamTypeDecimal,
+				fmt.Sprintf("%.7f", fscWeightDistanceMultiplier), // we need precision 7 to handle values like 0.0006255
 			},
 			{
 				models.ServiceItemParamNameEIAFuelPrice,

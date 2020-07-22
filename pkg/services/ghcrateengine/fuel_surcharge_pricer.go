@@ -27,7 +27,7 @@ func NewFuelSurchargePricer(db *pop.Connection) services.FuelSurchargePricer {
 }
 
 // Price determines the price for a counseling service
-func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, weightBasedDistanceMultiplier unit.Millicents, fuelPrice unit.Millicents) (totalCost unit.Cents, err error) {
+func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, weightBasedDistanceMultiplier float64, fuelPrice unit.Millicents) (totalCost unit.Cents, err error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, errors.New("ContractCode is required")
@@ -46,8 +46,8 @@ func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Ti
 	}
 
 	priceDifference := (fuelPrice.ToCents() - unit.Cents(250)).Float64()
-	x := weightBasedDistanceMultiplier.ToDollarFloat() * distance.Float64()
-	basePrice := x * priceDifference
+	x := weightBasedDistanceMultiplier * distance.Float64()
+	basePrice := x * priceDifference * 100
 	totalCost = unit.Cents(math.Round(basePrice))
 
 	return totalCost, err
@@ -86,7 +86,7 @@ func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemPa
 		return unit.Cents(0), err
 	}
 
-	weightBasedDistanceMultiplier, err := getParamInt(params, models.ServiceItemParamNameWeightBasedDistanceMultiplier)
+	weightBasedDistanceMultiplier, err := getParamFloat(params, models.ServiceItemParamNameWeightBasedDistanceMultiplier)
 	if err != nil {
 		return unit.Cents(0), err
 	}
@@ -96,7 +96,7 @@ func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemPa
 		return unit.Cents(0), err
 	}
 
-	total, err := p.Price(contractCode, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilledActual), unit.Millicents(weightBasedDistanceMultiplier), unit.Millicents(fuelPrice))
+	total, err := p.Price(contractCode, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilledActual), weightBasedDistanceMultiplier, unit.Millicents(fuelPrice))
 	return total, err
 	// return unit.Cents(1000), nil
 }
