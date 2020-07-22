@@ -5,7 +5,7 @@ import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
-import { NULL_UUID, SHIPMENT_OPTIONS } from 'shared/constants';
+import { NULL_UUID, SHIPMENT_OPTIONS, MOVE_LOCATION } from 'shared/constants';
 import DodInfo from 'scenes/ServiceMembers/DodInfo';
 import SMName from 'scenes/ServiceMembers/Name';
 import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
@@ -24,6 +24,7 @@ import UploadOrders from 'scenes/Orders/UploadOrders';
 import Home from 'pages/MyMove/Home';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
 import MoveLocation from 'pages/MyMove/MoveLocation';
+import UnsupportedMove from 'pages/MyMove/UnsupportedMove';
 
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
@@ -162,12 +163,25 @@ const pages = {
     description: 'Upload your orders',
   },
   '/orders/move-location': {
-    isInFlow: always && inGhcFlow,
+    isInFlow: inGhcFlow,
     isComplete: always,
-    render: (key, pages) => () => {
+    render: (key, pages, description, props) => ({ match }) => {
       return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-          <MoveLocation />
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} match={match}>
+          <MoveLocation moveLocation={props.moveLocation} />
+        </WizardPage>
+      );
+    },
+  },
+  '/orders/move-location/unsupported': {
+    isInFlow: (state) => {
+      return inGhcFlow && state.moveLocation === MOVE_LOCATION.OCONUS;
+    },
+    isComplete: always,
+    render: (key, pages) => ({ match }) => {
+      return (
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} match={match} canMoveNext={false}>
+          <UnsupportedMove />
         </WizardPage>
       );
     },
@@ -221,15 +235,16 @@ const pages = {
   },
 };
 
-export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled, context }) =>
+export const getPagesInFlow = ({ selectedMoveType, moveLocation, lastMoveIsCanceled, context }) =>
   Object.keys(pages).filter((pageKey) => {
     // eslint-disable-next-line security/detect-object-injection
     const page = pages[pageKey];
-    return page.isInFlow({ selectedMoveType, lastMoveIsCanceled, context });
+    return page.isInFlow({ selectedMoveType, moveLocation, lastMoveIsCanceled, context });
   });
 
 export const getNextIncompletePage = ({
   selectedMoveType = undefined,
+  moveLocation = '',
   lastMoveIsCanceled = false,
   serviceMember = {},
   orders = {},
@@ -242,7 +257,7 @@ export const getNextIncompletePage = ({
   const rawPath = findKey(
     pages,
     (p) =>
-      p.isInFlow({ selectedMoveType, lastMoveIsCanceled, context }) &&
+      p.isInFlow({ selectedMoveType, moveLocation, lastMoveIsCanceled, context }) &&
       !p.isComplete({ sm: serviceMember, orders, uploads, move, ppm, backupContacts }),
   );
   const compiledPath = generatePath(rawPath, {
@@ -253,7 +268,7 @@ export const getNextIncompletePage = ({
 };
 
 export const getWorkflowRoutes = (props) => {
-  const flowProps = pick(props, ['selectedMoveType', 'lastMoveIsCanceled', 'context']);
+  const flowProps = pick(props, ['selectedMoveType', 'moveLocation', 'lastMoveIsCanceled', 'context']);
   const pageList = getPagesInFlow(flowProps);
   return Object.keys(pages).map((key) => {
     // eslint-disable-next-line security/detect-object-injection

@@ -5,6 +5,7 @@ import { NULL_UUID, SHIPMENT_OPTIONS } from 'shared/constants';
 const ppmContext = {
   flags: {
     hhgFlow: false,
+    ghcFlow: false,
   },
 };
 const hhgContext = {

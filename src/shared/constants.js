@@ -53,6 +53,11 @@ export const SHIPMENT_OPTIONS = {
   NTS: 'NTS',
 };
 
+export const MOVE_LOCATION = {
+  CONUS: 'CONUS',
+  OCONUS: 'OCONUS',
+};
+
 // These constants are used to track network requests using component state
 export const isError = 'REQUEST_ERROR';
 export const isLoading = 'REQUEST_LOADING';

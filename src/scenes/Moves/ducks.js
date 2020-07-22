@@ -5,7 +5,7 @@ import { fetchActive } from 'shared/utils';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 // Types
-const SET_PENDING_MOVE_TYPE = 'SET_PENDING_MOVE_TYPE';
+const SET_MOVE_LOCATION = 'SET_MOVE_LOCATION';
 
 export const getMoveType = 'GET_MOVE';
 export const GET_MOVE = ReduxHelpers.generateAsyncActionTypes(getMoveType);
@@ -17,8 +17,8 @@ export const submitForApprovalType = 'SUBMIT_FOR_APPROVAL';
 export const SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(submitForApprovalType);
 
 // Action creation
-export function setPendingMoveType(value) {
-  return { type: SET_PENDING_MOVE_TYPE, payload: value };
+export function setMoveLocation(moveType) {
+  return { type: SET_MOVE_LOCATION, moveType };
 }
 
 export function updateMove(moveId, moveType) {
@@ -49,6 +49,8 @@ export const lastMoveIsCanceled = (state) => get(state, 'moves.latestMove.status
 
 export const selectedMoveType = (state) => get(state, 'moves.currentMove.selected_move_type');
 
+export const selectedMoveLocation = (state) => get(state, 'moves.currentMove.move_location');
+
 export const isPpm = (state) => Boolean(get(state, 'ppm.currentPpm', false));
 
 // Reducer
@@ -77,10 +79,6 @@ export function moveReducer(state = initialState, action) {
         currentMove: reshapeMove(activeMove),
         hasLoadError: false,
         hasLoadSuccess: true,
-      });
-    case SET_PENDING_MOVE_TYPE:
-      return Object.assign({}, state, {
-        pendingMoveType: action.payload,
       });
     case CREATE_OR_UPDATE_MOVE.success:
       return Object.assign({}, state, {
@@ -128,6 +126,13 @@ export function moveReducer(state = initialState, action) {
       return Object.assign({}, state, {
         submittedForApproval: false,
         error: action.error,
+      });
+    case SET_MOVE_LOCATION:
+      return Object.assign({}, state, {
+        currentMove: {
+          ...state.currentMove,
+          move_location: action.moveType,
+        },
       });
     default:
       return state;
