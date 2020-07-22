@@ -14110,10 +14110,10 @@ react-hotkeys@2.0.0:
   dependencies:
     prop-types "^15.6.1"
 
-react-idle-timer@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.3.0.tgz#d25ccfde6228f1223daea0ab48fba98feb529e64"
-  integrity sha512-QrPvJWL0yBy7raBP9qmAAivV73d20WJPwyw3ptJG/w/z3bQ8kljqMA2mS8wa/s3kkbCYdu10fOcvYynLaj6HFA==
+react-idle-timer@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.3.1.tgz#29597c258d441de84fcb4722d8f6000f4d442cb7"
+  integrity sha512-KaSlUQOAtvQC6YOj/ckU6DqLIIhZcBi5AtB0toK94rl9fRrlMrQ3/S8M5XFoyCPFEV0zsq90/pCLCoWr34s2yQ==
 
 react-input-autosize@^2.2.2:
   version "2.2.2"
@@ -16272,10 +16272,10 @@ swagger-client@^3.10.12:
     traverse "~0.6.6"
     url "~0.11.0"
 
-swagger-ui-dist@^3.30.0:
-  version "3.30.0"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.30.0.tgz#90f4490ce9ae58e962e5baf78cdd5d9cad713a02"
-  integrity sha512-S8eqXrAjwcriY968zV6OauZEKDQZ4uobJKHNpUFt/4UXxZEvuX0Ujjc5eZ3T+42g9Ccb71KKmX9M3eQwpyP/lQ==
+swagger-ui-dist@^3.30.1:
+  version "3.30.1"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.30.1.tgz#6e59990de24f7231298c4b7ef774ef9a1b3b8ea7"
+  integrity sha512-yxSMgkcuDFtTR4ExMUJEDAulzpQA243+vdew4Khp+oT4YnZ0mjf85eLm/SUWs2Ol0HZPHed6uEUhsDj5OWcuKw==
 
 symbol-observable@^1.0.3, symbol-observable@^1.0.4, symbol-observable@^1.2.0:
   version "1.2.0"

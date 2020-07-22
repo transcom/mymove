@@ -36,12 +36,14 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	// mock dates
 	scheduledPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
 	requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+	requestedDeliveryDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
 	MTOShipment := models.MTOShipment{
 		MoveTaskOrder:            moveTaskOrder,
 		MoveTaskOrderID:          moveTaskOrder.ID,
 		ScheduledPickupDate:      &scheduledPickupDate,
 		RequestedPickupDate:      &requestedPickupDate,
+		RequestedDeliveryDate:    &requestedDeliveryDate,
 		CustomerRemarks:          &remarks,
 		PickupAddress:            &pickupAddress,
 		PickupAddressID:          &pickupAddress.ID,
