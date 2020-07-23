@@ -20,9 +20,9 @@ type DutyStation struct {
 	// address
 	Address *Address `json:"address,omitempty"`
 
-	// address id
+	// address ID
 	// Format: uuid
-	AddressID strfmt.UUID `json:"address_id,omitempty"`
+	AddressID strfmt.UUID `json:"addressID,omitempty"`
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
@@ -81,7 +81,7 @@ func (m *DutyStation) validateAddressID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("address_id", "body", "uuid", m.AddressID.String(), formats); err != nil {
+	if err := validate.FormatOf("addressID", "body", "uuid", m.AddressID.String(), formats); err != nil {
 		return err
 	}
 
