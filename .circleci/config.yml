@@ -562,8 +562,8 @@ jobs:
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
-    parallelism: 3
-    executor: mymove_medium_plus
+    parallelism: 5
+    executor: mymove_large
     steps:
       - checkout
       - setup_remote_docker:
@@ -709,7 +709,7 @@ jobs:
 
   # `storybook_tests` builds the storybook application container and pushes to the container repository
   storybook_tests:
-    executor: mymove_medium
+    executor: mymove_medium_plus
     steps:
       - checkout
       - setup_remote_docker:
@@ -720,7 +720,11 @@ jobs:
       - restore_cache:
           keys:
             - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make storybook_tests
+      - run:
+          name: make storybook_tests
+          command: make storybook_tests
+          environment:
+            CHROME_CONCURRENCY: 3
       - run: make storybook_build
       - persist_to_workspace:
           root: /home/circleci/transcom/mymove/

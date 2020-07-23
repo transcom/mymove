@@ -14,8 +14,6 @@ describe('SelectMoveType', () => {
     expect(wrapper.find(Radio).at(0).text()).toContain('I’ll move things myself');
     expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('checked');
 
-    // HHG button should be disabled
     expect(wrapper.find(Radio).at(1).text()).toContain('The government packs for me and moves me');
-    expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('disabled');
   });
 });
