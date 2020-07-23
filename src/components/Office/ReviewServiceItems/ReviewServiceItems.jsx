@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -16,7 +16,6 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   // eslint-disable-next-line no-unused-vars
   const [totalApproved, setTotalApproved] = useState(0);
   const [sortedCards] = useState(sortServiceItemsByGroup(serviceItemCards));
-
   const totalCards = serviceItemCards.length;
 
   const handleClick = (index) => {
@@ -36,7 +35,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
 
     // here we want to set the first and last index
     // of basic service items to know the bounds
-    if (!serviceItem.shipmentId) {
+    if (!serviceItem.shipmentType) {
       // no shipemntId, then it is a basic service items
       if (firstBasicIndex === null) {
         // if not set yet, set it the first time we see a basic
@@ -51,6 +50,16 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   const currentCard = sortedCards[parseInt(curCardIndex, 10)];
   const isBasicServiceItem =
     firstBasicIndex !== null && curCardIndex >= firstBasicIndex && curCardIndex <= lastBasicIndex;
+
+  // Similar to componentDidMount and componentDidUpdate
+  useEffect(() => {
+    const { id } = sortedCards[parseInt(curCardIndex, 10)];
+    const element = document.querySelector(`#card-${id}`);
+    // scroll into element view
+    if (element) {
+      element.scrollIntoView();
+    }
+  });
 
   return (
     <div data-cy="ReviewServiceItems" className={styles.ReviewServiceItems}>
