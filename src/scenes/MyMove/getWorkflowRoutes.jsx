@@ -30,6 +30,8 @@ import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
+import HHGMoveSetup from 'pages/MyMove/HHGMoveSetup';
+
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">
     <h3>Missing Context</h3>
@@ -214,6 +216,14 @@ const pages = {
     isComplete: ({ sm, orders, move, ppm }) =>
       get(ppm, 'weight_estimate', null) && get(ppm, 'weight_estimate', 0) !== 0,
     render: (key, pages) => ({ match }) => <PpmWeight pages={pages} pageKey={key} match={match} />,
+  },
+  '/moves/:moveId/hhg-start': {
+    isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
+    // isInFlow: inHhgFlow, // temp: use this to view page locally until we can set selectedMoveType
+    isComplete: always,
+    render: (key, pages, description, props) => ({ match }) => {
+      return <HHGMoveSetup pageList={pages} pageKey={key} />;
+    },
   },
   '/moves/:moveId/review': {
     isInFlow: always,

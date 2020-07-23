@@ -1,10 +1,10 @@
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import { shallow, mount } from 'enzyme';
 
 import { toDollarString } from '../../../shared/formatters';
 
 import ReviewServiceItems from './ReviewServiceItems';
-import ServiceItemCard from './ServiceItemCard';
 
 import { SHIPMENT_OPTIONS, SERVICE_ITEM_STATUS } from 'shared/constants';
 
@@ -53,8 +53,8 @@ const serviceItemCards = [
 ];
 
 const compareItem = (component, item) => {
-  expect(component.find('[data-cy="serviceItemName"]').text()).toEqual(item.serviceItemName);
-  expect(component.find('[data-cy="serviceItemAmount"]').text()).toEqual(toDollarString(item.amount));
+  expect(component.find('[data-testid="serviceItemName"]').text()).toEqual(item.serviceItemName);
+  expect(component.find('[data-testid="serviceItemAmount"]').text()).toEqual(toDollarString(item.amount));
 };
 
 describe('ReviewServiceItems component', () => {
@@ -65,76 +65,160 @@ describe('ReviewServiceItems component', () => {
   const mountedComponent = mount(<ReviewServiceItems serviceItemCards={serviceItemCards} handleClose={handleClose} />);
 
   it('renders without crashing', () => {
-    const serviceItemCard = shallowComponent.find(ServiceItemCard).dive();
-    expect(serviceItemCard.find('[data-testid="ServiceItemCard"]').length).toBe(1);
+    expect(shallowComponent.find('[data-testid="ReviewServiceItems"]').length).toBe(1);
+  });
+
+  it('renders a Formik form', () => {
+    expect(shallowComponent.find('Formik').length).toBe(1);
   });
 
   it('renders ServiceItemCard component', () => {
-    expect(shallowComponent.find(ServiceItemCard).length).toBe(1);
+    expect(mountedComponent.find('ServiceItemCard').length).toBe(1);
   });
 
   it('attaches the close listener', () => {
-    expect(shallowComponent.find('[data-cy="closeSidebar"]').prop('onClick')).toBe(handleClose);
+    expect(mountedComponent.find('[data-testid="closeSidebar"]').prop('onClick')).toBe(handleClose);
   });
 
   it('displays the total count', () => {
-    expect(shallowComponent.find('[data-cy="itemCount"]').text()).toEqual('1 OF 5 ITEMS');
+    expect(mountedComponent.find('[data-testid="itemCount"]').text()).toEqual('1 OF 5 ITEMS');
   });
 
   it('disables previous button at beginning', () => {
-    expect(shallowComponent.find('[data-cy="prevServiceItem"]').prop('disabled')).toBe(true);
+    expect(mountedComponent.find('[data-testid="prevServiceItem"]').prop('disabled')).toBe(true);
   });
 
   it('enables next button at beginning', () => {
-    expect(shallowComponent.find('[data-cy="nextServiceItem"]').prop('disabled')).toBe(false);
+    expect(mountedComponent.find('[data-testid="nextServiceItem"]').prop('disabled')).toBe(false);
   });
 
-  it('navigates service items in timestamp ascending', () => {
-    const nextButton = mountedComponent.find('[data-cy="nextServiceItem"]');
-    const prevButton = mountedComponent.find('[data-cy="prevServiceItem"]');
+  describe('navigating through service items', () => {
+    const nextButton = mountedComponent.find('[data-testid="nextServiceItem"]');
+    const prevButton = mountedComponent.find('[data-testid="prevServiceItem"]');
 
-    compareItem(mountedComponent, serviceItemCards[4]);
+    it('renders the service item cards ordered by timestamp ascending', () => {
+      compareItem(mountedComponent, serviceItemCards[4]);
 
-    nextButton.simulate('click');
-    mountedComponent.update();
+      nextButton.simulate('click');
+      mountedComponent.update();
 
-    compareItem(mountedComponent, serviceItemCards[3]);
+      compareItem(mountedComponent, serviceItemCards[3]);
 
-    nextButton.simulate('click');
-    mountedComponent.update();
+      nextButton.simulate('click');
+      mountedComponent.update();
 
-    compareItem(mountedComponent, serviceItemCards[0]);
+      compareItem(mountedComponent, serviceItemCards[0]);
 
-    nextButton.simulate('click');
-    mountedComponent.update();
+      nextButton.simulate('click');
+      mountedComponent.update();
 
-    compareItem(mountedComponent, serviceItemCards[1]);
+      compareItem(mountedComponent, serviceItemCards[1]);
 
-    nextButton.simulate('click');
-    mountedComponent.update();
+      nextButton.simulate('click');
+      mountedComponent.update();
 
-    compareItem(mountedComponent, serviceItemCards[2]);
+      compareItem(mountedComponent, serviceItemCards[2]);
+    });
 
-    expect(mountedComponent.find('[data-cy="nextServiceItem"]').prop('disabled')).toBe(true);
+    it('disables the Next button on the last item', () => {
+      expect(mountedComponent.find('[data-testid="nextServiceItem"]').prop('disabled')).toBe(true);
+    });
 
-    prevButton.simulate('click');
-    mountedComponent.update();
+    it('can click back to the first item', () => {
+      prevButton.simulate('click');
+      mountedComponent.update();
 
-    compareItem(mountedComponent, serviceItemCards[1]);
+      compareItem(mountedComponent, serviceItemCards[1]);
 
-    prevButton.simulate('click');
-    mountedComponent.update();
+      prevButton.simulate('click');
+      mountedComponent.update();
 
-    compareItem(mountedComponent, serviceItemCards[0]);
+      compareItem(mountedComponent, serviceItemCards[0]);
 
-    prevButton.simulate('click');
-    mountedComponent.update();
+      prevButton.simulate('click');
+      mountedComponent.update();
 
-    compareItem(mountedComponent, serviceItemCards[3]);
+      compareItem(mountedComponent, serviceItemCards[3]);
 
-    prevButton.simulate('click');
-    mountedComponent.update();
+      prevButton.simulate('click');
+      mountedComponent.update();
 
-    compareItem(mountedComponent, serviceItemCards[4]);
+      compareItem(mountedComponent, serviceItemCards[4]);
+    });
+  });
+
+  describe('filling out the service item form', () => {
+    const nextButton = mountedComponent.find('[data-testid="nextServiceItem"]');
+
+    it('the item values are blank by default', () => {
+      const serviceItemCard = mountedComponent.find('ServiceItemCard');
+
+      expect(serviceItemCard.prop('value')).toEqual({ status: undefined, rejectionReason: undefined });
+    });
+
+    it('can approve an item', async () => {
+      const serviceItemId = serviceItemCards[4].id;
+      const approveInput = mountedComponent.find(`input[name="${serviceItemId}.status"][value="APPROVED"]`);
+      expect(approveInput.length).toBe(1);
+
+      await act(async () => {
+        approveInput.simulate('change');
+      });
+      mountedComponent.update();
+      const serviceItemCard = mountedComponent.find('ServiceItemCard');
+      expect(serviceItemCard.prop('value')).toEqual({ status: 'APPROVED', rejectionReason: undefined });
+    });
+
+    it('can reject an item', async () => {
+      nextButton.simulate('click');
+      mountedComponent.update();
+
+      const serviceItemId = serviceItemCards[3].id;
+      const rejectInput = mountedComponent.find(`input[name="${serviceItemId}.status"][value="REJECTED"]`);
+      expect(rejectInput.length).toBe(1);
+
+      await act(async () => {
+        rejectInput.simulate('change');
+      });
+      mountedComponent.update();
+      const serviceItemCard = mountedComponent.find('ServiceItemCard');
+      expect(serviceItemCard.prop('value')).toEqual({ status: 'REJECTED', rejectionReason: undefined });
+    });
+
+    it('can enter a reason for rejecting an item', async () => {
+      const serviceItemId = serviceItemCards[3].id;
+      const rejectReasonInput = mountedComponent.find(`textarea[name="${serviceItemId}.rejectionReason"]`);
+      expect(rejectReasonInput.length).toBe(1);
+
+      await act(async () => {
+        rejectReasonInput.simulate('change', {
+          target: {
+            name: `${serviceItemId}.rejectionReason`,
+            value: 'This is why I rejected it',
+          },
+        });
+      });
+      mountedComponent.update();
+      const serviceItemCard = mountedComponent.find('ServiceItemCard');
+      expect(serviceItemCard.prop('value')).toEqual({
+        status: 'REJECTED',
+        rejectionReason: 'This is why I rejected it',
+      });
+    });
+
+    it('can clear the selections for an item', async () => {
+      const clearSelectionButton = mountedComponent.find('[data-testid="clearStatusButton"]');
+      expect(clearSelectionButton.length).toBe(1);
+
+      await act(async () => {
+        clearSelectionButton.simulate('click');
+      });
+      mountedComponent.update();
+      const serviceItemCard = mountedComponent.find('ServiceItemCard');
+      expect(serviceItemCard.prop('value')).toEqual({
+        status: undefined,
+        rejectionReason: undefined,
+      });
+    });
   });
 });

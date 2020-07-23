@@ -58,7 +58,7 @@ describe('completing the ppm flow', function () {
 
 function SMSubmitsMove() {
   cy.contains('Fort Gordon (from Yuma AFB)');
-  cy.get('[data-cy="move-header-weight-estimate"]').contains('8,000 lbs');
+  cy.get('[data-testid="move-header-weight-estimate"]').contains('8,000 lbs');
   cy.contains('Continue Move Setup').click();
 
   cy.location().should((loc) => {
@@ -83,7 +83,7 @@ function SMSubmitsMove() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('#incentive-estimation-slider').click();
 
-  cy.get('[data-cy="incentive-range-values"]').contains('$');
+  cy.get('[data-testid="incentive-range-values"]').contains('$');
 
   cy.nextPage();
 
@@ -93,19 +93,19 @@ function SMSubmitsMove() {
   cy.get('.wizard-header').should('not.exist');
 
   // todo: should probably have test suite for review and edit screens
-  cy.get('[data-cy="sit-display"]').contains('30 days').contains('$726.76');
+  cy.get('[data-testid="sit-display"]').contains('30 days').contains('$726.76');
 
-  cy.get('[data-cy="edit-ppm-dates"]').click();
+  cy.get('[data-testid="edit-ppm-dates"]').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review\/edit-date-and-location/);
   });
 
-  cy.get('[data-cy="storage-estimate"]').contains('$726.76');
+  cy.get('[data-testid="storage-estimate"]').contains('$726.76');
 
   cy.get('input[name="days_in_storage"]').clear().type('35');
 
-  cy.get('[data-cy="storage-estimate"]').contains('$726.76');
+  cy.get('[data-testid="storage-estimate"]').contains('$726.76');
 
   cy.get('button').contains('Save').click();
 
@@ -113,7 +113,7 @@ function SMSubmitsMove() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
 
-  cy.get('[data-cy="sit-display"]').contains('35 days').contains('$745.88');
+  cy.get('[data-testid="sit-display"]').contains('35 days').contains('$745.88');
 
   cy.nextPage();
 
@@ -139,7 +139,7 @@ function SMSubmitsMove() {
 
 function SMCompletesMove() {
   cy.contains('Fort Gordon (from Yuma AFB)');
-  cy.get('[data-cy="move-header-weight-estimate"]').contains('8,000 lbs');
+  cy.get('[data-testid="move-header-weight-estimate"]').contains('8,000 lbs');
   cy.contains('Continue Move Setup').click();
 
   cy.location().should((loc) => {
@@ -164,9 +164,9 @@ function SMCompletesMove() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('#incentive-estimation-slider').click();
 
-  cy.get('[data-cy="incentive-range-text"]').contains('Not ready yet');
+  cy.get('[data-testid="incentive-range-text"]').contains('Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-cy="tooltip"]').contains(
+  cy.get('[data-testid="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
   );
   cy.nextPage();
@@ -177,7 +177,7 @@ function SMCompletesMove() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('td').contains('Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-cy="tooltip"]').contains(
+  cy.get('[data-testid="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
   );
 
@@ -204,15 +204,15 @@ function SMCompletesMove() {
 
   cy.contains('Payment: Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-cy="tooltip"]').contains(
+  cy.get('[data-testid="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
   );
 
-  cy.get('[data-cy="edit-move"]').contains('Edit Move').click();
+  cy.get('[data-testid="edit-move"]').contains('Edit Move').click();
 
   cy.get('td').contains('Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-cy="tooltip"]').contains(
+  cy.get('[data-testid="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
   );
 }
@@ -259,7 +259,7 @@ function SMInputsInvalidPostalCodes() {
 function SMSeesMoveDetails() {
   cy.get('.sidebar button').contains('Edit Move').click();
 
-  cy.get('[data-cy="ppm-summary"]').should((ppmContainer) => {
+  cy.get('[data-testid="ppm-summary"]').should((ppmContainer) => {
     expect(ppmContainer).to.have.length(1);
   });
 }
@@ -292,9 +292,9 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
   if (ordinal) {
     cy.contains(`Weight Tickets - ${ordinal} set`);
     if (ordinal === '1st') {
-      cy.get('[data-cy=documents-uploaded]').should('not.exist');
+      cy.get('[data-testid=documents-uploaded]').should('not.exist');
     } else {
-      cy.get('[data-cy=documents-uploaded]').should('exist');
+      cy.get('[data-testid=documents-uploaded]').should('exist');
     }
   }
 
@@ -309,12 +309,12 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
 
   cy.get('input[name="empty_weight"]').type('1000');
 
-  cy.upload_file('[data-cy=empty-weight-upload] .filepond--root', 'top-secret.png');
+  cy.upload_file('[data-testid=empty-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="full_weight"]').type('5000');
-  cy.upload_file('[data-cy=full-weight-upload] .filepond--root', 'top-secret.png');
+  cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
   cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();
@@ -325,7 +325,7 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
     cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
     cy.get('button').contains('Save & Add Another').click();
     cy.wait('@postWeightTicket').its('status').should('eq', 200);
-    cy.get('[data-cy=documents-uploaded]').should('exist');
+    cy.get('[data-testid=documents-uploaded]').should('exist');
   } else {
     cy.get('button').contains('Save & Continue').click();
     cy.wait('@postWeightTicket').its('status').should('eq', 200);

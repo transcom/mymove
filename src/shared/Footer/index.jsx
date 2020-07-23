@@ -77,7 +77,7 @@ function Footer() {
                   </a>
                 </div>
               </div>
-              <h3 className="usa-footer__contact-heading" data-cy="contact-footer">
+              <h3 className="usa-footer__contact-heading" data-testid="contact-footer">
                 Contact Us
               </h3>
               <address className="usa-footer__address">

@@ -29,7 +29,8 @@ const MoveInfoHeader = (props) => {
       {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}
       {!isEmpty(entitlement) && (
         <div>
-          Weight allowance: <span data-cy="move-header-weight-estimate">{entitlement.weight.toLocaleString()} lbs</span>
+          Weight allowance:{' '}
+          <span data-testid="move-header-weight-estimate">{entitlement.weight.toLocaleString()} lbs</span>
         </div>
       )}
     </div>
@@ -159,7 +160,7 @@ export class MoveSummaryComponent extends React.Component {
                 className="usa-button usa-button--outline"
                 onClick={() => editMove(move)}
                 disabled={includes(['DRAFT', 'CANCELED'], move.status)}
-                data-cy="edit-move"
+                data-testid="edit-move"
               >
                 Edit Move
               </button>

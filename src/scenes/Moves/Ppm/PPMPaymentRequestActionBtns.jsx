@@ -64,7 +64,12 @@ class PPMPaymentRequestActionBtns extends Component {
                 Finish Later
               </button>
               {displaySkip && (
-                <button data-cy="skip" type="button" className="usa-button usa-button--outline" onClick={skipHandler}>
+                <button
+                  data-testid="skip"
+                  type="button"
+                  className="usa-button usa-button--outline"
+                  onClick={skipHandler}
+                >
                   Skip
                 </button>
               )}

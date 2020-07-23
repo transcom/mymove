@@ -188,12 +188,12 @@ const requestedShipmentsComponent = (
 describe('RequestedShipments', () => {
   it('renders the container successfully', () => {
     const wrapper = shallow(requestedShipmentsComponent);
-    expect(wrapper.find('div[data-cy="requested-shipments"]').exists()).toBe(true);
+    expect(wrapper.find('div[data-testid="requested-shipments"]').exists()).toBe(true);
   });
 
   it('renders a shipment passed to it', () => {
     const wrapper = mount(requestedShipmentsComponent);
-    expect(wrapper.find('div[data-cy="requested-shipments"]').text()).toContain('HHG');
+    expect(wrapper.find('div[data-testid="requested-shipments"]').text()).toContain('HHG');
   });
 
   it('renders the button', () => {

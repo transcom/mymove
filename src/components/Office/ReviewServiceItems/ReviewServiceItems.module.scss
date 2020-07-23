@@ -3,11 +3,18 @@
 @import '../../../shared/styles/colors';
 
 .ReviewServiceItems {
-  @include u-height('full');
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 
   box-shadow: -4px 0px 8px 0px rgba(0, 0, 0, 0.1);
+
+  .form {
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
 
   .top button[type='button'] {
     float: right;
@@ -48,7 +55,8 @@
     @include u-padding-x('4');
     @include u-bg('gray-5');
     @include u-overflow-y('auto');
-    flex-grow: 1;
+    flex: 1 1 0;
+    flex-basis: 0;
   }
 
   .bottom {

@@ -30,44 +30,44 @@ const DocumentDetailDisplay = ({
   return (
     <Fragment>
       <div>
-        <h3 data-cy="panel-subhead">
+        <h3 data-testid="panel-subhead">
           {renderStatusIcon(moveDocument.status)}
           {moveDocument.title}
         </h3>
-        <p className="uploaded-at" data-cy="uploaded-at">
+        <p className="uploaded-at" data-testid="uploaded-at">
           Uploaded {formatDate(get(moveDocument, 'document.uploads.0.created_at'))}
         </p>
         <PanelSwaggerField
-          data-cy="document-title"
+          data-testid="document-title"
           title="Document title"
           fieldName="title"
           required
           {...moveDocFieldProps}
         />
         <PanelSwaggerField
-          data-cy="move-document-type"
+          data-testid="move-document-type"
           title="move-document-type"
           fieldName="move_document_type"
           required
           {...moveDocFieldProps}
         />
         {isExpenseDocument && moveDocument.moving_expense_type && (
-          <PanelSwaggerField data-cy="moving-expense-type" fieldName="moving_expense_type" {...moveDocFieldProps} />
+          <PanelSwaggerField data-testid="moving-expense-type" fieldName="moving_expense_type" {...moveDocFieldProps} />
         )}
         {isExpenseDocument && get(moveDocument, 'requested_amount_cents') && (
           <PanelSwaggerField
-            data-cy="requested-amount-cents"
+            data-testid="requested-amount-cents"
             fieldName="requested_amount_cents"
             {...moveDocFieldProps}
           />
         )}
         {isExpenseDocument && get(moveDocument, 'payment_method') && (
-          <PanelSwaggerField data-cy="payment-method" fieldName="payment_method" {...moveDocFieldProps} />
+          <PanelSwaggerField data-testid="payment-method" fieldName="payment_method" {...moveDocFieldProps} />
         )}
         {isWeightTicketDocument && (
           <>
             <PanelSwaggerField
-              data-cy="weight-ticket-set-type"
+              data-testid="weight-ticket-set-type"
               title="Weight ticket set type"
               fieldName="weight_ticket_set_type"
               required
@@ -76,7 +76,7 @@ const DocumentDetailDisplay = ({
 
             {isWeightTicketTypeBoxTruck && (
               <PanelSwaggerField
-                data-cy="vehicle-nickname"
+                data-testid="vehicle-nickname"
                 title="Vehicle nickname"
                 fieldName="vehicle_nickname"
                 required
@@ -89,14 +89,14 @@ const DocumentDetailDisplay = ({
             {isWeightTicketTypeCarOrTrailer && (
               <>
                 <PanelSwaggerField
-                  data-cy="vehicle-make"
+                  data-testid="vehicle-make"
                   title="Vehicle make"
                   fieldName="vehicle_make"
                   required
                   {...moveDocFieldProps}
                 />
                 <PanelSwaggerField
-                  data-cy="vehicle-model"
+                  data-testid="vehicle-model"
                   title="Vehicle model"
                   fieldName="vehicle_model"
                   required
@@ -105,14 +105,14 @@ const DocumentDetailDisplay = ({
               </>
             )}
             <PanelSwaggerField
-              data-cy="empty-weight"
+              data-testid="empty-weight"
               title="Empty weight"
               fieldName="empty_weight"
               required
               {...moveDocFieldProps}
             />
             <PanelSwaggerField
-              data-cy="full-weight"
+              data-testid="full-weight"
               title="Full weight"
               fieldName="full_weight"
               required
@@ -123,14 +123,14 @@ const DocumentDetailDisplay = ({
         {isStorageExpenseDocument && (
           <>
             <PanelSwaggerField
-              data-cy="storage-start-date"
+              data-testid="storage-start-date"
               title="Start date"
               fieldName="storage_start_date"
               required
               {...moveDocFieldProps}
             />
             <PanelSwaggerField
-              data-cy="storage-end-date"
+              data-testid="storage-end-date"
               title="End date"
               fieldName="storage_end_date"
               required
@@ -139,13 +139,13 @@ const DocumentDetailDisplay = ({
           </>
         )}
         <PanelSwaggerField
-          data-cy="status"
+          data-testid="status"
           title="Document status"
           fieldName="status"
           required
           {...moveDocFieldProps}
         />
-        <PanelSwaggerField data-cy="notes" title="Notes" fieldName="notes" {...moveDocFieldProps} />
+        <PanelSwaggerField data-testid="notes" title="Notes" fieldName="notes" {...moveDocFieldProps} />
       </div>
     </Fragment>
   );

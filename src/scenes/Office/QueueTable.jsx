@@ -180,12 +180,12 @@ class QueueTable extends Component {
         ) : null}
         <h1 className="queue-heading">{titles[this.props.queueType]}</h1>
         <div className="queue-table">
-          <span className="staleness-indicator" data-cy="staleness-indicator">
+          <span className="staleness-indicator" data-testid="staleness-indicator">
             Last updated {formatTimeAgo(this.state.lastLoadedAt)}
           </span>
           <span className={'refresh' + (this.state.refreshing ? ' focused' : '')} title="Refresh" aria-label="Refresh">
             <FontAwesomeIcon
-              data-cy="refreshQueue"
+              data-testid="refreshQueue"
               className="link-blue"
               icon={faSyncAlt}
               onClick={this.refresh.bind(this)}
@@ -203,7 +203,7 @@ class QueueTable extends Component {
             className="-striped -highlight"
             showPagination={false}
             getTrProps={(state, rowInfo) => ({
-              'data-cy': 'queueTableRow',
+              'data-testid': 'queueTableRow',
               onDoubleClick: () => this.openMove(rowInfo),
               onClick: () => this.openMove(rowInfo),
             })}

@@ -6,6 +6,8 @@ import { fetchActive } from 'shared/utils';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 // Types
 const SET_CONUS_STATUS = 'SET_CONUS_STATUS';
+const SET_PENDING_MOVE_TYPE = 'SET_PENDING_MOVE_TYPE';
+const SET_SELECTED_MOVE_TYPE = 'SET_SELECTED_MOVE_TYPE';
 
 export const getMoveType = 'GET_MOVE';
 export const GET_MOVE = ReduxHelpers.generateAsyncActionTypes(getMoveType);
@@ -21,6 +23,14 @@ export function setConusStatus(moveType) {
   return { type: SET_CONUS_STATUS, moveType };
 }
 
+// Action creation
+export function setPendingMoveType(value) {
+  return { type: SET_PENDING_MOVE_TYPE, payload: value };
+}
+
+export function setSelectedMoveType(moveType) {
+  return { type: SET_SELECTED_MOVE_TYPE, moveType };
+}
 export function updateMove(moveId, moveType) {
   return function (dispatch) {
     const action = ReduxHelpers.generateAsyncActions(createOrUpdateMoveType);
@@ -80,6 +90,10 @@ export function moveReducer(state = initialState, action) {
         hasLoadError: false,
         hasLoadSuccess: true,
       });
+    case SET_PENDING_MOVE_TYPE:
+      return Object.assign({}, state, {
+        pendingMoveType: action.payload,
+      });
     case CREATE_OR_UPDATE_MOVE.success:
       return Object.assign({}, state, {
         currentMove: reshapeMove(action.payload),
@@ -132,6 +146,13 @@ export function moveReducer(state = initialState, action) {
         currentMove: {
           ...state.currentMove,
           conus_status: action.moveType,
+        },
+      });
+    case SET_SELECTED_MOVE_TYPE:
+      return Object.assign({}, state, {
+        currentMove: {
+          ...state.currentMove,
+          selected_move_type: action.moveType,
         },
       });
     default:
