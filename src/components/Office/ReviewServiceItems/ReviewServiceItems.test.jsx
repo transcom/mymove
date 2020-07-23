@@ -44,7 +44,7 @@ const serviceItemCards = [
   },
 ];
 
-const basicServiceItemsCard = [
+const basicServiceItemCards = [
   {
     id: '4',
     shipmentType: null,
@@ -103,9 +103,11 @@ describe('ReviewServiceItems component', () => {
     expect(mountedComponent.find('[data-cy="nextServiceItem"]').prop('disabled')).toBe(false);
   });
 
-  it('showing two basic service items at once', () => {
-    const wrapper = mount(<ReviewServiceItems serviceItemCards={basicServiceItemsCard} handleClose={handleClose} />);
-    expect(wrapper.find('ServiceItemCard').length).toBe(2);
+  it('renders two basic service item cards', () => {
+    const basicWrapper = mount(
+      <ReviewServiceItems serviceItemCards={basicServiceItemCards} handleClose={handleClose} />,
+    );
+    expect(basicWrapper.find('ServiceItemCard').length).toBe(2);
   });
 
   describe('navigating through service items', () => {
