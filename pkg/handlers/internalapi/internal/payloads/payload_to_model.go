@@ -93,24 +93,14 @@ func MTOShipmentModel(mtoShipment *internalmessages.MTOShipment) *models.MTOShip
 		ShipmentType: models.MTOShipmentType(mtoShipment.ShipmentType),
 	}
 
-	scheduledPickupDate := time.Time(mtoShipment.ScheduledPickupDate)
-	if !scheduledPickupDate.IsZero() {
-		model.ScheduledPickupDate = &scheduledPickupDate
-	}
-
 	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
 	if !requestedPickupDate.IsZero() {
 		model.RequestedPickupDate = &requestedPickupDate
 	}
 
-	actualPickupDate := time.Time(mtoShipment.ActualPickupDate)
-	if !actualPickupDate.IsZero() {
-		model.ActualPickupDate = &actualPickupDate
-	}
-
-	requiredDeliveryDate := time.Time(mtoShipment.RequiredDeliveryDate)
-	if !requiredDeliveryDate.IsZero() {
-		model.RequiredDeliveryDate = &requiredDeliveryDate
+	requestedDeliveryDate := time.Time(mtoShipment.RequestedDeliveryDate)
+	if !requestedDeliveryDate.IsZero() {
+		model.RequestedDeliveryDate = &requestedDeliveryDate
 	}
 
 	if mtoShipment.PickupAddress != nil {

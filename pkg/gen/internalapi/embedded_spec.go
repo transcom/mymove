@@ -4437,11 +4437,6 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
-        "actualPickupDate": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -4474,17 +4469,12 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
         "requestedPickupDate": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
-        "requiredDeliveryDate": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
-        "scheduledPickupDate": {
           "type": "string",
           "format": "date",
           "readOnly": true
@@ -11044,11 +11034,6 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
-        "actualPickupDate": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -11081,17 +11066,12 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
         "requestedPickupDate": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
-        "requiredDeliveryDate": {
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
-        "scheduledPickupDate": {
           "type": "string",
           "format": "date",
           "readOnly": true

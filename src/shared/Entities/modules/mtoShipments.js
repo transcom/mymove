@@ -1,5 +1,5 @@
 import { swaggerRequest } from 'shared/Swagger/request';
-import { getGHCClient } from 'shared/Swagger/api';
+import { getGHCClient, getClient } from 'shared/Swagger/api';
 import { selectMoveTaskOrders } from 'shared/Entities/modules/moveTaskOrders';
 import { filter } from 'lodash';
 
@@ -31,6 +31,11 @@ export function patchMTOShipmentStatus(
     },
     { label, schemaKey },
   );
+}
+
+const createMTOShipmentOperation = 'mtoShipment.createMTOShipment';
+export function createMTOShipment(mtoShipment, label = createMTOShipmentOperation, schemaKey = mtoShipmentSchemaKey) {
+  return swaggerRequest(getClient, createMTOShipmentOperation, { body: mtoShipment }, { label, schemaKey });
 }
 
 export function selectMTOShipments(state, moveOrderId) {

@@ -40,20 +40,12 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 		UpdatedAt:          strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
 
-	if mtoShipment.ScheduledPickupDate != nil {
-		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
-	}
-
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
 		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
 	}
 
-	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
-		payload.ActualPickupDate = strfmt.Date(*mtoShipment.ActualPickupDate)
-	}
-
-	if mtoShipment.RequiredDeliveryDate != nil && !mtoShipment.RequiredDeliveryDate.IsZero() {
-		payload.RequiredDeliveryDate = strfmt.Date(*mtoShipment.RequiredDeliveryDate)
+	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
+		payload.RequestedDeliveryDate = strfmt.Date(*mtoShipment.RequestedDeliveryDate)
 	}
 
 	return payload

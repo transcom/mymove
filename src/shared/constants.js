@@ -70,6 +70,11 @@ export const SERVICE_ITEM_CODES = {
   DUPK: 'Dom. Unpacking',
 };
 
+export const MTOAgentType = {
+  RELEASING: 'RELEASING_AGENT',
+  RECEIVING: 'RECEIVING_AGENT',
+};
+
 // These constants are used to track network requests using component state
 export const isError = 'REQUEST_ERROR';
 export const isLoading = 'REQUEST_LOADING';
