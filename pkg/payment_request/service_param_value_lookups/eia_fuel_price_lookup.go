@@ -46,7 +46,7 @@ func (r EIAFuelPriceLookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 	var ghcDieselFuelPrice models.GHCDieselFuelPrice
 	err = db.Where("publication_date <= ?", actualPickupDate).Order("publication_date DESC").Last(&ghcDieselFuelPrice)
 	if err != nil {
-		return "", fmt.Errorf("could not find ghc diesel fuel price with publication date [%s]", actualPickupDate)
+		return "", services.NewNotFoundError(uuid.Nil, "Looking for GHCDieselFuelPrice")
 	}
 
 	value := fmt.Sprintf("%d", ghcDieselFuelPrice.FuelPriceInMillicents.Int())
