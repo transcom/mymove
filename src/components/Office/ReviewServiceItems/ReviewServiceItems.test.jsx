@@ -92,7 +92,7 @@ describe('ReviewServiceItems component', () => {
   });
 
   it('displays the total count', () => {
-    expect(mountedComponent.find('[data-testid="itemCount"]').text()).toEqual('1 OF 5 ITEMS');
+    expect(mountedComponent.find('[data-testid="itemCount"]').text()).toEqual('1 OF 4 ITEMS');
   });
 
   it('disables previous button at beginning', () => {
