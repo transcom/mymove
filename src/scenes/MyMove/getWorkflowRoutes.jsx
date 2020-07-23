@@ -21,6 +21,7 @@ import DutyStation from 'scenes/ServiceMembers/DutyStation';
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
+import MoveTypeDetails from 'pages/MyMove/MoveTypeDetails';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
 
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
@@ -156,6 +157,17 @@ const pages = {
       return (
         <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} additionalParams={{ moveId: props.moveId }}>
           <TransitionToMove />
+        </WizardPage>
+      );
+    },
+  },
+  '/moves/:moveId/move-type-details': {
+    isInFlow: inHhgFlow,
+    isComplete: always,
+    render: (key, pages) => () => {
+      return (
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+          <MoveTypeDetails />
         </WizardPage>
       );
     },
