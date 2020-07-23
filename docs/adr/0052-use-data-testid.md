@@ -2,7 +2,7 @@
 
 *[Jira Story](https://dp3.atlassian.net/browse/MB-3386)*
 
-In front end code you can use a data tag selectors, such as `data-testid`, on your components to make finding them in tests easier. Right now we're using two different values for test selectors: `data-testid` and `data-cy`. We should pick one, and then update them in the MilMove codebase so that usage is consistent.
+In front end code you can use a data tag selector, such as `data-testid`, on your components to make finding them in tests easier. Right now we're using two different values for test selector: `data-testid` and `data-cy`. We should pick one, and then update them in the MilMove codebase so that usage is consistent.
 
 ## Considered Alternatives
 
