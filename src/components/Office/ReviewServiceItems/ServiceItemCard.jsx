@@ -14,7 +14,7 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
   const { APPROVED, REJECTED } = SERVICE_ITEM_STATUS;
 
   return (
-    <div data-testid="ServiceItemCard" className={styles.ServiceItemCard}>
+    <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
       <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={shipmentType}>
         <h6 className={styles.cardHeader}>{mtoShipmentTypeToFriendlyDisplay(shipmentType) || 'BASIC SERVICE ITEMS'}</h6>
         <dl>
@@ -27,7 +27,7 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
         <Fieldset>
           <div className={styles.statusOption}>
             <Radio
-              id="approve"
+              id={`approve-${id}`}
               checked={status === APPROVED}
               value={APPROVED}
               name={`${id}.status`}
@@ -37,7 +37,7 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
           </div>
           <div className={styles.statusOption}>
             <Radio
-              id="reject"
+              id={`reject-${id}`}
               checked={status === REJECTED}
               value={REJECTED}
               name={`${id}.status`}
