@@ -6,6 +6,7 @@ import { fetchActive } from 'shared/utils';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 // Types
 const SET_PENDING_MOVE_TYPE = 'SET_PENDING_MOVE_TYPE';
+const SET_SELECTED_MOVE_TYPE = 'SET_SELECTED_MOVE_TYPE';
 
 export const getMoveType = 'GET_MOVE';
 export const GET_MOVE = ReduxHelpers.generateAsyncActionTypes(getMoveType);
@@ -21,6 +22,9 @@ export function setPendingMoveType(value) {
   return { type: SET_PENDING_MOVE_TYPE, payload: value };
 }
 
+export function setSelectedMoveType(moveType) {
+  return { type: SET_SELECTED_MOVE_TYPE, moveType };
+}
 export function updateMove(moveId, moveType) {
   return function (dispatch) {
     const action = ReduxHelpers.generateAsyncActions(createOrUpdateMoveType);
@@ -128,6 +132,13 @@ export function moveReducer(state = initialState, action) {
       return Object.assign({}, state, {
         submittedForApproval: false,
         error: action.error,
+      });
+    case SET_SELECTED_MOVE_TYPE:
+      return Object.assign({}, state, {
+        currentMove: {
+          ...state.currentMove,
+          selected_move_type: action.moveType,
+        },
       });
     default:
       return state;

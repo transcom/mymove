@@ -1,4 +1,4 @@
-import { CREATE_OR_UPDATE_MOVE, GET_MOVE, SUBMIT_FOR_APPROVAL, moveReducer } from './ducks';
+import { CREATE_OR_UPDATE_MOVE, GET_MOVE, SUBMIT_FOR_APPROVAL, moveReducer, setSelectedMoveType } from './ducks';
 import loggedInUserPayload, { emptyPayload } from 'shared/User/sampleLoggedInUserPayload';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -164,6 +164,32 @@ describe('move Reducer', () => {
       expect(newState).toEqual({
         submittedForApproval: false,
         error: 'No bueno.',
+      });
+    });
+  });
+
+  describe('SET_SELECTED_MOVE_TYPE', () => {
+    it('Should set selected move type to PPM', () => {
+      const initialState = {
+        currentMove: { selected_move_type: '' },
+      };
+
+      const newState = moveReducer(initialState, setSelectedMoveType(SHIPMENT_OPTIONS.PPM));
+
+      expect(newState).toEqual({
+        currentMove: { selected_move_type: SHIPMENT_OPTIONS.PPM },
+      });
+    });
+
+    it('Should set selected move type to HHG', () => {
+      const initialState = {
+        currentMove: { selected_move_type: '' },
+      };
+
+      const newState = moveReducer(initialState, setSelectedMoveType(SHIPMENT_OPTIONS.HHG));
+
+      expect(newState).toEqual({
+        currentMove: { selected_move_type: SHIPMENT_OPTIONS.HHG },
       });
     });
   });
