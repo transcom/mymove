@@ -35,59 +35,44 @@ func (t *testMTOShipmentQueryBuilder) Transaction(fn func(tx *pop.Connection) er
 
 func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+	builder := query.NewQueryBuilder(suite.DB())
+	createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
+		return builder
+	}
+	fetcher := fetch.NewFetcher(builder)
+	creator := mtoShipmentCreator{
+		suite.DB(),
+		builder,
+		fetcher,
+		createNewBuilder,
+	}
+
+	// Invalid ID fields set
+	suite.T().Run("invalid IDs found", func(t *testing.T) {
+		// The default shipment created will have IDs filled in for subobjects, but let's make sure one is set anyway:
+		moveTaskOrderID := mtoShipment.MoveTaskOrderID
+		if mtoShipment.PickupAddress != nil && mtoShipment.PickupAddress.ID != uuid.Nil {
+			mtoShipment.PickupAddress.ID = moveTaskOrderID
+		}
+		createdShipment, err := creator.CreateMTOShipment(&mtoShipment, nil)
+
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+		suite.Nil(createdShipment)
+	})
 
 	// Happy path
 	suite.T().Run("If the shipment is created successfully it should be returned", func(t *testing.T) {
-
-		mtoShipment.PickupAddressID = nil
-		mtoShipment.PickupAddress.ID = uuid.Nil
-		mtoShipment.DestinationAddressID = nil
-		mtoShipment.DestinationAddress.ID = uuid.Nil
-		mtoShipment.ID = uuid.Nil
-
+		mtoShipment := clearShipmentIDFields(&mtoShipment)
 		serviceItemsList := models.MTOServiceItems{}
-		builder := query.NewQueryBuilder(suite.DB())
-		createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
-			return builder
-		}
 
-		fetcher := fetch.NewFetcher(builder)
-
-		creator := mtoShipmentCreator{
-			suite.DB(),
-			builder,
-			fetcher,
-			createNewBuilder,
-		}
-
-		createdShipment, err := creator.CreateMTOShipment(&mtoShipment, serviceItemsList)
+		createdShipment, err := creator.CreateMTOShipment(mtoShipment, serviceItemsList)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
 	})
 
 	suite.T().Run("If the shipment has mto service items", func(t *testing.T) {
-
-		mtoShipment.PickupAddressID = nil
-		mtoShipment.PickupAddress.ID = uuid.Nil
-		mtoShipment.DestinationAddressID = nil
-		mtoShipment.DestinationAddress.ID = uuid.Nil
-		mtoShipment.ID = uuid.Nil
-
-		builder := query.NewQueryBuilder(suite.DB())
-		createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
-			return builder
-		}
-
-		fetcher := fetch.NewFetcher(builder)
-
-		creator := mtoShipmentCreator{
-			suite.DB(),
-			builder,
-			fetcher,
-			createNewBuilder,
-		}
-
 		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeCS,
@@ -121,9 +106,31 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 			},
 		}
 
-		createdShipment, err := creator.CreateMTOShipment(&mtoShipment, serviceItemsList)
+		mtoShipment := clearShipmentIDFields(&mtoShipment)
+		createdShipment, err := creator.CreateMTOShipment(mtoShipment, serviceItemsList)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
 	})
+}
+
+// Clears all the ID fields that we need to be null for a new shipment to get created:
+func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
+	shipment.PickupAddressID = nil
+	shipment.PickupAddress.ID = uuid.Nil
+	shipment.DestinationAddressID = nil
+	shipment.DestinationAddress.ID = uuid.Nil
+	shipment.SecondaryPickupAddressID = nil
+	shipment.SecondaryPickupAddress = nil
+	shipment.SecondaryDeliveryAddressID = nil
+	shipment.SecondaryDeliveryAddress = nil
+	shipment.ID = uuid.Nil
+	if len(shipment.MTOAgents) > 0 {
+		for _, agent := range shipment.MTOAgents {
+			agent.ID = uuid.Nil
+			agent.MTOShipmentID = uuid.Nil
+		}
+	}
+
+	return shipment
 }
