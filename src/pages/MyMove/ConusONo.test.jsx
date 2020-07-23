@@ -14,10 +14,10 @@ describe('ConusONo', () => {
     expect(wrapper.find(Radio).length).toBe(2);
 
     // PPM button should be checked on page load
-    expect(wrapper.find(Radio).at(0).text()).toContain('CONUS (continental US)');
+    expect(wrapper.find(Radio).at(0).text()).toContain('CONUS');
     expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('checked');
 
     // HHG button should be disabled
-    expect(wrapper.find(Radio).at(1).text()).toContain('OCONUS (Alaska, Hawaii, international)');
+    expect(wrapper.find(Radio).at(1).text()).toContain('OCONUS');
   });
 });
