@@ -62,7 +62,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   });
 
   return (
-    <div data-cy="ReviewServiceItems" className={styles.ReviewServiceItems}>
+    <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <Formik initialValues={formValues}>
         {({ values, handleChange, setValues }) => {
           const clearServiceItemValues = (id) => {
@@ -78,10 +78,10 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
           return (
             <Form className={styles.form}>
               <div className={styles.top}>
-                <Button data-cy="closeSidebar" type="button" onClick={handleClose} unstyled>
+                <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
                   <XLightIcon />
                 </Button>
-                <div data-cy="itemCount" className={styles.eyebrowTitle}>
+                <div data-testid="itemCount" className={styles.eyebrowTitle}>
                   {curCardIndex + 1} OF {totalCards} ITEMS
                 </div>
                 <h2 className={styles.header}>{header}</h2>
@@ -115,7 +115,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
               </div>
               <div className={styles.bottom}>
                 <Button
-                  data-cy="prevServiceItem"
+                  data-testid="prevServiceItem"
                   type="button"
                   onClick={() => handleClick(curCardIndex - 1)}
                   secondary
@@ -124,7 +124,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
                   Previous
                 </Button>
                 <Button
-                  data-cy="nextServiceItem"
+                  data-testid="nextServiceItem"
                   type="button"
                   onClick={() => handleClick(curCardIndex + 1)}
                   disabled={curCardIndex + 1 === totalCards}

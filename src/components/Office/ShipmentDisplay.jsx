@@ -15,16 +15,16 @@ import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkbox--unchecked
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted }) => {
   return (
-    <div className={styles['shipment-display']} data-cy="shipment-display">
+    <div className={styles['shipment-display']} data-testid="shipment-display">
       <ShipmentContainer className={styles['shipment-display__container']} shipmentType={shipmentType}>
-        <table className="table--small" data-cy="shipment-display-table">
+        <table className="table--small" data-testid="shipment-display-table">
           <thead>
             <tr>
               <th className={styles['shipment-display__header-checkbox']}>
                 {isSubmitted && (
                   <Checkbox
                     id={`shipment-display-checkbox-${shipmentId}`}
-                    data-cy="shipment-display-checkbox"
+                    data-testid="shipment-display-checkbox"
                     onChange={onChange}
                     name="shipments"
                     label=""

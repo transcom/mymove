@@ -19,10 +19,10 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
         <h6 className={styles.cardHeader}>{mtoShipmentTypeToFriendlyDisplay(shipmentType) || 'BASIC SERVICE ITEMS'}</h6>
         <dl>
           <dt>Service item</dt>
-          <dd data-cy="serviceItemName">{serviceItemName}</dd>
+          <dd data-testid="serviceItemName">{serviceItemName}</dd>
 
           <dt>Amount</dt>
-          <dd data-cy="serviceItemAmount">{toDollarString(amount)}</dd>
+          <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
         </dl>
         <Fieldset>
           <div className={styles.statusOption}>

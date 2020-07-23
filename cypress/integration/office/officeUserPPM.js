@@ -227,7 +227,7 @@ function officeUserApprovesMoveAndPPM(moveLocator) {
   });
 
   // Click on PPM tab
-  cy.get('[data-cy="ppm-tab"]').click();
+  cy.get('[data-testid="ppm-tab"]').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
@@ -273,7 +273,7 @@ function officeUserGoesToPPMPanel(locator) {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy.get('[data-cy="ppm-tab"]').click();
+  cy.get('[data-testid="ppm-tab"]').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
@@ -321,7 +321,7 @@ function officeUserGoesToStoragePanel(locator) {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy.get('[data-cy="ppm-tab"]').click();
+  cy.get('[data-testid="ppm-tab"]').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);

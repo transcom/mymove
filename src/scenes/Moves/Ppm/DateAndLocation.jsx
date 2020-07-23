@@ -121,7 +121,7 @@ export class DateAndLocation extends Component {
           initialValues={initialValues}
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
-          <h1 data-cy="location-page-title">PPM dates & locations</h1>
+          <h1 data-testid="location-page-title">PPM dates & locations</h1>
           <h3> Move date </h3>
           <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
           <h3>Pickup location</h3>
