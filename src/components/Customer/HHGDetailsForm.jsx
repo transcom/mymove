@@ -41,7 +41,9 @@ class HHGDetailsForm extends Component {
     remarks,
   }) => {
     const { createMTOShipment } = this.props;
-    createMTOShipment({
+    const { hasDeliveryAddress } = this.state;
+    const mtoShipment = {
+      // TODO: Use moveTaskOrderID when it is available
       moveTaskOrderID: '5d4b25bb-eb04-4c03-9a81-ee0398cb779e',
       shipmentType: 'HHG',
       requestedPickupDate: formatSwaggerDate(requestedPickupDate),
@@ -55,19 +57,22 @@ class HHGDetailsForm extends Component {
         postal_code: pickupLocation.zip,
         country: pickupLocation.country,
       },
-      destinationAddress: {
+      agents: [
+        { ...releasingAgent, agentType: MTOAgentType.RELEASING },
+        { ...receivingAgent, agentType: MTOAgentType.RECEIVING },
+      ],
+    };
+    if (hasDeliveryAddress) {
+      mtoShipment.destinationAddress = {
         street_address_1: deliveryLocation.mailingAddress1,
         street_address_2: deliveryLocation.mailingAddress2,
         city: deliveryLocation.city,
         state: deliveryLocation.state,
         postal_code: deliveryLocation.zip,
         country: deliveryLocation.country,
-      },
-      agents: [
-        { ...releasingAgent, agentType: MTOAgentType.RELEASING },
-        { ...receivingAgent, agentType: MTOAgentType.RECEIVING },
-      ],
-    });
+      };
+    }
+    createMTOShipment(mtoShipment);
   };
 
   render() {
