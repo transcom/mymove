@@ -1,16 +1,21 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
+import { MatchShape } from 'types/router';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import samplePDF from 'components/DocumentViewer/sample.pdf';
 import styles from 'pages/TIO/PaymentRequestReview.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
+import { getPaymentRequest as getPaymentRequestAction } from 'shared/Entities/modules/paymentRequests';
 
 class PaymentRequestReview extends Component {
   componentDidMount() {
-    // get payment request api call here
+    const { match, getPaymentRequest } = this.props;
+    const { paymentRequestId } = match.params;
+    getPaymentRequest(paymentRequestId);
   }
 
   handleClose = (moveOrderId) => {
@@ -44,6 +49,11 @@ class PaymentRequestReview extends Component {
     );
   }
 }
+
+PaymentRequestReview.propTypes = {
+  match: MatchShape.isRequired,
+  getPaymentRequest: PropTypes.func.isRequired,
+};
 
 const mapStateToProps = (state, ownProps) => {
   const { moveOrderId } = ownProps.match.params;
@@ -79,6 +89,8 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  getPaymentRequest: getPaymentRequestAction,
+};
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PaymentRequestReview));
