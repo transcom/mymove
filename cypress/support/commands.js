@@ -74,7 +74,7 @@ Cypress.Commands.add('signInAsNewTOOUser', () => {
 
 Cypress.Commands.add('signInAsNewTIOUser', () => {
   cy.signInAsNewUser(TIOOfficeUserType);
-  cy.contains('TIO interface');
+  cy.contains('Payment Requests');
   cy.url().should('eq', officeBaseURL + '/');
 });
 

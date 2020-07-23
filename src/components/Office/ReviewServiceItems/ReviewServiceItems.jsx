@@ -72,9 +72,9 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
                 <Button data-cy="closeSidebar" type="button" onClick={handleClose} unstyled>
                   <XLightIcon />
                 </Button>
-                <div data-cy="itemCount" className={styles.eyebrowTitle}>{`${
-                  curCardIndex + 1
-                } OF ${totalCards} ITEMS`}</div>
+                <div data-cy="itemCount" className={styles.eyebrowTitle}>
+                  {curCardIndex + 1} OF {totalCards} ITEMS
+                </div>
                 <h2 className={styles.header}>{header}</h2>
               </div>
               <div className={styles.body}>

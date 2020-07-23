@@ -11,7 +11,7 @@ const ShipmentContainer = ({ className, children, shipmentType }) => {
   const containerClasses = classNames(
     styles.shipmentContainer,
     {
-      'container--accent--default': !shipmentType,
+      'container--accent--default': shipmentType === null,
       'container--accent--hhg':
         shipmentType === SHIPMENT_OPTIONS.HHG ||
         shipmentType === SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC ||
@@ -36,7 +36,7 @@ ShipmentContainer.propTypes = {
 };
 
 ShipmentContainer.defaultProps = {
-  shipmentType: '',
+  shipmentType: null,
   className: '',
 };
 

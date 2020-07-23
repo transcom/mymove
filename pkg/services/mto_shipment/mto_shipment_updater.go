@@ -719,7 +719,7 @@ func (e ConflictStatusError) Error() string {
 		e.id.String(), e.transitionFromStatus, e.transitionToStatus, models.MTOShipmentStatusSubmitted)
 }
 
-func (f mtoShipmentUpdater) MTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
+func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
 	var mto models.MoveTaskOrder
 
 	err := f.db.Q().
@@ -729,9 +729,9 @@ func (f mtoShipmentUpdater) MTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, 
 		First(&mto)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
-			return false, services.NewNotFoundError(mtoShipmentID, "while looking for MTOshipment")
+			return false, services.NewNotFoundError(mtoShipmentID, "for mtoShipment")
 		}
-		return false, services.NewQueryError("mtoShipments", err, "Unexpected error.")
+		return false, services.NewQueryError("mtoShipments", err, "Unexpected error")
 	}
 
 	return true, nil

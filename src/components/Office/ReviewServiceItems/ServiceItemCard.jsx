@@ -6,6 +6,7 @@ import styles from './ServiceItemCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatters';
+import { ShipmentOptionsOneOf } from 'types/shipment';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, value, clearValues }) => {
@@ -23,51 +24,54 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
           <dt>Amount</dt>
           <dd data-cy="serviceItemAmount">{toDollarString(amount)}</dd>
         </dl>
-        <Fieldset className={styles.statusOption}>
-          <Radio
-            id={`${id}.approve`}
-            checked={status === APPROVED}
-            value={APPROVED}
-            name={`${id}.status`}
-            label="Approve"
-            onChange={onChange}
-          />
-        </Fieldset>
-        <Fieldset className={styles.statusOption}>
-          <Radio
-            id={`${id}.reject`}
-            checked={status === REJECTED}
-            value={REJECTED}
-            name={`${id}.status`}
-            label="Reject"
-            onChange={onChange}
-          />
+        <Fieldset>
+          <div className={styles.statusOption}>
+            <Radio
+              id="approve"
+              checked={status === APPROVED}
+              value={APPROVED}
+              name={`${id}.status`}
+              label="Approve"
+              onChange={onChange}
+            />
+          </div>
+          <div className={styles.statusOption}>
+            <Radio
+              id="reject"
+              checked={status === REJECTED}
+              value={REJECTED}
+              name={`${id}.status`}
+              label="Reject"
+              onChange={onChange}
+            />
 
-          {status === REJECTED && (
-            <FormGroup>
-              <Label htmlFor="rejectReason">Reason for rejection</Label>
-              <Textarea
-                id={`${id}.rejectReason`}
-                name={`${id}.rejectionReason`}
-                onChange={onChange}
-                value={rejectionReason}
-              />
-            </FormGroup>
+            {status === REJECTED && (
+              <FormGroup>
+                <Label htmlFor="rejectReason">Reason for rejection</Label>
+                <Textarea
+                  id="rejectReason"
+                  name={`${id}.rejectionReason`}
+                  onChange={onChange}
+                  value={rejectionReason}
+                />
+              </FormGroup>
+            )}
+          </div>
+
+          {(status === APPROVED || status === REJECTED) && (
+            <Button
+              type="button"
+              unstyled
+              data-testid="clearStatusButton"
+              className={styles.clearStatus}
+              onClick={() => {
+                clearValues(id);
+              }}
+            >
+              X Clear selection
+            </Button>
           )}
         </Fieldset>
-        {(status === APPROVED || status === REJECTED) && (
-          <Button
-            type="button"
-            unstyled
-            data-testid="clearStatusButton"
-            className={styles.clearStatus}
-            onClick={() => {
-              clearValues(id);
-            }}
-          >
-            X Clear selection
-          </Button>
-        )}
       </ShipmentContainer>
     </div>
   );
@@ -75,7 +79,7 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
 
 ServiceItemCard.propTypes = {
   id: PropTypes.string.isRequired,
-  shipmentType: PropTypes.string,
+  shipmentType: ShipmentOptionsOneOf,
   serviceItemName: PropTypes.string.isRequired,
   amount: PropTypes.number.isRequired,
   onChange: PropTypes.func,
@@ -87,7 +91,7 @@ ServiceItemCard.propTypes = {
 };
 
 ServiceItemCard.defaultProps = {
-  shipmentType: '',
+  shipmentType: null,
   onChange: () => {},
   value: {
     status: undefined,

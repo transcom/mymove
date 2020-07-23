@@ -666,6 +666,7 @@ func init() {
         },
         "serviceItems": {
           "type": "array",
+          "minItems": 1,
           "items": {
             "$ref": "#/definitions/ServiceItem"
           }
@@ -727,9 +728,6 @@ func init() {
           "example": "COAST_GUARD"
         },
         "currentAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -2706,6 +2704,7 @@ func init() {
         },
         "serviceItems": {
           "type": "array",
+          "minItems": 1,
           "items": {
             "$ref": "#/definitions/ServiceItem"
           }
@@ -2767,9 +2766,6 @@ func init() {
           "example": "COAST_GUARD"
         },
         "currentAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "dodID": {

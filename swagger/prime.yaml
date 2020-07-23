@@ -507,16 +507,16 @@ definitions:
     properties:
       isFinal:
         default: false
-
         type: boolean
       moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
       serviceItems:
+        type: array
+        minItems: 1
         items:
           $ref: '#/definitions/ServiceItem'
-        type: array
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update.
@@ -571,9 +571,6 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       currentAddress:
-        $ref: '#/definitions/Address'
-      # TODO: No more destination address, so could be removed from API payload
-      destinationAddress:
         $ref: '#/definitions/Address'
       firstName:
         type: string

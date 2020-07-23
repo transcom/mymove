@@ -54,7 +54,7 @@ describe('Office authorization', () => {
     it('can change role to TIO', () => {
       cy.contains('Select transportation_invoicing_officer').click();
       cy.url().should('eq', officeBaseURL + '/');
-      cy.contains('TIO interface');
+      cy.contains('Payment Requests');
     });
 
     it('can change role back to TOO', () => {

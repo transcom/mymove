@@ -56,6 +56,7 @@ type MTOShipment struct {
 	MoveTaskOrderID                  uuid.UUID         `db:"move_task_order_id"`
 	ScheduledPickupDate              *time.Time        `db:"scheduled_pickup_date"`
 	RequestedPickupDate              *time.Time        `db:"requested_pickup_date"`
+	RequestedDeliveryDate            *time.Time        `db:"requested_delivery_date"`
 	ApprovedDate                     *time.Time        `db:"approved_date"`
 	FirstAvailableDeliveryDate       *time.Time        `db:"first_available_delivery_date"`
 	ActualPickupDate                 *time.Time        `db:"actual_pickup_date"`

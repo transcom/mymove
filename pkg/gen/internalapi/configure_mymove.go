@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
@@ -93,6 +94,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.MoveDocsCreateGenericMoveDocumentHandler == nil {
 		api.MoveDocsCreateGenericMoveDocumentHandler = move_docs.CreateGenericMoveDocumentHandlerFunc(func(params move_docs.CreateGenericMoveDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_docs.CreateGenericMoveDocument has not yet been implemented")
+		})
+	}
+	if api.MtoShipmentCreateMTOShipmentHandler == nil {
+		api.MtoShipmentCreateMTOShipmentHandler = mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		})
 	}
 	if api.MoveDocsCreateMovingExpenseDocumentHandler == nil {

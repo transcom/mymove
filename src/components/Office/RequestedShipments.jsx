@@ -234,12 +234,6 @@ RequestedShipments.propTypes = {
       state: PropTypes.string,
       postal_code: PropTypes.string,
     }),
-    destinationAddress: PropTypes.shape({
-      street_address_1: PropTypes.string,
-      city: PropTypes.string,
-      state: PropTypes.string,
-      postal_code: PropTypes.string,
-    }),
     backupContactName: PropTypes.string,
     backupContactPhone: PropTypes.string,
     backupContactEmail: PropTypes.string,
