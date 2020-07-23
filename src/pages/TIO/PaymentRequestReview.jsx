@@ -71,6 +71,13 @@ const mapStateToProps = (state, ownProps) => {
       amount: 1234.56,
       createdAt: Date(),
     },
+    {
+      id: '4',
+      shipmentType: null, // to indicate basic service item
+      serviceItemName: 'Move management',
+      amount: 1234.56,
+      createdAt: Date(),
+    },
   ];
 
   return {
