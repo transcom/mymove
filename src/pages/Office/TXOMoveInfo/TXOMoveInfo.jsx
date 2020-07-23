@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { NavLink, Switch, useParams, Redirect, Route } from 'react-router-dom';
+import { NavLink, Switch, useParams, Redirect, Route, useLocation, matchPath } from 'react-router-dom';
 import { Tag } from '@trussworks/react-uswds';
 
 import 'styles/office.scss';
@@ -10,35 +10,48 @@ const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
 const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
 const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
-const PaymentRequestShow = lazy(() => import('scenes/Office/TIO/paymentRequestShow'));
+const PaymentRequestReview = lazy(() => import('pages/TIO/PaymentRequestReview'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 
 const TXOMoveInfo = () => {
   const { moveOrderId } = useParams();
+  const { pathname } = useLocation();
+
+  const hideNav =
+    matchPath(pathname, {
+      path: '/moves/:moveOrderId/payment-requests/:id',
+      exact: true,
+    }) ||
+    matchPath(pathname, {
+      path: '/moves/:moveOrderId/orders',
+      exact: true,
+    });
 
   return (
     <>
-      <header className="nav-header">
-        <div className="grid-container-desktop-lg">
-          <TabNav
-            items={[
-              <NavLink exact activeClassName="usa-current" to={`/moves/${moveOrderId}/details`} role="tab">
-                <span className="tab-title">Move details</span>
-                <Tag>2</Tag>
-              </NavLink>,
-              <NavLink exact activeClassName="usa-current" to={`/moves/${moveOrderId}/mto`} role="tab">
-                <span className="tab-title">Move task order</span>
-              </NavLink>,
-              <NavLink exact activeClassName="usa-current" to={`/moves/${moveOrderId}/payment-requests`} role="tab">
-                <span className="tab-title">Payment requests</span>
-              </NavLink>,
-              <NavLink exact activeClassName="usa-current" to={`/moves/${moveOrderId}/history`} role="tab">
-                <span className="tab-title">History</span>
-              </NavLink>,
-            ]}
-          />
-        </div>
-      </header>
+      {!hideNav && (
+        <header className="nav-header">
+          <div className="grid-container-desktop-lg">
+            <TabNav
+              items={[
+                <NavLink exact activeClassName="usa-current" to={`/moves/${moveOrderId}/details`} role="tab">
+                  <span className="tab-title">Move details</span>
+                  <Tag>2</Tag>
+                </NavLink>,
+                <NavLink exact activeClassName="usa-current" to={`/moves/${moveOrderId}/mto`} role="tab">
+                  <span className="tab-title">Move task order</span>
+                </NavLink>,
+                <NavLink exact activeClassName="usa-current" to={`/moves/${moveOrderId}/payment-requests`} role="tab">
+                  <span className="tab-title">Payment requests</span>
+                </NavLink>,
+                <NavLink exact activeClassName="usa-current" to={`/moves/${moveOrderId}/history`} role="tab">
+                  <span className="tab-title">History</span>
+                </NavLink>,
+              ]}
+            />
+          </div>
+        </header>
+      )}
       <Suspense fallback={<LoadingPlaceholder />}>
         <Switch>
           <Route path="/moves/:moveOrderId/details" exact>
@@ -53,9 +66,10 @@ const TXOMoveInfo = () => {
             <TOOMoveTaskOrder />
           </Route>
 
-          <Route path="/moves/:moveOrderId/payment-requests/:id" exact>
-            <PaymentRequestShow />
+          <Route path="/moves/:moveOrderId/payment-requests/:paymentRequestId" exact>
+            <PaymentRequestReview />
           </Route>
+
           <Route path="/moves/:moveOrderId/payment-requests" exact>
             <PaymentRequestIndex />
           </Route>
