@@ -65,11 +65,14 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 	}
 
 	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
+	requestedDeliveryDate := time.Time(mtoShipment.RequestedDeliveryDate)
+
 	model := &models.MTOShipment{
-		MoveTaskOrderID:     uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:        models.MTOShipmentType(mtoShipment.ShipmentType),
-		RequestedPickupDate: &requestedPickupDate,
-		CustomerRemarks:     mtoShipment.CustomerRemarks,
+		MoveTaskOrderID:       uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:          models.MTOShipmentType(mtoShipment.ShipmentType),
+		RequestedPickupDate:   &requestedPickupDate,
+		RequestedDeliveryDate: &requestedDeliveryDate,
+		CustomerRemarks:       mtoShipment.CustomerRemarks,
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
