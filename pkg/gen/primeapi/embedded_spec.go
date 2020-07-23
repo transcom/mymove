@@ -360,7 +360,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreatePaymentRequestPayload"
+              "$ref": "#/definitions/CreatePaymentRequest"
             }
           }
         ],
@@ -691,7 +691,7 @@ func init() {
         }
       }
     },
-    "CreatePaymentRequestPayload": {
+    "CreatePaymentRequest": {
       "type": "object",
       "required": [
         "moveTaskOrderID",
@@ -2370,7 +2370,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreatePaymentRequestPayload"
+              "$ref": "#/definitions/CreatePaymentRequest"
             }
           }
         ],
@@ -2731,7 +2731,7 @@ func init() {
         }
       }
     },
-    "CreatePaymentRequestPayload": {
+    "CreatePaymentRequest": {
       "type": "object",
       "required": [
         "moveTaskOrderID",

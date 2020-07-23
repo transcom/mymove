@@ -64,7 +64,7 @@ for the create payment request operation typically these are written to a http.R
 type CreatePaymentRequestParams struct {
 
 	/*Body*/
-	Body *primemessages.CreatePaymentRequestPayload
+	Body *primemessages.CreatePaymentRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +105,13 @@ func (o *CreatePaymentRequestParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the create payment request params
-func (o *CreatePaymentRequestParams) WithBody(body *primemessages.CreatePaymentRequestPayload) *CreatePaymentRequestParams {
+func (o *CreatePaymentRequestParams) WithBody(body *primemessages.CreatePaymentRequest) *CreatePaymentRequestParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the create payment request params
-func (o *CreatePaymentRequestParams) SetBody(body *primemessages.CreatePaymentRequestPayload) {
+func (o *CreatePaymentRequestParams) SetBody(body *primemessages.CreatePaymentRequest) {
 	o.Body = body
 }
 
