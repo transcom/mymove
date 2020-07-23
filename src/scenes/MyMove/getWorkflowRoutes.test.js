@@ -97,6 +97,7 @@ describe('when getting the routes for the current workflow', () => {
         const pages = getPagesInFlow(props);
         it('getPagesInFlow returns service member, order and move pages', () => {
           expect(pages).toEqual([
+            '/service-member/:serviceMemberId/conus-status',
             '/service-member/:serviceMemberId/create',
             '/service-member/:serviceMemberId/name',
             '/service-member/:serviceMemberId/contact-info',
@@ -104,7 +105,6 @@ describe('when getting the routes for the current workflow', () => {
             '/service-member/:serviceMemberId/residence-address',
             '/service-member/:serviceMemberId/backup-mailing-address',
             '/service-member/:serviceMemberId/backup-contacts',
-            '/service-member/:serviceMemberId/conus-status',
             '/service-member/:serviceMemberId/move-landing',
             '/orders/',
             '/orders/upload',
@@ -157,6 +157,7 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/',
           '/orders/upload',
           '/orders/transition',
+          '/moves/:moveId/moving-info',
           '/moves/:moveId/select-type',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
@@ -231,8 +232,8 @@ describe('when getting the next incomplete page', () => {
               id: NULL_UUID,
               name: '',
             },
-            context: ppmContext,
           },
+          context: ppmContext,
         });
         expect(result).toEqual('/service-member/foo/duty-station');
       });
@@ -256,8 +257,8 @@ describe('when getting the next incomplete page', () => {
               id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
               name: 'Blue Grass Army Depot',
             },
-            context: ppmContext,
           },
+          context: ppmContext,
         });
         expect(result).toEqual('/service-member/foo/residence-address');
       });
@@ -287,8 +288,8 @@ describe('when getting the next incomplete page', () => {
               state: 'GA',
               street_address_1: 'xxx',
             },
-            context: ppmContext,
           },
+          context: ppmContext,
         });
         expect(result).toEqual('/service-member/foo/backup-mailing-address');
       });
@@ -324,8 +325,8 @@ describe('when getting the next incomplete page', () => {
               state: 'GA',
               street_address_1: 'zzz',
             },
-            context: ppmContext,
           },
+          context: ppmContext,
         });
         expect(result).toEqual('/service-member/foo/backup-contacts');
       });
