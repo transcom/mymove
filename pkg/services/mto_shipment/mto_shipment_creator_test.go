@@ -56,9 +56,12 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		}
 		createdShipment, err := creator.CreateMTOShipment(&mtoShipment, nil)
 
+		suite.Nil(createdShipment)
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
-		suite.Nil(createdShipment)
+		invalidErr := err.(services.InvalidInputError)
+		suite.NotNil(invalidErr.ValidationErrors)
+		suite.NotEmpty(invalidErr.ValidationErrors)
 	})
 
 	// Happy path
