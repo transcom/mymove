@@ -61,8 +61,8 @@ func MTOAgentsModel(mtoAgents *primemessages.MTOAgents) *models.MTOAgents {
 	return &agents
 }
 
-// MTOServiceItemList model
-func MTOServiceItemList(mtoShipment *primemessages.CreateShipmentPayload) (models.MTOServiceItems, *validate.Errors) {
+// MTOServiceItemModelListFromCreate model
+func MTOServiceItemModelListFromCreate(mtoShipment *primemessages.CreateShipmentPayload) (models.MTOServiceItems, *validate.Errors) {
 
 	if mtoShipment == nil {
 		return nil, nil

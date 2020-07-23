@@ -3,6 +3,8 @@ package mtoshipment
 import (
 	"fmt"
 
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -25,7 +27,8 @@ type mtoShipmentCreator struct {
 	db      *pop.Connection
 	builder createMTOShipmentQueryBuilder
 	services.Fetcher
-	createNewBuilder func(db *pop.Connection) createMTOShipmentQueryBuilder
+	createNewBuilder      func(db *pop.Connection) createMTOShipmentQueryBuilder
+	mtoServiceItemCreator services.MTOServiceItemCreator
 }
 
 // NewMTOShipmentCreator creates a new struct with the service dependencies
@@ -39,6 +42,7 @@ func NewMTOShipmentCreator(db *pop.Connection, builder createMTOShipmentQueryBui
 		builder,
 		fetch.NewFetcher(builder),
 		createNewBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(builder),
 	}
 }
 
@@ -110,6 +114,20 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				if err != nil {
 					return err
 				}
+			}
+		}
+
+		// create MTOServiceItems List
+		if serviceItems != nil {
+			for _, serviceItem := range serviceItems {
+				_, validationErrs, serviceError := f.mtoServiceItemCreator.CreateMTOServiceItem(&serviceItem)
+				if validationErrs != nil && validationErrs.HasAny() {
+					return verrs
+				}
+				if serviceError != nil {
+					return serviceError
+				}
+				shipment.MTOServiceItems = serviceItems
 			}
 		}
 

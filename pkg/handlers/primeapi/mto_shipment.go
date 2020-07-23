@@ -40,7 +40,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
+	mtoServiceItemsList, verrs := payloads.MTOServiceItemModelListFromCreate(payload)
 
 	if verrs != nil && verrs.HasAny() {
 		logger.Error("Error validating mto service item list: ", zap.Error(verrs))

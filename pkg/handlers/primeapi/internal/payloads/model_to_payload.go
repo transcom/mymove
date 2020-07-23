@@ -340,6 +340,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
+	if mtoShipment.MTOServiceItems != nil {
+		// sets MTOServiceItems
+		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
+	}
+
 	if mtoShipment.ApprovedDate != nil {
 		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
 	}

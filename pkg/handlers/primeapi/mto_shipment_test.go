@@ -80,6 +80,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		},
 	}
 
+	//serviceItem1 := &primemessages.MTOServiceItemDOFSIT{
+	//	ReServiceCode: string(models.ReServiceCodeDOFSIT),
+	//	PickupPostalCode: &pickupAddress.PostalCode,
+	//}
+
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
