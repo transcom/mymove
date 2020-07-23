@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { arrayOf, string, bool, shape } from 'prop-types';
 import { Formik } from 'formik';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
+import { push } from 'connected-react-router';
 
 import { Form } from '../form/Form';
 import { DatePickerInput, TextInput } from '../form/fields';
 import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
-import { WizardPage } from '../../shared/WizardPage';
+
+import { WizardPage } from 'shared/WizardPage';
 
 class HHGDetailsForm extends Component {
   constructor(props) {
@@ -25,22 +27,29 @@ class HHGDetailsForm extends Component {
     });
   };
 
+  submitMTOShipment = () => {};
+
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { initialValues, pageKey, pageList } = this.props;
+    const { initialValues, pageKey, pageList, match } = this.props;
     const { hasDeliveryAddress } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
       <Formik initialValues={initialValues}>
         {({ handleChange, values }) => (
-          <WizardPage pageKey={pageKey} pageList={pageList} handleSubmit={() => {}}>
+          <WizardPage
+            match={match}
+            push={push}
+            pageKey={pageKey}
+            pageList={pageList}
+            handleSubmit={() => this.submitMTOShipment(values)}
+          >
             <Form>
               <Fieldset legend="Pickup date" className={fieldsetClasses}>
                 <DatePickerInput
                   name="requestedPickupDate"
                   label="Requested pickup date"
                   id="requestedPickupDate"
-                  onChange={handleChange}
                   value={values.requestedPickupDate}
                 />
               </Fieldset>
@@ -67,7 +76,6 @@ class HHGDetailsForm extends Component {
                   name="requestedDeliveryDate"
                   label="Requested delivery date"
                   id="requestedDeliveryDate"
-                  handleChange={handleChange}
                   value={values.requestedDeliveryDate}
                 />
                 <span className="usa-hint" id="deliveryDateHint">
@@ -133,39 +141,47 @@ class HHGDetailsForm extends Component {
 }
 
 HHGDetailsForm.propTypes = {
-  pageKey: PropTypes.string.isRequired,
-  pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
-  initialValues: PropTypes.shape({
-    requestedPickupDate: PropTypes.string,
-    pickupLocation: PropTypes.shape({
-      mailingAddress1: PropTypes.string,
-      mailingAddress2: PropTypes.string,
-      city: PropTypes.string,
-      state: PropTypes.string,
-      zip: PropTypes.string,
+  pageKey: string.isRequired,
+  pageList: arrayOf(string).isRequired,
+  initialValues: shape({
+    requestedPickupDate: string,
+    pickupLocation: shape({
+      mailingAddress1: string,
+      mailingAddress2: string,
+      city: string,
+      state: string,
+      zip: string,
     }),
-    requestedDeliveryDate: PropTypes.string,
-    deliveryLocation: PropTypes.shape({
-      mailingAddress1: PropTypes.string,
-      mailingAddress2: PropTypes.string,
-      city: PropTypes.string,
-      state: PropTypes.string,
-      zip: PropTypes.string,
+    requestedDeliveryDate: string,
+    deliveryLocation: shape({
+      mailingAddress1: string,
+      mailingAddress2: string,
+      city: string,
+      state: string,
+      zip: string,
     }),
-    releasingAgent: PropTypes.shape({
-      firstName: PropTypes.string,
-      lastName: PropTypes.string,
-      phone: PropTypes.string,
-      email: PropTypes.string,
+    releasingAgent: shape({
+      firstName: string,
+      lastName: string,
+      phone: string,
+      email: string,
     }),
-    receivingAgent: PropTypes.shape({
-      firstName: PropTypes.string,
-      lastName: PropTypes.string,
-      phone: PropTypes.string,
-      email: PropTypes.string,
+    receivingAgent: shape({
+      firstName: string,
+      lastName: string,
+      phone: string,
+      email: string,
     }),
-    remarks: PropTypes.string,
+    remarks: string,
   }),
+  match: shape({
+    isExact: bool.isRequired,
+    params: shape({
+      moveId: string.isRequired,
+    }),
+    path: string.isRequired,
+    url: string.isRequired,
+  }).isRequired,
 };
 
 HHGDetailsForm.defaultProps = {
