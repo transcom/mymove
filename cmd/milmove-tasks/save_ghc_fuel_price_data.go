@@ -51,7 +51,7 @@ func initSaveGHCFuelPriceFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-// Command: go run github.com/transcom/mymove/cmd/save_ghc_fuel_price_data
+// Command: go run github.com/transcom/mymove/cmd/milmove-tasks/save_ghc_fuel_price_data
 func saveGHCFuelPriceData(cmd *cobra.Command, args []string) error {
 
 	err := cmd.ParseFlags(args)
