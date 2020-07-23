@@ -53,8 +53,8 @@ const serviceItemCards = [
 ];
 
 const compareItem = (component, item) => {
-  expect(component.find('[data-cy="serviceItemName"]').text()).toEqual(item.serviceItemName);
-  expect(component.find('[data-cy="serviceItemAmount"]').text()).toEqual(toDollarString(item.amount));
+  expect(component.find('[data-testid="serviceItemName"]').text()).toEqual(item.serviceItemName);
+  expect(component.find('[data-testid="serviceItemAmount"]').text()).toEqual(toDollarString(item.amount));
 };
 
 describe('ReviewServiceItems component', () => {
@@ -65,7 +65,7 @@ describe('ReviewServiceItems component', () => {
   const mountedComponent = mount(<ReviewServiceItems serviceItemCards={serviceItemCards} handleClose={handleClose} />);
 
   it('renders without crashing', () => {
-    expect(shallowComponent.find('[data-cy="ReviewServiceItems"]').length).toBe(1);
+    expect(shallowComponent.find('[data-testid="ReviewServiceItems"]').length).toBe(1);
   });
 
   it('renders a Formik form', () => {
@@ -77,24 +77,24 @@ describe('ReviewServiceItems component', () => {
   });
 
   it('attaches the close listener', () => {
-    expect(mountedComponent.find('[data-cy="closeSidebar"]').prop('onClick')).toBe(handleClose);
+    expect(mountedComponent.find('[data-testid="closeSidebar"]').prop('onClick')).toBe(handleClose);
   });
 
   it('displays the total count', () => {
-    expect(mountedComponent.find('[data-cy="itemCount"]').text()).toEqual('1 OF 5 ITEMS');
+    expect(mountedComponent.find('[data-testid="itemCount"]').text()).toEqual('1 OF 5 ITEMS');
   });
 
   it('disables previous button at beginning', () => {
-    expect(mountedComponent.find('[data-cy="prevServiceItem"]').prop('disabled')).toBe(true);
+    expect(mountedComponent.find('[data-testid="prevServiceItem"]').prop('disabled')).toBe(true);
   });
 
   it('enables next button at beginning', () => {
-    expect(mountedComponent.find('[data-cy="nextServiceItem"]').prop('disabled')).toBe(false);
+    expect(mountedComponent.find('[data-testid="nextServiceItem"]').prop('disabled')).toBe(false);
   });
 
   describe('navigating through service items', () => {
-    const nextButton = mountedComponent.find('[data-cy="nextServiceItem"]');
-    const prevButton = mountedComponent.find('[data-cy="prevServiceItem"]');
+    const nextButton = mountedComponent.find('[data-testid="nextServiceItem"]');
+    const prevButton = mountedComponent.find('[data-testid="prevServiceItem"]');
 
     it('renders the service item cards ordered by timestamp ascending', () => {
       compareItem(mountedComponent, serviceItemCards[4]);
@@ -121,7 +121,7 @@ describe('ReviewServiceItems component', () => {
     });
 
     it('disables the Next button on the last item', () => {
-      expect(mountedComponent.find('[data-cy="nextServiceItem"]').prop('disabled')).toBe(true);
+      expect(mountedComponent.find('[data-testid="nextServiceItem"]').prop('disabled')).toBe(true);
     });
 
     it('can click back to the first item', () => {
@@ -148,7 +148,7 @@ describe('ReviewServiceItems component', () => {
   });
 
   describe('filling out the service item form', () => {
-    const nextButton = mountedComponent.find('[data-cy="nextServiceItem"]');
+    const nextButton = mountedComponent.find('[data-testid="nextServiceItem"]');
 
     it('the item values are blank by default', () => {
       const serviceItemCard = mountedComponent.find('ServiceItemCard');

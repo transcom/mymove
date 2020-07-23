@@ -77,7 +77,7 @@ const RequestedShipments = ({
   const isButtonEnabled =
     formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
   return (
-    <div className={`${styles['requested-shipments']} container`} data-cy="requested-shipments">
+    <div className={`${styles['requested-shipments']} container`} data-testid="requested-shipments">
       {shipmentsStatus === 'SUBMITTED' && (
         <div>
           <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>

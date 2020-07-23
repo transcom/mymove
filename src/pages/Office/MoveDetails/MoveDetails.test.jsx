@@ -85,7 +85,7 @@ describe('MoveDetails page', () => {
   });
 
   it('renders the h1', () => {
-    expect(wrapper.find({ 'data-cy': 'too-move-details' }).exists()).toBe(true);
+    expect(wrapper.find({ 'data-testid': 'too-move-details' }).exists()).toBe(true);
     expect(wrapper.containsMatchingElement(<h1>Move details</h1>)).toBe(true);
   });
 

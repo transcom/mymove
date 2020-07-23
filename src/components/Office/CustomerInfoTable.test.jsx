@@ -22,15 +22,15 @@ const info = {
 describe('Customer Info Table', () => {
   it('should render the data passed to its props', () => {
     const wrapper = shallow(<CustomerInfoTable customerInfo={info} />);
-    expect(wrapper.find({ 'data-cy': 'name' }).text()).toMatch(info.name);
-    expect(wrapper.find({ 'data-cy': 'dodId' }).text()).toMatch(info.dodId);
-    expect(wrapper.find({ 'data-cy': 'phone' }).text()).toMatch(info.phone);
-    expect(wrapper.find({ 'data-cy': 'email' }).text()).toMatch(info.email);
-    expect(wrapper.find({ 'data-cy': 'currentAddress' }).text()).toMatch(
+    expect(wrapper.find({ 'data-testid': 'name' }).text()).toMatch(info.name);
+    expect(wrapper.find({ 'data-testid': 'dodId' }).text()).toMatch(info.dodId);
+    expect(wrapper.find({ 'data-testid': 'phone' }).text()).toMatch(info.phone);
+    expect(wrapper.find({ 'data-testid': 'email' }).text()).toMatch(info.email);
+    expect(wrapper.find({ 'data-testid': 'currentAddress' }).text()).toMatch(
       `${info.currentAddress.street_address_1}, ${info.currentAddress.city}, ${info.currentAddress.state} ${info.currentAddress.postal_code}`,
     );
-    expect(wrapper.find({ 'data-cy': 'backupContactName' }).text()).toMatch(info.backupContactName);
-    expect(wrapper.find({ 'data-cy': 'backupContactPhone' }).text()).toMatch(info.backupContactPhone);
-    expect(wrapper.find({ 'data-cy': 'backupContactEmail' }).text()).toMatch(info.backupContactEmail);
+    expect(wrapper.find({ 'data-testid': 'backupContactName' }).text()).toMatch(info.backupContactName);
+    expect(wrapper.find({ 'data-testid': 'backupContactPhone' }).text()).toMatch(info.backupContactPhone);
+    expect(wrapper.find({ 'data-testid': 'backupContactEmail' }).text()).toMatch(info.backupContactEmail);
   });
 });

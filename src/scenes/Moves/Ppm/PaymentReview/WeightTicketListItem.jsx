@@ -94,7 +94,7 @@ class WeightTicketListItem extends Component {
             {showDelete && (
               <img
                 alt="delete document button"
-                data-cy="delete-ticket"
+                data-testid="delete-ticket"
                 onClick={this.toggleShowConfirmation}
                 src={deleteButtonImg}
               />

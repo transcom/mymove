@@ -194,7 +194,7 @@ export class MoveDetails extends Component {
             })}
           </LeftNav>
 
-          <GridContainer className={styles.gridContainer} data-cy="too-move-details">
+          <GridContainer className={styles.gridContainer} data-testid="too-move-details">
             <h1>Move details</h1>
             {submittedShipments.length > 0 && (
               <div className={styles.section} id="requested-shipments">

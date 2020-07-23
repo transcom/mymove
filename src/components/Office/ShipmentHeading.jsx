@@ -9,7 +9,7 @@ const cx = classNames.bind(styles);
 function ShipmentHeading({ shipmentInfo }) {
   return (
     <div className={cx('shipment-heading')}>
-      <h3 data-cy="office-shipment-heading-h3">{shipmentInfo.shipmentType}</h3>
+      <h3 data-testid="office-shipment-heading-h3">{shipmentInfo.shipmentType}</h3>
       <small>
         {`${shipmentInfo.originCity} ${shipmentInfo.originState} ${shipmentInfo.originPostalCode} to
     ${shipmentInfo.destinationCity} ${shipmentInfo.destinationState} ${shipmentInfo.destinationPostalCode}
