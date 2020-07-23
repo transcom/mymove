@@ -118,26 +118,51 @@ function customerFillsOutOrdersInformation() {
   cy.nextPage();
 }
 
-function fillInput(testid, text) {
-  cy.get(`[data-testid="${testid}"]`).type(text);
-}
 function customerSetsUpAnHHGMove() {
   cy.get('input[type="radio"]').last().check({ force: true });
   cy.nextPage();
-  cy.get('input[name="requestedPickupDate"]').first().type('9/2/2018{enter}').blur();
+  cy.get('input[name="requestedPickupDate"]').first().type('9/2/2020{enter}').blur();
   // pickup location
-  cy.get(`[data-testid="mailingAddress1"]`).type('123 main');
-  cy.get(`[data-testid="mailingAddress2"]`).type('123 main');
+  cy.get(`[data-testid="mailingAddress1"]`).first().type('412 Avenue M ');
+  cy.get(`[data-testid="mailingAddress2"]`).first().type('#3E');
   cy.get(`[data-testid="city"]`).first().type('Los Angeles');
   cy.get(`[data-testid="state"]`).first().type('CA');
   cy.get(`[data-testid="zip"]`).first().type('90011');
 
   // releasing agent
+  cy.get(`[data-testid="firstName"]`).first().type('John');
+  cy.get(`[data-testid="lastName"]`).first().type('Lee');
+  cy.get(`[data-testid="phone"]`).first().type('999-999-9999');
+  cy.get(`[data-testid="email"]`).first().type('ron@example.com');
+
+  // requested delivery date
+  cy.get('input[name="requestedDeliveryDate"]').first().type('9/20/2020{enter}').blur();
+  // checks has delivery address (default does not have delivery address)
+  cy.get('input[type="radio"]').first().check({ force: true });
+
+  // delivery location
+  cy.get(`[data-testid="mailingAddress1"]`).last().type('412 Avenue M ');
+  cy.get(`[data-testid="mailingAddress2"]`).last().type('#3E');
+  cy.get(`[data-testid="city"]`).last().type('Los Angeles');
+  cy.get(`[data-testid="state"]`).last().type('CA');
+  cy.get(`[data-testid="zip"]`).last().type('90011');
+
+  // releasing agent
+  cy.get(`[data-testid="firstName"]`).last().type('John');
+  cy.get(`[data-testid="lastName"]`).last().type('Lee');
+  cy.get(`[data-testid="phone"]`).last().type('999-999-9999');
+  cy.get(`[data-testid="email"]`).last().type('ron@example.com');
+
+  // customer remarks
+  cy.get(`[data-testid="remarks"]`).first().type('some customer remark');
+  cy.nextPage();
 }
 
 describe('The Home Page', function () {
   beforeEach(() => {
     cy.setupBaseUrl(milmoveAppName);
+    cy.server();
+    cy.route('POST', '/mto-shipments').as('mto-shipments');
   });
   it('Goes through ', function () {
     cy.signInAsNewMilMoveUser();

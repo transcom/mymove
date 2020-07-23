@@ -79,7 +79,7 @@ class HHGDetailsForm extends Component {
       mtoShipment.agents.push({ ...receivingAgent, agentType: MTOAgentType.RECEIVING });
     }
 
-    createMTOShipment(mtoShipment);
+    return createMTOShipment(mtoShipment);
   };
 
   render() {
@@ -178,6 +178,7 @@ class HHGDetailsForm extends Component {
               <Fieldset legend="Remarks" className={fieldsetClasses}>
                 <Label hint="(optional)">Anything else you would like us to know?</Label>
                 <TextInput
+                  data-testid="remarks"
                   name="remarks"
                   id="remarks"
                   maxLength={1500}
@@ -246,4 +247,5 @@ const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
 };
 
+export { HHGDetailsForm as HHGDetailsFormComponent };
 export default connect(null, mapDispatchToProps)(HHGDetailsForm);
