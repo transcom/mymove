@@ -47,6 +47,11 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 	var verrs *validate.Errors
 	var err error
 
+	err = checkShipmentIDFields(shipment)
+	if err != nil {
+		return nil, err
+	}
+
 	var moveTaskOrder models.MoveTaskOrder
 	moveTaskOrderID := shipment.MoveTaskOrderID
 
@@ -122,4 +127,53 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 	}
 
 	return shipment, transactionError
+}
+
+// checkShipmentIDFields checks that the client hasn't attempted to set ID fields that will be generated/auto-set
+func checkShipmentIDFields(shipment *models.MTOShipment) error {
+	verrs := validate.NewErrors()
+
+	if shipment.ID != uuid.Nil {
+		verrs.Add("id", "cannot be set for new shipments")
+	}
+
+	if len(shipment.MTOAgents) > 0 {
+		var mtoAgentIDErr = false
+		var mtoShipmentIDErr = false
+
+		for _, agent := range shipment.MTOAgents {
+			if agent.ID != uuid.Nil && !mtoAgentIDErr {
+				verrs.Add("agents:id", "cannot be set for new agents")
+				mtoAgentIDErr = true
+			}
+			if agent.MTOShipmentID != uuid.Nil && !mtoShipmentIDErr {
+				verrs.Add("agents:mtoShipmentID", "cannot be set for agents created with a shipment")
+				mtoShipmentIDErr = true
+			}
+
+			if mtoAgentIDErr && mtoShipmentIDErr {
+				break // we've found all the errors we're gonna find here
+			}
+		}
+	}
+
+	addressMsg := "cannot be set for new addresses"
+	if shipment.PickupAddress != nil && shipment.PickupAddress.ID != uuid.Nil {
+		verrs.Add("pickupAddress:id", addressMsg)
+	}
+	if shipment.DestinationAddress != nil && shipment.DestinationAddress.ID != uuid.Nil {
+		verrs.Add("destinationAddress:id", addressMsg)
+	}
+	if shipment.SecondaryPickupAddress != nil && shipment.SecondaryPickupAddress.ID != uuid.Nil {
+		verrs.Add("secondaryPickupAddress:id", addressMsg)
+	}
+	if shipment.SecondaryDeliveryAddress != nil && shipment.SecondaryDeliveryAddress.ID != uuid.Nil {
+		verrs.Add("secondaryDestinationAddress:id", addressMsg)
+	}
+
+	if verrs.HasAny() {
+		return services.NewInvalidInputError(uuid.Nil, nil, verrs, "Fields that cannot be set found while creating new shipment.")
+	}
+
+	return nil
 }
