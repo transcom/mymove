@@ -604,7 +604,7 @@ definitions:
       uploads:
         type: array
         items:
-          $ref: '#/definitions/UploadPayload'
+          $ref: '#/definitions/Upload'
     required:
       - id
       - serviceMemberID
@@ -1204,41 +1204,6 @@ definitions:
         description: Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
     type: object
   Upload:
-    properties:
-      bytes:
-        type: integer
-      contentType:
-        example: application/pdf
-        format: mime-type
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      filename:
-        example: filename.pdf
-        format: binary
-        type: string
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      updatedAt:
-        format: date-time
-        type: string
-      url:
-        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
-        format: uri
-        type: string
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
-      - createdAt
-      - updatedAt
-    type: object
-  UploadPayload:
     type: object
     properties:
       id:

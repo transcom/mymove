@@ -764,7 +764,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -1519,51 +1519,6 @@ func init() {
       }
     },
     "Upload": {
-      "type": "object",
-      "required": [
-        "id",
-        "url",
-        "filename",
-        "contentType",
-        "bytes",
-        "createdAt",
-        "updatedAt"
-      ],
-      "properties": {
-        "bytes": {
-          "type": "integer"
-        },
-        "contentType": {
-          "type": "string",
-          "format": "mime-type",
-          "example": "application/pdf"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "filename": {
-          "type": "string",
-          "format": "binary",
-          "example": "filename.pdf"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
-    "UploadPayload": {
       "type": "object",
       "required": [
         "id",
@@ -2586,7 +2541,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -3341,51 +3296,6 @@ func init() {
       }
     },
     "Upload": {
-      "type": "object",
-      "required": [
-        "id",
-        "url",
-        "filename",
-        "contentType",
-        "bytes",
-        "createdAt",
-        "updatedAt"
-      ],
-      "properties": {
-        "bytes": {
-          "type": "integer"
-        },
-        "contentType": {
-          "type": "string",
-          "format": "mime-type",
-          "example": "application/pdf"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "filename": {
-          "type": "string",
-          "format": "binary",
-          "example": "filename.pdf"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
-    "UploadPayload": {
       "type": "object",
       "required": [
         "id",
