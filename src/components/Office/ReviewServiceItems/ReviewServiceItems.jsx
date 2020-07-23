@@ -12,36 +12,45 @@ import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
 
 const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
-  const { basicServiceItems, shipmentServiceItems } = sortServiceItemsByGroup(serviceItemCards);
-
+  const [curCardIndex, setCardIndex] = useState(0);
   // eslint-disable-next-line no-unused-vars
   const [totalApproved, setTotalApproved] = useState(0);
-  const [sortedBasicCards] = useState(basicServiceItems);
-  const [sortedShipmentCards] = useState(shipmentServiceItems);
+  const [sortedCards] = useState(sortServiceItemsByGroup(serviceItemCards));
 
-  // total count of basic and shipment cards
-  const totalBasicCards = sortedBasicCards.length;
-  const totalShipmentCards = sortedShipmentCards.length;
-  const totalCards = totalBasicCards + totalShipmentCards;
-
-  // set current card index to last basic card index
-  // otherwise, set to 0
-  const [curCardIndex, setCardIndex] = useState(totalBasicCards ? totalBasicCards - 1 : 0);
-
-  const formValues = {};
-  // TODO - preset these based on existing values
-  serviceItemCards.forEach((serviceItem) => {
-    formValues[serviceItem.id] = {
-      status: serviceItem.status,
-      rejectionReason: undefined,
-    };
-  });
-
-  const curShipmentCard = sortedShipmentCards[curCardIndex - totalBasicCards];
+  const totalCards = serviceItemCards.length;
 
   const handleClick = (index) => {
     setCardIndex(index);
   };
+
+  const formValues = {};
+
+  let firstBasicIndex = null;
+  let lastBasicIndex = null;
+  // TODO - preset these based on existing values
+  sortedCards.forEach((serviceItem, index) => {
+    formValues[serviceItem.id] = {
+      status: serviceItem.status,
+      rejectionReason: undefined,
+    };
+
+    // here we want to set the first and last index
+    // of basic service items to know the bounds
+    if (!serviceItem.shipmentId) {
+      // no shipemntId, then it is a basic service items
+      if (firstBasicIndex === null) {
+        // if not set yet, set it the first time we see a basic
+        // service item
+        firstBasicIndex = index;
+      }
+      // keep setting the last basic index until the last one
+      lastBasicIndex = index;
+    }
+  });
+
+  const currentCard = sortedCards[parseInt(curCardIndex, 10)];
+  const isBasicServiceItem =
+    firstBasicIndex !== null && curCardIndex >= firstBasicIndex && curCardIndex <= lastBasicIndex;
 
   return (
     <div data-cy="ReviewServiceItems" className={styles.ReviewServiceItems}>
@@ -70,26 +79,25 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
               </div>
               <div className={styles.body}>
                 {
-                  // Show basic service items first, if any
-                  curCardIndex < totalBasicCards ? (
-                    sortedBasicCards.map((card) => {
-                      return (
-                        <ServiceItemCard
-                          key={`serviceItemCard_${card.id}`}
-                          // eslint-disable-next-line react/jsx-props-no-spreading
-                          {...card}
-                          value={values[card.id]}
-                          onChange={handleChange}
-                          clearValues={clearServiceItemValues}
-                        />
-                      );
-                    })
+                  // render multiple basic service item cards
+                  // otherwise, render only one card for shipment
+                  isBasicServiceItem ? (
+                    sortedCards.slice(firstBasicIndex, lastBasicIndex + 1).map((curCard) => (
+                      <ServiceItemCard
+                        key={`serviceItemCard_${curCard.id}`}
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...curCard}
+                        value={values[curCard.id]}
+                        onChange={handleChange}
+                        clearValues={clearServiceItemValues}
+                      />
+                    ))
                   ) : (
                     <ServiceItemCard
-                      key={`serviceItemCard_${curShipmentCard.id}`}
+                      key={`serviceItemCard_${currentCard.id}`}
                       // eslint-disable-next-line react/jsx-props-no-spreading
-                      {...curShipmentCard}
-                      value={values[curShipmentCard.id]}
+                      {...currentCard}
+                      value={values[currentCard.id]}
                       onChange={handleChange}
                       clearValues={clearServiceItemValues}
                     />
@@ -102,7 +110,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
                   type="button"
                   onClick={() => handleClick(curCardIndex - 1)}
                   secondary
-                  disabled={curCardIndex === (totalBasicCards ? totalBasicCards - 1 : 0)}
+                  disabled={curCardIndex === 0}
                 >
                   Previous
                 </Button>
