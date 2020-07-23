@@ -57,11 +57,9 @@ class HHGDetailsForm extends Component {
         postal_code: pickupLocation.zip,
         country: pickupLocation.country,
       },
-      agents: [
-        { ...releasingAgent, agentType: MTOAgentType.RELEASING },
-        { ...receivingAgent, agentType: MTOAgentType.RECEIVING },
-      ],
+      agents: [],
     };
+
     if (hasDeliveryAddress) {
       mtoShipment.destinationAddress = {
         street_address_1: deliveryLocation.mailingAddress1,
@@ -72,6 +70,15 @@ class HHGDetailsForm extends Component {
         country: deliveryLocation.country,
       };
     }
+
+    if (releasingAgent) {
+      mtoShipment.agents.push({ ...releasingAgent, agentType: MTOAgentType.RELEASING });
+    }
+
+    if (receivingAgent) {
+      mtoShipment.agents.push({ ...receivingAgent, agentType: MTOAgentType.RECEIVING });
+    }
+
     createMTOShipment(mtoShipment);
   };
 

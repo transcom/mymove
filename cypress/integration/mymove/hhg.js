@@ -118,9 +118,21 @@ function customerFillsOutOrdersInformation() {
   cy.nextPage();
 }
 
+function fillInput(testid, text) {
+  cy.get(`[data-testid="${testid}"]`).type(text);
+}
 function customerSetsUpAnHHGMove() {
   cy.get('input[type="radio"]').last().check({ force: true });
   cy.nextPage();
+  cy.get('input[name="requestedPickupDate"]').first().type('9/2/2018{enter}').blur();
+  // pickup location
+  cy.get(`[data-testid="mailingAddress1"]`).type('123 main');
+  cy.get(`[data-testid="mailingAddress2"]`).type('123 main');
+  cy.get(`[data-testid="city"]`).first().type('Los Angeles');
+  cy.get(`[data-testid="state"]`).first().type('CA');
+  cy.get(`[data-testid="zip"]`).first().type('90011');
+
+  // releasing agent
 }
 
 describe('The Home Page', function () {
