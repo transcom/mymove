@@ -4,6 +4,10 @@ import (
 	"io"
 	"log"
 
+	"github.com/transcom/mymove/pkg/services/fetch"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
+
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
@@ -28,6 +32,8 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
 
 	internalAPI.ServeError = handlers.ServeCustomError
+	builder := query.NewQueryBuilder(context.DB())
+	fetcher := fetch.NewFetcher(builder)
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context}
 
@@ -115,6 +121,13 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{context, accesscodeservice.NewAccessCodeFetcher(context.DB())}
 	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
 	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
+
+	// GHC Endpoint
+
+	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
+		context,
+		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher),
+	}
 
 	return internalAPI
 }

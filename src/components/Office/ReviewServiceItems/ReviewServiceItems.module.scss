@@ -3,11 +3,18 @@
 @import '../../../shared/styles/colors';
 
 .ReviewServiceItems {
-  @include u-height('full');
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 
   box-shadow: -4px 0px 8px 0px rgba(0, 0, 0, 0.1);
+
+  .form {
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
 
   .top button[type='button'] {
     float: right;
@@ -48,15 +55,41 @@
     @include u-padding-x('4');
     @include u-bg('gray-5');
     @include u-overflow-y('auto');
-    flex-grow: 1;
+    flex: 1 1 0;
+    flex-basis: 0;
   }
 
   .bottom {
-    @include u-padding('4');
+    @include u-padding-x('3');
+    @include u-padding-y('1');
     @include u-bg('white');
 
     @include u-border-top('2px');
     @include u-border-top('gray-10');
     @include u-position('relative');
+
+    display: flex;
+    align-items: center;
+
+    .totalApproved {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      text-align: right;
+
+      .totalLabel {
+        @include u-font-size('body', '3xs');
+        @include u-text('bold');
+        @include u-padding-top(1);
+        color: $base-darker;
+      }
+
+      .totalAmount {
+        @include u-font-size('body', 'xs');
+        @include u-padding-bottom(1);
+        color: $base-darkest;
+        flex-grow: 1;
+      }
+    }
   }
 }

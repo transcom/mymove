@@ -37,6 +37,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 	scheduledPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
+	requestedDeliveryDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
 	MTOShipment := models.MTOShipment{
 		MoveTaskOrder:            moveTaskOrder,
@@ -44,6 +45,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		RequestedPickupDate:      &requestedPickupDate,
 		ScheduledPickupDate:      &scheduledPickupDate,
 		ActualPickupDate:         &actualPickupDate,
+		RequestedDeliveryDate:    &requestedDeliveryDate,
 		CustomerRemarks:          &remarks,
 		PickupAddress:            &pickupAddress,
 		PickupAddressID:          &pickupAddress.ID,

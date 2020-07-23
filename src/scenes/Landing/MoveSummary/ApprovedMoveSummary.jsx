@@ -31,7 +31,7 @@ const ApprovedMoveSummary = ({ ppm, move, weightTicketSets, isMissingWeightTicke
                       You will need to go into the PPPO office in order to take care of your missing weight ticket.
                     </div>
                     <Link
-                      data-cy="edit-payment-request"
+                      data-testid="edit-payment-request"
                       to={ppmPaymentRequestReviewRoute}
                       className="usa-button usa-button-secondary"
                     >
@@ -49,7 +49,7 @@ const ApprovedMoveSummary = ({ ppm, move, weightTicketSets, isMissingWeightTicke
                       your payment.
                     </div>
                     <Link
-                      data-cy="edit-payment-request"
+                      data-testid="edit-payment-request"
                       to={ppmPaymentRequestReviewRoute}
                       className="usa-button usa-button-secondary"
                     >

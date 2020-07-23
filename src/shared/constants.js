@@ -53,6 +53,23 @@ export const SHIPMENT_OPTIONS = {
   NTS: 'NTS',
 };
 
+export const SERVICE_ITEM_STATUS = {
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+};
+
+export const SERVICE_ITEM_CODES = {
+  CS: 'Counseling Services',
+  MS: 'Shipment Mgmt. Services',
+  DLH: 'Dom. Linehaul',
+  FSC: 'Fuel Surcharge',
+  DOP: 'Dom. Origin Price',
+  DDP: 'Dom. Destination Price',
+  DPK: 'Dom. Packing',
+  DUPK: 'Dom. Unpacking',
+};
+
 // These constants are used to track network requests using component state
 export const isError = 'REQUEST_ERROR';
 export const isLoading = 'REQUEST_LOADING';
