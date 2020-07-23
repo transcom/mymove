@@ -9,7 +9,7 @@ import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatt
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
-const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, value, clearValues }) => {
+const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onReview, onChange, value }) => {
   const { status, rejectionReason } = value;
   const { APPROVED, REJECTED } = SERVICE_ITEM_STATUS;
 
@@ -32,7 +32,7 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
               value={APPROVED}
               name={`${id}.status`}
               label="Approve"
-              onChange={onChange}
+              onChange={(event) => onReview(status, id, amount, event.target.value)}
             />
           </div>
           <div className={styles.statusOption}>
@@ -42,7 +42,7 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
               value={REJECTED}
               name={`${id}.status`}
               label="Reject"
-              onChange={onChange}
+              onChange={(event) => onReview(status, id, amount, event.target.value)}
             />
 
             {status === REJECTED && (
@@ -64,9 +64,7 @@ const ServiceItemCard = ({ id, shipmentType, serviceItemName, amount, onChange, 
               unstyled
               data-testid="clearStatusButton"
               className={styles.clearStatus}
-              onClick={() => {
-                clearValues(id);
-              }}
+              onClick={() => onReview(status, id, amount, undefined)}
             >
               X Clear selection
             </Button>
@@ -82,22 +80,22 @@ ServiceItemCard.propTypes = {
   shipmentType: ShipmentOptionsOneOf,
   serviceItemName: PropTypes.string.isRequired,
   amount: PropTypes.number.isRequired,
+  onReview: PropTypes.func,
   onChange: PropTypes.func,
   value: PropTypes.shape({
     status: PropTypes.string,
     rejectionReason: PropTypes.string,
   }),
-  clearValues: PropTypes.func,
 };
 
 ServiceItemCard.defaultProps = {
   shipmentType: null,
+  onReview: () => {},
   onChange: () => {},
   value: {
     status: undefined,
     rejectionReason: '',
   },
-  clearValues: () => {},
 };
 
 export default ServiceItemCard;

@@ -24,20 +24,6 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   let approvedSum = 0;
   let rejectedSum = 0;
 
-  serviceItemCards.forEach((serviceItemCard) => {
-    requestedSum += serviceItemCard.amount;
-    if (serviceItemCard.status === APPROVED) {
-      approvedSum += serviceItemCard.amount;
-    } else if (serviceItemCard.status === REJECTED) {
-      rejectedSum += serviceItemCard.amount;
-    }
-  });
-
-  // eslint-disable-next-line
-  const [approvedTotal, setApprovedTotal] = useState(approvedSum);
-  // eslint-disable-next-line
-  const [rejectedTotal, setRejectedTotal] = useState(rejectedSum);
-
   const handleClick = (index) => {
     setCardIndex(index);
   };
@@ -47,9 +33,19 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   serviceItemCards.forEach((serviceItem) => {
     formValues[serviceItem.id] = {
       status: serviceItem.status,
-      rejectionReason: undefined,
+      rejectionReason: serviceItem.rejectionReason,
     };
+
+    requestedSum += serviceItem.amount;
+    if (serviceItem.status === APPROVED) {
+      approvedSum += serviceItem.amount;
+    } else if (serviceItem.status === REJECTED) {
+      rejectedSum += serviceItem.amount;
+    }
   });
+
+  const [approvedTotal, setApprovedTotal] = useState(approvedSum);
+  const [rejectedTotal, setRejectedTotal] = useState(rejectedSum);
 
   const currentCard = sortedCards[parseInt(curCardIndex, 10)];
 
@@ -57,12 +53,35 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
     <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <Formik initialValues={formValues}>
         {({ values, handleChange, setValues }) => {
-          const clearServiceItemValues = (id) => {
+          const handleReview = (previousStatus, id, amount, newStatus) => {
+            switch (previousStatus) {
+              case APPROVED:
+                setApprovedTotal(approvedTotal - amount);
+                break;
+              case REJECTED:
+                setRejectedTotal(rejectedTotal - amount);
+                break;
+              default:
+            }
+
+            let clearReason = false;
+            switch (newStatus) {
+              case APPROVED:
+                setApprovedTotal(approvedTotal + amount);
+                break;
+              case REJECTED:
+                setRejectedTotal(rejectedTotal + amount);
+                break;
+              default:
+                // clearing selection
+                clearReason = true;
+            }
+
             setValues({
               ...values,
               [`${id}`]: {
-                status: undefined,
-                rejectionReason: undefined,
+                status: newStatus,
+                rejectionReason: clearReason ? undefined : values[`${id}`].rejectionReason,
               },
             });
           };
@@ -84,8 +103,8 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
                   // eslint-disable-next-line react/jsx-props-no-spreading
                   {...currentCard}
                   value={values[currentCard.id]}
+                  onReview={handleReview}
                   onChange={handleChange}
-                  clearValues={clearServiceItemValues}
                 />
               </div>
               <div className={styles.bottom}>
@@ -108,7 +127,9 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
                 </Button>
                 <div className={styles.totalApproved}>
                   <div className={styles.totalLabel}>Total approved</div>
-                  <div className={styles.totalAmount}>${approvedTotal.toFixed(2)}</div>
+                  <div data-testid="approvedAmount" className={styles.totalAmount}>
+                    ${approvedTotal.toFixed(2)}
+                  </div>
                 </div>
               </div>
             </Form>

@@ -92,6 +92,10 @@ describe('ReviewServiceItems component', () => {
     expect(mountedComponent.find('[data-testid="nextServiceItem"]').prop('disabled')).toBe(false);
   });
 
+  it('displays the total approved amount', () => {
+    expect(mountedComponent.find('[data-testid="approvedAmount"]').text()).toEqual('$0.00');
+  });
+
   describe('navigating through service items', () => {
     const nextButton = mountedComponent.find('[data-testid="nextServiceItem"]');
     const prevButton = mountedComponent.find('[data-testid="prevServiceItem"]');
@@ -219,6 +223,116 @@ describe('ReviewServiceItems component', () => {
         status: undefined,
         rejectionReason: undefined,
       });
+    });
+  });
+
+  describe('updating the total amount approved', () => {
+    const cardsWithInitialValues = [
+      {
+        id: '1',
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        shipmentId: '10',
+        serviceItemName: 'Domestic linehaul',
+        amount: 6423,
+        status: SERVICE_ITEM_STATUS.SUBMITTED,
+        createdAt: '2020-01-01T00:08:00.999Z',
+      },
+      {
+        id: '2',
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        shipmentId: '10',
+        serviceItemName: 'Fuel Surcharge',
+        amount: 50.25,
+        status: SERVICE_ITEM_STATUS.APPROVED,
+        createdAt: '2020-01-01T00:08:30.999Z',
+      },
+      {
+        id: '3',
+        shipmentType: SHIPMENT_OPTIONS.NTS,
+        shipmentId: '20',
+        serviceItemName: 'Domestic linehaul',
+        amount: 0.1,
+        createdAt: '2020-01-01T00:09:00.999Z',
+      },
+      {
+        id: '4',
+        shipmentType: null,
+        shipmentId: null,
+        serviceItemName: 'Counseling Services',
+        amount: 1000,
+        status: SERVICE_ITEM_STATUS.APPROVED,
+        createdAt: '2020-01-01T00:02:00.999Z',
+      },
+      {
+        id: '5',
+        shipmentType: null,
+        shipmentId: null,
+        serviceItemName: 'Move management',
+        amount: 1,
+        status: SERVICE_ITEM_STATUS.REJECTED,
+        rejectionReason: 'Wrong amount specified',
+        createdAt: '2020-01-01T00:01:00.999Z',
+      },
+    ];
+
+    const componentWithInitialValues = mount(
+      <ReviewServiceItems handleClose={handleClose} serviceItemCards={cardsWithInitialValues} />,
+    );
+    const approvedAmount = componentWithInitialValues.find('[data-testid="approvedAmount"]');
+    const nextButton = componentWithInitialValues.find('[data-cy="nextServiceItem"]');
+
+    it('calculates the sum for items with initial values', () => {
+      expect(approvedAmount.text()).toEqual('$1050.25');
+    });
+
+    it('adds to total newly approved items', async () => {
+      const serviceItemId = cardsWithInitialValues[4].id;
+      const approveInput = componentWithInitialValues.find(`input[name="${serviceItemId}.status"][value="APPROVED"]`);
+
+      await act(async () => {
+        approveInput.simulate('change');
+      });
+      componentWithInitialValues.update();
+
+      expect(approvedAmount.text()).toEqual('$1051.25');
+    });
+
+    it('subtracts from total when an approved item becomes rejected', async () => {
+      const serviceItemId = cardsWithInitialValues[4].id;
+      const rejectedInput = componentWithInitialValues.find(`input[name="${serviceItemId}.status"][value="REJECTED"]`);
+
+      await act(async () => {
+        rejectedInput.simulate('change');
+      });
+      componentWithInitialValues.update();
+
+      expect(approvedAmount.text()).toEqual('$1050.25');
+    });
+
+    it('subtracts from total when approved item selection is cleared', async () => {
+      nextButton.simulate('click');
+      mountedComponent.update();
+
+      const clearSelectionButton = componentWithInitialValues.find('[data-testid="clearStatusButton"]');
+
+      await act(async () => {
+        clearSelectionButton.simulate('click');
+      });
+      componentWithInitialValues.update();
+
+      expect(approvedAmount.text()).toEqual('$50.25');
+    });
+
+    it('does not recalculate when rejecting a non-approved item', async () => {
+      const serviceItemId = cardsWithInitialValues[3].id;
+      const rejectedInput = componentWithInitialValues.find(`input[name="${serviceItemId}.status"][value="REJECTED"]`);
+
+      await act(async () => {
+        rejectedInput.simulate('change');
+      });
+      componentWithInitialValues.update();
+
+      expect(approvedAmount.text()).toEqual('$50.25');
     });
   });
 });
