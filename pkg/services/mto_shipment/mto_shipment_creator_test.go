@@ -131,5 +131,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
+		suite.NotNil(createdShipment.MTOServiceItems, "Service Items are empty")
+		suite.Equal(createdShipment.MTOServiceItems[0].MoveTaskOrderID, serviceItemsList[0].MoveTaskOrderID, "Service items are not the same")
 	})
 }
