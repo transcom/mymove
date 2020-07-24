@@ -15,7 +15,11 @@ import { toDollarString } from 'shared/formatters';
 
 const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   const [curCardIndex, setCardIndex] = useState(0);
-  const [sortedCards] = useState(sortServiceItemsByGroup(serviceItemCards));
+  // eslint-disable-next-line no-unused-vars
+  const [totalApproved, setTotalApproved] = useState(0);
+
+  const sortedCards = sortServiceItemsByGroup(serviceItemCards);
+
   const totalCards = serviceItemCards.length;
 
   const { APPROVED, REJECTED } = SERVICE_ITEM_STATUS;
@@ -80,14 +84,16 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
                 <h2 className={styles.header}>{header}</h2>
               </div>
               <div className={styles.body}>
-                <ServiceItemCard
-                  key={`serviceItemCard_${currentCard.id}`}
-                  // eslint-disable-next-line react/jsx-props-no-spreading
-                  {...currentCard}
-                  value={values[currentCard.id]}
-                  onChange={handleChange}
-                  clearValues={clearServiceItemValues}
-                />
+                {currentCard && (
+                  <ServiceItemCard
+                    key={`serviceItemCard_${currentCard.id}`}
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...currentCard}
+                    value={values[currentCard.id]}
+                    onChange={handleChange}
+                    clearValues={clearServiceItemValues}
+                  />
+                )}
               </div>
               <div className={styles.bottom}>
                 <Button
@@ -124,12 +130,13 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
 
 ReviewServiceItems.propTypes = {
   header: PropTypes.string,
-  serviceItemCards: ServiceItemCardsShape.isRequired,
+  serviceItemCards: ServiceItemCardsShape,
   handleClose: PropTypes.func.isRequired,
 };
 
 ReviewServiceItems.defaultProps = {
   header: 'Review service items',
+  serviceItemCards: [],
 };
 
 export default ReviewServiceItems;
