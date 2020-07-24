@@ -9,35 +9,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
-
-func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(estimatedWeight unit.Pound, actualWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: code,
-				Name: string(code),
-			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
-				PrimeActualWeight:    &actualWeight,
-				ShipmentType:         shipmentType,
-			},
-		})
-
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-			},
-		})
-
-	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
-
-	return mtoServiceItem, paymentRequest, paramLookup
-}
 
 func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 	key := models.ServiceItemParamNameWeightBilledActual.String()
