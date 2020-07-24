@@ -64,6 +64,40 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		return nil, services.NewNotFoundError(moveTaskOrderID, "for moveTaskOrder")
 	}
 
+	if serviceItems != nil {
+		serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
+
+		for _, serviceItem := range serviceItems {
+			// find the re service code id
+			var reService models.ReService
+			reServiceCode := serviceItem.ReService.Code
+			queryFilters = []services.QueryFilter{
+				query.NewQueryFilter("code", "=", reServiceCode),
+			}
+			err = f.builder.FetchOne(&reService, queryFilters)
+			if err != nil {
+				return nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
+			}
+			// set re service for service item
+			serviceItem.ReServiceID = reService.ID
+			serviceItem.Status = models.MTOServiceItemStatusSubmitted
+
+			if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
+				if shipment.PrimeEstimatedWeight == nil {
+					return nil, services.NewConflictError(
+						serviceItem.ReService.ID,
+						"for creating a service item. MTOShipment associated with this service item must have a valid PrimeEstimatedWeight.",
+					)
+				}
+			}
+
+			println("🧸")
+			fmt.Printf("service item %v", serviceItem)
+			serviceItemsList = append(serviceItemsList, serviceItem)
+		}
+		shipment.MTOServiceItems = serviceItemsList
+	}
+
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 		// create new builder to use tx
 		txBuilder := f.createNewBuilder(tx)
@@ -118,22 +152,22 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		}
 
 		// create MTOServiceItems List
-		if serviceItems != nil {
+		if shipment.MTOServiceItems != nil {
 			serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
 
-			for _, serviceItem := range serviceItems {
-				_, validationErrs, serviceError := f.mtoServiceItemCreator.CreateMTOServiceItem(&serviceItem)
-				if validationErrs != nil && validationErrs.HasAny() {
+			for _, serviceItem := range shipment.MTOServiceItems {
+				serviceItem.MTOShipmentID = &shipment.ID
+				serviceItem.MoveTaskOrderID = shipment.MoveTaskOrderID
+				verrs, err = txBuilder.CreateOne(&serviceItem)
+				if verrs != nil && verrs.HasAny() {
 					return verrs
 				}
-				if serviceError != nil {
-					return serviceError
+				if err != nil {
+					return err
 				}
 				serviceItemsList = append(serviceItemsList, serviceItem)
 			}
-
 			shipment.MTOServiceItems = serviceItemsList
-
 		}
 
 		return nil
