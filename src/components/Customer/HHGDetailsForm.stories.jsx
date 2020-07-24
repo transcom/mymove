@@ -7,6 +7,7 @@ const defaultProps = {
   pageList: ['page1', 'anotherPage/:foo/:bar'],
   pageKey: 'page1',
   match: { isExact: false, path: '', url: '' },
+  showLoggedInUser: () => {},
 };
 
 export default {
