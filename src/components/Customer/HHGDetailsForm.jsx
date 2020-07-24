@@ -13,21 +13,65 @@ import { createMTOShipment as createMTOShipmentAction } from 'shared/Entities/mo
 import { WizardPage } from 'shared/WizardPage';
 import { MTOAgentType } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
+import Checkbox from 'shared/Checkbox';
 
 class HHGDetailsForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
       hasDeliveryAddress: false,
+      useCurrentResidence: false,
+      initialValues: {},
     };
   }
 
   // TODO: when we can pull in initialValues from redux, set state.hasDeliveryAddress to true if a delivery address exists
-
   handleChangeHasDeliveryAddress = () => {
     this.setState((prevState) => {
       return { hasDeliveryAddress: !prevState.hasDeliveryAddress };
     });
+  };
+
+  // Use current residence
+  handleUseCurrentResidenceChange = () => {
+    // eslint-disable-next-line react/destructuring-assignment
+    this.setState(
+      (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
+      () => {
+        const { initialValues, useCurrentResidence } = this.state;
+        const { currentResidence } = this.props;
+        if (useCurrentResidence) {
+          this.setState({
+            // eslint-disable-next-line prettier/prettier
+            initialValues: {
+              ...initialValues,
+              pickupLocation: {
+                mailingAddress1: currentResidence.street_address_1,
+                mailingAddress2: currentResidence.street_address_2,
+                country: currentResidence.country,
+                city: currentResidence.city,
+                state: currentResidence.state,
+                zip: currentResidence.postal_code,
+              },
+            },
+          });
+        } else {
+          this.setState({
+            initialValues: {
+              ...initialValues,
+              pickupLocation: {
+                mailingAddress1: '',
+                mailingAddress2: '',
+                country: '',
+                city: '',
+                state: '',
+                zip: '',
+              },
+            },
+          });
+        }
+      },
+    );
   };
 
   submitMTOShipment = ({
@@ -82,11 +126,11 @@ class HHGDetailsForm extends Component {
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { initialValues, pageKey, pageList, match, push } = this.props;
-    const { hasDeliveryAddress } = this.state;
+    const { pageKey, pageList, match, push } = this.props;
+    const { hasDeliveryAddress, initialValues, useCurrentResidence } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
-      <Formik initialValues={initialValues}>
+      <Formik initialValues={initialValues} enableReinitialize>
         {({ handleChange, values }) => (
           <WizardPage
             match={match}
@@ -107,6 +151,13 @@ class HHGDetailsForm extends Component {
               <span className="usa-hint" id="pickupDateHint">
                 Your movers will confirm this date or one shortly before or after.
               </span>
+
+              <Checkbox
+                label="Use my current residence address"
+                checked={useCurrentResidence}
+                onChange={this.handleUseCurrentResidenceChange}
+              />
+
               <AddressFields
                 name="pickupLocation"
                 legend="Pickup location"
@@ -193,39 +244,15 @@ class HHGDetailsForm extends Component {
 }
 
 HHGDetailsForm.propTypes = {
+  currentResidence: shape({
+    street_address_1: string.isRequired,
+    street_address_2: string,
+    country: string.isRequired,
+    state: string.isRequired,
+    postal_code: string.isRequired,
+  }).isRequired,
   pageKey: string.isRequired,
   pageList: arrayOf(string).isRequired,
-  initialValues: shape({
-    requestedPickupDate: string,
-    pickupLocation: shape({
-      mailingAddress1: string,
-      mailingAddress2: string,
-      city: string,
-      state: string,
-      zip: string,
-    }),
-    requestedDeliveryDate: string,
-    deliveryLocation: shape({
-      mailingAddress1: string,
-      mailingAddress2: string,
-      city: string,
-      state: string,
-      zip: string,
-    }),
-    releasingAgent: shape({
-      firstName: string,
-      lastName: string,
-      phone: string,
-      email: string,
-    }),
-    receivingAgent: shape({
-      firstName: string,
-      lastName: string,
-      phone: string,
-      email: string,
-    }),
-    remarks: string,
-  }),
   match: shape({
     isExact: bool.isRequired,
     params: shape({
@@ -238,13 +265,13 @@ HHGDetailsForm.propTypes = {
   push: func.isRequired,
 };
 
-HHGDetailsForm.defaultProps = {
-  initialValues: {},
-};
+const mapStateToProps = (state) => ({
+  currentResidence: state.user.userInfo.service_member.residential_address,
+});
 
 const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
 };
 
 export { HHGDetailsForm as HHGDetailsFormComponent };
-export default connect(null, mapDispatchToProps)(HHGDetailsForm);
+export default connect(mapStateToProps, mapDispatchToProps)(HHGDetailsForm);
