@@ -253,7 +253,7 @@ class ExpensesUpload extends Component {
                   normalizeLabel
                 />
                 {isStorageExpense && missingReceipt && (
-                  <span data-cy="storage-warning">
+                  <span data-testid="storage-warning">
                     <Alert type="warning">
                       If you can, go online and print a new copy of your receipt, then upload it. <br />
                       Otherwise, write and sign a statement that explains why this receipt is missing, then upload it.

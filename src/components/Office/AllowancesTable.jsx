@@ -38,43 +38,43 @@ const AllowancesTable = ({ info }) => {
             <th scope="row" className="text-bold">
               Branch, rank
             </th>
-            <td data-cy="branchRank">{`${titleCase(info.branch)}, ${friendlyRankDisplay(info.rank)}`}</td>
+            <td data-testid="branchRank">{`${titleCase(info.branch)}, ${friendlyRankDisplay(info.rank)}`}</td>
           </tr>
           <tr>
             <th scope="row" className="text-bold">
               Weight allowance
             </th>
-            <td data-cy="weightAllowance">{`${info.weightAllowance} lbs`}</td>
+            <td data-testid="weightAllowance">{`${info.weightAllowance} lbs`}</td>
           </tr>
           <tr>
             <th scope="row" className="text-bold">
               Authorized weight
             </th>
-            <td data-cy="authorizedWeight">{`${info.authorizedWeight} lbs`}</td>
+            <td data-testid="authorizedWeight">{`${info.authorizedWeight} lbs`}</td>
           </tr>
           <tr>
             <th scope="row" className="text-bold">
               Pro-gear
             </th>
-            <td data-cy="progear">{`${info.progear} lbs`}</td>
+            <td data-testid="progear">{`${info.progear} lbs`}</td>
           </tr>
           <tr>
             <th scope="row" className="text-bold">
               Spouse pro-gear
             </th>
-            <td data-cy="spouseProgear">{`${info.spouseProgear} lbs`}</td>
+            <td data-testid="spouseProgear">{`${info.spouseProgear} lbs`}</td>
           </tr>
           <tr>
             <th scope="row" className="text-bold">
               Storage in transit
             </th>
-            <td data-cy="storageInTransit">{`${info.storageInTransit} days`}</td>
+            <td data-testid="storageInTransit">{`${info.storageInTransit} days`}</td>
           </tr>
           <tr>
             <th scope="row" className="text-bold">
               Dependents
             </th>
-            <td data-cy="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</td>
+            <td data-testid="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</td>
           </tr>
         </tbody>
       </table>

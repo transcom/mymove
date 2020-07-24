@@ -59,7 +59,7 @@ describe('Refreshing', () => {
 
     wrapper = mountComponents(retrieveMovesStub());
 
-    wrapper.find('[data-cy="refreshQueue"]').at(0).simulate('click');
+    wrapper.find('[data-testid="refreshQueue"]').at(0).simulate('click');
 
     setTimeout(() => {
       expect(refreshSpy).toHaveBeenCalled();
@@ -82,7 +82,7 @@ describe('on 401 unauthorized error', () => {
 
     const store = mockStore({});
     const wrapper = mountComponents(retrieveMovesStub(null, error), 'new', store);
-    wrapper.find('[data-cy="refreshQueue"]').at(0).simulate('click');
+    wrapper.find('[data-testid="refreshQueue"]').at(0).simulate('click');
 
     setTimeout(() => {
       expect(fetchDataSpy).toHaveBeenCalled();
