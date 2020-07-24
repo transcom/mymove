@@ -2484,6 +2484,9 @@ func init() {
             "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
           }
         },
+        "serviceItems": {
+          "$ref": "#/definitions/PaymentServiceItems"
+        },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
         }
@@ -2506,6 +2509,102 @@ func init() {
         "$ref": "#/definitions/PaymentRequest"
       }
     },
+    "PaymentServiceItem": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentServiceItemParams": {
+          "$ref": "#/definitions/PaymentServiceItemParams"
+        },
+        "priceCents": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the service item in cents",
+          "x-nullable": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentServiceItemStatus"
+        }
+      }
+    },
+    "PaymentServiceItemParam": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "key": {
+          "$ref": "#/definitions/ServiceItemParamName"
+        },
+        "origin": {
+          "$ref": "#/definitions/ServiceItemParamOrigin"
+        },
+        "paymentServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "type": {
+          "$ref": "#/definitions/ServiceItemParamType"
+        },
+        "value": {
+          "type": "string",
+          "example": 3025
+        }
+      }
+    },
+    "PaymentServiceItemParams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItemParam"
+      }
+    },
+    "PaymentServiceItemStatus": {
+      "type": "string",
+      "title": "Payment Service Item Status",
+      "enum": [
+        "REQUESTED",
+        "APPROVED",
+        "DENIED",
+        "SENT_TO_GEX",
+        "PAID"
+      ]
+    },
+    "PaymentServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
     "ProofOfServicePackage": {
       "type": "object",
       "properties": {
@@ -2521,6 +2620,165 @@ func init() {
           }
         }
       }
+    },
+    "ReServiceCode": {
+      "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
+      "type": "string",
+      "enum": [
+        "CS",
+        "DBHF",
+        "DBTF",
+        "DCRT",
+        "DCRTSA",
+        "DDASIT",
+        "DDDSIT",
+        "DDFSIT",
+        "DDP",
+        "DDSHUT",
+        "DLH",
+        "DMHF",
+        "DNPKF",
+        "DOASIT",
+        "DOFSIT",
+        "DOP",
+        "DOPSIT",
+        "DOSHUT",
+        "DPK",
+        "DSH",
+        "DUCRT",
+        "DUPK",
+        "FSC",
+        "IBHF",
+        "IBTF",
+        "ICOLH",
+        "ICOUB",
+        "ICRT",
+        "ICRTSA",
+        "IDASIT",
+        "IDDSIT",
+        "IDFSIT",
+        "IDSHUT",
+        "IHPK",
+        "IHUPK",
+        "INPKF",
+        "IOASIT",
+        "IOCLH",
+        "IOCUB",
+        "IOFSIT",
+        "IOOLH",
+        "IOOUB",
+        "IOPSIT",
+        "IOSHUT",
+        "IUBPK",
+        "IUBUPK",
+        "IUCRT",
+        "MS",
+        "NSTH",
+        "NSTUB"
+      ]
+    },
+    "ServiceItem": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "example": "Service Item Parameter Name"
+              },
+              "value": {
+                "type": "string",
+                "example": "Service Item Parameter Value"
+              }
+            }
+          },
+          "readOnly": true
+        }
+      }
+    },
+    "ServiceItemParamName": {
+      "type": "string",
+      "enum": [
+        "CanStandAlone",
+        "ContractCode",
+        "CubicFeetBilled",
+        "CubicFeetCrating",
+        "DistanceZip3",
+        "DistanceZip5",
+        "DistanceZip5SITDest",
+        "DistanceZip5SITOrigin",
+        "EIAFuelPrice",
+        "MarketDest",
+        "MarketOrigin",
+        "MTOAvailableToPrimeAt",
+        "NumberDaysSIT",
+        "PriceAreaDest",
+        "PriceAreaIntlDest",
+        "PriceAreaIntlOrigin",
+        "PriceAreaOrigin",
+        "PSI_LinehaulDom",
+        "PSI_LinehaulDomPrice",
+        "PSI_LinehaulShort",
+        "PSI_LinehaulShortPrice",
+        "PSI_PackingDom",
+        "PSI_PackingDomPrice",
+        "PSI_PackingHHGIntl",
+        "PSI_PackingHHGIntlPrice",
+        "PSI_PriceDomDest",
+        "PSI_PriceDomDestPrice",
+        "PSI_PriceDomOrigin",
+        "PSI_PriceDomOriginPrice",
+        "PSI_ShippingLinehaulIntlCO",
+        "PSI_ShippingLinehaulIntlCOPrice",
+        "PSI_ShippingLinehaulIntlOC",
+        "PSI_ShippingLinehaulIntlOCPrice",
+        "PSI_ShippingLinehaulIntlOO",
+        "PSI_ShippingLinehaulIntlOOPrice",
+        "RateAreaNonStdDest",
+        "RateAreaNonStdOrigin",
+        "RequestedPickupDate",
+        "ServiceAreaDest",
+        "ServiceAreaOrigin",
+        "ServicesScheduleDest",
+        "ServicesScheduleOrigin",
+        "SITScheduleDest",
+        "SITScheduleOrigin",
+        "WeightActual",
+        "WeightBilledActual",
+        "WeightEstimated",
+        "ZipDestAddress",
+        "ZipPickupAddress",
+        "ZipSITAddress"
+      ]
+    },
+    "ServiceItemParamOrigin": {
+      "type": "string",
+      "enum": [
+        "PRIME",
+        "SYSTEM"
+      ]
+    },
+    "ServiceItemParamType": {
+      "type": "string",
+      "enum": [
+        "STRING",
+        "DATE",
+        "INTEGER",
+        "DECIMAL",
+        "TIMESTAMP",
+        "PaymentServiceItemUUID"
+      ]
     },
     "UpdatePaymentRequestPayload": {
       "type": "object",
@@ -5433,6 +5691,9 @@ func init() {
             "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
           }
         },
+        "serviceItems": {
+          "$ref": "#/definitions/PaymentServiceItems"
+        },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
         }
@@ -5455,6 +5716,102 @@ func init() {
         "$ref": "#/definitions/PaymentRequest"
       }
     },
+    "PaymentServiceItem": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentServiceItemParams": {
+          "$ref": "#/definitions/PaymentServiceItemParams"
+        },
+        "priceCents": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the service item in cents",
+          "x-nullable": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentServiceItemStatus"
+        }
+      }
+    },
+    "PaymentServiceItemParam": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "key": {
+          "$ref": "#/definitions/ServiceItemParamName"
+        },
+        "origin": {
+          "$ref": "#/definitions/ServiceItemParamOrigin"
+        },
+        "paymentServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "type": {
+          "$ref": "#/definitions/ServiceItemParamType"
+        },
+        "value": {
+          "type": "string",
+          "example": 3025
+        }
+      }
+    },
+    "PaymentServiceItemParams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItemParam"
+      }
+    },
+    "PaymentServiceItemStatus": {
+      "type": "string",
+      "title": "Payment Service Item Status",
+      "enum": [
+        "REQUESTED",
+        "APPROVED",
+        "DENIED",
+        "SENT_TO_GEX",
+        "PAID"
+      ]
+    },
+    "PaymentServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
     "ProofOfServicePackage": {
       "type": "object",
       "properties": {
@@ -5470,6 +5827,165 @@ func init() {
           }
         }
       }
+    },
+    "ReServiceCode": {
+      "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
+      "type": "string",
+      "enum": [
+        "CS",
+        "DBHF",
+        "DBTF",
+        "DCRT",
+        "DCRTSA",
+        "DDASIT",
+        "DDDSIT",
+        "DDFSIT",
+        "DDP",
+        "DDSHUT",
+        "DLH",
+        "DMHF",
+        "DNPKF",
+        "DOASIT",
+        "DOFSIT",
+        "DOP",
+        "DOPSIT",
+        "DOSHUT",
+        "DPK",
+        "DSH",
+        "DUCRT",
+        "DUPK",
+        "FSC",
+        "IBHF",
+        "IBTF",
+        "ICOLH",
+        "ICOUB",
+        "ICRT",
+        "ICRTSA",
+        "IDASIT",
+        "IDDSIT",
+        "IDFSIT",
+        "IDSHUT",
+        "IHPK",
+        "IHUPK",
+        "INPKF",
+        "IOASIT",
+        "IOCLH",
+        "IOCUB",
+        "IOFSIT",
+        "IOOLH",
+        "IOOUB",
+        "IOPSIT",
+        "IOSHUT",
+        "IUBPK",
+        "IUBUPK",
+        "IUCRT",
+        "MS",
+        "NSTH",
+        "NSTUB"
+      ]
+    },
+    "ServiceItem": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "example": "Service Item Parameter Name"
+              },
+              "value": {
+                "type": "string",
+                "example": "Service Item Parameter Value"
+              }
+            }
+          },
+          "readOnly": true
+        }
+      }
+    },
+    "ServiceItemParamName": {
+      "type": "string",
+      "enum": [
+        "CanStandAlone",
+        "ContractCode",
+        "CubicFeetBilled",
+        "CubicFeetCrating",
+        "DistanceZip3",
+        "DistanceZip5",
+        "DistanceZip5SITDest",
+        "DistanceZip5SITOrigin",
+        "EIAFuelPrice",
+        "MarketDest",
+        "MarketOrigin",
+        "MTOAvailableToPrimeAt",
+        "NumberDaysSIT",
+        "PriceAreaDest",
+        "PriceAreaIntlDest",
+        "PriceAreaIntlOrigin",
+        "PriceAreaOrigin",
+        "PSI_LinehaulDom",
+        "PSI_LinehaulDomPrice",
+        "PSI_LinehaulShort",
+        "PSI_LinehaulShortPrice",
+        "PSI_PackingDom",
+        "PSI_PackingDomPrice",
+        "PSI_PackingHHGIntl",
+        "PSI_PackingHHGIntlPrice",
+        "PSI_PriceDomDest",
+        "PSI_PriceDomDestPrice",
+        "PSI_PriceDomOrigin",
+        "PSI_PriceDomOriginPrice",
+        "PSI_ShippingLinehaulIntlCO",
+        "PSI_ShippingLinehaulIntlCOPrice",
+        "PSI_ShippingLinehaulIntlOC",
+        "PSI_ShippingLinehaulIntlOCPrice",
+        "PSI_ShippingLinehaulIntlOO",
+        "PSI_ShippingLinehaulIntlOOPrice",
+        "RateAreaNonStdDest",
+        "RateAreaNonStdOrigin",
+        "RequestedPickupDate",
+        "ServiceAreaDest",
+        "ServiceAreaOrigin",
+        "ServicesScheduleDest",
+        "ServicesScheduleOrigin",
+        "SITScheduleDest",
+        "SITScheduleOrigin",
+        "WeightActual",
+        "WeightBilledActual",
+        "WeightEstimated",
+        "ZipDestAddress",
+        "ZipPickupAddress",
+        "ZipSITAddress"
+      ]
+    },
+    "ServiceItemParamOrigin": {
+      "type": "string",
+      "enum": [
+        "PRIME",
+        "SYSTEM"
+      ]
+    },
+    "ServiceItemParamType": {
+      "type": "string",
+      "enum": [
+        "STRING",
+        "DATE",
+        "INTEGER",
+        "DECIMAL",
+        "TIMESTAMP",
+        "PaymentServiceItemUUID"
+      ]
     },
     "UpdatePaymentRequestPayload": {
       "type": "object",
