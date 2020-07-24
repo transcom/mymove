@@ -120,7 +120,6 @@ class HHGDetailsForm extends Component {
         country: deliveryLocation.country,
       };
     }
-
     if (releasingAgent) {
       mtoShipment.agents.push({ ...releasingAgent, agentType: MTOAgentType.RELEASING });
     }
