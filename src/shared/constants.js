@@ -45,6 +45,11 @@ export const UPLOAD_SCAN_STATUS = {
   PROCESSING: 'PROCESSING',
 };
 
+export const CONUS_STATUS = {
+  CONUS: 'CONUS',
+  OCONUS: 'OCONUS',
+};
+
 export const SHIPMENT_OPTIONS = {
   HHG: 'HHG',
   PPM: 'PPM',

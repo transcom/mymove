@@ -178,13 +178,8 @@ describe('given a WizardPage', () => {
       it('it starts on the first page', () => {
         expect(wrapper.children().first().text()).toBe('This is page 1');
       });
-      it('it renders button for cancel, back, next', () => {
-        expect(buttons.length).toBe(3);
-      });
-      it('the back button is second and is disabled', () => {
-        const prevButton = buttons.at(1);
-        expect(prevButton.text()).toBe('Back');
-        expect(prevButton.prop('disabled')).toBe(true);
+      it('it renders button for cancel and next', () => {
+        expect(buttons.length).toBe(2);
       });
       it('the cancel button is first and is enabled', () => {
         const prevButton = buttons.first();
