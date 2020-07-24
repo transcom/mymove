@@ -1,24 +1,38 @@
 package events
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 )
 
-// https://raw.githubusercontent.com/transcom/mymove/ba76aeae09b007219fe60e5a7002d8c0f7c14b1d/pkg/services/audit/audit.go
-
 // EventType is the name of the audit events we care about
-type EventType string
+type EventType struct {
+	Object        string
+	Action        string
+	ModelInstance interface{}
+}
 
-// Endpoint is the name of the api + endpoint
-type Endpoint string
+// Todo switch to an event key type as well
+
+// PaymentRequestCreateEvent is an event
+var PaymentRequestCreateEvent = EventType{"paymentRequest", "create", models.PaymentRequest{}}
+
+// PaymentRequestUpdateEvent is an event
+var PaymentRequestUpdateEvent = EventType{"paymentRequest", "update", models.PaymentRequest{}}
+
+// MoveTaskOrderCreateEvent is an event
+var MoveTaskOrderCreateEvent = EventType{"moveTaskOrder", "update", models.MoveTaskOrder{}}
+
+// String is a function to convert to string
+func (e EventType) String() string {
+	return e.Object + "." + e.Action
+}
 
 // Auditor holds on to contextual information we need to create an AuditRecording
 // type Event struct {
@@ -34,16 +48,15 @@ type Endpoint string
 
 // Event is the type that holds a single event
 type Event struct {
-	eventType EventType
-	request   *http.Request
-	mtoID     uuid.UUID
-	objectID  uuid.UUID
-	endpoint  Endpoint
+	EventType       EventType
+	Request         *http.Request
+	MtoID           uuid.UUID
+	UpdatedObjectID uuid.UUID
+	EndpointKey     EndpointKeyType
 }
 
 //EventGenerator is the service object to generate events
 type EventGenerator struct {
-	//	builder *query.Builder
 	db   *pop.Connection
 	hctx handlers.HandlerContext
 }
@@ -72,10 +85,12 @@ func NewEventGenerator(db *pop.Connection, hctx handlers.HandlerContext) EventGe
 // 	}
 // }
 
-// LogIt logs an event to the console
-func LogIt(event *Event, logger handlers.Logger) {
-	fmt.Println("\n\n Event handler ran: ", event.endpoint, event.mtoID, event.objectID)
-	logger.Info("Event handler ran:", zap.String("endpoint", string(event.endpoint)))
+// EventHandlerFunc is a type of func that can be registered as an event handler
+// to be called by the eventing system
+type EventHandlerFunc func(event *Event, db *pop.Connection, logger handlers.Logger) error
+
+var registeredEventHandlers = []EventHandlerFunc{
+	EventNotificationsHandler,
 }
 
 // // setRequestContext adds the request to the Auditor struct for later use
@@ -96,7 +111,7 @@ func LogIt(event *Event, logger handlers.Logger) {
 // }
 
 // EventRecord creates an event recording
-func (e *EventGenerator) EventRecord(endpoint Endpoint, r *http.Request) (*Event, error) {
+func (e *EventGenerator) EventRecord(event Event) (*Event, error) {
 
 	// a.setRequestContext(request)
 	// for _, option := range options {
@@ -145,20 +160,14 @@ func (e *EventGenerator) EventRecord(endpoint Endpoint, r *http.Request) (*Event
 	// // Tie to MTO if there is a MTO ID on the model
 	// // Add friendly shipment identifier if model is shipment
 
-	event := Event{
-		eventType: "new event",
-		endpoint:  endpoint,
-		request:   r,
-	}
-
-	clientCert := authentication.ClientCertFromRequestContext(event.request)
+	clientCert := authentication.ClientCertFromRequestContext(event.Request)
 
 	// Request is coming from the Prime
 	var logger handlers.Logger
 	if clientCert != nil {
-		logger = e.hctx.LoggerFromRequest(event.request)
+		logger = e.hctx.LoggerFromRequest(event.Request)
 	} else {
-		_, logger = e.hctx.SessionAndLoggerFromRequest(event.request)
+		_, logger = e.hctx.SessionAndLoggerFromRequest(event.Request)
 		//add back session
 	}
 
@@ -188,137 +197,9 @@ func (e *EventGenerator) EventRecord(endpoint Endpoint, r *http.Request) (*Event
 
 	// if this is a security event
 	//   log to cloudwatch with the logic from the Capture function below
-	LogIt(&event, logger)
+	//LogIt(&event, logger)
+	for i := 0; i < len(registeredEventHandlers); i++ {
+		registeredEventHandlers[i](&event, e.db, logger)
+	}
 	return &event, nil
 }
-
-// // Capture captures an audit record
-// func Capture(model interface{}, payload interface{}, logger Logger, session *auth.Session, request *http.Request) ([]zap.Field, error) {
-// 	// metadataColumns := map[string]map[string]string{
-// 	// 	"Customer requested shipments + pick up dates": { meta: "requested_pickup_date", identifier: "pretty_shipment_id" },
-// 	// }
-
-// 	var logItems []zap.Field
-// 	eventType := extractEventType(request)
-// 	msg := flect.Titleize(eventType)
-
-// 	logItems = append(logItems,
-// 		zap.String("event_type", eventType),
-// 		zap.String("responsible_user_id", session.UserID.String()),
-// 		zap.String("responsible_user_email", session.Email),
-// 	)
-
-// 	if session.IsAdminUser() || session.IsOfficeUser() {
-// 		logItems = append(logItems,
-// 			zap.String("responsible_user_name", fullName(session.FirstName, session.LastName)),
-// 		)
-// 	}
-
-// 	t, err := validateInterface(model)
-// 	if err == nil && reflect.ValueOf(model).IsValid() == true && reflect.ValueOf(model).IsNil() == false && reflect.ValueOf(model).IsZero() == false {
-// 		recordType := parseRecordType(t.String())
-// 		elem := reflect.ValueOf(model).Elem()
-
-// 		var createdAt string
-// 		if elem.FieldByName("CreatedAt").IsValid() == true {
-// 			createdAt = elem.FieldByName("CreatedAt").Interface().(time.Time).String()
-// 		} else {
-// 			createdAt = time.Now().String()
-// 		}
-
-// 		var updatedAt string
-// 		if elem.FieldByName("updatedAt").IsValid() == true {
-// 			updatedAt = elem.FieldByName("updatedAt").Interface().(time.Time).String()
-// 		} else {
-// 			updatedAt = time.Now().String()
-// 		}
-
-// 		var id string
-// 		if elem.FieldByName("ID").IsValid() == true {
-// 			id = elem.FieldByName("ID").Interface().(uuid.UUID).String()
-// 		} else {
-// 			id = ""
-// 		}
-
-// 		logItems = append(logItems,
-// 			zap.String("record_id", id),
-// 			zap.String("record_type", recordType),
-// 			zap.String("record_created_at", createdAt),
-// 			zap.String("record_updated_at", updatedAt),
-// 		)
-
-// 		if payload != nil {
-// 			_, err = validateInterface(payload)
-// 			if err != nil {
-// 				return nil, err
-// 			}
-
-// 			var payloadFields []string
-// 			payloadValue := reflect.ValueOf(payload).Elem()
-// 			for i := 0; i < payloadValue.NumField(); i++ {
-// 				fieldFromType := payloadValue.Type().Field(i)
-// 				fieldFromValue := payloadValue.Field(i)
-// 				fieldName := flect.Underscore(fieldFromType.Name)
-
-// 				if !fieldFromValue.IsZero() {
-// 					payloadFields = append(payloadFields, fieldName)
-// 				}
-// 			}
-
-// 			logItems = append(logItems, zap.String("fields_changed", strings.Join(payloadFields, ",")))
-
-// 			var payloadJSON []byte
-// 			payloadJSON, err = json.Marshal(payload)
-
-// 			if err != nil {
-// 				return nil, err
-// 			}
-
-// 			logger.Debug("Audit patch payload", zap.String("patch_payload", string(payloadJSON)))
-// 		}
-// 	} else {
-// 		msg += " invalid or zero or nil model interface received from request handler"
-// 		logItems = append(logItems,
-// 			zap.Error(err),
-// 		)
-// 	}
-
-// 	logger.Info(msg, logItems...)
-
-// 	return logItems, nil
-// }
-
-// func parseRecordType(rt string) string {
-// 	parts := strings.Split(rt, ".")
-
-// 	return parts[1]
-// }
-
-// func fullName(first, last string) string {
-// 	return first + " " + last
-// }
-
-// func validateInterface(thing interface{}) (reflect.Type, error) {
-// 	t := reflect.TypeOf(thing)
-
-// 	if t != nil {
-// 		if t.Kind() != reflect.Ptr {
-// 			return nil, errors.New("must pass a pointer to a struct")
-// 		}
-
-// 		t = t.Elem()
-// 		if t.Kind() != reflect.Struct {
-// 			return nil, errors.New("must pass a pointer to a struct")
-// 		}
-// 	}
-
-// 	return t, nil
-// }
-
-// func extractEventType(request *http.Request) string {
-// 	path := request.URL.Path
-// 	apiRegex := regexp.MustCompile("\\/[a-zA-Z]+\\/v1")
-// 	uuidRegex := regexp.MustCompile("/([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}){1}") // https://adamscheller.com/regular-expressions/uuid-regex/
-// 	cleanPath := uuidRegex.ReplaceAllString(apiRegex.ReplaceAllString(path, ""), "")
-// 	return fmt.Sprintf("audit_%s_%s", strings.ToLower(request.Method), flect.Underscore(cleanPath))
-// }

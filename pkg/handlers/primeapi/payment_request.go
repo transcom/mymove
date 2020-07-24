@@ -31,10 +31,6 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	eventGen := events.NewEventGenerator(h.DB(), h)
-	_, err := eventGen.EventRecord("prime.CreatePaymentRequest", params.HTTPRequest)
-	if err != nil {
-		logger.Error("primeapi.CreatePaymentRequestHanders could not generate the event")
-	}
 
 	payload := params.Body
 	if payload == nil {
@@ -118,6 +114,18 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	returnPayload := payloads.PaymentRequest(createdPaymentRequest)
 	logger.Info("Successful payment request creation for mto ID", zap.String("moveID", moveTaskOrderIDString))
+
+	_, err = eventGen.EventRecord(events.Event{
+		EventType:       events.PaymentRequestCreateEvent,
+		MtoID:           mtoID,
+		UpdatedObjectID: createdPaymentRequest.ID,
+		Request:         params.HTTPRequest,
+		EndpointKey:     events.PrimeCreatePaymentRequestEndpointKey,
+	})
+	if err != nil {
+		logger.Error("primeapi.CreatePaymentRequestHanders could not generate the event")
+	}
+
 	return paymentrequestop.NewCreatePaymentRequestCreated().WithPayload(returnPayload)
 }
 
