@@ -282,7 +282,7 @@ HHGDetailsForm.propTypes = {
 
 const mapStateToProps = (state) => ({
   currentResidence: get(selectLoggedInUser(state), 'service_member.residential_address', {}),
-  newDutyStationAddress: get(state, 'orders.currentOrders.new_duty_station', {}).address,
+  newDutyStationAddress: get(selectLoggedInUser(state), 'service_member.orders[0].new_duty_station.address', {}),
 });
 
 const mapDispatchToProps = {
