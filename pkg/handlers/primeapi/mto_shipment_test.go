@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/gofrs/uuid"
@@ -79,11 +81,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			ShipmentType:        primemessages.MTOShipmentTypeHHG,
 		},
 	}
-
-	//serviceItem1 := &primemessages.MTOServiceItemDOFSIT{
-	//	ReServiceCode: string(models.ReServiceCodeDOFSIT),
-	//	PickupPostalCode: &pickupAddress.PostalCode,
-	//}
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
@@ -202,6 +199,41 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentNotFound)
 		suite.Contains(*typedResponse.Payload.Detail, mtoNotAvailable.ID.String())
+	})
+
+	suite.T().Run("POST failure - 422 - modelType() not supported", func(t *testing.T) {
+		mockCreator := mocks.MTOShipmentCreator{}
+
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+		err := services.NotFoundError{}
+
+		mockCreator.On("CreateMTOShipment",
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		mtoServiceItems := models.MTOServiceItems{
+			models.MTOServiceItem{
+				MoveTaskOrderID:  mto.ID,
+				MTOShipmentID:    &mtoShipment.ID,
+				ReService:        models.ReService{Code: models.ReServiceCodeMS},
+				Reason:           nil,
+				PickupPostalCode: nil,
+				CreatedAt:        time.Now(),
+				UpdatedAt:        time.Now(),
+			},
+		}
+
+		badModelTypeParams := params
+		badModelTypeParams.Body.SetMtoServiceItems(*payloads.MTOServiceItems(&mtoServiceItems))
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 	})
 }
 
