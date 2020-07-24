@@ -29,25 +29,33 @@ export const Basic = () => (
   />
 );
 
-export const BasicWithTwoItems = () => (
-  <ReviewServiceItems
-    serviceItemCards={[
-      {
-        id: '1',
-        serviceItemName: 'Counseling services',
-        amount: 1234.0,
-        createdAt: '2020-01-01T00:08:00.999Z',
-      },
-      {
-        id: '2',
-        serviceItemName: 'Move management',
-        amount: 1234.0,
-        createdAt: '2020-01-01T00:08:00.999Z',
-      },
-    ]}
-    handleClose={action('clicked')}
-  />
-);
+export const BasicWithTwoItems = () => {
+  return (
+    <ReviewServiceItems
+      serviceItemCards={[
+        {
+          id: '1',
+          serviceItemName: 'Counseling services',
+          amount: 1234.0,
+          createdAt: '2020-01-01T00:08:00.999Z',
+        },
+        {
+          id: '2',
+          serviceItemName: 'Move management',
+          amount: 1234.0,
+          createdAt: '2020-01-01T00:08:00.999Z',
+        },
+      ]}
+      handleClose={action('clicked')}
+    />
+  );
+};
+// TODO - Skipping this story for now since this has animations and lokiAsync() can't be used in Storybook CSF format
+BasicWithTwoItems.story = {
+  parameters: {
+    loki: { skip: true },
+  },
+};
 
 export const HHG = () => (
   <ReviewServiceItems
@@ -89,12 +97,6 @@ export const MultipleShipmentsGroups = () => (
         serviceItemName: 'Counseling services',
         amount: 0.01,
         createdAt: '2020-01-01T00:09:00.999Z',
-      },
-      {
-        id: '2',
-        serviceItemName: 'Move management',
-        amount: 1234.0,
-        createdAt: '2020-01-01T00:06:00.999Z',
       },
       {
         id: '3',
