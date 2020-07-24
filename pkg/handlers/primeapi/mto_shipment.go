@@ -39,6 +39,21 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
 	}
 
+	for _, mtoServiceItem := range params.Body.MtoServiceItems() {
+		// restrict creation to a list
+		if _, ok := AllowedServiceItemMap[mtoServiceItem.ModelType()]; !ok {
+			// throw error if modelType() not on the list
+			mapKeys := GetMapKeys(AllowedServiceItemMap)
+			detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", mtoServiceItem.ModelType())
+			verrs := validate.NewErrors()
+			verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
+
+			logger.Error("primeapi.CreateMTOShipmentHandler error", zap.Error(verrs))
+			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+				detailErr, h.GetTraceID(), verrs))
+		}
+	}
+
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 	mtoServiceItemsList, verrs := payloads.MTOServiceItemModelListFromCreate(payload)
 

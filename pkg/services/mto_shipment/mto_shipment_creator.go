@@ -119,6 +119,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 
 		// create MTOServiceItems List
 		if serviceItems != nil {
+			serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
+
 			for _, serviceItem := range serviceItems {
 				_, validationErrs, serviceError := f.mtoServiceItemCreator.CreateMTOServiceItem(&serviceItem)
 				if validationErrs != nil && validationErrs.HasAny() {
@@ -127,8 +129,11 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				if serviceError != nil {
 					return serviceError
 				}
-				shipment.MTOServiceItems = serviceItems
+				serviceItemsList = append(serviceItemsList, serviceItem)
 			}
+
+			shipment.MTOServiceItems = serviceItemsList
+
 		}
 
 		return nil
