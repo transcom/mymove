@@ -131,7 +131,7 @@ class HHGDetailsForm extends Component {
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { pageKey, pageList, match, push } = this.props;
+    const { pageKey, pageList, match, push, newDutyStationAddress } = this.props;
     const { hasDeliveryAddress, initialValues, useCurrentResidence } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
@@ -220,7 +220,9 @@ class HHGDetailsForm extends Component {
                 ) : (
                   <>
                     <div className={fieldsetClasses}>We can use the zip of your new duty station.</div>
-                    <div>[City], [State] [New duty station zip]</div>
+                    <div>
+                      {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}
+                    </div>
                   </>
                 )}
               </Fieldset>
@@ -268,6 +270,11 @@ HHGDetailsForm.propTypes = {
     path: string.isRequired,
     url: string.isRequired,
   }).isRequired,
+  newDutyStationAddress: shape({
+    city: string.isRequired,
+    state: string.isRequired,
+    post_code: string.isRequired,
+  }).isRequired,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   push: func.isRequired,
@@ -275,6 +282,7 @@ HHGDetailsForm.propTypes = {
 
 const mapStateToProps = (state) => ({
   currentResidence: get(selectLoggedInUser(state), 'service_member.residential_address', {}),
+  newDutyStationAddress: get(state, 'orders.currentOrders.new_duty_station', {}).address,
 });
 
 const mapDispatchToProps = {
