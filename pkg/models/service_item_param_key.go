@@ -110,8 +110,8 @@ const (
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
 	// ServiceItemParamNameWeightActual is the param key name WeightActual
 	ServiceItemParamNameWeightActual ServiceItemParamName = "WeightActual"
-	// ServiceItemParamNameWeightBasedDistanceMultiplier is the param key name WeightBasedDistanceMultiplier
-	ServiceItemParamNameWeightBasedDistanceMultiplier ServiceItemParamName = "WeightBasedDistanceMultiplier"
+	// ServiceItemParamNameFSCWeightBasedDistanceMultiplier is the param key name WeightBasedDistanceMultiplier
+	ServiceItemParamNameFSCWeightBasedDistanceMultiplier ServiceItemParamName = "WeightBasedDistanceMultiplier"
 	// ServiceItemParamNameWeightBilledActual is the param key name WeightBilledActual
 	ServiceItemParamNameWeightBilledActual ServiceItemParamName = "WeightBilledActual"
 	// ServiceItemParamNameWeightEstimated is the param key name WeightEstimated
@@ -210,7 +210,7 @@ var ValidServiceItemParamNames = []string{
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
 	string(ServiceItemParamNameWeightActual),
-	string(ServiceItemParamNameWeightBasedDistanceMultiplier),
+	string(ServiceItemParamNameFSCWeightBasedDistanceMultiplier),
 	string(ServiceItemParamNameWeightBilledActual),
 	string(ServiceItemParamNameWeightEstimated),
 	string(ServiceItemParamNameZipDestAddress),

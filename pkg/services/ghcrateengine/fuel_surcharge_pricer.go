@@ -86,7 +86,7 @@ func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemPa
 		return unit.Cents(0), err
 	}
 
-	weightBasedDistanceMultiplier, err := getParamFloat(params, models.ServiceItemParamNameWeightBasedDistanceMultiplier)
+	weightBasedDistanceMultiplier, err := getParamFloat(params, models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier)
 	if err != nil {
 		return unit.Cents(0), err
 	}

@@ -116,7 +116,7 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 				fmt.Sprintf("%d", int(fscTestWeight)),
 			},
 			{
-				models.ServiceItemParamNameWeightBasedDistanceMultiplier,
+				models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
 				models.ServiceItemParamTypeDecimal,
 				fmt.Sprintf("%.7f", fscWeightDistanceMultiplier), // we need precision 7 to handle values like 0.0006255
 			},
