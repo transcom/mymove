@@ -266,10 +266,11 @@ func PaymentRequest(pr *models.PaymentRequest) *ghcmessages.PaymentRequest {
 // PaymentServiceItem payload
 func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServiceItem {
 	return &ghcmessages.PaymentServiceItem{
-		ID:              *handlers.FmtUUID(ps.ID),
-		PriceCents:      handlers.FmtCost(ps.PriceCents),
-		RejectionReason: ps.RejectionReason,
-		Status:          ghcmessages.PaymentServiceItemStatus(ps.Status),
+		ID:               *handlers.FmtUUID(ps.ID),
+		MtoServiceItemID: *handlers.FmtUUID(ps.MTOServiceItemID),
+		PriceCents:       handlers.FmtCost(ps.PriceCents),
+		RejectionReason:  ps.RejectionReason,
+		Status:           ghcmessages.PaymentServiceItemStatus(ps.Status),
 	}
 }
 
