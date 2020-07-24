@@ -152,17 +152,18 @@ class HHGDetailsForm extends Component {
                 Your movers will confirm this date or one shortly before or after.
               </span>
 
-              <Checkbox
-                label="Use my current residence address"
-                checked={useCurrentResidence}
-                onChange={this.handleUseCurrentResidenceChange}
-              />
-
               <AddressFields
                 name="pickupLocation"
                 legend="Pickup location"
                 className={fieldsetClasses}
                 handleChange={handleChange}
+                renderCurrentResidenceCheckbox={() => (
+                  <Checkbox
+                    label="Use my current residence address"
+                    checked={useCurrentResidence}
+                    onChange={this.handleUseCurrentResidenceChange}
+                  />
+                )}
                 values={values.pickupLocation}
               />
               <ContactInfoFields
