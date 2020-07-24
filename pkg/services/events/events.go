@@ -2,36 +2,69 @@ package events
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// EventType is the name of the audit events we care about
-type EventType struct {
-	Object        string
-	Action        string
+// EventKeyType is a string representing the event
+// An event is generally a Object.Action event
+// You would use the key in an Event object to trigger an event
+type EventKeyType string
+
+// eventModel is stored in the map of key, values
+// It contains info like the model type of the object associated with this event
+type eventModel struct {
+	EventKey      EventKeyType
 	ModelInstance interface{}
 }
 
-// Todo switch to an event key type as well
+// Event holds a single event
+// It is passed to EventRecord to trigger an event
+type Event struct {
+	EventKey        EventKeyType    // Pick from a select list of predefined events (PaymentRequest.Create)
+	Request         *http.Request   // We expect to get this from the handler
+	MtoID           uuid.UUID       // This is the ID of the MTO that the object is associated with
+	UpdatedObjectID uuid.UUID       // This is the ID of the object itself (PaymentRequest.ID)
+	EndpointKey     EndpointKeyType // Pick from a select list of endpoints
+	logger          handlers.Logger
+	session         *auth.Session
+	clientCert      *models.ClientCert
+	db              *pop.Connection
+	hctx            handlers.HandlerContext
+}
 
-// PaymentRequestCreateEvent is an event
-var PaymentRequestCreateEvent = EventType{"paymentRequest", "create", models.PaymentRequest{}}
+// PaymentRequestCreateEventKey is a key containing PaymentRequest.Create
+const PaymentRequestCreateEventKey EventKeyType = "PaymentRequest.Create"
 
-// PaymentRequestUpdateEvent is an event
-var PaymentRequestUpdateEvent = EventType{"paymentRequest", "update", models.PaymentRequest{}}
+// PaymentRequestUpdateEventKey is a key containing PaymentRequest.Update
+const PaymentRequestUpdateEventKey EventKeyType = "PaymentRequest.Update"
 
-// MoveTaskOrderCreateEvent is an event
-var MoveTaskOrderCreateEvent = EventType{"moveTaskOrder", "update", models.MoveTaskOrder{}}
+var eventModels map[EventKeyType]eventModel = map[EventKeyType]eventModel{
+	PaymentRequestCreateEventKey: {PaymentRequestCreateEventKey, models.PaymentRequest{}},
+	PaymentRequestUpdateEventKey: {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
+}
 
-// String is a function to convert to string
-func (e EventType) String() string {
-	return e.Object + "." + e.Action
+// IsCreateEvent returns true if this event is a create event
+func IsCreateEvent(e EventKeyType) (bool, error) {
+	s := strings.Split(string(e), ".")
+	//TODO return error
+	if s[1] == "Create" {
+		return true, nil
+	}
+	return false, nil
+}
+
+// GetModelFromEvent returns a model instance associated with this event
+func GetModelFromEvent(e EventKeyType) (interface{}, error) {
+	// TODO return error
+	return eventModels[e].ModelInstance, nil
 }
 
 // Auditor holds on to contextual information we need to create an AuditRecording
@@ -46,13 +79,13 @@ func (e EventType) String() string {
 // 	payload    interface{}
 // }
 
-// Event is the type that holds a single event
-type Event struct {
-	EventType       EventType
-	Request         *http.Request
-	MtoID           uuid.UUID
-	UpdatedObjectID uuid.UUID
-	EndpointKey     EndpointKeyType
+// EventHandlerFunc is a type of func that can be registered as an event handler
+// to be called by the eventing system
+type EventHandlerFunc func(event *Event) error
+
+// registeredEventHandlers are the handlers that will be run on each event
+var registeredEventHandlers = []EventHandlerFunc{
+	EventNotificationsHandler,
 }
 
 //EventGenerator is the service object to generate events
@@ -69,137 +102,25 @@ func NewEventGenerator(db *pop.Connection, hctx handlers.HandlerContext) EventGe
 	}
 }
 
-// // Payload returns a function that sets the Auditor's payload field
-// func Payload(payload interface{}) func(*Auditor) error {
-// 	return func(a *Auditor) error {
-// 		a.payload = payload
-// 		return nil
-// 	}
-// }
-
-// // Model returns a function that sets the Auditor's model field
-// func Model(model interface{}) func(*Auditor) error {
-// 	return func(a *Auditor) error {
-// 		a.model = model
-// 		return nil
-// 	}
-// }
-
-// EventHandlerFunc is a type of func that can be registered as an event handler
-// to be called by the eventing system
-type EventHandlerFunc func(event *Event, db *pop.Connection, logger handlers.Logger) error
-
-var registeredEventHandlers = []EventHandlerFunc{
-	EventNotificationsHandler,
-}
-
-// // setRequestContext adds the request to the Auditor struct for later use
-// func (a *Auditor) setRequestContext(request *http.Request) error {
-// 	a.request = request
-
-// 	clientCert := authentication.ClientCertFromRequestContext(request)
-
-// 	// Request is coming from the Prime
-// 	if clientCert != nil {
-// 		a.clientCert = clientCert
-// 		a.logger = a.hctx.LoggerFromRequest(request)
-// 	} else {
-// 		a.session, a.logger = a.hctx.SessionAndLoggerFromRequest(request)
-// 	}
-
-// 	return nil
-// }
-
 // EventRecord creates an event recording
 func (e *EventGenerator) EventRecord(event Event) (*Event, error) {
 
-	// a.setRequestContext(request)
-	// for _, option := range options {
-	// 	err := option(a)
+	event.clientCert = authentication.ClientCertFromRequestContext(event.Request)
 
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// }
-
-	// modelMap := slices.Map{}
-	// // payloadMap := slices.Map{}
-	// model := a.model
-	// // payload := a.payload
-
-	// val := reflect.ValueOf(model)
-
-	// if model != nil {
-	// 	var modelValue reflect.Value
-	// 	if val.Kind() == reflect.Ptr {
-	// 		modelValue = reflect.ValueOf(model).Elem()
-	// 	}
-
-	// 	if val.Kind() == reflect.Struct {
-	// 		modelValue = val
-	// 	}
-
-	// 	for i := 0; i < modelValue.NumField(); i++ {
-	// 		fieldFromType := modelValue.Type().Field(i)
-	// 		fieldFromValue := modelValue.Field(i)
-	// 		fieldName := flect.Underscore(fieldFromType.Name)
-	// 		_, ok := fieldFromType.Tag.Lookup("db")
-
-	// 		if !ok || fieldFromValue.IsZero() {
-	// 			continue
-	// 		}
-
-	// 		modelMap[fieldName] = fieldFromValue.Interface()
-	// 	}
-	// }
-
-	// metadata := slices.Map{
-	// 	"milmove_trace_id": a.hctx.GetTraceID(),
-	// }
-
-	// // Tie to MTO if there is a MTO ID on the model
-	// // Add friendly shipment identifier if model is shipment
-
-	clientCert := authentication.ClientCertFromRequestContext(event.Request)
-
-	// Request is coming from the Prime
-	var logger handlers.Logger
-	if clientCert != nil {
-		logger = e.hctx.LoggerFromRequest(event.Request)
+	// Get logger info
+	if event.clientCert != nil {
+		event.logger = e.hctx.LoggerFromRequest(event.Request)
 	} else {
-		_, logger = e.hctx.SessionAndLoggerFromRequest(event.Request)
+		event.session, event.logger = e.hctx.SessionAndLoggerFromRequest(event.Request)
 		//add back session
 	}
 
-	// auditRecording := models.AuditRecording{
-	// 	EventName:  "MYNAME",
-	// 	RecordType: "type",
-	// 	RecordData: modelMap,
-	// 	Metadata:   metadata,
-	// }
+	event.db = e.db
+	event.hctx = e.hctx
 
-	// if a.session == nil {
-	// 	if a.clientCert != nil {
-	// 		auditRecording.ClientCertID = &a.clientCert.ID
-	// 	}
-	// } else {
-	// 	auditRecording.UserID = &a.session.UserID
-	// 	auditRecording.FirstName = &a.session.FirstName
-	// 	auditRecording.LastName = &a.session.LastName
-	// 	auditRecording.Email = &a.session.Email
-	// }
-
-	// _, err := a.builder.CreateOne(&auditRecording)
-
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// if this is a security event
-	//   log to cloudwatch with the logic from the Capture function below
-	//LogIt(&event, logger)
+	// Call each registered event handler with the event info and context
 	for i := 0; i < len(registeredEventHandlers); i++ {
-		registeredEventHandlers[i](&event, e.db, logger)
+		registeredEventHandlers[i](&event)
 	}
 	return &event, nil
 }

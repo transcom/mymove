@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/services/events"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
@@ -28,6 +29,7 @@ type UpdatePaymentRequestStatusHandler struct {
 func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
+	eventGen := events.NewEventGenerator(h.DB(), h)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
@@ -45,6 +47,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	status := existingPaymentRequest.Status
+	mtoID := existingPaymentRequest.MoveTaskOrderID
 
 	var reviewedDate time.Time
 	var recGexDate time.Time
@@ -117,6 +120,17 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
 			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
+	}
+
+	_, err = eventGen.EventRecord(events.Event{
+		EventKey:        events.PaymentRequestUpdateEventKey,
+		MtoID:           mtoID,
+		UpdatedObjectID: updatedPaymentRequest.ID,
+		Request:         params.HTTPRequest,
+		EndpointKey:     events.SupportUpdatePaymentRequestStatusEndpointKey,
+	})
+	if err != nil {
+		logger.Error("primeapi.CreatePaymentRequestHanders could not generate the event")
 	}
 
 	returnPayload := payloads.PaymentRequest(updatedPaymentRequest)

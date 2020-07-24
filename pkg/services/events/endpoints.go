@@ -12,60 +12,67 @@ type EndpointKeyType string
 // -------------------- API NAMES --------------------
 
 // primeAPIName is a const string to use the EndpointTypes
-const primeAPIName string = "primeapi"
+const supportAPIName string = "supportapi"
 
 // -------------------- ENDPOINT KEYS --------------------
 
-// PrimeFetchMTOUpdatesEndpointKey is the key for the fetchMTOUpdates endpoint in prime
-const PrimeFetchMTOUpdatesEndpointKey = "Prime.FetchMTOUpdates"
+// SupportListMTOsEndpointKey is the key for the listMTOs endpoint in support
+const SupportListMTOsEndpointKey = "Support.ListMTOs"
 
-// PrimeUpdateMTOPostCounselingInformationEndpointKey is the key for the updateMTOPostCounselingInformation endpoint in prime
-const PrimeUpdateMTOPostCounselingInformationEndpointKey = "Prime.UpdateMTOPostCounselingInformation"
+// SupportCreateMoveTaskOrderEndpointKey is the key for the createMoveTaskOrder endpoint in support
+const SupportCreateMoveTaskOrderEndpointKey = "Support.CreateMoveTaskOrder"
 
-// PrimeCreateMTOShipmentEndpointKey is the key for the createMTOShipment endpoint in prime
-const PrimeCreateMTOShipmentEndpointKey = "Prime.CreateMTOShipment"
+// SupportGetMoveTaskOrderEndpointKey is the key for the getMoveTaskOrder endpoint in support
+const SupportGetMoveTaskOrderEndpointKey = "Support.GetMoveTaskOrder"
 
-// PrimeUpdateMTOShipmentEndpointKey is the key for the updateMTOShipment endpoint in prime
-const PrimeUpdateMTOShipmentEndpointKey = "Prime.UpdateMTOShipment"
+// SupportMakeMoveTaskOrderAvailableEndpointKey is the key for the makeMoveTaskOrderAvailable endpoint in support
+const SupportMakeMoveTaskOrderAvailableEndpointKey = "Support.MakeMoveTaskOrderAvailable"
 
-// PrimeCreateMTOServiceItemEndpointKey is the key for the createMTOServiceItem endpoint in prime
-const PrimeCreateMTOServiceItemEndpointKey = "Prime.CreateMTOServiceItem"
+// SupportListMTOPaymentRequestsEndpointKey is the key for the listMTOPaymentRequests endpoint in support
+const SupportListMTOPaymentRequestsEndpointKey = "Support.ListMTOPaymentRequests"
 
-// PrimeCreatePaymentRequestEndpointKey is the key for the createPaymentRequest endpoint in prime
-const PrimeCreatePaymentRequestEndpointKey = "Prime.CreatePaymentRequest"
+// SupportUpdatePaymentRequestStatusEndpointKey is the key for the updatePaymentRequestStatus endpoint in support
+const SupportUpdatePaymentRequestStatusEndpointKey = "Support.UpdatePaymentRequestStatus"
 
-// PrimeCreateUploadEndpointKey is the key for the createUpload endpoint in prime
-const PrimeCreateUploadEndpointKey = "Prime.CreateUpload"
+// SupportUpdateMTOServiceItemStatusEndpointKey is the key for the updateMTOServiceItemStatus endpoint in support
+const SupportUpdateMTOServiceItemStatusEndpointKey = "Support.UpdateMTOServiceItemStatus"
+
+// SupportUpdateMTOShipmentStatusEndpointKey is the key for the updateMTOShipmentStatus endpoint in support
+const SupportUpdateMTOShipmentStatusEndpointKey = "Support.UpdateMTOShipmentStatus"
 
 // -------------------- ENDPOINT MAP --------------------
 var endpoints map[EndpointKeyType]EndpointType = map[EndpointKeyType]EndpointType{
-	PrimeFetchMTOUpdatesEndpointKey: {
-		APIName:     primeAPIName,
-		OperationID: "fetchMTOUpdates",
+	SupportListMTOsEndpointKey: {
+		APIName:     supportAPIName,
+		OperationID: "listMTOs",
 	},
-	PrimeUpdateMTOPostCounselingInformationEndpointKey: {
-		APIName:     primeAPIName,
-		OperationID: "updateMTOPostCounselingInformation",
+	SupportCreateMoveTaskOrderEndpointKey: {
+		APIName:     supportAPIName,
+		OperationID: "createMoveTaskOrder",
 	},
-	PrimeCreateMTOShipmentEndpointKey: {
-		APIName:     primeAPIName,
-		OperationID: "createMTOShipment",
+	SupportGetMoveTaskOrderEndpointKey: {
+		APIName:     supportAPIName,
+		OperationID: "getMoveTaskOrder",
 	},
-	PrimeUpdateMTOShipmentEndpointKey: {
-		APIName:     primeAPIName,
-		OperationID: "updateMTOShipment",
+	SupportMakeMoveTaskOrderAvailableEndpointKey: {
+		APIName:     supportAPIName,
+		OperationID: "makeMoveTaskOrderAvailable",
 	},
-	PrimeCreateMTOServiceItemEndpointKey: {
-		APIName:     primeAPIName,
-		OperationID: "createMTOServiceItem",
+	SupportListMTOPaymentRequestsEndpointKey: {
+		APIName:     supportAPIName,
+		OperationID: "listMTOPaymentRequests",
 	},
-	PrimeCreatePaymentRequestEndpointKey: {
-		APIName:     primeAPIName,
-		OperationID: "createPaymentRequest",
+	SupportUpdatePaymentRequestStatusEndpointKey: {
+		APIName:     supportAPIName,
+		OperationID: "updatePaymentRequestStatus",
 	},
-	PrimeCreateUploadEndpointKey: {
-		APIName:     primeAPIName,
-		OperationID: "createUpload",
+	SupportUpdateMTOServiceItemStatusEndpointKey: {
+		APIName:     supportAPIName,
+		OperationID: "updateMTOServiceItemStatus",
+	},
+	SupportUpdateMTOShipmentStatusEndpointKey: {
+		APIName:     supportAPIName,
+		OperationID: "updateMTOShipmentStatus",
 	},
 }
 
