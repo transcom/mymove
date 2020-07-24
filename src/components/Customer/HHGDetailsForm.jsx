@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { arrayOf, string, bool, shape, func } from 'prop-types';
+import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik } from 'formik';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
@@ -10,6 +11,7 @@ import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
 import { createMTOShipment as createMTOShipmentAction } from 'shared/Entities/modules/mtoShipments';
+import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
 import { MTOAgentType } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
@@ -23,6 +25,11 @@ class HHGDetailsForm extends Component {
       useCurrentResidence: false,
       initialValues: {},
     };
+  }
+
+  componentDidMount() {
+    const { showLoggedInUser } = this.props;
+    showLoggedInUser();
   }
 
   // TODO: when we can pull in initialValues from redux, set state.hasDeliveryAddress to true if a delivery address exists
@@ -48,7 +55,6 @@ class HHGDetailsForm extends Component {
               pickupLocation: {
                 mailingAddress1: currentResidence.street_address_1,
                 mailingAddress2: currentResidence.street_address_2,
-                country: currentResidence.country,
                 city: currentResidence.city,
                 state: currentResidence.state,
                 zip: currentResidence.postal_code,
@@ -62,7 +68,6 @@ class HHGDetailsForm extends Component {
               pickupLocation: {
                 mailingAddress1: '',
                 mailingAddress2: '',
-                country: '',
                 city: '',
                 state: '',
                 zip: '',
@@ -159,7 +164,9 @@ class HHGDetailsForm extends Component {
                 handleChange={handleChange}
                 renderCurrentResidenceCheckbox={() => (
                   <Checkbox
+                    data-testid="useCurrentResidence"
                     label="Use my current residence address"
+                    name="useCurrentResidence"
                     checked={useCurrentResidence}
                     onChange={this.handleUseCurrentResidenceChange}
                   />
@@ -246,11 +253,10 @@ class HHGDetailsForm extends Component {
 
 HHGDetailsForm.propTypes = {
   currentResidence: shape({
-    street_address_1: string.isRequired,
+    street_address_1: string,
     street_address_2: string,
-    country: string.isRequired,
-    state: string.isRequired,
-    postal_code: string.isRequired,
+    state: string,
+    postal_code: string,
   }).isRequired,
   pageKey: string.isRequired,
   pageList: arrayOf(string).isRequired,
@@ -263,15 +269,17 @@ HHGDetailsForm.propTypes = {
     url: string.isRequired,
   }).isRequired,
   createMTOShipment: func.isRequired,
+  showLoggedInUser: func.isRequired,
   push: func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
-  currentResidence: state.user.userInfo.service_member.residential_address,
+  currentResidence: get(selectLoggedInUser(state), 'service_member.residential_address', {}),
 });
 
 const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
+  showLoggedInUser: showLoggedInUserAction,
 };
 
 export { HHGDetailsForm as HHGDetailsFormComponent };

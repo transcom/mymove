@@ -122,7 +122,32 @@ function customerSetsUpAnHHGMove() {
   cy.get('input[type="radio"]').last().check({ force: true });
   cy.nextPage();
   cy.get('input[name="requestedPickupDate"]').first().type('9/2/2020{enter}').blur();
-  // pickup location
+
+  // should be empty before using "Use current residence" checkbox
+  cy.get(`[data-testid="mailingAddress1"]`).first().should('be.empty');
+  cy.get(`[data-testid="city"]`).first().should('be.empty');
+  cy.get(`[data-testid="state"]`).first().should('be.empty');
+  cy.get(`[data-testid="zip"]`).first().should('be.empty');
+
+  // Use "Use current residence" checkbox
+  cy.get(`[data-testid="useCurrentResidence"]`).check({ force: true });
+
+  // Checkbox should populate fields
+  cy.get(`[data-testid="mailingAddress1"]`).first().should('not.be.empty');
+  cy.get(`[data-testid="city"]`).first().should('not.be.empty');
+  cy.get(`[data-testid="state"]`).first().should('not.be.empty');
+  cy.get(`[data-testid="zip"]`).first().should('not.be.empty');
+
+  // Use checkbox
+  cy.get(`input[name="useCurrentResidence"]`).check({ force: true });
+
+  // checkbox should empty fields
+  cy.get(`[data-testid="mailingAddress1"]`).first().should('be.empty');
+  cy.get(`[data-testid="city"]`).first().should('be.empty');
+  cy.get(`[data-testid="state"]`).first().should('be.empty');
+  cy.get(`[data-testid="zip"]`).first().should('be.empty');
+
+  // fill out pickup location
   cy.get(`[data-testid="mailingAddress1"]`).first().type('412 Avenue M ');
   cy.get(`[data-testid="mailingAddress2"]`).first().type('#3E');
   cy.get(`[data-testid="city"]`).first().type('Los Angeles');
