@@ -68,7 +68,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(moveTaskOrderID)
 
 	if mtoAvailableToPrime {
-		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
+		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipmentWithOptionalServiceItems(mtoShipment, mtoServiceItemsList)
 	} else if err == nil {
 		logger.Error("primeapi.CreateMTOShipmentHandler error - MTO is not available to Prime")
 		return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(

@@ -117,25 +117,6 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			}
 		}
 
-		// create MTOServiceItems List
-		if serviceItems != nil {
-			serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
-
-			for _, serviceItem := range serviceItems {
-				_, validationErrs, serviceError := f.mtoServiceItemCreator.CreateMTOServiceItem(&serviceItem)
-				if validationErrs != nil && validationErrs.HasAny() {
-					return verrs
-				}
-				if serviceError != nil {
-					return serviceError
-				}
-				serviceItemsList = append(serviceItemsList, serviceItem)
-			}
-
-			shipment.MTOServiceItems = serviceItemsList
-
-		}
-
 		return nil
 	})
 
@@ -146,4 +127,33 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 	}
 
 	return shipment, transactionError
+}
+
+func (f mtoShipmentCreator) CreateMTOShipmentWithOptionalServiceItems(shipment *models.MTOShipment, serviceItems models.MTOServiceItems) (*models.MTOShipment, error) {
+	mtoShipment, err := f.CreateMTOShipment(shipment, serviceItems)
+	if err != nil {
+		return nil, services.NewNotFoundError(shipment.ID, "for shipment")
+	}
+
+	// create MTOServiceItems List
+	if serviceItems != nil {
+		serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
+
+		for _, serviceItem := range serviceItems {
+			serviceItem.MTOShipmentID = &mtoShipment.ID
+			serviceItem.MoveTaskOrderID = mtoShipment.MoveTaskOrderID
+			_, validationErrs, serviceError := f.mtoServiceItemCreator.CreateMTOServiceItem(&serviceItem)
+			if validationErrs != nil && validationErrs.HasAny() {
+				return nil, err
+			}
+			if serviceError != nil {
+				return nil, err
+			}
+			serviceItemsList = append(serviceItemsList, serviceItem)
+		}
+		mtoShipment.MTOServiceItems = serviceItemsList
+	}
+
+
+	return mtoShipment, err
 }

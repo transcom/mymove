@@ -23,4 +23,5 @@ type MTOShipmentStatusUpdater interface {
 //go:generate mockery -name MTOShipmentCreator
 type MTOShipmentCreator interface {
 	CreateMTOShipment(MTOShipment *models.MTOShipment, MTOServiceItems models.MTOServiceItems) (*models.MTOShipment, error)
+	CreateMTOShipmentWithOptionalServiceItems(MTOShipment *models.MTOShipment, MTOServiceItems models.MTOServiceItems) (*models.MTOShipment, error)
 }
