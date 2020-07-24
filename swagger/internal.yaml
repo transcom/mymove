@@ -2667,7 +2667,6 @@ definitions:
     required:
       - moveTaskOrderID
       - pickupAddress
-      - destinationAddress
       - shipmentType
   ClientError:
     type: object

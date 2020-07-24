@@ -3874,7 +3874,6 @@ func init() {
       "required": [
         "moveTaskOrderID",
         "pickupAddress",
-        "destinationAddress",
         "shipmentType"
       ],
       "properties": {
@@ -10469,7 +10468,6 @@ func init() {
       "required": [
         "moveTaskOrderID",
         "pickupAddress",
-        "destinationAddress",
         "shipmentType"
       ],
       "properties": {
