@@ -34,15 +34,17 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	actualWeight := unit.Pound(980)
 
 	// mock dates
-	scheduledPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
 	requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+	scheduledPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
 	requestedDeliveryDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
 	MTOShipment := models.MTOShipment{
 		MoveTaskOrder:            moveTaskOrder,
 		MoveTaskOrderID:          moveTaskOrder.ID,
-		ScheduledPickupDate:      &scheduledPickupDate,
 		RequestedPickupDate:      &requestedPickupDate,
+		ScheduledPickupDate:      &scheduledPickupDate,
+		ActualPickupDate:         &actualPickupDate,
 		RequestedDeliveryDate:    &requestedDeliveryDate,
 		CustomerRemarks:          &remarks,
 		PickupAddress:            &pickupAddress,

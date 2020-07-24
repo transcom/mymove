@@ -16,7 +16,7 @@ describe('Office Home Page', function () {
   it('office user can use a single click to view move info', function () {
     cy.waitForReactTableLoad();
 
-    cy.get('[data-cy=queueTableRow]:first').click();
+    cy.get('[data-testid=queueTableRow]:first').click();
     cy.url().should('include', '/moves/');
   });
 });
@@ -74,11 +74,11 @@ describe('Queue staleness indicator', () => {
     cy.signInAsNewOfficeUser();
     cy.patientVisit('/queues/all');
 
-    cy.get('[data-cy=staleness-indicator]').should('have.text', 'Last updated a few seconds ago');
+    cy.get('[data-testid=staleness-indicator]').should('have.text', 'Last updated a few seconds ago');
 
     cy.tick(120000);
 
-    cy.get('[data-cy=staleness-indicator]').should('have.text', 'Last updated 2 mins ago');
+    cy.get('[data-testid=staleness-indicator]').should('have.text', 'Last updated 2 mins ago');
   });
 });
 
@@ -93,5 +93,5 @@ function officeAllMoves() {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
-  cy.get('[data-cy=locator]').contains('NOSHOW').should('not.exist');
+  cy.get('[data-testid=locator]').contains('NOSHOW').should('not.exist');
 }
