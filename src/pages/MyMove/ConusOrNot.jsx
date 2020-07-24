@@ -8,7 +8,7 @@ import { setConusStatus, selectedConusStatus } from 'scenes/Moves/ducks';
 import { CONUS_STATUS } from 'shared/constants';
 
 // eslint-disable-next-line react/prefer-stateless-function
-export class ConusONo extends Component {
+export class ConusOrNot extends Component {
   render() {
     const { setLocation, conusStatus } = this.props;
 
@@ -49,12 +49,12 @@ export class ConusONo extends Component {
   }
 }
 
-ConusONo.propTypes = {
+ConusOrNot.propTypes = {
   setLocation: func.isRequired,
   conusStatus: string,
 };
 
-ConusONo.defaultProps = {
+ConusOrNot.defaultProps = {
   conusStatus: CONUS_STATUS.CONUS,
 };
 
@@ -69,4 +69,4 @@ const mapDispatchToProps = {
   setLocation: setConusStatus,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ConusONo);
+export default connect(mapStateToProps, mapDispatchToProps)(ConusOrNot);

@@ -2,15 +2,15 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { Radio } from '@trussworks/react-uswds';
 
-import { ConusONo } from 'pages/MyMove/ConusONo';
+import { ConusOrNot } from 'pages/MyMove/ConusOrNot';
 import { CONUS_STATUS } from 'shared/constants';
 
-describe('ConusONo', () => {
+describe('ConusOrNot', () => {
   const minProps = {
     conusStatus: CONUS_STATUS.CONUS,
   };
   it('should render radio buttons', () => {
-    const wrapper = mount(<ConusONo conusStatus={minProps.conusStatus} />);
+    const wrapper = mount(<ConusOrNot conusStatus={minProps.conusStatus} />);
     expect(wrapper.find(Radio).length).toBe(2);
 
     // PPM button should be checked on page load

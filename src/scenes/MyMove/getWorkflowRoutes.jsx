@@ -22,7 +22,7 @@ import UploadOrders from 'scenes/Orders/UploadOrders';
 
 import MoveLanding from 'pages/MyMove/MoveLanding';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
-import ConusONo from 'pages/MyMove/ConusONo';
+import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import MovingInfo from 'pages/MyMove/MovingInfo';
 
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
@@ -88,7 +88,7 @@ const pages = {
           match={match}
           canMoveNext={props.conusStatus === CONUS_STATUS.CONUS}
         >
-          <ConusONo conusStatus={props.conusStatus} />
+          <ConusOrNot conusStatus={props.conusStatus} />
         </WizardPage>
       );
     },
