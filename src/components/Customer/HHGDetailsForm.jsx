@@ -40,7 +40,7 @@ class HHGDetailsForm extends Component {
   };
 
   // Use current residence
-  handleUseCurrentResidenceChange = () => {
+  handleUseCurrentResidenceChange = (currentValues) => {
     // eslint-disable-next-line react/destructuring-assignment
     this.setState(
       (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
@@ -52,6 +52,7 @@ class HHGDetailsForm extends Component {
             // eslint-disable-next-line prettier/prettier
             initialValues: {
               ...initialValues,
+              ...currentValues,
               pickupLocation: {
                 mailingAddress1: currentResidence.street_address_1,
                 mailingAddress2: currentResidence.street_address_2,
@@ -65,6 +66,7 @@ class HHGDetailsForm extends Component {
           this.setState({
             initialValues: {
               ...initialValues,
+              ...currentValues,
               pickupLocation: {
                 mailingAddress1: '',
                 mailingAddress2: '',
@@ -168,7 +170,7 @@ class HHGDetailsForm extends Component {
                     label="Use my current residence address"
                     name="useCurrentResidence"
                     checked={useCurrentResidence}
-                    onChange={this.handleUseCurrentResidenceChange}
+                    onChange={() => this.handleUseCurrentResidenceChange(values)}
                   />
                 )}
                 values={values.pickupLocation}
