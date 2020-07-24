@@ -279,10 +279,10 @@ describe('ReviewServiceItems component', () => {
       <ReviewServiceItems handleClose={handleClose} serviceItemCards={cardsWithInitialValues} />,
     );
     const approvedAmount = componentWithInitialValues.find('[data-testid="approvedAmount"]');
-    const nextButton = componentWithInitialValues.find('[data-cy="nextServiceItem"]');
+    const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
 
     it('calculates the sum for items with initial values', () => {
-      expect(approvedAmount.text()).toEqual('$1050.25');
+      expect(approvedAmount.text()).toEqual('$1,050.25');
     });
 
     it('adds to total newly approved items', async () => {
@@ -294,7 +294,7 @@ describe('ReviewServiceItems component', () => {
       });
       componentWithInitialValues.update();
 
-      expect(approvedAmount.text()).toEqual('$1051.25');
+      expect(approvedAmount.text()).toEqual('$1,051.25');
     });
 
     it('subtracts from total when an approved item becomes rejected', async () => {
@@ -306,7 +306,7 @@ describe('ReviewServiceItems component', () => {
       });
       componentWithInitialValues.update();
 
-      expect(approvedAmount.text()).toEqual('$1050.25');
+      expect(approvedAmount.text()).toEqual('$1,050.25');
     });
 
     it('subtracts from total when approved item selection is cleared', async () => {

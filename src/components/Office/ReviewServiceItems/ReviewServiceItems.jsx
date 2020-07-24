@@ -11,6 +11,7 @@ import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
+import { toDollarString } from 'shared/formatters';
 
 const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   const [curCardIndex, setCardIndex] = useState(0);
@@ -19,15 +20,27 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
 
   const { APPROVED, REJECTED } = SERVICE_ITEM_STATUS;
 
-  // eslint-disable-next-line
-  let requestedSum = 0;
-  let approvedSum = 0;
-  let rejectedSum = 0;
-
   const handleClick = (index) => {
     setCardIndex(index);
   };
 
+  const calculateTotals = (values) => {
+    let approvedSum = 0;
+    let rejectedSum = 0;
+
+    serviceItemCards.forEach((serviceItem) => {
+      const itemValues = values[`${serviceItem.id}`];
+      if (itemValues?.status === APPROVED) approvedSum += serviceItem.amount;
+      else if (itemValues?.status === REJECTED) rejectedSum += serviceItem.amount;
+    });
+
+    return {
+      approved: approvedSum,
+      rejected: rejectedSum,
+    };
+  };
+
+  //  let requestedSum = 0; // TODO - use in Complete review screen
   const formValues = {};
   // TODO - preset these based on existing values
   serviceItemCards.forEach((serviceItem) => {
@@ -36,16 +49,8 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
       rejectionReason: serviceItem.rejectionReason,
     };
 
-    requestedSum += serviceItem.amount;
-    if (serviceItem.status === APPROVED) {
-      approvedSum += serviceItem.amount;
-    } else if (serviceItem.status === REJECTED) {
-      rejectedSum += serviceItem.amount;
-    }
+    // requestedSum += serviceItem.amount; // TODO - use in Complete review screen
   });
-
-  const [approvedTotal, setApprovedTotal] = useState(approvedSum);
-  const [rejectedTotal, setRejectedTotal] = useState(rejectedSum);
 
   const currentCard = sortedCards[parseInt(curCardIndex, 10)];
 
@@ -53,35 +58,12 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
     <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <Formik initialValues={formValues}>
         {({ values, handleChange, setValues }) => {
-          const handleReview = (previousStatus, id, amount, newStatus) => {
-            switch (previousStatus) {
-              case APPROVED:
-                setApprovedTotal(approvedTotal - amount);
-                break;
-              case REJECTED:
-                setRejectedTotal(rejectedTotal - amount);
-                break;
-              default:
-            }
-
-            let clearReason = false;
-            switch (newStatus) {
-              case APPROVED:
-                setApprovedTotal(approvedTotal + amount);
-                break;
-              case REJECTED:
-                setRejectedTotal(rejectedTotal + amount);
-                break;
-              default:
-                // clearing selection
-                clearReason = true;
-            }
-
+          const clearServiceItemValues = (id) => {
             setValues({
               ...values,
               [`${id}`]: {
-                status: newStatus,
-                rejectionReason: clearReason ? undefined : values[`${id}`].rejectionReason,
+                status: undefined,
+                rejectionReason: undefined,
               },
             });
           };
@@ -103,8 +85,8 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
                   // eslint-disable-next-line react/jsx-props-no-spreading
                   {...currentCard}
                   value={values[currentCard.id]}
-                  onReview={handleReview}
                   onChange={handleChange}
+                  clearValues={clearServiceItemValues}
                 />
               </div>
               <div className={styles.bottom}>
@@ -128,7 +110,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
                 <div className={styles.totalApproved}>
                   <div className={styles.totalLabel}>Total approved</div>
                   <div data-testid="approvedAmount" className={styles.totalAmount}>
-                    ${approvedTotal.toFixed(2)}
+                    {toDollarString(calculateTotals(values).approved)}
                   </div>
                 </div>
               </div>
