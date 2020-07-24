@@ -156,6 +156,10 @@ function customerSetsUpAnHHGMove() {
   // customer remarks
   cy.get(`[data-testid="remarks"]`).first().type('some customer remark');
   cy.nextPage();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
+  });
 }
 
 describe('The Home Page', function () {
