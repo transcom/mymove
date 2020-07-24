@@ -47,6 +47,9 @@ type PaymentRequest struct {
 	// service item i ds
 	ServiceItemIDs []strfmt.UUID `json:"serviceItemIDs"`
 
+	// service items
+	ServiceItems PaymentServiceItems `json:"serviceItems,omitempty"`
+
 	// status
 	Status PaymentRequestStatus `json:"status,omitempty"`
 }
@@ -68,6 +71,10 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateServiceItemIDs(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateServiceItems(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -137,6 +144,22 @@ func (m *PaymentRequest) validateServiceItemIDs(formats strfmt.Registry) error {
 			return err
 		}
 
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateServiceItems(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ServiceItems) { // not required
+		return nil
+	}
+
+	if err := m.ServiceItems.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceItems")
+		}
+		return err
 	}
 
 	return nil
