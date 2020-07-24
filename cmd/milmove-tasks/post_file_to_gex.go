@@ -38,7 +38,7 @@ func checkPostFileToGEXConfig(v *viper.Viper) error {
 		return errors.New("must have file to send")
 	}
 
-	if transactionName := v.GetString("transaction-name"); transactionName == "" {
+	if trasactionName := v.GetString("transaction-name"); trasactionName == "" {
 		return errors.New("transaction-name is missing")
 	}
 

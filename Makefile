@@ -766,8 +766,8 @@ tasks_build_linux_docker:  ## Build Scheduled Task binaries (linux) and Docker i
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 
-.PHONY: tasks_save_ghc_fuel_price_data
-tasks_save_ghc_fuel_price_data: tasks_build_linux_docker ## Run save-ghc-fuel-price-data from inside docker container
+.PHONY: tasks_save_fuel_price_data
+tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data from inside docker container
 	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
 	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
 	docker run \
@@ -782,7 +782,7 @@ tasks_save_ghc_fuel_price_data: tasks_build_linux_docker ## Run save-ghc-fuel-pr
 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
-		milmove-tasks save-ghc-fuel-price-data
+		milmove-tasks save-fuel-price-data
 
 tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-survey from inside docker container
 	@echo "sending post move survey with docker command..."
