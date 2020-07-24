@@ -90,11 +90,10 @@ class HHGDetailsForm extends Component {
     releasingAgent,
     remarks,
   }) => {
-    const { createMTOShipment } = this.props;
+    const { createMTOShipment, moveTaskOrderID } = this.props;
     const { hasDeliveryAddress } = this.state;
     const mtoShipment = {
-      // TODO: Use moveTaskOrderID when it is available
-      moveTaskOrderID: '5d4b25bb-eb04-4c03-9a81-ee0398cb779e',
+      moveTaskOrderID,
       shipmentType: 'HHG',
       requestedPickupDate: formatSwaggerDate(requestedPickupDate),
       requestedDeliveryDate: formatSwaggerDate(requestedDeliveryDate),
@@ -276,12 +275,14 @@ HHGDetailsForm.propTypes = {
     state: string.isRequired,
     post_code: string.isRequired,
   }).isRequired,
+  moveTaskOrderID: string.isRequired,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   push: func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
+  moveTaskOrderID: get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', ''),
   currentResidence: get(selectLoggedInUser(state), 'service_member.residential_address', {}),
   newDutyStationAddress: get(selectLoggedInUser(state), 'service_member.orders[0].new_duty_station.address', {}),
 });

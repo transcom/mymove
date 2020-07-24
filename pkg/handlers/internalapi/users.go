@@ -5,6 +5,9 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
@@ -16,6 +19,7 @@ import (
 // ShowLoggedInUserHandler returns the logged in user
 type ShowLoggedInUserHandler struct {
 	handlers.HandlerContext
+	builder query.Builder
 }
 
 // decoratePayloadWithRoles will add session roles to the logged in user payload and return it
@@ -47,6 +51,8 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	}
 	// Load Servicemember and first level associations
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, session.ServiceMemberID)
+	var mto models.MoveTaskOrder
+
 	if err != nil {
 		logger.Error("Error retrieving service_member", zap.Error(err))
 		return userop.NewShowLoggedInUserUnauthorized()
@@ -55,22 +61,22 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	// Load duty station and transportation office association
 	if serviceMember.DutyStationID != nil {
 		// Fetch associations on duty station
-		dutyStation, err := models.FetchDutyStation(h.DB(), *serviceMember.DutyStationID)
-		if err != nil {
-			return handlers.ResponseForError(logger, err)
+		dutyStation, dutyStationErr := models.FetchDutyStation(h.DB(), *serviceMember.DutyStationID)
+		if dutyStationErr != nil {
+			return handlers.ResponseForError(logger, dutyStationErr)
 		}
 		serviceMember.DutyStation = dutyStation
 
 		// Fetch duty station transportation office
-		transportationOffice, err := models.FetchDutyStationTransportationOffice(h.DB(), *serviceMember.DutyStationID)
-		if err != nil {
-			if errors.Cause(err) != models.ErrFetchNotFound {
+		transportationOffice, tspErr := models.FetchDutyStationTransportationOffice(h.DB(), *serviceMember.DutyStationID)
+		if tspErr != nil {
+			if errors.Cause(tspErr) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, tspErr)
 			}
 			// We might not have Transportation Office data for a Duty Station, and that's ok
-			if errors.Cause(err) != models.ErrFetchNotFound {
-				return handlers.ResponseForError(logger, err)
+			if errors.Cause(tspErr) != models.ErrFetchNotFound {
+				return handlers.ResponseForError(logger, tspErr)
 			}
 		}
 		serviceMember.DutyStation.TransportationOffice = transportationOffice
@@ -78,17 +84,24 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 	// Load the latest orders associations and new duty station transport office
 	if len(serviceMember.Orders) > 0 {
-		orders, err := models.FetchOrderForUser(h.DB(), session, serviceMember.Orders[0].ID)
-		if err != nil {
-			return handlers.ResponseForError(logger, err)
+		orders, orderErr := models.FetchOrderForUser(h.DB(), session, serviceMember.Orders[0].ID)
+		if orderErr != nil {
+			return handlers.ResponseForError(logger, orderErr)
+		}
+		filters := []services.QueryFilter{
+			query.NewQueryFilter("move_order_id", "=", orders.ID),
+		}
+		fetchErr := h.builder.FetchOne(&mto, filters)
+		if fetchErr != nil {
+			return handlers.ResponseForError(logger, fetchErr)
 		}
 		serviceMember.Orders[0] = orders
 
-		newDutyStationTransportationOffice, err := models.FetchDutyStationTransportationOffice(h.DB(), orders.NewDutyStationID)
-		if err != nil {
+		newDutyStationTransportationOffice, dutyStationErr := models.FetchDutyStationTransportationOffice(h.DB(), orders.NewDutyStationID)
+		if dutyStationErr != nil {
 			if errors.Cause(err) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
-				return handlers.ResponseForError(logger, err)
+				return handlers.ResponseForError(logger, dutyStationErr)
 			}
 		}
 		serviceMember.Orders[0].NewDutyStation.TransportationOffice = newDutyStationTransportationOffice
@@ -97,9 +110,9 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		if len(serviceMember.Orders[0].Moves) > 0 {
 			if len(serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves) > 0 {
 				// TODO: load advances on all ppms for the latest order's move
-				ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].ID)
-				if err != nil {
-					return handlers.ResponseForError(logger, err)
+				ppm, ppmErr := models.FetchPersonallyProcuredMove(h.DB(), session, serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].ID)
+				if ppmErr != nil {
+					return handlers.ResponseForError(logger, ppmErr)
 				}
 				serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].Advance = ppm.Advance
 			}
@@ -108,9 +121,12 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 	requiresAccessCode := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
 
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 	userPayload := internalmessages.LoggedInUserPayload{
 		ID:            handlers.FmtUUID(session.UserID),
-		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, requiresAccessCode),
+		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, requiresAccessCode, mto.ID),
 		FirstName:     session.FirstName,
 		Email:         session.Email,
 	}
