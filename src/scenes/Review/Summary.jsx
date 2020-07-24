@@ -11,11 +11,13 @@ import {
   selectActiveOrLatestOrders,
   selectUploadsForActiveOrders,
 } from 'shared/Entities/modules/orders';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
+import { selectedMoveType as selectMoveType } from 'scenes/Moves/ducks';
 
 import { checkEntitlement } from './ducks';
 import ServiceMemberSummary from './ServiceMemberSummary';
@@ -31,8 +33,9 @@ export class Summary extends Component {
     }
   }
   componentDidUpdate(prevProps) {
+    const { selectedMoveType } = this.props;
     // Only check entitlement for PPMs, not HHGs
-    if (prevProps.currentPPM !== this.props.currentPPM) {
+    if (prevProps.currentPPM !== this.props.currentPPM && selectedMoveType === SHIPMENT_OPTIONS.PPM) {
       this.props.onCheckEntitlement(this.props.match.params.moveId);
     }
   }
@@ -123,6 +126,7 @@ Summary.propTypes = {
   moveIsApproved: PropTypes.bool,
   lastMoveIsCanceled: PropTypes.bool,
   error: PropTypes.object,
+  selectedMoveType: PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -136,6 +140,7 @@ function mapStateToProps(state, ownProps) {
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: currentOrders,
     uploads: selectUploadsForActiveOrders(state),
+    selectedMoveType: selectMoveType(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),

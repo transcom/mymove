@@ -3,7 +3,6 @@ import { arrayOf, string, bool, shape, func } from 'prop-types';
 import { connect } from 'react-redux';
 import { Formik } from 'formik';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
-import { push } from 'connected-react-router';
 
 import { Form } from '../form/Form';
 import { DatePickerInput, TextInput } from '../form/fields';
@@ -78,13 +77,12 @@ class HHGDetailsForm extends Component {
     if (receivingAgent) {
       mtoShipment.agents.push({ ...receivingAgent, agentType: MTOAgentType.RECEIVING });
     }
-
-    return createMTOShipment(mtoShipment);
+    createMTOShipment(mtoShipment);
   };
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { initialValues, pageKey, pageList, match } = this.props;
+    const { initialValues, pageKey, pageList, match, push } = this.props;
     const { hasDeliveryAddress } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
@@ -92,9 +90,9 @@ class HHGDetailsForm extends Component {
         {({ handleChange, values }) => (
           <WizardPage
             match={match}
-            push={push}
             pageKey={pageKey}
             pageList={pageList}
+            push={push}
             handleSubmit={() => this.submitMTOShipment(values)}
           >
             <Form>
@@ -237,6 +235,7 @@ HHGDetailsForm.propTypes = {
     url: string.isRequired,
   }).isRequired,
   createMTOShipment: func.isRequired,
+  push: func.isRequired,
 };
 
 HHGDetailsForm.defaultProps = {

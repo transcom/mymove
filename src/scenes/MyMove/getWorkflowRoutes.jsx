@@ -188,8 +188,8 @@ const pages = {
     isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
     // isInFlow: inHhgFlow, // temp: use this to view page locally until we can set selectedMoveType
     isComplete: always,
-    render: (key, pages, description, props) => ({ match }) => (
-      <HHGMoveSetup pageList={pages} pageKey={key} match={match} />
+    render: (key, pages, description, props) => ({ match, history }) => (
+      <HHGMoveSetup pageList={pages} pageKey={key} match={match} push={history.push} />
     ),
   },
   '/moves/:moveId/review': {

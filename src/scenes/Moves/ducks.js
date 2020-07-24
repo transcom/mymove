@@ -62,6 +62,7 @@ const initialState = {
   pendingMoveType: null,
   hasSubmitError: false,
   hasSubmitSuccess: false,
+  selectedMoveType: 'HHG',
   error: null,
 };
 function reshapeMove(move) {
