@@ -9,13 +9,6 @@
 
   box-shadow: -4px 0px 8px 0px rgba(0, 0, 0, 0.1);
 
-  .form {
-    max-width: none;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-  }
-
   .top button[type='button'] {
     float: right;
     // on mobile the button becomes flexed so must override centering

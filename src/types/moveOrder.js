@@ -98,6 +98,7 @@ export const PaymentRequestShape = PropTypes.shape({
   moveTaskOrderID: PropTypes.string,
   paymentRequestNumber: PropTypes.string,
   status: PropTypes.string,
+  eTag: PropTypes.string,
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,

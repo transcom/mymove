@@ -18,6 +18,7 @@ import {
   getMTOServiceItems as getMTOServiceItemsAction,
   selectMTOServiceItemsByMTOId,
 } from 'shared/Entities/modules/mtoServiceItems';
+import { patchPaymentServiceItemStatus as patchPaymentServiceItemStatusAction } from 'shared/Entities/modules/paymentServiceItems';
 
 export class PaymentRequestReview extends Component {
   componentDidMount() {
@@ -29,6 +30,17 @@ export class PaymentRequestReview extends Component {
       getMTOServiceItems(pr.moveTaskOrderID);
     });
   }
+
+  handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
+    const { patchPaymentServiceItemStatus, mtoServiceItems, paymentRequest } = this.props;
+    patchPaymentServiceItemStatus(
+      mtoServiceItems[0].moveTaskOrderID,
+      paymentServiceItemID,
+      values.status,
+      paymentRequest.eTag,
+      values.rejectionReason,
+    );
+  };
 
   handleClose = (moveOrderId) => {
     // eslint-disable-next-line react/prop-types
@@ -70,7 +82,11 @@ export class PaymentRequestReview extends Component {
           <DocumentViewer files={testFiles} />
         </div>
         <div className={styles.sidebar}>
-          <ReviewServiceItems handleClose={() => this.handleClose(moveOrderId)} serviceItemCards={serviceItemCards} />
+          <ReviewServiceItems
+            handleClose={() => this.handleClose(moveOrderId)}
+            serviceItemCards={serviceItemCards}
+            patchPaymentServiceItem={this.handleUpdatePaymentServiceItemStatus}
+          />
         </div>
       </div>
     );
@@ -83,6 +99,7 @@ PaymentRequestReview.propTypes = {
   getMTOServiceItems: PropTypes.func.isRequired,
   getMTOShipments: PropTypes.func.isRequired,
   paymentRequest: PaymentRequestShape,
+  patchPaymentServiceItemStatus: PropTypes.func.isRequired,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
   mtoShipments: PropTypes.arrayOf(MTOShipmentShape),
 };
@@ -109,6 +126,7 @@ const mapDispatchToProps = {
   getPaymentRequest: getPaymentRequestAction,
   getMTOServiceItems: getMTOServiceItemsAction,
   getMTOShipments: getMTOShipmentsAction,
+  patchPaymentServiceItemStatus: patchPaymentServiceItemStatusAction,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PaymentRequestReview));

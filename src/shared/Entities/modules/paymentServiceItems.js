@@ -5,22 +5,25 @@ const updatePaymentServiceItemOperation = 'paymentServiceItem.updatePaymentServi
 const paymentServiceItemSchemaKey = 'paymentServiceItem';
 export function patchPaymentServiceItemStatus(
   moveTaskOrderID,
-  paymentRequestID,
+  paymentServiceItemID,
   paymentServiceItemStatus,
   ifMatchEtag,
   rejectionReason,
   label = updatePaymentServiceItemOperation,
   schemaKey = paymentServiceItemSchemaKey,
 ) {
+  console.log(ifMatchEtag);
   return swaggerRequest(
     getGHCClient,
     updatePaymentServiceItemOperation,
     {
       moveTaskOrderID,
-      paymentRequestID,
-      'If-match': ifMatchEtag,
+      paymentServiceItemID,
+      'If-Match': ifMatchEtag,
       body: { status: paymentServiceItemStatus, rejectionReason },
     },
     { label, schemaKey },
   );
 }
+
+export default patchPaymentServiceItemStatus;
