@@ -15,9 +15,6 @@ import { toDollarString } from 'shared/formatters';
 
 const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   const [curCardIndex, setCardIndex] = useState(0);
-  // eslint-disable-next-line no-unused-vars
-  const [totalApproved, setTotalApproved] = useState(0);
-
   const sortedCards = sortServiceItemsByGroup(serviceItemCards);
 
   const totalCards = serviceItemCards.length;
