@@ -879,6 +879,71 @@ paths:
         - contracting_officer
         - ppm_office_users
       summary: Change the status of a move task order to make it available to prime
+  '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+      - description: ID of payment service item to use
+        in: path
+        name: paymentServiceItemID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/PaymentServiceItem'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: >-
+            Successfully updated status for a line item for a move task order by
+            ID
+          schema:
+            $ref: '#/definitions/PaymentServiceItem'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition Failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentServiceItem
+      description: Changes the status of a line item for a move order by ID
+      x-swagger-roles:
+        - transportation_invoicing_officer
+      operationId: updatePaymentServiceItemStatus
+      summary: Change the status of a payment service item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
       - description: ID of move order to use
