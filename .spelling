@@ -603,6 +603,23 @@ redis-cli
 a11y
 npm
 userbase
+move_task_orders
+orders_id
+selected_move_type
+cancel_reason
+contractor_id
+available_to_prime_at
+ppm_type
+ppm_estimated_weight
+MTOs
+HHG
+PPM
+UB
+POV
+NTS
+HHG_PPM
+actuals
+dddd-dddd
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md
  - docs/adr/0050-doc-viewer-fork.md
