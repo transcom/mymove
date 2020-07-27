@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"strconv"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -42,8 +44,8 @@ type PaymentRequest struct {
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
-	// service items
-	ServiceItems PaymentServiceItems `json:"serviceItems,omitempty"`
+	// service item i ds
+	ServiceItemIDs []strfmt.UUID `json:"serviceItemIDs"`
 
 	// status
 	Status PaymentRequestStatus `json:"status,omitempty"`
@@ -65,7 +67,7 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateServiceItems(formats); err != nil {
+	if err := m.validateServiceItemIDs(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -123,17 +125,18 @@ func (m *PaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *PaymentRequest) validateServiceItems(formats strfmt.Registry) error {
+func (m *PaymentRequest) validateServiceItemIDs(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ServiceItems) { // not required
+	if swag.IsZero(m.ServiceItemIDs) { // not required
 		return nil
 	}
 
-	if err := m.ServiceItems.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("serviceItems")
+	for i := 0; i < len(m.ServiceItemIDs); i++ {
+
+		if err := validate.FormatOf("serviceItemIDs"+"."+strconv.Itoa(i), "body", "uuid", m.ServiceItemIDs[i].String(), formats); err != nil {
+			return err
 		}
-		return err
+
 	}
 
 	return nil

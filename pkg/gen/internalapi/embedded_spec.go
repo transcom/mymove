@@ -3874,6 +3874,7 @@ func init() {
       "required": [
         "moveTaskOrderID",
         "pickupAddress",
+        "destinationAddress",
         "shipmentType"
       ],
       "properties": {
@@ -4436,6 +4437,11 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -4468,12 +4474,17 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "requestedDeliveryDate": {
+        "requestedPickupDate": {
           "type": "string",
           "format": "date",
           "readOnly": true
         },
-        "requestedPickupDate": {
+        "requiredDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "scheduledPickupDate": {
           "type": "string",
           "format": "date",
           "readOnly": true
@@ -5075,11 +5086,6 @@ func init() {
           "title": "Date issued",
           "example": "2018-04-26"
         },
-        "move_task_order_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "moves": {
           "$ref": "#/definitions/IndexMovesPayload"
         },
@@ -5160,7 +5166,9 @@ func init() {
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "GHC",
+        "NTS"
       ],
       "x-display-value": {
         "GHC": "GHC",
@@ -10471,6 +10479,7 @@ func init() {
       "required": [
         "moveTaskOrderID",
         "pickupAddress",
+        "destinationAddress",
         "shipmentType"
       ],
       "properties": {
@@ -11035,6 +11044,11 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -11067,12 +11081,17 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "requestedDeliveryDate": {
+        "requestedPickupDate": {
           "type": "string",
           "format": "date",
           "readOnly": true
         },
-        "requestedPickupDate": {
+        "requiredDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "scheduledPickupDate": {
           "type": "string",
           "format": "date",
           "readOnly": true
@@ -11676,11 +11695,6 @@ func init() {
           "title": "Date issued",
           "example": "2018-04-26"
         },
-        "move_task_order_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "moves": {
           "$ref": "#/definitions/IndexMovesPayload"
         },
@@ -11761,7 +11775,9 @@ func init() {
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
         "RETIREMENT",
-        "SEPARATION"
+        "SEPARATION",
+        "GHC",
+        "NTS"
       ],
       "x-display-value": {
         "GHC": "GHC",
