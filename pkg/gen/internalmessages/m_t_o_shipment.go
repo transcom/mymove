@@ -17,11 +17,6 @@ import (
 // swagger:model MTOShipment
 type MTOShipment struct {
 
-	// actual pickup date
-	// Read Only: true
-	// Format: date
-	ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
-
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
@@ -50,20 +45,15 @@ type MTOShipment struct {
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
+	// requested delivery date
+	// Read Only: true
+	// Format: date
+	RequestedDeliveryDate strfmt.Date `json:"requestedDeliveryDate,omitempty"`
+
 	// requested pickup date
 	// Read Only: true
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
-
-	// required delivery date
-	// Read Only: true
-	// Format: date
-	RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
-
-	// scheduled pickup date
-	// Read Only: true
-	// Format: date
-	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
 	// secondary delivery address
 	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
@@ -83,10 +73,6 @@ type MTOShipment struct {
 // Validate validates this m t o shipment
 func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateActualPickupDate(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateAgents(formats); err != nil {
 		res = append(res, err)
@@ -112,15 +98,11 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateRequestedDeliveryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateRequestedPickupDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRequiredDeliveryDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateScheduledPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -143,19 +125,6 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *MTOShipment) validateActualPickupDate(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ActualPickupDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("actualPickupDate", "body", "date", m.ActualPickupDate.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -250,6 +219,19 @@ func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validateRequestedDeliveryDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.RequestedDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("requestedDeliveryDate", "body", "date", m.RequestedDeliveryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.RequestedPickupDate) { // not required
@@ -257,32 +239,6 @@ func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error
 	}
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOShipment) validateRequiredDeliveryDate(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.RequiredDeliveryDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("requiredDeliveryDate", "body", "date", m.RequiredDeliveryDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ScheduledPickupDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("scheduledPickupDate", "body", "date", m.ScheduledPickupDate.String(), formats); err != nil {
 		return err
 	}
 

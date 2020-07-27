@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/gofrs/uuid"
@@ -52,7 +54,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	params := mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
-		Body: &primemessages.CreateShipmentPayload{
+		Body: &primemessages.CreateMTOShipment{
 			MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 			Agents:          nil,
 			CustomerRemarks: nil,
@@ -116,10 +118,37 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
 		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
-
 	})
 
-	suite.T().Run("POST failure - 400 - invalid input, missing pickup address", func(t *testing.T) {
+	suite.T().Run("POST failure - 422 -- Bad agent IDs set on shipment", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		badID := params.Body.MoveTaskOrderID
+		agent := &primemessages.MTOAgent{
+			ID:            *badID,
+			MtoShipmentID: *badID,
+			FirstName:     handlers.FmtString("Mary"),
+		}
+
+		paramsBadIDs := params
+		paramsBadIDs.Body.Agents = primemessages.MTOAgents{agent}
+
+		response := handler.Handle(paramsBadIDs)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
+		suite.NotEmpty(typedResponse.Payload.InvalidFields)
+		suite.Contains(typedResponse.Payload.InvalidFields, "agents:id")
+		suite.Contains(typedResponse.Payload.InvalidFields, "agents:mtoShipmentID")
+	})
+
+	suite.T().Run("POST failure - 422 - invalid input, missing pickup address", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 
@@ -197,6 +226,41 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentNotFound)
 		suite.Contains(*typedResponse.Payload.Detail, mtoNotAvailable.ID.String())
+	})
+
+	suite.T().Run("POST failure - 422 - modelType() not supported", func(t *testing.T) {
+		mockCreator := mocks.MTOShipmentCreator{}
+
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+		err := services.NotFoundError{}
+
+		mockCreator.On("CreateMTOShipment",
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		mtoServiceItems := models.MTOServiceItems{
+			models.MTOServiceItem{
+				MoveTaskOrderID:  mto.ID,
+				MTOShipmentID:    &mtoShipment.ID,
+				ReService:        models.ReService{Code: models.ReServiceCodeMS},
+				Reason:           nil,
+				PickupPostalCode: nil,
+				CreatedAt:        time.Now(),
+				UpdatedAt:        time.Now(),
+			},
+		}
+
+		badModelTypeParams := params
+		badModelTypeParams.Body.SetMtoServiceItems(*payloads.MTOServiceItems(&mtoServiceItems))
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 	})
 }
 

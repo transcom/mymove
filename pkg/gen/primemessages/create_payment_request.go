@@ -15,9 +15,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// CreatePaymentRequestPayload create payment request payload
-// swagger:model CreatePaymentRequestPayload
-type CreatePaymentRequestPayload struct {
+// CreatePaymentRequest create payment request
+// swagger:model CreatePaymentRequest
+type CreatePaymentRequest struct {
 
 	// is final
 	IsFinal *bool `json:"isFinal,omitempty"`
@@ -36,8 +36,8 @@ type CreatePaymentRequestPayload struct {
 	ServiceItems []*ServiceItem `json:"serviceItems"`
 }
 
-// Validate validates this create payment request payload
-func (m *CreatePaymentRequestPayload) Validate(formats strfmt.Registry) error {
+// Validate validates this create payment request
+func (m *CreatePaymentRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
@@ -54,7 +54,7 @@ func (m *CreatePaymentRequestPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CreatePaymentRequestPayload) validateMoveTaskOrderID(formats strfmt.Registry) error {
+func (m *CreatePaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
 	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID); err != nil {
 		return err
@@ -67,7 +67,7 @@ func (m *CreatePaymentRequestPayload) validateMoveTaskOrderID(formats strfmt.Reg
 	return nil
 }
 
-func (m *CreatePaymentRequestPayload) validateServiceItems(formats strfmt.Registry) error {
+func (m *CreatePaymentRequest) validateServiceItems(formats strfmt.Registry) error {
 
 	if err := validate.Required("serviceItems", "body", m.ServiceItems); err != nil {
 		return err
@@ -99,7 +99,7 @@ func (m *CreatePaymentRequestPayload) validateServiceItems(formats strfmt.Regist
 }
 
 // MarshalBinary interface implementation
-func (m *CreatePaymentRequestPayload) MarshalBinary() ([]byte, error) {
+func (m *CreatePaymentRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -107,8 +107,8 @@ func (m *CreatePaymentRequestPayload) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *CreatePaymentRequestPayload) UnmarshalBinary(b []byte) error {
-	var res CreatePaymentRequestPayload
+func (m *CreatePaymentRequest) UnmarshalBinary(b []byte) error {
+	var res CreatePaymentRequest
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -10,6 +10,7 @@ export const ServiceItemCardShape = PropTypes.shape({
   serviceItemName: PropTypes.string,
   amount: PropTypes.number,
   status: PropTypes.oneOf(Object.values(SERVICE_ITEM_STATUS)),
+  rejectionReason: PropTypes.string,
   createdAt: PropTypes.string,
 });
 

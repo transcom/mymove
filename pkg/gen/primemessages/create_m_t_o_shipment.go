@@ -19,9 +19,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// CreateShipmentPayload create shipment payload
-// swagger:model CreateShipmentPayload
-type CreateShipmentPayload struct {
+// CreateMTOShipment create m t o shipment
+// swagger:model CreateMTOShipment
+type CreateMTOShipment struct {
 
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
@@ -57,17 +57,17 @@ type CreateShipmentPayload struct {
 }
 
 // MtoServiceItems gets the mto service items of this base type
-func (m *CreateShipmentPayload) MtoServiceItems() []MTOServiceItem {
+func (m *CreateMTOShipment) MtoServiceItems() []MTOServiceItem {
 	return m.mtoServiceItemsField
 }
 
 // SetMtoServiceItems sets the mto service items of this base type
-func (m *CreateShipmentPayload) SetMtoServiceItems(val []MTOServiceItem) {
+func (m *CreateMTOShipment) SetMtoServiceItems(val []MTOServiceItem) {
 	m.mtoServiceItemsField = val
 }
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
-func (m *CreateShipmentPayload) UnmarshalJSON(raw []byte) error {
+func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		Agents MTOAgents `json:"agents,omitempty"`
 
@@ -104,7 +104,7 @@ func (m *CreateShipmentPayload) UnmarshalJSON(raw []byte) error {
 		propMtoServiceItems = mtoServiceItems
 	}
 
-	var result CreateShipmentPayload
+	var result CreateMTOShipment
 
 	// agents
 	result.Agents = data.Agents
@@ -139,7 +139,7 @@ func (m *CreateShipmentPayload) UnmarshalJSON(raw []byte) error {
 }
 
 // MarshalJSON marshals this object with a polymorphic type to a JSON structure
-func (m CreateShipmentPayload) MarshalJSON() ([]byte, error) {
+func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
@@ -194,8 +194,8 @@ func (m CreateShipmentPayload) MarshalJSON() ([]byte, error) {
 	return swag.ConcatJSON(b1, b2, b3), nil
 }
 
-// Validate validates this create shipment payload
-func (m *CreateShipmentPayload) Validate(formats strfmt.Registry) error {
+// Validate validates this create m t o shipment
+func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAgents(formats); err != nil {
@@ -232,7 +232,7 @@ func (m *CreateShipmentPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CreateShipmentPayload) validateAgents(formats strfmt.Registry) error {
+func (m *CreateMTOShipment) validateAgents(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Agents) { // not required
 		return nil
@@ -248,7 +248,7 @@ func (m *CreateShipmentPayload) validateAgents(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CreateShipmentPayload) validateDestinationAddress(formats strfmt.Registry) error {
+func (m *CreateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
 
 	if err := validate.Required("destinationAddress", "body", m.DestinationAddress); err != nil {
 		return err
@@ -266,7 +266,7 @@ func (m *CreateShipmentPayload) validateDestinationAddress(formats strfmt.Regist
 	return nil
 }
 
-func (m *CreateShipmentPayload) validateMoveTaskOrderID(formats strfmt.Registry) error {
+func (m *CreateMTOShipment) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
 	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID); err != nil {
 		return err
@@ -279,7 +279,7 @@ func (m *CreateShipmentPayload) validateMoveTaskOrderID(formats strfmt.Registry)
 	return nil
 }
 
-func (m *CreateShipmentPayload) validateMtoServiceItems(formats strfmt.Registry) error {
+func (m *CreateMTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MtoServiceItems()) { // not required
 		return nil
@@ -299,7 +299,7 @@ func (m *CreateShipmentPayload) validateMtoServiceItems(formats strfmt.Registry)
 	return nil
 }
 
-func (m *CreateShipmentPayload) validatePickupAddress(formats strfmt.Registry) error {
+func (m *CreateMTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 
 	if err := validate.Required("pickupAddress", "body", m.PickupAddress); err != nil {
 		return err
@@ -317,7 +317,7 @@ func (m *CreateShipmentPayload) validatePickupAddress(formats strfmt.Registry) e
 	return nil
 }
 
-func (m *CreateShipmentPayload) validateRequestedPickupDate(formats strfmt.Registry) error {
+func (m *CreateMTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.RequestedPickupDate) { // not required
 		return nil
@@ -330,7 +330,7 @@ func (m *CreateShipmentPayload) validateRequestedPickupDate(formats strfmt.Regis
 	return nil
 }
 
-func (m *CreateShipmentPayload) validateShipmentType(formats strfmt.Registry) error {
+func (m *CreateMTOShipment) validateShipmentType(formats strfmt.Registry) error {
 
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -343,7 +343,7 @@ func (m *CreateShipmentPayload) validateShipmentType(formats strfmt.Registry) er
 }
 
 // MarshalBinary interface implementation
-func (m *CreateShipmentPayload) MarshalBinary() ([]byte, error) {
+func (m *CreateMTOShipment) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -351,8 +351,8 @@ func (m *CreateShipmentPayload) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *CreateShipmentPayload) UnmarshalBinary(b []byte) error {
-	var res CreateShipmentPayload
+func (m *CreateMTOShipment) UnmarshalBinary(b []byte) error {
+	var res CreateMTOShipment
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -57,7 +57,7 @@ Cypress.Commands.add('signInAsNewMilMoveUser', () => {
   cy.signInAsNewUser(milmoveUserType);
   cy.url().should('contain', milmoveBaseURL);
   cy.location('pathname').should('contain', 'service-member');
-  cy.location('pathname').should('contain', 'create');
+  cy.location('pathname').should('contain', 'conus-status');
 });
 
 Cypress.Commands.add('signInAsNewOfficeUser', () => {
