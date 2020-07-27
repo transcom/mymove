@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"database/sql"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -91,8 +93,12 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		filters := []services.QueryFilter{
 			query.NewQueryFilter("move_order_id", "=", orders.ID),
 		}
-		// TODO: Add error handling once e2e_test data is fixed
-		h.builder.FetchOne(&mto, filters)
+		mtoErr := h.builder.FetchOne(&mto, filters)
+
+		// Some moves grandfathered into the customer move order system do not have an MTO associated with it
+		if mtoErr != nil && mtoErr != sql.ErrNoRows {
+			return handlers.ResponseForError(logger, orderErr)
+		}
 
 		serviceMember.Orders[0] = orders
 
