@@ -19,7 +19,7 @@ import {
   selectMTOServiceItemsByMTOId,
 } from 'shared/Entities/modules/mtoServiceItems';
 
-class PaymentRequestReview extends Component {
+export class PaymentRequestReview extends Component {
   componentDidMount() {
     const { match, getPaymentRequest, getMTOServiceItems, getMTOShipments } = this.props;
     const { paymentRequestId } = match.params;

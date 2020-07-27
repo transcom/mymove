@@ -68,6 +68,11 @@ describe('ReviewServiceItems component', () => {
     expect(shallowComponent.find('[data-testid="ReviewServiceItems"]').length).toBe(1);
   });
 
+  it('doesn’t crash if there are no cards', () => {
+    const componentWithNoCards = shallow(<ReviewServiceItems handleClose={handleClose} />);
+    expect(componentWithNoCards.exists()).toBe(true);
+  });
+
   it('renders a Formik form', () => {
     expect(shallowComponent.find('Formik').length).toBe(1);
   });
