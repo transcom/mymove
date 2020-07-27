@@ -198,41 +198,23 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 	}
 
 	if shipment.MTOAgents != nil && len(shipment.MTOAgents) > 0 {
-		var mtoAgentIDErr = false
-		var mtoShipmentIDErr = false
-
 		for _, agent := range shipment.MTOAgents {
-			if agent.ID != uuid.Nil && !mtoAgentIDErr {
+			if agent.ID != uuid.Nil {
 				verrs.Add("agents:id", "cannot be set for new agents")
-				mtoAgentIDErr = true
 			}
-			if agent.MTOShipmentID != uuid.Nil && !mtoShipmentIDErr {
+			if agent.MTOShipmentID != uuid.Nil {
 				verrs.Add("agents:mtoShipmentID", "cannot be set for agents created with a shipment")
-				mtoShipmentIDErr = true
-			}
-
-			if mtoAgentIDErr && mtoShipmentIDErr {
-				break // we've found all the errors we're gonna find here
 			}
 		}
 	}
 
 	if serviceItems != nil && len(serviceItems) > 0 {
-		var mtoServiceItemIDErr = false
-		var mtoShipmentIDErr = false
-
 		for _, item := range serviceItems {
-			if item.ID != uuid.Nil && !mtoServiceItemIDErr {
+			if item.ID != uuid.Nil {
 				verrs.Add("mtoServiceItems:id", "cannot be set for new service items")
-				mtoServiceItemIDErr = true
 			}
-			if item.MTOShipmentID != nil && *item.MTOShipmentID != uuid.Nil && !mtoShipmentIDErr {
+			if item.MTOShipmentID != nil && *item.MTOShipmentID != uuid.Nil {
 				verrs.Add("mtoServiceItems:mtoShipmentID", "cannot be set for service items created with a shipment")
-				mtoShipmentIDErr = true
-			}
-
-			if mtoServiceItemIDErr && mtoShipmentIDErr {
-				break // we've found all the errors we're gonna find here
 			}
 		}
 	}
