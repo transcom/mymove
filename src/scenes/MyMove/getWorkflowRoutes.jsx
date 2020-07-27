@@ -5,7 +5,7 @@ import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
-import { NULL_UUID, SHIPMENT_OPTIONS } from 'shared/constants';
+import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
 import DodInfo from 'scenes/ServiceMembers/DodInfo';
 import SMName from 'scenes/ServiceMembers/Name';
 import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
@@ -14,14 +14,16 @@ import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 
-import TransitionToOrders from 'scenes/ServiceMembers/TransitionToOrders';
 import Orders from 'scenes/Orders/Orders';
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
+import MoveLanding from 'pages/MyMove/MoveLanding';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
+import ConusOrNot from 'pages/MyMove/ConusOrNot';
+import MovingInfo from 'pages/MyMove/MovingInfo';
 
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
@@ -68,11 +70,29 @@ const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.PPM;
 const inHhgFlow = (props) => props.context.flags.hhgFlow;
+const inGhcFlow = (props) => props.context.flags.ghcFlow;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
 
 const pages = {
+  '/service-member/:serviceMemberId/conus-status': {
+    isInFlow: inGhcFlow,
+    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
+    render: (key, pages, description, props) => ({ match }) => {
+      return (
+        <WizardPage
+          handleSubmit={no_op}
+          pageList={pages}
+          pageKey={key}
+          match={match}
+          canMoveNext={props.conusStatus === CONUS_STATUS.CONUS}
+        >
+          <ConusOrNot conusStatus={props.conusStatus} />
+        </WizardPage>
+      );
+    },
+  },
   '/service-member/:serviceMemberId/create': {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
@@ -117,14 +137,16 @@ const pages = {
     render: (key, pages) => ({ match }) => <BackupContact pages={pages} pageKey={key} match={match} />,
     description: 'Backup contacts',
   },
-  '/service-member/:serviceMemberId/transition': {
-    isInFlow: myFirstRodeo,
+  '/service-member/:serviceMemberId/move-landing': {
+    isInFlow: myFirstRodeo && inGhcFlow,
     isComplete: always,
-    render: (key, pages) => ({ match }) => (
-      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-        <TransitionToOrders />
-      </WizardPage>
-    ),
+    render: (key, pages) => () => {
+      return (
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+          <MoveLanding />
+        </WizardPage>
+      );
+    },
   },
   '/profile-review': {
     isInFlow: notMyFirstRodeo,
@@ -160,6 +182,17 @@ const pages = {
       );
     },
   },
+  '/moves/:moveId/moving-info': {
+    isInFlow: inHhgFlow,
+    isComplete: always,
+    render: (key, pages) => () => {
+      return (
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+          <MovingInfo />
+        </WizardPage>
+      );
+    },
+  },
   '/moves/:moveId/select-type': {
     isInFlow: inHhgFlow,
     isComplete: always,
@@ -188,9 +221,9 @@ const pages = {
     isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
     // isInFlow: inHhgFlow, // temp: use this to view page locally until we can set selectedMoveType
     isComplete: always,
-    render: (key, pages, description, props) => ({ match }) => {
-      return <HHGMoveSetup pageList={pages} pageKey={key} />;
-    },
+    render: (key, pages, description, props) => ({ match, history }) => (
+      <HHGMoveSetup pageList={pages} pageKey={key} match={match} push={history.push} />
+    ),
   },
   '/moves/:moveId/review': {
     isInFlow: always,
@@ -206,15 +239,16 @@ const pages = {
   },
 };
 
-export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled, context }) =>
+export const getPagesInFlow = ({ selectedMoveType, conusStatus, lastMoveIsCanceled, context }) =>
   Object.keys(pages).filter((pageKey) => {
     // eslint-disable-next-line security/detect-object-injection
     const page = pages[pageKey];
-    return page.isInFlow({ selectedMoveType, lastMoveIsCanceled, context });
+    return page.isInFlow({ selectedMoveType, conusStatus, lastMoveIsCanceled, context });
   });
 
 export const getNextIncompletePage = ({
   selectedMoveType = undefined,
+  conusStatus = '',
   lastMoveIsCanceled = false,
   serviceMember = {},
   orders = {},
@@ -227,7 +261,7 @@ export const getNextIncompletePage = ({
   const rawPath = findKey(
     pages,
     (p) =>
-      p.isInFlow({ selectedMoveType, lastMoveIsCanceled, context }) &&
+      p.isInFlow({ selectedMoveType, conusStatus, lastMoveIsCanceled, context }) &&
       !p.isComplete({ sm: serviceMember, orders, uploads, move, ppm, backupContacts }),
   );
   const compiledPath = generatePath(rawPath, {
@@ -238,7 +272,7 @@ export const getNextIncompletePage = ({
 };
 
 export const getWorkflowRoutes = (props) => {
-  const flowProps = pick(props, ['selectedMoveType', 'lastMoveIsCanceled', 'context']);
+  const flowProps = pick(props, ['selectedMoveType', 'conusStatus', 'lastMoveIsCanceled', 'context']);
   const pageList = getPagesInFlow(flowProps);
   return Object.keys(pages).map((key) => {
     // eslint-disable-next-line security/detect-object-injection

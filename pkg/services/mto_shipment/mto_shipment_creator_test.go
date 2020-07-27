@@ -3,6 +3,8 @@ package mtoshipment
 import (
 	"testing"
 
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -52,12 +54,14 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		}
 
 		fetcher := fetch.NewFetcher(builder)
+		mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
 
 		creator := mtoShipmentCreator{
 			suite.DB(),
 			builder,
 			fetcher,
 			createNewBuilder,
+			mtoServiceItemCreator,
 		}
 
 		createdShipment, err := creator.CreateMTOShipment(&mtoShipment, serviceItemsList)
@@ -80,12 +84,14 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		}
 
 		fetcher := fetch.NewFetcher(builder)
+		mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
 
 		creator := mtoShipmentCreator{
 			suite.DB(),
 			builder,
 			fetcher,
 			createNewBuilder,
+			mtoServiceItemCreator,
 		}
 
 		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
@@ -125,5 +131,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
+		suite.NotNil(createdShipment.MTOServiceItems, "Service Items are empty")
+		suite.Equal(createdShipment.MTOServiceItems[0].MoveTaskOrderID, serviceItemsList[0].MoveTaskOrderID, "Service items are not the same")
 	})
 }
