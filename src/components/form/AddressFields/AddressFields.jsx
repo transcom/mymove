@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import { Fieldset, Label, TextInput } from '@trussworks/react-uswds';
 import { v4 as uuidv4 } from 'uuid';
 
-export const AddressFields = ({ legend, className, values, handleChange, name }) => {
+export const AddressFields = ({ legend, className, values, handleChange, name, renderExistingAddressCheckbox }) => {
   const addressFieldsUUID = uuidv4();
 
   return (
     <Fieldset legend={legend} className={className}>
+      {renderExistingAddressCheckbox()}
       <Label htmlFor={`mailingAddress1_${addressFieldsUUID}`}>Street address 1</Label>
       <TextInput
         id={`mailingAddress1_${addressFieldsUUID}`}
@@ -73,12 +74,14 @@ AddressFields.propTypes = {
   }),
   name: PropTypes.string.isRequired,
   handleChange: PropTypes.func.isRequired,
+  renderExistingAddressCheckbox: PropTypes.func,
 };
 
 AddressFields.defaultProps = {
   legend: '',
   className: '',
   values: {},
+  renderExistingAddressCheckbox: () => {},
 };
 
 export default AddressFields;

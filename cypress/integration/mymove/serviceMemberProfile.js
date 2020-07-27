@@ -9,6 +9,7 @@ describe('setting up service member profile requiring an access code', function 
         serviceMemberEntersAccessCode();
       }
     });
+    serviceMemberChoosesConusOrOconus();
     serviceMemberProfile();
   });
   it.skip('restarts app after every page', function () {
@@ -21,13 +22,18 @@ function serviceMemberEntersAccessCode() {
   cy.get('button').contains('Continue').click();
 }
 
+function serviceMemberChoosesConusOrOconus() {
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/conus-status/);
+  });
+  cy.get('[data-testid="radio"] label').contains('CONUS');
+  cy.get('button.next').click();
+}
+
 function serviceMemberProfile(reloadAfterEveryPage) {
   //dod info
   // does not have welcome message throughout setup
   cy.get('span').contains('Welcome,').should('not.exist');
-
-  // does not have a back button on first flow page
-  cy.get('button').contains('Back').should('not.be.visible');
 
   cy.get('button.next').should('be.disabled');
   cy.get('select[name="affiliation"]').select('Army');
@@ -101,10 +107,6 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="name"]').type('Douglas Glass');
   cy.get('input[name="email"]').type('doug@glass.net');
   cy.nextPage();
-
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/transition/);
-  });
 
   //transition
   // cy.nextPage();

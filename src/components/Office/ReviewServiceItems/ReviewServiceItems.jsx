@@ -8,20 +8,39 @@ import sortServiceItemsByGroup from '../../../utils/serviceItems';
 import styles from './ReviewServiceItems.module.scss';
 
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
+import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
+import { toDollarString } from 'shared/formatters';
 
 const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   const [curCardIndex, setCardIndex] = useState(0);
-  // eslint-disable-next-line no-unused-vars
-  const [totalApproved, setTotalApproved] = useState(0);
   const [sortedCards] = useState(sortServiceItemsByGroup(serviceItemCards));
   const totalCards = serviceItemCards.length;
+
+  const { APPROVED, REJECTED } = SERVICE_ITEM_STATUS;
 
   const handleClick = (index) => {
     setCardIndex(index);
   };
 
+  const calculateTotals = (values) => {
+    let approvedSum = 0;
+    let rejectedSum = 0;
+
+    serviceItemCards.forEach((serviceItem) => {
+      const itemValues = values[`${serviceItem.id}`];
+      if (itemValues?.status === APPROVED) approvedSum += serviceItem.amount;
+      else if (itemValues?.status === REJECTED) rejectedSum += serviceItem.amount;
+    });
+
+    return {
+      approved: approvedSum,
+      rejected: rejectedSum,
+    };
+  };
+
+  //  let requestedSum = 0; // TODO - use in Complete review screen
   const formValues = {};
 
   let firstBasicIndex = null;
@@ -30,7 +49,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
   sortedCards.forEach((serviceItem, index) => {
     formValues[serviceItem.id] = {
       status: serviceItem.status,
-      rejectionReason: undefined,
+      rejectionReason: serviceItem.rejectionReason,
     };
 
     // here we want to set the first and last index
@@ -45,6 +64,8 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
       // keep setting the last basic index until the last one
       lastBasicIndex = index;
     }
+
+    // requestedSum += serviceItem.amount; // TODO - use in Complete review screen
   });
 
   const currentCard = sortedCards[parseInt(curCardIndex, 10)];
@@ -133,7 +154,9 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
                 </Button>
                 <div className={styles.totalApproved}>
                   <div className={styles.totalLabel}>Total approved</div>
-                  <div className={styles.totalAmount}>${totalApproved.toFixed(2)}</div>
+                  <div data-testid="approvedAmount" className={styles.totalAmount}>
+                    {toDollarString(calculateTotals(values).approved)}
+                  </div>
                 </div>
               </div>
             </Form>

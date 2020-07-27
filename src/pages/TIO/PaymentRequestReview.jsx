@@ -55,6 +55,7 @@ const mapStateToProps = (state, ownProps) => {
       shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
       serviceItemName: 'Domestic linehaul',
       amount: 1234.56,
+      status: 'APPROVED',
       createdAt: Date(),
     },
     {
@@ -62,6 +63,7 @@ const mapStateToProps = (state, ownProps) => {
       shipmentType: SHIPMENT_OPTIONS.NTS,
       serviceItemName: 'Domestic linehaul',
       amount: 1234.56,
+      status: 'SUBMITTED',
       createdAt: Date(),
     },
     {
@@ -69,6 +71,7 @@ const mapStateToProps = (state, ownProps) => {
       shipmentType: null, // to indicate basic service item
       serviceItemName: 'Domestic linehaul',
       amount: 1234.56,
+      status: 'REJECTED',
       createdAt: Date(),
     },
     {
