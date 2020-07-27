@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // This file is an example notifications handler to exercise the events package
@@ -99,8 +100,9 @@ func NotificationEventHandler(event *Event) error {
 		// Important to be specific about which addl associations to load to reduce DB hits
 		err := db.Eager("PaymentServiceItems", "PaymentServiceItems.PaymentServiceItemParams").Find(&model, event.UpdatedObjectID.String())
 		if err != nil {
-			logger.Info("Notification error:")
-			return err
+			notFoundError := services.NewNotFoundError(event.UpdatedObjectID, "looking for PaymentRequest")
+			notFoundError.Wrap(err)
+			return notFoundError
 		}
 		payload := paymentRequestModelToPayload(&model)
 		logger.Info("Notification payload:", zap.Any("payload", *payload))

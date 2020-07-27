@@ -77,18 +77,6 @@ func GetModelFromEvent(e KeyType) (interface{}, error) {
 	return eventModel.ModelInstance, nil
 }
 
-// Auditor holds on to contextual information we need to create an AuditRecording
-// type Event struct {
-// 	EventType  type
-// 	hctx       handlers.HandlerContext
-// 	logger     Logger
-// 	session    *auth.Session
-// 	clientCert *models.ClientCert
-// 	request    *http.Request
-// 	model      interface{}
-// 	payload    interface{}
-// }
-
 // RegisteredEventHandlerFunc is a type of func that can be registered as an event handler
 // to be called by the eventing system
 type RegisteredEventHandlerFunc func(event *Event) error
@@ -102,11 +90,13 @@ func consolidateError(errorList []error) string {
 	switch len(errorList) {
 	case 0:
 		return "no errors"
-	case 1:
-		firstErr := errorList[0]
-		return firstErr.Error()
+	default:
+		errMessage := ""
+		for _, e := range errorList {
+			errMessage += e.Error() + ". "
+		}
+		return errMessage
 	}
-	return fmt.Sprintf("%s (and %d more errors)", errorList[0].Error(), len(errorList)-1)
 }
 
 // TriggerEvent triggers an event to send to various handlers

@@ -112,7 +112,6 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	returnPayload := payloads.PaymentRequest(createdPaymentRequest)
 	logger.Info("Successful payment request creation for mto ID", zap.String("moveID", moveTaskOrderIDString))
-
 	return paymentrequestop.NewCreatePaymentRequestCreated().WithPayload(returnPayload)
 }
 
