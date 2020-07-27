@@ -3,6 +3,8 @@ package mtoshipment
 import (
 	"fmt"
 
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -25,7 +27,8 @@ type mtoShipmentCreator struct {
 	db      *pop.Connection
 	builder createMTOShipmentQueryBuilder
 	services.Fetcher
-	createNewBuilder func(db *pop.Connection) createMTOShipmentQueryBuilder
+	createNewBuilder      func(db *pop.Connection) createMTOShipmentQueryBuilder
+	mtoServiceItemCreator services.MTOServiceItemCreator
 }
 
 // NewMTOShipmentCreator creates a new struct with the service dependencies
@@ -39,6 +42,7 @@ func NewMTOShipmentCreator(db *pop.Connection, builder createMTOShipmentQueryBui
 		builder,
 		fetch.NewFetcher(builder),
 		createNewBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(builder),
 	}
 }
 
@@ -58,6 +62,38 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 	err = f.builder.FetchOne(&moveTaskOrder, queryFilters)
 	if err != nil {
 		return nil, services.NewNotFoundError(moveTaskOrderID, "for moveTaskOrder")
+	}
+
+	if serviceItems != nil {
+		serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
+
+		for _, serviceItem := range serviceItems {
+			// find the re service code id
+			var reService models.ReService
+			reServiceCode := serviceItem.ReService.Code
+			queryFilters = []services.QueryFilter{
+				query.NewQueryFilter("code", "=", reServiceCode),
+			}
+			err = f.builder.FetchOne(&reService, queryFilters)
+			if err != nil {
+				return nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
+			}
+			// set re service for service item
+			serviceItem.ReServiceID = reService.ID
+			serviceItem.Status = models.MTOServiceItemStatusSubmitted
+
+			if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
+				if shipment.PrimeEstimatedWeight == nil {
+					return nil, services.NewConflictError(
+						serviceItem.ReService.ID,
+						"for creating a service item. MTOShipment associated with this service item must have a valid PrimeEstimatedWeight.",
+					)
+				}
+			}
+
+			serviceItemsList = append(serviceItemsList, serviceItem)
+		}
+		shipment.MTOServiceItems = serviceItemsList
 	}
 
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
@@ -108,6 +144,25 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 					return err
 				}
 			}
+		}
+
+		// create MTOServiceItems List
+		if shipment.MTOServiceItems != nil {
+			serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
+
+			for _, serviceItem := range shipment.MTOServiceItems {
+				serviceItem.MTOShipmentID = &shipment.ID
+				serviceItem.MoveTaskOrderID = shipment.MoveTaskOrderID
+				verrs, err = txBuilder.CreateOne(&serviceItem)
+				if verrs != nil && verrs.HasAny() {
+					return verrs
+				}
+				if err != nil {
+					return err
+				}
+				serviceItemsList = append(serviceItemsList, serviceItem)
+			}
+			shipment.MTOServiceItems = serviceItemsList
 		}
 
 		return nil

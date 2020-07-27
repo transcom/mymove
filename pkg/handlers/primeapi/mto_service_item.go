@@ -18,9 +18,10 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// AllowedServiceItemMap is a map of MTOServiceItemModelTypes and their allowed statuses
 // THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS.
 // We will eventually remove this when all service items are added.
-var allowedServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
+var AllowedServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:          true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:          true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:         true,
@@ -39,9 +40,9 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	// restrict creation to a list
-	if _, ok := allowedServiceItemMap[params.Body.ModelType()]; !ok {
+	if _, ok := AllowedServiceItemMap[params.Body.ModelType()]; !ok {
 		// throw error if modelType() not on the list
-		mapKeys := getMapKeys(allowedServiceItemMap)
+		mapKeys := GetMapKeys(AllowedServiceItemMap)
 		detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", params.Body.ModelType())
 		verrs := validate.NewErrors()
 		verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
@@ -102,7 +103,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	return mtoserviceitemops.NewCreateMTOServiceItemOK().WithPayload(mtoServiceItemPayload)
 }
 
-// helper to get the keys from a map
-func getMapKeys(m map[primemessages.MTOServiceItemModelType]bool) []reflect.Value {
+// GetMapKeys is a helper function that returns the keys that are MTOServiceItemModelTypes from the map
+func GetMapKeys(m map[primemessages.MTOServiceItemModelType]bool) []reflect.Value {
 	return reflect.ValueOf(m).MapKeys()
 }
