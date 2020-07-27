@@ -1001,6 +1001,7 @@ definitions:
         readOnly: true
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
+        readOnly: true
       rejectionReason:
         example: item was too heavy
         type: string

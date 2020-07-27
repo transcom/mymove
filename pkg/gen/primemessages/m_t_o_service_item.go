@@ -61,6 +61,7 @@ type MTOServiceItem interface {
 	SetRejectionReason(*string)
 
 	// status
+	// Read Only: true
 	Status() MTOServiceItemStatus
 	SetStatus(MTOServiceItemStatus)
 }

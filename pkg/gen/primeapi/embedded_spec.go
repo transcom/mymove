@@ -989,7 +989,8 @@ func init() {
           "example": "item was too heavy"
         },
         "status": {
-          "$ref": "#/definitions/MTOServiceItemStatus"
+          "$ref": "#/definitions/MTOServiceItemStatus",
+          "readOnly": true
         }
       },
       "discriminator": "modelType"
@@ -3035,7 +3036,8 @@ func init() {
           "example": "item was too heavy"
         },
         "status": {
-          "$ref": "#/definitions/MTOServiceItemStatus"
+          "$ref": "#/definitions/MTOServiceItemStatus",
+          "readOnly": true
         }
       },
       "discriminator": "modelType"
