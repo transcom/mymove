@@ -336,3 +336,12 @@ func ClientError(title string, detail string, instance uuid.UUID) *supportmessag
 		Instance: handlers.FmtUUID(instance),
 	}
 }
+
+// Notification payload contains a test message for our mTLS client to server
+func Notification(notification *models.ServerNotification) (*supportmessages.Notification, error) {
+
+	notificationPayload := &supportmessages.Notification{
+		Message: notification.Message,
+	}
+	return notificationPayload, nil
+}

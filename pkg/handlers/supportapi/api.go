@@ -11,14 +11,15 @@ import (
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/query"
 
+	"github.com/transcom/mymove/pkg/gen/supportapi"
 	supportops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
+	"github.com/transcom/mymove/pkg/handlers"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
-	"github.com/transcom/mymove/pkg/gen/supportapi"
-	"github.com/transcom/mymove/pkg/handlers"
+	// notification "github.com/transcom/mymove/pkg/services/notification"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
 
 // NewSupportAPIHandler returns a handler for the Prime API
@@ -71,5 +72,6 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 
 	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{context, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)}
+	supportAPI.PostNotificationHandler = PostNotificationHandler{context}
 	return supportAPI.Serve(nil)
 }

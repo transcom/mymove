@@ -360,6 +360,52 @@ func init() {
         }
       ]
     },
+    "/notifications": {
+      "post": {
+        "description": "Just a Test",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "Test endpoint for notifications",
+        "operationId": "postNotification",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Notification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/Notification"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "No orders found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
         "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
@@ -1285,6 +1331,20 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "Notification": {
+      "type": "object",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "message": {
+          "description": "Message sent",
+          "type": "string",
+          "x-nullable": false,
+          "example": "Hello world."
+        }
+      }
+    },
     "OrderType": {
       "type": "string",
       "title": "Order type",
@@ -2136,6 +2196,52 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/notifications": {
+      "post": {
+        "description": "Just a Test",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "Test endpoint for notifications",
+        "operationId": "postNotification",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Notification"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/Notification"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "No orders found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
@@ -3105,6 +3211,20 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "Notification": {
+      "type": "object",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "message": {
+          "description": "Message sent",
+          "type": "string",
+          "x-nullable": false,
+          "example": "Hello world."
+        }
       }
     },
     "OrderType": {

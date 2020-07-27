@@ -372,6 +372,36 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/notifications':
+    post:
+      summary: Test endpoint for notifications
+      description: Just a Test
+      operationId: postNotification
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/Notification'
+      responses:
+        '200':
+          description: Created
+          schema:
+            $ref: '#/definitions/Notification'
+        '400':
+          description: Bad request
+        '401':
+          description: must be authenticated to use this endpoint
+        '403':
+          description: Forbidden
+        '404':
+          description: No orders found
+        '500':
+          description: Server error
 definitions:
   ClientError:
     type: object
@@ -687,6 +717,16 @@ definitions:
       - title
       - detail
     type: object
+  Notification:
+    type: object
+    properties:
+      message:
+        type: string
+        description: Message sent
+        example: Hello world.
+        x-nullable: false
+    required:
+      - message
   MoveOrder:
     properties:
       id:

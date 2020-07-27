@@ -62,6 +62,11 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.MakeMoveTaskOrderAvailable has not yet been implemented")
 		})
 	}
+	if api.PostNotificationHandler == nil {
+		api.PostNotificationHandler = supportoperations.PostNotificationHandlerFunc(func(params supportoperations.PostNotificationParams) middleware.Responder {
+			return middleware.NotImplemented("operation .PostNotification has not yet been implemented")
+		})
+	}
 	if api.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
 		api.MtoServiceItemUpdateMTOServiceItemStatusHandler = mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemStatus has not yet been implemented")
