@@ -2,39 +2,48 @@
 
 *[Jira Epic](https://dp3.atlassian.net/browse/MB-3021)*
 
-Data entered by customers during onboarding must flow into the MTO
-correctly. If we don't get ahead of this now, the teams will potentially implement different versions of the database, resulting in rework and
+Currently, a `moves` record is distinct from a `move_task_orders` (MTO) record, and there
+is no direct association between the two. Data entered by customers during move onboarding
+must flow into the MTO correctly. If we don't get ahead of this now, the teams will
+potentially implement different versions of the database, resulting in rework and
 confusion later. Having a consistent and uniform data model will improve
-collaboration and productivity, and will enable us to demonstrate end to
-end capability.
+collaboration and productivity, and will enable us to demonstrate end-to-end
+capability.
 
 ## Considered Alternatives
 
-* Keep moves and move_task_orders in separate database tables
-* Consolidate moves and move_task_orders
+* Keep `moves` and `move_task_orders` in separate database tables
+* Consolidate `moves` and `move_task_orders` into a single table
 
 ## Decision Outcome
 
-* Chosen Alternative: Consolidate moves and move_task_orders
-* Keep only the moves table and add fields to it to enable accurate
-representation of a move task order.
-* Proposed final state of moves table. "New" means it was ported over from
-the move_task_orders table:
-  * id
-  * created_at
-  * updated_at
-  * orders_id
-  * selected_move_type
-  * status
-  * locator
-  * cancel_reason
-  * show
-  * contractor_id (new)
-  * available_to_prime_at (new)
-  * ppm_type (new)
-  * ppm_estimated_weight (new)
+* Chosen Alternative: Consolidate `moves` and `move_task_orders` into a single table
+* Keep only the `moves` table and add fields to it to enable accurate
+representation of an MTO.
+* Below is the final state of the `moves` table. The "new" label means it was ported over from
+the `move_task_orders` table.  These new fields will need to be nullable for
+backwards-compatibility with the current production process.
+  * `id`
+  * `created_at`
+  * `updated_at`
+  * `orders_id`
+  * `selected_move_type`
+  * `status`
+  * `locator`
+  * `cancel_reason`
+  * `show`
+  * `contractor_id` (new)
+  * `available_to_prime_at` (new)
+  * `ppm_type` (new)
+  * `ppm_estimated_weight` (new)
 
 ### Definitions of fields
+
+* `id`: A UUID primary key
+
+* `created_at`, `updated_at`: The usual Pop timestamps
+
+* `orders_id`: A foreign key to the associated `orders` record
 
 * `selected_move_type`: Allowed values are HHG, PPM, UB, POV, NTS, HHG_PPM (but
 only HHG and PPM appear to be used currently).
@@ -43,7 +52,7 @@ only HHG and PPM appear to be used currently).
 
 * `locator`: This is a 6-digit alphanumeric value that is a sharable,
 human-readable identifier for a move (so it could be disclosed to support staff,
-for instance). The MTO's `reference_id` is similar in nature but is in a dddd-dddd
+for instance). The MTO's `reference_id` is similar in nature but is in a `dddd-dddd`
 format. The `reference_id` does serve currently as the prefix for payment request
 numbers. We likely don’t need both `locator` and `reference_id` if these tables
 merge. See [Slack discussion](https://ustcdp3.slack.com/archives/CP6PTUPQF/p1595605700223400).
@@ -51,14 +60,14 @@ merge. See [Slack discussion](https://ustcdp3.slack.com/archives/CP6PTUPQF/p1595
 * `cancel_reason`: A string to explain why a move was canceled.
 
 * `show`: A boolean that allows admin users to prevent a move from showing up
-anywhere in the app. This came out of a HackerOne finding where hundreds of fake moves were created.
+anywhere in the app. This came out of a HackerOne engagement where hundreds of fake moves were created.
 
 * `contractor_id`: This was added to represent the prime contractor who will
 handle the move. This makes it easy to point the move to a different contractor in case it changes.
 
 * `available_to_prime_at`: a date and time field that indicates when the move is
 available for the Prime to handle. The presence of this field can be used to
-determine whether or not to display the move to a TOO.
+determine whether or not to display the move to the Prime.
 
 * `ppm_type`: currently used values are `FULL` and `PARTIAL`. This appears to be
 different from having the `selected_move_type` in the `moves` table be `PPM` vs
@@ -73,8 +82,9 @@ keeping it for now.
 table already has a `status` field with a `CANCELED` option, so we can get rid of
 `is_canceled` and use `status` instead.
 
-* `reference_id`: Serves as a unique prefix for payment request numbers. It is
-in the format dddd-dddd.
+* `reference_id`: A unique identifier for an MTO (which also serves as the prefix
+for payment request numbers) in `dddd-dddd` format. A `moves` record already has a
+unique identifier with `locator`, so we shouldn't need both after merging.
 
 ## Pros and Cons of the Alternatives
 
@@ -83,7 +93,8 @@ in the format dddd-dddd.
 * `+` Allows for the possibility of multiple MTOs for a single move.
 * `-` Increase the risk of code complexity and data duplication.
 * `-` Makes it more difficult to represent the move from the point of view of
-all parties: service member, TOO, Prime. For example, to find a move related to an MTO, you have to find the `order_id` that the MTO points to, then the move that points to that same `orders_id`.
+all parties: service member, TOO, Prime. For example, to find a move related to an MTO, you have to find the `order_id` that the MTO points to, then the move that points to that same `orders_id`
+(unless we add a foreign key to a `moves` record from a `move_task_orders` record)
 
 ### Consolidate moves and move_task_orders
 
