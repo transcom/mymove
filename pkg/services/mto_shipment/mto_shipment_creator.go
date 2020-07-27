@@ -82,9 +82,6 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
 			}
 			shipment.DestinationAddressID = &shipment.DestinationAddress.ID
-		} else {
-			// Swagger should pick this up before it ever gets here
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "DestinationAddress is required to create MTO shipment")
 		}
 
 		// check that required items to create shipment are present
