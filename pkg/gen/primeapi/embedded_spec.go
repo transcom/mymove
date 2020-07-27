@@ -992,8 +992,7 @@ func init() {
           "example": "item was too heavy"
         },
         "status": {
-          "$ref": "#/definitions/MTOServiceItemStatus",
-          "readOnly": true
+          "$ref": "#/definitions/MTOServiceItemStatus"
         }
       },
       "discriminator": "modelType"
@@ -1234,7 +1233,8 @@ func init() {
         "SUBMITTED",
         "APPROVED",
         "REJECTED"
-      ]
+      ],
+      "readOnly": true
     },
     "MTOShipment": {
       "properties": {
@@ -3052,8 +3052,7 @@ func init() {
           "example": "item was too heavy"
         },
         "status": {
-          "$ref": "#/definitions/MTOServiceItemStatus",
-          "readOnly": true
+          "$ref": "#/definitions/MTOServiceItemStatus"
         }
       },
       "discriminator": "modelType"
@@ -3294,7 +3293,8 @@ func init() {
         "SUBMITTED",
         "APPROVED",
         "REJECTED"
-      ]
+      ],
+      "readOnly": true
     },
     "MTOShipment": {
       "properties": {

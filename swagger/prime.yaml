@@ -961,6 +961,7 @@ definitions:
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem.
     type: string
+    readOnly: true
     enum:
       - SUBMITTED
       - APPROVED
@@ -1009,7 +1010,6 @@ definitions:
         readOnly: true
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
-        readOnly: true
       rejectionReason:
         example: item was too heavy
         type: string
