@@ -321,7 +321,7 @@ describe('ReviewServiceItems component', () => {
       nextButton.simulate('click');
       mountedComponent.update();
 
-      const clearSelectionButton = componentWithInitialValues.find('[data-testid="clearStatusButton"]');
+      const clearSelectionButton = componentWithInitialValues.find('[data-testid="clearStatusButton"]').at(1);
 
       await act(async () => {
         clearSelectionButton.simulate('click');
