@@ -142,18 +142,25 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 
 		// create MTOAgents List
 		if shipment.MTOAgents != nil {
+			agentsList := make(models.MTOAgents, 0, len(shipment.MTOAgents))
+
 			for _, agent := range shipment.MTOAgents {
 				agent.MTOShipmentID = shipment.ID
 				verrs, err = txBuilder.CreateOne(&agent)
+				if verrs != nil && verrs.HasAny() {
+					return verrs
+				}
 				if err != nil {
 					return err
 				}
+				agentsList = append(agentsList, agent)
 			}
+			shipment.MTOAgents = agentsList
 		}
 
 		// create MTOServiceItems List
 		if shipment.MTOServiceItems != nil {
-			serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
+			serviceItemsList := make(models.MTOServiceItems, 0, len(shipment.MTOServiceItems))
 
 			for _, serviceItem := range shipment.MTOServiceItems {
 				serviceItem.MTOShipmentID = &shipment.ID
