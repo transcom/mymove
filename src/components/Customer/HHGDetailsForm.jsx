@@ -162,7 +162,7 @@ class HHGDetailsForm extends Component {
                 legend="Pickup location"
                 className={fieldsetClasses}
                 handleChange={handleChange}
-                renderCurrentResidenceCheckbox={() => (
+                renderExistingAddressCheckbox={() => (
                   <Checkbox
                     data-testid="useCurrentResidence"
                     label="Use my current residence address"

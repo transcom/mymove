@@ -164,13 +164,13 @@ function customerSetsUpAnHHGMove() {
   });
 }
 
-describe('The Home Page', function () {
+describe('HHG Setup flow', function () {
   beforeEach(() => {
     cy.setupBaseUrl(milmoveAppName);
     cy.server();
     cy.route('POST', '/mto-shipments').as('mto-shipments');
   });
-  it('Goes through ', function () {
+  it('Creates a shipment', function () {
     cy.signInAsNewMilMoveUser();
     customerFillsInProfileInformation();
     customerFillsOutOrdersInformation();
