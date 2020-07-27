@@ -165,11 +165,6 @@ function customerSetsUpAnHHGMove() {
 }
 
 describe('HHG Setup flow', function () {
-  beforeEach(() => {
-    cy.setupBaseUrl(milmoveAppName);
-    cy.server();
-    cy.route('POST', '/mto-shipments').as('mto-shipments');
-  });
   it('Creates a shipment', function () {
     cy.signInAsNewMilMoveUser();
     customerFillsInProfileInformation();
