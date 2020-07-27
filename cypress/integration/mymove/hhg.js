@@ -1,13 +1,11 @@
 /* global cy */
-import { milmoveAppName, fileUploadTimeout } from '../../support/constants';
+import { fileUploadTimeout } from '../../support/constants';
 
 function customerFillsInProfileInformation(reloadAfterEveryPage) {
   // dod info
   // does not have welcome message throughout setup
   cy.get('span').contains('Welcome,').should('not.exist');
-
-  // does not have a back button on first flow page
-  cy.get('button').contains('Back').should('not.be.visible');
+  cy.nextPage();
 
   cy.get('button.next').should('be.disabled');
   cy.get('select[name="affiliation"]').select('Army');
@@ -82,19 +80,11 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('input[name="email"]').type('doug@glass.net');
   cy.nextPage();
 
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/transition/);
-  });
-
-  // transition
+  cy.get('h2').contains('Welcome Jane');
   cy.nextPage();
 }
 
 function customerFillsOutOrdersInformation() {
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.eq('/orders/');
-  });
-
   cy.get('select[name="orders_type"]').select('Separation');
   cy.get('select[name="orders_type"]').select('Retirement');
   cy.get('select[name="orders_type"]').select('Permanent Change Of Station (PCS)');
@@ -115,6 +105,9 @@ function customerFillsOutOrdersInformation() {
 
   cy.upload_file('.filepond--root', 'top-secret.png');
   cy.get('button.next', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
+  cy.nextPage();
+
+  cy.get('h1').contains('Moving 101');
   cy.nextPage();
 }
 
@@ -165,11 +158,6 @@ function customerSetsUpAnHHGMove() {
 }
 
 describe('HHG Setup flow', function () {
-  beforeEach(() => {
-    cy.setupBaseUrl(milmoveAppName);
-    cy.server();
-    cy.route('POST', '/mto-shipments').as('mto-shipments');
-  });
   it('Creates a shipment', function () {
     cy.signInAsNewMilMoveUser();
     customerFillsInProfileInformation();
