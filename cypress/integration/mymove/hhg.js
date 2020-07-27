@@ -5,9 +5,7 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
   // dod info
   // does not have welcome message throughout setup
   cy.get('span').contains('Welcome,').should('not.exist');
-
-  // does not have a back button on first flow page
-  cy.get('button').contains('Back').should('not.be.visible');
+  cy.nextPage();
 
   cy.get('button.next').should('be.disabled');
   cy.get('select[name="affiliation"]').select('Army');
