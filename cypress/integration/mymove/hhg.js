@@ -1,5 +1,5 @@
 /* global cy */
-import { milmoveAppName, fileUploadTimeout } from '../../support/constants';
+import { fileUploadTimeout } from '../../support/constants';
 
 function customerFillsInProfileInformation(reloadAfterEveryPage) {
   // dod info
