@@ -181,7 +181,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 	})
 
 	if verrs != nil && verrs.HasAny() {
-		return nil, services.NewInvalidInputError(uuid.Nil, err, verrs, "")
+		return nil, services.NewInvalidInputError(uuid.Nil, err, verrs, "Unable to create shipment")
 	} else if err != nil {
 		return nil, services.NewQueryError("unknown", err, "")
 	}
