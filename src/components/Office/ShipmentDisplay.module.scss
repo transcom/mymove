@@ -33,6 +33,10 @@
       @include u-font('body', 'xs');
       @include u-line-height('body', 2);
       @include u-padding('105');
+      &:first-child, &:last-child {
+        line-height: 1.6rem;
+        @include u-border(0);
+      }
     }
 
     th {
@@ -43,10 +47,7 @@
       @include u-padding-left(0);
     }
 
-    th:first-child, td:first-child, th:last-child, td:last-child {
-      line-height: 1.6rem;
-      @include u-border(0);
-    }
+
 
     tr:last-child td {
       @include u-border(0);
