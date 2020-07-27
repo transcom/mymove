@@ -51,7 +51,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 	var verrs *validate.Errors
 	var err error
 
-	err = checkShipmentIDFields(shipment)
+	err = checkShipmentIDFields(shipment, serviceItems)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +183,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 }
 
 // checkShipmentIDFields checks that the client hasn't attempted to set ID fields that will be generated/auto-set
-func checkShipmentIDFields(shipment *models.MTOShipment) error {
+func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTOServiceItems) error {
 	verrs := validate.NewErrors()
 
 	if shipment.ID != uuid.Nil {
@@ -205,6 +205,26 @@ func checkShipmentIDFields(shipment *models.MTOShipment) error {
 			}
 
 			if mtoAgentIDErr && mtoShipmentIDErr {
+				break // we've found all the errors we're gonna find here
+			}
+		}
+	}
+
+	if len(serviceItems) > 0 {
+		var mtoServiceItemIDErr = false
+		var mtoShipmentIDErr = false
+
+		for _, item := range serviceItems {
+			if item.ID != uuid.Nil && !mtoServiceItemIDErr {
+				verrs.Add("mtoServiceItems:id", "cannot be set for new service items")
+				mtoServiceItemIDErr = true
+			}
+			if *item.MTOShipmentID != uuid.Nil && !mtoShipmentIDErr {
+				verrs.Add("mtoServiceItems:mtoShipmentID", "cannot be set for service items created with a shipment")
+				mtoShipmentIDErr = true
+			}
+
+			if mtoServiceItemIDErr && mtoShipmentIDErr {
 				break // we've found all the errors we're gonna find here
 			}
 		}
