@@ -193,10 +193,6 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTOServiceItems) error {
 	verrs := validate.NewErrors()
 
-	if shipment.ID != uuid.Nil {
-		verrs.Add("id", "cannot be set for new shipments")
-	}
-
 	if shipment.MTOAgents != nil && len(shipment.MTOAgents) > 0 {
 		for _, agent := range shipment.MTOAgents {
 			if agent.ID != uuid.Nil {
