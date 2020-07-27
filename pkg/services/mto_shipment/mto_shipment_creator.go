@@ -197,7 +197,7 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 		verrs.Add("id", "cannot be set for new shipments")
 	}
 
-	if len(shipment.MTOAgents) > 0 {
+	if shipment.MTOAgents != nil && len(shipment.MTOAgents) > 0 {
 		var mtoAgentIDErr = false
 		var mtoShipmentIDErr = false
 
@@ -217,7 +217,7 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 		}
 	}
 
-	if len(serviceItems) > 0 {
+	if serviceItems != nil && len(serviceItems) > 0 {
 		var mtoServiceItemIDErr = false
 		var mtoShipmentIDErr = false
 
@@ -226,7 +226,7 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 				verrs.Add("mtoServiceItems:id", "cannot be set for new service items")
 				mtoServiceItemIDErr = true
 			}
-			if *item.MTOShipmentID != uuid.Nil && !mtoShipmentIDErr {
+			if item.MTOShipmentID != nil && *item.MTOShipmentID != uuid.Nil && !mtoShipmentIDErr {
 				verrs.Add("mtoServiceItems:mtoShipmentID", "cannot be set for service items created with a shipment")
 				mtoShipmentIDErr = true
 			}
