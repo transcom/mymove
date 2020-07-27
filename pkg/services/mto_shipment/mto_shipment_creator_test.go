@@ -3,6 +3,8 @@ package mtoshipment
 import (
 	"testing"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"github.com/gobuffalo/pop"
@@ -80,40 +82,17 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 	})
 
 	suite.T().Run("If the shipment has mto service items", func(t *testing.T) {
-
-		mtoShipment.PickupAddressID = nil
-		mtoShipment.PickupAddress.ID = uuid.Nil
-		mtoShipment.DestinationAddressID = nil
-		mtoShipment.DestinationAddress.ID = uuid.Nil
-		mtoShipment.ID = uuid.Nil
-
-		builder := query.NewQueryBuilder(suite.DB())
-		createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
-			return builder
-		}
-
-		fetcher := fetch.NewFetcher(builder)
-		mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
-
-		creator := mtoShipmentCreator{
-			suite.DB(),
-			builder,
-			fetcher,
-			createNewBuilder,
-			mtoServiceItemCreator,
-		}
-
 		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: models.ReServiceCodeCS,
-				Name: "ReServiceCodeCS",
+				Code: models.ReServiceCodeDDSHUT,
+				Name: "ReServiceCodeDDSHUT",
 			},
 		})
 
 		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: models.ReServiceCodeDCRT,
-				Name: "ReServiceCodeDCRT",
+				Code: models.ReServiceCodeDOFSIT,
+				Name: "ReServiceCodeDOFSIT",
 			},
 		})
 
@@ -121,28 +100,28 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 			{
 				MoveTaskOrderID: mtoShipment.MoveTaskOrder.ID,
 				MoveTaskOrder:   mtoShipment.MoveTaskOrder,
-				Status:          models.MTOServiceItemStatusSubmitted,
 				ReService: models.ReService{
-					Code: models.ReServiceCodeCS,
+					Code: models.ReServiceCodeDDSHUT,
 				},
 			},
 			{
 				MoveTaskOrderID: mtoShipment.MoveTaskOrder.ID,
 				MoveTaskOrder:   mtoShipment.MoveTaskOrder,
-				Status:          models.MTOServiceItemStatusSubmitted,
 				ReService: models.ReService{
-					Code: models.ReServiceCodeDCRT,
+					Code: models.ReServiceCodeDOFSIT,
 				},
 			},
 		}
 
 		mtoShipment := clearShipmentIDFields(&mtoShipment)
+		weight := unit.Pound(2)
+		mtoShipment.PrimeEstimatedWeight = &weight // for DDSHUT service item type
 		createdShipment, err := creator.CreateMTOShipment(mtoShipment, serviceItemsList)
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
 		suite.NotNil(createdShipment.MTOServiceItems, "Service Items are empty")
-		suite.Equal(createdShipment.MTOServiceItems[0].MoveTaskOrderID, serviceItemsList[0].MoveTaskOrderID, "Service items are not the same")
+		suite.Equal(createdShipment.MTOServiceItems[0].MTOShipmentID, &createdShipment.ID, "Service items are not the same")
 	})
 }
 
