@@ -43,11 +43,17 @@
       @include u-padding-y('105');
     }
 
+    td:first-child, th:first-child {
+      @include u-width(6);
+    }
+
+    td:last-child, th:last-child {
+      @include u-minw(6);
+    }
+
     th:nth-child(2), td:nth-child(2) {
       @include u-padding-left(0);
     }
-
-
 
     tr:last-child td {
       @include u-border(0);
