@@ -2610,19 +2610,11 @@ definitions:
         format: date-time
         type: string
         readOnly: true
-      scheduledPickupDate:
-        format: date
-        type: string
-        readOnly: true
       requestedPickupDate:
         format: date
         type: string
         readOnly: true
-      actualPickupDate:
-        format: date
-        type: string
-        readOnly: true
-      requiredDeliveryDate:
+      requestedDeliveryDate:
         format: date
         type: string
         readOnly: true
@@ -2675,7 +2667,6 @@ definitions:
     required:
       - moveTaskOrderID
       - pickupAddress
-      - destinationAddress
       - shipmentType
   ClientError:
     type: object

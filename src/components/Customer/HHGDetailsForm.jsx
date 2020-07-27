@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { arrayOf, string, bool, shape, func } from 'prop-types';
+import { connect } from 'react-redux';
 import { Formik } from 'formik';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 
@@ -7,7 +8,11 @@ import { Form } from '../form/Form';
 import { DatePickerInput, TextInput } from '../form/fields';
 import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
-import { WizardPage } from '../../shared/WizardPage';
+
+import { createMTOShipment as createMTOShipmentAction } from 'shared/Entities/modules/mtoShipments';
+import { WizardPage } from 'shared/WizardPage';
+import { MTOAgentType } from 'shared/constants';
+import { formatSwaggerDate } from 'shared/formatters';
 
 class HHGDetailsForm extends Component {
   constructor(props) {
@@ -25,22 +30,77 @@ class HHGDetailsForm extends Component {
     });
   };
 
+  submitMTOShipment = ({
+    requestedPickupDate,
+    requestedDeliveryDate,
+    pickupLocation,
+    deliveryLocation,
+    receivingAgent,
+    releasingAgent,
+    remarks,
+  }) => {
+    const { createMTOShipment } = this.props;
+    const { hasDeliveryAddress } = this.state;
+    const mtoShipment = {
+      // TODO: Use moveTaskOrderID when it is available
+      moveTaskOrderID: '5d4b25bb-eb04-4c03-9a81-ee0398cb779e',
+      shipmentType: 'HHG',
+      requestedPickupDate: formatSwaggerDate(requestedPickupDate),
+      requestedDeliveryDate: formatSwaggerDate(requestedDeliveryDate),
+      customerRemarks: remarks,
+      pickupAddress: {
+        street_address_1: pickupLocation.mailingAddress1,
+        street_address_2: pickupLocation.mailingAddress2,
+        city: pickupLocation.city,
+        state: pickupLocation.state,
+        postal_code: pickupLocation.zip,
+        country: pickupLocation.country,
+      },
+      agents: [],
+    };
+
+    if (hasDeliveryAddress) {
+      mtoShipment.destinationAddress = {
+        street_address_1: deliveryLocation.mailingAddress1,
+        street_address_2: deliveryLocation.mailingAddress2,
+        city: deliveryLocation.city,
+        state: deliveryLocation.state,
+        postal_code: deliveryLocation.zip,
+        country: deliveryLocation.country,
+      };
+    }
+
+    if (releasingAgent) {
+      mtoShipment.agents.push({ ...releasingAgent, agentType: MTOAgentType.RELEASING });
+    }
+
+    if (receivingAgent) {
+      mtoShipment.agents.push({ ...receivingAgent, agentType: MTOAgentType.RECEIVING });
+    }
+    createMTOShipment(mtoShipment);
+  };
+
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { initialValues, pageKey, pageList } = this.props;
+    const { initialValues, pageKey, pageList, match, push } = this.props;
     const { hasDeliveryAddress } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
       <Formik initialValues={initialValues}>
         {({ handleChange, values }) => (
-          <WizardPage pageKey={pageKey} pageList={pageList} handleSubmit={() => {}}>
+          <WizardPage
+            match={match}
+            pageKey={pageKey}
+            pageList={pageList}
+            push={push}
+            handleSubmit={() => this.submitMTOShipment(values)}
+          >
             <Form>
               <Fieldset legend="Pickup date" className={fieldsetClasses}>
                 <DatePickerInput
                   name="requestedPickupDate"
                   label="Requested pickup date"
                   id="requestedPickupDate"
-                  onChange={handleChange}
                   value={values.requestedPickupDate}
                 />
               </Fieldset>
@@ -67,7 +127,6 @@ class HHGDetailsForm extends Component {
                   name="requestedDeliveryDate"
                   label="Requested delivery date"
                   id="requestedDeliveryDate"
-                  handleChange={handleChange}
                   value={values.requestedDeliveryDate}
                 />
                 <span className="usa-hint" id="deliveryDateHint">
@@ -117,6 +176,7 @@ class HHGDetailsForm extends Component {
               <Fieldset legend="Remarks" className={fieldsetClasses}>
                 <Label hint="(optional)">Anything else you would like us to know?</Label>
                 <TextInput
+                  data-testid="remarks"
                   name="remarks"
                   id="remarks"
                   maxLength={1500}
@@ -133,43 +193,58 @@ class HHGDetailsForm extends Component {
 }
 
 HHGDetailsForm.propTypes = {
-  pageKey: PropTypes.string.isRequired,
-  pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
-  initialValues: PropTypes.shape({
-    requestedPickupDate: PropTypes.string,
-    pickupLocation: PropTypes.shape({
-      mailingAddress1: PropTypes.string,
-      mailingAddress2: PropTypes.string,
-      city: PropTypes.string,
-      state: PropTypes.string,
-      zip: PropTypes.string,
+  pageKey: string.isRequired,
+  pageList: arrayOf(string).isRequired,
+  initialValues: shape({
+    requestedPickupDate: string,
+    pickupLocation: shape({
+      mailingAddress1: string,
+      mailingAddress2: string,
+      city: string,
+      state: string,
+      zip: string,
     }),
-    requestedDeliveryDate: PropTypes.string,
-    deliveryLocation: PropTypes.shape({
-      mailingAddress1: PropTypes.string,
-      mailingAddress2: PropTypes.string,
-      city: PropTypes.string,
-      state: PropTypes.string,
-      zip: PropTypes.string,
+    requestedDeliveryDate: string,
+    deliveryLocation: shape({
+      mailingAddress1: string,
+      mailingAddress2: string,
+      city: string,
+      state: string,
+      zip: string,
     }),
-    releasingAgent: PropTypes.shape({
-      firstName: PropTypes.string,
-      lastName: PropTypes.string,
-      phone: PropTypes.string,
-      email: PropTypes.string,
+    releasingAgent: shape({
+      firstName: string,
+      lastName: string,
+      phone: string,
+      email: string,
     }),
-    receivingAgent: PropTypes.shape({
-      firstName: PropTypes.string,
-      lastName: PropTypes.string,
-      phone: PropTypes.string,
-      email: PropTypes.string,
+    receivingAgent: shape({
+      firstName: string,
+      lastName: string,
+      phone: string,
+      email: string,
     }),
-    remarks: PropTypes.string,
+    remarks: string,
   }),
+  match: shape({
+    isExact: bool.isRequired,
+    params: shape({
+      moveId: string.isRequired,
+    }),
+    path: string.isRequired,
+    url: string.isRequired,
+  }).isRequired,
+  createMTOShipment: func.isRequired,
+  push: func.isRequired,
 };
 
 HHGDetailsForm.defaultProps = {
   initialValues: {},
 };
 
-export default HHGDetailsForm;
+const mapDispatchToProps = {
+  createMTOShipment: createMTOShipmentAction,
+};
+
+export { HHGDetailsForm as HHGDetailsFormComponent };
+export default connect(null, mapDispatchToProps)(HHGDetailsForm);
