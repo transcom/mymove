@@ -91,8 +91,6 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				}
 			}
 
-			println("🧸")
-			fmt.Printf("service item %v", serviceItem)
 			serviceItemsList = append(serviceItemsList, serviceItem)
 		}
 		shipment.MTOServiceItems = serviceItemsList
