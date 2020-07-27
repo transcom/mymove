@@ -13,7 +13,7 @@ import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
 import { toDollarString } from 'shared/formatters';
 
-const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
+const ReviewServiceItems = ({ header, serviceItemCards, handleClose, disableScrollIntoView }) => {
   const [curCardIndex, setCardIndex] = useState(0);
   const [sortedCards] = useState(sortServiceItemsByGroup(serviceItemCards));
   const totalCards = serviceItemCards.length;
@@ -77,7 +77,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
     const { id } = sortedCards[parseInt(curCardIndex, 10)];
     const element = document.querySelector(`#card-${id}`);
     // scroll into element view
-    if (element) {
+    if (element && !disableScrollIntoView) {
       element.scrollIntoView();
     }
   });
@@ -171,10 +171,12 @@ ReviewServiceItems.propTypes = {
   header: PropTypes.string,
   serviceItemCards: ServiceItemCardsShape.isRequired,
   handleClose: PropTypes.func.isRequired,
+  disableScrollIntoView: PropTypes.bool,
 };
 
 ReviewServiceItems.defaultProps = {
   header: 'Review service items',
+  disableScrollIntoView: false,
 };
 
 export default ReviewServiceItems;

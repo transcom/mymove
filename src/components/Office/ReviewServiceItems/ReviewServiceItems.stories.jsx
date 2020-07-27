@@ -32,6 +32,7 @@ export const Basic = () => (
 export const BasicWithTwoItems = () => {
   return (
     <ReviewServiceItems
+      disableScrollIntoView
       serviceItemCards={[
         {
           id: '1',
@@ -49,12 +50,6 @@ export const BasicWithTwoItems = () => {
       handleClose={action('clicked')}
     />
   );
-};
-// TODO - Skipping this story for now since this has animations and lokiAsync() can't be used in Storybook CSF format
-BasicWithTwoItems.story = {
-  parameters: {
-    loki: { skip: true },
-  },
 };
 
 export const HHG = () => (
@@ -129,6 +124,7 @@ export const MultipleShipmentsGroups = () => (
 
 export const WithStatusAndReason = () => (
   <ReviewServiceItems
+    disableScrollIntoView
     serviceItemCards={[
       {
         id: '1',
