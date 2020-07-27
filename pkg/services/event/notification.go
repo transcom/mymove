@@ -1,4 +1,4 @@
-package events
+package event
 
 import (
 	"go.uber.org/zap"
@@ -71,11 +71,11 @@ func PaymentServiceItemsModelToPayload(paymentServiceItems *models.PaymentServic
 	return &payload
 }
 
-// EventNotificationsHandler receives notifications from the events package
-func EventNotificationsHandler(event *Event) error {
+// NotificationEventHandler receives notifications from the events package
+func NotificationEventHandler(event *Event) error {
 
 	var logger = event.logger
-	var db = event.db
+	var db = event.DBConnection
 
 	// Currently it logs information about the event. Eventually it will create an entry
 	// in the notification table in the database
@@ -85,7 +85,10 @@ func EventNotificationsHandler(event *Event) error {
 		zap.String("objectID", event.UpdatedObjectID.String()))
 
 	//Get the type of model which is stored in the eventType
-	modelBeingUpdated, _ := GetModelFromEvent(event.EventKey)
+	modelBeingUpdated, err := GetModelFromEvent(event.EventKey)
+	if err != nil {
+		return err
+	}
 
 	// Based on which model was updated, construct the proper payload
 	switch modelBeingUpdated.(type) {

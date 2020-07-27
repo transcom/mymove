@@ -1,4 +1,4 @@
-package events
+package event
 
 // EndpointType stores the details of the endpoint API name and operationID
 type EndpointType struct {

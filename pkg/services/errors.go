@@ -211,3 +211,30 @@ func NewNotImplementedError(message string) NotImplementedError {
 		message: message,
 	}
 }
+
+// EventError is an error generated in the events/notifications system.
+// We should log but not return this sort of error to the client because
+// client's request could be successful but our notification subsystem
+// encountered an error
+type EventError struct {
+	message string
+	error
+}
+
+// NewEventError returns an error for a failed precondition
+func NewEventError(message string, err error) EventError {
+	return EventError{
+		message: message,
+		error:   err,
+	}
+}
+
+// Error is the string representation of the precondition failed error
+func (e EventError) Error() string {
+	return e.message
+}
+
+// Unwrap returns the wrapped error, could be nil
+func (e EventError) Unwrap() error {
+	return e.error
+}
