@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -41,7 +43,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		},
 	}
 
-	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
+	suite.T().Run("Successful patch - Approval - Integration Test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 
 		fetcher := fetch.NewFetcher(queryBuilder)
@@ -74,6 +76,49 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusNotFound{}, response)
 
+	})
+
+	suite.T().Run("Successful patch - Rejection - Integration Test", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+
+		fetcher := fetch.NewFetcher(queryBuilder)
+
+		handler := UpdatePaymentServiceItemStatusHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			Fetcher:        fetcher,
+			Builder:        *queryBuilder,
+		}
+		params.PaymentServiceItemID = paymentServiceItem.ID.String()
+		params.Body.Status = ghcmessages.PaymentServiceItemStatusDENIED
+		params.Body.RejectionReason = swag.String("Because reasons")
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusOK{}, response)
+		okResponse := response.(*paymentServiceItemOp.UpdatePaymentServiceItemStatusOK)
+		suite.Equal(paymentServiceItem.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(ghcmessages.PaymentServiceItemStatusDENIED, okResponse.Payload.Status)
+		suite.Equal("Because reasons", *okResponse.Payload.RejectionReason)
+	})
+
+	suite.T().Run("Successful patch - Approval of previously rejected - Integration Test", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+
+		fetcher := fetch.NewFetcher(queryBuilder)
+
+		handler := UpdatePaymentServiceItemStatusHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			Fetcher:        fetcher,
+			Builder:        *queryBuilder,
+		}
+
+		params.Body.Status = ghcmessages.PaymentServiceItemStatusAPPROVED
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusOK{}, response)
+		okResponse := response.(*paymentServiceItemOp.UpdatePaymentServiceItemStatusOK)
+		suite.Equal(paymentServiceItem.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(ghcmessages.PaymentServiceItemStatusAPPROVED, okResponse.Payload.Status)
+		suite.Nil(okResponse.Payload.RejectionReason)
 	})
 
 }

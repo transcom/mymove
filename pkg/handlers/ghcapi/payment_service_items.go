@@ -49,6 +49,14 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 	updatedPaymentServiceItem := paymentServiceItem
 	updatedPaymentServiceItem.Status = newStatus
 
+	if params.Body.RejectionReason != nil {
+		updatedPaymentServiceItem.RejectionReason = params.Body.RejectionReason
+	}
+	// If we're approving this thing then we don't want there to be a rejection reason
+	if updatedPaymentServiceItem.Status == models.PaymentServiceItemStatusApproved {
+		updatedPaymentServiceItem.RejectionReason = nil
+	}
+
 	// Capture update attempt in audit log
 	_, err = audit.Capture(&updatedPaymentServiceItem, nil, logger, session, params.HTTPRequest)
 	if err != nil {
