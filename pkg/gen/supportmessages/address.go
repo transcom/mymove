@@ -27,6 +27,7 @@ type Address struct {
 	Country *string `json:"country,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id

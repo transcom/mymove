@@ -25,6 +25,7 @@ type DutyStation struct {
 	AddressID strfmt.UUID `json:"addressID,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id

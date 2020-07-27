@@ -530,7 +530,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -708,7 +709,8 @@ func init() {
           "type": "string"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -781,7 +783,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -885,10 +888,12 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -923,7 +928,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -945,7 +951,8 @@ func init() {
           "type": "string"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "feeType": {
           "type": "string",
@@ -1021,7 +1028,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "customerRemarks": {
           "type": "string",
@@ -1033,7 +1041,8 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1091,7 +1100,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -1212,11 +1222,13 @@ func init() {
         "createdAt": {
           "description": "Date the MoveTaskOrder was created on.",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
           "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "description": "ID of the MoveTaskOrder object.",
@@ -1275,7 +1287,8 @@ func init() {
         "updatedAt": {
           "description": "Date on which this MoveTaskOrder was last updated.",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -1326,7 +1339,8 @@ func init() {
           "$ref": "#/definitions/ProofOfServicePackage"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1485,7 +1499,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "proofOfServicePackage": {
           "$ref": "#/definitions/ProofOfServicePackage"
@@ -1505,7 +1520,8 @@ func init() {
       "properties": {
         "eTag": {
           "description": "Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for ` + "`" + `If-Match` + "`" + `. Required when sending PUT or PATCH requests to prevent updating stale data.",
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "rejectionReason": {
           "description": "A written reason to provide context for the status.",
@@ -2307,7 +2323,8 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2485,7 +2502,8 @@ func init() {
           "type": "string"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2558,7 +2576,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2662,10 +2681,12 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2700,7 +2721,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2722,7 +2744,8 @@ func init() {
           "type": "string"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "feeType": {
           "type": "string",
@@ -2798,7 +2821,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "customerRemarks": {
           "type": "string",
@@ -2810,7 +2834,8 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2868,7 +2893,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2989,11 +3015,13 @@ func init() {
         "createdAt": {
           "description": "Date the MoveTaskOrder was created on.",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
           "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "description": "ID of the MoveTaskOrder object.",
@@ -3052,7 +3080,8 @@ func init() {
         "updatedAt": {
           "description": "Date on which this MoveTaskOrder was last updated.",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -3103,7 +3132,8 @@ func init() {
           "$ref": "#/definitions/ProofOfServicePackage"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -3262,7 +3292,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "proofOfServicePackage": {
           "$ref": "#/definitions/ProofOfServicePackage"
@@ -3282,7 +3313,8 @@ func init() {
       "properties": {
         "eTag": {
           "description": "Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for ` + "`" + `If-Match` + "`" + `. Required when sending PUT or PATCH requests to prevent updating stale data.",
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "rejectionReason": {
           "description": "A written reason to provide context for the status.",

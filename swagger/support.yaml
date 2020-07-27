@@ -428,6 +428,7 @@ definitions:
         title: City
       eTag:
         type: string
+        readOnly: true
       state:
         title: State
         type: string
@@ -590,6 +591,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+        readOnly: true
   Document:
     type: object
     properties:
@@ -627,6 +629,7 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+        readOnly: true
   Entitlement:
     properties:
       id:
@@ -779,6 +782,7 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
         description: Date the MoveTaskOrder was created on.
       moveOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -817,6 +821,7 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
         description: Date on which this MoveTaskOrder was last updated.
       paymentRequests:
         $ref: '#/definitions/PaymentRequests'
@@ -845,6 +850,7 @@ definitions:
           It will change everytime the object is updated. Client should store the value.
           Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
         type: string
+        readOnly: true
   MoveOrders:
     items:
       $ref: '#/definitions/MoveOrder'
@@ -871,9 +877,11 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
       firstName:
         type: string
         x-nullable: true
@@ -897,6 +905,7 @@ definitions:
           - RECEIVING_AGENT
       eTag:
         type: string
+        readOnly: true
     type: object
   OrdersStatus:
     type: string
@@ -954,6 +963,7 @@ definitions:
         type: string
       eTag:
         type: string
+        readOnly: true
     type: object
   PaymentRequests:
     items:
@@ -992,9 +1002,11 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
       scheduledPickupDate:
         format: date
         type: string
@@ -1040,6 +1052,7 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+        readOnly: true
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -1098,6 +1111,7 @@ definitions:
         $ref: '#/definitions/MTOServiceItemModelType'
       eTag:
         type: string
+        readOnly: true
     required:
       - modelType
       - moveTaskOrderID
@@ -1133,6 +1147,7 @@ definitions:
         type: array
       eTag:
         type: string
+        readOnly: true
     type: object
   UpdateMTOServiceItemStatus:
     properties:
@@ -1201,6 +1216,7 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       eTag:
         type: string
+        readOnly: true
         description: Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
     type: object
   Upload:
