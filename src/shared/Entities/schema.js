@@ -7,7 +7,7 @@ export const roles = new schema.Array(role);
 
 // User
 export const user = new schema.Entity('users');
-
+export const loggedInUser = new schema.Entity('user');
 user.define({
   roles,
 });

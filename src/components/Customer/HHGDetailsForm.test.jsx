@@ -12,6 +12,12 @@ const defaultProps = {
   pageList: ['page1', 'anotherPage/:foo/:bar'],
   pageKey: 'page1',
   match: { isExact: false, path: '', url: '' },
+  showLoggedInUser: () => {},
+  newDutyStationAddress: {
+    city: 'Fort Benning',
+    state: 'GA',
+    postal_code: '31905',
+  },
 };
 function mountHHGDetailsForm(props = defaultProps) {
   return mount(

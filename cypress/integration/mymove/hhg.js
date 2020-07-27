@@ -121,13 +121,15 @@ function customerFillsOutOrdersInformation() {
 function customerSetsUpAnHHGMove() {
   cy.get('input[type="radio"]').last().check({ force: true });
   cy.nextPage();
-  cy.get('input[name="requestedPickupDate"]').first().type('9/2/2020{enter}').blur();
-  // pickup location
-  cy.get(`[data-testid="mailingAddress1"]`).first().type('412 Avenue M ');
-  cy.get(`[data-testid="mailingAddress2"]`).first().type('#3E');
-  cy.get(`[data-testid="city"]`).first().type('Los Angeles');
-  cy.get(`[data-testid="state"]`).first().type('CA');
-  cy.get(`[data-testid="zip"]`).first().type('90011');
+  cy.get('input[name="requestedPickupDate"]').first().type('08/02/2020').blur();
+
+  // should be empty before using "Use current residence" checkbox
+  cy.get(`[data-testid="mailingAddress1"]`).first().should('be.empty');
+  cy.get(`[data-testid="city"]`).first().should('be.empty');
+  cy.get(`[data-testid="state"]`).first().should('be.empty');
+  cy.get(`[data-testid="zip"]`).first().should('be.empty');
+
+  cy.get(`input[name="useCurrentResidence"]`).check({ force: true });
 
   // releasing agent
   cy.get(`[data-testid="firstName"]`).first().type('John');
@@ -136,7 +138,7 @@ function customerSetsUpAnHHGMove() {
   cy.get(`[data-testid="email"]`).first().type('ron@example.com');
 
   // requested delivery date
-  cy.get('input[name="requestedDeliveryDate"]').first().type('9/20/2020{enter}').blur();
+  cy.get('input[name="requestedDeliveryDate"]').first().type('09/20/2020').blur();
   // checks has delivery address (default does not have delivery address)
   cy.get('input[type="radio"]').first().check({ force: true });
 
@@ -162,13 +164,13 @@ function customerSetsUpAnHHGMove() {
   });
 }
 
-describe('The Home Page', function () {
+describe('HHG Setup flow', function () {
   beforeEach(() => {
     cy.setupBaseUrl(milmoveAppName);
     cy.server();
     cy.route('POST', '/mto-shipments').as('mto-shipments');
   });
-  it('Goes through ', function () {
+  it('Creates a shipment', function () {
     cy.signInAsNewMilMoveUser();
     customerFillsInProfileInformation();
     customerFillsOutOrdersInformation();

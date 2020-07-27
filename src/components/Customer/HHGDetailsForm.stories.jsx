@@ -7,6 +7,12 @@ const defaultProps = {
   pageList: ['page1', 'anotherPage/:foo/:bar'],
   pageKey: 'page1',
   match: { isExact: false, path: '', url: '' },
+  newDutyStationAddress: {
+    city: 'Fort Benning',
+    state: 'GA',
+    postal_code: '31905',
+  },
+  showLoggedInUser: () => {},
 };
 
 export default {
