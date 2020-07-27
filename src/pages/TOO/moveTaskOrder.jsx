@@ -42,7 +42,7 @@ class MoveTaskOrder extends Component {
 
     return (
       <div style={{ display: 'flex' }}>
-        <div className="" style={{ width: '85%' }} data-cy="too-shipment-container">
+        <div className="" style={{ width: '85%' }} data-testid="too-shipment-container">
           {/* eslint-disable-next-line react/prop-types */}
           {mtoShipments.map((mtoShipment) => {
             return (

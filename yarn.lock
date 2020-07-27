@@ -6052,10 +6052,10 @@ danger-plugin-jira-issue@^1.4.1:
   resolved "https://registry.yarnpkg.com/danger-plugin-jira-issue/-/danger-plugin-jira-issue-1.4.1.tgz#1e2317ae8a291d96dc19762a55cb905681320940"
   integrity sha512-B/XaW8YigUboK4BH4sMM8GmE0e+Bc6ibAg+Xyf0HFGph4DIawNYOuwKbCh2K1fAyXafott6tGpxFMe9Tc0Aabw==
 
-danger@^10.2.1:
-  version "10.2.1"
-  resolved "https://registry.yarnpkg.com/danger/-/danger-10.2.1.tgz#060eaa332c4948fe05fc128b13bf478ae5937098"
-  integrity sha512-AY5qC7VjBGBe/JfbiW8xtIxOuXvbu5H5vMknFUbmrb86vX26FjRZD2qi0Dd18e/NFYs/tPt3FaCW4Led24C8Uw==
+danger@^10.3.0:
+  version "10.3.0"
+  resolved "https://registry.yarnpkg.com/danger/-/danger-10.3.0.tgz#9d104a030998ac3491f05019e13b76e877111fad"
+  integrity sha512-20PviKzkY1JlDd3Sc2AWdND2SipMHcSL0iYjzTnncw0gVTYBXS/pFuRJ/PgzhWX9ZYsiMvbf6UXFosaJZOKTNg==
   dependencies:
     "@babel/polyfill" "^7.2.5"
     "@octokit/rest" "^16.43.1"
@@ -14110,10 +14110,10 @@ react-hotkeys@2.0.0:
   dependencies:
     prop-types "^15.6.1"
 
-react-idle-timer@^4.3.1:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.3.1.tgz#29597c258d441de84fcb4722d8f6000f4d442cb7"
-  integrity sha512-KaSlUQOAtvQC6YOj/ckU6DqLIIhZcBi5AtB0toK94rl9fRrlMrQ3/S8M5XFoyCPFEV0zsq90/pCLCoWr34s2yQ==
+react-idle-timer@^4.3.4:
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.3.4.tgz#5f3cefdead2338ad510c151352cf81b04b6a84bd"
+  integrity sha512-dbrWW1CBijrFsfg8oMnu6E5e2kF5fOY7bJFUuTQuEbZSzaxKk30Z05IH96BjbiIo1hXQwODGultsvZj92GnZ8Q==
 
 react-input-autosize@^2.2.2:
   version "2.2.2"
@@ -16272,10 +16272,10 @@ swagger-client@^3.10.12:
     traverse "~0.6.6"
     url "~0.11.0"
 
-swagger-ui-dist@^3.30.1:
-  version "3.30.1"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.30.1.tgz#6e59990de24f7231298c4b7ef774ef9a1b3b8ea7"
-  integrity sha512-yxSMgkcuDFtTR4ExMUJEDAulzpQA243+vdew4Khp+oT4YnZ0mjf85eLm/SUWs2Ol0HZPHed6uEUhsDj5OWcuKw==
+swagger-ui-dist@^3.30.2:
+  version "3.30.2"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.30.2.tgz#f3171c81d23709e834506d13bf9bba7ac4883abf"
+  integrity sha512-hAu/ig5N8i0trXXbrC7rwbXV4DhpEAsZhYXDs1305OjmDgjGC0thINbb0197idy3Pp+B6w7u426SUM43GAP7qw==
 
 symbol-observable@^1.0.3, symbol-observable@^1.0.4, symbol-observable@^1.2.0:
   version "1.2.0"
@@ -17097,6 +17097,11 @@ uuid@^3.0.1, uuid@^3.3.2:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
+
+uuid@^8.2.0:
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.2.0.tgz#cb10dd6b118e2dada7d0cd9730ba7417c93d920e"
+  integrity sha512-CYpGiFTUrmI6OBMkAdjSDM0k5h8SkkiTP4WAjQgDgNB1S3Ou9VBEvr6q0Kv2H1mMk7IWfxYGpMH5sd5AvcIV2Q==
 
 v8-compile-cache@^2.0.3:
   version "2.1.1"

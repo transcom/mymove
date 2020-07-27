@@ -278,14 +278,14 @@ class WeightTicket extends Component {
                     <>
                       <SwaggerField
                         fieldName="vehicle_make"
-                        data-cy="vehicle_make"
+                        data-testid="vehicle_make"
                         title="Vehicle make"
                         swagger={schema}
                         required={this.isCarTrailer || this.isCar}
                       />
                       <SwaggerField
                         fieldName="vehicle_model"
-                        data-cy="vehicle_model"
+                        data-testid="vehicle_model"
                         title="Vehicle model"
                         swagger={schema}
                         required={this.isCarTrailer || this.isCar}
@@ -294,7 +294,7 @@ class WeightTicket extends Component {
                   ) : (
                     <SwaggerField
                       fieldName="vehicle_nickname"
-                      data-cy="vehicle_nickname"
+                      data-testid="vehicle_nickname"
                       title={
                         this.isProGear
                           ? "Pro-gear type (ex. 'My pro-gear', 'Spouse pro-gear', 'Both')"
@@ -340,7 +340,7 @@ class WeightTicket extends Component {
                           Proof of ownership (ex. registration, bill of sale)
                         </p>
                         <p>{documentSizeLimitMsg}</p>
-                        <span data-cy="trailer-upload">
+                        <span data-testid="trailer-upload">
                           <Uploader
                             options={{ labelIdle: uploadTrailerProofOfOwnership }}
                             onRef={(ref) => (this.uploaders.trailer.uploaderRef = ref)}
@@ -356,7 +356,7 @@ class WeightTicket extends Component {
                         />
                         {missingDocumentation && (
                           <div className="grid-row">
-                            <div className="grid-col-8" data-cy="trailer-warning">
+                            <div className="grid-col-8" data-testid="trailer-warning">
                               <Alert type="warning">
                                 If your state does not provide a registration or bill of sale for your trailer, you may
                                 write and upload a signed and dated statement certifying that you or your spouse own the
@@ -406,7 +406,7 @@ class WeightTicket extends Component {
                             lbs
                           </div>
                           <div className="grid-col-8 uploader-wrapper">
-                            <span data-cy="empty-weight-upload">
+                            <span data-testid="empty-weight-upload">
                               <Uploader
                                 options={{ labelIdle: uploadEmptyTicketLabel }}
                                 onRef={(ref) => (this.uploaders.emptyWeight.uploaderRef = ref)}
@@ -422,7 +422,7 @@ class WeightTicket extends Component {
                               normalizeLabel
                             />
                             {missingEmptyWeightTicket && (
-                              <span data-cy="empty-warning">
+                              <span data-testid="empty-warning">
                                 <Alert type="warning">
                                   Contact your local Transportation Office (PPPO) to let them know you’re missing this
                                   weight ticket. For now, keep going and enter the info you do have.
@@ -455,7 +455,7 @@ class WeightTicket extends Component {
                       </div>
 
                       <div className="grid-col-8 uploader-wrapper">
-                        <div data-cy="full-weight-upload">
+                        <div data-testid="full-weight-upload">
                           <Uploader
                             options={{ labelIdle: uploadFullTicketLabel }}
                             onRef={(ref) => (this.uploaders.fullWeight.uploaderRef = ref)}
@@ -471,7 +471,7 @@ class WeightTicket extends Component {
                           normalizeLabel
                         />
                         {missingFullWeightTicket && (
-                          <div data-cy="full-warning">
+                          <div data-testid="full-warning">
                             <Alert type="warning">
                               <b>You can’t get paid without a full weight ticket.</b> See what you can do to find it,
                               because without certified documentation of the weight of your belongings, we can’t pay you

@@ -856,6 +856,10 @@ definitions:
         readOnly: true
       agents:
         $ref: '#/definitions/MTOAgents'
+      mtoServiceItems:
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+        type: array
       customerRemarks:
         type: string
         readOnly: true

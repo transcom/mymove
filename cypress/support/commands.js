@@ -57,7 +57,7 @@ Cypress.Commands.add('signInAsNewMilMoveUser', () => {
   cy.signInAsNewUser(milmoveUserType);
   cy.url().should('contain', milmoveBaseURL);
   cy.location('pathname').should('contain', 'service-member');
-  cy.location('pathname').should('contain', 'create');
+  cy.location('pathname').should('contain', 'conus-status');
 });
 
 Cypress.Commands.add('signInAsNewOfficeUser', () => {
@@ -74,7 +74,7 @@ Cypress.Commands.add('signInAsNewTOOUser', () => {
 
 Cypress.Commands.add('signInAsNewTIOUser', () => {
   cy.signInAsNewUser(TIOOfficeUserType);
-  cy.contains('TIO interface');
+  cy.contains('Payment Requests');
   cy.url().should('eq', officeBaseURL + '/');
 });
 
@@ -255,7 +255,7 @@ Cypress.Commands.add('nextPageAndCheckLocation', (dataCyValue, pageTitle, locati
   const locationRegex = new RegExp(locationMatch); // eslint-disable-line security/detect-non-literal-regexp
 
   cy.nextPage();
-  cy.get(`[data-cy="${dataCyValue}"]`).contains(pageTitle);
+  cy.get(`[data-testid="${dataCyValue}"]`).contains(pageTitle);
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(locationRegex);
   });

@@ -91,7 +91,7 @@ const origin = memoize((originDutyStations) =>
 
 const status = createReactTableColumn('Status', 'synthetic_status', {
   Cell: (row) => (
-    <span className="status" data-cy="status">
+    <span className="status" data-testid="status">
       {capitalize(row.value && row.value.replace('_', ' '))}
     </span>
   ),
@@ -102,7 +102,7 @@ const customerName = createReactTableColumn('Customer name', 'customer_name');
 const dodId = createReactTableColumn('DoD ID', 'edipi');
 
 const locator = createReactTableColumn('Locator #', 'locator', {
-  Cell: (row) => <span data-cy="locator">{row.value}</span>,
+  Cell: (row) => <span data-testid="locator">{row.value}</span>,
 });
 
 const dateFormat = 'DD-MMM-YY';

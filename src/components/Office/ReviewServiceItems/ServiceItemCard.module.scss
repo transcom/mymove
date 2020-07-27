@@ -20,4 +20,44 @@
     @include u-margin-bottom(2);
     @include u-text('gray-40');
   }
+
+  .statusOption {
+    @include u-padding(0);
+    @include u-shadow(2);
+    @include u-border(1px);
+    border-color: $base-light;
+    border-radius: units(2px);
+
+    :global {
+      .usa-radio__label {
+        @include u-padding-y(2);
+        @include u-padding-left(6);
+        margin: 0;
+      }
+
+      .usa-radio__input:checked + .usa-radio__label {
+        background-color: $link-light;
+      }
+
+      .usa-form-group {
+        @include u-padding(2);
+
+        .usa-label {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+
+  .statusOption + .statusOption {
+    margin-top: 14px;
+  }
+
+  .clearStatus {
+    padding: 0;
+  }
+
+  .statusOption + .clearStatus {
+    @include u-margin-top(2);
+  }
 }

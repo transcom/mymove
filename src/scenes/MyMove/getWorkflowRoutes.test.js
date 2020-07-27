@@ -5,11 +5,18 @@ import { NULL_UUID, SHIPMENT_OPTIONS } from 'shared/constants';
 const ppmContext = {
   flags: {
     hhgFlow: false,
+    ghcFlow: false,
   },
 };
 const hhgContext = {
   flags: {
     hhgFlow: true,
+  },
+};
+const ghcContext = {
+  flags: {
+    ghcFlow: true,
+    hhgFlow: false,
   },
 };
 
@@ -30,7 +37,6 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/residence-address',
           '/service-member/:serviceMemberId/backup-mailing-address',
           '/service-member/:serviceMemberId/backup-contacts',
-          '/service-member/:serviceMemberId/transition',
           '/orders/',
           '/orders/upload',
           '/orders/transition',
@@ -74,13 +80,39 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/residence-address',
           '/service-member/:serviceMemberId/backup-mailing-address',
           '/service-member/:serviceMemberId/backup-contacts',
-          '/service-member/:serviceMemberId/transition',
           '/orders/',
           '/orders/upload',
           '/orders/transition',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
+      });
+    });
+    describe('given an incomplete service member', () => {
+      describe('given no move and behind GHC flag', () => {
+        const props = {
+          selectedMoveType: null,
+          context: ghcContext,
+        };
+        const pages = getPagesInFlow(props);
+        it('getPagesInFlow returns service member, order and move pages', () => {
+          expect(pages).toEqual([
+            '/service-member/:serviceMemberId/conus-status',
+            '/service-member/:serviceMemberId/create',
+            '/service-member/:serviceMemberId/name',
+            '/service-member/:serviceMemberId/contact-info',
+            '/service-member/:serviceMemberId/duty-station',
+            '/service-member/:serviceMemberId/residence-address',
+            '/service-member/:serviceMemberId/backup-mailing-address',
+            '/service-member/:serviceMemberId/backup-contacts',
+            '/service-member/:serviceMemberId/move-landing',
+            '/orders/',
+            '/orders/upload',
+            '/orders/transition',
+            '/moves/:moveId/review',
+            '/moves/:moveId/agreement',
+          ]);
+        });
       });
     });
     describe('given a PPM', () => {
@@ -98,7 +130,6 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/residence-address',
           '/service-member/:serviceMemberId/backup-mailing-address',
           '/service-member/:serviceMemberId/backup-contacts',
-          '/service-member/:serviceMemberId/transition',
           '/orders/',
           '/orders/upload',
           '/orders/transition',
@@ -111,6 +142,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given hhgFlow flag is true', () => {
       const props = {
+        selectedMoveType: SHIPMENT_OPTIONS.HHG,
         context: hhgContext,
       };
       const pages = getPagesInFlow(props);
@@ -123,11 +155,12 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/residence-address',
           '/service-member/:serviceMemberId/backup-mailing-address',
           '/service-member/:serviceMemberId/backup-contacts',
-          '/service-member/:serviceMemberId/transition',
           '/orders/',
           '/orders/upload',
           '/orders/transition',
+          '/moves/:moveId/moving-info',
           '/moves/:moveId/select-type',
+          '/moves/:moveId/hhg-start',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -201,8 +234,8 @@ describe('when getting the next incomplete page', () => {
               id: NULL_UUID,
               name: '',
             },
-            context: ppmContext,
           },
+          context: ppmContext,
         });
         expect(result).toEqual('/service-member/foo/duty-station');
       });
@@ -226,8 +259,8 @@ describe('when getting the next incomplete page', () => {
               id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
               name: 'Blue Grass Army Depot',
             },
-            context: ppmContext,
           },
+          context: ppmContext,
         });
         expect(result).toEqual('/service-member/foo/residence-address');
       });
@@ -257,8 +290,8 @@ describe('when getting the next incomplete page', () => {
               state: 'GA',
               street_address_1: 'xxx',
             },
-            context: ppmContext,
           },
+          context: ppmContext,
         });
         expect(result).toEqual('/service-member/foo/backup-mailing-address');
       });
@@ -294,8 +327,8 @@ describe('when getting the next incomplete page', () => {
               state: 'GA',
               street_address_1: 'zzz',
             },
-            context: ppmContext,
           },
+          context: ppmContext,
         });
         expect(result).toEqual('/service-member/foo/backup-contacts');
       });

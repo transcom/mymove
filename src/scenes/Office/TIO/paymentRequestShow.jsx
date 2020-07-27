@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -66,4 +67,4 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({ getPaymentRequest, updatePaymentRequest }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequestShow);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PaymentRequestShow));
