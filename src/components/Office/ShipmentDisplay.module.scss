@@ -7,6 +7,7 @@
     @include u-text('base-darker');
     @include u-text('bold');
     @include u-margin(0);
+
   }
 
   &__container {
@@ -66,4 +67,8 @@
     @include u-margin-right(0);
   }
 
+  tr:first-child th {
+    @include u-padding-top(2);
+    @include u-padding-x(2);
+  }
 }
