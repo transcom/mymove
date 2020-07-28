@@ -97,11 +97,6 @@ export function selectMoveStatus(state, moveId) {
   return move.status;
 }
 
-export function selectedMoveType(state, moveId) {
-  const move = selectMove(state, moveId);
-  return move.selected_move_type;
-}
-
 export function submitMoveForApproval(moveId, ppmSubmitDate, label = submitMoveForApprovalLabel) {
   const swaggerTag = 'moves.submitMoveForApproval';
   const submitMoveForApprovalPayload = { ppm_submit_date: ppmSubmitDate };

@@ -202,6 +202,7 @@ const mapStateToProps = (state) => {
     uploads: selectUploadsForActiveOrders(state),
     move: move,
     ppm: getPPM(state),
+    // TODO: fetch MTOShipment in componentDidMount - this is a placeholder until able to load the shipments
     mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
