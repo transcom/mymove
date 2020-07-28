@@ -119,7 +119,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 	destinationDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{})
 	originDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{})
-	dbCustomer := testdatagen.MakeCustomer(suite.DB(), testdatagen.Assertions{})
+	dbCustomer := testdatagen.MakeDefaultServiceMember(suite.DB())
 	contractor := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{})
 	document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
 	issueDate := swag.Time(time.Now())
