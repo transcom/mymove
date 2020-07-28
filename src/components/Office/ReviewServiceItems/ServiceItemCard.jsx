@@ -10,9 +10,9 @@ import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatt
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
+/** This component represents a Payment Request Service Item */
 const ServiceItemCard = ({
   id,
-  paymentServiceItemId,
   shipmentType,
   serviceItemName,
   amount,
@@ -27,7 +27,7 @@ const ServiceItemCard = ({
       <Formik
         initialValues={{ status, rejectionReason }}
         onSubmit={(values) => {
-          patchPaymentServiceItem(paymentServiceItemId, values);
+          patchPaymentServiceItem(id, values);
         }}
       >
         {({ handleChange, submitForm, handleReset, values }) => {
@@ -123,7 +123,6 @@ const ServiceItemCard = ({
 
 ServiceItemCard.propTypes = {
   id: PropTypes.string.isRequired,
-  paymentServiceItemId: PropTypes.string,
   shipmentType: ShipmentOptionsOneOf,
   serviceItemName: PropTypes.string.isRequired,
   amount: PropTypes.number.isRequired,
@@ -133,7 +132,6 @@ ServiceItemCard.propTypes = {
 };
 
 ServiceItemCard.defaultProps = {
-  paymentServiceItemId: undefined,
   shipmentType: null,
   status: undefined,
   rejectionReason: '',

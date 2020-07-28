@@ -63,20 +63,19 @@ export class PaymentRequestReview extends Component {
       },
     ];
 
-    const serviceItemCards = mtoServiceItems.map((item) => {
-      const itemShipment = mtoShipments.find((s) => s.id === item.mtoShipmentID);
-      const itemPaymentServiceItem = paymentRequest?.serviceItems?.find((s) => s.mtoServiceItemID === item.id);
+    const serviceItemCards = paymentRequest?.serviceItems?.map((item) => {
+      const mtoServiceItem = mtoServiceItems.find((s) => s.id === item.mtoServiceItemID);
+      const itemShipment = mtoServiceItem && mtoShipments.find((s) => s.id === mtoServiceItem.mtoShipmentID);
 
       return {
         id: item.id,
-        paymentServiceItemId: itemPaymentServiceItem?.id,
-        shipmentId: item.mtoShipmentID,
+        shipmentId: mtoServiceItem?.mtoShipmentID,
         shipmentType: itemShipment?.shipmentType,
-        serviceItemName: item.reServiceName,
-        amount: itemPaymentServiceItem?.priceCents ? itemPaymentServiceItem.priceCents / 100 : 0,
+        serviceItemName: mtoServiceItem?.reServiceName,
+        amount: item.priceCents ? item.priceCents / 100 : 0,
         createdAt: item.createdAt,
-        status: itemPaymentServiceItem?.status,
-        rejectionReason: itemPaymentServiceItem?.rejectionReason,
+        status: item.status,
+        rejectionReason: item.rejectionReason,
       };
     });
 

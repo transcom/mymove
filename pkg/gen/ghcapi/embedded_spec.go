@@ -2599,6 +2599,10 @@ func init() {
     "PaymentServiceItem": {
       "type": "object",
       "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "eTag": {
           "type": "string"
         },
@@ -5911,6 +5915,10 @@ func init() {
     "PaymentServiceItem": {
       "type": "object",
       "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "eTag": {
           "type": "string"
         },

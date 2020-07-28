@@ -268,6 +268,7 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 	return &ghcmessages.PaymentServiceItem{
 		ID:               *handlers.FmtUUID(ps.ID),
 		MtoServiceItemID: *handlers.FmtUUID(ps.MTOServiceItemID),
+		CreatedAt:        strfmt.DateTime(ps.CreatedAt),
 		PriceCents:       handlers.FmtCost(ps.PriceCents),
 		RejectionReason:  ps.RejectionReason,
 		Status:           ghcmessages.PaymentServiceItemStatus(ps.Status),
