@@ -64,7 +64,7 @@
     }
 
     td:nth-child(2) {
-      @include u-maxw(6);
+      @include u-minw('card');
     }
 
     tr:last-child td {
