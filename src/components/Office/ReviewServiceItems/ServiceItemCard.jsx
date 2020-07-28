@@ -79,7 +79,7 @@ const ServiceItemCard = ({
                           onChange={handleChange}
                           value={values.rejectionReason}
                         />
-                        <span>
+                        <div className={styles.rejectionButtonGroup}>
                           <Button type="button" data-testid="rejectionSaveButton" onClick={handleApprovalChange}>
                             Save
                           </Button>
@@ -93,7 +93,7 @@ const ServiceItemCard = ({
                           >
                             Cancel
                           </Button>
-                        </span>
+                        </div>
                       </FormGroup>
                     )}
                   </div>
