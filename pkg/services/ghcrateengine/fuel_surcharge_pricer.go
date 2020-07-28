@@ -14,6 +14,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+const baseGHCDieselFuelPrice =  unit.Millicents(250000)
+
 // FuelSurchargePricer is a service object to price domestic shorthaul
 type fuelSurchargePricer struct {
 	db *pop.Connection
@@ -45,10 +47,14 @@ func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Ti
 		return 0, errors.New("WeightBasedDistanceMultiplier is required")
 	}
 
-	priceDifference := (fuelPrice.ToCents() - unit.Cents(250)).Float64()
-	x := weightBasedDistanceMultiplier * distance.Float64()
-	basePrice := x * priceDifference * 100
-	totalCost = unit.Cents(math.Round(basePrice))
+	priceDifference := (fuelPrice.ToCents() - baseGHCDieselFuelPrice.ToCents()).Float64()
+	if priceDifference <= 0 {
+		totalCost = unit.Cents(0)
+	} else {
+		surchargeMultiplier := weightBasedDistanceMultiplier * distance.Float64()
+		fscPrice := surchargeMultiplier * priceDifference * 100
+		totalCost = unit.Cents(math.Round(fscPrice))
+	}
 
 	return totalCost, err
 }
@@ -75,10 +81,10 @@ func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemPa
 	}
 
 	var distance int
-	if distanceZip3 == 0 {
-		distance = distanceZip5
-	} else if distanceZip5 == 0 {
+	if distanceZip3 > 50 && distanceZip5 > 50 {
 		distance = distanceZip3
+	} else {
+		distance = distanceZip5
 	}
 
 	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
@@ -91,7 +97,7 @@ func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemPa
 		return unit.Cents(0), err
 	}
 
-	fuelPrice, err := getParamInt(params, models.ServiceItemParamNameEIAFuelPrice)
+	fuelPrice, err := getParamFloat(params, models.ServiceItemParamNameEIAFuelPrice)
 	if err != nil {
 		return unit.Cents(0), err
 	}

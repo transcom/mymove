@@ -15,6 +15,7 @@ const (
 	fscTestWeight               = unit.Pound(5800)
 	fscWeightDistanceMultiplier = float64(0.0006255)
 	fscFuelPrice                = unit.Millicents(320000)
+	fscLowFuelPrice             = unit.Millicents(249000)
 	fscPriceCents               = unit.Cents(18390)
 )
 
@@ -50,6 +51,12 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 	suite.T().Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilledActual", func(t *testing.T) {
 		priceCents, err := fuelSurchargePricer.PriceUsingParams(paramsWithBelowMinimumWeight)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
+		suite.Equal(unit.Cents(0), priceCents)
+	})
+
+	suite.T().Run("FSC is zero if fuel price from EIA is below $2.50", func(t *testing.T) {
+		priceCents, err := fuelSurchargePricer.Price(testdatagen.DefaultContractCode, fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscLowFuelPrice)
+		suite.NoError(err)
 		suite.Equal(unit.Cents(0), priceCents)
 	})
 }
@@ -90,8 +97,8 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 			},
 			{
 				models.ServiceItemParamNameEIAFuelPrice,
-				models.ServiceItemParamTypeInteger,
-				fmt.Sprintf("%d", int(fscFuelPrice)),
+				models.ServiceItemParamTypeDecimal,
+				fmt.Sprintf("%f", float64(fscFuelPrice)),
 			},
 		},
 	)
