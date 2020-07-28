@@ -24,6 +24,7 @@ describe('PaymentRequestReview', () => {
     getPaymentRequest: mockGetPaymentRequest,
     getMTOServiceItems: jest.fn(() => Promise.resolve()),
     getMTOShipments: jest.fn(() => Promise.resolve()),
+    patchPaymentServiceItemStatus: jest.fn(),
   };
 
   describe('with or without data loaded', () => {
@@ -42,10 +43,6 @@ describe('PaymentRequestReview', () => {
 
     it('renders the document viewer', () => {
       expect(wrapper.find('DocumentViewer').exists()).toBe(true);
-    });
-
-    it('renders the ReviewServiceItems sidebar', () => {
-      expect(wrapper.find('ReviewServiceItems').exists()).toBe(true);
     });
   });
 
@@ -120,6 +117,10 @@ describe('PaymentRequestReview', () => {
 
     // eslint-disable-next-line react/jsx-props-no-spreading
     const wrapper = mount(<PaymentRequestReview {...requiredProps} {...dataProps} />);
+
+    it('renders the ReviewServiceItems sidebar', () => {
+      expect(wrapper.find('ReviewServiceItems').exists()).toBe(true);
+    });
 
     it('maps the service item card data into the expected format and passes it into the ReviewServiceItems component', () => {
       const reviewServiceItems = wrapper.find('ReviewServiceItems');

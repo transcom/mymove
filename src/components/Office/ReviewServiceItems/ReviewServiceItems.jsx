@@ -25,40 +25,19 @@ const ReviewServiceItems = ({
 
   const totalCards = serviceItemCards.length;
 
-  const { APPROVED, REJECTED } = SERVICE_ITEM_STATUS;
+  const { APPROVED } = SERVICE_ITEM_STATUS;
 
   const handleClick = (index) => {
     setCardIndex(index);
   };
 
-  const calculateTotals = (values) => {
-    let approvedSum = 0;
-    let rejectedSum = 0;
-
-    serviceItemCards.forEach((serviceItem) => {
-      const itemValues = values[`${serviceItem.id}`];
-      if (itemValues?.status === APPROVED) approvedSum += serviceItem.amount;
-      else if (itemValues?.status === REJECTED) rejectedSum += serviceItem.amount;
-    });
-
-    return {
-      approved: approvedSum,
-      rejected: rejectedSum,
-    };
-  };
-
-  //  let requestedSum = 0; // TODO - use in Complete review screen
-  const formValues = {};
+  const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
+  // const rejectedSum = serviceItemCards.filter((s) => s.status === REJECTED).reduce((sum, cur) => sum + cur.amount, 0)
+  // const requestedSum = serviceItemCards.reduce((sum, cur) => sum + cur.amount, 0); // TODO - use in Complete review screen
 
   let firstBasicIndex = null;
   let lastBasicIndex = null;
-  // TODO - preset these based on existing values
   sortedCards.forEach((serviceItem, index) => {
-    formValues[serviceItem.id] = {
-      status: serviceItem.status,
-      rejectionReason: serviceItem.rejectionReason,
-    };
-
     // here we want to set the first and last index
     // of basic service items to know the bounds
     if (!serviceItem.shipmentType) {
@@ -71,8 +50,6 @@ const ReviewServiceItems = ({
       // keep setting the last basic index until the last one
       lastBasicIndex = index;
     }
-
-    // requestedSum += serviceItem.amount; // TODO - use in Complete review screen
   });
 
   const currentCard = sortedCards[parseInt(curCardIndex, 10)];
@@ -144,7 +121,7 @@ const ReviewServiceItems = ({
         </Button>
         <div className={styles.totalApproved}>
           <div className={styles.totalLabel}>Total approved</div>
-          <div className={styles.totalAmount}> {toDollarString(calculateTotals(formValues).approved)}</div>
+          <div className={styles.totalAmount}> {toDollarString(approvedSum)}</div>
         </div>
       </div>
     </div>
