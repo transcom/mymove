@@ -5,11 +5,11 @@ import { Button } from '@trussworks/react-uswds';
 import sortServiceItemsByGroup from '../../../utils/serviceItems';
 
 import styles from './ReviewServiceItems.module.scss';
+import ServiceItemCard from './ServiceItemCard';
 
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
-import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
 import { toDollarString } from 'shared/formatters';
 
 const ReviewServiceItems = ({
@@ -29,6 +29,10 @@ const ReviewServiceItems = ({
 
   const handleClick = (index) => {
     setCardIndex(index);
+  };
+
+  const handleAuthorizePayment = () => {
+    // console.log('authorize payment')
   };
 
   const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
@@ -52,7 +56,9 @@ const ReviewServiceItems = ({
     }
   });
 
-  const currentCard = sortedCards[parseInt(curCardIndex, 10)];
+  const displayCompleteReview = curCardIndex === totalCards;
+
+  const currentCard = !displayCompleteReview && sortedCards[parseInt(curCardIndex, 10)];
 
   const isBasicServiceItem =
     firstBasicIndex !== null && curCardIndex >= firstBasicIndex && curCardIndex <= lastBasicIndex;
@@ -68,6 +74,36 @@ const ReviewServiceItems = ({
       }
     }
   });
+
+  if (displayCompleteReview)
+    return (
+      <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
+        <div className={styles.top}>
+          <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
+            <XLightIcon />
+          </Button>
+          <h2 className={styles.header}>Complete request</h2>
+        </div>
+        <div className={styles.body}>
+          {/* TODO - styling */}
+          <p>Do you authorize this payment of {toDollarString(approvedSum)}?</p>
+          <Button type="button" data-testid="authorizePaymentBtn" onClick={handleAuthorizePayment}>
+            Authorize Payment
+          </Button>
+        </div>
+        <div className={styles.bottom}>
+          <Button
+            data-testid="prevServiceItem"
+            type="button"
+            onClick={() => handleClick(curCardIndex - 1)}
+            secondary
+            disabled={curCardIndex === 0}
+          >
+            Back
+          </Button>
+        </div>
+      </div>
+    );
 
   return (
     <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
@@ -115,7 +151,7 @@ const ReviewServiceItems = ({
           data-testid="nextServiceItem"
           type="button"
           onClick={() => handleClick(curCardIndex + 1)}
-          disabled={curCardIndex + 1 === totalCards}
+          disabled={curCardIndex === totalCards}
         >
           Next
         </Button>
