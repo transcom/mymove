@@ -245,7 +245,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateShipmentPayload"
+              "$ref": "#/definitions/CreateMTOShipment"
             }
           }
         ],
@@ -360,7 +360,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreatePaymentRequestPayload"
+              "$ref": "#/definitions/CreatePaymentRequest"
             }
           }
         ],
@@ -644,36 +644,7 @@ func init() {
         }
       }
     },
-    "CreatePaymentRequestPayload": {
-      "type": "object",
-      "required": [
-        "moveTaskOrderID",
-        "serviceItems"
-      ],
-      "properties": {
-        "isFinal": {
-          "type": "boolean",
-          "default": false
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "pointOfContact": {
-          "description": "Email or id of a contact person for this update.",
-          "type": "string"
-        },
-        "serviceItems": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/definitions/ServiceItem"
-          }
-        }
-      }
-    },
-    "CreateShipmentPayload": {
+    "CreateMTOShipment": {
       "type": "object",
       "required": [
         "moveTaskOrderID",
@@ -717,6 +688,35 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
+    "CreatePaymentRequest": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "serviceItems"
+      ],
+      "properties": {
+        "isFinal": {
+          "type": "boolean",
+          "default": false
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update.",
+          "type": "string"
+        },
+        "serviceItems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/ServiceItem"
+          }
         }
       }
     },
@@ -1022,6 +1022,7 @@ func init() {
         {
           "type": "object",
           "required": [
+            "reServiceCode",
             "timeMilitary1",
             "firstAvailableDeliveryDate1",
             "timeMilitary2",
@@ -1073,6 +1074,7 @@ func init() {
         {
           "type": "object",
           "required": [
+            "reServiceCode",
             "reason",
             "pickupPostalCode"
           ],
@@ -1278,6 +1280,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -2222,7 +2230,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateShipmentPayload"
+              "$ref": "#/definitions/CreateMTOShipment"
             }
           }
         ],
@@ -2370,7 +2378,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreatePaymentRequestPayload"
+              "$ref": "#/definitions/CreatePaymentRequest"
             }
           }
         ],
@@ -2684,36 +2692,7 @@ func init() {
         }
       }
     },
-    "CreatePaymentRequestPayload": {
-      "type": "object",
-      "required": [
-        "moveTaskOrderID",
-        "serviceItems"
-      ],
-      "properties": {
-        "isFinal": {
-          "type": "boolean",
-          "default": false
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "pointOfContact": {
-          "description": "Email or id of a contact person for this update.",
-          "type": "string"
-        },
-        "serviceItems": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/definitions/ServiceItem"
-          }
-        }
-      }
-    },
-    "CreateShipmentPayload": {
+    "CreateMTOShipment": {
       "type": "object",
       "required": [
         "moveTaskOrderID",
@@ -2757,6 +2736,35 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
+    "CreatePaymentRequest": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "serviceItems"
+      ],
+      "properties": {
+        "isFinal": {
+          "type": "boolean",
+          "default": false
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update.",
+          "type": "string"
+        },
+        "serviceItems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/ServiceItem"
+          }
         }
       }
     },
@@ -3062,6 +3070,7 @@ func init() {
         {
           "type": "object",
           "required": [
+            "reServiceCode",
             "timeMilitary1",
             "firstAvailableDeliveryDate1",
             "timeMilitary2",
@@ -3113,6 +3122,7 @@ func init() {
         {
           "type": "object",
           "required": [
+            "reServiceCode",
             "reason",
             "pickupPostalCode"
           ],
@@ -3318,6 +3328,12 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"

@@ -138,7 +138,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreateShipmentPayload'
+            $ref: '#/definitions/CreateMTOShipment'
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -274,7 +274,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreatePaymentRequestPayload'
+            $ref: '#/definitions/CreatePaymentRequest'
       responses:
         '201':
           description: Successfully created a paymentRequest object.
@@ -502,7 +502,7 @@ definitions:
       - title
       - detail
       - instance
-  CreatePaymentRequestPayload:
+  CreatePaymentRequest:
     type: object
     properties:
       isFinal:
@@ -523,7 +523,7 @@ definitions:
     required:
       - moveTaskOrderID
       - serviceItems
-  CreateShipmentPayload:
+  CreateMTOShipment:
     type: object
     properties:
       moveTaskOrderID:
@@ -856,6 +856,10 @@ definitions:
         readOnly: true
       agents:
         $ref: '#/definitions/MTOAgents'
+      mtoServiceItems:
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+        type: array
       customerRemarks:
         type: string
         readOnly: true
@@ -1041,6 +1045,7 @@ definitions:
             example: 90210
             pattern: '^(\d{5}([\-]\d{4})?)$'
         required:
+          - reServiceCode
           - reason
           - pickupPostalCode
   MTOServiceItemDDFSIT:
@@ -1075,6 +1080,7 @@ definitions:
             example: 2020-01-20
             description: Second available date that Prime can deliver SIT service item.
         required:
+          - reServiceCode
           - timeMilitary1
           - firstAvailableDeliveryDate1
           - timeMilitary2

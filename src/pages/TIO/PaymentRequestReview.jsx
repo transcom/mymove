@@ -1,16 +1,33 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MTOServiceItemShape, MTOShipmentShape, PaymentRequestShape } from 'types/index';
+import { MatchShape } from 'types/router';
 import samplePDF from 'components/DocumentViewer/sample.pdf';
 import styles from 'pages/TIO/PaymentRequestReview.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
+import { getPaymentRequest as getPaymentRequestAction } from 'shared/Entities/modules/paymentRequests';
+import {
+  getMTOShipments as getMTOShipmentsAction,
+  selectMTOShipmentsByMTOId,
+} from 'shared/Entities/modules/mtoShipments';
+import {
+  getMTOServiceItems as getMTOServiceItemsAction,
+  selectMTOServiceItemsByMTOId,
+} from 'shared/Entities/modules/mtoServiceItems';
 
-class PaymentRequestReview extends Component {
+export class PaymentRequestReview extends Component {
   componentDidMount() {
-    // get payment request api call here
+    const { match, getPaymentRequest, getMTOServiceItems, getMTOShipments } = this.props;
+    const { paymentRequestId } = match.params;
+    getPaymentRequest(paymentRequestId).then(({ entities: { paymentRequests } }) => {
+      const pr = paymentRequests[`${paymentRequestId}`];
+      getMTOShipments(pr.moveTaskOrderID);
+      getMTOServiceItems(pr.moveTaskOrderID);
+    });
   }
 
   handleClose = (moveOrderId) => {
@@ -23,7 +40,7 @@ class PaymentRequestReview extends Component {
 
   render() {
     // eslint-disable-next-line react/prop-types
-    const { serviceItemCards, moveOrderId } = this.props;
+    const { moveOrderId, mtoServiceItems, mtoShipments, paymentRequest } = this.props;
     const testFiles = [
       {
         filename: 'Test File.pdf',
@@ -31,6 +48,21 @@ class PaymentRequestReview extends Component {
         filePath: samplePDF,
       },
     ];
+
+    const serviceItemCards = mtoServiceItems.map((item) => {
+      const itemShipment = mtoShipments.find((s) => s.id === item.mtoShipmentID);
+      const itemPaymentServiceItem = paymentRequest?.serviceItems?.find((s) => s.mtoServiceItemID === item.id);
+
+      return {
+        id: item.id,
+        shipmentId: item.mtoShipmentID,
+        shipmentType: itemShipment?.shipmentType,
+        serviceItemName: item.reServiceName,
+        amount: itemPaymentServiceItem?.priceCents ? itemPaymentServiceItem.priceCents / 100 : 0,
+        createdAt: item.createdAt,
+        status: item.status,
+      };
+    });
 
     return (
       <div data-testid="PaymentRequestReview" className={styles.PaymentRequestReview}>
@@ -45,40 +77,38 @@ class PaymentRequestReview extends Component {
   }
 }
 
+PaymentRequestReview.propTypes = {
+  match: MatchShape.isRequired,
+  getPaymentRequest: PropTypes.func.isRequired,
+  getMTOServiceItems: PropTypes.func.isRequired,
+  getMTOShipments: PropTypes.func.isRequired,
+  paymentRequest: PaymentRequestShape,
+  mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
+  mtoShipments: PropTypes.arrayOf(MTOShipmentShape),
+};
+
+PaymentRequestReview.defaultProps = {
+  paymentRequest: null,
+  mtoServiceItems: [],
+  mtoShipments: [],
+};
+
 const mapStateToProps = (state, ownProps) => {
-  const { moveOrderId } = ownProps.match.params;
-  // TODO need to select from redux store and construct data based on ServiceItemCardsShape
-  // test data for now
-  const serviceItemCardsTestData = [
-    {
-      id: '1',
-      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
-      serviceItemName: 'Domestic linehaul',
-      amount: 1234.56,
-      createdAt: Date(),
-    },
-    {
-      id: '2',
-      shipmentType: SHIPMENT_OPTIONS.NTS,
-      serviceItemName: 'Domestic linehaul',
-      amount: 1234.56,
-      createdAt: Date(),
-    },
-    {
-      id: '3',
-      shipmentType: null, // to indicate basic service item
-      serviceItemName: 'Domestic linehaul',
-      amount: 1234.56,
-      createdAt: Date(),
-    },
-  ];
+  const { moveOrderId, paymentRequestId } = ownProps.match.params;
+  const paymentRequest = state.entities.paymentRequests && state.entities.paymentRequests[`${paymentRequestId}`];
 
   return {
-    serviceItemCards: serviceItemCardsTestData,
+    paymentRequest,
+    mtoServiceItems: paymentRequest && selectMTOServiceItemsByMTOId(state, paymentRequest.moveTaskOrderID),
+    mtoShipments: paymentRequest && selectMTOShipmentsByMTOId(state, paymentRequest.moveTaskOrderID),
     moveOrderId,
   };
 };
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  getPaymentRequest: getPaymentRequestAction,
+  getMTOServiceItems: getMTOServiceItemsAction,
+  getMTOShipments: getMTOShipmentsAction,
+};
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PaymentRequestReview));

@@ -3,6 +3,15 @@
 @import '../../../shared/styles/colors';
 
 .ServiceItemCard {
+  &:not(:first-child) .shipmentContainerCard{
+    @include u-border-width('2px');
+    @include u-border-color('gray-10');
+
+    .cardHeader {
+      @include u-display('none');
+    }
+  }
+
   dt {
     @include u-font-size('base', 2);
     @include u-font-weight('bold');

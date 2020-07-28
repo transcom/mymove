@@ -34,7 +34,7 @@ type CreatePaymentRequestParams struct {
 	/*
 	  In: body
 	*/
-	Body *primemessages.CreatePaymentRequestPayload
+	Body *primemessages.CreatePaymentRequest
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -48,7 +48,7 @@ func (o *CreatePaymentRequestParams) BindRequest(r *http.Request, route *middlew
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body primemessages.CreatePaymentRequestPayload
+		var body primemessages.CreatePaymentRequest
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {
