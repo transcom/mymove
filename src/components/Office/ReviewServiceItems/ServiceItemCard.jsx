@@ -12,6 +12,7 @@ import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const ServiceItemCard = ({
   id,
+  paymentServiceItemId,
   shipmentType,
   serviceItemName,
   amount,
@@ -26,7 +27,7 @@ const ServiceItemCard = ({
       <Formik
         initialValues={{ status, rejectionReason }}
         onSubmit={(values) => {
-          patchPaymentServiceItem(id, values);
+          patchPaymentServiceItem(paymentServiceItemId, values);
         }}
       >
         {({ handleChange, submitForm, handleReset, values }) => {
@@ -122,6 +123,7 @@ const ServiceItemCard = ({
 
 ServiceItemCard.propTypes = {
   id: PropTypes.string.isRequired,
+  paymentServiceItemId: PropTypes.string,
   shipmentType: ShipmentOptionsOneOf,
   serviceItemName: PropTypes.string.isRequired,
   amount: PropTypes.number.isRequired,
@@ -131,6 +133,7 @@ ServiceItemCard.propTypes = {
 };
 
 ServiceItemCard.defaultProps = {
+  paymentServiceItemId: undefined,
   shipmentType: null,
   status: undefined,
   rejectionReason: '',

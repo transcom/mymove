@@ -68,14 +68,15 @@ export class PaymentRequestReview extends Component {
       const itemPaymentServiceItem = paymentRequest?.serviceItems?.find((s) => s.mtoServiceItemID === item.id);
 
       return {
-        id: itemPaymentServiceItem.id,
+        id: item.id,
+        paymentServiceItemId: itemPaymentServiceItem?.id,
         shipmentId: item.mtoShipmentID,
         shipmentType: itemShipment?.shipmentType,
         serviceItemName: item.reServiceName,
         amount: itemPaymentServiceItem?.priceCents ? itemPaymentServiceItem.priceCents / 100 : 0,
         createdAt: item.createdAt,
-        status: itemPaymentServiceItem.status,
-        rejectionReason: itemPaymentServiceItem.rejectionReason,
+        status: itemPaymentServiceItem?.status,
+        rejectionReason: itemPaymentServiceItem?.rejectionReason,
       };
     });
 
