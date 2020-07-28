@@ -17,21 +17,26 @@ type PSILinehaulDomLookup struct {
 type PSILinehaulDomPriceLookup struct {
 }
 
-func getPaymentServiceItem(keyData *ServiceItemParamKeyData) (models.PaymentServiceItem, error) {
+func getPaymentServiceItem(keyData *ServiceItemParamKeyData) (models.PaymentServiceItem, *models.MTOServiceItem, error) {
 	db := *keyData.db
 
 	paymentRequestID := keyData.PaymentRequestID
 	mtoServiceItemID := keyData.MTOServiceItemID
 
 	var mtoServiceItem models.MTOServiceItem
-	err := db.Where("id = ?", mtoServiceItemID).First(&mtoServiceItem)
+	err := db.Eager("ReService").Where("id = ?", mtoServiceItemID).First(&mtoServiceItem)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return models.PaymentServiceItem{}, services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
+			return models.PaymentServiceItem{}, nil, services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
 		default:
-			return models.PaymentServiceItem{}, err
+			return models.PaymentServiceItem{}, nil, err
 		}
+	}
+
+	// if we're not pricing DLH, we shouldn't attempt to find a PSI for it
+	if mtoServiceItem.ReService.Code != models.ReServiceCodeDLH {
+		return models.PaymentServiceItem{}, &mtoServiceItem, nil
 	}
 
 	// mtoServiceItemID -> mtoShipmentId + mtoId -> find a service where mtoId==, mtoShipmentId==, and reServiceid==DLH
@@ -47,17 +52,17 @@ func getPaymentServiceItem(keyData *ServiceItemParamKeyData) (models.PaymentServ
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return models.PaymentServiceItem{}, fmt.Errorf("couldn't find PaymentServiceItem for dom linehaul using paymentRequestID: %s and mtoServiceItemID: %s", paymentRequestID, mtoServiceItemID)
+			return models.PaymentServiceItem{}, &mtoServiceItem, fmt.Errorf("couldn't find PaymentServiceItem for dom linehaul using paymentRequestID: %s and mtoServiceItemID: %s", paymentRequestID, mtoServiceItemID)
 		default:
-			return models.PaymentServiceItem{}, err
+			return models.PaymentServiceItem{}, &mtoServiceItem, err
 		}
 	}
 
-	return paymentServiceItemDLH, nil
+	return paymentServiceItemDLH, &mtoServiceItem, nil
 }
 
 func (r PSILinehaulDomLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	paymentServiceItem, err := getPaymentServiceItem(keyData)
+	paymentServiceItem, _, err := getPaymentServiceItem(keyData)
 	if err != nil {
 		return "", err
 	}
@@ -66,14 +71,19 @@ func (r PSILinehaulDomLookup) lookup(keyData *ServiceItemParamKeyData) (string, 
 }
 
 func (r PSILinehaulDomPriceLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	paymentServiceItem, err := getPaymentServiceItem(keyData)
+	paymentServiceItem, mtoServiceItem, err := getPaymentServiceItem(keyData)
 	if err != nil {
 		return "", err
 	}
 
-	if paymentServiceItem.PriceCents == nil {
-		return "", fmt.Errorf("found PaymentServiceItem for dom linehaul but it has no price! id found: %s", paymentServiceItem.ID)
+	// if we're not pricing DLH, we shouldn't attempt to find a PSI for it
+	if mtoServiceItem.ReService.Code == models.ReServiceCodeDLH {
+		if paymentServiceItem.PriceCents == nil {
+			return "", fmt.Errorf("found PaymentServiceItem for dom linehaul but it has no price! id found: %s", paymentServiceItem.ID)
+		}
+
+		return paymentServiceItem.PriceCents.String(), nil
 	}
 
-	return paymentServiceItem.PriceCents.String(), nil
+	return "0", nil
 }

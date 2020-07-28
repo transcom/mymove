@@ -41,49 +41,17 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 		suite.Error(err)
 	})
 
-	// paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
-	// weightBilledActualIndex := 4
-	// if paramsWithBelowMinimumWeight[weightBilledActualIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilledActual {
-	// 	suite.T().Fatalf("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilledActual, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
-	// }
-	// paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
-	// suite.T().Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilledActual", func(t *testing.T) {
-	// 	priceCents, err := fuelSurchargePricer.PriceUsingParams(paramsWithBelowMinimumWeight)
-	// 	suite.Equal("could not fetch domestic linehaul rate: weight must be at least 500", err.Error())
-	// 	suite.Equal(unit.Cents(0), priceCents)
-	// })
-	//
-	// suite.T().Run("not finding a rate record", func(t *testing.T) {
-	// 	_, err := fuelSurchargePricer.Price("BOGUS", fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscFuelPrice)
-	// 	suite.Error(err)
-	// })
-
-	// suite.T().Run("validation errors", func(t *testing.T) {
-	// 	// No move date
-	// 	_, err := fuelSurchargePricer.Price("BOGUS", time.Time{}, true, int(fscTestDistance), int(fscTestWeight), fscTestServiceArea)
-	// 	suite.Error(err)
-	// 	suite.Equal("could not fetch domestic linehaul rate: MoveDate is required", err.Error())
-	//
-	// 	// No distance
-	// 	_, err = fuelSurchargePricer.Price(testdatagen.DefaultContractCode, fscActualPickupDate, true, 0, int(fscTestWeight), fscTestServiceArea)
-	// 	suite.Error(err)
-	// 	suite.Equal("could not fetch domestic linehaul rate: distance must be at least 50", err.Error())
-	//
-	// 	// Short haul distance
-	// 	_, err = fuelSurchargePricer.Price(testdatagen.DefaultContractCode, fscActualPickupDate, true, 49, int(fscTestWeight), fscTestServiceArea)
-	// 	suite.Error(err)
-	// 	suite.Equal("could not fetch domestic linehaul rate: distance must be at least 50", err.Error())
-	//
-	// 	// No weight
-	// 	_, err = fuelSurchargePricer.Price(testdatagen.DefaultContractCode, fscActualPickupDate, true, int(fscTestDistance), 0, fscTestServiceArea)
-	// 	suite.Error(err)
-	// 	suite.Equal("could not fetch domestic linehaul rate: weight must be at least 500", err.Error())
-	//
-	// 	// No service area
-	// 	_, err = fuelSurchargePricer.Price(testdatagen.DefaultContractCode, fscActualPickupDate, true, int(fscTestDistance), int(fscTestWeight), "")
-	// 	suite.Error(err)
-	// 	suite.Equal("could not fetch domestic linehaul rate: ServiceArea is required", err.Error())
-	// })
+	paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
+	weightBilledActualIndex := 4
+	if paramsWithBelowMinimumWeight[weightBilledActualIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilledActual {
+		suite.T().Fatalf("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilledActual, paramsWithBelowMinimumWeight[4].ServiceItemParamKey.Key)
+	}
+	paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
+	suite.T().Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilledActual", func(t *testing.T) {
+		priceCents, err := fuelSurchargePricer.PriceUsingParams(paramsWithBelowMinimumWeight)
+		suite.Equal("Weight must be a minimum of 500", err.Error())
+		suite.Equal(unit.Cents(0), priceCents)
+	})
 }
 
 func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.PaymentServiceItem {

@@ -111,7 +111,7 @@ const (
 	// ServiceItemParamNameWeightActual is the param key name WeightActual
 	ServiceItemParamNameWeightActual ServiceItemParamName = "WeightActual"
 	// ServiceItemParamNameFSCWeightBasedDistanceMultiplier is the param key name WeightBasedDistanceMultiplier
-	ServiceItemParamNameFSCWeightBasedDistanceMultiplier ServiceItemParamName = "WeightBasedDistanceMultiplier"
+	ServiceItemParamNameFSCWeightBasedDistanceMultiplier ServiceItemParamName = "FSCWeightBasedDistanceMultiplier"
 	// ServiceItemParamNameWeightBilledActual is the param key name WeightBilledActual
 	ServiceItemParamNameWeightBilledActual ServiceItemParamName = "WeightBilledActual"
 	// ServiceItemParamNameWeightEstimated is the param key name WeightEstimated
