@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './ReviewDetailsCard.module.scss';
 
@@ -19,6 +20,14 @@ const ReviewDetailsCard = () => {
         <dt>Rejected</dt>
         <dd data-testid="rejected">{toDollarString(1234.12)}</dd>
       </dl>
+
+      <div data-testid="NeedsReview" className={styles.needsReview}>
+        <div className={styles.header}>One item still needs your review</div>
+        <div>Accept or reject all service items, then authorized payment.</div>
+        <Button type="button" secondary className={styles.button}>
+          Finish review
+        </Button>
+      </div>
     </div>
   );
 };
