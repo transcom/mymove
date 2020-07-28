@@ -46,6 +46,15 @@
       @include u-padding-y('105');
     }
 
+    tr th:first-child, tr th:last-child {
+      @include u-padding-top(2);
+      @include u-padding-x(2);
+    }
+
+    th:nth-child(2) {
+      @include u-padding-top(2);
+    }
+
     th:nth-child(2), td:nth-child(2) {
       @include u-padding-left(0);
       @include u-maxw(3);
@@ -67,8 +76,5 @@
     @include u-margin-right(0);
   }
 
-  tr:first-child th {
-    @include u-padding-top(2);
-    @include u-padding-x(2);
-  }
+
 }
