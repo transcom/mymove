@@ -36,7 +36,6 @@
       @include u-padding('105');
       &:first-child, &:last-child {
         line-height: 1.6rem;
-        @include u-border(0);
         @include u-minw(4);
         @include u-width(4);
       }
@@ -51,6 +50,10 @@
       @include u-padding-x(2);
     }
 
+    td:first-child, td:last-child {
+      @include u-border(0);
+    }
+
     th:nth-child(2) {
       @include u-padding-top(2);
     }
@@ -58,6 +61,10 @@
     th:nth-child(2), td:nth-child(2) {
       @include u-padding-left(0);
       @include u-maxw(3);
+    }
+
+    td:nth-child(2) {
+      @include u-maxw(6);
     }
 
     tr:last-child td {
