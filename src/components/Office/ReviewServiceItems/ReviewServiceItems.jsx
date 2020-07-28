@@ -18,6 +18,7 @@ const ReviewServiceItems = ({
   handleClose,
   disableScrollIntoView,
   patchPaymentServiceItem,
+  onCompleteReview,
 }) => {
   const [curCardIndex, setCardIndex] = useState(0);
 
@@ -32,7 +33,7 @@ const ReviewServiceItems = ({
   };
 
   const handleAuthorizePayment = () => {
-    // console.log('authorize payment')
+    onCompleteReview('REVIEWED');
   };
 
   const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
@@ -172,6 +173,7 @@ ReviewServiceItems.propTypes = {
   handleClose: PropTypes.func.isRequired,
   patchPaymentServiceItem: PropTypes.func.isRequired,
   disableScrollIntoView: PropTypes.bool,
+  onCompleteReview: PropTypes.func.isRequired,
 };
 
 ReviewServiceItems.defaultProps = {

@@ -4,12 +4,15 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { MTOServiceItemShape, MTOShipmentShape, PaymentRequestShape } from 'types/index';
-import { MatchShape } from 'types/router';
+import { MatchShape, HistoryShape } from 'types/router';
 import samplePDF from 'components/DocumentViewer/sample.pdf';
 import styles from 'pages/TIO/PaymentRequestReview.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
-import { getPaymentRequest as getPaymentRequestAction } from 'shared/Entities/modules/paymentRequests';
+import {
+  getPaymentRequest as getPaymentRequestAction,
+  updatePaymentRequest as updatePaymentRequestAction,
+} from 'shared/Entities/modules/paymentRequests';
 import {
   getMTOShipments as getMTOShipmentsAction,
   selectMTOShipmentsByMTOId,
@@ -43,11 +46,26 @@ export class PaymentRequestReview extends Component {
     );
   };
 
-  handleClose = (moveOrderId) => {
-    // eslint-disable-next-line react/prop-types
-    const { history } = this.props;
+  handleCompleteReview = (status) => {
+    const { updatePaymentRequest, paymentRequest, history } = this.props;
+    const newPaymentRequest = {
+      paymentRequestID: paymentRequest.id,
+      ifMatchETag: paymentRequest.eTag,
+      status,
+    };
 
-    // eslint-disable-next-line react/prop-types
+    updatePaymentRequest(newPaymentRequest).then(() => {
+      // console.log('success', response);
+      // TODO - show flash message?
+      // TODO - show error message if not successful
+      // Go home
+
+      history.push(`/`);
+    });
+  };
+
+  handleClose = (moveOrderId) => {
+    const { history } = this.props;
     history.push(`/moves/${moveOrderId}/payment-requests/`);
   };
 
@@ -89,6 +107,7 @@ export class PaymentRequestReview extends Component {
             handleClose={() => this.handleClose(moveOrderId)}
             serviceItemCards={serviceItemCards}
             patchPaymentServiceItem={this.handleUpdatePaymentServiceItemStatus}
+            onCompleteReview={this.handleCompleteReview}
           />
         </div>
       </div>
@@ -97,12 +116,14 @@ export class PaymentRequestReview extends Component {
 }
 
 PaymentRequestReview.propTypes = {
+  history: HistoryShape.isRequired,
   match: MatchShape.isRequired,
   getPaymentRequest: PropTypes.func.isRequired,
   getMTOServiceItems: PropTypes.func.isRequired,
   getMTOShipments: PropTypes.func.isRequired,
   paymentRequest: PaymentRequestShape,
   patchPaymentServiceItemStatus: PropTypes.func.isRequired,
+  updatePaymentRequest: PropTypes.func.isRequired,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
   mtoShipments: PropTypes.arrayOf(MTOShipmentShape),
 };
@@ -130,6 +151,7 @@ const mapDispatchToProps = {
   getMTOServiceItems: getMTOServiceItemsAction,
   getMTOShipments: getMTOShipmentsAction,
   patchPaymentServiceItemStatus: patchPaymentServiceItemStatusAction,
+  updatePaymentRequest: updatePaymentRequestAction,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PaymentRequestReview));
