@@ -221,7 +221,7 @@ type EventError struct {
 	error
 }
 
-// NewEventError returns an error for a failed precondition
+// NewEventError returns a new EventError
 func NewEventError(message string, err error) EventError {
 	return EventError{
 		message: message,
@@ -229,7 +229,7 @@ func NewEventError(message string, err error) EventError {
 	}
 }
 
-// Error is the string representation of the precondition failed error
+// Error is the string representation of the EventError
 func (e EventError) Error() string {
 	return e.message
 }

@@ -131,7 +131,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		HandlerContext:  h,
 	})
 	if err != nil {
-		logger.Error("primeapi.CreatePaymentRequestHanders could not generate the event")
+		logger.Error("supportapi.UpdatePaymentRequestStatusHandler could not generate the event")
 	}
 
 	returnPayload := payloads.PaymentRequest(updatedPaymentRequest)

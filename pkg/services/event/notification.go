@@ -18,7 +18,7 @@ import (
 
 // PaymentRequestModelToPayload This is an example to log the data
 // Will need to move to payloads to model file.
-func paymentRequestModelToPayload(paymentRequest *models.PaymentRequest) *primemessages.PaymentRequest {
+func PaymentRequestModelToPayload(paymentRequest *models.PaymentRequest) *primemessages.PaymentRequest {
 	if paymentRequest == nil {
 		return nil
 	}
@@ -104,7 +104,7 @@ func NotificationEventHandler(event *Event) error {
 			notFoundError.Wrap(err)
 			return notFoundError
 		}
-		payload := paymentRequestModelToPayload(&model)
+		payload := PaymentRequestModelToPayload(&model)
 		logger.Info("Notification payload:", zap.Any("payload", *payload))
 	}
 
