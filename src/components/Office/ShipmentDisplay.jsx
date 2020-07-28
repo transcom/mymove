@@ -63,8 +63,7 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
               <td />
               <td className={styles['shipment-display__label']}>Destination address</td>
               <td>
-                {displayInfo.destinationAddress.street_address_1}
-                , &nbsp;
+                {displayInfo.destinationAddress.street_address_1}, &nbsp;
                 {`${displayInfo.destinationAddress.city}, ${displayInfo.destinationAddress.state} ${displayInfo.destinationAddress.postal_code}`}
               </td>
               <td />
