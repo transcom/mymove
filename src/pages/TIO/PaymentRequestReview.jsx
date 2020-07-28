@@ -18,6 +18,7 @@ import {
   getMTOServiceItems as getMTOServiceItemsAction,
   selectMTOServiceItemsByMTOId,
 } from 'shared/Entities/modules/mtoServiceItems';
+import { patchPaymentServiceItemStatus as patchPaymentServiceItemStatusAction } from 'shared/Entities/modules/paymentServiceItems';
 
 export class PaymentRequestReview extends Component {
   componentDidMount() {
@@ -30,6 +31,18 @@ export class PaymentRequestReview extends Component {
     });
   }
 
+  handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
+    const { patchPaymentServiceItemStatus, mtoServiceItems, paymentRequest } = this.props;
+    const paymentServiceItemForRequest = paymentRequest.serviceItems.find((s) => s.id === paymentServiceItemID);
+    patchPaymentServiceItemStatus(
+      mtoServiceItems[0].moveTaskOrderID,
+      paymentServiceItemID,
+      values.status,
+      paymentServiceItemForRequest.eTag,
+      values.rejectionReason,
+    );
+  };
+
   handleClose = (moveOrderId) => {
     // eslint-disable-next-line react/prop-types
     const { history } = this.props;
@@ -41,6 +54,7 @@ export class PaymentRequestReview extends Component {
   render() {
     // eslint-disable-next-line react/prop-types
     const { moveOrderId, mtoServiceItems, mtoShipments, paymentRequest } = this.props;
+
     const testFiles = [
       {
         filename: 'Test File.pdf',
@@ -49,18 +63,19 @@ export class PaymentRequestReview extends Component {
       },
     ];
 
-    const serviceItemCards = mtoServiceItems.map((item) => {
-      const itemShipment = mtoShipments.find((s) => s.id === item.mtoShipmentID);
-      const itemPaymentServiceItem = paymentRequest?.serviceItems?.find((s) => s.mtoServiceItemID === item.id);
+    const serviceItemCards = paymentRequest?.serviceItems?.map((item) => {
+      const mtoServiceItem = mtoServiceItems.find((s) => s.id === item.mtoServiceItemID);
+      const itemShipment = mtoServiceItem && mtoShipments.find((s) => s.id === mtoServiceItem.mtoShipmentID);
 
       return {
         id: item.id,
-        shipmentId: item.mtoShipmentID,
+        shipmentId: mtoServiceItem?.mtoShipmentID,
         shipmentType: itemShipment?.shipmentType,
-        serviceItemName: item.reServiceName,
-        amount: itemPaymentServiceItem?.priceCents ? itemPaymentServiceItem.priceCents / 100 : 0,
+        serviceItemName: mtoServiceItem?.reServiceName,
+        amount: item.priceCents ? item.priceCents / 100 : 0,
         createdAt: item.createdAt,
         status: item.status,
+        rejectionReason: item.rejectionReason,
       };
     });
 
@@ -69,9 +84,15 @@ export class PaymentRequestReview extends Component {
         <div className={styles.embed}>
           <DocumentViewer files={testFiles} />
         </div>
-        <div className={styles.sidebar}>
-          <ReviewServiceItems handleClose={() => this.handleClose(moveOrderId)} serviceItemCards={serviceItemCards} />
-        </div>
+        {paymentRequest?.serviceItems && (
+          <div className={styles.sidebar}>
+            <ReviewServiceItems
+              handleClose={() => this.handleClose(moveOrderId)}
+              serviceItemCards={serviceItemCards}
+              patchPaymentServiceItem={this.handleUpdatePaymentServiceItemStatus}
+            />
+          </div>
+        )}
       </div>
     );
   }
@@ -83,6 +104,7 @@ PaymentRequestReview.propTypes = {
   getMTOServiceItems: PropTypes.func.isRequired,
   getMTOShipments: PropTypes.func.isRequired,
   paymentRequest: PaymentRequestShape,
+  patchPaymentServiceItemStatus: PropTypes.func.isRequired,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
   mtoShipments: PropTypes.arrayOf(MTOShipmentShape),
 };
@@ -109,6 +131,7 @@ const mapDispatchToProps = {
   getPaymentRequest: getPaymentRequestAction,
   getMTOServiceItems: getMTOServiceItemsAction,
   getMTOShipments: getMTOShipmentsAction,
+  patchPaymentServiceItemStatus: patchPaymentServiceItemStatusAction,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PaymentRequestReview));
