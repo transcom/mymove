@@ -1598,12 +1598,8 @@ definitions:
         example: documentation was incomplete
         type: string
         x-nullable: true
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
+      serviceItems:
+        $ref: '#/definitions/PaymentServiceItems'
       status:
         $ref: '#/definitions/PaymentRequestStatus'
       paymentRequestNumber:
@@ -1617,6 +1613,223 @@ definitions:
     items:
       $ref: '#/definitions/PaymentRequest'
     type: array
+  PaymentServiceItems:
+    items:
+      $ref: '#/definitions/PaymentServiceItem'
+    type: array
+  PaymentServiceItem:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      paymentRequestID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      mtoServiceItemID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      status:
+        $ref: '#/definitions/PaymentServiceItemStatus'
+      priceCents:
+        type: integer
+        format: cents
+        title: Price of the service item in cents
+        x-nullable: true
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      paymentServiceItemParams:
+        $ref: '#/definitions/PaymentServiceItemParams'
+      eTag:
+        type: string
+    type: object
+  PaymentServiceItemStatus:
+    enum:
+      - REQUESTED
+      - APPROVED
+      - DENIED
+      - SENT_TO_GEX
+      - PAID
+    title: Payment Service Item Status
+    type: string
+  PaymentServiceItemParam:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      paymentServiceItemID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      key:
+        $ref: '#/definitions/ServiceItemParamName'
+      value:
+        example: 3025
+        type: string
+      type:
+        $ref: '#/definitions/ServiceItemParamType'
+      origin:
+        $ref: '#/definitions/ServiceItemParamOrigin'
+      eTag:
+        type: string
+    type: object
+  PaymentServiceItemParams:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentServiceItemParam'
+  ServiceItem:
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      params:
+        type: array
+        readOnly: true
+        items:
+          properties:
+            key:
+              type: string
+              example: Service Item Parameter Name
+            value:
+              type: string
+              example: Service Item Parameter Value
+          type: object
+      eTag:
+        type: string
+    type: object
+  ReServiceCode:
+    type: string
+    description: |
+      This is the full list of service items that can be found on a shipment. Not all service items
+      may be requested by the Prime, but may be returned in a response.
+
+      Documentation of all the service items will be provided.
+    enum:
+      - CS
+      - DBHF
+      - DBTF
+      - DCRT
+      - DCRTSA
+      - DDASIT
+      - DDDSIT
+      - DDFSIT
+      - DDP
+      - DDSHUT
+      - DLH
+      - DMHF
+      - DNPKF
+      - DOASIT
+      - DOFSIT
+      - DOP
+      - DOPSIT
+      - DOSHUT
+      - DPK
+      - DSH
+      - DUCRT
+      - DUPK
+      - FSC
+      - IBHF
+      - IBTF
+      - ICOLH
+      - ICOUB
+      - ICRT
+      - ICRTSA
+      - IDASIT
+      - IDDSIT
+      - IDFSIT
+      - IDSHUT
+      - IHPK
+      - IHUPK
+      - INPKF
+      - IOASIT
+      - IOCLH
+      - IOCUB
+      - IOFSIT
+      - IOOLH
+      - IOOUB
+      - IOPSIT
+      - IOSHUT
+      - IUBPK
+      - IUBUPK
+      - IUCRT
+      - MS
+      - NSTH
+      - NSTUB
+  ServiceItemParamName:
+    type: string
+    enum:
+      - CanStandAlone
+      - ContractCode
+      - CubicFeetBilled
+      - CubicFeetCrating
+      - DistanceZip3
+      - DistanceZip5
+      - DistanceZip5SITDest
+      - DistanceZip5SITOrigin
+      - EIAFuelPrice
+      - MarketDest
+      - MarketOrigin
+      - MTOAvailableToPrimeAt
+      - NumberDaysSIT
+      - PriceAreaDest
+      - PriceAreaIntlDest
+      - PriceAreaIntlOrigin
+      - PriceAreaOrigin
+      - PSI_LinehaulDom
+      - PSI_LinehaulDomPrice
+      - PSI_LinehaulShort
+      - PSI_LinehaulShortPrice
+      - PSI_PackingDom
+      - PSI_PackingDomPrice
+      - PSI_PackingHHGIntl
+      - PSI_PackingHHGIntlPrice
+      - PSI_PriceDomDest
+      - PSI_PriceDomDestPrice
+      - PSI_PriceDomOrigin
+      - PSI_PriceDomOriginPrice
+      - PSI_ShippingLinehaulIntlCO
+      - PSI_ShippingLinehaulIntlCOPrice
+      - PSI_ShippingLinehaulIntlOC
+      - PSI_ShippingLinehaulIntlOCPrice
+      - PSI_ShippingLinehaulIntlOO
+      - PSI_ShippingLinehaulIntlOOPrice
+      - RateAreaNonStdDest
+      - RateAreaNonStdOrigin
+      - RequestedPickupDate
+      - ServiceAreaDest
+      - ServiceAreaOrigin
+      - ServicesScheduleDest
+      - ServicesScheduleOrigin
+      - SITScheduleDest
+      - SITScheduleOrigin
+      - WeightActual
+      - WeightBilledActual
+      - WeightEstimated
+      - ZipDestAddress
+      - ZipPickupAddress
+      - ZipSITAddress
+  ServiceItemParamOrigin:
+    type: string
+    enum:
+      - PRIME
+      - SYSTEM
+  ServiceItemParamType:
+    type: string
+    enum:
+      - STRING
+      - DATE
+      - INTEGER
+      - DECIMAL
+      - TIMESTAMP
+      - PaymentServiceItemUUID
   PaymentRequestStatus:
     enum:
       - PENDING
