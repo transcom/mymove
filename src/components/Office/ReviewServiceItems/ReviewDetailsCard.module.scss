@@ -25,7 +25,7 @@
   }
 
   dt:last-of-type, dd:last-of-type {
-    @include u-border-top(0);
+    @include u-border-y(0);
   }
 
   dt {
