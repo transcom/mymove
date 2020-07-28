@@ -69,7 +69,6 @@ const always = () => true;
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.PPM;
-const hasHHG = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.HHG;
 const inHhgFlow = (props) => props.context.flags.hhgFlow;
 const inGhcFlow = (props) => props.context.flags.ghcFlow;
 const isCurrentMoveSubmitted = ({ move }) => {
@@ -195,6 +194,7 @@ const pages = {
     },
   },
   '/moves/:moveId/select-type': {
+    // TODO: prevent user from hard-coding URL if they have a PPM or HHG existent?
     isInFlow: inHhgFlow,
     isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
     render: (key, pages, props) => ({ match, history }) => (
@@ -203,7 +203,6 @@ const pages = {
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: (state) => {
-      console.log('smt', state);
       return state.selectedMoveType === SHIPMENT_OPTIONS.PPM;
     },
     isComplete: ({ sm, orders, move, ppm }) => {
@@ -218,10 +217,10 @@ const pages = {
     render: (key, pages) => ({ match }) => <PpmWeight pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/hhg-start': {
-    // isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
-    isInFlow: hasHHG,
-    // isInFlow: inHhgFlow, // temp: use this to view page locally until we can set selectedMoveType
-    isComplete: always,
+    isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
+    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
+      return mtoShipment && every([mtoShipment.requestedPickupDate, mtoShipment.requestedDeliveryDate]);
+    },
     render: (key, pages, description, props) => ({ match, history }) => (
       <HHGMoveSetup pageList={pages} pageKey={key} match={match} push={history.push} />
     ),
@@ -260,7 +259,6 @@ export const getNextIncompletePage = ({
   backupContacts = [],
   context = {},
 }) => {
-  console.log('selectedmovetype', selectedMoveType);
   const rawPath = findKey(
     pages,
     (p) =>
@@ -277,7 +275,6 @@ export const getNextIncompletePage = ({
 export const getWorkflowRoutes = (props) => {
   const flowProps = pick(props, ['selectedMoveType', 'conusStatus', 'lastMoveIsCanceled', 'context']);
   const pageList = getPagesInFlow(flowProps);
-  console.log('pageList', pageList);
   return Object.keys(pages).map((key) => {
     // eslint-disable-next-line security/detect-object-injection
     const currPage = pages[key];

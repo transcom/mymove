@@ -37,7 +37,6 @@ export class SelectMoveType extends Component {
         match={match}
         pageList={pageList}
         dirty
-        // eslint-disable-next-line camelcase
         handleSubmit={this.handleSubmit}
         push={push}
       >
