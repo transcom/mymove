@@ -14,7 +14,6 @@ import { fetchActive } from 'shared/utils';
 export const STATE_KEY = 'moves';
 const approveBasicsLabel = 'Moves.ApproveBasics';
 const cancelMoveLabel = 'Moves.CancelMove';
-const updateMoveLabel = 'Moves.UpdateMove';
 export const loadMoveLabel = 'Moves.loadMove';
 export const getMoveDatesSummaryLabel = 'Moves.getMoveDatesSummary';
 export const getMoveByLocatorOperation = 'move.getMove';
@@ -48,12 +47,6 @@ export function getMoveDatesSummary(moveId, moveDate, label = getMoveDatesSummar
 export function approveBasics(moveId, label = approveBasicsLabel) {
   const swaggerTag = 'office.approveMove';
   return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
-}
-
-export function updateMove(moveId, selectedMoveType, label = updateMoveLabel) {
-  const swaggerTag = 'moves.patchMove';
-  const selectedType = { selected_move_type: selectedMoveType };
-  return swaggerRequest(getClient, swaggerTag, { moveId, patchMovePayload: selectedType }, { label });
 }
 
 export function cancelMove(moveId, cancelReason, label = cancelMoveLabel) {

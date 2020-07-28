@@ -15,7 +15,6 @@ export class TransitionToMove extends Component {
       // Make sure the move is always set to PPM since we no longer allow HHGs
       this.props.updateMove(this.props.moveId, SHIPMENT_OPTIONS.PPM);
     }
-    // this.props.updateMove(this.props.moveId, SHIPMENT_OPTIONS.PPM);
     this.props.fetchLatestOrders(this.props.serviceMemberId);
   }
 

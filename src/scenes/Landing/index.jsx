@@ -9,7 +9,7 @@ import { withContext } from 'shared/AppContext';
 
 import { MoveSummary } from './MoveSummary';
 import PpmAlert from './PpmAlert';
-import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
@@ -28,7 +28,7 @@ import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
 import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
-import { selectActiveOrLatestMove, updateMove } from 'shared/Entities/modules/moves';
+import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 export class Landing extends Component {
   componentDidMount() {
