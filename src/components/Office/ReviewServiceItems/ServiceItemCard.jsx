@@ -19,7 +19,7 @@ const ServiceItemCard = ({
   rejectionReason,
   patchPaymentServiceItem,
 }) => {
-  const { APPROVED, REJECTED } = SERVICE_ITEM_STATUS;
+  const { APPROVED, DENIED } = SERVICE_ITEM_STATUS;
 
   return (
     <div data-testid="ServiceItemCard" className={styles.ServiceItemCard}>
@@ -62,14 +62,14 @@ const ServiceItemCard = ({
                   <div className={styles.statusOption}>
                     <Radio
                       id="reject"
-                      checked={values.status === REJECTED}
-                      value={REJECTED}
+                      checked={values.status === DENIED}
+                      value={DENIED}
                       name="status"
                       label="Reject"
                       onChange={handleChange}
                     />
 
-                    {values.status === REJECTED && (
+                    {values.status === DENIED && (
                       <FormGroup>
                         <Label htmlFor="rejectReason">Reason for rejection</Label>
                         <Textarea
@@ -78,11 +78,26 @@ const ServiceItemCard = ({
                           onChange={handleChange}
                           value={values.rejectionReason}
                         />
+                        <span>
+                          <Button type="button" data-testid="rejectionSaveButton" onClick={handleApprovalChange}>
+                            Save
+                          </Button>
+                          <Button
+                            data-testid="cancelRejectionButton"
+                            secondary
+                            onClick={() => {
+                              handleReset();
+                            }}
+                            type="button"
+                          >
+                            Cancel
+                          </Button>
+                        </span>
                       </FormGroup>
                     )}
                   </div>
 
-                  {(values.status === APPROVED || values.status === REJECTED) && (
+                  {(values.status === APPROVED || values.status === DENIED) && (
                     <Button
                       type="button"
                       unstyled

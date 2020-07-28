@@ -33,11 +33,12 @@ export class PaymentRequestReview extends Component {
 
   handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
     const { patchPaymentServiceItemStatus, mtoServiceItems, paymentRequest } = this.props;
+    const paymentServiceItemForRequest = paymentRequest.serviceItems.find((s) => s.id === paymentServiceItemID);
     patchPaymentServiceItemStatus(
       mtoServiceItems[0].moveTaskOrderID,
       paymentServiceItemID,
       values.status,
-      paymentRequest.eTag,
+      paymentServiceItemForRequest.eTag,
       values.rejectionReason,
     );
   };
@@ -53,6 +54,7 @@ export class PaymentRequestReview extends Component {
   render() {
     // eslint-disable-next-line react/prop-types
     const { moveOrderId, mtoServiceItems, mtoShipments, paymentRequest } = this.props;
+
     const testFiles = [
       {
         filename: 'Test File.pdf',
@@ -66,13 +68,14 @@ export class PaymentRequestReview extends Component {
       const itemPaymentServiceItem = paymentRequest?.serviceItems?.find((s) => s.mtoServiceItemID === item.id);
 
       return {
-        id: item.id,
+        id: itemPaymentServiceItem.id,
         shipmentId: item.mtoShipmentID,
         shipmentType: itemShipment?.shipmentType,
         serviceItemName: item.reServiceName,
         amount: itemPaymentServiceItem?.priceCents ? itemPaymentServiceItem.priceCents / 100 : 0,
         createdAt: item.createdAt,
-        status: item.status,
+        status: itemPaymentServiceItem.status,
+        rejectionReason: itemPaymentServiceItem.rejectionReason,
       };
     });
 
@@ -81,13 +84,15 @@ export class PaymentRequestReview extends Component {
         <div className={styles.embed}>
           <DocumentViewer files={testFiles} />
         </div>
-        <div className={styles.sidebar}>
-          <ReviewServiceItems
-            handleClose={() => this.handleClose(moveOrderId)}
-            serviceItemCards={serviceItemCards}
-            patchPaymentServiceItem={this.handleUpdatePaymentServiceItemStatus}
-          />
-        </div>
+        {paymentRequest?.serviceItems && (
+          <div className={styles.sidebar}>
+            <ReviewServiceItems
+              handleClose={() => this.handleClose(moveOrderId)}
+              serviceItemCards={serviceItemCards}
+              patchPaymentServiceItem={this.handleUpdatePaymentServiceItemStatus}
+            />
+          </div>
+        )}
       </div>
     );
   }

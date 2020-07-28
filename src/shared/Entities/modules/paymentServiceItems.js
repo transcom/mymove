@@ -12,7 +12,6 @@ export function patchPaymentServiceItemStatus(
   label = updatePaymentServiceItemOperation,
   schemaKey = paymentServiceItemSchemaKey,
 ) {
-  console.log(ifMatchEtag);
   return swaggerRequest(
     getGHCClient,
     updatePaymentServiceItemOperation,

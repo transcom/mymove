@@ -28,12 +28,11 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose, patchPaymen
   serviceItemCards.forEach((serviceItem) => {
     formValues[serviceItem.id] = {
       status: serviceItem.status,
-      rejectionReason: undefined,
+      rejectionReason: serviceItem.rejectionReason,
     };
   });
 
   const currentCard = sortedCards[parseInt(curCardIndex, 10)];
-
   return (
     <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <div className={styles.top}>

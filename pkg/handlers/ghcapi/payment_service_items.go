@@ -2,6 +2,9 @@ package ghcapi
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/go-openapi/swag"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
@@ -46,25 +49,31 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 	}
 	// Create a model object to use for the update and set the status
 	newStatus := models.PaymentServiceItemStatus(params.Body.Status)
-	updatedPaymentServiceItem := paymentServiceItem
-	updatedPaymentServiceItem.Status = newStatus
+	paymentServiceItem.Status = newStatus
 
 	if params.Body.RejectionReason != nil {
-		updatedPaymentServiceItem.RejectionReason = params.Body.RejectionReason
+		paymentServiceItem.RejectionReason = params.Body.RejectionReason
 	}
 	// If we're approving this thing then we don't want there to be a rejection reason
-	if updatedPaymentServiceItem.Status == models.PaymentServiceItemStatusApproved {
-		updatedPaymentServiceItem.RejectionReason = nil
+	if paymentServiceItem.Status == models.PaymentServiceItemStatusApproved {
+		paymentServiceItem.RejectionReason = nil
+		paymentServiceItem.ApprovedAt = swag.Time(time.Now())
+		paymentServiceItem.DeniedAt = nil
+	}
+
+	if paymentServiceItem.Status == models.PaymentServiceItemStatusDenied {
+		paymentServiceItem.DeniedAt = swag.Time(time.Now())
+		paymentServiceItem.ApprovedAt = nil
 	}
 
 	// Capture update attempt in audit log
-	_, err = audit.Capture(&updatedPaymentServiceItem, nil, logger, session, params.HTTPRequest)
+	_, err = audit.Capture(&paymentServiceItem, nil, logger, session, params.HTTPRequest)
 	if err != nil {
 		logger.Error("Auditing service error for payment service item status change.", zap.Error(err))
 		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError()
 	}
 	// Do the update
-	verrs, err := h.UpdateOne(&updatedPaymentServiceItem, &params.IfMatch)
+	verrs, err := h.UpdateOne(&paymentServiceItem, &params.IfMatch)
 	// Using a switch to match error causes to appropriate return type in gen code
 	if err != nil {
 		switch err.(type) {
@@ -79,6 +88,6 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(verrs.String())})
 	}
 	// Make the payload and return it with a 200
-	payload := modelToPayload.PaymentServiceItem(&updatedPaymentServiceItem)
+	payload := modelToPayload.PaymentServiceItem(&paymentServiceItem)
 	return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusOK().WithPayload(payload)
 }
