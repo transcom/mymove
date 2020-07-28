@@ -27,7 +27,7 @@
     }
 
     th, td {
-      min-width: 11.01rem;
+    //  min-width: 11.01rem;
       @include u-vertical-align('top');
       @include u-border('base-lighter');
       @include u-font('body', 'xs');
@@ -36,6 +36,8 @@
       &:first-child, &:last-child {
         line-height: 1.6rem;
         @include u-border(0);
+        @include u-minw(4);
+        @include u-width(4);
       }
     }
 
@@ -43,16 +45,9 @@
       @include u-padding-y('105');
     }
 
-    td:first-child, th:first-child {
-      @include u-width(6);
-    }
-
-    td:last-child, th:last-child {
-      @include u-minw(6);
-    }
-
     th:nth-child(2), td:nth-child(2) {
       @include u-padding-left(0);
+      @include u-maxw(3);
     }
 
     tr:last-child td {
