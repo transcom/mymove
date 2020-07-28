@@ -25,7 +25,9 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
+import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
 import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
+import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestMove, updateMove } from 'shared/Entities/modules/moves';
 
 export class Landing extends Component {
@@ -84,6 +86,7 @@ export class Landing extends Component {
       uploads,
       move,
       ppm,
+      mtoShipment,
       backupContacts,
       context,
     } = this.props;
@@ -95,6 +98,7 @@ export class Landing extends Component {
       uploads,
       move,
       ppm,
+      mtoShipment,
       backupContacts,
       context,
     });
@@ -184,6 +188,8 @@ const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
   const move = selectActiveOrLatestMove(state);
+  // TODO: use move_id from active or latest move instead of this once db reconciliation work done
+  const moveTaskOrderID = get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', '');
 
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
@@ -196,6 +202,7 @@ const mapStateToProps = (state) => {
     uploads: selectUploadsForActiveOrders(state),
     move: move,
     ppm: getPPM(state),
+    mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserError: selectGetCurrentUserIsError(state),
@@ -212,7 +219,10 @@ const mapStateToProps = (state) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, createServiceMember, updateMove, loadPPMs }, dispatch);
+  return bindActionCreators(
+    { push, createServiceMember, updateMove, loadPPMs, showLoggedInUser: showLoggedInUserAction },
+    dispatch,
+  );
 }
 
 export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing)));

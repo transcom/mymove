@@ -196,14 +196,13 @@ const pages = {
   },
   '/moves/:moveId/select-type': {
     isInFlow: inHhgFlow,
-    isComplete: always,
+    isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
     render: (key, pages, props) => ({ match, history }) => (
       <SelectMoveType pageList={pages} pageKey={key} match={match} push={history.push} />
     ),
   },
   '/moves/:moveId/ppm-start': {
-    // isInFlow: (state) => state.selectedMoveType === SHIPMENT_OPTIONS.PPM,
-    isInFlow: hasPPM,
+    isInFlow: (state) => state.selectedMoveType === SHIPMENT_OPTIONS.PPM,
     isComplete: ({ sm, orders, move, ppm }) => {
       return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
@@ -254,6 +253,7 @@ export const getNextIncompletePage = ({
   uploads = [],
   move = {},
   ppm = {},
+  mtoShipment = {},
   backupContacts = [],
   context = {},
 }) => {
@@ -261,7 +261,7 @@ export const getNextIncompletePage = ({
     pages,
     (p) =>
       p.isInFlow({ selectedMoveType, conusStatus, lastMoveIsCanceled, context }) &&
-      !p.isComplete({ sm: serviceMember, orders, uploads, move, ppm, backupContacts }),
+      !p.isComplete({ sm: serviceMember, orders, uploads, move, ppm, mtoShipment, backupContacts }),
   );
   const compiledPath = generatePath(rawPath, {
     serviceMemberId: get(serviceMember, 'id'),
