@@ -71,7 +71,7 @@
     "swagger-ui-dist": "^3.30.2",
     "uswds": "2.8.0",
     "uuid": "^8.2.0",
-    "yup": "^0.29.1"
+    "yup": "^0.29.2"
   },
   "resolutions": {
     "kind-of": "^6.0.2"
