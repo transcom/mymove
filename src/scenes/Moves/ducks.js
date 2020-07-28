@@ -1,5 +1,5 @@
 import { get, head, pick } from 'lodash';
-import { GetMove, SubmitMoveForApproval } from './api.js';
+import { UpdateMove, GetMove, SubmitMoveForApproval } from './api.js';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive } from 'shared/utils';
 
@@ -26,6 +26,19 @@ export function setConusStatus(moveType) {
 // Action creation
 export function setPendingMoveType(value) {
   return { type: SET_PENDING_MOVE_TYPE, payload: value };
+}
+
+export function setSelectedMoveType(moveType) {
+  return { type: SET_SELECTED_MOVE_TYPE, moveType };
+}
+export function updateMove(moveId, moveType) {
+  return function (dispatch) {
+    const action = ReduxHelpers.generateAsyncActions(createOrUpdateMoveType);
+    dispatch(action.start());
+    return UpdateMove(moveId, { selected_move_type: moveType })
+      .then((item) => dispatch(action.success(item)))
+      .catch((error) => dispatch(action.error(error)));
+  };
 }
 
 export function loadMove(moveId) {

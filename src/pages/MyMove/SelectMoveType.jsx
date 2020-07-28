@@ -5,8 +5,9 @@ import PropTypes, { string, bool, func } from 'prop-types';
 import { get } from 'lodash';
 import { Radio } from '@trussworks/react-uswds';
 
+import { updateMove as updateMoveAction } from 'scenes/Moves/ducks';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { selectActiveOrLatestMove, updateMove as updateMoveAction } from 'shared/Entities/modules/moves';
+import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { WizardPage } from 'shared/WizardPage';
 
 export class SelectMoveType extends Component {

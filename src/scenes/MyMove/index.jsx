@@ -36,7 +36,7 @@ import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { lastMoveIsCanceled, selectedConusStatus } from 'scenes/Moves/ducks';
+import { lastMoveIsCanceled, selectedConusStatus, selectedMoveType } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
@@ -47,7 +47,7 @@ import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import { withContext } from 'shared/AppContext';
-import { selectActiveOrLatestMove, selectedMoveType } from 'shared/Entities/modules/moves';
+import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { CONUS_STATUS } from 'shared/constants';
 
 export class AppWrapper extends Component {
@@ -178,7 +178,7 @@ const mapStateToProps = (state) => {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),
     moveId: move.id,
-    selectedMoveType: selectedMoveType(state, move.id),
+    selectedMoveType: selectedMoveType(state),
     conusStatus: selectedConusStatus(state),
     swaggerError: state.swaggerInternal.hasErrored,
   };

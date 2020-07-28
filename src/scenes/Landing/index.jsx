@@ -193,7 +193,7 @@ const mapStateToProps = (state) => {
 
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
-    selectedMoveType: selectedMoveType(state, move.id),
+    selectedMoveType: selectedMoveType(state),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
     serviceMember: serviceMember || {},

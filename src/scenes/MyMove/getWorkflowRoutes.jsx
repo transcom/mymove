@@ -202,7 +202,10 @@ const pages = {
     ),
   },
   '/moves/:moveId/ppm-start': {
-    isInFlow: (state) => state.selectedMoveType === SHIPMENT_OPTIONS.PPM,
+    isInFlow: (state) => {
+      console.log('smt', state);
+      return state.selectedMoveType === SHIPMENT_OPTIONS.PPM;
+    },
     isComplete: ({ sm, orders, move, ppm }) => {
       return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
@@ -257,6 +260,7 @@ export const getNextIncompletePage = ({
   backupContacts = [],
   context = {},
 }) => {
+  console.log('selectedmovetype', selectedMoveType);
   const rawPath = findKey(
     pages,
     (p) =>
@@ -273,6 +277,7 @@ export const getNextIncompletePage = ({
 export const getWorkflowRoutes = (props) => {
   const flowProps = pick(props, ['selectedMoveType', 'conusStatus', 'lastMoveIsCanceled', 'context']);
   const pageList = getPagesInFlow(flowProps);
+  console.log('pageList', pageList);
   return Object.keys(pages).map((key) => {
     // eslint-disable-next-line security/detect-object-injection
     const currPage = pages[key];
