@@ -24,6 +24,7 @@ type Entitlements struct {
 	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
