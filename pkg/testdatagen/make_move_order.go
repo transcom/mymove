@@ -49,9 +49,9 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.Order {
 	if grade == nil || *grade == "" {
 		grade = stringPointer(MakeGrade())
 	}
-	customer := assertions.Customer
+	customer := assertions.ServiceMember
 	if isZeroUUID(customer.ID) {
-		customer = MakeCustomer(db, assertions)
+		customer = MakeServiceMember(db, assertions)
 	}
 	entitlement := assertions.Entitlement
 	if isZeroUUID(entitlement.ID) {
