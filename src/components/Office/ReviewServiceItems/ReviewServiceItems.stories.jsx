@@ -29,6 +29,29 @@ export const Basic = () => (
   />
 );
 
+export const BasicWithTwoItems = () => {
+  return (
+    <ReviewServiceItems
+      disableScrollIntoView
+      serviceItemCards={[
+        {
+          id: '1',
+          serviceItemName: 'Counseling services',
+          amount: 1234.0,
+          createdAt: '2020-01-01T00:08:00.999Z',
+        },
+        {
+          id: '2',
+          serviceItemName: 'Move management',
+          amount: 1234.0,
+          createdAt: '2020-01-01T00:08:00.999Z',
+        },
+      ]}
+      handleClose={action('clicked')}
+    />
+  );
+};
+
 export const HHG = () => (
   <ReviewServiceItems
     serviceItemCards={[
@@ -71,12 +94,6 @@ export const MultipleShipmentsGroups = () => (
         createdAt: '2020-01-01T00:09:00.999Z',
       },
       {
-        id: '2',
-        serviceItemName: 'Move management',
-        amount: 1234.0,
-        createdAt: '2020-01-01T00:06:00.999Z',
-      },
-      {
         id: '3',
         shipmentId: '20',
         shipmentType: SHIPMENT_OPTIONS.HHG,
@@ -107,6 +124,7 @@ export const MultipleShipmentsGroups = () => (
 
 export const WithStatusAndReason = () => (
   <ReviewServiceItems
+    disableScrollIntoView
     serviceItemCards={[
       {
         id: '1',
