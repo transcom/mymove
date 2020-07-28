@@ -75,11 +75,13 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose, disableScro
 
   // Similar to componentDidMount and componentDidUpdate
   useEffect(() => {
-    const { id } = sortedCards[parseInt(curCardIndex, 10)];
-    const element = document.querySelector(`#card-${id}`);
-    // scroll into element view
-    if (element && !disableScrollIntoView) {
-      element.scrollIntoView();
+    if (currentCard) {
+      const { id } = sortedCards[parseInt(curCardIndex, 10)];
+      const element = document.querySelector(`#card-${id}`);
+      // scroll into element view
+      if (element && !disableScrollIntoView) {
+        element.scrollIntoView();
+      }
     }
   });
 
@@ -109,10 +111,10 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose, disableScro
                 <h2 className={styles.header}>{header}</h2>
               </div>
               <div className={styles.body}>
-                {
+                {currentCard &&
                   // render multiple basic service item cards
                   // otherwise, render only one card for shipment
-                  isBasicServiceItem ? (
+                  (isBasicServiceItem ? (
                     sortedCards.slice(firstBasicIndex, lastBasicIndex + 1).map((curCard) => (
                       <ServiceItemCard
                         key={`serviceItemCard_${curCard.id}`}
@@ -132,8 +134,7 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose, disableScro
                       onChange={handleChange}
                       clearValues={clearServiceItemValues}
                     />
-                  )
-                }
+                  ))}
               </div>
               <div className={styles.bottom}>
                 <Button
