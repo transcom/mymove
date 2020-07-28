@@ -58,6 +58,7 @@ const ServiceItemCard = ({
                       name="status"
                       label="Approve"
                       onChange={handleApprovalChange}
+                      data-testid="approveRadio"
                     />
                   </div>
                   <div className={styles.statusOption}>
@@ -68,6 +69,7 @@ const ServiceItemCard = ({
                       name="status"
                       label="Reject"
                       onChange={handleChange}
+                      data-testid="rejectRadio"
                     />
 
                     {values.status === DENIED && (

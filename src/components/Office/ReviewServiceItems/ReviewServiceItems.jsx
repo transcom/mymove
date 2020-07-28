@@ -121,7 +121,9 @@ const ReviewServiceItems = ({
         </Button>
         <div className={styles.totalApproved}>
           <div className={styles.totalLabel}>Total approved</div>
-          <div className={styles.totalAmount}> {toDollarString(approvedSum)}</div>
+          <div className={styles.totalAmount} data-testid="approvedAmount">
+            {toDollarString(approvedSum)}
+          </div>
         </div>
       </div>
     </div>
