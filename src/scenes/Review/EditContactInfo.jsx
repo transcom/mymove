@@ -13,7 +13,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
-import 'scenes/ServiceMembers/ServiceMembers.css';
 import './Review.css';
 import SaveCancelButtons from './SaveCancelButtons';
 

@@ -27,10 +27,45 @@ func Address(address *models.Address) *internalmessages.Address {
 	}
 }
 
+// MTOAgent payload
+func MTOAgent(mtoAgent *models.MTOAgent) *internalmessages.MTOAgent {
+	if mtoAgent == nil {
+		return nil
+	}
+
+	return &internalmessages.MTOAgent{
+		AgentType:     internalmessages.MTOAgentType(mtoAgent.MTOAgentType),
+		FirstName:     mtoAgent.FirstName,
+		LastName:      mtoAgent.LastName,
+		Phone:         mtoAgent.Phone,
+		Email:         mtoAgent.Email,
+		ID:            strfmt.UUID(mtoAgent.ID.String()),
+		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
+		CreatedAt:     strfmt.DateTime(mtoAgent.CreatedAt),
+		UpdatedAt:     strfmt.DateTime(mtoAgent.UpdatedAt),
+	}
+}
+
+// MTOAgents payload
+func MTOAgents(mtoAgents *models.MTOAgents) *internalmessages.MTOAgents {
+	if mtoAgents == nil {
+		return nil
+	}
+
+	agents := make(internalmessages.MTOAgents, len(*mtoAgents))
+
+	for i, m := range *mtoAgents {
+		agents[i] = MTOAgent(&m)
+	}
+
+	return &agents
+}
+
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
 		ID:                 strfmt.UUID(mtoShipment.ID.String()),
+		Agents:             *MTOAgents(&mtoShipment.MTOAgents),
 		MoveTaskOrderID:    strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:       internalmessages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:    mtoShipment.CustomerRemarks,
@@ -40,20 +75,12 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 		UpdatedAt:          strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
 
-	if mtoShipment.ScheduledPickupDate != nil {
-		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
-	}
-
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
 		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
 	}
 
-	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
-		payload.ActualPickupDate = strfmt.Date(*mtoShipment.ActualPickupDate)
-	}
-
-	if mtoShipment.RequiredDeliveryDate != nil && !mtoShipment.RequiredDeliveryDate.IsZero() {
-		payload.RequiredDeliveryDate = strfmt.Date(*mtoShipment.RequiredDeliveryDate)
+	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
+		payload.RequestedDeliveryDate = strfmt.Date(*mtoShipment.RequestedDeliveryDate)
 	}
 
 	return payload

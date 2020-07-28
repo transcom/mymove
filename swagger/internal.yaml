@@ -2091,6 +2091,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      move_task_order_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       service_member_id:
         type: string
         format: uuid
@@ -2610,19 +2614,11 @@ definitions:
         format: date-time
         type: string
         readOnly: true
-      scheduledPickupDate:
-        format: date
-        type: string
-        readOnly: true
       requestedPickupDate:
         format: date
         type: string
         readOnly: true
-      actualPickupDate:
-        format: date
-        type: string
-        readOnly: true
-      requiredDeliveryDate:
+      requestedDeliveryDate:
         format: date
         type: string
         readOnly: true
@@ -2675,7 +2671,6 @@ definitions:
     required:
       - moveTaskOrderID
       - pickupAddress
-      - destinationAddress
       - shipmentType
   ClientError:
     type: object

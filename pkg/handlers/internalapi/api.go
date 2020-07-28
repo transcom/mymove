@@ -35,8 +35,7 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	builder := query.NewQueryBuilder(context.DB())
 	fetcher := fetch.NewFetcher(builder)
 
-	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context}
-
+	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context, *builder}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{context}
 	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{context}
 

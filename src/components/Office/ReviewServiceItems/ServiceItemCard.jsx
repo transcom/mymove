@@ -22,7 +22,7 @@ const ServiceItemCard = ({
   const { APPROVED, DENIED } = SERVICE_ITEM_STATUS;
 
   return (
-    <div data-testid="ServiceItemCard" className={styles.ServiceItemCard}>
+    <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
       <Formik
         initialValues={{ status, rejectionReason }}
         onSubmit={(values) => {
@@ -37,7 +37,7 @@ const ServiceItemCard = ({
 
           return (
             <Form className={styles.form} onSubmit={submitForm}>
-              <ShipmentContainer shipmentType={shipmentType}>
+              <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={shipmentType}>
                 <h6 className={styles.cardHeader}>
                   {mtoShipmentTypeToFriendlyDisplay(shipmentType) || 'BASIC SERVICE ITEMS'}
                 </h6>
@@ -51,7 +51,7 @@ const ServiceItemCard = ({
                 <Fieldset>
                   <div className={styles.statusOption}>
                     <Radio
-                      id="approve"
+                      id={`approve-${id}`}
                       checked={values.status === APPROVED}
                       value={APPROVED}
                       name="status"
@@ -61,7 +61,7 @@ const ServiceItemCard = ({
                   </div>
                   <div className={styles.statusOption}>
                     <Radio
-                      id="reject"
+                      id={`reject-${id}`}
                       checked={values.status === DENIED}
                       value={DENIED}
                       name="status"

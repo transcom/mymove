@@ -64,7 +64,7 @@ for the create m t o shipment operation typically these are written to a http.Re
 type CreateMTOShipmentParams struct {
 
 	/*Body*/
-	Body *primemessages.CreateShipmentPayload
+	Body *primemessages.CreateMTOShipment
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +105,13 @@ func (o *CreateMTOShipmentParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the create m t o shipment params
-func (o *CreateMTOShipmentParams) WithBody(body *primemessages.CreateShipmentPayload) *CreateMTOShipmentParams {
+func (o *CreateMTOShipmentParams) WithBody(body *primemessages.CreateMTOShipment) *CreateMTOShipmentParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the create m t o shipment params
-func (o *CreateMTOShipmentParams) SetBody(body *primemessages.CreateShipmentPayload) {
+func (o *CreateMTOShipmentParams) SetBody(body *primemessages.CreateMTOShipment) {
 	o.Body = body
 }
 

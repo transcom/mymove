@@ -45,6 +45,11 @@ export const UPLOAD_SCAN_STATUS = {
   PROCESSING: 'PROCESSING',
 };
 
+export const CONUS_STATUS = {
+  CONUS: 'CONUS',
+  OCONUS: 'OCONUS',
+};
+
 export const SHIPMENT_OPTIONS = {
   HHG: 'HHG',
   PPM: 'PPM',
@@ -70,6 +75,11 @@ export const SERVICE_ITEM_CODES = {
   DDP: 'Dom. Destination Price',
   DPK: 'Dom. Packing',
   DUPK: 'Dom. Unpacking',
+};
+
+export const MTOAgentType = {
+  RELEASING: 'RELEASING_AGENT',
+  RECEIVING: 'RECEIVING_AGENT',
 };
 
 // These constants are used to track network requests using component state

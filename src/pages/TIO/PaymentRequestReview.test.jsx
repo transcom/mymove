@@ -70,6 +70,11 @@ describe('PaymentRequestReview', () => {
             mtoServiceItemID: 'c',
             priceCents: 12312,
           },
+          {
+            id: '4',
+            mtoServiceItemID: 'd',
+            priceCents: 99999,
+          },
         ],
       },
       mtoServiceItems: [
@@ -92,6 +97,12 @@ describe('PaymentRequestReview', () => {
           mtoShipmentID: 'a1',
           reServiceName: 'Test Service Item 3',
           status: 'REJECTED',
+          createdAt: '2020-01-01T00:09:00.999Z',
+        },
+        {
+          id: 'd',
+          reServiceName: 'Test Service Item 4',
+          status: 'SUBMITTED',
           createdAt: '2020-01-01T00:09:00.999Z',
         },
       ],
@@ -139,6 +150,13 @@ describe('PaymentRequestReview', () => {
           amount: 123.12,
           createdAt: '2020-01-01T00:09:00.999Z',
           status: 'REJECTED',
+        },
+        {
+          id: 'd',
+          serviceItemName: 'Test Service Item 4',
+          amount: 999.99,
+          createdAt: '2020-01-01T00:09:00.999Z',
+          status: 'SUBMITTED',
         },
       ];
 
