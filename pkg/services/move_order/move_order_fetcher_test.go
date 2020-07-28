@@ -35,12 +35,20 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcherWithEmptyFields() {
 	// an empty OriginDutyStation. During local testing in the office app, we
 	// noticed an exception due to trying to load empty OriginDutyStations.
 	// This was not caught by any tests, so we're adding one now.
-	expectedMoveOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+	expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+
+	expectedOrder.Entitlement = nil
+	expectedOrder.EntitlementID = nil
+	expectedOrder.Grade = nil
+	expectedOrder.OriginDutyStation = nil
+	expectedOrder.OriginDutyStationID = nil
+	suite.MustSave(&expectedOrder)
+
 	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveOrder: expectedMoveOrder,
+		Order: expectedOrder,
 	})
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	moveOrder, err := moveOrderFetcher.FetchMoveOrder(expectedMoveOrder.ID)
+	moveOrder, err := moveOrderFetcher.FetchMoveOrder(expectedOrder.ID)
 
 	suite.FatalNoError(err)
 	suite.Nil(moveOrder.Entitlement)
@@ -73,9 +81,17 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrder() {
 }
 
 func (suite *MoveOrderServiceSuite) TestListMoveOrderWithEmptyFields() {
-	expectedMoveOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+	expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+
+	expectedOrder.Entitlement = nil
+	expectedOrder.EntitlementID = nil
+	expectedOrder.Grade = nil
+	expectedOrder.OriginDutyStation = nil
+	expectedOrder.OriginDutyStationID = nil
+	suite.MustSave(&expectedOrder)
+
 	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveOrder: expectedMoveOrder,
+		Order: expectedOrder,
 	})
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 	moveOrders, err := moveOrderFetcher.ListMoveOrders()

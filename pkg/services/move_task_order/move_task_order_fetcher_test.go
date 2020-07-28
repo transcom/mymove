@@ -10,9 +10,9 @@ import (
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
-	expectedMoveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
+	expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
 	expectedMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveOrder: expectedMoveOrder,
+		Order: expectedOrder,
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
@@ -28,13 +28,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
-	expectedMoveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
+	expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
 	expectedMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveOrder: expectedMoveOrder,
+		Order: expectedOrder,
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
-	moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedMoveOrder.ID)
+	moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID)
 	suite.NoError(err)
 
 	actualMTO := moveTaskOrders[0]

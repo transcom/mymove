@@ -32,10 +32,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 	builder := query.NewQueryBuilder(suite.DB())
 	mtoCreator := NewMoveTaskOrderCreator(builder, suite.DB())
 
-	moveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
 	contractor := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{})
 	newMto := models.MoveTaskOrder{
-		MoveOrderID:  moveOrder.ID,
+		MoveOrderID:  order.ID,
 		ContractorID: contractor.ID,
 	}
 	actualMTO, verrs, err := mtoCreator.CreateMoveTaskOrder(&newMto)
