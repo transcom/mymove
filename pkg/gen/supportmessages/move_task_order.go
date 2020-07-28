@@ -36,6 +36,7 @@ type MoveTaskOrder struct {
 	ContractorID strfmt.UUID `json:"contractorID,omitempty"`
 
 	// Date the MoveTaskOrder was created on.
+	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
@@ -44,6 +45,7 @@ type MoveTaskOrder struct {
 	// It will change everytime the object is updated. Client should store the value.
 	// Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
 	//
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// ID of the MoveTaskOrder object.
@@ -85,6 +87,7 @@ type MoveTaskOrder struct {
 	ReferenceID string `json:"referenceId,omitempty"`
 
 	// Date on which this MoveTaskOrder was last updated.
+	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }

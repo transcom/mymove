@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreatePaymentRequestPayload{
+			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
@@ -135,7 +135,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreatePaymentRequestPayload{
+			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
@@ -184,7 +184,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreatePaymentRequestPayload{
+			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
@@ -243,7 +243,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreatePaymentRequestPayload{
+			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
@@ -275,7 +275,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		badFormatID := strfmt.UUID("hb7b134a-7c44-45f2-9114-bb0831cc5db3")
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreatePaymentRequestPayload{
+			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: &badFormatID,
 			},
@@ -302,7 +302,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		badFormatID := strfmt.UUID("gb7b134a-7c44-45f2-9114-bb0831cc5db3")
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreatePaymentRequestPayload{
+			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				PointOfContact:  "user@prime.com",
@@ -342,7 +342,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		serviceItemID2, _ := uuid.FromString("119f0a05-34d7-4d86-9745-009c0707b4c2")
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreatePaymentRequestPayload{
+			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
@@ -380,7 +380,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		serviceItemID2, _ := uuid.FromString("119f0a05-34d7-4d86-9745-009c0707b4c2")
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreatePaymentRequestPayload{
+			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				ServiceItems: []*primemessages.ServiceItem{
@@ -408,7 +408,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		serviceItemID2, _ := uuid.FromString("119f0a05-34d7-4d86-9745-009c0707b4c2")
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
-			Body: &primemessages.CreatePaymentRequestPayload{
+			Body: &primemessages.CreatePaymentRequest{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
 				PointOfContact:  "user@prime.com",

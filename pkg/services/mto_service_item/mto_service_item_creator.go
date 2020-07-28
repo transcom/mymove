@@ -132,7 +132,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	} else if err != nil {
 		return nil, verrs, services.NewQueryError("unknown", err, "")
 	}
-
 	return serviceItem, nil, nil
 }
 

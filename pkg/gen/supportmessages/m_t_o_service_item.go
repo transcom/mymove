@@ -29,6 +29,7 @@ type MTOServiceItem interface {
 	SetDescription(string)
 
 	// e tag
+	// Read Only: true
 	ETag() string
 	SetETag(string)
 
