@@ -23,11 +23,10 @@ import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
-import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
-import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
+import { selectActiveOrLatestMove, updateMove } from 'shared/Entities/modules/moves';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -184,17 +183,18 @@ Landing.defaultProps = {
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
+  const move = selectActiveOrLatestMove(state);
 
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
-    selectedMoveType: selectedMoveType(state),
+    selectedMoveType: selectedMoveType(state, move.id),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
     serviceMember: serviceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: selectActiveOrLatestOrders(state),
     uploads: selectUploadsForActiveOrders(state),
-    move: selectActiveOrLatestMove(state),
+    move: move,
     ppm: getPPM(state),
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),

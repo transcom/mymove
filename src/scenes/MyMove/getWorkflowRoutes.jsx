@@ -69,6 +69,7 @@ const always = () => true;
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.PPM;
+const hasHHG = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.HHG;
 const inHhgFlow = (props) => props.context.flags.hhgFlow;
 const inGhcFlow = (props) => props.context.flags.ghcFlow;
 const isCurrentMoveSubmitted = ({ move }) => {
@@ -196,16 +197,13 @@ const pages = {
   '/moves/:moveId/select-type': {
     isInFlow: inHhgFlow,
     isComplete: always,
-    render: (key, pages) => () => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-          <SelectMoveType />
-        </WizardPage>
-      );
-    },
+    render: (key, pages, props) => ({ match, history }) => (
+      <SelectMoveType pageList={pages} pageKey={key} match={match} push={history.push} />
+    ),
   },
   '/moves/:moveId/ppm-start': {
-    isInFlow: (state) => state.selectedMoveType === SHIPMENT_OPTIONS.PPM,
+    // isInFlow: (state) => state.selectedMoveType === SHIPMENT_OPTIONS.PPM,
+    isInFlow: hasPPM,
     isComplete: ({ sm, orders, move, ppm }) => {
       return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
@@ -218,7 +216,8 @@ const pages = {
     render: (key, pages) => ({ match }) => <PpmWeight pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/hhg-start': {
-    isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
+    // isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
+    isInFlow: hasHHG,
     // isInFlow: inHhgFlow, // temp: use this to view page locally until we can set selectedMoveType
     isComplete: always,
     render: (key, pages, description, props) => ({ match, history }) => (

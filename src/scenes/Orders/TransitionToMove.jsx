@@ -2,11 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
-import { updateMove } from '../Moves/ducks';
 import ordersComplete from 'shared/images/orders-complete-gray-icon.png';
 import moveIcon from 'shared/images/move-icon.png';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
+import { selectActiveOrLatestMove, updateMove } from 'shared/Entities/modules/moves';
 import { fetchLatestOrders } from 'shared/Entities/modules/orders';
 
 export class TransitionToMove extends Component {
@@ -15,6 +14,7 @@ export class TransitionToMove extends Component {
       // Make sure the move is always set to PPM since we no longer allow HHGs
       this.props.updateMove(this.props.moveId, SHIPMENT_OPTIONS.PPM);
     }
+    // this.props.updateMove(this.props.moveId, SHIPMENT_OPTIONS.PPM);
     this.props.fetchLatestOrders(this.props.serviceMemberId);
   }
 
