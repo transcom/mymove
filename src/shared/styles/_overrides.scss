@@ -237,6 +237,16 @@
 
 .usa-fieldset {
   @include u-padding-top(2);
+  @include u-margin-bottom(5);
+}
+
+.usa-form-group {
+  @include u-margin-bottom(1);
+}
+
+.usa-hint {
+  @include u-font-size('body', '3xs');
+  @include u-padding-top(1);
 }
 
 .usa-select {

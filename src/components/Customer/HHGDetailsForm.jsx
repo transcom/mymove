@@ -151,10 +151,10 @@ class HHGDetailsForm extends Component {
                   id="requestedPickupDate"
                   value={values.requestedPickupDate}
                 />
+                <small className="usa-hint" id="pickupDateHint">
+                  Your movers will confirm this date or one shortly before or after.
+                </small>
               </Fieldset>
-              <span className="usa-hint" id="pickupDateHint">
-                Your movers will confirm this date or one shortly before or after.
-              </span>
 
               <AddressFields
                 name="pickupLocation"
@@ -187,9 +187,9 @@ class HHGDetailsForm extends Component {
                   id="requestedDeliveryDate"
                   value={values.requestedDeliveryDate}
                 />
-                <span className="usa-hint" id="deliveryDateHint">
+                <small className="usa-hint" id="deliveryDateHint">
                   Your movers will confirm this date or one shortly before or after.
-                </span>
+                </small>
               </Fieldset>
               <Fieldset legend="Delivery location" className={fieldsetClasses}>
                 <Label>Do you know your delivery address?</Label>
